@@ -1,8 +1,4 @@
-<div align="center"> <a href="https://github.com/kailong321200875/vue-element-plus-admin"> <img width="100" src="./public/logo.png"> </a> <br> <br>
-
-[![license](https://img.shields.io/github/license/kailong321200875/vue-element-plus-admin.svg)](LICENSE)
-
-<h1>vue-element-plus-admin</h1>
+<h1>CFT.ERP</h1>
 </div>
 
 [English](./README.md) | **中文**

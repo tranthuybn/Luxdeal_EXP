@@ -1,3 +1,5 @@
+import Approve from '@/router/RouterMap/Approve'
+
 export default {
   common: {
     inputText: 'Please input',
@@ -150,7 +152,6 @@ export default {
     newsAndAdvertisement: 'News & Advertisement',
     potentialCustomerCare: 'potential customer care',
     warehouseList: 'Warehouse List',
-    statistic: 'Statistic',
     listOfRequest: 'List of request',
     businessReport: 'Business report',
     collaborators: 'Collaborators',
@@ -158,7 +159,16 @@ export default {
     employeeManagement: 'employee management',
     orderManagement: 'Order management',
     promotionStrategy: 'Promotion strategy',
-    serviceSurvey: 'Service survey'
+    serviceSurvey: 'Service survey',
+    orderList: 'Order list',
+    createANewOrder: 'Create a new order',
+    paymentProposal: 'Payment proposal',
+    receiptsAndExpenditures: 'Receipts and expenditures',
+    balanceSheet: 'Balance sheet',
+    orders: 'Orders',
+    products: 'Products',
+    payments: 'Payments',
+    accounts: 'Accounts'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

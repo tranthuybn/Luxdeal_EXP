@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.approve') }}</div>
+  <div>{{ t('router.accounts') }}</div>
 </template>
 
 <script setup lang="ts">

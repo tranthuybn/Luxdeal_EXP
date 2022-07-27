@@ -24,6 +24,7 @@ export default defineComponent({
   setup(props) {
     const appStore = useAppStore()
 
+    //get type of layout
     const layout = computed(() => appStore.getLayout)
 
     const { push, currentRoute } = useRouter()
@@ -57,7 +58,7 @@ export default defineComponent({
       }
       return path
     })
-
+    // select menu event
     const menuSelect = (index: string) => {
       if (props.menuSelect) {
         props.menuSelect(index)
@@ -69,7 +70,7 @@ export default defineComponent({
         push(index)
       }
     }
-
+    // if menu is side bar that will be has scroll bar
     const renderMenuWrap = () => {
       if (unref(layout) === 'top') {
         return renderMenu()
@@ -158,15 +159,21 @@ export default defineComponent({
       }
     }
 
+
     // Set the high brightness and background color of the sub -menu hovering
+    .@{elNamespace}-sub-menu__title{
+      padding: 0 20px 0 4px;
+    }
     .@{elNamespace}-sub-menu__title,
     .@{elNamespace}-menu-item {
+      box-shadow: inset 0px 0px 6px 1px var(--left-menu-main-item-box-shadow-color);
       &:hover {
         color: var(--left-menu-text-active-color) !important;
         background-color: var(--left-menu-bg-color) !important;
       }
     }
     .@{elNamespace}-menu-item{
+      padding: 0 20px 0 6px;
       span{
         width: 100%;
         overflow: hidden;
@@ -198,6 +205,9 @@ export default defineComponent({
       .@{elNamespace}-sub-menu__title,
       .@{elNamespace}-menu-item:not(.is-active) {
         background-color: var(--left-menu-bg-light-color) !important;
+        padding: 0 20px 0 7px;
+        border-bottom:1px solid var(--left-menu-bg-color);
+        box-shadow: inset 0px 0px 6px 1px var(--left-menu-box-shadow-inset-color);
       }
     }
   }
@@ -205,7 +215,13 @@ export default defineComponent({
   // The minimum width when folding
   :deep(.@{elNamespace}-menu--collapse) {
     width: var(--left-menu-min-width);
+    .@{elNamespace}-sub-menu__title{
+      padding: 0 20px;
+    }
+    .@{elNamespace}-menu-item{
+      padding: 0 22px;
 
+    }
     & > .is-active,
     & > .is-active > .@{elNamespace}-sub-menu__title {
       position: relative;

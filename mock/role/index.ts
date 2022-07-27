@@ -58,11 +58,29 @@ const adminList = [
       },
       {
         path: 'order-management',
-        component: 'views/Pages/Business/OrderManagement',
         name: 'business.order-management',
+        redirect: { name: 'business.order-management.order-list' },
         meta: {
           title: 'router.orderManagement'
-        }
+        },
+        children: [
+          {
+            path: 'order-list',
+            name: 'business.order-management.order-list',
+            component: 'views/Pages/Business/OrderManagement/OrderList',
+            meta: {
+              title: 'router.orderList'
+            }
+          },
+          {
+            path: 'create-new-order',
+            name: 'business.order-management.create-new-order',
+            component: 'views/Pages/Business/OrderManagement/CreateANewOrder',
+            meta: {
+              title: 'router.createANewOrder'
+            }
+          }
+        ]
       },
       {
         path: 'customer-management',
@@ -138,8 +156,8 @@ const adminList = [
   {
     path: '/accountant',
     component: '#',
-    redirect: '{name:Accountant.dashboard}',
-    name: 'Accountant',
+    redirect: '/accountant/payment-proposal',
+    name: 'accountant',
     meta: {
       title: 'router.accountant',
       icon: 'carbon:calculation-alt',
@@ -147,11 +165,27 @@ const adminList = [
     },
     children: [
       {
-        path: 'statistic',
-        component: 'views/Pages/Accountant/index',
-        name: 'Accountant.Statistic',
+        path: 'payment-proposal',
+        component: 'views/Pages/Accountant/PaymentProposal',
+        name: 'accountant.payment-proposal',
         meta: {
-          title: 'router.statistic'
+          title: 'router.paymentProposal'
+        }
+      },
+      {
+        path: 'receipts-and-expenditures',
+        component: 'views/Pages/Accountant/ReceiptsAndExpenditures',
+        name: 'accountant.receiptsAndExpenditures',
+        meta: {
+          title: 'router.receiptsAndExpenditures'
+        }
+      },
+      {
+        path: 'balanceSheet',
+        component: 'views/Pages/Accountant/BalanceSheet',
+        name: 'accountant.balanceSheet',
+        meta: {
+          title: 'router.balanceSheet'
         }
       }
     ]
@@ -159,8 +193,8 @@ const adminList = [
   {
     path: '/approve',
     component: '#',
-    redirect: '{name:Approve.listOfRequest}',
-    name: 'Approve',
+    redirect: '/approve/products-approval',
+    name: 'approve',
     meta: {
       title: 'router.approve',
       icon: 'akar-icons:chat-approve',
@@ -168,11 +202,77 @@ const adminList = [
     },
     children: [
       {
-        path: 'the-list-of-request',
-        component: 'views/Pages/Approval/index',
-        name: 'Approve.ListOfRequest',
+        path: 'products-approval',
+        component: 'views/Pages/Approval/Products/index',
+        name: 'approve.products-approval',
         meta: {
-          title: 'router.listOfRequest'
+          title: 'router.products'
+        }
+      },
+      {
+        path: 'orders-approval',
+        component: 'views/Pages/Approval/Orders/index',
+        name: 'approve.orders-approval',
+        meta: {
+          title: 'router.orders'
+        }
+      },
+      {
+        path: 'payment-approval',
+        component: 'views/Pages/Approval/Payments/index',
+        name: 'approve.payment-approval',
+        meta: {
+          title: 'router.payments'
+        }
+      },
+      {
+        path: 'accounts-approval',
+        component: 'views/Pages/Approval/Accounts/index',
+        name: 'approve.accounts-approval',
+        meta: {
+          title: 'router.accounts'
+        }
+      }
+    ]
+  },
+  {
+    path: '/new-and-advertisement',
+    component: '#',
+    redirect: { name: 'new-and-advertisement.new-and-advertisement-list' },
+    name: 'New-and-advertisement',
+    meta: {
+      title: 'router.newsAndAdvertisement',
+      icon: 'arcticons:social',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'new-and-advertisement-list',
+        component: 'views/Pages/NewsAndAdvertisement/index',
+        name: 'New-and-advertisement.new-and-advertisement-list',
+        meta: {
+          title: 'router.newsAndAdvertisement'
+        }
+      }
+    ]
+  },
+  {
+    path: '/library-and-setting',
+    component: '#',
+    redirect: { name: 'library-and-setting.dashboard' },
+    name: 'library-and-setting',
+    meta: {
+      title: 'router.libraryAndSetting',
+      icon: 'carbon:cloud-satellite-config',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'dashboard',
+        component: 'views/Pages/LibraryAndSetting/index',
+        name: 'library-and-setting.dashboard',
+        meta: {
+          title: 'router.libraryAndSetting'
         }
       }
     ]

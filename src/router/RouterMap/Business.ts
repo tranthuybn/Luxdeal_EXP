@@ -22,11 +22,29 @@ export default {
     },
     {
       path: 'order-management',
-      component: () => import('@/views/Pages/Business/OrderManagement.vue'),
       name: 'business.order-management',
+      redirect: { name: 'business.order-management.order-list' },
       meta: {
         title: t('router.orderManagement')
-      }
+      },
+      children: [
+        {
+          path: 'order-list',
+          name: 'business.order-management.order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
+          meta: {
+            title: t('router.orderList')
+          }
+        },
+        {
+          path: 'create-new-order',
+          name: 'business.order-management.create-new-order',
+          component: () => import('@/views/Pages/Business/OrderManagement/CreateANewOrder.vue'),
+          meta: {
+            title: t('router.createANewOrder')
+          }
+        }
+      ]
     },
     {
       path: 'customer-management',

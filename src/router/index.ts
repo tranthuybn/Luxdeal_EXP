@@ -14,6 +14,8 @@ import Example from './RouterMap/Example'
 import Authentication from './RouterMap/Authentication'
 import Hook from './RouterMap/Hook'
 import Error from './RouterMap/Error'
+import NewAndAdvertisement from './RouterMap/NewAndAdvertisement'
+import LibraryAndSetting from './RouterMap/LibraryAndSetting'
 export const asyncRouterMap: AppRouteRecordRaw[] = [
   DashBoard,
   Guide,
@@ -22,6 +24,8 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   Warehouse,
   Accountant,
   Approve,
+  NewAndAdvertisement,
+  LibraryAndSetting,
   MultiTierMenu,
   Example,
   Authentication,

@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.accountant') }}</div>
+  <div>{{ t('router.receiptsAndExpenditures') }}</div>
 </template>
 
 <script setup lang="ts">

@@ -150,7 +150,6 @@ export default {
     newsAndAdvertisement: 'Tin tức & quảng cáo',
     potentialCustomerCare: 'Chăm sóc khách hàng tiềm năng',
     warehouseList: 'Danh sách kho',
-    statistic: 'Thống kê',
     listOfRequest: 'Danh sách yêu cầu',
     businessReport: 'Báo cáo kinh doanh',
     collaborators: 'Cộng tác viên',
@@ -158,7 +157,16 @@ export default {
     employeeManagement: 'Quản lý nhân viên',
     orderManagement: 'Quản lý đơn hàng',
     promotionStrategy: 'Chiến dịch & Quản cáo',
-    serviceSurvey: 'Khảo sát dịch vụ'
+    serviceSurvey: 'Khảo sát dịch vụ',
+    orderList: 'Danh sách đơn hàng',
+    createANewOrder: 'Tạo mới đơn hàng',
+    paymentProposal: 'Đề nghị thanh toán',
+    receiptsAndExpenditures: 'Phiếu thu/chi',
+    balanceSheet: 'Cân đối kế toán',
+    orders: 'Đơn hàng',
+    products: 'Sản phẩm',
+    payments: 'Thanh toán',
+    accounts: 'Tài khoản'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

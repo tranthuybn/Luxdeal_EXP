@@ -1,12 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue'
-import { Layout, getParentLayout } from '@/utils/routerHelper'
-import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
 import { constantRouterMap } from './constant'
 import DashBoard from './RouterMap/DashBoard'
-import Guide from './RouterMap/guide'
+import Guide from './RouterMap/Guide'
 import Components from './RouterMap/Components'
 import Business from './RouterMap/Business'
 import Warehouse from './RouterMap/Warehouse'

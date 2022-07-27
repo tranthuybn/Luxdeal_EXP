@@ -1,9 +1,9 @@
 {
-  "name": "vue-element-plus-admin",
-  "version": "1.6.0",
-  "description": "一套基于vue3、element-plus、typesScript、vite3的后台集成方案。",
-  "author": "Archer <502431556@qq.com>",
-  "private": false,
+  "name": "Noah Khalifa",
+  "version": "1.0.0",
+  "description": "CFT.ERP",
+  "author": "Noah Khalifa",
+  "private": true,
   "scripts": {
     "i": "pnpm install",
     "dev": "vite --mode base",
@@ -108,13 +108,5 @@
   "engines": {
     "node": ">= 14.18.0"
   },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kailong321200875/vue-element-plus-admin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/kailong321200875/vue-element-plus-admin/issues"
-  },
-  "homepage": "https://github.com/kailong321200875/vue-element-plus-admin"
+  "license": "Noah"
 }

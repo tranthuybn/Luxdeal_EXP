@@ -274,9 +274,8 @@ export default defineComponent({
 }
 </style>
 
-<style lang="less">
+<style lang="less" scoped>
 @prefix-cls: ~'@{namespace}-menu-popper';
-
 .is-active--after {
   position: absolute;
   top: 0;

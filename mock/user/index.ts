@@ -29,7 +29,7 @@ const List: {
 ]
 
 export default [
-  // 列表接口
+  // List interface
   {
     url: '/user/list',
     method: 'get',
@@ -53,7 +53,7 @@ export default [
       }
     }
   },
-  // 登录接口
+  // Login interface
   {
     url: '/user/login',
     method: 'post',
@@ -73,12 +73,12 @@ export default [
       if (!hasUser) {
         return {
           code: '500',
-          message: '账号或密码错误'
+          message: 'Incorrect username or password'
         }
       }
     }
   },
-  // 退出接口
+  // Exit interface
   {
     url: '/user/loginOut',
     method: 'get',

@@ -123,7 +123,7 @@ export default defineComponent({
       getElFormRef
     })
 
-    // 监听表单结构化数组，重新生成formModel
+    // Structural array of monitoring forms, re -generate formmodel
     watch(
       () => unref(getProps).schema,
       (schema = []) => {
@@ -135,7 +135,7 @@ export default defineComponent({
       }
     )
 
-    // 渲染包裹标签，是否使用栅格布局
+    // Whether to rendering the package label, whether to use a grid layout
     const renderWrap = () => {
       const { isCol } = unref(getProps)
       const content = isCol ? (
@@ -146,21 +146,21 @@ export default defineComponent({
       return content
     }
 
-    // 是否要渲染el-col
+    // Whether to render EL-COL
     const renderFormItemWrap = () => {
-      // hidden属性表示隐藏，不做渲染
+      // Hidden attribute means hidden, not rendering
       const { schema = [], isCol } = unref(getProps)
 
       return schema
         .filter((v) => !v.hidden)
         .map((item) => {
-          // 如果是 Divider 组件，需要自己占用一行
+          // If it is a divider component, you need to occupy one line by yourself
           const isDivider = item.component === 'Divider'
           const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
           return isDivider ? (
             <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
           ) : isCol ? (
-            // 如果需要栅格，需要包裹 ElCol
+            // If you need a grid, you need to wrap ELCOL
             <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
           ) : (
             renderFormItem(item)
@@ -168,9 +168,9 @@ export default defineComponent({
         })
     }
 
-    // 渲染formItem
+    // Rendering Formitem
     const renderFormItem = (item: FormSchema) => {
-      // 单独给只有options属性的组件做判断
+      // Determine with components with only Options attributes alone
       const notRenderOptions = ['SelectV2', 'Cascader', 'Transfer']
       const slotsMap: Recordable = {
         ...setItemComponentSlots(slots, item?.componentProps?.slots, item.field)
@@ -184,7 +184,7 @@ export default defineComponent({
       }
 
       const formItemSlots: Recordable = setFormItemSlots(slots, item.field)
-      // 如果有 labelMessage，自动使用插槽渲染
+      // If there is Labelmessage, automatically use the slot rendering
       if (item?.labelMessage) {
         formItemSlots.label = () => {
           return (
@@ -239,7 +239,7 @@ export default defineComponent({
       )
     }
 
-    // 渲染options
+    // Rendering Options
     const renderOptions = (item: FormSchema) => {
       switch (item.component) {
         case 'Select':
@@ -258,9 +258,9 @@ export default defineComponent({
       }
     }
 
-    // 过滤传入Form组件的属性
+    // Filter the attributes of FORM components
     const getFormBindValue = () => {
-      // 避免在标签上出现多余的属性
+      // Avoid excess attributes on labels
       const delKeys = ['schema', 'isCol', 'autoSetPlaceholder', 'isCustom', 'model']
       const props = { ...unref(getProps) }
       for (const key in props) {
@@ -279,7 +279,7 @@ export default defineComponent({
         class={prefixCls}
       >
         {{
-          // 如果需要自定义，就什么都不渲染，而是提供默认插槽
+          // If you need to be customized, you will not render anything, but provide the default slot
           default: () => {
             const { isCustom } = unref(getProps)
             return isCustom ? getSlot(slots, 'default') : renderWrap()

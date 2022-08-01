@@ -31,7 +31,7 @@ const loginOut = () => {
       if (res) {
         wsCache.clear()
         tagsViewStore.delAllViews()
-        resetRouter() // 重置静态路由表
+        resetRouter() // Reset the static routing table
         replace('/login')
       }
     })

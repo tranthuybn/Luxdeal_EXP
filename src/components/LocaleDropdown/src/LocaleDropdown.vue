@@ -36,7 +36,7 @@ const setLang = (lang: LocaleType) => {
   <ElDropdown :class="prefixCls" trigger="click" @command="setLang">
     <Icon
       :size="18"
-      icon="ion:language-sharp"
+      icon="bi:translate"
       class="cursor-pointer"
       :class="$attrs.class"
       :color="color"

@@ -1,7 +1,7 @@
 import { createTypes, VueTypesInterface, VueTypeValidableDef } from 'vue-types'
 import { CSSProperties } from 'vue'
 
-// 自定义扩展vue-types
+// Custom extension Vue-Types
 type PropTypes = VueTypesInterface & {
   readonly style: VueTypeValidableDef<CSSProperties>
 }
@@ -15,7 +15,7 @@ const propTypes = createTypes({
   integer: undefined
 }) as PropTypes
 
-// 需要自定义扩展的类型
+// Need types that need to be customized
 // see: https://dwightjack.github.io/vue-types/advanced/extending-vue-types.html#the-extend-method
 propTypes.extend([
   {

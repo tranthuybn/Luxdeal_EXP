@@ -14,58 +14,58 @@ const appStore = useAppStore()
 
 const { t } = useI18n()
 
-// 面包屑
+// Bread crumbs
 const breadcrumb = ref(appStore.getBreadcrumb)
 
 const breadcrumbChange = (show: boolean) => {
   appStore.setBreadcrumb(show)
 }
 
-// 面包屑图标
+// Bread crumb icon
 const breadcrumbIcon = ref(appStore.getBreadcrumbIcon)
 
 const breadcrumbIconChange = (show: boolean) => {
   appStore.setBreadcrumbIcon(show)
 }
 
-// 折叠图标
+// Folding icon
 const hamburger = ref(appStore.getHamburger)
 
 const hamburgerChange = (show: boolean) => {
   appStore.setHamburger(show)
 }
 
-// 全屏图标
+// Full -screen icon
 const screenfull = ref(appStore.getScreenfull)
 
 const screenfullChange = (show: boolean) => {
   appStore.setScreenfull(show)
 }
 
-// 尺寸图标
+// Size icon
 const size = ref(appStore.getSize)
 
 const sizeChange = (show: boolean) => {
   appStore.setSize(show)
 }
 
-// 多语言图标
+// Multi -language icon
 const locale = ref(appStore.getLocale)
 
 const localeChange = (show: boolean) => {
   appStore.setLocale(show)
 }
 
-// 标签页
+// Bookmark page
 const tagsView = ref(appStore.getTagsView)
 
 const tagsViewChange = (show: boolean) => {
-  // 切换标签栏显示时，同步切换标签栏的高度
+  // When the label bar is displayed, the height of the label bar is synchronized
   setCssVar('--tags-view-height', show ? '35px' : '0px')
   appStore.setTagsView(show)
 }
 
-// 标签页图标
+// Tab icon
 const tagsViewIcon = ref(appStore.getTagsViewIcon)
 
 const tagsViewIconChange = (show: boolean) => {
@@ -79,21 +79,21 @@ const logoChange = (show: boolean) => {
   appStore.setLogo(show)
 }
 
-// 菜单手风琴
+// Menukin piano
 const uniqueOpened = ref(appStore.getUniqueOpened)
 
 const uniqueOpenedChange = (uniqueOpened: boolean) => {
   appStore.setUniqueOpened(uniqueOpened)
 }
 
-// 固定头部
+// Fixed head
 const fixedHeader = ref(appStore.getFixedHeader)
 
 const fixedHeaderChange = (show: boolean) => {
   appStore.setFixedHeader(show)
 }
 
-// 页脚
+// Kick
 const footer = ref(appStore.getFooter)
 
 const footerChange = (show: boolean) => {

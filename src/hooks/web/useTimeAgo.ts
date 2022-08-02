@@ -7,7 +7,7 @@ const TIME_AGO_MESSAGE_MAP: {
   en: UseTimeAgoMessages
 } = {
   vi: {
-    justNow: '刚刚',
+    justNow: 'Hôm nay',
     past: (n) => (n.match(/\d/) ? `${n} trước` : n),
     future: (n) => (n.match(/\d/) ? `${n} sau` : n),
     month: (n, past) => (n === 1 ? (past ? 'tháng trước' : 'tháng sau') : `tháng ${n} `),
@@ -19,7 +19,7 @@ const TIME_AGO_MESSAGE_MAP: {
     second: (n) => `${n} giây`
   },
   en: {
-    justNow: '刚刚',
+    justNow: 'To Day',
     past: (n) => (n.match(/\d/) ? `${n} ago` : n),
     future: (n) => (n.match(/\d/) ? `in ${n}` : n),
     month: (n, past) =>

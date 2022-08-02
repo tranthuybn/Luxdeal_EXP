@@ -20,4 +20,4 @@ VITE_SOURCEMAP=false
 VITE_OUT_DIR=dist-pro
 
 # title
-VITE_APP_TITLE=Cooftech
+VITE_APP_TITLE=Luxdeal ERP

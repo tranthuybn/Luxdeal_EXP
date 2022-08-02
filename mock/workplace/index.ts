@@ -6,7 +6,7 @@ const { result_code } = config
 const timeout = 1000
 
 export default [
-  // 获取统计
+  // Get statistics
   {
     url: '/workplace/total',
     method: 'get',
@@ -22,7 +22,7 @@ export default [
       }
     }
   },
-  // 获取项目
+  // Project
   {
     url: '/workplace/project',
     method: 'get',
@@ -32,52 +32,52 @@ export default [
         code: result_code,
         data: [
           {
-            name: 'Github',
-            icon: 'akar-icons:github-fill',
+            name: 'Dự án 1',
+            icon: 'logos:bun',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           },
           {
-            name: 'Vue',
-            icon: 'logos:vue',
+            name: 'Dự án 2',
+            icon: 'logos:docusaurus',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           },
           {
-            name: 'Angular',
-            icon: 'logos:angular-icon',
+            name: 'Dự án 3',
+            icon: 'logos:ember-tomster',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           },
           {
-            name: 'React',
-            icon: 'logos:react',
+            name: 'Dự án 4',
+            icon: 'logos:foundation',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           },
           {
-            name: 'Webpack',
-            icon: 'logos:webpack',
+            name: 'Dự án 5',
+            icon: 'logos:gopher',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           },
           {
-            name: 'Vite',
-            icon: 'vscode-icons:file-type-vite',
+            name: 'Dự án 6',
+            icon: 'logos:tastejs',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Nguyễn Thuỳ Chi',
             time: new Date()
           }
         ]
       }
     }
   },
-  // 获取动态
+  // Get dynamic
   {
     url: '/workplace/dynamic',
     method: 'get',
@@ -114,7 +114,7 @@ export default [
       }
     }
   },
-  // 获取团队信息
+  // Get team information
   {
     url: '/workplace/team',
     method: 'get',
@@ -151,7 +151,7 @@ export default [
       }
     }
   },
-  // 获取指数
+  // Acquisition index
   {
     url: '/workplace/radar',
     method: 'get',
@@ -160,11 +160,11 @@ export default [
       return {
         code: result_code,
         data: [
-          { name: 'workplace.quote', max: 65, personal: 42, team: 50 },
-          { name: 'workplace.contribution', max: 160, personal: 30, team: 140 },
-          { name: 'workplace.hot', max: 300, personal: 20, team: 28 },
-          { name: 'workplace.yield', max: 130, personal: 35, team: 35 },
-          { name: 'workplace.follow', max: 100, personal: 80, team: 90 }
+          { name: 'workplace.sale', max: 65, personal: 42, team: 50 },
+          { name: 'workplace.lease', max: 160, personal: 30, team: 140 },
+          { name: 'workplace.spa', max: 300, personal: 20, team: 28 },
+          { name: 'workplace.deposit', max: 130, personal: 35, team: 35 },
+          { name: 'workplace.mortgage', max: 100, personal: 80, team: 90 }
         ]
       }
     }

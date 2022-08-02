@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTimeAgo } from '@/hooks/web/useTimeAgo'
-import { ElRow, ElCol, ElSkeleton, ElCard, ElDivider, ElLink } from 'element-plus'
+import { ElRow, ElCol, ElSkeleton, ElCard, ElDivider, ElLink, ElTag } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive } from 'vue'
 import { CountTo } from '@/components/CountTo'
@@ -21,7 +21,7 @@ import { set } from 'lodash-es'
 
 const loading = ref(true)
 
-// 获取统计数
+// Get Statistics
 let totalSate = reactive<WorkplaceTotal>({
   project: 0,
   access: 0,
@@ -37,7 +37,7 @@ const getCount = async () => {
 
 let projects = reactive<Project[]>([])
 
-// 获取项目数
+// Number of items
 const getProject = async () => {
   const res = await getProjectApi().catch(() => {})
   if (res) {
@@ -45,7 +45,7 @@ const getProject = async () => {
   }
 }
 
-// 获取动态
+// Get dynamic
 let dynamics = reactive<Dynamic[]>([])
 
 const getDynamic = async () => {
@@ -55,7 +55,7 @@ const getDynamic = async () => {
   }
 }
 
-// 获取团队
+// Obtain a team
 let team = reactive<Team[]>([])
 
 const getTeam = async () => {
@@ -65,7 +65,7 @@ const getTeam = async () => {
   }
 }
 
-// 获取指数
+// Acquisition index
 let radarOptionData = reactive<EChartsOption>(radarOption) as EChartsOption
 
 const getRadar = async () => {
@@ -83,7 +83,7 @@ const getRadar = async () => {
     )
     set(radarOptionData, 'series', [
       {
-        name: `xxx${t('workplace.index')}`,
+        name: `${t('workplace.index')}`,
         type: 'radar',
         data: [
           {
@@ -92,7 +92,7 @@ const getRadar = async () => {
           },
           {
             value: res.data.map((v) => v.team),
-            name: t('workplace.team')
+            name: t('router.collaborators')
           }
         ]
       }
@@ -124,7 +124,7 @@ const { t } = useI18n()
               />
               <div>
                 <div class="text-20px text-700">
-                  {{ t('workplace.goodMorning') }}，Archer，{{ t('workplace.happyDay') }}
+                  {{ t('workplace.goodMorning') }} Nguyễn Thuỳ Chi {{ t('workplace.happyDay') }}
                 </div>
                 <div class="mt-10px text-14px text-gray-500">
                   {{ t('workplace.toady') }}，20℃ - 32℃！
@@ -209,22 +209,18 @@ const { t } = useI18n()
       <ElCard shadow="never" class="mt-20px">
         <template #header>
           <div class="flex justify-between">
-            <span>{{ t('workplace.dynamic') }}</span>
+            <span>{{ t('workplace.toDoList') }}</span>
             <ElLink type="primary" :underline="false">{{ t('workplace.more') }}</ElLink>
           </div>
         </template>
         <ElSkeleton :loading="loading" animated>
           <div v-for="(item, index) in dynamics" :key="`dynamics-${index}`">
             <div class="flex items-center">
-              <img
-                src="@/assets/imgs/avatar.jpg"
-                alt=""
-                class="w-35px h-35px rounded-[50%] mr-20px"
-              />
+              <Icon :icon="'logos:bun'" :size="25" class="mr-10px" />
               <div>
                 <div class="text-14px">
                   <Highlight :keys="item.keys.map((v) => t(v))">
-                    {{ t('workplace.pushCode') }}
+                    {{ t('workplace.workingTask') }}
                   </Highlight>
                 </div>
                 <div class="mt-15px text-12px text-gray-400">
@@ -240,29 +236,33 @@ const { t } = useI18n()
     <ElCol :xl="8" :lg="8" :md="24" :sm="24" :xs="24" class="mb-20px">
       <ElCard shadow="never">
         <template #header>
-          <span>{{ t('workplace.shortcutOperation') }}</span>
+          <span>{{ t('workplace.workingSchedule') }}</span>
         </template>
         <ElSkeleton :loading="loading" animated>
-          <ElCol
+          <ElRow
+            :gutter="20"
+            flex="just"
+            justify="space-around"
+            :align="'middle'"
             v-for="item in 9"
             :key="`card-${item}`"
-            :xl="12"
-            :lg="12"
-            :md="12"
-            :sm="24"
-            :xs="24"
-            class="mb-10px"
+            class="border-bottom-1"
           >
-            <ElLink type="default" :underline="false">
-              {{ t('workplace.operation') }}{{ item }}
-            </ElLink>
-          </ElCol>
+            <ElCol :span="12" class="mb-10px">
+              <ElLink type="default" :underline="false">
+                {{ t('workplace.meetingSchedule') }}{{ item }}
+              </ElLink>
+            </ElCol>
+            <ElCol :span="8">
+              <ElTag effect="dark" class="ml-2"> Hôm nay </ElTag>
+            </ElCol>
+          </ElRow>
         </ElSkeleton>
       </ElCard>
 
       <ElCard shadow="never" class="mt-20px">
         <template #header>
-          <span>xx{{ t('workplace.index') }}</span>
+          <span>{{ t('workplace.index') }}</span>
         </template>
         <ElSkeleton :loading="loading" animated>
           <Echart :options="radarOptionData" :height="400" />
@@ -271,7 +271,7 @@ const { t } = useI18n()
 
       <ElCard shadow="never" class="mt-20px">
         <template #header>
-          <span>{{ t('workplace.team') }}</span>
+          <span>{{ t('router.collaborators') }}</span>
         </template>
         <ElSkeleton :loading="loading" animated>
           <ElRow>

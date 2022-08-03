@@ -45,9 +45,9 @@ const toLogin = () => {
   >
     <div class="relative h-full flex mx-auto">
       <div
-        :class="`${prefixCls}__left flex-1 bg-black-500 bg-opacity-30 relative p-30px <xl:hidden`"
+        :class="`${prefixCls}__left flex-1 bg-black-500 bg-opacity-30 relative px-30px py-10px <xl:hidden`"
       >
-        <div class="flex items-center relative text-white">
+        <div class="flex items-center relative text-white mb-3">
           <img src="@/assets/svgs/luxDeal.svg" alt="" class="w-48px h-48px mr-10px" />
           <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
         </div>

@@ -2,6 +2,9 @@ declare type TableColumn = {
   field: string
   label?: string
   children?: TableColumn[]
+  minWidth?: string | number
+  align?: string
+  fixed?: boolean | string
 } & Recordable
 
 declare type TableSlotDefault = {

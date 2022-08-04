@@ -28,7 +28,7 @@ export const useValidator = () => {
   }
 
   const notSpace = (val: any, callback: Callback, message: string) => {
-    // 用户名不能有空格
+    // Username cannot have space
     if (val.indexOf(' ') !== -1) {
       callback(new Error(message))
     } else {
@@ -37,7 +37,7 @@ export const useValidator = () => {
   }
 
   const notSpecialCharacters = (val: any, callback: Callback, message: string) => {
-    // 密码不能是特殊字符
+    // The password cannot be a special character
     if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
       callback(new Error(message))
     } else {
@@ -45,7 +45,7 @@ export const useValidator = () => {
     }
   }
 
-  // 两个字符串是否想等
+  // Whether the two string wants to wait
   const isEqual = (val1: string, val2: string, callback: Callback, message: string) => {
     if (val1 === val2) {
       callback()

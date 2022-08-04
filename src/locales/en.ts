@@ -461,5 +461,24 @@ export default {
   inputPasswordDemo: {
     title: 'InputPassword',
     inputPasswordDes: 'Secondary packaging of Input components based on ElementPlus'
+  },
+  reuse: {
+    index: 'Index',
+    receivedDate: 'Received Date',
+    sale: 'Sale',
+    customerInfo: 'Customer information',
+    transaction: 'Transaction',
+    transactionStatus: 'Online/Offline',
+    approachingChannel: 'Approaching channel',
+    note: 'Note',
+    originated: 'Originated',
+    service: 'Service',
+    serviceDetail: 'serviceDetail',
+    statusTag: 'Status tag',
+    result: 'Result',
+    order: 'Order',
+    feedBack: 'Feedback',
+    status: 'Status',
+    operator: 'Operator'
   }
 }

@@ -12,46 +12,50 @@ export default defineComponent({
   props: {
     pageSize: propTypes.number.def(10),
     currentPage: propTypes.number.def(1),
-    // 是否多选
+    // Whether to choose more
     selection: propTypes.bool.def(true),
-    // 是否所有的超出隐藏，优先级低于schema中的showOverflowTooltip,
+    // Whether it exceeds hidden, the priority is lower than the Showoverflowtooltip in SHOMA,
     showOverflowTooltip: propTypes.bool.def(true),
-    // 表头
+    // Head
     columns: {
       type: Array as PropType<TableColumn[]>,
       default: () => []
     },
-    // 展开行
+    // Launch
     expand: propTypes.bool.def(false),
-    // 是否展示分页
+    // Whether to show paging
     pagination: {
       type: Object as PropType<Pagination>,
       default: (): Pagination | undefined => undefined
     },
-    // 仅对 type=selection 的列有效，类型为 Boolean，为 true 则会在数据更新之后保留之前选中的数据（需指定 row-key）
+    /**
+     * Only the column of Type = Selection is valid, and the type is BOOLEAN.
+     * For TRUE, the data selected before the data is reserved(required to specify Row- Key)
+     */
     reserveSelection: propTypes.bool.def(false),
-    // 加载状态
+    // Loading status
     loading: propTypes.bool.def(false),
-    // 是否叠加索引
+    // Whether to overlap the index
     reserveIndex: propTypes.bool.def(false),
-    // 对齐方式
+    // Alignment
     align: propTypes.string
       .validate((v: string) => ['left', 'center', 'right'].includes(v))
       .def('left'),
-    // 表头对齐方式
+    // Model of header
     headerAlign: propTypes.string
       .validate((v: string) => ['left', 'center', 'right'].includes(v))
       .def('left'),
     data: {
       type: Array as PropType<Recordable[]>,
       default: () => []
-    }
+    },
+    border: propTypes.bool.def(true)
   },
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {
     const elTableRef = ref<ComponentRef<typeof ElTable>>()
 
-    // 注册
+    // register
     onMounted(() => {
       const tableRef = unref(elTableRef)
       emit('register', tableRef?.$parent, elTableRef)
@@ -61,7 +65,7 @@ export default defineComponent({
 
     const currentPageRef = ref(props.currentPage)
 
-    // useTable传入的props
+    // PROPS passed into usetable
     const outsideProps = ref<TableProps>({})
 
     const mergeProps = ref<TableProps>({})
@@ -155,21 +159,21 @@ export default defineComponent({
 
     const renderTableSelection = () => {
       const { selection, reserveSelection, align, headerAlign } = unref(getProps)
-      // 渲染多选
+      // Multi -choice
       return selection ? (
         <ElTableColumn
           type="selection"
           reserveSelection={reserveSelection}
           align={align}
           headerAlign={headerAlign}
-          width="50"
+          width="65"
         ></ElTableColumn>
       ) : undefined
     }
 
     const renderTableExpand = () => {
       const { align, headerAlign, expand } = unref(getProps)
-      // 渲染展开行
+      // Rendering
       return expand ? (
         <ElTableColumn type="expand" align={align} headerAlign={headerAlign}>
           {{
@@ -180,7 +184,7 @@ export default defineComponent({
       ) : undefined
     }
 
-    const rnderTreeTableColumn = (columnsChildren: TableColumn[]) => {
+    const renderTreeTableColumn = (columnsChildren: TableColumn[]) => {
       const { align, headerAlign, showOverflowTooltip } = unref(getProps)
       return columnsChildren.map((v) => {
         const props = { ...v }
@@ -188,15 +192,17 @@ export default defineComponent({
         return (
           <ElTableColumn
             showOverflowTooltip={showOverflowTooltip}
-            align={align}
+            align={v.align ?? align}
             headerAlign={headerAlign}
             {...props}
             prop={v.field}
+            min-width={v.minWidth ?? '120'}
+            fixed={v.fixed ?? false}
           >
             {{
               default: (data: TableSlotDefault) =>
                 v.children && v.children.length
-                  ? rnderTableColumn(v.children)
+                  ? renderTableColumn(v.children)
                   : // @ts-ignore
                     getSlot(slots, v.field, data) ||
                     v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
@@ -209,7 +215,7 @@ export default defineComponent({
       })
     }
 
-    const rnderTableColumn = (columnsChildren?: TableColumn[]) => {
+    const renderTableColumn = (columnsChildren?: TableColumn[]) => {
       const {
         columns,
         reserveIndex,
@@ -221,7 +227,7 @@ export default defineComponent({
       } = unref(getProps)
       return [...[renderTableExpand()], ...[renderTableSelection()]].concat(
         (columnsChildren || columns).map((v) => {
-          // 自定生成序号
+          // Self -firing serial number
           if (v.type === 'index') {
             return (
               <ElTableColumn
@@ -234,7 +240,8 @@ export default defineComponent({
                 align={v.align || align}
                 headerAlign={v.headerAlign || headerAlign}
                 label={v.label}
-                width="65px"
+                width="65"
+                fixed={v.fixed ?? false}
               ></ElTableColumn>
             )
           } else {
@@ -243,15 +250,17 @@ export default defineComponent({
             return (
               <ElTableColumn
                 showOverflowTooltip={showOverflowTooltip}
-                align={align}
+                align={v.align || align}
                 headerAlign={headerAlign}
                 {...props}
                 prop={v.field}
+                min-width={v.minWidth ?? '120'}
+                fixed={v.fixed ?? false}
               >
                 {{
                   default: (data: TableSlotDefault) =>
                     v.children && v.children.length
-                      ? rnderTreeTableColumn(v.children)
+                      ? renderTreeTableColumn(v.children)
                       : // @ts-ignore
                         getSlot(slots, v.field, data) ||
                         v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
@@ -276,7 +285,7 @@ export default defineComponent({
           {...unref(getBindValue)}
         >
           {{
-            default: () => rnderTableColumn(),
+            default: () => renderTableColumn(),
             // @ts-ignore
             append: () => getSlot(slots, 'append')
           }}

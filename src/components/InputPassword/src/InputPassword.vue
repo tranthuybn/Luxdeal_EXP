@@ -12,7 +12,7 @@ const { getPrefixCls } = useDesign()
 const prefixCls = getPrefixCls('input-password')
 
 const props = defineProps({
-  // 是否显示密码强度
+  // Whether to display the password strength
   strength: propTypes.bool.def(false),
   modelValue: propTypes.string.def('')
 })
@@ -29,17 +29,17 @@ const { configGlobal } = useConfigGlobal()
 
 const emit = defineEmits(['update:modelValue'])
 
-// 设置input的type属性
+// Set the Type property of Input
 const textType = ref<'password' | 'text'>('password')
 
 const changeTextType = () => {
   textType.value = unref(textType) === 'text' ? 'password' : 'text'
 }
 
-// 输入框的值
+// The value of the input box
 const valueRef = ref(props.modelValue)
 
-// 监听
+// monitor
 watch(
   () => valueRef.value,
   (val: string) => {
@@ -47,7 +47,7 @@ watch(
   }
 )
 
-// 获取密码强度
+// Get password strength
 const getPasswordStrength = computed(() => {
   const value = unref(valueRef)
   const zxcvbnRef = zxcvbn(unref(valueRef)) as ZxcvbnResult

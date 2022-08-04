@@ -67,25 +67,25 @@ declare global {
   } & Recordable
 
   declare type FormSchema = {
-    // 唯一值
+    // Unique value
     field: string
-    // 标题
+    // title
     label?: string
-    // 提示
+    // hint
     labelMessage?: string
-    // col组件属性
+    // COL component attribute
     colProps?: ColProps
-    // 表单组件属性，slots对应的是表单组件的插槽，规则：${field}-xxx，具体可以查看element-plus文档
+    // Form component attributes, slots correspond to the slot of the form component, rules: $ {field} -xxx, you can view the Element-Plus document
     componentProps?: { slots?: Recordable } & ComponentProps
-    // formItem组件属性
+    // FormITEM component attribute
     formItemProps?: FormItemProps
-    // 渲染的组件
+    // Rendering component
     component?: ComponentName
-    // 初始值
+    // Initial value
     value?: FormValueType
-    // 是否隐藏
+    // Whether to hide
     hidden?: boolean
-    // 远程加载下拉项
+    // Remote loading drop
     api?: <T = any>() => AxiosPromise<T>
   }
 

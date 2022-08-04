@@ -11,26 +11,26 @@ import { cloneDeep } from 'lodash-es'
 const { t } = useI18n()
 
 const props = defineProps({
-  // 生成Form的布局结构数组
+  // The layout structure array of FORM
   schema: {
     type: Array as PropType<FormSchema[]>,
     default: () => []
   },
-  // 是否需要栅格布局
+  // Do you need a grid layout
   isCol: propTypes.bool.def(false),
-  // 表单label宽度
+  // Form label width
   labelWidth: propTypes.oneOfType([String, Number]).def('auto'),
-  // 操作按钮风格位置
+  // Operation button style location
   layout: propTypes.string.validate((v: string) => ['inline', 'bottom'].includes(v)).def('inline'),
-  // 底部按钮的对齐方式
+  // Alignment of the bottom button
   buttomPosition: propTypes.string
     .validate((v: string) => ['left', 'center', 'right'].includes(v))
     .def('center'),
   showSearch: propTypes.bool.def(true),
   showReset: propTypes.bool.def(true),
-  // 是否显示伸缩
+  // Whether to show telescopic
   expand: propTypes.bool.def(false),
-  // 伸缩的界限字段
+  // The boundary field of telescopic
   expandField: propTypes.string.def(''),
   inline: propTypes.bool.def(true)
 })

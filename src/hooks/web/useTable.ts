@@ -142,7 +142,7 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
       const table = await getTable()
       return (table?.selections || []) as T[]
     },
-    // 与Search组件结合
+    // Combined with Search component
     setSearchParams: (data: Recordable) => {
       tableObject.currentPage = 1
       tableObject.params = Object.assign(tableObject.params, {

@@ -5,7 +5,7 @@ export default {
     startTimeText: 'Thời gian bắt đầu',
     endTimeText: 'Thời gian kết thúc',
     login: 'Đăng nhập',
-    required: 'Mục này là một mục phải xảy ra',
+    required: 'Không được để trống',
     loginOut: 'Thoát hệ thống',
     document: 'Tài liệu dự án',
     userInfo: 'Thông tin người dùng',
@@ -460,5 +460,24 @@ export default {
   inputPasswordDemo: {
     title: 'Input password',
     inputPasswordDes: 'Dựa trên ElementPlus của Input Đóng gói gói các thành phần'
+  },
+  reuse: {
+    index: 'STT',
+    receivedDate: 'Ngày nhận',
+    sale: 'Sale',
+    customerInfo: 'Thông tin khách hàng',
+    transaction: 'Giao dịch',
+    transactionStatus: 'Online/Offline',
+    approachingChannel: 'Kênh tiếp cận',
+    note: 'Ghi chú',
+    originated: 'Nguồn',
+    service: 'Dịch vụ',
+    serviceDetail: 'Nhu cầu chi tiết',
+    statusTag: 'Thẻ trạng thái',
+    result: 'Kết quả',
+    order: 'Đơn hàng',
+    feedBack: 'Phản hồi CSKH',
+    status: 'Trạng thái',
+    operator: 'Thao tác'
   }
 }

@@ -39,7 +39,7 @@ for (let i = 0; i < count; i++) {
 }
 
 export default [
-  // 列表接口
+  // List interface
   {
     url: '/example/list',
     method: 'get',
@@ -62,7 +62,7 @@ export default [
       }
     }
   },
-  // 保存接口
+  // Save interface
   {
     url: '/example/save',
     method: 'post',
@@ -93,7 +93,7 @@ export default [
       }
     }
   },
-  // 详情接口
+  // Detail interface
   {
     url: '/example/detail',
     method: 'get',
@@ -109,7 +109,7 @@ export default [
       }
     }
   },
-  // 删除接口
+  // Delete interface
   {
     url: '/example/delete',
     method: 'post',
@@ -118,7 +118,7 @@ export default [
       if (!ids) {
         return {
           code: '500',
-          message: '请选择需要删除的数据'
+          message: 'Please select the data to be deleted'
         }
       } else {
         let i = List.length

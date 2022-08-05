@@ -467,7 +467,7 @@ export default {
     sale: 'Sale',
     customerInfo: 'Thông tin khách hàng',
     transaction: 'Giao dịch',
-    transactionStatus: 'Online/Offline',
+    transactionStatus: 'Online Offline',
     approachingChannel: 'Kênh tiếp cận',
     note: 'Ghi chú',
     originated: 'Nguồn',
@@ -478,6 +478,15 @@ export default {
     order: 'Đơn hàng',
     feedBack: 'Phản hồi CSKH',
     status: 'Trạng thái',
-    operator: 'Thao tác'
+    operator: 'Thao tác',
+    createDate: 'Ngày tạo',
+    customerName: 'Tên khách hàng',
+    representative: 'Người đại diện',
+    customerCode: 'Mã khách hàng',
+    gender: 'Giới  tính',
+    contact: 'Liên hệ',
+    companyInfo: 'Thông tin công ty',
+    type: 'Loại hình',
+    accountType: 'Loại tài khoản'
   }
 }

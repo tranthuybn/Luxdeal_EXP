@@ -14,7 +14,7 @@ import {
 } from 'element-plus'
 import { reactive, ref } from 'vue'
 import moment from 'moment'
-import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type.js'
+import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
 import { useIcon } from '@/hooks/web/useIcon'
 
 const emit = defineEmits(['refreshData', 'getData'])

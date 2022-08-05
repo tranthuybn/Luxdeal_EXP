@@ -283,6 +283,7 @@ export default defineComponent({
           data={unref(getProps).data}
           onSelection-change={selectionChange}
           {...unref(getBindValue)}
+          headerRowClassName="header-Table-customize"
         >
           {{
             default: () => renderTableColumn(),
@@ -303,3 +304,11 @@ export default defineComponent({
   }
 })
 </script>
+<style scoped lang="scss">
+::v-deep .header-Table-customize {
+  .cell {
+    word-break: break-word;
+    white-space: unset;
+  }
+}
+</style>

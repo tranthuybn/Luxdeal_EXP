@@ -468,7 +468,7 @@ export default {
     sale: 'Sale',
     customerInfo: 'Customer information',
     transaction: 'Transaction',
-    transactionStatus: 'Online/Offline',
+    transactionStatus: 'Online Offline',
     approachingChannel: 'Approaching channel',
     note: 'Note',
     originated: 'Originated',
@@ -479,6 +479,15 @@ export default {
     order: 'Order',
     feedBack: 'Feedback',
     status: 'Status',
-    operator: 'Operator'
+    operator: 'Operator',
+    createDate: 'Create date',
+    customerName: `Customer's name`,
+    representative: 'Representative',
+    customerCode: 'Customer Code',
+    gender: 'Gender',
+    contact: 'Contact',
+    companyInfo: 'CompanyInformation',
+    type: 'Type',
+    accountType: 'Account type'
   }
 }

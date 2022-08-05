@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { onMounted, reactive, ref } from 'vue'
-import { getTableListApi } from '@/api/table'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { ElButton, ElRow, ElCol } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { HeaderFiler } from '../Components/HeaderFilter'
+import { getPotentialCustomerList } from '@/api/Business/'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -96,7 +96,16 @@ const columns = reactive<TableColumn[]>([
     field: 'operator',
     label: t('reuse.operator'),
     minWidth: '180',
-    fixed: 'right'
+    fixed: 'right',
+    formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
+      return h(ElRow, { gutter: 20, justify: 'space-around' }, () => [
+        h(ElCol, { span: 8 }, () =>
+          h(ElButton, { icon: eyeIcon, onClick: () => acitonFn(record, cellValue) })
+        ),
+        h(ElCol, { span: 8 }, () => h(ElButton, { icon: editIcon })),
+        h(ElCol, { span: 8 }, () => h(ElButton, { icon: trashIcon }))
+      ])
+    }
   }
 ])
 const paginationObj = ref<Pagination>()
@@ -114,11 +123,11 @@ const showPagination = (show: boolean) => {
     paginationObj.value = undefined
   }
 }
-const acitonFn = (data: TableSlotDefault) => {
-  console.log(data)
+const acitonFn = (record: Recordable, data: TableSlotDefault) => {
+  console.log(record, data)
 }
 const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getTableListApi,
+  getListApi: getPotentialCustomerList,
   response: {
     list: 'list',
     total: 'total'
@@ -151,20 +160,6 @@ getList(),
       :loading="tableObject.loading"
       :pagination="paginationObj"
       @register="register"
-    >
-      <template #operator="data">
-        <el-row :gutter="20" justify="space-around">
-          <el-col :span="8">
-            <el-button :icon="eyeIcon" @click="acitonFn(data as TableSlotDefault)" />
-          </el-col>
-          <el-col :span="8">
-            <el-button :icon="editIcon" />
-          </el-col>
-          <el-col :span="8">
-            <el-button :icon="trashIcon" />
-          </el-col>
-        </el-row>
-      </template>
-    </Table>
+    />
   </ContentWrap>
 </template>

@@ -1,6 +1,6 @@
 declare type TableColumn = {
   field: string
-  label?: string
+  label?: string | VNode
   children?: TableColumn[]
   minWidth?: string | number
   align?: string

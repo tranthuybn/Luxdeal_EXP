@@ -487,6 +487,13 @@ export default {
     contact: 'Liên hệ',
     companyInfo: 'Thông tin công ty',
     type: 'Loại hình',
-    accountType: 'Loại tài khoản'
+    accountType: 'Loại tài khoản',
+    fromDate: 'Từ ngày',
+    toDate: 'Đến ngày',
+    startDate: 'Ngày bắt đầu',
+    endDate: 'Ngày kết thúc',
+    getData: 'Lấy dữ liệu',
+    dateRange: 'Khoảng thời gian',
+    enterKeyWords: 'Nhập từ khoá ...'
   }
 }

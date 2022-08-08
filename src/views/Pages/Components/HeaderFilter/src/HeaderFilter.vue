@@ -1,37 +1,59 @@
 <script setup lang="ts">
-import {
-  ElInput,
-  ElSelect,
-  ElOption,
-  ElCol,
-  ElRow,
-  ElFormItem,
-  ElForm,
-  ElButton,
-  ElDatePicker,
-  FormRules,
-  FormInstance
-} from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ElInput, ElSelect, ElOption, ElCol, ElRow, ElButton } from 'element-plus'
+import { reactive, ref, unref } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
 import { useIcon } from '@/hooks/web/useIcon'
+import { useValidator } from '@/hooks/web/useValidator'
+import { useI18n } from '@/hooks/web/useI18n'
+import { Form, FormExpose } from '@/components/Form'
+import { useForm } from '@/hooks/web/useForm'
 
+// declare variables
 const emit = defineEmits(['refreshData', 'getData'])
-const dateFilterFormRule = reactive<FormRules>({})
-const dateFilterFormRefer = ref<FormInstance>()
+const dateFilterFormRefer = ref<FormExpose>()
 type momentDateType = Date | moment.Moment | null
 const searchingKey = ref<string>('')
 const periodSelected = ref<string>('')
+// disable when selection have value
 let dateTimeDisable = ref<boolean>(false)
 let dateFormType = ref<IDatePickerType>('date')
+const { required } = useValidator()
+const { t } = useI18n()
 
-const dateFilterForm = reactive({
-  selectedFromDay: '',
-  selectedToDay: ''
-})
-const dateTimeFormat = ref<string>('dd/MM/yyyy')
-const valueFormat = ref<string>('yyyy-MM-dd')
+const rules = {
+  startDate: [required()],
+  endDate: [required()]
+}
+const dateTimeFormat = ref<string>('DD/MM/YYYY')
+const valueFormat = ref<string>('YYYY-MM-DD')
+
+const schema = reactive<FormSchema[]>([
+  {
+    field: 'startDate',
+    component: 'DatePicker',
+    value: null,
+    componentProps: {
+      placeholder: t('reuse.startDate'),
+      format: dateTimeFormat,
+      valueFormat: valueFormat,
+      type: dateFormType,
+      disabled: dateTimeDisable
+    }
+  },
+  {
+    field: 'endDate',
+    component: 'DatePicker',
+    value: null,
+    componentProps: {
+      placeholder: t('reuse.endDate'),
+      format: dateTimeFormat,
+      valueFormat: valueFormat,
+      type: dateFormType,
+      disabled: dateTimeDisable
+    }
+  }
+])
 const periodFilter = reactive([
   { value: '1', label: 'Hôm nay' },
   { value: '2', label: 'Tháng này' },
@@ -43,7 +65,6 @@ const periodFilter = reactive([
 ])
 
 const reloadIcon = useIcon({ icon: 'uiw:reload' })
-const filterIcon = useIcon({ icon: 'akar-icons:filter' })
 function periodChange(val): void {
   dateTimeDisable.value = !!val
   if (val) {
@@ -89,44 +110,48 @@ function periodChange(val): void {
     }
     setStartDateAndEndDate(start, end)
   } else {
-    dateFormType.value = 'date'
-    dateFilterForm.selectedFromDay = ''
-    dateFilterForm.selectedToDay = ''
+    ;(dateFormType.value = 'date'), verifyReset()
   }
 }
-function setStartDateAndEndDate(start: momentDateType, end: momentDateType): void {
-  dateFilterForm.selectedFromDay = moment(start).format('YYYY-MM-DD HH:mm:ss') ?? null
-  dateFilterForm.selectedToDay = moment(end).format('YYYY-MM-DD HH:mm:ss') ?? null
+const verifyReset = () => {
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.resetFields()
 }
-
-function reLoadEvent(formEL: FormInstance | undefined) {
-  if (!formEL) return
-  formEL.resetFields()
-  periodSelected.value = ''
-  searchingKey.value = ''
-  emit('refreshData')
-}
-async function getDataEvent(formEL: FormInstance | undefined) {
-  if (!formEL) return
-  await formEL.validate((valid, fields) => {
-    if (valid) {
-      emit('getData', dateFilterForm, searchingKey.value)
-    } else {
-      console.error('error submit!', fields)
-    }
+const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
+  unref(dateFilterFormRefer)?.setValues({
+    startDate: moment(start).format('YYYY-MM-DD HH:mm:ss') ?? null,
+    endDate: moment(end).format('YYYY-MM-DD HH:mm:ss') ?? null
   })
 }
+function reLoadEvent() {
+  searchingKey.value = ''
+  verifyReset()
+  emit('refreshData')
+}
+const formValidation = () => {
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.validate()?.catch(() => {})
+}
+
+async function getDataEvent() {
+  formValidation()
+  const { getFormData } = methods
+  const formData = await getFormData()
+  emit('getData', formData, searchingKey.value)
+}
+
+const { register, methods } = useForm()
 </script>
 <template>
   <el-row justify="space-between" :gutter="20">
-    <el-col :span="4"> <slot name="headerFilterSlot"></slot> </el-col>
-    <el-col :span="3">
-      <el-input class="w-full" v-model="searchingKey" placeholder="Nhập từ khoá ..." />
+    <el-col :span="6"> <slot name="headerFilterSlot"></slot> </el-col>
+    <el-col :span="5">
+      <el-input class="w-full" v-model="searchingKey" :placeholder="t('reuse.enterKeyWords')" />
     </el-col>
     <el-col :span="3">
       <el-select
         v-model="periodSelected"
-        placeholder="Khoảng thời gian"
+        :placeholder="t('reuse.dateRange')"
         class="w-full"
         clearable
         @change="periodChange"
@@ -139,45 +164,12 @@ async function getDataEvent(formEL: FormInstance | undefined) {
         />
       </el-select>
     </el-col>
-    <el-col :span="8">
-      <el-form
-        :model="dateFilterForm"
-        :rules="dateFilterFormRule"
-        class="inline-flex w-full"
-        ref="dateFilterFormRefer"
-      >
-        <el-form-item prop="selectedFromDay" class="w-full">
-          <el-date-picker
-            placeholder="Từ ngày"
-            :format="dateTimeFormat"
-            v-model="dateFilterForm.selectedFromDay"
-            :value-format="valueFormat"
-            :disabled="dateTimeDisable"
-            :type="dateFormType"
-            class="w-full"
-          />
-        </el-form-item>
-        <el-form-item prop="selectedToDay" class="w-full">
-          <el-date-picker
-            placeholder="Đến ngày"
-            :format="dateTimeFormat"
-            v-model="dateFilterForm.selectedToDay"
-            :value-format="valueFormat"
-            :disabled="dateTimeDisable"
-            :type="dateFormType"
-            class="w-full"
-          />
-        </el-form-item>
-      </el-form>
+    <el-col :span="7">
+      <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
     </el-col>
-    <el-col :span="3" class="flex-grow justify-center">
-      <el-button :icon="filterIcon">Bộ lọc mở rộng</el-button>
-    </el-col>
-    <el-col :span="1" class="flex-grow justify-center">
-      <el-button type="primary" @click="reLoadEvent(dateFilterFormRefer)" :icon="reloadIcon" />
-    </el-col>
-    <el-col :span="2" class="flex-grow justify-center">
-      <el-button type="primary" @click="getDataEvent(dateFilterFormRefer)">Lấy dữ liệu</el-button>
+    <el-col :span="3" class="inline-flex">
+      <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
+      <el-button type="primary" @click="getDataEvent()">{{ t('reuse.getData') }}</el-button>
     </el-col>
   </el-row>
 </template>

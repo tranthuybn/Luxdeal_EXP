@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { h, onMounted, reactive, ref } from 'vue'
+import { h, onBeforeMount, watch, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
@@ -20,7 +20,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'receivedDate',
     label: t('reuse.receivedDate'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'center'
   },
   {
     field: 'sale',
@@ -114,15 +115,7 @@ const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-const showPagination = (show: boolean) => {
-  if (show) {
-    paginationObj.value = {
-      total: tableObject.total
-    }
-  } else {
-    paginationObj.value = undefined
-  }
-}
+
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
@@ -137,29 +130,40 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'center'
   }
 })
-const { getList } = methods
-getList(),
-  onMounted(() => {
-    showPagination(true)
-  })
+
+onBeforeMount(() => {
+  methods.getList()
+})
+watch(
+  () => tableObject.tableList,
+  () => {
+    paginationObj.value = {
+      total: tableObject.total
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 <template>
-  <ContentWrap>
+  <section>
     <HeaderFiler>
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
-  </ContentWrap>
-  <ContentWrap>
-    <Table
-      ref="tableRef"
-      v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage"
-      :data="tableObject.tableList"
-      :loading="tableObject.loading"
-      :pagination="paginationObj"
-      @register="register"
-    />
-  </ContentWrap>
+    <ContentWrap>
+      <Table
+        ref="tableRef"
+        v-model:pageSize="tableObject.pageSize"
+        v-model:currentPage="tableObject.currentPage"
+        :data="tableObject.tableList"
+        :loading="tableObject.loading"
+        :pagination="paginationObj"
+        :showOverflowTooltip="false"
+        @register="register"
+      />
+    </ContentWrap>
+  </section>
 </template>

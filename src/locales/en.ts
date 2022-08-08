@@ -488,6 +488,13 @@ export default {
     contact: 'Contact',
     companyInfo: 'CompanyInformation',
     type: 'Type',
-    accountType: 'Account type'
+    accountType: 'Account type',
+    fromDate: 'From date',
+    toDate: 'To date',
+    startDate: 'Start date',
+    endDate: 'End date',
+    getData: 'Get Data',
+    dateRange: 'Date Ranger',
+    enterKeyWords: 'Enter key words...'
   }
 }

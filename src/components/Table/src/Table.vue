@@ -15,7 +15,7 @@ export default defineComponent({
     // Whether to choose more
     selection: propTypes.bool.def(true),
     // Whether it exceeds hidden, the priority is lower than the Showoverflowtooltip in SHOMA,
-    showOverflowTooltip: propTypes.bool.def(true),
+    showOverflowTooltip: propTypes.bool.def(false),
     // Head
     columns: {
       type: Array as PropType<TableColumn[]>,
@@ -49,7 +49,8 @@ export default defineComponent({
       type: Array as PropType<Recordable[]>,
       default: () => []
     },
-    border: propTypes.bool.def(true)
+    border: propTypes.bool.def(true),
+    maxHeight: propTypes.string.def('71vh')
   },
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {
@@ -107,16 +108,17 @@ export default defineComponent({
     })
 
     const pagination = computed(() => {
+      const pageSizes = [10, 20, 30, 40, 50, 100]
       return Object.assign(
         {
-          small: false,
-          background: false,
+          small: true,
+          background: true,
           pagerCount: 7,
           layout: 'sizes, prev, pager, next, jumper, ->, total',
-          pageSizes: [10, 20, 30, 40, 50, 100],
+          pageSizes: pageSizes,
           disabled: false,
-          hideOnSinglePage: false,
-          total: 10
+          hideOnSinglePage: true,
+          total: pageSizes[0]
         },
         unref(getProps).pagination
       )
@@ -158,13 +160,13 @@ export default defineComponent({
     })
 
     const renderTableSelection = () => {
-      const { selection, reserveSelection, align, headerAlign } = unref(getProps)
+      const { selection, reserveSelection, headerAlign } = unref(getProps)
       // Multi -choice
       return selection ? (
         <ElTableColumn
           type="selection"
           reserveSelection={reserveSelection}
-          align={align}
+          align="center"
           headerAlign={headerAlign}
           width="65"
         ></ElTableColumn>
@@ -295,7 +297,7 @@ export default defineComponent({
           <ElPagination
             v-model:pageSize={pageSizeRef.value}
             v-model:currentPage={currentPageRef.value}
-            class="mt-10px"
+            class="mt-10px rounded-1\/2"
             {...unref(pagination)}
           ></ElPagination>
         ) : undefined}
@@ -304,11 +306,20 @@ export default defineComponent({
   }
 })
 </script>
-<style scoped lang="scss">
-::v-deep .header-Table-customize {
-  .cell {
-    word-break: break-word;
-    white-space: unset;
+<style scoped lang="less">
+::v-deep {
+  .header-Table-customize,
+  .el-table__row {
+    .cell {
+      word-break: break-word;
+      white-space: unset;
+    }
+  }
+
+  .el-pagination.is-background .btn-next,
+  .el-pagination.is-background .btn-prev,
+  .el-pagination.is-background .el-pager li {
+    border-radius: 50%;
   }
 }
 </style>

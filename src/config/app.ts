@@ -65,7 +65,7 @@ export const appModules: AppState = {
   tagsViewIcon: true, // Whether to display the label icon
   logo: true, // logo
   fixedHeader: true, // Fixed TOOLHEADER
-  footer: true, // Display foot
+  footer: false, // Display foot
   greyMode: false, // Whether the gray mode starts for special mourning days
 
   layout: wsCache.get('layout') || 'classic', // layout layout

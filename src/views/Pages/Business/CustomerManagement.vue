@@ -33,19 +33,19 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250'
   },
   {
-    field: 'Gender',
+    field: 'gender',
     label: t('reuse.gender'),
     minWidth: '100'
   },
   {
-    field: 'Contact',
+    field: 'contact',
     label: t('reuse.contact'),
     minWidth: '100'
   },
   {
-    field: 'CompanyInfo',
+    field: 'companyInfo',
     label: t('reuse.companyInfo'),
-    minWidth: '100'
+    minWidth: '200'
   },
   {
     field: 'type',
@@ -114,22 +114,22 @@ getList(),
   })
 </script>
 <template>
-  <ContentWrap>
+  <section>
     <HeaderFiler>
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
-  </ContentWrap>
-  <ContentWrap>
-    <Table
-      ref="tableRef"
-      v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage"
-      :data="tableObject.tableList"
-      :loading="tableObject.loading"
-      :pagination="paginationObj"
-      @register="register"
-    />
-  </ContentWrap>
+    <ContentWrap>
+      <Table
+        ref="tableRef"
+        v-model:pageSize="tableObject.pageSize"
+        v-model:currentPage="tableObject.currentPage"
+        :data="tableObject.tableList"
+        :loading="tableObject.loading"
+        :pagination="paginationObj"
+        @register="register"
+      />
+    </ContentWrap>
+  </section>
 </template>

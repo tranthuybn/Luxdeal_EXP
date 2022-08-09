@@ -52,6 +52,7 @@ export default defineComponent({
     border: propTypes.bool.def(true),
     maxHeight: propTypes.string.def('71vh')
   },
+  slots: [],
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {
     const elTableRef = ref<ComponentRef<typeof ElTable>>()
@@ -198,7 +199,6 @@ export default defineComponent({
             headerAlign={headerAlign}
             {...props}
             prop={v.field}
-            min-width={v.minWidth ?? '120'}
             fixed={v.fixed ?? false}
           >
             {{
@@ -256,8 +256,6 @@ export default defineComponent({
                 headerAlign={headerAlign}
                 {...props}
                 prop={v.field}
-                min-width={v.minWidth ?? '120'}
-                fixed={v.fixed ?? false}
               >
                 {{
                   default: (data: TableSlotDefault) =>

@@ -144,11 +144,13 @@ const { register, methods } = useForm()
 </script>
 <template>
   <el-row justify="space-between" :gutter="20">
-    <el-col :span="6"> <slot name="headerFilterSlot"></slot> </el-col>
-    <el-col :span="5">
+    <el-col :xl="6" :lg="4" :xs="12" class="<xl:mb-2">
+      <slot name="headerFilterSlot"></slot>
+    </el-col>
+    <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
       <el-input class="w-full" v-model="searchingKey" :placeholder="t('reuse.enterKeyWords')" />
     </el-col>
-    <el-col :span="3">
+    <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
       <el-select
         v-model="periodSelected"
         :placeholder="t('reuse.dateRange')"
@@ -164,10 +166,10 @@ const { register, methods } = useForm()
         />
       </el-select>
     </el-col>
-    <el-col :span="7">
+    <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
       <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
     </el-col>
-    <el-col :span="3" class="inline-flex">
+    <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
       <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
       <el-button type="primary" @click="getDataEvent()">{{ t('reuse.getData') }}</el-button>
     </el-col>

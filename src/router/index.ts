@@ -3,7 +3,6 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue'
 import { constantRouterMap } from './constant'
 import DashBoard from './RouterMap/DashBoard'
-import Guide from './RouterMap/Guide'
 import Components from './RouterMap/Components'
 import Business from './RouterMap/Business'
 import Warehouse from './RouterMap/Warehouse'
@@ -18,7 +17,6 @@ import NewAndAdvertisement from './RouterMap/NewAndAdvertisement'
 import LibraryAndSetting from './RouterMap/LibraryAndSetting'
 export const asyncRouterMap: AppRouteRecordRaw[] = [
   DashBoard,
-  Guide,
   Components,
   Business,
   Warehouse,

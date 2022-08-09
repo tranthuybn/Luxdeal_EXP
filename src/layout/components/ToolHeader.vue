@@ -8,7 +8,14 @@ import { Screenfull } from '@/components/Screenfull'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
+import { useIntro } from '@/hooks/web/useIntro'
+import { Icon } from '@/components/Icon'
 
+const { introRef } = useIntro()
+
+const guideStart = () => {
+  introRef.start()
+}
 const { getPrefixCls, variables } = useDesign()
 
 const prefixCls = getPrefixCls('tool-header')
@@ -33,6 +40,13 @@ const layout = computed(() => appStore.getLayout)
 // Multi -language icon
 const locale = computed(() => appStore.getLocale)
 
+const guide = () => {
+  return (
+    <div onclick={guideStart} class="hover-tigger">
+      <Icon size={21} icon="mdi:television-guide" />
+    </div>
+  )
+}
 export default defineComponent({
   name: 'ToolHeader',
   setup() {
@@ -54,6 +68,7 @@ export default defineComponent({
           </div>
         ) : undefined}
         <div class="h-full flex items-center">
+          {guide()}
           {screenfull.value ? (
             <Screenfull class="hover-tigger" color="var(--top-header-text-color)"></Screenfull>
           ) : undefined}

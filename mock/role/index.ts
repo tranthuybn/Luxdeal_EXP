@@ -476,23 +476,6 @@ const adminList = [
     ]
   },
   {
-    path: '/guide',
-    component: '#',
-    name: 'Guide',
-    meta: {},
-    children: [
-      {
-        path: 'index',
-        component: 'views/Guide/Guide',
-        name: 'GuideDemo',
-        meta: {
-          title: 'router.guide',
-          icon: 'dashicons:book'
-        }
-      }
-    ]
-  },
-  {
     path: '/hooks',
     component: '#',
     redirect: '/hooks/useWatermark',
@@ -691,8 +674,6 @@ const testList: string[] = [
   '/dashboard',
   '/dashboard/analysis',
   '/dashboard/workplace',
-  '/guide',
-  '/guide/index',
   '/components',
   '/components/form',
   '/components/form/default-form',

@@ -167,7 +167,7 @@ const { register, methods } = useForm()
     <el-col :span="7">
       <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
     </el-col>
-    <el-col :span="3" class="inline-flex">
+    <el-col :span="3" class="inline-flex justify-end">
       <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
       <el-button type="primary" @click="getDataEvent()">{{ t('reuse.getData') }}</el-button>
     </el-col>

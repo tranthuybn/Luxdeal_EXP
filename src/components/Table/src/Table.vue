@@ -307,19 +307,16 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="less">
-::v-deep {
-  .header-Table-customize,
-  .el-table__row {
-    .cell {
-      word-break: break-word;
-      white-space: unset;
-    }
+::v-deep(.header-Table-customize, .el-table__row) {
+  .cell {
+    word-break: break-word;
+    white-space: unset;
   }
+}
 
-  .el-pagination.is-background .btn-next,
-  .el-pagination.is-background .btn-prev,
-  .el-pagination.is-background .el-pager li {
-    border-radius: 50%;
-  }
+::v-deep(.el-pagination.is-background .btn-next),
+::v-deep(.el-pagination.is-background .btn-prev),
+::v-deep(.el-pagination.is-background .el-pager li) {
+  border-radius: 50%;
 }
 </style>

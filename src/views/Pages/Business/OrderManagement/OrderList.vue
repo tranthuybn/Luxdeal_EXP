@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.createANewOrder') }}</div>
+  <div>{{ t('router.orderManagement') }}</div>
 </template>
 
 <script setup lang="ts">

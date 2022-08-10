@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { h, onMounted, reactive, ref } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
@@ -109,9 +109,15 @@ const { register, tableObject, methods } = useTable<TableData>({
 })
 const { getList } = methods
 getList(),
-  onMounted(() => {
-    showPagination(true)
-  })
+  watch(
+    () => tableObject.tableList,
+    () => {
+      showPagination(true)
+    },
+    {
+      immediate: true
+    }
+  )
 </script>
 <template>
   <section>

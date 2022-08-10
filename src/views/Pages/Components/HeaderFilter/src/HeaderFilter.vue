@@ -8,6 +8,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
+import { Icon } from '@/components/Icon'
 
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
@@ -143,35 +144,104 @@ async function getDataEvent() {
 const { register, methods } = useForm()
 </script>
 <template>
-  <el-row justify="space-between" :gutter="20">
-    <el-col :xl="6" :lg="4" :xs="12" class="<xl:mb-2">
-      <slot name="headerFilterSlot"></slot>
-    </el-col>
-    <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
-      <el-input class="w-full" v-model="searchingKey" :placeholder="t('reuse.enterKeyWords')" />
-    </el-col>
-    <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
-      <el-select
-        v-model="periodSelected"
-        :placeholder="t('reuse.dateRange')"
-        class="w-full"
-        clearable
-        @change="periodChange"
-      >
-        <el-option
-          v-for="item in periodFilter"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-    </el-col>
-    <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
-      <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
-    </el-col>
-    <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
-      <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
-      <el-button type="primary" @click="getDataEvent()">{{ t('reuse.getData') }}</el-button>
-    </el-col>
-  </el-row>
+  <section>
+    <el-row justify="space-between" :gutter="20">
+      <el-col :xl="6" :lg="4" :xs="12" class="<xl:mb-2">
+        <slot name="headerFilterSlot"></slot>
+      </el-col>
+      <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
+        <el-input class="w-full" v-model="searchingKey" :placeholder="t('reuse.enterKeyWords')" />
+      </el-col>
+      <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
+        <el-select
+          v-model="periodSelected"
+          :placeholder="t('reuse.dateRange')"
+          class="w-full"
+          clearable
+          @change="periodChange"
+        >
+          <el-option
+            v-for="item in periodFilter"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-col>
+      <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
+        <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
+      </el-col>
+      <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
+        <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
+        <el-button type="primary" @click="getDataEvent()">{{ t('reuse.getData') }}</el-button>
+      </el-col>
+    </el-row>
+    <el-row class="mb-2">
+      <el-col :xl="8" :lg="12" :xs="24">
+        <div class="extension-function">
+          <p>
+            <span>{{ t('reuse.choose') }}</span>
+            <span> (0,0) </span>
+          </p>
+          <p
+            ><span>{{ t('reuse.exportExcel') }}</span
+            ><span>
+              <Icon
+                icon="file-icons:microsoft-excel"
+                size="{16}"
+                color="var(--el-color-primary)"
+                class="ml-2px relative top-1px"
+              />
+            </span>
+          </p>
+          <p>
+            <span>{{ t('reuse.duplicate') }}</span>
+            <span>
+              <Icon
+                icon="ion:duplicate"
+                size="{16}"
+                color="var(--el-color-primary)"
+                class="ml-2px relative top-1px"
+              />
+            </span>
+          </p>
+          <p>
+            <span>{{ t('reuse.delete') }}</span>
+            <span>
+              <Icon
+                icon="fluent:delete-12-regular"
+                size="{16}"
+                color="var(--el-color-primary)"
+                class="ml-2px relative top-1px"
+              />
+            </span>
+          </p>
+        </div>
+      </el-col>
+    </el-row>
+  </section>
 </template>
+<style lang="scss" scoped>
+@mixin d-flex {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.extension-function {
+  @include d-flex;
+  p {
+    border-bottom: 2px solid var(--app-contnet-bg-color);
+    @include d-flex;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: max-content;
+    span {
+      width: fit-content;
+      font-weight: 500;
+    }
+    &:hover {
+      border-bottom: 2px solid var(--el-color-primary);
+    }
+  }
+}
+</style>

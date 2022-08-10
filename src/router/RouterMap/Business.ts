@@ -23,18 +23,49 @@ export default {
     {
       path: 'order-management',
       name: 'business.order-management',
-      redirect: { name: 'business.order-management.order-list' },
+      redirect: { name: 'business.order-management.sell-order-list' },
       meta: {
         title: t('router.orderManagement')
       },
       children: [
         {
-          path: 'order-list/:type',
-          name: 'business.order-management.order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
-          props: (route) => ({ ...route.prams, orderType: route.params.type }),
+          path: 'sell-order-list',
+          name: 'business.order-management.sell-order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/SellOrders.vue'),
           meta: {
-            title: t('router.orderList')
+            title: t('reuse.sellOrderList')
+          }
+        },
+        {
+          path: 'lease-order-list',
+          name: 'business.order-management.lease-order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/LeaseOrders.vue'),
+          meta: {
+            title: t('reuse.leaseOrderList')
+          }
+        },
+        {
+          path: 'deposit-order-list',
+          name: 'business.order-management.deposit-order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/DepositOrders.vue'),
+          meta: {
+            title: t('reuse.depositOrderList')
+          }
+        },
+        {
+          path: 'mortgage-order-list',
+          name: 'business.order-management.mortgage-order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/MortgageOrders.vue'),
+          meta: {
+            title: t('reuse.mortgageOrderList')
+          }
+        },
+        {
+          path: 'spa-order-list',
+          name: 'business.order-management.spa-order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/SpaOrders.vue'),
+          meta: {
+            title: t('reuse.spaOrderList')
           }
         },
         {

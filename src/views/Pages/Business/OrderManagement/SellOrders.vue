@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { h, onBeforeMount, watch, reactive, ref } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { ElButton, ElRow, ElCol } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { HeaderFiler } from '../Components/HeaderFilter'
-import { getCustomerList } from '@/api/Business/'
+import { HeaderFiler } from '@/views/Pages/Components/HeaderFilter'
+import { getSellOrderList } from '@/api/Business'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -23,54 +23,49 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'collaboratorsName',
-    label: t('reuse.collaboratorsName'),
+    field: 'orderCode',
+    label: t('reuse.customerName') + ' ' + t('reuse.representative'),
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
-    label: t('reuse.collaboratorsCode'),
-    minWidth: '100'
-  },
-  {
-    field: 'contact',
-    label: t('reuse.contact'),
+    field: 'creator',
+    label: t('reuse.creator'),
     minWidth: '250'
   },
   {
-    field: 'account',
-    label: t('reuse.account'),
+    field: 'customer',
+    label: t('reuse.customerName'),
+    minWidth: '100'
+  },
+  {
+    field: 'description',
+    label: t('reuse.descriptions'),
+    minWidth: '100'
+  },
+  {
+    field: 'saleNumber',
+    label: t('reuse.saleNumber'),
     minWidth: '200'
   },
   {
     field: 'totalMoney',
-    label: t('reuse.totalMoney'),
+    label: t('reuse.totaMoney'),
     minWidth: '150'
   },
   {
-    field: 'debt',
-    label: t('reuse.debtCom'),
-    minWidth: '150'
+    field: 'debitTotal',
+    label: t('reuse.debt'),
+    minWidth: '100'
   },
   {
-    field: 'withdrawalRequest',
-    label: t('reuse.withdrawalRequest'),
-    minWidth: '150'
+    field: 'receiptAndExpenditure',
+    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
+    minWidth: '100'
   },
   {
-    field: 'requestDate',
-    label: t('reuse.requestDate'),
-    minWidth: '150'
-  },
-  {
-    field: 'requestStatus',
-    label: t('reuse.requestStatus'),
-    minWidth: '150'
-  },
-  {
-    field: 'accountStatus',
-    label: t('reuse.accountStatus'),
-    minWidth: '200'
+    field: 'status',
+    label: t('reuse.status'),
+    minWidth: '100'
   },
   {
     field: 'operator',
@@ -94,12 +89,20 @@ const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-
+const showPagination = (show: boolean) => {
+  if (show) {
+    paginationObj.value = {
+      total: tableObject.total
+    }
+  } else {
+    paginationObj.value = undefined
+  }
+}
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
 const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getCustomerList,
+  getListApi: getSellOrderList,
   response: {
     list: 'list',
     total: 'total'
@@ -109,21 +112,17 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'center'
   }
 })
-
-onBeforeMount(() => {
-  methods.getList()
-})
-watch(
-  () => tableObject.tableList,
-  () => {
-    paginationObj.value = {
-      total: tableObject.total
+const { getList } = methods
+getList(),
+  watch(
+    () => tableObject.tableList,
+    () => {
+      showPagination(true)
+    },
+    {
+      immediate: true
     }
-  },
-  {
-    immediate: true
-  }
-)
+  )
 </script>
 <template>
   <section>
@@ -140,7 +139,6 @@ watch(
         :data="tableObject.tableList"
         :loading="tableObject.loading"
         :pagination="paginationObj"
-        :showOverflowTooltip="false"
         @register="register"
       />
     </ContentWrap>

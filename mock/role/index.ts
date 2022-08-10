@@ -65,11 +65,44 @@ const adminList = [
         },
         children: [
           {
-            path: 'order-list',
-            name: 'business.order-management.order-list',
-            component: 'views/Pages/Business/OrderManagement/OrderList',
+            path: 'sell-order-list',
+            name: 'business.order-management.sell-order-list',
+            component: 'views/Pages/Business/OrderManagement/SellOrders',
             meta: {
-              title: 'router.orderList'
+              title: 'reuse.sellOrderList'
+            }
+          },
+          {
+            path: 'lease-order-list',
+            name: 'business.order-management.lease-order-list',
+            params: { type: 'lease' },
+            component: 'views/Pages/Business/OrderManagement/LeaseOrders',
+            meta: {
+              title: 'reuse.leaseOrderList'
+            }
+          },
+          {
+            path: 'deposit-order-list',
+            name: 'business.order-management.deposit-order-list',
+            component: 'views/Pages/Business/OrderManagement/DepositOrders',
+            meta: {
+              title: 'reuse.depositOrderList'
+            }
+          },
+          {
+            path: 'mortgage-order-list',
+            name: 'business.order-management.mortgage-order-list',
+            component: 'views/Pages/Business/OrderManagement/MortgageOrders',
+            meta: {
+              title: 'reuse.mortgageOrderList'
+            }
+          },
+          {
+            path: 'spa-order-list',
+            name: 'business.order-management.spa-order-list',
+            component: 'views/Pages/Business/OrderManagement/SpaOrders',
+            meta: {
+              title: 'reuse.spaOrderList'
             }
           },
           {

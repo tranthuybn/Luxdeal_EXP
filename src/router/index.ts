@@ -20,7 +20,15 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   NewAndAdvertisement,
   LibraryAndSetting,
   Authentication,
-  Error
+  Error,
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    meta: {
+      title: '404'
+    },
+    component: () => import('@/views/Error/404.vue')
+  }
 ]
 
 const router = createRouter({

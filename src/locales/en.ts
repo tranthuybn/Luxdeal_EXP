@@ -495,6 +495,15 @@ export default {
     endDate: 'End date',
     getData: 'Get Data',
     dateRange: 'Date Ranger',
-    enterKeyWords: 'Enter key words...'
+    enterKeyWords: 'Enter key words...',
+    collaboratorsName: 'Collaborators name',
+    collaboratorsCode: 'Collaborators Code',
+    account: 'Account',
+    totalMoney: 'Total money Com',
+    debt: 'Debt Com',
+    withdrawalRequest: 'Request Withdrawal',
+    requestDate: 'Request Date',
+    requestStatus: 'Request Status',
+    accountStatus: 'Account Status'
   }
 }

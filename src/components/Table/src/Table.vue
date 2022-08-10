@@ -52,6 +52,7 @@ export default defineComponent({
     border: propTypes.bool.def(true),
     maxHeight: propTypes.string.def('71vh')
   },
+  slots: [],
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {
     const elTableRef = ref<ComponentRef<typeof ElTable>>()
@@ -198,7 +199,6 @@ export default defineComponent({
             headerAlign={headerAlign}
             {...props}
             prop={v.field}
-            min-width={v.minWidth ?? '120'}
             fixed={v.fixed ?? false}
           >
             {{
@@ -256,8 +256,6 @@ export default defineComponent({
                 headerAlign={headerAlign}
                 {...props}
                 prop={v.field}
-                min-width={v.minWidth ?? '120'}
-                fixed={v.fixed ?? false}
               >
                 {{
                   default: (data: TableSlotDefault) =>
@@ -307,7 +305,8 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="less">
-::v-deep(.header-Table-customize, .el-table__row) {
+::v-deep(.header-Table-customize),
+::v-deep(.el-table__row) {
   .cell {
     word-break: break-word;
     white-space: unset;

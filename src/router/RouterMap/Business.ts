@@ -29,9 +29,10 @@ export default {
       },
       children: [
         {
-          path: 'order-list',
+          path: 'order-list/:type',
           name: 'business.order-management.order-list',
           component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
+          props: (route) => ({ ...route.prams, orderType: route.params.type }),
           meta: {
             title: t('router.orderList')
           }

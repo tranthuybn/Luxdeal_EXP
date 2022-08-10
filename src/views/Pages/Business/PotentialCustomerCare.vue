@@ -21,12 +21,14 @@ const columns = reactive<TableColumn[]>([
     field: 'receivedDate',
     label: t('reuse.receivedDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    sortable: true
   },
   {
     field: 'sale',
     label: t('reuse.sale'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'customerInfo',
@@ -66,7 +68,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'serviceDetail',
     label: t('reuse.serviceDetail'),
-    minWidth: '100'
+    minWidth: '200'
   },
   {
     field: 'statusTag',

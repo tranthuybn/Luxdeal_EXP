@@ -47,7 +47,6 @@ const guide = () => {
     </div>
   )
 }
-
 export default defineComponent({
   name: 'ToolHeader',
   setup() {

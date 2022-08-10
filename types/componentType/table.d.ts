@@ -2,9 +2,7 @@ declare type TableColumn = {
   field: string
   label?: string | VNode
   children?: TableColumn[]
-  minWidth?: string | number
   align?: string
-  fixed?: boolean | string
 } & Recordable
 
 declare type TableSlotDefault = {
@@ -31,7 +29,6 @@ declare interface Pagination {
   disabled?: boolean
   hideOnSinglePage?: boolean
 }
-
 declare interface TableSetPropsType {
   field: string
   path: string

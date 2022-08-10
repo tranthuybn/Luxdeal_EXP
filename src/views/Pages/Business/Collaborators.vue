@@ -49,7 +49,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'debt',
-    label: t('reuse.debt'),
+    label: t('reuse.debtCom'),
     minWidth: '150'
   },
   {

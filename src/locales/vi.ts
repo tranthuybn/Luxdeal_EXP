@@ -489,7 +489,7 @@ export default {
     collaboratorsCode: 'Mã CTV',
     account: 'Tài Khoản',
     totalMoney: 'Tổng tiền Com',
-    debt: 'Công nợ Com',
+    debtCom: 'Công nợ Com',
     withdrawalRequest: 'Yêu cầu rút tiền',
     requestDate: 'Ngày yêu cầu',
     requestStatus: 'Trạng thái yêu cầu',
@@ -516,6 +516,10 @@ export default {
     descriptions: 'Mô tả',
     saleNumber: 'Số lượng bán',
     totaMoney: 'Tổng tiền',
-    debt: 'Công nợ'
+    debt: 'Công nợ',
+    choose: 'Đã chọn',
+    exportExcel: 'Xuất Excel',
+    duplicate: 'Nhân bản',
+    delete: 'Xóa'
   }
 }

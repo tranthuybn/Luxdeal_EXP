@@ -52,7 +52,6 @@ export default defineComponent({
     border: propTypes.bool.def(true),
     maxHeight: propTypes.string.def('71vh')
   },
-  slots: [],
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {
     const elTableRef = ref<ComponentRef<typeof ElTable>>()

@@ -7,8 +7,8 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { ElButton, ElRow, ElCol } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { HeaderFiler } from '../Components/HeaderFilter'
-import { getCustomerList } from '@/api/Business'
+import { HeaderFiler } from '@/views/Pages/Components/HeaderFilter'
+import { getSellOrderList } from '@/api/Business'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -23,38 +23,43 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'customerOrRepresentative',
+    field: 'orderCode',
     label: t('reuse.customerName') + ' ' + t('reuse.representative'),
     minWidth: '150'
   },
   {
-    field: 'customerCode',
-    label: t('reuse.customerCode'),
+    field: 'creator',
+    label: t('reuse.creator'),
     minWidth: '250'
   },
   {
-    field: 'gender',
-    label: t('reuse.gender'),
+    field: 'customer',
+    label: t('reuse.customerName'),
     minWidth: '100'
   },
   {
-    field: 'contact',
-    label: t('reuse.contact'),
+    field: 'description',
+    label: t('reuse.descriptions'),
     minWidth: '100'
   },
   {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
+    field: 'saleNumber',
+    label: t('reuse.saleNumber'),
     minWidth: '200'
   },
   {
-    field: 'type',
-    label: t('reuse.type'),
+    field: 'totalMoney',
+    label: t('reuse.totaMoney'),
     minWidth: '150'
   },
   {
-    field: 'accountType',
-    label: t('reuse.accountType'),
+    field: 'debitTotal',
+    label: t('reuse.debt'),
+    minWidth: '100'
+  },
+  {
+    field: 'receiptAndExpenditure',
+    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
     minWidth: '100'
   },
   {
@@ -97,7 +102,7 @@ const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
 const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getCustomerList,
+  getListApi: getSellOrderList,
   response: {
     list: 'list',
     total: 'total'

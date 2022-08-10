@@ -157,7 +157,7 @@ export default {
     customerManagement: 'Quản lý khách hàng',
     employeeManagement: 'Quản lý nhân viên',
     orderManagement: 'Quản lý đơn hàng',
-    promotionStrategy: 'Chiến dịch & Quản cáo',
+    promotionStrategy: 'Chiến dịch & Quảng cáo',
     serviceSurvey: 'Khảo sát dịch vụ',
     orderList: 'Danh sách đơn hàng',
     createANewOrder: 'Tạo mới đơn hàng',
@@ -494,6 +494,19 @@ export default {
     endDate: 'Ngày kết thúc',
     getData: 'Lấy dữ liệu',
     dateRange: 'Khoảng thời gian',
-    enterKeyWords: 'Nhập từ khoá ...'
+    enterKeyWords: 'Nhập từ khoá ...',
+    sellOrderList: 'Đơn hàng bán',
+    leaseOrderList: 'Đơn hàng cho thuê',
+    depositOrderList: 'Đơn hàng ký gửi',
+    mortgageOrderList: 'Đơn hàng thế chấp',
+    spaOrderList: 'Đơn hàng spa',
+    haveToCollect: 'Phải thu',
+    havetoPay: 'Phải chi',
+    orderCode: 'Mã đơn hàng',
+    creator: 'Người tạo',
+    descriptions: 'Mô tả',
+    saleNumber: 'Số lượng bán',
+    totaMoney: 'Tổng tiền',
+    debt: 'Công nợ'
   }
 }

@@ -495,6 +495,19 @@ export default {
     endDate: 'End date',
     getData: 'Get Data',
     dateRange: 'Date Ranger',
-    enterKeyWords: 'Enter key words...'
+    enterKeyWords: 'Enter key words...',
+    sellOrderList: 'Sell orders',
+    leaseOrderList: 'Lease orders',
+    depositOrderList: 'Deposit orders',
+    mortgageOrderList: 'Mortgage orders',
+    spaOrderList: 'Spa orders',
+    haveToCollect: 'Have to Collect',
+    havetoPay: 'Have to pay',
+    orderCode: 'Order code',
+    creator: 'Creator',
+    descriptions: 'Description',
+    saleNumber: 'Sale number',
+    totaMoney: 'Total Money',
+    debt: 'Debt'
   }
 }

@@ -28,7 +28,15 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   Example,
   Authentication,
   Hook,
-  Error
+  Error,
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    meta: {
+      title: '404'
+    },
+    component: () => import('@/views/Error/404.vue')
+  }
 ]
 
 const router = createRouter({

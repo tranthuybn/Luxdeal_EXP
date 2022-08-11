@@ -309,43 +309,6 @@ const adminList = [
         }
       }
     ]
-  },
-  {
-    path: '/error',
-    component: '#',
-    redirect: '/error/404',
-    name: 'Error',
-    meta: {
-      title: 'router.errorPage',
-      icon: 'ci:error',
-      alwaysShow: true
-    },
-    children: [
-      {
-        path: '404-demo',
-        component: 'views/Error/404',
-        name: '404Demo',
-        meta: {
-          title: '404'
-        }
-      },
-      {
-        path: '403-demo',
-        component: 'views/Error/403',
-        name: '403Demo',
-        meta: {
-          title: '403'
-        }
-      },
-      {
-        path: '500-demo',
-        component: 'views/Error/500',
-        name: '500Demo',
-        meta: {
-          title: '500'
-        }
-      }
-    ]
   }
 ]
 

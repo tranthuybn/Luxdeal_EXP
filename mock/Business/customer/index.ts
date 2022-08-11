@@ -32,12 +32,12 @@ const customerListMock = {
   collaboratorsName: '@name',
   collaboratorsCode: '@natural',
   account: '@string(10,20)',
-  totalMoney: '10.000.000 đ',
-  debt: '10.000.000 đ',
-  withdrawalRequest: '10.000.000 đ',
+  totalMoney: '@integer(500-1000)',
+  debt: '@integer(500-1000)',
+  withdrawalRequest: '@integer(500-1000)',
   requestDate: '@date("dd/MM/yyyy")',
-  requestStatus: 'Chờ Duyệt',
-  accountStatus: 'Đang hoạt động'
+  requestStatus: '@integer',
+  accountStatus: '@boolean'
 }
 
 export { customerList, customerListMock }

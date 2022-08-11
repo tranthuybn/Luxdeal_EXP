@@ -500,7 +500,7 @@ export default {
     collaboratorsCode: 'Collaborators Code',
     account: 'Account',
     totalMoney: 'Total money Com',
-    debt: 'Debt Com',
+    debtCom: 'Debt Com',
     withdrawalRequest: 'Request Withdrawal',
     requestDate: 'Request Date',
     requestStatus: 'Request Status',

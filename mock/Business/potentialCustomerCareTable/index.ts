@@ -1,5 +1,3 @@
-const count = 100
-import Mock from 'mockjs'
 const potentialCustomerCareTable: {
   receivedDate: Date
 

@@ -59,13 +59,13 @@ export default [
     timeout,
     response: ({ query }) => {
       const { pageIndex, pageSize } = query
-      const pageList = customerList.filter(
+      const pageList = SellOrder.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
       return {
         code: result_code,
         data: {
-          total: customerList.length,
+          total: SellOrder.length,
           list: pageList
         }
       }

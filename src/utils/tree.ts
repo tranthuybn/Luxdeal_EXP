@@ -194,7 +194,7 @@ export const treeMapEach = (
 /**
  * 递归遍历树结构
  * @param treeDatas 树
- * @param callBack 回调
+ * @param callBack Call back
  * @param parentNode 父节点
  */
 export const eachTree = (treeDatas: any[], callBack: Fn, parentNode = {}) => {

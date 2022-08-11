@@ -21,11 +21,6 @@ let dateTimeDisable = ref<boolean>(false)
 let dateFormType = ref<IDatePickerType>('date')
 const { required } = useValidator()
 const { t } = useI18n()
-
-const rules = {
-  startDate: [required()],
-  endDate: [required()]
-}
 const dateTimeFormat = ref<string>('DD/MM/YYYY')
 const valueFormat = ref<string>('YYYY-MM-DD')
 
@@ -40,6 +35,9 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueFormat,
       type: dateFormType,
       disabled: dateTimeDisable
+    },
+    formItemProps: {
+      rules: [required()]
     }
   },
   {
@@ -52,6 +50,9 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueFormat,
       type: dateFormType,
       disabled: dateTimeDisable
+    },
+    formItemProps: {
+      rules: [required()]
     }
   }
 ])
@@ -169,7 +170,7 @@ const { register, methods } = useForm()
         </el-select>
       </el-col>
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
-        <Form :schema="schema" :rules="rules" ref="dateFilterFormRefer" @register="register" />
+        <Form :schema="schema" ref="dateFilterFormRefer" @register="register" />
       </el-col>
       <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
         <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />
@@ -177,7 +178,7 @@ const { register, methods } = useForm()
       </el-col>
     </el-row>
     <el-row class="mb-2">
-      <el-col :xl="8" :lg="12" :xs="24">
+      <el-col :xl="6" :lg="12" :xs="24">
         <div class="extension-function">
           <p>
             <span>{{ t('reuse.choose') }}</span>
@@ -188,7 +189,7 @@ const { register, methods } = useForm()
             ><span>
               <Icon
                 icon="file-icons:microsoft-excel"
-                size="{16}"
+                :about="16"
                 color="var(--el-color-primary)"
                 class="ml-2px relative top-1px"
               />
@@ -199,7 +200,7 @@ const { register, methods } = useForm()
             <span>
               <Icon
                 icon="ion:duplicate"
-                size="{16}"
+                :size="16"
                 color="var(--el-color-primary)"
                 class="ml-2px relative top-1px"
               />
@@ -210,7 +211,7 @@ const { register, methods } = useForm()
             <span>
               <Icon
                 icon="fluent:delete-12-regular"
-                size="{16}"
+                :size="16"
                 color="var(--el-color-primary)"
                 class="ml-2px relative top-1px"
               />
@@ -224,14 +225,16 @@ const { register, methods } = useForm()
 <style lang="scss" scoped>
 @mixin d-flex {
   display: flex;
-  justify-content: space-around;
   align-items: center;
 }
 .extension-function {
   @include d-flex;
+  justify-content: space-between;
+
   p {
     border-bottom: 2px solid var(--app-contnet-bg-color);
     @include d-flex;
+    justify-content: flex-start;
     box-sizing: border-box;
     cursor: pointer;
     width: max-content;

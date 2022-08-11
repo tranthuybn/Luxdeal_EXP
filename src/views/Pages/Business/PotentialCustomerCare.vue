@@ -5,7 +5,7 @@ import { h, onBeforeMount, watch, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
-import { ElButton, ElRow, ElCol } from 'element-plus'
+import { ElButton, ElRow, ElCol, ElSelect, ElOption } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { HeaderFiler } from '../Components/HeaderFilter'
 import { getPotentialCustomerList } from '@/api/Business/'
@@ -38,7 +38,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'transaction',
     label: t('reuse.transaction'),
-    minWidth: '100'
+    minWidth: '200'
   },
   {
     field: 'transactionStatus',
@@ -147,6 +147,34 @@ watch(
     immediate: true
   }
 )
+var value1 = ref('')
+const options = [
+  {
+    value: 'Option1',
+    label: 'Option1'
+  },
+  {
+    value: 'Option2',
+    label: 'Option2'
+  },
+  {
+    value: 'Option3',
+    label: 'Option3'
+  },
+  {
+    value: 'Option4',
+    label: 'Option4'
+  },
+  {
+    value: 'Option5',
+    label: 'Option5'
+  }
+]
+
+const updatevalue = (event) => {
+  console.log(event)
+  value1.value = event
+}
 </script>
 <template>
   <section>
@@ -165,7 +193,25 @@ watch(
         :pagination="paginationObj"
         :showOverflowTooltip="false"
         @register="register"
-      />
+      >
+        <template #transaction-header>
+          <div>{{ t('reuse.transaction') }} </div>
+          <el-select
+            :model-value="value1"
+            class="m-2"
+            placeholder="Select"
+            size="large"
+            @change="updatevalue($event)"
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </template>
+      </Table>
     </ContentWrap>
   </section>
 </template>

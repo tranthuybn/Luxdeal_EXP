@@ -8,14 +8,14 @@ import { Screenfull } from '@/components/Screenfull'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
-import { useIntro } from '@/hooks/web/useIntro'
 import { Icon } from '@/components/Icon'
-
+import { useIntro } from '@/hooks/web/useIntro'
 const { introRef } = useIntro()
 
 const guideStart = () => {
   introRef.start()
 }
+
 const { getPrefixCls, variables } = useDesign()
 
 const prefixCls = getPrefixCls('tool-header')

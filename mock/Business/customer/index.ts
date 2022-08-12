@@ -19,7 +19,16 @@ const customerListMock = {
   companyInfo: '@paragraph(1)',
   type: '@string(5)',
   accountType: '@string(5)',
-  status: '@boolean'
+  status: '@boolean',
+  collaboratorsName: '@name',
+  collaboratorsCode: '@natural',
+  account: '@string(10,20)',
+  totalMoney: '@integer(500-1000)',
+  debt: '@integer(500-1000)',
+  withdrawalRequest: '@integer(500-1000)',
+  requestDate: '@date("dd/MM/yyyy")',
+  requestStatus: '@integer',
+  accountStatus: '@boolean'
 }
 
 export { customerList, customerListMock }

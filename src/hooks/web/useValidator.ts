@@ -1,4 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -53,12 +54,24 @@ export const useValidator = () => {
       callback(new Error(message))
     }
   }
-
+  const checkStartDate = (
+    startDate: any,
+    endDate: any,
+    callback: Callback,
+    message = 'Ngày bắt đầu không được lớn hơn ngày kết thúc'
+  ) => {
+    if (startDate && moment(startDate).isBefore(startDate)) {
+      callback(new Error(message))
+    } else {
+      callback()
+    }
+  }
   return {
     required,
     lengthRange,
     notSpace,
     notSpecialCharacters,
-    isEqual
+    isEqual,
+    checkStartDate
   }
 }

@@ -3,31 +3,23 @@ import type { RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue'
 import { constantRouterMap } from './constant'
 import DashBoard from './RouterMap/DashBoard'
-import Components from './RouterMap/Components'
 import Business from './RouterMap/Business'
 import Warehouse from './RouterMap/Warehouse'
 import Accountant from './RouterMap/Accountant'
 import Approve from './RouterMap/Approve'
-import MultiTierMenu from './RouterMap/MultiTierMenu'
-import Example from './RouterMap/Example'
 import Authentication from './RouterMap/Authentication'
-import Hook from './RouterMap/Hook'
-import Error from './RouterMap/Error'
 import NewAndAdvertisement from './RouterMap/NewAndAdvertisement'
 import LibraryAndSetting from './RouterMap/LibraryAndSetting'
+import Error from './RouterMap/Error'
 export const asyncRouterMap: AppRouteRecordRaw[] = [
   DashBoard,
-  Components,
   Business,
   Warehouse,
   Accountant,
   Approve,
   NewAndAdvertisement,
   LibraryAndSetting,
-  MultiTierMenu,
-  Example,
   Authentication,
-  Hook,
   Error,
   {
     path: '/:pathMatch(.*)*',

@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 
 export const useRenderRadio = () => {
   const renderRadioOptions = (item: FormSchema) => {
-    // 如果有别名，就取别名
+    // If you have aliases, take alias
     const labelAlias = item?.componentProps?.optionsAlias?.labelField
     const valueAlias = item?.componentProps?.optionsAlias?.valueField
     const Com = (item.component === 'Radio' ? ElRadio : ElRadioButton) as ReturnType<

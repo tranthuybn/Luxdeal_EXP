@@ -83,15 +83,15 @@ export const useCrudSchemas = (
   }
 }
 
-// 过滤 Search 结构
+// Filter Search structure
 const filterSearchSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): FormSchema[] => {
   const searchSchema: FormSchema[] = []
 
-  // 获取字典列表队列
+  // Get the dictionary queue
   const searchRequestTask: Array<() => Promise<void>> = []
 
   eachTree(crudSchema, (schemaItem: CrudSchema) => {
-    // 判断是否显示
+    // Determine whether it is displayed
     if (schemaItem?.search?.show) {
       const searchSchemaItem = {
         // 默认为 input
@@ -123,7 +123,7 @@ const filterSearchSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): F
         })
       }
 
-      // 删除不必要的字段
+      // Delete unnecessary fields
       delete searchSchemaItem.show
       delete searchSchemaItem.dictName
 
@@ -138,7 +138,7 @@ const filterSearchSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): F
   return searchSchema
 }
 
-// 过滤 table 结构
+// Filter Table structure
 const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
   const tableColumns = treeMap<CrudSchema>(crudSchema, {
     conversion: (schema: CrudSchema) => {

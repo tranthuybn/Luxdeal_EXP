@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { TableData } from '@/api/table/types'
-import { useTable } from '@/hooks/web/useTable'
-import { h, onBeforeMount, watch, reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ContentWrap } from '@/components/ContentWrap'
-import { Table, TableExpose } from '@/components/Table'
-import { ElButton, ElRow, ElCol } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
-import { HeaderFiler } from '../Components/HeaderFilter'
-import { getPotentialCustomerList } from '@/api/Business/'
+import { getPotentialCustomerList } from '@/api/Business'
+import tableDatetimeFilterBasicVue from '../Components/table-datetimeFilter-basic.vue'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -38,7 +32,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'transaction',
     label: t('reuse.transaction'),
-    minWidth: '100'
+    minWidth: '200'
   },
   {
     field: 'transactionStatus',
@@ -94,78 +88,9 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '180'
-  },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '180',
-    fixed: 'right',
-    formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElRow, { gutter: 20, justify: 'space-around' }, () => [
-        h(ElCol, { span: 8 }, () =>
-          h(ElButton, { icon: eyeIcon, onClick: () => acitonFn(record, cellValue) })
-        ),
-        h(ElCol, { span: 8 }, () => h(ElButton, { icon: editIcon })),
-        h(ElCol, { span: 8 }, () => h(ElButton, { icon: trashIcon }))
-      ])
-    }
   }
 ])
-const paginationObj = ref<Pagination>()
-const tableRef = ref<TableExpose>()
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
-const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-
-const acitonFn = (record: Recordable, data: TableSlotDefault) => {
-  console.log(record, data)
-}
-const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getPotentialCustomerList,
-  response: {
-    list: 'list',
-    total: 'total'
-  },
-  props: {
-    columns: columns,
-    headerAlign: 'center'
-  }
-})
-
-onBeforeMount(() => {
-  methods.getList()
-})
-watch(
-  () => tableObject.tableList,
-  () => {
-    paginationObj.value = {
-      total: tableObject.total
-    }
-  },
-  {
-    immediate: true
-  }
-)
 </script>
 <template>
-  <section>
-    <HeaderFiler>
-      <template #headerFilterSlot>
-        <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
-      </template>
-    </HeaderFiler>
-    <ContentWrap>
-      <Table
-        ref="tableRef"
-        v-model:pageSize="tableObject.pageSize"
-        v-model:currentPage="tableObject.currentPage"
-        :data="tableObject.tableList"
-        :loading="tableObject.loading"
-        :pagination="paginationObj"
-        :showOverflowTooltip="false"
-        @register="register"
-      />
-    </ContentWrap>
-  </section>
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getPotentialCustomerList" />
 </template>

@@ -332,6 +332,7 @@ export default {
     choose: 'Đã chọn',
     exportExcel: 'Xuất Excel',
     duplicate: 'Nhân bản',
-    delete: 'Xóa'
+    delete: 'Xóa',
+    warningDate: 'Ngày bắt đầu không được lớn hơn ngày kết thúc'
   }
 }

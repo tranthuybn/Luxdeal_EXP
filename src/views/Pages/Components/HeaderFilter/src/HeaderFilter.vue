@@ -27,6 +27,24 @@ const searchingFormModel = reactive({
   startDate: '',
   endDate: ''
 })
+type Callback = (error?: string | Error | undefined) => void
+const { register, methods } = useForm()
+
+const { getFormData } = methods
+const checkStartDate = (_, endDate: any, callback: Callback) => {
+  getFormData().then((res) =>
+    res?.startDate && moment(endDate).isBefore(res?.startDate)
+      ? callback(new Error(t('reuse.warningDate')))
+      : callback()
+  )
+}
+const checkEndDate = (_, startDate: any, callback: Callback) => {
+  getFormData().then((res) =>
+    res?.endDate && moment(res?.endDate).isBefore(startDate)
+      ? callback(new Error(t('reuse.warningDate')))
+      : callback()
+  )
+}
 const schema = reactive<FormSchema[]>([
   {
     field: 'startDate',
@@ -39,9 +57,6 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueFormat,
       type: dateFormType,
       disabled: dateTimeDisable
-    },
-    formItemProps: {
-      rules: [required()]
     }
   },
   {
@@ -55,12 +70,13 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueFormat,
       type: dateFormType,
       disabled: dateTimeDisable
-    },
-    formItemProps: {
-      rules: [required()]
     }
   }
 ])
+const rule = reactive({
+  startDate: [required(), { validator: checkEndDate }],
+  endDate: [required(), { validator: checkStartDate }]
+})
 const periodFilter = reactive([
   { value: '1', label: 'Hôm nay' },
   { value: '2', label: 'Tháng này' },
@@ -146,10 +162,9 @@ async function getDataEvent() {
   formValidation()
   const { getFormData } = methods
   const formData = await getFormData()
+  console.log(formData)
   emit('getData', formData, searchingKey.value)
 }
-
-const { register, methods } = useForm()
 </script>
 <template>
   <section>
@@ -178,6 +193,7 @@ const { register, methods } = useForm()
       </el-col>
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
         <Form
+          :rules="rule"
           :schema="schema"
           :model="searchingFormModel"
           ref="dateFilterFormRefer"

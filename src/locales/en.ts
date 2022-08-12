@@ -327,6 +327,7 @@ export default {
     descriptions: 'Description',
     saleNumber: 'Sale number',
     totaMoney: 'Total Money',
-    debt: 'Debt'
+    debt: 'Debt',
+    warningDate: 'End date cannot be greater than Start date'
   }
 }

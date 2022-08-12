@@ -483,13 +483,14 @@ export default {
     customerName: 'Tên khách hàng',
     representative: 'Người đại diện',
     customerCode: 'Mã khách hàng',
+    customer: 'Khách hàng',
     gender: 'Giới  tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
     account: 'Tài Khoản',
     totalMoney: 'Tổng tiền Com',
-    debt: 'Công nợ Com',
+    debtCom: 'Công nợ Com',
     withdrawalRequest: 'Yêu cầu rút tiền',
     requestDate: 'Ngày yêu cầu',
     requestStatus: 'Trạng thái yêu cầu',
@@ -516,6 +517,14 @@ export default {
     descriptions: 'Mô tả',
     saleNumber: 'Số lượng bán',
     totaMoney: 'Tổng tiền',
-    debt: 'Công nợ'
+    debt: 'Công nợ',
+    explain: 'Diễn giải',
+    rentalQuantity: 'Số lượng đang cho thuê',
+    returned: 'Đã trả lại',
+    totalRentalDeposit: 'Tổng tiền cọc thuê',
+    totalTermRentalFee: 'Tổng tiền phí thuê theo kì hạn',
+    outstandingDebt: 'Công nợ tồn',
+    revenueExpenditure: 'Phải thu/Phải chi',
+    rentalTerm: 'Kỳ hạn thuê'
   }
 }

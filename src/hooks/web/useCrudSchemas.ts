@@ -94,7 +94,7 @@ const filterSearchSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): F
     // Determine whether it is displayed
     if (schemaItem?.search?.show) {
       const searchSchemaItem = {
-        // 默认为 input
+        // Deficiency Input
         component: schemaItem.search.component || 'Input',
         componentProps: {},
         ...schemaItem.search,
@@ -103,7 +103,7 @@ const filterSearchSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): F
       }
 
       if (searchSchemaItem.dictName) {
-        // 如果有 dictName 则证明是从字典中获取数据
+        // If there is DICTNAME, it is proved to obtain data from the dictionary
         const dictArr = dictStore.getDictObj[searchSchemaItem.dictName]
         searchSchemaItem.componentProps!.options = filterOptions(dictArr)
       } else if (searchSchemaItem.api) {
@@ -151,7 +151,7 @@ const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
     }
   })
 
-  // 第一次过滤会有 undefined 所以需要二次过滤
+  // The first filtering will have undefined so it takes secondary filtration
   return filter<TableColumn>(tableColumns as TableColumn[], (data) => {
     if (data.children === void 0) {
       delete data.children
@@ -160,18 +160,18 @@ const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
   })
 }
 
-// 过滤 form 结构
+// Filter form structure
 const filterFormSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): FormSchema[] => {
   const formSchema: FormSchema[] = []
 
-  // 获取字典列表队列
+  // Get the dictionary queue
   const formRequestTask: Array<() => Promise<void>> = []
 
   eachTree(crudSchema, (schemaItem: CrudSchema) => {
-    // 判断是否显示
+    // Determine whether it is displayed
     if (schemaItem?.form?.show !== false) {
       const formSchemaItem = {
-        // 默认为 input
+        // Deficiency Input
         component: schemaItem?.form?.component || 'Input',
         componentProps: {},
         ...schemaItem.form,
@@ -180,7 +180,7 @@ const filterFormSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): For
       }
 
       if (formSchemaItem.dictName) {
-        // 如果有 dictName 则证明是从字典中获取数据
+        // If there is DICTNAME, it is proved to obtain data from the dictionary
         const dictArr = dictStore.getDictObj[formSchemaItem.dictName]
         formSchemaItem.componentProps!.options = filterOptions(dictArr)
       } else if (formSchemaItem.api) {
@@ -200,7 +200,7 @@ const filterFormSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): For
         })
       }
 
-      // 删除不必要的字段
+      // Delete unnecessary fields
       delete formSchemaItem.show
       delete formSchemaItem.dictName
 
@@ -215,12 +215,12 @@ const filterFormSchema = (crudSchema: CrudSchema[], allSchemas: AllSchemas): For
   return formSchema
 }
 
-// 过滤 descriptions 结构
+// Filter Descriptions structure
 const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[] => {
   const descriptionsSchema: FormSchema[] = []
 
   eachTree(crudSchema, (schemaItem: CrudSchema) => {
-    // 判断是否显示
+    // Determine whether it is displayed
     if (schemaItem?.detail?.show !== false) {
       const descriptionsSchemaItem = {
         ...schemaItem.detail,
@@ -228,7 +228,7 @@ const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[
         label: schemaItem.detail?.label || schemaItem.label
       }
 
-      // 删除不必要的字段
+      // Delete unnecessary fields
       delete descriptionsSchemaItem.show
 
       descriptionsSchema.push(descriptionsSchemaItem)
@@ -238,7 +238,7 @@ const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[
   return descriptionsSchema
 }
 
-// 给options添加国际化
+// Add internationalization to Options
 const filterOptions = (options: Recordable, labelField?: string) => {
   return options.map((v: Recordable) => {
     if (labelField) {

@@ -38,7 +38,7 @@ const operatorColumn: TableColumn = {
   field: 'operator',
   label: t('reuse.operator'),
   minWidth: '180',
-  fixed: 'right',
+  fixed: false,
   formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
     return h(ElRow, { gutter: 20, justify: 'space-around' }, () => [
       h(ElCol, { span: 8 }, () =>
@@ -79,6 +79,34 @@ watch(
     immediate: true
   }
 )
+let totalSelections = ref([])
+function getCurrentSelections(selection) {
+  totalSelections.value = selection
+}
+function selectedAllRecords(selections) {
+  totalSelections.value =
+    selections ?? totalSelections.value.splice(0, totalSelections.value.length)
+}
+const { setColumn } = methods
+watch(totalSelections, (value) => {
+  if (fullColumns.findIndex((el) => el.field === 'operator') !== -1) console.log(value)
+  if (value.length > 0)
+    setColumn([
+      {
+        field: 'operator',
+        path: 'fixed',
+        value: 'right'
+      }
+    ])
+  else if (value.length === 0)
+    setColumn([
+      {
+        field: 'operator',
+        path: 'fixed',
+        value: false
+      }
+    ])
+})
 </script>
 <template>
   <section>
@@ -96,6 +124,8 @@ watch(
         :loading="tableObject.loading"
         :pagination="paginationObj"
         :showOverflowTooltip="false"
+        @select="getCurrentSelections"
+        @select-all="selectedAllRecords"
         @register="register"
       />
     </ContentWrap>

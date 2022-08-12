@@ -232,150 +232,6 @@ export default {
     deposit: 'Ký gửi',
     mortgage: 'Thế chấp'
   },
-  formDemo: {
-    input: 'Hộp đầu vào',
-    inputNumber: 'Hộp đầu vào kỹ thuật số',
-    default: 'Mặc định',
-    icon: 'Biểu tượng',
-    mixed: 'Hợp chất',
-    textarea: 'Văn bản đa dòng',
-    slot: 'Rãnh',
-    position: 'Địa điểm',
-    autocomplete: 'Tự động bổ sung',
-    select: 'Chọn',
-    selectGroup: 'Tùy chọn',
-    selectV2: 'Người lựa chọn danh sách ảo',
-    cascader: 'Bộ chọn danh sách lớp',
-    switch: 'Công tắc',
-    rate: 'Ghi bàn',
-    colorPicker: 'Bộ chọn màu',
-    transfer: 'Xe đưa đón',
-    render: 'Người kết xuất',
-    radio: 'Hộp đơn',
-    button: 'Cái nút',
-    checkbox: 'Hộp kiểm',
-    slider: 'Trượt',
-    datePicker: 'Người lựa chọn ngày',
-    shortcuts: 'Tùy chọn nhanh',
-    today: 'Hôm nay',
-    yesterday: 'Hôm qua',
-    aWeekAgo: 'Một tuần trước',
-    week: 'Tuần',
-    year: 'Năm',
-    month: 'Mặt trăng',
-    dates: 'Ngày',
-    daterange: 'Ngày',
-    monthrange: 'Tháng',
-    dateTimePicker: 'Chọn thời gian chọn',
-    dateTimerange: 'Ngày',
-    timePicker: 'Bộ chọn thời gian',
-    timeSelect: 'Lựa chọn thời gian',
-    inputPassword: 'Input password',
-    passwordStrength: 'Mật khẩu mạnh',
-    defaultForm: 'Tất cả các ví dụ',
-    formDes:
-      'Dựa trên ElementPlus của Form Gói các thành phần cho bao bì thứ cấp, nhận ra trình điều khiển dữ liệu, hỗ trợ tất cả Form tham số',
-    example: 'Mẫu mực',
-    operate: 'Vận hành',
-    change: 'Biến đổi',
-    restore: 'Sự giảm bớt',
-    disabled: 'Vô hiệu hóa',
-    disablement: 'Vô hiệu hóa',
-    delete: 'Xóa bỏ',
-    add: 'Thêm vào',
-    setValue: 'Cài đặt',
-    resetValue: 'Giá trị chi phí',
-    set: 'cài đặt',
-    subitem: 'Sub -item',
-    formValidation: 'Hình thức xác nhận',
-    verifyReset: 'Đặt lại xác minh'
-  },
-  guideDemo: {
-    guide: 'Hướng dẫn trang',
-    start: 'bắt đầu',
-    message:
-      'Trang hướng dẫn rất hữu ích cho một số người lần đầu tiên tham gia dự án. Bạn có thể giới thiệu ngắn gọn chức năng của dự án.Trang hướng dẫn dựa trên intro.js'
-  },
-  iconDemo: {
-    icon: 'Biểu tượng',
-    localIcon: 'Biểu tượng',
-    iconify: 'Biểu tượng thành phần',
-    recommendedUse: 'Sử dụng được khuyến cáo',
-    recommendeDes:
-      'Thành phần biểu tượng về cơ bản chứa tất cả các biểu tượng, bạn có thể truy vấn bất kỳ biểu tượng nào bạn muốn.Và gói sẽ chỉ đóng gói biểu tượng được sử dụng.',
-    accessAddress: 'địa chỉ'
-  },
-  echartDemo: {
-    echart: 'Đồ thị',
-    echartDes:
-      'Dựa trên echarts Thành phần bao bì thứ hai, chiều rộng thích ứng, chỉ cần được giới thiệu trong options và height Thuộc tính có thể hiển thị biểu đồ tương ứng。'
-  },
-  countToDemo: {
-    countTo: 'Count to',
-    countToDes: 'dựa trên vue-count-to Biến đổi và hỗ trợ tất cả vue-count-to tham số.',
-    suffix: 'Hậu tố',
-    prefix: 'Tiếp đầu ngữ',
-    separator: 'máy tách biệt',
-    duration: 'khoảng thời gian',
-    endVal: 'Giá trị cuối cùng',
-    startVal: 'Giá trị bắt đầu',
-    start: 'Bắt đầu',
-    pause: 'Tạm ngừng',
-    resume: 'Tiếp tục'
-  },
-  watermarkDemo: {
-    watermark: 'Chữ ký ảnh',
-    createdWatermark: 'Tạo hình mờ',
-    clearWatermark: 'Xóa hình mờ',
-    resetWatermark: 'Đặt lại hình mờ'
-  },
-  qrcodeDemo: {
-    qrcode: 'Qr code',
-    qrcodeDes: 'dựa trên qrcode Bao bì thứ hai',
-    basicUsage: 'Cách sử dụng cơ bản',
-    imgTag: 'Thẻ IMG',
-    style: 'Cấu hình kiểu',
-    click: 'Nhấp vào sự kiện',
-    asynchronousContent: 'Nội dung không đồng bộ',
-    invalid: 'Thất bại',
-    logoConfig: 'Cấu hình logo',
-    logoStyle: 'Phong cách logo',
-    size: 'Cấu hình kích thước'
-  },
-  highlightDemo: {
-    highlight: 'High light',
-    message: 'Thời gian tốt nhất để trồng cây là mười năm trước, tiếp theo là bây giờ.',
-    keys1: 'Mười năm trước đây',
-    keys2: 'Hiện nay'
-  },
-  infotipDemo: {
-    infotip: 'Info tip',
-    infotipDes: 'Dựa trên Highlight Đóng gói gói các thành phần',
-    title: 'Các biện pháp phòng ngừa'
-  },
-  levelDemo: {
-    menu: 'Bộ nhớ cache menu đa thể'
-  },
-  searchDemo: {
-    search: 'Hỏi thăm',
-    searchDes:
-      'Dựa trên Form Gói các thành phần cho bao bì thứ cấp, thực hiện các chức năng truy vấn và đặt lại các chức năng',
-    operate: 'Vận hành',
-    change: 'Biến đổi',
-    grid: 'Lưới',
-    button: 'Cái nút',
-    restore: 'Sự giảm bớt',
-    inline: 'Nội tuyến',
-    bottom: 'Bottom',
-    position: 'Địa điểm',
-    left: 'Left',
-    center: 'Center',
-    right: 'Right',
-    dynamicOptions: 'Tùy chọn'
-  },
-  stickyDemo: {
-    sticky: 'Miếng dán'
-  },
   tableDemo: {
     table: 'Tờ giấy',
     tableDes: 'Dựa trên ElementPlus của Table Đóng gói gói các thành phần',
@@ -403,47 +259,6 @@ export default {
     changeTitle: 'Sửa đổi tiêu đề',
     header: 'Phần đầu'
   },
-  richText: {
-    richText: 'Văn bản phong phú',
-    richTextDes: 'Dựa trên wangeditor Bao bì thứ hai'
-  },
-  dialogDemo: {
-    dialog: 'Pop-up',
-    dialogDes: 'Dựa trên ElementPlus của Dialog Đóng gói gói các thành phần',
-    open: 'Mở',
-    close: 'Đóng',
-    combineWithForm: 'Liên kết với hình thức',
-    submit: 'Gửi'
-  },
-  imageViewerDemo: {
-    open: 'Mở',
-    imageViewer: 'Xem trước hình ảnh',
-    imageViewerDes: 'Dựa trên ElementPlus của ImageViewer Đóng gói gói các thành phần'
-  },
-  descriptionsDemo: {
-    descriptions: 'Mô tả',
-    descriptionsDes: 'Dựa trên ElementPlus của Descriptions Đóng gói gói các thành phần',
-    username: 'Tên tài khoản',
-    nickName: 'Tên nick',
-    phone: 'Số liên lạc',
-    email: 'Thư',
-    addr: 'Địa chỉ',
-    form: 'Và Form Kết hợp thành phần'
-  },
-  exampleDemo: {
-    title: 'Tiêu đề',
-    add: 'Mới tăng',
-    del: 'Xóa bỏ',
-    edit: 'Chỉnh sửa',
-    author: 'Tác giả',
-    displayTime: 'Thời gian sáng tạo',
-    importance: 'Tầm quan trọng',
-    pageviews: 'Số lượng đọc',
-    important: 'Quan trọng',
-    content: 'Nội dung',
-    save: 'Lưu',
-    detail: 'Chi tiết'
-  },
   userDemo: {
     title: 'Quản lý người dùng',
     message:
@@ -457,10 +272,7 @@ export default {
     remarkMessage1: 'Quyền điều khiển tuyến đường của điều khiển trở lại',
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
-  inputPasswordDemo: {
-    title: 'Input password',
-    inputPasswordDes: 'Dựa trên ElementPlus của Input Đóng gói gói các thành phần'
-  },
+
   reuse: {
     index: 'STT',
     receivedDate: 'Ngày nhận',

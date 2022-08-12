@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('reuse.sellOrderList') }}</div>
+  <div>{{ t('router.combo') }}</div>
 </template>
 
 <script setup lang="ts">

@@ -23,49 +23,17 @@ export default {
     {
       path: 'order-management',
       name: 'business.order-management',
-      redirect: { name: 'business.order-management.sell-order-list' },
+      redirect: { name: 'business.order-management.order-list' },
       meta: {
         title: t('router.orderManagement')
       },
       children: [
         {
-          path: 'sell-order-list',
-          name: 'business.order-management.sell-order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/SellOrders.vue'),
+          path: 'order-list',
+          name: 'business.order-management.order-list',
+          component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
           meta: {
-            title: t('reuse.sellOrderList')
-          }
-        },
-        {
-          path: 'lease-order-list',
-          name: 'business.order-management.lease-order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/LeaseOrders.vue'),
-          meta: {
-            title: t('reuse.leaseOrderList')
-          }
-        },
-        {
-          path: 'deposit-order-list',
-          name: 'business.order-management.deposit-order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/DepositOrders.vue'),
-          meta: {
-            title: t('reuse.depositOrderList')
-          }
-        },
-        {
-          path: 'mortgage-order-list',
-          name: 'business.order-management.mortgage-order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/MortgageOrders.vue'),
-          meta: {
-            title: t('reuse.mortgageOrderList')
-          }
-        },
-        {
-          path: 'spa-order-list',
-          name: 'business.order-management.spa-order-list',
-          component: () => import('@/views/Pages/Business/OrderManagement/SpaOrders.vue'),
-          meta: {
-            title: t('reuse.spaOrderList')
+            title: t('router.orderList')
           }
         },
         {
@@ -88,11 +56,61 @@ export default {
     },
     {
       path: 'promotion-strategy',
-      component: () => import('@/views/Pages/Business/PromotionStrategy.vue'),
       name: 'business.promotion-strategy',
+      redirect: { name: 'business.promotion-strategy.flash-sale' },
       meta: {
         title: t('router.promotionStrategy')
-      }
+      },
+      children: [
+        {
+          path: 'flash-sale',
+          name: 'business.promotion-strategy.flash-sale',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSale.vue'),
+          meta: {
+            title: t('router.flashsale')
+          }
+        },
+        {
+          path: 'collection',
+          name: 'business.promotion-strategy.collection',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/Collection.vue'),
+          meta: {
+            title: t('router.collection')
+          }
+        },
+        {
+          path: 'new-product',
+          name: 'business.promotion-strategy.new-product',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/NewProduct.vue'),
+          meta: {
+            title: t('router.newproduct')
+          }
+        },
+        {
+          path: 'voucher',
+          name: 'business.promotion-strategy.voucher',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/Voucher.vue'),
+          meta: {
+            title: t('router.voucher')
+          }
+        },
+        {
+          path: 'combo',
+          name: 'business.promotion-strategy.combo',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/Combo.vue'),
+          meta: {
+            title: t('router.combo')
+          }
+        },
+        {
+          path: 'auction',
+          name: 'business.promotion-strategy.auction',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/Auction.vue'),
+          meta: {
+            title: t('router.auction')
+          }
+        }
+      ]
     },
     {
       path: 'service-survey',

@@ -167,7 +167,13 @@ export default {
     orders: 'Đơn hàng',
     products: 'Sản phẩm',
     payments: 'Thanh toán',
-    accounts: 'Tài khoản'
+    accounts: 'Tài khoản',
+    auction: 'Đấu giá',
+    combo: 'Combo',
+    voucher: 'Voucher',
+    newproduct: 'Hàng mới về',
+    collection: 'Bộ sưu tập',
+    flashsale: 'Flash Sale'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

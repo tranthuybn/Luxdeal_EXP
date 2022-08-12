@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('reuse.depositOrderList') }}</div>
+  <div>{{ t('router.voucher') }}</div>
 </template>
 
 <script setup lang="ts">

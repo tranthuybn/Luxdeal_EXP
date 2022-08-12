@@ -28,6 +28,7 @@ const props = defineProps({
     default: () => Promise<IResponse<TableResponse<TableData>>>
   }
 })
+
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
@@ -50,10 +51,12 @@ const operatorColumn: TableColumn = {
   }
 }
 const fullColumns: TableColumn[] = reactive(props.columns)
+
 fullColumns.push(operatorColumn)
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
+
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: props.api,
   response: {

@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('reuse.mortgageOrderList') }}</div>
+  <div>{{ t('router.collection') }}</div>
 </template>
 
 <script setup lang="ts">

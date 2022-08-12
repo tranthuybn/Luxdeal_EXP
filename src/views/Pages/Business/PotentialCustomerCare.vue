@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
 import { h, onBeforeMount, watch, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
-import { ElButton, ElRow, ElCol, ElSelect, ElOption } from 'element-plus'
+import { ElButton, ElRow, ElCol } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { HeaderFiler } from '../Components/HeaderFilter'
 import { getPotentialCustomerList } from '@/api/Business/'
+
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -147,34 +149,85 @@ watch(
     immediate: true
   }
 )
-var value1 = ref('')
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1'
-  },
-  {
-    value: 'Option2',
-    label: 'Option2'
-  },
-  {
-    value: 'Option3',
-    label: 'Option3'
-  },
-  {
-    value: 'Option4',
-    label: 'Option4'
-  },
-  {
-    value: 'Option5',
-    label: 'Option5'
-  }
-]
 
-const updatevalue = (event) => {
-  console.log(event)
-  value1.value = event
-}
+const crudSchemas = reactive<CrudSchema[]>([
+  {
+    field: 'transaction',
+    form: {
+      component: 'Radio',
+      componentProps: {
+        style: {
+          width: '100%'
+        },
+        options: [
+          {
+            label: '3',
+            value: 3
+          },
+          {
+            label: '2',
+            value: 2
+          },
+          {
+            label: '1',
+            value: 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    field: 'transactionStatus',
+    form: {
+      component: 'Select',
+      componentProps: {
+        style: {
+          width: '100%'
+        },
+        options: [
+          {
+            label: '3',
+            value: 3
+          },
+          {
+            label: '2',
+            value: 2
+          },
+          {
+            label: '1',
+            value: 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    field: 'approachingChannel',
+    form: {
+      component: 'Checkbox',
+      componentProps: {
+        style: {
+          width: '100%'
+        },
+        options: [
+          {
+            label: '3',
+            value: 3
+          },
+          {
+            label: '2',
+            value: 2
+          },
+          {
+            label: '1',
+            value: 1
+          }
+        ]
+      }
+    }
+  }
+])
+const { allSchemas } = useCrudSchemas(crudSchemas)
 </script>
 <template>
   <section>
@@ -191,27 +244,10 @@ const updatevalue = (event) => {
         :data="tableObject.tableList"
         :loading="tableObject.loading"
         :pagination="paginationObj"
+        :headerForm="allSchemas.formSchema"
         :showOverflowTooltip="false"
         @register="register"
-      >
-        <template #transaction-header>
-          <div>{{ t('reuse.transaction') }} </div>
-          <el-select
-            :model-value="value1"
-            class="m-2"
-            placeholder="Select"
-            size="large"
-            @change="updatevalue($event)"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </template>
-      </Table>
+      />
     </ContentWrap>
   </section>
 </template>

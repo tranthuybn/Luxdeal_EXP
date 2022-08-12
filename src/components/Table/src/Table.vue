@@ -1,12 +1,14 @@
 <script lang="tsx">
-import { ElTable, ElTableColumn, ElPagination } from 'element-plus'
+import { ElTable, ElTableColumn, ElPagination, ElButton } from 'element-plus'
 import { defineComponent, PropType, ref, computed, unref, watch, onMounted } from 'vue'
 import { propTypes } from '@/utils/propTypes'
 import { setIndex } from './helper'
 import { getSlot } from '@/utils/tsxHelper'
 import type { TableProps } from './types'
 import { set } from 'lodash-es'
+import { Form } from '@/components/Form'
 
+// type CrudSchemaType = CrudSchema[]
 export default defineComponent({
   name: 'Table',
   props: {
@@ -48,6 +50,11 @@ export default defineComponent({
     data: {
       type: Array as PropType<Recordable[]>,
       default: () => []
+    },
+    //Array of FormSchema for header
+    headerForm: {
+      type: Array as PropType<FormSchema[]>,
+      default: () => [] || {}
     },
     border: propTypes.bool.def(true),
     maxHeight: propTypes.string.def('71vh')
@@ -215,7 +222,32 @@ export default defineComponent({
         )
       })
     }
-
+    const formVisible = ref(false)
+    const showForm = () => {
+      formVisible.value = !formVisible.value
+    }
+    const getHeaderForm = (formSchema1?: FormSchema, label: String) => {
+      return (
+        <div>
+          <div>{label}</div>
+          <ElButton onClick={showForm}>123</ElButton>
+          <div>{formVisible.value ? <Form formSchema={formSchema1} /> : <div></div>}</div>
+        </div>
+      )
+    }
+    const headerContent = (HeaderFormSchema: FormSchema[], field: String, label: String) => {
+      var index = 100
+      HeaderFormSchema.map((item) => {
+        if (item.field === field) {
+          index = HeaderFormSchema.indexOf(item)
+        }
+      })
+      if (index != 100) {
+        return getHeaderForm(HeaderFormSchema[index], label)
+      } else {
+        return label
+      }
+    }
     const renderTableColumn = (columnsChildren?: TableColumn[]) => {
       const {
         columns,
@@ -224,7 +256,8 @@ export default defineComponent({
         currentPage,
         align,
         headerAlign,
-        showOverflowTooltip
+        showOverflowTooltip,
+        headerForm
       } = unref(getProps)
       return [...[renderTableExpand()], ...[renderTableSelection()]].concat(
         (columnsChildren || columns).map((v) => {
@@ -265,7 +298,9 @@ export default defineComponent({
                         v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
                         data.row[v.field],
                   // @ts-ignore
-                  header: () => getSlot(slots, `${v.field}-header`) || v.label
+                  header: () =>
+                    getSlot(slots, `${v.field}-header`) ||
+                    headerContent(headerForm, v.field, v.label)
                 }}
               </ElTableColumn>
             )

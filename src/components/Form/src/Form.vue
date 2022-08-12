@@ -29,9 +29,13 @@ export default defineComponent({
   name: 'Form',
   props: {
     // The layout structure array of FORM
+    formSchema: {
+      type: Object as PropType<FormSchema>,
+      default: () => {}
+    },
     schema: {
       type: Array as PropType<FormSchema[]>,
-      default: () => []
+      default: () => [] || {}
     },
     // Do you need a grid layout
     isCol: propTypes.bool.def(true),
@@ -82,7 +86,6 @@ export default defineComponent({
 
     const delSchema = (field: string) => {
       const { schema } = unref(getProps)
-
       const index = findIndex(schema, (v: FormSchema) => v.field === field)
       if (index > -1) {
         schema.splice(index, 1)
@@ -149,23 +152,25 @@ export default defineComponent({
     // Whether to render EL-COL
     const renderFormItemWrap = () => {
       // Hidden attribute means hidden, not rendering
-      const { schema = [], isCol } = unref(getProps)
+      const { schema = [], isCol, formSchema } = unref(getProps)
 
-      return schema
-        .filter((v) => !v.hidden)
-        .map((item) => {
-          // If it is a divider component, you need to occupy one line by yourself
-          const isDivider = item.component === 'Divider'
-          const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
-          return isDivider ? (
-            <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
-          ) : isCol ? (
-            // If you need a grid, you need to wrap ELCOL
-            <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
-          ) : (
-            renderFormItem(item)
-          )
-        })
+      return schema.length > 0
+        ? schema
+            .filter((v) => !v.hidden)
+            .map((item) => {
+              // If it is a divider component, you need to occupy one line by yourself
+              const isDivider = item.component === 'Divider'
+              const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
+              return isDivider ? (
+                <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
+              ) : isCol ? (
+                // If you need a grid, you need to wrap ELCOL
+                <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
+              ) : (
+                renderFormItem(item)
+              )
+            })
+        : renderFormItem(formSchema)
     }
 
     // Rendering Formitem

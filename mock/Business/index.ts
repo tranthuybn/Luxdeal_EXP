@@ -10,6 +10,7 @@ import { SellOrder, SellOrderListMock } from './order'
 import { flashsaleList, flashsaleListMock } from './promotionstrategy/flashsale'
 import { collectionList, collectionListMock } from './promotionstrategy/collection'
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
+import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 
 const { result_code } = config
 const timeout = 1000
@@ -25,6 +26,7 @@ for (let i = 0; i < count; i++) {
   flashsaleList.push(Mock.mock(flashsaleListMock))
   collectionList.push(Mock.mock(collectionListMock))
   newproductList.push(Mock.mock(newproductListMock))
+  servicesurveyList.push(Mock.mock(servicesurveyListMock))
 }
 export default [
   {
@@ -166,6 +168,24 @@ export default [
         code: result_code,
         data: {
           total: newproductList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/servicesurvey/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = servicesurveyList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: servicesurveyList.length,
           list: pageList
         }
       }

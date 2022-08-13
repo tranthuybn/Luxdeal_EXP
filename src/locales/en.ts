@@ -542,6 +542,8 @@ export default {
     collectionCode: 'Collection Code',
     subject: 'Subject',
     promotion: 'Promotion',
-    newproductCode: 'New Product Code'
+    newproductCode: 'New Product Code',
+    flashSaleCode: 'Flash Sale Code',
+    surveyContent: 'Survey Content'
   }
 }

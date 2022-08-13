@@ -542,6 +542,8 @@ export default {
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
     promotion: 'Khuyến mại',
-    newproductCode: 'Mã HMV'
+    newproductCode: 'Mã HMV',
+    flashSaleCode: 'Mã Flash Sale',
+    surveyContent: 'Nội dung khảo sát'
   }
 }

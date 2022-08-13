@@ -523,6 +523,25 @@ export default {
     descriptions: 'Description',
     saleNumber: 'Sale number',
     totaMoney: 'Total Money',
-    debt: 'Debt'
+    debt: 'Debt',
+    choose: 'Choose',
+    exportExcel: 'Export Excel',
+    duplicate: 'Duplicate',
+    delete: 'Duplicate',
+    explain: 'Explain',
+    rentalQuantity: 'Rental Quantity',
+    returned: 'Returned',
+    totalRentalDeposit: 'Total Rental Deposit',
+    totalTermRentalFee: 'Total Term Rental Fee',
+    outstandingDebt: 'Out Standing Debt',
+    revenueExpenditure: 'Revenue Expenditure',
+    rentalTerm: 'Rental Term',
+    surveyDate: 'Survey Date',
+    serviceRating: 'Service Rating',
+    picture: 'Picture',
+    collectionCode: 'Collection Code',
+    subject: 'Subject',
+    promotion: 'Promotion',
+    newproductCode: 'New Product Code'
   }
 }

@@ -541,6 +541,7 @@ export default {
     picture: 'Hình ảnh',
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
-    promotion: 'Khuyến mại'
+    promotion: 'Khuyến mại',
+    newproductCode: 'Mã HMV'
   }
 }

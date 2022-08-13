@@ -9,6 +9,8 @@ import { rentalorderList, rentalorderListMock } from './rentalorder'
 import { SellOrder, SellOrderListMock } from './order'
 import { flashsaleList, flashsaleListMock } from './promotionstrategy/flashsale'
 import { collectionList, collectionListMock } from './promotionstrategy/collection'
+import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
+
 const { result_code } = config
 const timeout = 1000
 const count = 100
@@ -22,6 +24,7 @@ for (let i = 0; i < count; i++) {
   SellOrder.push(Mock.mock(SellOrderListMock))
   flashsaleList.push(Mock.mock(flashsaleListMock))
   collectionList.push(Mock.mock(collectionListMock))
+  newproductList.push(Mock.mock(newproductListMock))
 }
 export default [
   {
@@ -145,6 +148,24 @@ export default [
         code: result_code,
         data: {
           total: collectionList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/newproduct/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = newproductList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: newproductList.length,
           list: pageList
         }
       }

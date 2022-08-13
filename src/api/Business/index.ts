@@ -14,3 +14,19 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data
 }
+export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/collaborators/List', params })
+  return res && res.data
+}
+export const getRentalorderList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/rentalorder/List', params })
+  return res && res.data
+}
+export const getFlashSaleList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/flash-sale/List', params })
+  return res && res.data
+}
+export const getcollectionList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/collection/List', params })
+  return res && res.data
+}

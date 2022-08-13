@@ -18,49 +18,54 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'orderCode',
-    label: t('reuse.customerName') + ' ' + t('reuse.representative'),
+    field: 'collaboratorsName',
+    label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
   {
-    field: 'creator',
-    label: t('reuse.creator'),
-    minWidth: '250'
-  },
-  {
-    field: 'customer',
-    label: t('reuse.customerName'),
+    field: 'collaboratorsCode',
+    label: t('reuse.collaboratorsCode'),
     minWidth: '100'
   },
   {
-    field: 'description',
-    label: t('reuse.descriptions'),
-    minWidth: '200'
+    field: 'contact',
+    label: t('reuse.contact'),
+    minWidth: '250'
   },
   {
-    field: 'saleNumber',
-    label: t('reuse.saleNumber'),
+    field: 'account',
+    label: t('reuse.account'),
     minWidth: '200'
   },
   {
     field: 'totalMoney',
-    label: t('reuse.totaMoney'),
+    label: t('reuse.totalMoney'),
     minWidth: '150'
   },
   {
-    field: 'debitTotal',
-    label: t('reuse.debt'),
-    minWidth: '100'
+    field: 'debt',
+    label: t('reuse.debtCom'),
+    minWidth: '150'
   },
   {
-    field: 'receiptAndExpenditure',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '100'
+    field: 'withdrawalRequest',
+    label: t('reuse.withdrawalRequest'),
+    minWidth: '150'
   },
   {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '100'
+    field: 'requestDate',
+    label: t('reuse.requestDate'),
+    minWidth: '150'
+  },
+  {
+    field: 'requestStatus',
+    label: t('reuse.requestStatus'),
+    minWidth: '150'
+  },
+  {
+    field: 'accountStatus',
+    label: t('reuse.accountStatus'),
+    minWidth: '200'
   }
 ])
 </script>

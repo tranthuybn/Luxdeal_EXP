@@ -65,44 +65,11 @@ const adminList = [
         },
         children: [
           {
-            path: 'sell-order-list',
-            name: 'business.order-management.sell-order-list',
-            component: 'views/Pages/Business/OrderManagement/SellOrders',
+            path: 'order-list',
+            name: 'business.order-management.order-list',
+            component: 'views/Pages/Business/OrderManagement/OrderList',
             meta: {
-              title: 'reuse.sellOrderList'
-            }
-          },
-          {
-            path: 'lease-order-list',
-            name: 'business.order-management.lease-order-list',
-            params: { type: 'lease' },
-            component: 'views/Pages/Business/OrderManagement/LeaseOrders',
-            meta: {
-              title: 'reuse.leaseOrderList'
-            }
-          },
-          {
-            path: 'deposit-order-list',
-            name: 'business.order-management.deposit-order-list',
-            component: 'views/Pages/Business/OrderManagement/DepositOrders',
-            meta: {
-              title: 'reuse.depositOrderList'
-            }
-          },
-          {
-            path: 'mortgage-order-list',
-            name: 'business.order-management.mortgage-order-list',
-            component: 'views/Pages/Business/OrderManagement/MortgageOrders',
-            meta: {
-              title: 'reuse.mortgageOrderList'
-            }
-          },
-          {
-            path: 'spa-order-list',
-            name: 'business.order-management.spa-order-list',
-            component: 'views/Pages/Business/OrderManagement/SpaOrders',
-            meta: {
-              title: 'reuse.spaOrderList'
+              title: 'router.orderList'
             }
           },
           {
@@ -125,11 +92,61 @@ const adminList = [
       },
       {
         path: 'promotion-strategy',
-        component: 'views/Pages/Business/PromotionStrategy',
         name: 'business.promotion-strategy',
+        redirect: { name: 'business.promotion-strategy.flash-sale' },
         meta: {
           title: 'router.promotionStrategy'
-        }
+        },
+        children: [
+          {
+            path: 'flash-sale',
+            name: 'business.promotion-strategy.flash-sale',
+            component: 'views/Pages/Business/PromotionStrategy/FlashSale',
+            meta: {
+              title: 'router.flashsale'
+            }
+          },
+          {
+            path: 'collection',
+            name: 'business.promotion-strategy.collection',
+            component: 'views/Pages/Business/PromotionStrategy/Collection',
+            meta: {
+              title: 'router.collection'
+            }
+          },
+          {
+            path: 'new-product',
+            name: 'business.promotion-strategy.new-product',
+            component: 'views/Pages/Business/PromotionStrategy/NewProduct',
+            meta: {
+              title: 'router.newproduct'
+            }
+          },
+          {
+            path: 'voucher',
+            name: 'business.promotion-strategy.voucher',
+            component: 'views/Pages/Business/PromotionStrategy/Voucher',
+            meta: {
+              title: 'router.voucher'
+            }
+          },
+          {
+            path: 'combo',
+            name: 'business.promotion-strategy.combo',
+            component: 'views/Pages/Business/PromotionStrategy/Combo',
+            meta: {
+              title: 'router.combo'
+            }
+          },
+          {
+            path: 'auction',
+            name: 'business.promotion-strategy.auction',
+            component: 'views/Pages/Business/PromotionStrategy/Auction',
+            meta: {
+              title: 'router.auction'
+            }
+          }
+        ]
       },
       {
         path: 'service-survey',

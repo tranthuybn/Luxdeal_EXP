@@ -167,7 +167,13 @@ export default {
     orders: 'Orders',
     products: 'Products',
     payments: 'Payments',
-    accounts: 'Accounts'
+    accounts: 'Accounts',
+    auction: 'Auction',
+    combo: 'Combo',
+    voucher: 'Voucher',
+    newproduct: 'New Product',
+    collection: 'Collection',
+    flashsale: 'Flash Sale'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

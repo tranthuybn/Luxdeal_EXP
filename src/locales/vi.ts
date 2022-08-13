@@ -515,7 +515,7 @@ export default {
     leaseOrderList: 'Đơn hàng cho thuê',
     depositOrderList: 'Đơn hàng ký gửi',
     mortgageOrderList: 'Đơn hàng thế chấp',
-    spaOrderList: 'Đơn hàng spa',
+    spaOrderList: 'Đơn hàảng spa',
     haveToCollect: 'Phải thu',
     havetoPay: 'Phải chi',
     orderCode: 'Mã đơn hàng',
@@ -535,6 +535,12 @@ export default {
     totalTermRentalFee: 'Tổng tiền phí thuê theo kì hạn',
     outstandingDebt: 'Công nợ tồn',
     revenueExpenditure: 'Phải thu/Phải chi',
-    rentalTerm: 'Kỳ hạn thuê'
+    rentalTerm: 'Kỳ hạn thuê',
+    surveyDate: 'Ngày khảo sát',
+    serviceRating: 'Xếp hạng DV(sao)',
+    picture: 'Hình ảnh',
+    collectionCode: 'Mã bộ sưu tập',
+    subject: 'Đối tượng',
+    promotion: 'Khuyến mại'
   }
 }

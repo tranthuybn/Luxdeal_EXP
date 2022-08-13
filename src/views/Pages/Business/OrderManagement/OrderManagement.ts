@@ -1,5 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+//Đơn bán hàng
 export const sellOrder = [
   {
     field: 'index',
@@ -58,6 +59,7 @@ export const sellOrder = [
     minWidth: '100'
   }
 ]
+//Đơn hàng cho thuê
 export const rentalorder = [
   {
     field: 'index',

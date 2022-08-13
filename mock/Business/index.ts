@@ -7,7 +7,8 @@ import { customerList, customerListMock } from './customer'
 import { collaboratorsList, collaboratorsListMock } from './collaborators'
 import { rentalorderList, rentalorderListMock } from './rentalorder'
 import { SellOrder, SellOrderListMock } from './order'
-
+import { flashsaleList, flashsaleListMock } from './promotionstrategy/flashsale'
+import { collectionList, collectionListMock } from './promotionstrategy/collection'
 const { result_code } = config
 const timeout = 1000
 const count = 100
@@ -19,6 +20,8 @@ for (let i = 0; i < count; i++) {
   collaboratorsList.push(Mock.mock(collaboratorsListMock))
   rentalorderList.push(Mock.mock(rentalorderListMock))
   SellOrder.push(Mock.mock(SellOrderListMock))
+  flashsaleList.push(Mock.mock(flashsaleListMock))
+  collectionList.push(Mock.mock(collectionListMock))
 }
 export default [
   {
@@ -106,6 +109,42 @@ export default [
         code: result_code,
         data: {
           total: SellOrder.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/flash-sale/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = flashsaleList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: flashsaleList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/collection/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = collectionList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: collectionList.length,
           list: pageList
         }
       }

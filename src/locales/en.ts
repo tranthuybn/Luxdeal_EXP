@@ -328,6 +328,10 @@ export default {
     saleNumber: 'Sale number',
     totaMoney: 'Total Money',
     debt: 'Debt',
+    choose: 'Choose',
+    exportExcel: 'Export Excel',
+    duplicate: 'Duplicate',
+    delete: 'Delete',
     warningDate: 'End date cannot be greater than Start date'
   }
 }

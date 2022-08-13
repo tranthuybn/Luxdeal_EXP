@@ -6,7 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useTable } from '@/hooks/web/useTable'
 import { ElButton, ElCol, ElRow } from 'element-plus'
-import { onBeforeMount, PropType, h, ref, unref, reactive, watch } from 'vue'
+import { onBeforeMount, PropType, h, ref, unref, reactive, watch, computed } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 const { t } = useI18n()
 
@@ -70,8 +70,11 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
-onBeforeMount(() => {
+function getData() {
   methods.getList()
+}
+onBeforeMount(() => {
+  getData()
 })
 // execute pagination
 watch(
@@ -96,22 +99,25 @@ function operatorColumnToggle(param) {
     }
   ])
 }
-let selectedNumber = ref()
+let SelectedRecord = ref()
 const { getSelections } = methods
 async function getTableSelected() {
   await getSelections()
     .then((res) => {
-      selectedNumber.value = unref(res)
+      SelectedRecord.value = unref(res)
     })
     .catch(() => {
-      if (selectedNumber.value.length > 0)
-        selectedNumber.value.splice(0, selectedNumber.value.length)
+      if (SelectedRecord.value.length > 0)
+        SelectedRecord.value.splice(0, SelectedRecord.value.length)
     })
 }
+const selectedNumber = computed(() =>
+  Array.isArray(SelectedRecord) ? SelectedRecord.value.length : 0
+)
 </script>
 <template>
   <section>
-    <HeaderFiler>
+    <HeaderFiler @get-data="getData" @refresh-data="getData">
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
@@ -121,10 +127,16 @@ async function getTableSelected() {
         <div class="extension-function">
           <p>
             <span>{{ t('reuse.choose') }}</span>
-            <span> ({{ Array.isArray(selectedNumber) ? selectedNumber.length : 0 }},0) </span>
+            <span>
+              ({{ Array.isArray(SelectedRecord) ? SelectedRecord.length : 0 }}/{{
+                tableObject.tableList.length
+              }})
+            </span>
           </p>
           <p
-            ><span>{{ t('reuse.exportExcel') }}</span
+            ><span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{
+              t('reuse.exportExcel')
+            }}</span
             ><span>
               <Icon
                 icon="file-icons:microsoft-excel"
@@ -135,7 +147,7 @@ async function getTableSelected() {
             </span>
           </p>
           <p>
-            <span>{{ t('reuse.duplicate') }}</span>
+            <span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{ t('reuse.duplicate') }}</span>
             <span>
               <Icon
                 icon="ion:duplicate"
@@ -146,7 +158,7 @@ async function getTableSelected() {
             </span>
           </p>
           <p>
-            <span>{{ t('reuse.delete') }}</span>
+            <span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{ t('reuse.delete') }}</span>
             <span>
               <Icon
                 icon="fluent:delete-12-regular"
@@ -192,7 +204,7 @@ async function getTableSelected() {
     justify-content: flex-start;
     box-sizing: border-box;
     cursor: pointer;
-    width: max-content;
+    width: fit-content;
     span {
       width: fit-content;
       font-weight: 500;

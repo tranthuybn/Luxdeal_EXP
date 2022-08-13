@@ -37,10 +37,10 @@ export const useValidator = () => {
     }
   }
 
-  const notSpecialCharacters = (val: any, callback: Callback, message: string) => {
+  const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
     if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
-      callback(new Error(message))
+      callback(new Error('Không nhập ký tự đặc biệt'))
     } else {
       callback()
     }
@@ -54,24 +54,12 @@ export const useValidator = () => {
       callback(new Error(message))
     }
   }
-  const checkStartDate = (
-    startDate: any,
-    endDate: any,
-    callback: Callback,
-    message = 'Ngày bắt đầu không được lớn hơn ngày kết thúc'
-  ) => {
-    if (startDate && moment(startDate).isBefore(startDate)) {
-      callback(new Error(message))
-    } else {
-      callback()
-    }
-  }
+
   return {
     required,
     lengthRange,
     notSpace,
     notSpecialCharacters,
-    isEqual,
-    checkStartDate
+    isEqual
   }
 }

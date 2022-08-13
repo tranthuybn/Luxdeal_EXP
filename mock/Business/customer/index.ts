@@ -8,15 +8,6 @@ const customerList: {
   type: string
   accountType: string
   status: boolean
-  collaboratorsName: string
-  collaboratorsCode: string
-  account: string
-  totalMoney: number
-  debt: number
-  withdrawalRequest: number
-  requestDate: Date
-  requestStatus: string
-  accountStatus: string
 }[] = []
 
 const customerListMock = {

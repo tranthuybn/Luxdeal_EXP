@@ -51,6 +51,7 @@ const operatorColumn: TableColumn = {
   }
 }
 const fullColumns: TableColumn[] = reactive(props.columns)
+
 fullColumns.push(operatorColumn)
 
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {

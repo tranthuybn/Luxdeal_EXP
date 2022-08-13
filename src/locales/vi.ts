@@ -167,7 +167,13 @@ export default {
     orders: 'Đơn hàng',
     products: 'Sản phẩm',
     payments: 'Thanh toán',
-    accounts: 'Tài khoản'
+    accounts: 'Tài khoản',
+    auction: 'Đấu giá',
+    combo: 'Combo',
+    voucher: 'Voucher',
+    newproduct: 'Hàng mới về',
+    collection: 'Bộ sưu tập',
+    flashsale: 'Flash Sale'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -295,6 +301,7 @@ export default {
     customerName: 'Tên khách hàng',
     representative: 'Người đại diện',
     customerCode: 'Mã khách hàng',
+    customer: 'Khách hàng',
     gender: 'Giới  tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
@@ -320,7 +327,7 @@ export default {
     leaseOrderList: 'Đơn hàng cho thuê',
     depositOrderList: 'Đơn hàng ký gửi',
     mortgageOrderList: 'Đơn hàng thế chấp',
-    spaOrderList: 'Đơn hàng spa',
+    spaOrderList: 'Đơn hàảng spa',
     haveToCollect: 'Phải thu',
     havetoPay: 'Phải chi',
     orderCode: 'Mã đơn hàng',
@@ -333,6 +340,19 @@ export default {
     exportExcel: 'Xuất Excel',
     duplicate: 'Nhân bản',
     delete: 'Xóa',
-    warningDate: 'Ngày bắt đầu không được lớn hơn ngày kết thúc'
+    explain: 'Diễn giải',
+    rentalQuantity: 'Số lượng đang cho thuê',
+    returned: 'Đã trả lại',
+    totalRentalDeposit: 'Tổng tiền cọc thuê',
+    totalTermRentalFee: 'Tổng tiền phí thuê theo kì hạn',
+    outstandingDebt: 'Công nợ tồn',
+    revenueExpenditure: 'Phải thu/Phải chi',
+    rentalTerm: 'Kỳ hạn thuê',
+    surveyDate: 'Ngày khảo sát',
+    serviceRating: 'Xếp hạng DV(sao)',
+    picture: 'Hình ảnh',
+    collectionCode: 'Mã bộ sưu tập',
+    subject: 'Đối tượng',
+    promotion: 'Khuyến mại'
   }
 }

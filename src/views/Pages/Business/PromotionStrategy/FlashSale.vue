@@ -13,38 +13,38 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'surveyDate',
-    label: t('reuse.surveyDate'),
-    minWidth: '150'
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '130'
   },
   {
-    field: 'customerName',
-    label: t('reuse.customerName'),
-    minWidth: '150'
+    field: 'flashSaleCode',
+    label: t('reuse.flashSaleCode'),
+    minWidth: '130'
   },
   {
-    field: 'orderCode',
-    label: t('reuse.orderCode'),
-    minWidth: '100'
-  },
-  {
-    field: 'service',
-    label: t('reuse.service'),
+    field: 'descriptions',
+    label: t('reuse.descriptions'),
     minWidth: '250'
   },
   {
-    field: 'serviceRating',
-    label: t('reuse.serviceRating'),
-    minWidth: '200'
+    field: 'subject',
+    label: t('reuse.subject'),
+    minWidth: '130'
   },
   {
-    field: 'surveyContent',
-    label: t('reuse.serviceRating'),
-    minWidth: '150'
+    field: 'start',
+    label: t('countToDemo.start'),
+    minWidth: '130'
   },
   {
-    field: 'picture',
-    label: t('reuse.picture'),
+    field: 'doneLabel',
+    label: t('common.doneLabel'),
+    minWidth: '130'
+  },
+  {
+    field: 'promotion',
+    label: t('reuse.promotion'),
     minWidth: '150'
   },
   {

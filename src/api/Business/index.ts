@@ -30,3 +30,11 @@ export const getcollectionList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/collection/List', params })
   return res && res.data
 }
+export const getNewProductList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/newproduct/List', params })
+  return res && res.data
+}
+export const getServiceSurveyList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/servicesurvey/List', params })
+  return res && res.data
+}

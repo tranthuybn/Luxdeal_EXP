@@ -337,7 +337,24 @@ export default {
     choose: 'Choose',
     exportExcel: 'Export Excel',
     duplicate: 'Duplicate',
-    delete: 'Delete',
+    delete: 'Duplicate',
+    explain: 'Explain',
+    rentalQuantity: 'Rental Quantity',
+    returned: 'Returned',
+    totalRentalDeposit: 'Total Rental Deposit',
+    totalTermRentalFee: 'Total Term Rental Fee',
+    outstandingDebt: 'Out Standing Debt',
+    revenueExpenditure: 'Revenue Expenditure',
+    rentalTerm: 'Rental Term',
+    surveyDate: 'Survey Date',
+    serviceRating: 'Service Rating',
+    picture: 'Picture',
+    collectionCode: 'Collection Code',
+    subject: 'Subject',
+    promotion: 'Promotion',
+    newproductCode: 'New Product Code',
+    flashSaleCode: 'Flash Sale Code',
+    surveyContent: 'Survey Content'
     warningDate: 'End date cannot be greater than Start date'
   }
 }

@@ -353,6 +353,9 @@ export default {
     picture: 'Hình ảnh',
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
-    promotion: 'Khuyến mại'
+    promotion: 'Khuyến mại',
+    newproductCode: 'Mã HMV',
+    flashSaleCode: 'Mã Flash Sale',
+    surveyContent: 'Nội dung khảo sát'
   }
 }

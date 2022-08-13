@@ -15,32 +15,32 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '130'
   },
   {
     field: 'collectionCode',
     label: t('reuse.collectionCode'),
-    minWidth: '150'
+    minWidth: '130'
   },
   {
     field: 'descriptions',
     label: t('reuse.descriptions'),
-    minWidth: '100'
+    minWidth: '250'
   },
   {
     field: 'subject',
     label: t('reuse.subject'),
-    minWidth: '250'
+    minWidth: '130'
   },
   {
     field: 'start',
     label: t('countToDemo.start'),
-    minWidth: '200'
+    minWidth: '130'
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
-    minWidth: '150'
+    minWidth: '130'
   },
   {
     field: 'promotion',

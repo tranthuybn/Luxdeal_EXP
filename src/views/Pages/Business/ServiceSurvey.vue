@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '../Components/table-datetimeFilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../Components/tableType01-datetimefilter-basic.vue'
 import { getServiceSurveyList } from '@/api/Business'
 
 const { t } = useI18n()

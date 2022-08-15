@@ -354,7 +354,7 @@ export default {
     promotion: 'Promotion',
     newproductCode: 'New Product Code',
     flashSaleCode: 'Flash Sale Code',
-    surveyContent: 'Survey Content'
+    surveyContent: 'Survey Content',
     warningDate: 'End date cannot be greater than Start date'
   }
 }

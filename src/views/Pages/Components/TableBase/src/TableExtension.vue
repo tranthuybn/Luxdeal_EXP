@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { computed } from 'vue'
+import { ElCol, ElRow } from 'element-plus'
+
 const { t } = useI18n()
 
 const props = defineProps({

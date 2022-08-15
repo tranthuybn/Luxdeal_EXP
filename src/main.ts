@@ -33,6 +33,10 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './permission'
+//event bus
+import mitt from 'mitt';                  // Import mitt
+const emitter = mitt();                   // Initialize mitt
+
 // Create instance
 const setupAll = async () => {
   const app = createApp(App)
@@ -50,6 +54,7 @@ const setupAll = async () => {
   setupPermission(app)
 
   app.mount('#app')
+  app.provide('emitter', emitter);
 }
 
 setupAll()

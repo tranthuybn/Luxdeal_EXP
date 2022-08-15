@@ -38,7 +38,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
-function getData() {
+const getData = () => {
   methods.getList()
 }
 onBeforeMount(() => {
@@ -51,7 +51,7 @@ watch(
     paginationObj.value = {
       total: tableObject.total
     }
-    emit('TotalRecord', tableObject.total)
+    emit('TotalRecord', tableObject.tableList.length)
   },
   {
     immediate: true

@@ -3,7 +3,7 @@ import { TableData } from '@/api/table/types'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElCol, ElRow } from 'element-plus'
-import { PropType, h, reactive } from 'vue'
+import { PropType, h, reactive, ref } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
 const { t } = useI18n()
@@ -51,9 +51,18 @@ const acitonFn = (record: Recordable, data: TableSlotDefault) => {
 }
 const fullColumns: TableColumn[] = reactive(props.columns)
 fullColumns.push(operatorColumn)
-const getTotalRecord = (val) => val ?? 0
-const SelectedRecord = (val) => val ?? {}
-function getData() {}
+const getTotalRecord = ref(0)
+const getSelectedRecord = ref<Array<any>>([])
+function fnGetTotalRecord(val) {
+  getTotalRecord.value = val ?? 0
+}
+function fnGetSelectedRecord(val) {
+  getSelectedRecord.value = val ?? []
+}
+const tableBase01 = ref(null)
+const getData = () => {
+  // tableBase01.value?.abndsad('adsfa')
+}
 </script>
 <template>
   <section>
@@ -62,13 +71,13 @@ function getData() {}
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
-    <TableExtension :totalRecord="getTotalRecord" :selectedRecord="SelectedRecord" />
+    <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
     <TableType01
       ref="tableBase01"
       :api="api"
       :fullColumns="fullColumns"
-      @total-record="getTotalRecord"
-      @selected-record="SelectedRecord"
+      @total-record="fnGetTotalRecord"
+      @selected-record="fnGetSelectedRecord"
     />
   </section>
 </template>

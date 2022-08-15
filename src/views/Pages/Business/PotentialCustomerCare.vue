@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { getPotentialCustomerList } from '@/api/Business'
-import TableDatetimefilterBasic from '../Components/table-datetimefilter-basic.vue'
+import TableDatetimefilterBasic from '../Components/tableType01-datetimefilter-basic.vue'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {

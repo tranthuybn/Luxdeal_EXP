@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
-import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
-import { ElButton, ElCol, ElRow } from 'element-plus'
-import { PropType, h, ref, unref, onUnmounted, onBeforeMount } from 'vue'
+import { ElButton } from 'element-plus'
+import { PropType, ref, unref, onBeforeMount, onUnmounted } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
-const { t } = useI18n()
+import {
+  operatorColumn,
+  getTotalRecord,
+  getSelectedRecord,
+  fnGetTotalRecord,
+  fnGetSelectedRecord,
+  dynamicApi,
+  dynamicColumns
+} from './TablesReusabilityFunction'
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -18,54 +25,21 @@ const props = defineProps({
     default: () => Promise<IResponse<TableResponse<TableData>>>
   }
 })
-// declare
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
+
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-// Add operation column for table
-const operatorColumn: TableColumn = {
-  field: 'operator',
-  label: t('reuse.operator'),
-  minWidth: '180',
-  fixed: false,
-  formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-    return h(ElRow, { gutter: 20, justify: 'space-around' }, () => [
-      h(ElCol, { span: 8 }, () =>
-        h(ElButton, { icon: eyeIcon, onClick: () => acitonFn(record, cellValue) })
-      ),
-      h(ElCol, { span: 8 }, () => h(ElButton, { icon: editIcon })),
-      h(ElCol, { span: 8 }, () => h(ElButton, { icon: trashIcon }))
-    ])
-  }
-}
-const acitonFn = (record: Recordable, data: TableSlotDefault) => {
-  console.log(record, data)
-}
-// table selection
-const getTotalRecord = ref(0)
-const getSelectedRecord = ref<Array<any>>([])
-function fnGetTotalRecord(val) {
-  getTotalRecord.value = val ?? 0
-}
-function fnGetSelectedRecord(val) {
-  getSelectedRecord.value = val ?? []
-}
+
 const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 
 const getData = () => {
   unref(tableBase01)?.getData()
 }
-const dynamicApi = ref<apiType>()
-const dynamicColumns = ref<TableColumn[]>()
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  dynamicColumns.value.push(operatorColumn)
+  if (dynamicColumns.value.length > 0) dynamicColumns.value.push(operatorColumn)
 })
 onUnmounted(() => {
-  dynamicColumns.value?.splice(0, dynamicColumns.value.length)
-  dynamicApi.value = undefined
+  if (dynamicColumns.value && dynamicColumns.value.length > 0) dynamicColumns.value.pop()
 })
 </script>
 <template>

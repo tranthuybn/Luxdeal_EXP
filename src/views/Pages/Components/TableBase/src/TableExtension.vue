@@ -25,7 +25,7 @@ const selectedNumber = computed(() =>
   <el-row class="mb-2">
     <el-col :xl="6" :lg="12" :xs="24">
       <div class="extension-function">
-        <p>
+        <p style="width: 26%">
           <span>{{ t('reuse.choose') }}</span>
           <span>
             ({{ Array.isArray(selectedRecord) ? selectedRecord.length : 0 }}/{{ totalRecord }})

@@ -356,6 +356,22 @@ export default {
     promotion: 'Khuyến mại',
     newproductCode: 'Mã HMV',
     flashSaleCode: 'Mã Flash Sale',
-    surveyContent: 'Nội dung khảo sát'
+    surveyContent: 'Nội dung khảo sát',
+    productCode: 'Mã sản phẩm (Mã hãng)',
+    managementCode: 'Mã quản lý (Của sản phẩm)',
+    productInformation: 'Thông tin SP',
+    characteristic: 'Đặc tính',
+    accessory: 'Phụ kiện',
+    firstEntryDate: 'Ngày nhập lần đầu',
+    singleEntryCode: 'Mã đơn nhập',
+    typeOfFirstEntry: 'Loại hình nhập lần đầu',
+    typeOfTransfer: 'Loại hình chuyển kho',
+    location: 'Vị trí',
+    amountImport: 'Số lượng nhập',
+    inventory: 'Tồn kho',
+    priceImport: 'Giá nhập',
+    CashIntoInventory: 'Thành tiền tồn kho',
+    businessManagement: 'QL kinh doanh',
+    stockCard: 'Thẻ kho'
   }
 }

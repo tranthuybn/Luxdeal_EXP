@@ -1,10 +1,41 @@
-<template>
-  <div>{{ t('router.warehouseManagement') }}</div>
-</template>
-
 <script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
+import tableDatetimeFilterBasicVue from '../Components/tableType02-datetimefilter-basic.vue'
+import { getWareHouseList } from '@/api/Business'
+import { wareHouse } from './Warehouse'
+import { Tab } from '../Components/Type'
+const tabs: Array<Tab> = [
+  {
+    name: 'wareHouseList',
+    label: 'Quản lý kho',
+    api: getWareHouseList,
+    column: wareHouse
+  },
+  {
+    name: 'followinventory',
+    label: 'Theo dõi tồn kho',
+    api: getWareHouseList,
+    column: wareHouse
+  },
+  {
+    name: 'wareHouse',
+    label: 'Nhập kho',
+    api: getWareHouseList,
+    column: wareHouse
+  },
+  {
+    name: 'export',
+    label: 'Xuất kho',
+    api: getWareHouseList,
+    column: wareHouse
+  },
+  {
+    name: 'warehouseTransfer',
+    label: 'Chuyển kho',
+    api: getWareHouseList,
+    column: wareHouse
+  }
+]
 </script>
-
-<style></style>
+<template>
+  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" />
+</template>

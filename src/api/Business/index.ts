@@ -38,3 +38,7 @@ export const getServiceSurveyList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/servicesurvey/List', params })
   return res && res.data
 }
+export const getWareHouseList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/warehouse/List', params })
+  return res && res.data
+}

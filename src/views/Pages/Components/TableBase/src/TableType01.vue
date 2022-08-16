@@ -4,16 +4,9 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, watch } from 'vue'
-
+import { apiType, TableResponse } from '../../Type'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
-interface TableResponse<T = any> {
-  total: number
-  list: T[]
-  pageNumber: number
-  pageSize: number
-}
-type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
 const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
@@ -76,6 +69,9 @@ async function getTableSelected() {
     })
     .catch(() => {})
 }
+defineExpose({
+  getData
+})
 </script>
 <template>
   <ContentWrap>

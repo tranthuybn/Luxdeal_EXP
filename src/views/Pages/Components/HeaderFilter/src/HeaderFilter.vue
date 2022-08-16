@@ -142,7 +142,9 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
   })
 }
 function reLoadEvent() {
+  debugger
   searchingKey.value = ''
+  periodSelected.value = ''
   verifyReset()
   emit('refreshData')
 }

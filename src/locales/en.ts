@@ -355,6 +355,22 @@ export default {
     newproductCode: 'New Product Code',
     flashSaleCode: 'Flash Sale Code',
     surveyContent: 'Survey Content',
-    warningDate: 'End date cannot be greater than Start date'
+    warningDate: 'End date cannot be greater than Start date',
+    productCode: 'Product Code',
+    managementCode: 'Management Code',
+    productInformation: 'Product Information',
+    characteristic: 'Characteristic',
+    accessory: 'Accessory',
+    firstEntryDate: 'First Entry Date',
+    singleEntryCode: 'Single Entry Code',
+    typeOfFirstEntry: 'Type Of First Entry',
+    typeOfTransfer: 'Type Of Transfer',
+    location: 'Location',
+    amountImport: 'Amount Import',
+    inventory: 'Inventory',
+    priceImport: 'Price Import',
+    CashIntoInventory: 'Cash Into Inventory',
+    businessManagement: 'Business Management',
+    stockCard: 'Stock Card'
   }
 }

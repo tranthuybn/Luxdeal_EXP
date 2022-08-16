@@ -5,6 +5,7 @@ import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
+import { ElImage } from 'element-plus'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -72,6 +73,7 @@ async function getTableSelected() {
 defineExpose({
   getData
 })
+const url = 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
 </script>
 <template>
   <ContentWrap>
@@ -88,6 +90,15 @@ defineExpose({
       @select="getTableSelected"
       @select-all="getTableSelected"
       @register="register"
-    />
+    >
+      <template #title="data">
+        <div>
+          <div style="display: flex; align-items: center">
+            <el-image style="width: 100px; height: 100px" :src="url"
+          /></div>
+          <div>{{ data.row.title }}</div>
+        </div>
+      </template>
+    </Table>
   </ContentWrap>
 </template>

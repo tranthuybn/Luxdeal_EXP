@@ -313,6 +313,7 @@ export default defineComponent({
       <div v-loading={unref(getProps).loading}>
         <ElTable
           // @ts-ignore
+          rowKey="id"
           ref={elTableRef}
           data={unref(getProps).data}
           onSelection-change={selectionChange}

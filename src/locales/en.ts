@@ -173,7 +173,15 @@ export default {
     voucher: 'Voucher',
     newproduct: 'New Product',
     collection: 'Collection',
-    flashsale: 'Flash Sale'
+    flashsale: 'Flash Sale',
+    collaboratorsList: 'Collaborators List',
+    paymentRequest: 'Payment Request',
+    collaboratorsAdd: 'Collaborators Add',
+    customerList: 'Customer List',
+    customerRatings: 'Customer Ratings',
+    customerAdd: 'Customer Add',
+    employeeList: 'Employee List',
+    employeeRatings: 'Employee Ratings'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

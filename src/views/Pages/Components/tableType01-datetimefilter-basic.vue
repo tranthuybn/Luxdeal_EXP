@@ -42,6 +42,7 @@ const operatorColumn: TableColumn = {
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
+// table selection
 const getTotalRecord = ref(0)
 const getSelectedRecord = ref<Array<any>>([])
 function fnGetTotalRecord(val) {

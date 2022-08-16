@@ -62,6 +62,12 @@ onBeforeMount(() => {
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
     dynamicColumns.value?.push(operatorColumn)
+    /*
+     * alway set currentTab at the end of function after column and api
+     * Due to current tab was set as a key of the table and the header filter
+     * if current tab changes table will immediate reload
+     * if api and column had been not assigned before then no content should be render
+     */
     currentTab.value = theFirstTab.name
   }
 })
@@ -69,37 +75,40 @@ onUnmounted(() => {
   dynamicColumns.value?.splice(0, dynamicColumns.value.length)
 })
 const tabChangeEvent = (name) => {
-  currentTab.value = name
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
+    currentTab.value = name
+    getSelectedRecord.value = []
   }
 }
 </script>
 <template>
   <section>
-    <el-tabs
-      v-model="currentTab"
-      class="demo-tabs"
-      v-if="Array.isArray(tabs) && tabs?.length > 0"
-      @tab-change="tabChangeEvent"
-    >
-      <el-tab-pane v-for="(item, index) in tabs" :label="item.label" :name="item.name" :key="index">
-        <HeaderFiler @get-data="getData" @refresh-data="getData" :key="currentTab">
-          <template #headerFilterSlot>
-            <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
-          </template>
-        </HeaderFiler>
-        <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
-        <TableType01
-          ref="tableBase01"
-          :key="currentTab + index"
-          :api="dynamicApi"
-          :fullColumns="dynamicColumns"
-          @total-record="fnGetTotalRecord"
-          @selected-record="fnGetSelectedRecord"
-        />
+    <el-tabs v-model="currentTab" class="demo-tabs" @tab-change="tabChangeEvent">
+      <el-tab-pane
+        v-for="(item, index) in tabs"
+        :label="item.label"
+        :name="item.name"
+        :key="index"
+        lazy
+      >
+        <div :key="currentTab">
+          <HeaderFiler @get-data="getData" @refresh-data="getData">
+            <template #headerFilterSlot>
+              <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
+            </template>
+          </HeaderFiler>
+          <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
+          <TableType01
+            ref="tableBase01"
+            :api="dynamicApi"
+            :fullColumns="dynamicColumns"
+            @total-record="fnGetTotalRecord"
+            @selected-record="fnGetSelectedRecord"
+          />
+        </div>
       </el-tab-pane>
     </el-tabs>
   </section>

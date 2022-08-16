@@ -15,7 +15,10 @@ export default defineComponent({
     pageSize: propTypes.number.def(10),
     currentPage: propTypes.number.def(1),
     // Whether to choose more
-    selection: propTypes.bool.def(true),
+    selection: {
+      type: Boolean,
+      default: true
+    },
     // Whether it exceeds hidden, the priority is lower than the Showoverflowtooltip in SHOMA,
     showOverflowTooltip: propTypes.bool.def(false),
     // Head
@@ -347,7 +350,11 @@ export default defineComponent({
     white-space: unset;
   }
 }
-
+::v-deep(.el-table__row--level-1) {
+  .el-table_1_column_2 {
+    padding-left: 30px;
+  }
+}
 ::v-deep(.el-pagination.is-background .btn-next),
 ::v-deep(.el-pagination.is-background .btn-prev),
 ::v-deep(.el-pagination.is-background .el-pager li) {

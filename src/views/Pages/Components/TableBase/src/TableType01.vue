@@ -16,7 +16,8 @@ const props = defineProps({
   fullColumns: {
     type: Array as PropType<TableColumn[]>,
     default: () => []
-  }
+  },
+  selection: { type: Boolean, default: true }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
@@ -73,7 +74,6 @@ async function getTableSelected() {
 defineExpose({
   getData
 })
-const url = 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
 </script>
 <template>
   <ContentWrap>
@@ -90,11 +90,12 @@ const url = 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.
       @select="getTableSelected"
       @select-all="getTableSelected"
       @register="register"
+      :selection="selection"
     >
       <template #title="data">
-        <div>
-          <div style="display: flex; align-items: center">
-            <el-image style="width: 100px; height: 100px" :src="url"
+        <div style="display: flex; align-items: center">
+          <div style="padding-right: 20px">
+            <el-image style="width: 100px; height: 100px" :src="data.row.image"
           /></div>
           <div>{{ data.row.title }}</div>
         </div>

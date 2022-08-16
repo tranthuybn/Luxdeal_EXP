@@ -1,19 +1,21 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 export const productCategories = [
+  { field: 'void', width: '50' },
   {
     field: 'title',
-    label: t('tableDemo.title'),
+    label: t('reuse.categoryTitle'),
+    minWidth: '650'
+  },
+
+  {
+    field: 'position',
+    label: t('reuse.position'),
     minWidth: '150'
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
-  },
-  {
-    field: 'position',
-    label: t('reuse.position'),
     minWidth: '150'
   },
   {

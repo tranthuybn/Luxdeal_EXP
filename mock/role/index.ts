@@ -388,11 +388,11 @@ const adminList = [
     },
     children: [
       {
-        path: 'dashboard',
-        component: 'views/Pages/LibraryAndSetting/index',
-        name: 'library-and-setting.dashboard',
+        path: 'product-category',
+        component: 'views/Pages/LibraryAndSetting/Categories/ProductCategories/Products',
+        name: 'library-and-setting.product-category',
         meta: {
-          title: 'router.libraryAndSetting'
+          title: 'router.productCategory'
         }
       }
     ]

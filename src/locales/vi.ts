@@ -181,7 +181,8 @@ export default {
     customerRatings: 'Xếp hạng khách hàng',
     customerAdd: 'Thêm mới khách hàng',
     employeeList: 'Danh sách nhân viên',
-    employeeRatings: 'Xếp hạng nhân viên'
+    employeeRatings: 'Xếp hạng nhân viên',
+    productCategory: 'Danh mục sản phẩm'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -380,6 +381,9 @@ export default {
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
-    stockCard: 'Thẻ kho'
+    stockCard: 'Thẻ kho',
+    warningDate: 'Ngày bắt đầu không thể bé hơn ngày kết thúc',
+    categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
+    position: 'Vị trí'
   }
 }

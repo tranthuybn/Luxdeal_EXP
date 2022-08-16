@@ -3,7 +3,6 @@ import { productList } from './productCategories/products'
 
 const { result_code } = config
 const timeout = 1000
-const count = 100
 
 export default [
   {

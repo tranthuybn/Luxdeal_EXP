@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { TableData } from '@/api/table/types'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
-import { ElButton, ElCol, ElRow } from 'element-plus'
-import { PropType, h, ref, unref, onUnmounted, onBeforeMount } from 'vue'
+import { ElButton, ElCol, ElRow, ElTabs, ElTabPane } from 'element-plus'
+import { h, ref, unref, onUnmounted, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
-import { TableResponse, apiType } from './Type'
+import { apiType, Tab } from './Type'
 const { t } = useI18n()
 const props = defineProps({
-  columns: {
-    type: Array as PropType<TableColumn[]>,
+  tabs: {
+    type: Array<Tab>,
     default: () => []
-  },
-  api: {
-    type: Function as PropType<apiType>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
   }
 })
 // declare
@@ -39,9 +34,11 @@ const operatorColumn: TableColumn = {
     ])
   }
 }
+// table operator
 const acitonFn = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
+
 const getTotalRecord = ref(0)
 const getSelectedRecord = ref<Array<any>>([])
 function fnGetTotalRecord(val) {
@@ -55,32 +52,55 @@ const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 const getData = () => {
   unref(tableBase01)?.getData()
 }
+// tab logic
+const currentTab = ref<string>('')
 const dynamicApi = ref<apiType>()
 const dynamicColumns = ref<TableColumn[]>()
 onBeforeMount(() => {
-  dynamicApi.value = props.api
-  dynamicColumns.value = props.columns
-  dynamicColumns.value.push(operatorColumn)
+  if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
+    const theFirstTab = props.tabs[0]
+    dynamicApi.value = theFirstTab.api
+    dynamicColumns.value = theFirstTab.column
+    dynamicColumns.value?.push(operatorColumn)
+    currentTab.value = theFirstTab.name
+  }
 })
 onUnmounted(() => {
   dynamicColumns.value?.splice(0, dynamicColumns.value.length)
-  dynamicApi.value = undefined
 })
+const tabChangeEvent = (name) => {
+  currentTab.value = name
+  if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
+    const tab = props.tabs.find((el) => el.name === name)
+    dynamicColumns.value = tab?.column
+    dynamicApi.value = tab?.api ?? undefined
+  }
+}
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refresh-data="getData">
-      <template #headerFilterSlot>
-        <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
-      </template>
-    </HeaderFiler>
-    <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
-    <TableType01
-      ref="tableBase01"
-      :api="dynamicApi"
-      :fullColumns="dynamicColumns"
-      @total-record="fnGetTotalRecord"
-      @selected-record="fnGetSelectedRecord"
-    />
+    <el-tabs
+      v-model="currentTab"
+      class="demo-tabs"
+      v-if="Array.isArray(tabs) && tabs?.length > 0"
+      @tab-change="tabChangeEvent"
+    >
+      <el-tab-pane v-for="(item, index) in tabs" :label="item.label" :name="item.name" :key="index">
+        <HeaderFiler @get-data="getData" @refresh-data="getData" :key="currentTab">
+          <template #headerFilterSlot>
+            <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
+          </template>
+        </HeaderFiler>
+        <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
+        <TableType01
+          ref="tableBase01"
+          :key="currentTab + index"
+          :api="dynamicApi"
+          :fullColumns="dynamicColumns"
+          @total-record="fnGetTotalRecord"
+          @selected-record="fnGetSelectedRecord"
+        />
+      </el-tab-pane>
+    </el-tabs>
   </section>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../../Components/TableInTab-base.vue'
 import { getSellOrderList, getRentalorderList } from '@/api/Business'
 import { sellOrder, rentalorder } from './OrderManagement'
 import { Tab } from '../../Components/Type'

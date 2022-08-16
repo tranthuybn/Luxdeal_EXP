@@ -173,7 +173,15 @@ export default {
     voucher: 'Voucher',
     newproduct: 'Hàng mới về',
     collection: 'Bộ sưu tập',
-    flashsale: 'Flash Sale'
+    flashsale: 'Flash Sale',
+    collaboratorsList: 'Danh sách cộng tác viên',
+    paymentRequest: 'Yêu cầu thanh toán hoa hồng',
+    collaboratorsAdd: 'Thêm mới cộng tác viên',
+    customerList: 'Danh sách khách hàng',
+    customerRatings: 'Xếp hạng khách hàng',
+    customerAdd: 'Thêm mới khách hàng',
+    employeeList: 'Danh sách nhân viên',
+    employeeRatings: 'Xếp hạng nhân viên'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

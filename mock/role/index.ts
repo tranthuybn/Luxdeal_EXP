@@ -84,11 +84,37 @@ const adminList = [
       },
       {
         path: 'customer-management',
-        component: 'views/Pages/Business/CustomerManagement',
         name: 'business.customer-management',
+        redirect: { name: 'business.customer-management.customerList' },
         meta: {
           title: 'router.customerManagement'
-        }
+        },
+        children: [
+          {
+            path: 'customerList',
+            name: 'business.customer-management.customerList',
+            component: 'views/Pages/Business/CustomerManagement/CustomerList',
+            meta: {
+              title: 'router.customerList'
+            }
+          },
+          {
+            path: 'customerRatings',
+            name: 'business.customer-management.customerRatings',
+            component: 'views/Pages/Business/CustomerManagement/CustomerRatings',
+            meta: {
+              title: 'router.customerRatings'
+            }
+          },
+          {
+            path: 'customerAdd',
+            name: 'business.customer-management.customerAdd',
+            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+            meta: {
+              title: 'router.customerAdd'
+            }
+          }
+        ]
       },
       {
         path: 'promotion-strategy',
@@ -158,19 +184,63 @@ const adminList = [
       },
       {
         path: 'collaborators',
-        component: 'views/Pages/Business/Collaborators',
         name: 'business.collaborators',
+        redirect: { name: 'business.collaborators.collaboratorsList' },
         meta: {
           title: 'router.collaborators'
-        }
+        },
+        children: [
+          {
+            path: 'collaboratorsList',
+            name: 'business.collaborators.collaboratorsList',
+            component: 'views/Pages/Business/Collaborators/Collaborators',
+            meta: {
+              title: 'router.collaboratorsList'
+            }
+          },
+          {
+            path: 'paymentRequest',
+            name: 'business.collaborators.paymentRequest',
+            component: 'views/Pages/Business/Collaborators/PaymentRequest',
+            meta: {
+              title: 'router.paymentRequest'
+            }
+          },
+          {
+            path: 'collaboratorsAdd',
+            name: 'business.collaborators.collaboratorsAdd',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd.vue',
+            meta: {
+              title: 'router.collaboratorsAdd'
+            }
+          }
+        ]
       },
       {
         path: 'employee-management',
-        component: 'views/Pages/Business/EmployeeManagement',
         name: 'business.employee-management',
+        redirect: { name: 'business.employee-management.employeeList' },
         meta: {
           title: 'router.employeeManagement'
-        }
+        },
+        children: [
+          {
+            path: 'employeeList',
+            name: 'business.employee-management.employeeList',
+            component: 'views/Pages/Business/EmployeeManagement/EmployeeList',
+            meta: {
+              title: 'router.employeeList'
+            }
+          },
+          {
+            path: 'employeeRatings',
+            name: 'business.employee-management.employeeRatings',
+            component: 'views/Pages/Business/EmployeeManagement/EmployeeRatings',
+            meta: {
+              title: 'router.employeeRatings'
+            }
+          }
+        ]
       },
       {
         path: 'business-report',

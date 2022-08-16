@@ -48,11 +48,37 @@ export default {
     },
     {
       path: 'customer-management',
-      component: () => import('@/views/Pages/Business/CustomerManagement.vue'),
       name: 'business.customer-management',
+      redirect: { name: 'business.customer-management.customerList' },
       meta: {
         title: t('router.customerManagement')
-      }
+      },
+      children: [
+        {
+          path: 'customerList',
+          name: 'business.customer-management.customerList',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerList.vue'),
+          meta: {
+            title: t('router.customerList')
+          }
+        },
+        {
+          path: 'customerRatings',
+          name: 'business.customer-management.customerRatings',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerRatings.vue'),
+          meta: {
+            title: t('router.customerRatings')
+          }
+        },
+        {
+          path: 'customerAdd',
+          name: 'business.customer-management.customerAdd',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          meta: {
+            title: t('router.customerAdd')
+          }
+        }
+      ]
     },
     {
       path: 'promotion-strategy',
@@ -122,19 +148,63 @@ export default {
     },
     {
       path: 'collaborators',
-      component: () => import('@/views/Pages/Business/Collaborators.vue'),
       name: 'business.collaborators',
+      redirect: { name: 'business.collaborators.collaboratorsList' },
       meta: {
         title: t('router.collaborators')
-      }
+      },
+      children: [
+        {
+          path: 'collaboratorsList',
+          name: 'business.collaborators.collaboratorsList',
+          component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
+          meta: {
+            title: t('router.collaboratorsList')
+          }
+        },
+        {
+          path: 'paymentRequest',
+          name: 'business.collaborators.paymentRequest',
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
+          meta: {
+            title: t('router.paymentRequest')
+          }
+        },
+        {
+          path: 'collaboratorsAdd',
+          name: 'business.collaborators.collaboratorsAdd',
+          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd')
+          }
+        }
+      ]
     },
     {
       path: 'employee-management',
-      component: () => import('@/views/Pages/Business/EmployeeManagement.vue'),
       name: 'business.employee-management',
+      redirect: { name: 'business.employee-management.employeeList' },
       meta: {
         title: t('router.employeeManagement')
-      }
+      },
+      children: [
+        {
+          path: 'employeeList',
+          name: 'business.employee-management.employeeList',
+          component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeList.vue'),
+          meta: {
+            title: t('router.employeeList')
+          }
+        },
+        {
+          path: 'employeeRatings',
+          name: 'business.employee-management.employeeRatings',
+          component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeRatings.vue'),
+          meta: {
+            title: t('router.employeeRatings')
+          }
+        }
+      ]
     },
     {
       path: 'business-report',

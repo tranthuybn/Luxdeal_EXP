@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import productCategoryTable from '../../../Components/productCategory-table.vue'
+import productCategoryTable from '../../Components/productCategory-table.vue'
 import { getProductCategories } from '@/api/LibraryAndSetting'
 import { productCategories } from './CategoryManagement'
-import { Tab } from '../../../Components/Type'
+import { Tab } from '../../Components/Type'
 const tabs: Array<Tab> = [
   {
     name: 'productCategories',

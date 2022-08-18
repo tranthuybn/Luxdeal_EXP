@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElTabs, ElTabPane } from 'element-plus'
-import { ref, unref, onUnmounted, onBeforeMount } from 'vue'
+import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableType01 } from './TableBase/index'
 import { Tab } from './Type'
-import { operatorColumn, dynamicApi, dynamicColumns, resetTable } from './TablesReusabilityFunction'
+import { operatorColumn, dynamicApi, dynamicColumns } from './TablesReusabilityFunction'
 
 const props = defineProps({
   tabs: {
@@ -23,11 +23,19 @@ const getData = () => {
 // tab logic
 const currentTab = ref<string>('')
 onBeforeMount(() => {
+  const propsObj = { ...props }
+  console.log('beforeMount', propsObj)
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
-    if (dynamicColumns.value.length > 0) dynamicColumns.value?.push(operatorColumn)
+    let hasOperator = false
+    dynamicColumns.value.map((col) => {
+      if (col.field === operatorColumn.field) {
+        hasOperator = true
+      }
+    })
+    if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
     /*
      * alway set currentTab at the end of function after column and api
      * Due to current tab was set as a key of the table and the header filter
@@ -37,15 +45,20 @@ onBeforeMount(() => {
     currentTab.value = theFirstTab.name
   }
 })
-onUnmounted(() => {
-  resetTable()
-})
+
 const tabChangeEvent = (name) => {
   currentTab.value = name
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
+    let hasOperator = false
+    dynamicColumns?.value?.map((col) => {
+      if (col.field === operatorColumn.field) {
+        hasOperator = true
+      }
+    })
+    if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
   }
 }
 </script>

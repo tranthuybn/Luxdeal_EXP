@@ -2,11 +2,19 @@
 import { TableData } from '@/api/table/types'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
-import { PropType, ref, unref, onBeforeMount, onUnmounted } from 'vue'
+import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableType01 } from './TableBase/index'
+import { TableExtension, TableType01 } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
-import { operatorColumn, dynamicApi, dynamicColumns } from './TablesReusabilityFunction'
+import {
+  operatorColumn,
+  getTotalRecord,
+  getSelectedRecord,
+  fnGetTotalRecord,
+  fnGetSelectedRecord,
+  dynamicApi,
+  dynamicColumns
+} from './TablesReusabilityFunction'
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -15,6 +23,10 @@ const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  selection: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -28,10 +40,13 @@ const getData = () => {
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  if (dynamicColumns.value.length > 0) dynamicColumns.value.push(operatorColumn)
-})
-onUnmounted(() => {
-  if (dynamicColumns.value && dynamicColumns.value.length > 0) dynamicColumns.value.pop()
+  let hasOperator = false
+  dynamicColumns?.value?.map((col) => {
+    if (col.field === operatorColumn.field) {
+      hasOperator = true
+    }
+  })
+  if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
 })
 </script>
 <template>
@@ -41,11 +56,18 @@ onUnmounted(() => {
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
+    <TableExtension
+      v-if="selection"
+      :totalRecord="getTotalRecord"
+      :selectedRecord="getSelectedRecord"
+    />
     <TableType01
       ref="tableBase01"
-      :selection="false"
       :api="dynamicApi"
       :fullColumns="dynamicColumns"
+      @total-record="fnGetTotalRecord"
+      @selected-record="fnGetSelectedRecord"
+      :selection="selection"
     />
   </section>
 </template>

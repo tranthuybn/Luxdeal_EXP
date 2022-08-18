@@ -405,6 +405,10 @@ export default {
     productName: 'Tên sản phẩm',
     description: 'Mô tả',
     category: 'Danh mục',
-    image: 'Ảnh'
+    image: 'Ảnh',
+    material: 'Chất liệu',
+    businessProduct: 'Sản phẩm kinh doanh',
+    spaProduct: 'Vật tư(Step 2)',
+    propertyProduct: 'Tài sản(Step 2)'
   }
 }

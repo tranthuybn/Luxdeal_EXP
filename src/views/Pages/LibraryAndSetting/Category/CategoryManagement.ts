@@ -5,23 +5,27 @@ export const productCategories = [
   {
     field: 'title',
     label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    minWidth: '650',
+    sorting: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sorting: true
   }
 ]
 export const spaProductCategories = [
@@ -29,23 +33,27 @@ export const spaProductCategories = [
   {
     field: 'title',
     label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    minWidth: '650',
+    sorting: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sorting: true
   }
 ]
 export const propertyProductCategories = [
@@ -53,23 +61,27 @@ export const propertyProductCategories = [
   {
     field: 'title',
     label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    minWidth: '650',
+    sorting: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sorting: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sorting: true
   }
 ]
 export const colorCategories = [

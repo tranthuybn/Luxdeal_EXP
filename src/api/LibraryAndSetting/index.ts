@@ -46,3 +46,7 @@ export const getOriginCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/OriginCategories/List', params })
   return res && res.data
 }
+export const getBusinessProductLibrary = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/BusinessProductLibrary/List', params })
+  return res && res.data
+}

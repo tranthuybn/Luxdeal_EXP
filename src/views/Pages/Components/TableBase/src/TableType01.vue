@@ -100,6 +100,9 @@ defineExpose({
           <div>{{ data.row.title }}</div>
         </div>
       </template>
+      <template #image="data">
+        <div> <el-image style="width: 100px; height: 100px" :src="data.row.image" /></div>
+      </template>
     </Table>
   </ContentWrap>
 </template>

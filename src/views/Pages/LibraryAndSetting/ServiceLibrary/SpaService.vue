@@ -1,10 +1,8 @@
-<template>
-  <div>{{ t('router.libraryAndSetting') }}</div>
-</template>
-
 <script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
+import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { businessProductLibrary } from './ProductLibraryManagement'
+import tableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
-
-<style></style>
+<template>
+  <tableType01 :columns="businessProductLibrary" :api="getBusinessProductLibrary" />
+</template>

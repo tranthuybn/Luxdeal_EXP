@@ -10,6 +10,7 @@ import {
 import { UnitCategoriesList } from './productCategories/unit'
 import { BrandCategoriesList } from './productCategories/brand'
 import { OriginCategoriesList } from './productCategories/origin'
+import { BusinessProductLibrary } from './productLibrary/businessProduct'
 const { result_code } = config
 const timeout = 1000
 
@@ -207,6 +208,24 @@ export default [
         code: result_code,
         data: {
           total: OriginCategoriesList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/BusinessProductLibrary/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = BusinessProductLibrary.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: BusinessProductLibrary.length,
           list: pageList
         }
       }

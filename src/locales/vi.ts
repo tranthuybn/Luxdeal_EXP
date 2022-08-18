@@ -182,7 +182,22 @@ export default {
     customerAdd: 'Thêm mới khách hàng',
     employeeList: 'Danh sách nhân viên',
     employeeRatings: 'Xếp hạng nhân viên',
-    productCategory: 'Danh mục sản phẩm'
+    productCategoryProducts: 'Danh mục sản phẩm',
+    productProperty: 'Danh mục & thuộc tính',
+    productCategoryAttribute: 'Đặc tính',
+    productCategoryUnit: 'Đơn vị tính',
+    productCategoryBrand: 'Thương hiệu',
+    productCategoryOrigin: 'Xuất xứ',
+    ProductLibrary: 'Thư viện sản phẩm',
+    productLibraryProducts: 'Sản phẩm kinh doanh',
+    productLibrarySpaMaterial: 'Vật tư Spa(Step 2)',
+    productLibraryproperties: 'Tài sản(Step 2)',
+    ServiceLibrary: 'Thư viện dịch vụ',
+    ServiceLibrarySpaService: 'Dịch vụ Spa',
+    StorageLibrary: 'Thư viện kho',
+    StorageLibraryProductStorage: 'Kho sản phẩm kinh doanh',
+    productLibrarySpaStorage: 'Kho nguyên vật liệu(Step 2)',
+    productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -384,6 +399,12 @@ export default {
     stockCard: 'Thẻ kho',
     warningDate: 'Ngày bắt đầu không thể bé hơn ngày kết thúc',
     categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
-    position: 'Vị trí'
+    position: 'Vị trí',
+    color: 'Màu săc',
+    size: 'Size',
+    productName: 'Tên sản phẩm',
+    description: 'Mô tả',
+    category: 'Danh mục',
+    image: 'Ảnh'
   }
 }

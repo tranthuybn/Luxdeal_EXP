@@ -351,7 +351,7 @@ export default defineComponent({
   }
 }
 ::v-deep(.el-table__row--level-1) {
-  .el-table_1_column_2 {
+  .imageTitle {
     padding-left: 30px;
   }
 }

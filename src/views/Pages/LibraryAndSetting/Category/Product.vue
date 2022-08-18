@@ -1,29 +1,39 @@
 <script setup lang="ts">
 import productCategoryTable from '../../Components/productCategory-table.vue'
-import { getProductCategories } from '@/api/LibraryAndSetting'
-import { productCategories } from './CategoryManagement'
+import {
+  getProductCategories,
+  getSpaProductCategories,
+  getPropertyProductCategories
+} from '@/api/LibraryAndSetting'
+import {
+  productCategories,
+  spaProductCategories,
+  propertyProductCategories
+} from './CategoryManagement'
 import { Tab } from '../../Components/Type'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
     name: 'productCategories',
-    label: 'Sản phẩm kinh doanh',
+    label: t('reuses.businessProduct'),
     api: getProductCategories,
     column: productCategories
   },
   {
     name: 'Spa',
-    label: 'Vật tư spa(Step2)',
-    api: getProductCategories,
-    column: productCategories
+    label: t('reuse.spaProduct'),
+    api: getSpaProductCategories,
+    column: spaProductCategories
   },
   {
     name: 'Property',
-    label: 'Tài sản(Step2)',
-    api: getProductCategories,
-    column: productCategories
+    label: t('reuse.propertyProduct'),
+    api: getPropertyProductCategories,
+    column: propertyProductCategories
   }
 ]
 </script>
 <template>
-  <productCategoryTable title="productCategories" :tabs="tabs" />
+  <productCategoryTable :tabs="tabs" />
 </template>

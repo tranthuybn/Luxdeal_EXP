@@ -1,6 +1,7 @@
 import Mock from 'mockjs'
 const productList: {
   id: string
+  image: string
   createDate: Date
   position: number
   status: string
@@ -8,11 +9,12 @@ const productList: {
   children: [{}]
 }[] = []
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 15; i++) {
   productList.push(
     Mock.mock({
       id: i,
-      image: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
+      image:
+        'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-coussin-bb-h27-handbags--M21191_PM2_Front%20view.png?wid=656&hei=656',
       createDate: '@date("dd/MM/yyyy")',
       position: '@integer(1, 3)',
       status: 'Đang hoạt động',
@@ -21,7 +23,7 @@ for (let i = 0; i < 100; i++) {
         {
           id: ++i,
           image:
-            'https://static.scientificamerican.com/sciam/cache/file/7A715AD8-449D-4B5A-ABA2C5D92D9B5A21_source.png',
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-coussin-bb-h27-handbags--M21191_PM1_Side%20view.png?wid=656&hei=656',
           createDate: '@date("dd/MM/yyyy")',
           position: '@integer(1, 3)',
           status: 'Đang hoạt động',
@@ -30,7 +32,7 @@ for (let i = 0; i < 100; i++) {
         {
           id: ++i,
           image:
-            'https://www.thoughtco.com/thmb/YkksU0Xy_2kfdDolJLPja7NM8jI=/2121x1193/smart/filters:no_upscale()/swallowGE-57a109323df78c3276f5b8a0.jpg',
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-coussin-bb-h27-handbags--M21191_PM1_Back%20view.png?wid=656&hei=656',
           createDate: '@date("dd/MM/yyyy")',
           position: '@integer(1, 3)',
           status: 'Đang hoạt động',
@@ -40,4 +42,91 @@ for (let i = 0; i < 100; i++) {
     })
   )
 }
-export { productList }
+const SpaProductList: {
+  id: string
+  image: string
+  createDate: Date
+  position: number
+  status: string
+  title: string
+  children: [{}]
+}[] = []
+
+for (let i = 0; i < 15; i++) {
+  SpaProductList.push(
+    Mock.mock({
+      id: i,
+      image:
+        'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-petite-malle-v-monogram-handbags--M46309_PM2_Front%20view.png?wid=656&hei=656',
+      createDate: '@date("dd/MM/yyyy")',
+      position: '@integer(1, 3)',
+      status: 'Đang hoạt động',
+      title: '@title(5, 10)',
+      children: [
+        {
+          id: ++i,
+          image:
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-petite-malle-v-monogram-handbags--M46309_PM1_Side%20view.png?wid=656&hei=656',
+          createDate: '@date("dd/MM/yyyy")',
+          position: '@integer(1, 3)',
+          status: 'Đang hoạt động',
+          title: '@title(5,10)'
+        },
+        {
+          id: ++i,
+          image:
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-petite-malle-v-monogram-handbags--M46309_PM1_Other%20view.png?wid=656&hei=656',
+          createDate: '@date("dd/MM/yyyy")',
+          position: '@integer(1, 3)',
+          status: 'Đang hoạt động',
+          title: '@title(5,10)'
+        }
+      ]
+    })
+  )
+}
+const PropertyProductList: {
+  id: string
+  image: string
+  createDate: Date
+  position: number
+  status: string
+  title: string
+  children: [{}]
+}[] = []
+
+for (let i = 0; i < 15; i++) {
+  PropertyProductList.push(
+    Mock.mock({
+      id: i,
+      image:
+        'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-cit%C3%A9-monogram-handbags--M46321_PM2_Front%20view.png?wid=656&hei=656',
+      createDate: '@date("dd/MM/yyyy")',
+      position: '@integer(1, 3)',
+      status: 'Đang hoạt động',
+      title: '@title(5, 10)',
+      children: [
+        {
+          id: ++i,
+          image:
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-cit%C3%A9-monogram-handbags--M46321_PM1_Side%20view.png?wid=656&hei=656',
+          createDate: '@date("dd/MM/yyyy")',
+          position: '@integer(1, 3)',
+          status: 'Đang hoạt động',
+          title: '@title(5,10)'
+        },
+        {
+          id: ++i,
+          image:
+            'https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-cit%C3%A9-monogram-handbags--M46321_PM1_Back%20view.png?wid=656&hei=656',
+          createDate: '@date("dd/MM/yyyy")',
+          position: '@integer(1, 3)',
+          status: 'Đang hoạt động',
+          title: '@title(5,10)'
+        }
+      ]
+    })
+  )
+}
+
+export { productList, SpaProductList, PropertyProductList }

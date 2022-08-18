@@ -1,10 +1,8 @@
-<template>
-  <div>{{ t('router.libraryAndSetting') }}</div>
-</template>
-
 <script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
+import { getUnitCategories } from '@/api/LibraryAndSetting'
+import { unitCategories } from './CategoryManagement'
+import apipropTable from '../../Components/apiprop-table.vue'
 </script>
-
-<style></style>
+<template>
+  <apipropTable :columns="unitCategories" :api="getUnitCategories" />
+</template>

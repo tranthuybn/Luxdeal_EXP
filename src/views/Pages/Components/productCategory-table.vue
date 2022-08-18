@@ -71,8 +71,8 @@ const tabChangeEvent = (name) => {
             </template>
           </HeaderFiler>
           <TableType01
-            :selection="false"
             ref="tableBase01"
+            :selection="false"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
           />

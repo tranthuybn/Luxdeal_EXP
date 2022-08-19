@@ -16,7 +16,7 @@ const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
     name: 'productCategories',
-    label: t('reuses.businessProduct'),
+    label: t('reuse.businessProduct'),
     api: getProductCategories,
     column: productCategories
   },

@@ -14,11 +14,31 @@ export default {
   children: [
     {
       path: 'payment-proposal',
-      component: () => import('@/views/Pages/Accountant/PaymentProposal.vue'),
+      redirect: { name: 'accountant.payment-proposal.payment-proposal-list' },
       name: 'accountant.payment-proposal',
       meta: {
         title: t('router.paymentProposal')
-      }
+      },
+      children: [
+        {
+          path: 'payment-proposal-list',
+          component: () =>
+            import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalList.vue'),
+          name: 'accountant.payment-proposal.payment-proposal-list',
+          meta: {
+            title: t('router.paymentProposalList')
+          }
+        },
+        {
+          path: 'payment-proposal-add',
+          component: () =>
+            import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalAdd.vue'),
+          name: 'accountant.payment-proposal.payment-proposal-add',
+          meta: {
+            title: t('router.paymentProposalAdd')
+          }
+        }
+      ]
     },
     {
       path: 'receipts-and-expenditures',

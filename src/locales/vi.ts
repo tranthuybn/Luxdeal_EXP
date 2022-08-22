@@ -1,5 +1,3 @@
-import { getScrollBarWidth } from 'element-plus/es/utils'
-
 export default {
   common: {
     inputText: 'Vui lòng nhập',
@@ -149,6 +147,21 @@ export default {
     warehouseManagement: 'Quản lý kho',
     accountant: 'Kế toán',
     approve: 'Duyệt',
+    approveProducts: 'Duyệt sản phẩm',
+    newlyInitialized: 'Mới khởi tạo',
+    odersNew: 'Đơn hàng mới',
+    odersCancel: 'Đơn hàng hủy',
+    edit: 'Chỉnh sửa',
+    approveOrders: 'Duyệt đơn hàng',
+    approvePayments: 'Duyệt thanh toán',
+    approveAccounts: 'Duyệt tài khoản',
+    approvePromotionStrategy: 'Duyệt chiến dịch & quảng cáo',
+    userAccount: 'Tài khoản người dùng',
+    collaboratorAccount: 'Tài khoản cộng tác viên',
+    internalAccount: 'Tài khoản nội bộ',
+    advertisingBanner: 'Banner quảng cáo',
+    purchase: 'Mua hàng',
+    humanResourceManagement: 'Quản lý nhân sự',
     libraryAndSetting: 'Thư viện & cài đặt',
     newsAndAdvertisement: 'Tin tức & quảng cáo',
     potentialCustomerCare: 'Chăm sóc khách hàng tiềm năng',
@@ -166,6 +179,8 @@ export default {
     paymentProposal: 'Đề nghị thanh toán',
     receiptsAndExpenditures: 'Phiếu thu/chi',
     balanceSheet: 'Cân đối kế toán',
+    paymentProposalList: 'Danh sách đề nghị thanh toán',
+    paymentProposalAdd: 'Thêm mới đề nghị thanh toán',
     orders: 'Đơn hàng',
     products: 'Sản phẩm',
     payments: 'Thanh toán',
@@ -213,7 +228,11 @@ export default {
     StorageLibrary: 'Thư viện kho',
     StorageLibraryProductStorage: 'Kho sản phẩm kinh doanh',
     productLibrarySpaStorage: 'Kho nguyên vật liệu(Step 2)',
-    productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)'
+    productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
+    businessPurchases: 'Mua hàng kinh doanh',
+    purchaseOrderList: 'Danh sách đơn mua hàng',
+    purchaseOrderAdd: 'Thêm mới đơn mua hàng',
+    personnelAccounts: 'Nhân sự & Tài khoản'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

@@ -269,7 +269,7 @@ const adminList = [
           {
             path: 'collaboratorsAdd',
             name: 'business.collaborators.collaboratorsAdd',
-            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd.vue',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
             meta: {
               title: 'router.collaboratorsAdd'
             }
@@ -373,6 +373,45 @@ const adminList = [
     ]
   },
   {
+    path: '/purchase',
+    component: '#',
+    redirect: '/purchase',
+    name: 'purchase',
+    meta: {
+      title: 'router.purchase',
+      icon: 'arcticons:purchased-apps',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'business-purchases',
+        name: 'purchase.business-purchases',
+        redirect: { name: 'purchase.business-purchases.purchase-order-list' },
+        meta: {
+          title: 'router.businessPurchases'
+        },
+        children: [
+          {
+            path: 'purchase-order-list',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
+            name: 'purchase.business-purchases.purchase-order-list',
+            meta: {
+              title: 'router.purchaseOrderList'
+            }
+          },
+          {
+            path: 'purchase-order-add',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderList',
+            name: 'purchase.business-purchases.purchase-order-add',
+            meta: {
+              title: 'router.purchaseOrderAdd'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     path: '/warehouse',
     component: '#',
     redirect: '/warehouse/list-warehouse',
@@ -406,14 +445,32 @@ const adminList = [
     children: [
       {
         path: 'payment-proposal',
-        component: 'views/Pages/Accountant/PaymentProposal',
         name: 'accountant.payment-proposal',
+        redirect: { name: 'accountant.payment-proposal.payment-proposal-list' },
         meta: {
           title: 'router.paymentProposal'
-        }
+        },
+        children: [
+          {
+            path: 'payment-proposal-list',
+            component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalList',
+            name: 'accountant.payment-proposal.payment-proposal-list',
+            meta: {
+              title: 'router.paymentProposalList'
+            }
+          },
+          {
+            path: 'apayment-proposal-add',
+            component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
+            name: 'accountant.payment-proposal.payment-proposal-add',
+            meta: {
+              title: 'router.paymentProposalAdd'
+            }
+          }
+        ]
       },
       {
-        path: 'receipts-and-expenditures',
+        path: 'receipts-expenditures',
         component: 'views/Pages/Accountant/ReceiptsAndExpenditures',
         name: 'accountant.receiptsAndExpenditures',
         meta: {
@@ -443,35 +500,181 @@ const adminList = [
     children: [
       {
         path: 'products-approval',
-        component: 'views/Pages/Approval/Products/index',
         name: 'approve.products-approval',
+        redirect: { name: 'approve.products-approval.newly-initialized' },
         meta: {
-          title: 'router.products'
-        }
+          title: 'router.approveProducts'
+        },
+        children: [
+          {
+            path: 'newly-initialized',
+            component: 'views/Pages/Approval/Products/index',
+            name: 'approve.products-approval.newly-initialized',
+            meta: {
+              title: 'router.newlyInitialized'
+            }
+          },
+          {
+            path: 'edit',
+            component: 'views/Pages/Approval/Products/index',
+            name: 'approve.products-approval.edit',
+            meta: {
+              title: 'router.edit'
+            }
+          }
+        ]
       },
       {
         path: 'orders-approval',
-        component: 'views/Pages/Approval/Orders/index',
         name: 'approve.orders-approval',
+        redirect: { name: 'approve.orders-approval.oders-new' },
         meta: {
-          title: 'router.orders'
-        }
+          title: 'router.approveOrders'
+        },
+        children: [
+          {
+            path: 'oders-new',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.oders-new',
+            meta: {
+              title: 'router.odersNew'
+            }
+          },
+          {
+            path: 'oders-cancel',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.oders-cancel',
+            meta: {
+              title: 'router.odersCancel'
+            }
+          }
+        ]
       },
       {
         path: 'payment-approval',
-        component: 'views/Pages/Approval/Payments/index',
         name: 'approve.payment-approval',
+        redirect: { name: 'approve.payment-approval.proposal' },
         meta: {
-          title: 'router.payments'
-        }
+          title: 'router.approvePayments'
+        },
+        children: [
+          {
+            path: 'proposal',
+            component: 'views/Pages/Approval/Payments/index',
+            name: 'approve.payment-approval.proposal',
+            meta: {
+              title: 'router.paymentProposal'
+            }
+          },
+          {
+            path: 'receipts-and-expenditures',
+            component: 'views/Pages/Approval/Payments/index',
+            name: 'approve.payment-approval.receipts-and-expenditures',
+            meta: {
+              title: 'router.receiptsAndExpenditures'
+            }
+          }
+        ]
       },
       {
         path: 'accounts-approval',
-        component: 'views/Pages/Approval/Accounts/index',
         name: 'approve.accounts-approval',
+        redirect: { name: 'approve.accounts-approval.user-account' },
         meta: {
-          title: 'router.accounts'
-        }
+          title: 'router.approveAccounts'
+        },
+        children: [
+          {
+            path: 'user-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.user-account',
+            meta: {
+              title: 'router.userAccount'
+            }
+          },
+          {
+            path: 'collaborator-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.collaborator-account',
+            meta: {
+              title: 'router.collaboratorAccount'
+            }
+          },
+          {
+            path: 'internal-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.internal-account',
+            meta: {
+              title: 'router.internalAccount'
+            }
+          }
+        ]
+      },
+      {
+        path: 'approve-promotion-strategy',
+        name: 'approve.approve-promotion-strategy',
+        redirect: { name: 'approve.approve-promotion-strategy.approve-flashsale' },
+        meta: {
+          title: 'router.approvePromotionStrategy'
+        },
+        children: [
+          {
+            path: 'approve-flashsale',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-flashsale',
+            meta: {
+              title: 'router.flashsale'
+            }
+          },
+          {
+            path: 'approve-collection',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-collection',
+            meta: {
+              title: 'router.collection'
+            }
+          },
+          {
+            path: 'approve-newproduct',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-newproduct',
+            meta: {
+              title: 'router.newproduct'
+            }
+          },
+          {
+            path: 'approve-voucher',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-voucher',
+            meta: {
+              title: 'router.voucher'
+            }
+          },
+          {
+            path: 'approve-combo',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-combo',
+            meta: {
+              title: 'router.combo'
+            }
+          },
+          {
+            path: 'approve-auction',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-auction',
+            meta: {
+              title: 'router.auction'
+            }
+          },
+          {
+            path: 'approve-advertisingBanner',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-advertisingBanner',
+            meta: {
+              title: 'router.advertisingBanner'
+            }
+          }
+        ]
       }
     ]
   },
@@ -492,6 +695,27 @@ const adminList = [
         name: 'New-and-advertisement.new-and-advertisement-list',
         meta: {
           title: 'router.newsAndAdvertisement'
+        }
+      }
+    ]
+  },
+  {
+    path: '/human-resource-management',
+    component: '#',
+    redirect: '/human-resource-management',
+    name: 'human-resource-management',
+    meta: {
+      title: 'router.humanResourceManagement',
+      icon: 'bx:user',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'personnel-accounts',
+        name: 'human-resource-management.personnel-accounts',
+        component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
+        meta: {
+          title: 'router.personnelAccounts'
         }
       }
     ]

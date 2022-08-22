@@ -147,11 +147,17 @@ function reLoadEvent() {
   verifyReset()
   emit('refreshData')
 }
-function getDataEvent() {
+async function getDataEvent() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.validate((valid) => {
     if (valid) {
-      emit('getData', methods.getFormData, searchingKey.value)
+      getFormData()
+        .then((res) => {
+          emit('getData', { ...res, searchingKey: searchingKey.value })
+        })
+        .catch(() => {
+          console.error('have some issues while emitting')
+        })
     }
   })
 }

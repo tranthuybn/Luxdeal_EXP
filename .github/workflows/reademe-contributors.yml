@@ -15,11 +15,10 @@ jobs:
 
   contrib-readme-job:
     runs-on: ubuntu-latest
-    name: A job to automate contrib in readme.zh-CN
-    steps:
+    name: A job to automate contrib in readme.vi
       - name: Contribute List
         uses: akhilmhdh/contributors-readme-action@v2.3.4
         with:
-          readme_path: README.zh-CN.md
+          readme_path: README.vi.md
         env:
           GITHUB_TOKEN: ${{ secrets.CONTRIBUTORS_TOKEN }}

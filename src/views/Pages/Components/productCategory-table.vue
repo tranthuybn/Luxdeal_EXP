@@ -5,7 +5,7 @@ import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableType01 } from './TableBase/index'
 import { Tab } from './Type'
-import { operatorColumn, dynamicApi, dynamicColumns } from './TablesReusabilityFunction'
+import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 
 const props = defineProps({
   tabs: {
@@ -17,21 +17,11 @@ const props = defineProps({
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 
-const getData = () => {
-  unref(tableBase01)?.getData()
+const getData = (data) => {
+  unref(tableBase01)?.getData(data)
 }
 // tab logic
 const currentTab = ref<string>('')
-// add operator column at the end if dynamicColumns doesnt have
-const addOperatorColumn = (dynamicColumns) => {
-  let hasOperator = false
-  dynamicColumns.map((col) => {
-    if (col.field === operatorColumn.field) {
-      hasOperator = true
-    }
-  })
-  if (!hasOperator) dynamicColumns?.push(operatorColumn)
-}
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]

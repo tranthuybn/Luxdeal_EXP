@@ -60,7 +60,7 @@ export default defineComponent({
       default: () => [] || {}
     },
     border: propTypes.bool.def(true),
-    maxHeight: propTypes.string.def('69vh')
+    maxHeight: propTypes.string.def('auto')
   },
   emits: ['update:pageSize', 'update:currentPage', 'register'],
   setup(props, { attrs, slots, emit, expose }) {

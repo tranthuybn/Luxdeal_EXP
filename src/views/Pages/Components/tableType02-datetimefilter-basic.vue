@@ -6,7 +6,7 @@ import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
 import { Tab } from './Type'
 import {
-  operatorColumn,
+  addOperatorColumn,
   getTotalRecord,
   getSelectedRecord,
   fnGetTotalRecord,
@@ -28,21 +28,11 @@ const changeIcon = useIcon({ icon: 'fa:exchange' })
 
 const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 
-const getData = () => {
-  unref(tableBase01)?.getData()
+const getData = (data) => {
+  unref(tableBase01)?.getData(data)
 }
 // tab logic
 const currentTab = ref<string>('')
-// add operator column at the end if dynamicColumns doesnt have
-const addOperatorColumn = (dynamicColumns) => {
-  let hasOperator = false
-  dynamicColumns.map((col) => {
-    if (col.field === operatorColumn.field) {
-      hasOperator = true
-    }
-  })
-  if (!hasOperator) dynamicColumns?.push(operatorColumn)
-}
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
@@ -97,6 +87,7 @@ const tabChangeEvent = (name) => {
             ref="tableBase01"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
+            :maxHeight="'65vh'"
             @total-record="fnGetTotalRecord"
             @selected-record="fnGetSelectedRecord"
           />

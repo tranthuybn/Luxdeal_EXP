@@ -17,7 +17,11 @@ const props = defineProps({
     type: Array as PropType<TableColumn[]>,
     default: () => []
   },
-  selection: { type: Boolean, default: true }
+  selection: { type: Boolean, default: true },
+  maxHeight: {
+    type: String || Number,
+    default: '69vh'
+  }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
@@ -33,8 +37,8 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
-const getData = () => {
-  methods.getList()
+const getData = (data = {}) => {
+  methods.setSearchParams(data)
 }
 onBeforeMount(() => {
   getData()
@@ -85,6 +89,7 @@ defineExpose({
       :loading="tableObject.loading"
       :pagination="paginationObj"
       :showOverflowTooltip="false"
+      :maxHeight="maxHeight"
       @cell-mouse-enter="operatorColumnToggle('right')"
       @cell-mouse-leave="operatorColumnToggle(false)"
       @select="getTableSelected"

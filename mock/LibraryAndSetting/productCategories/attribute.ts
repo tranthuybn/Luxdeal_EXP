@@ -1,14 +1,16 @@
+/* eslint-disable prefer-const */
 import Mock from 'mockjs'
-const ColorCategoriesList: {
+interface ColorCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
+  children: Array<ColorCategoriesList>
+}
 
+let ColorCategoriesList: ColorCategoriesList[] = []
 for (let i = 0; i < 15; i++) {
   ColorCategoriesList.push(
     Mock.mock({
@@ -39,16 +41,16 @@ for (let i = 0; i < 15; i++) {
     })
   )
 }
-const SizeCategoriesList: {
+interface SizeCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
-
+  children: Array<SizeCategoriesList>
+}
+let SizeCategoriesList: SizeCategoriesList[] = []
 for (let i = 0; i < 15; i++) {
   SizeCategoriesList.push(
     Mock.mock({
@@ -79,16 +81,16 @@ for (let i = 0; i < 15; i++) {
     })
   )
 }
-const MaterialCategoriesList: {
+interface MaterialCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
-
+  children: Array<MaterialCategoriesList>
+}
+let MaterialCategoriesList: MaterialCategoriesList[] = []
 for (let i = 0; i < 15; i++) {
   MaterialCategoriesList.push(
     Mock.mock({
@@ -120,15 +122,16 @@ for (let i = 0; i < 15; i++) {
     })
   )
 }
-const StatusCategoriesList: {
+interface StatusCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
+  children: Array<StatusCategoriesList>
+}
+let StatusCategoriesList: StatusCategoriesList[] = []
 
 for (let i = 0; i < 15; i++) {
   StatusCategoriesList.push(
@@ -160,16 +163,16 @@ for (let i = 0; i < 15; i++) {
     })
   )
 }
-const GenderCategoriesList: {
+interface GenderCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
-
+  children: Array<GenderCategoriesList>
+}
+let GenderCategoriesList: GenderCategoriesList[] = []
 for (let i = 0; i < 15; i++) {
   GenderCategoriesList.push(
     Mock.mock({

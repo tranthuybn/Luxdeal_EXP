@@ -1,14 +1,15 @@
+/* eslint-disable prefer-const */
 import Mock from 'mockjs'
-const BrandCategoriesList: {
+interface BrandCategoriesList {
   id: string
   image: string
   createDate: Date
   position: number
   status: string
   title: string
-  children: [{}]
-}[] = []
-
+  children: Array<BrandCategoriesList>
+}
+let BrandCategoriesList: BrandCategoriesList[] = []
 for (let i = 0; i < 15; i++) {
   BrandCategoriesList.push(
     Mock.mock({

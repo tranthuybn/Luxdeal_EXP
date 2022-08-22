@@ -2,7 +2,7 @@
 import { TableData } from '@/api/table/types'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
-import { PropType, ref, unref, onBeforeMount, onUnmounted } from 'vue'
+import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
@@ -33,13 +33,20 @@ const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 const getData = () => {
   unref(tableBase01)?.getData()
 }
+// add operator column at the end if dynamicColumns doesnt have
+const addOperatorColumn = (dynamicColumns) => {
+  let hasOperator = false
+  dynamicColumns.map((col) => {
+    if (col.field === operatorColumn.field) {
+      hasOperator = true
+    }
+  })
+  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+}
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  if (dynamicColumns.value.length > 0) dynamicColumns.value.push(operatorColumn)
-})
-onUnmounted(() => {
-  if (dynamicColumns.value && dynamicColumns.value.length > 0) dynamicColumns.value.pop()
+  addOperatorColumn(dynamicColumns.value)
 })
 </script>
 <template>

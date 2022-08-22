@@ -22,20 +22,22 @@ const getData = () => {
 }
 // tab logic
 const currentTab = ref<string>('')
+// add operator column at the end if dynamicColumns doesnt have
+const addOperatorColumn = (dynamicColumns) => {
+  let hasOperator = false
+  dynamicColumns.map((col) => {
+    if (col.field === operatorColumn.field) {
+      hasOperator = true
+    }
+  })
+  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+}
 onBeforeMount(() => {
-  const propsObj = { ...props }
-  console.log('beforeMount', propsObj)
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
-    let hasOperator = false
-    dynamicColumns.value.map((col) => {
-      if (col.field === operatorColumn.field) {
-        hasOperator = true
-      }
-    })
-    if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
+    addOperatorColumn(dynamicColumns.value)
     /*
      * alway set currentTab at the end of function after column and api
      * Due to current tab was set as a key of the table and the header filter
@@ -52,13 +54,7 @@ const tabChangeEvent = (name) => {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
-    let hasOperator = false
-    dynamicColumns?.value?.map((col) => {
-      if (col.field === operatorColumn.field) {
-        hasOperator = true
-      }
-    })
-    if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
+    addOperatorColumn(dynamicColumns.value)
   }
 }
 </script>

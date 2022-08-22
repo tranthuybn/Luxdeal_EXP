@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ElTabs, ElTabPane } from 'element-plus'
-import { ref, onUnmounted, onBeforeMount } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import {
   operatorColumn,
   getSelectedRecord,
   dynamicApi,
-  dynamicColumns,
-  resetTable
+  dynamicColumns
 } from './TablesReusabilityFunction'
 import { Tab } from './Type'
 
@@ -19,13 +18,21 @@ const props = defineProps({
 })
 // tab logic
 const currentTab = ref<string>('')
+const addOperatorColumn = (dynamicColumns) => {
+  let hasOperator = false
+  dynamicColumns.map((col) => {
+    if (col.field === operatorColumn.field) {
+      hasOperator = true
+    }
+  })
+  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+}
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
-    if (dynamicColumns.value && dynamicColumns.value?.length > 0)
-      dynamicColumns.value?.push(operatorColumn)
+    addOperatorColumn(dynamicColumns.value)
     /*
      * alway set currentTab at the end of function after column and api
      * Due to current tab was set as a key of the table and the header filter
@@ -35,14 +42,12 @@ onBeforeMount(() => {
     currentTab.value = theFirstTab.name
   }
 })
-onUnmounted(() => {
-  resetTable()
-})
 const tabChangeEvent = (name) => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
+    addOperatorColumn(dynamicColumns.value)
     currentTab.value = name
     getSelectedRecord.value = []
   }

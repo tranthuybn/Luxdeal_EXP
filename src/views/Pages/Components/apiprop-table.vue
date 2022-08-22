@@ -37,16 +37,20 @@ const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 const getData = () => {
   unref(tableBase01)?.getData()
 }
-onBeforeMount(() => {
-  dynamicApi.value = props.api
-  dynamicColumns.value = props.columns
+// add operator column at the end if dynamicColumns doesnt have
+const addOperatorColumn = (dynamicColumns) => {
   let hasOperator = false
-  dynamicColumns?.value?.map((col) => {
+  dynamicColumns.map((col) => {
     if (col.field === operatorColumn.field) {
       hasOperator = true
     }
   })
-  if (!hasOperator) dynamicColumns.value?.push(operatorColumn)
+  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+}
+onBeforeMount(() => {
+  dynamicApi.value = props.api
+  dynamicColumns.value = props.columns
+  addOperatorColumn(dynamicColumns.value)
 })
 </script>
 <template>

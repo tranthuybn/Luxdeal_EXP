@@ -197,7 +197,23 @@ export default {
     growth: 'Doanh thu',
     sales: 'Doanh số',
     turnover: 'Tăng trưởng',
-    businessproducts: 'Sản phẩm kinh doanh'
+    businessproducts: 'Sản phẩm kinh doanh',
+    productCategoryProducts: 'Danh mục sản phẩm',
+    productProperty: 'Danh mục & thuộc tính',
+    productCategoryAttribute: 'Đặc tính',
+    productCategoryUnit: 'Đơn vị tính',
+    productCategoryBrand: 'Thương hiệu',
+    productCategoryOrigin: 'Xuất xứ',
+    ProductLibrary: 'Thư viện sản phẩm',
+    productLibraryProducts: 'Sản phẩm kinh doanh',
+    productLibrarySpaMaterial: 'Vật tư Spa(Step 2)',
+    productLibraryproperties: 'Tài sản(Step 2)',
+    ServiceLibrary: 'Thư viện dịch vụ',
+    ServiceLibrarySpaService: 'Dịch vụ Spa',
+    StorageLibrary: 'Thư viện kho',
+    StorageLibraryProductStorage: 'Kho sản phẩm kinh doanh',
+    productLibrarySpaStorage: 'Kho nguyên vật liệu(Step 2)',
+    productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -396,6 +412,19 @@ export default {
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
-    stockCard: 'Thẻ kho'
+    stockCard: 'Thẻ kho',
+    warningDate: 'Ngày bắt đầu không thể bé hơn ngày kết thúc',
+    categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
+    position: 'Vị trí',
+    color: 'Màu săc',
+    size: 'Size',
+    productName: 'Tên sản phẩm',
+    description: 'Mô tả',
+    category: 'Danh mục',
+    image: 'Ảnh',
+    material: 'Chất liệu',
+    businessProduct: 'Sản phẩm kinh doanh',
+    spaProduct: 'Vật tư(Step 2)',
+    propertyProduct: 'Tài sản(Step 2)'
   }
 }

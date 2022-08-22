@@ -181,7 +181,8 @@ export default {
     customerRatings: 'Customer Ratings',
     customerAdd: 'Customer Add',
     employeeList: 'Employee List',
-    employeeRatings: 'Employee Ratings'
+    employeeRatings: 'Employee Ratings',
+    productCategory: 'Product Categories'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -379,6 +380,8 @@ export default {
     priceImport: 'Price Import',
     CashIntoInventory: 'Cash Into Inventory',
     businessManagement: 'Business Management',
-    stockCard: 'Stock Card'
+    stockCard: 'Stock Card',
+    categoryTitle: 'Product category information',
+    position: 'Position'
   }
 }

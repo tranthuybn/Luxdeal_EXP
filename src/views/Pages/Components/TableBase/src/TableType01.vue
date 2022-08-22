@@ -5,6 +5,7 @@ import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
+import { ElImage } from 'element-plus'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -15,7 +16,8 @@ const props = defineProps({
   fullColumns: {
     type: Array as PropType<TableColumn[]>,
     default: () => []
-  }
+  },
+  selection: { type: Boolean, default: true }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
@@ -88,6 +90,19 @@ defineExpose({
       @select="getTableSelected"
       @select-all="getTableSelected"
       @register="register"
-    />
+      :selection="selection"
+    >
+      <template #imgTitle="data">
+        <div class="imageTitle" style="display: flex; align-items: center">
+          <div style="padding-right: 20px">
+            <el-image style="width: 100px; height: 100px" :src="data.row.image"
+          /></div>
+          <div>{{ data.row.title }}</div>
+        </div>
+      </template>
+      <template #image="data">
+        <div> <el-image style="width: 100px; height: 100px" :src="data.row.image" /></div>
+      </template>
+    </Table>
   </ContentWrap>
 </template>

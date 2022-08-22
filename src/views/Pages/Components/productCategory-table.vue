@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { ElTabs, ElTabPane } from 'element-plus'
-import { ref, onBeforeMount } from 'vue'
-import {
-  operatorColumn,
-  getSelectedRecord,
-  dynamicApi,
-  dynamicColumns
-} from './TablesReusabilityFunction'
+import { useIcon } from '@/hooks/web/useIcon'
+import { ElButton, ElTabs, ElTabPane } from 'element-plus'
+import { ref, unref, onBeforeMount } from 'vue'
+import { HeaderFiler } from './HeaderFilter/index'
+import { TableType01 } from './TableBase/index'
 import { Tab } from './Type'
+import { operatorColumn, dynamicApi, dynamicColumns } from './TablesReusabilityFunction'
 
-import TableBase from './tableType01-datetimefilter-basic.vue'
 const props = defineProps({
   tabs: {
     type: Array<Tab>,
     default: () => []
   }
 })
+// declare
+const createIcon = useIcon({ icon: 'uil:create-dashboard' })
+const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+
+const getData = () => {
+  unref(tableBase01)?.getData()
+}
 // tab logic
 const currentTab = ref<string>('')
+// add operator column at the end if dynamicColumns doesnt have
 const addOperatorColumn = (dynamicColumns) => {
   let hasOperator = false
   dynamicColumns.map((col) => {
@@ -42,20 +47,25 @@ onBeforeMount(() => {
     currentTab.value = theFirstTab.name
   }
 })
+
 const tabChangeEvent = (name) => {
+  currentTab.value = name
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
     addOperatorColumn(dynamicColumns.value)
-    currentTab.value = name
-    getSelectedRecord.value = []
   }
 }
 </script>
 <template>
   <section>
-    <el-tabs v-model="currentTab" class="demo-tabs" @tab-change="tabChangeEvent">
+    <el-tabs
+      v-model="currentTab"
+      class="demo-tabs"
+      v-if="Array.isArray(tabs) && tabs?.length > 0"
+      @tab-change="tabChangeEvent"
+    >
       <el-tab-pane
         v-for="(item, index) in tabs"
         :label="item.label"
@@ -63,12 +73,19 @@ const tabChangeEvent = (name) => {
         :key="index"
         lazy
       >
-        <TableBase
-          :columns="dynamicColumns"
-          :api="dynamicApi"
-          :key="currentTab"
-          v-if="item.name === currentTab"
-        />
+        <div :key="currentTab" v-if="item.name === currentTab">
+          <HeaderFiler @get-data="getData" @refresh-data="getData">
+            <template #headerFilterSlot>
+              <el-button type="primary" :icon="createIcon"> Thêm mới danh mục </el-button>
+            </template>
+          </HeaderFiler>
+          <TableType01
+            ref="tableBase01"
+            :selection="false"
+            :api="dynamicApi"
+            :fullColumns="dynamicColumns"
+          />
+        </div>
       </el-tab-pane>
     </el-tabs>
   </section>

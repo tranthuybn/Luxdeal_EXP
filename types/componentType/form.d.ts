@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'vue'
+import { string } from 'vue-types'
 
 declare global {
   declare type ComponentName =

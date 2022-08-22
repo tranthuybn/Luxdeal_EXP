@@ -2,7 +2,7 @@
 import { ElTabs, ElTabPane } from 'element-plus'
 import { ref, onBeforeMount } from 'vue'
 import {
-  operatorColumn,
+  addOperatorColumn,
   getSelectedRecord,
   dynamicApi,
   dynamicColumns
@@ -18,15 +18,7 @@ const props = defineProps({
 })
 // tab logic
 const currentTab = ref<string>('')
-const addOperatorColumn = (dynamicColumns) => {
-  let hasOperator = false
-  dynamicColumns.map((col) => {
-    if (col.field === operatorColumn.field) {
-      hasOperator = true
-    }
-  })
-  if (!hasOperator) dynamicColumns?.push(operatorColumn)
-}
+
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]

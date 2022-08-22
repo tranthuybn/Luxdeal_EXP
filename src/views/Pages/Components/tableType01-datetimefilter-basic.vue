@@ -7,7 +7,7 @@ import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableType01 } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
 import {
-  operatorColumn,
+  addOperatorColumn,
   getTotalRecord,
   getSelectedRecord,
   fnGetTotalRecord,
@@ -30,18 +30,8 @@ const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 
 const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 
-const getData = () => {
-  unref(tableBase01)?.getData()
-}
-// add operator column at the end if dynamicColumns doesnt have
-const addOperatorColumn = (dynamicColumns) => {
-  let hasOperator = false
-  dynamicColumns.map((col) => {
-    if (col.field === operatorColumn.field) {
-      hasOperator = true
-    }
-  })
-  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+const getData = (data) => {
+  unref(tableBase01)?.getData(data)
 }
 onBeforeMount(() => {
   dynamicApi.value = props.api
@@ -60,6 +50,7 @@ onBeforeMount(() => {
     <TableType01
       ref="tableBase01"
       :api="dynamicApi"
+      :maxHeight="'65vh'"
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"

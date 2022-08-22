@@ -5,12 +5,6 @@ import { wareHouse } from './Warehouse'
 import { Tab } from '../Components/Type'
 const tabs: Array<Tab> = [
   {
-    name: 'wareHouseList',
-    label: 'Quản lý kho',
-    api: getWareHouseList,
-    column: wareHouse
-  },
-  {
     name: 'followinventory',
     label: 'Theo dõi tồn kho',
     api: getWareHouseList,
@@ -18,19 +12,25 @@ const tabs: Array<Tab> = [
   },
   {
     name: 'wareHouse',
-    label: 'Nhập kho',
+    label: 'Lịch sử nhập kho',
     api: getWareHouseList,
     column: wareHouse
   },
   {
     name: 'export',
-    label: 'Xuất kho',
+    label: 'Lịch sử xuất kho',
     api: getWareHouseList,
     column: wareHouse
   },
   {
     name: 'warehouseTransfer',
-    label: 'Chuyển kho',
+    label: 'Lịch sử chuyển kho',
+    api: getWareHouseList,
+    column: wareHouse
+  },
+  {
+    name: 'internalSpa',
+    label: 'Lịch sử spa nội bộ',
     api: getWareHouseList,
     column: wareHouse
   }

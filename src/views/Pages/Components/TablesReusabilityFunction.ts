@@ -24,6 +24,17 @@ const operatorColumn: TableColumn = {
     ])
   }
 }
+// add operator column at the end if dynamicColumns doesnt have
+const addOperatorColumn = (dynamicColumns) => {
+  let hasOperator = false
+  dynamicColumns.map((col) => {
+    if (col.field === operatorColumn.field) {
+      hasOperator = true
+    }
+  })
+  if (!hasOperator) dynamicColumns?.push(operatorColumn)
+}
+
 const addingEvent = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
@@ -53,5 +64,6 @@ export {
   fnGetSelectedRecord,
   dynamicApi,
   dynamicColumns,
-  resetTable
+  resetTable,
+  addOperatorColumn
 }

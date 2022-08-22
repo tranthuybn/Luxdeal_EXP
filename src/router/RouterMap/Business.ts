@@ -140,11 +140,63 @@ export default {
     },
     {
       path: 'service-survey',
-      component: () => import('@/views/Pages/Business/ServiceSurvey.vue'),
       name: 'business.service-survey',
+      redirect: { name: 'business.accumulate-points.customer-points' },
       meta: {
         title: t('router.serviceSurvey')
-      }
+      },
+      children: [
+        {
+          path: 'customer-points',
+          name: 'business.accumulate-points.customer-points',
+          component: () => import('@/views/Pages/Business/AccumulatePoints/CustomerPoints.vue'),
+          meta: {
+            title: 'router.customerpoints'
+          }
+        },
+        {
+          path: 'settings-points',
+          name: 'business.accumulate-points.settings-points',
+          component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
+          meta: {
+            title: 'router.installpoints'
+          }
+        }
+      ]
+    },
+    {
+      path: 'virtual-wallet',
+      name: 'business.virtual-wallet',
+      redirect: { name: 'business.virtual-wallet.customer' },
+      meta: {
+        title: t('router.virtualwallet')
+      },
+      children: [
+        {
+          path: 'customer',
+          name: 'business.virtual-wallet.customer',
+          component: () => import('@/views/Pages/Business/VirtualWallet/CustomerVirtualWallet.vue'),
+          meta: {
+            title: t('router.customervirtualwallet')
+          }
+        },
+        {
+          path: 'with-drewal-request',
+          name: 'business.virtual-wallet.with-drewal-request',
+          component: () => import('@/views/Pages/Business/VirtualWallet/WithdrawalRequest.vue'),
+          meta: {
+            title: t('router.withdrawalrequest')
+          }
+        },
+        {
+          path: 'settings',
+          name: 'business.virtual-wallet.settings',
+          component: () => import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWallet.vue'),
+          meta: {
+            title: t('router.settingsvirtualwallet')
+          }
+        }
+      ]
     },
     {
       path: 'collaborators',
@@ -181,6 +233,32 @@ export default {
       ]
     },
     {
+      path: 'business-product',
+      name: 'business.business-product',
+      redirect: { name: 'business.business-product.employeeList' },
+      meta: {
+        title: t('router.businessproducts')
+      },
+      children: [
+        {
+          path: 'product-list',
+          name: 'business.business-product.product-list',
+          component: () => import('@/views/Pages/Business/BusinessProducts/ProductList.vue'),
+          meta: {
+            title: t('router.productlist')
+          }
+        },
+        {
+          path: 'product-add',
+          name: 'business.business-product.product-add',
+          component: () => import('@/views/Pages/Business/BusinessProducts/ProductAdd.vue'),
+          meta: {
+            title: t('router.productadd')
+          }
+        }
+      ]
+    },
+    {
       path: 'employee-management',
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
@@ -208,11 +286,45 @@ export default {
     },
     {
       path: 'business-report',
-      component: () => import('@/views/Pages/Business/BusinessReport.vue'),
       name: 'business.business-report',
+      redirect: { name: 'business.business-report.growth' },
       meta: {
         title: t('router.businessReport')
-      }
+      },
+      children: [
+        {
+          path: 'growth',
+          name: 'business.business-report.growth',
+          component: () => import('@/views/Pages/Business/BusinessReport/Growth.vue'),
+          meta: {
+            title: t('router.growth')
+          }
+        },
+        {
+          path: 'sales',
+          name: 'business.business-report.sales',
+          component: () => import('@/views/Pages/Business/BusinessReport/Sales.vue'),
+          meta: {
+            title: t('router.sales')
+          }
+        },
+        {
+          path: 'debt',
+          name: 'business.business-report.debt',
+          component: () => import('@/views/Pages/Business/BusinessReport/Debt.vue'),
+          meta: {
+            title: t('router.debt')
+          }
+        },
+        {
+          path: 'turnover',
+          name: 'business.business-report.turnover',
+          component: () => import('@/views/Pages/Business/BusinessReport/Turnover.vue'),
+          meta: {
+            title: t('router.turnover')
+          }
+        }
+      ]
     }
   ]
 }

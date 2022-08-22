@@ -208,11 +208,45 @@ export default {
     },
     {
       path: 'business-report',
-      component: () => import('@/views/Pages/Business/BusinessReport.vue'),
       name: 'business.business-report',
+      redirect: { name: 'business.business-report.growth' },
       meta: {
         title: t('router.businessReport')
-      }
+      },
+      children: [
+        {
+          path: 'growth',
+          name: 'business.business-report.growth',
+          component: () => import('@/views/Pages/Business/BusinessReport/Growth.vue'),
+          meta: {
+            title: t('router.growth')
+          }
+        },
+        {
+          path: 'sales',
+          name: 'business.business-report.sales',
+          component: () => import('@/views/Pages/Business/BusinessReport/Sales.vue'),
+          meta: {
+            title: t('router.sales')
+          }
+        },
+        {
+          path: 'debt',
+          name: 'business.business-report.debt',
+          component: () => import('@/views/Pages/Business/BusinessReport/Debt.vue'),
+          meta: {
+            title: t('router.debt')
+          }
+        },
+        {
+          path: 'turnover',
+          name: 'business.business-report.turnover',
+          component: () => import('@/views/Pages/Business/BusinessReport/Turnover.vue'),
+          meta: {
+            title: t('router.turnover')
+          }
+        }
+      ]
     }
   ]
 }

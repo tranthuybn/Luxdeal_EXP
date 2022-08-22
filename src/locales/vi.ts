@@ -1,3 +1,5 @@
+import { getScrollBarWidth } from 'element-plus/es/utils'
+
 export default {
   common: {
     inputText: 'Vui lòng nhập',
@@ -181,7 +183,21 @@ export default {
     customerRatings: 'Xếp hạng khách hàng',
     customerAdd: 'Thêm mới khách hàng',
     employeeList: 'Danh sách nhân viên',
-    employeeRatings: 'Xếp hạng nhân viên'
+    employeeRatings: 'Xếp hạng nhân viên',
+    accumulatepoints: 'Tích điểm',
+    customerpoints: 'Tích điểm khách hàng',
+    installpoints: 'Cài đặt tích điểm',
+    virtualwallet: 'Ví ảo',
+    customervirtualwallet: 'Ví ảo khách hàng',
+    settingsvirtualwallet: 'Cài đặt ví ảo',
+    withdrawalrequest: 'Yêu cầu rút tiền',
+    productlist: 'Danh sách sản phẩm',
+    productadd: 'Thêm mới sản phẩm',
+    debt: 'Công nợ',
+    growth: 'Doanh thu',
+    sales: 'Doanh số',
+    turnover: 'Tăng trưởng',
+    businessproducts: 'Sản phẩm kinh doanh'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

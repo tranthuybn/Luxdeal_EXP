@@ -183,6 +183,66 @@ const adminList = [
         }
       },
       {
+        path: 'accumulate-points',
+        name: 'business.accumulate-points',
+        redirect: { name: 'business.accumulate-points.customer' },
+        meta: {
+          title: 'router.accumulatepoints'
+        },
+        children: [
+          {
+            path: 'customer-points',
+            name: 'business.accumulate-points.customer-points',
+            component: 'views/Pages/Business/AccumulatePoints/CustomerPoints',
+            meta: {
+              title: 'router.customerpoints'
+            }
+          },
+          {
+            path: 'settings-points',
+            name: 'business.accumulate-points.settings-points',
+            component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
+            meta: {
+              title: 'router.installpoints'
+            }
+          }
+        ]
+      },
+      {
+        path: 'virtual-wallet',
+        name: 'business.virtual-wallet',
+        redirect: { name: 'business.virtual-wallet.customer' },
+        meta: {
+          title: 'router.virtualwallet'
+        },
+        children: [
+          {
+            path: 'customer',
+            name: 'business.virtual-wallet.customer',
+            component: 'views/Pages/Business/VirtualWallet/CustomerVirtualWallet',
+            meta: {
+              title: 'router.customervirtualwallet'
+            }
+          },
+          {
+            path: 'with-drewal-request',
+            name: 'business.virtual-wallet.with-drewal-request',
+            component: 'views/Pages/Business/VirtualWallet/WithdrawalRequest',
+            meta: {
+              title: 'router.withdrawalrequest'
+            }
+          },
+          {
+            path: 'settings',
+            name: 'business.virtual-wallet.settings',
+            component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
+            meta: {
+              title: 'router.settingsvirtualwallet'
+            }
+          }
+        ]
+      },
+      {
         path: 'collaborators',
         name: 'business.collaborators',
         redirect: { name: 'business.collaborators.collaboratorsList' },
@@ -217,6 +277,32 @@ const adminList = [
         ]
       },
       {
+        path: 'business-product',
+        name: 'business.business-product',
+        redirect: { name: 'business.business-product.employeeList' },
+        meta: {
+          title: 'router.businessproducts'
+        },
+        children: [
+          {
+            path: 'product-list',
+            name: 'business.business-product.product-list',
+            component: 'views/Pages/Business/BusinessProducts/ProductList',
+            meta: {
+              title: 'router.productlist'
+            }
+          },
+          {
+            path: 'product-add',
+            name: 'business.business-product.product-add',
+            component: 'views/Pages/Business/BusinessProducts/ProductAdd',
+            meta: {
+              title: 'router.productadd'
+            }
+          }
+        ]
+      },
+      {
         path: 'employee-management',
         name: 'business.employee-management',
         redirect: { name: 'business.employee-management.employeeList' },
@@ -244,11 +330,45 @@ const adminList = [
       },
       {
         path: 'business-report',
-        component: 'views/Pages/Business/BusinessReport',
         name: 'business.business-report',
+        redirect: { name: 'business.business-report.growth' },
         meta: {
           title: 'router.businessReport'
-        }
+        },
+        children: [
+          {
+            path: 'growth',
+            name: 'business.business-report.growth',
+            component: 'views/Pages/Business/BusinessReport/Growth',
+            meta: {
+              title: 'router.growth'
+            }
+          },
+          {
+            path: 'sales',
+            name: 'business.business-report.sales',
+            component: 'views/Pages/Business/BusinessReport/Sales',
+            meta: {
+              title: 'router.sales'
+            }
+          },
+          {
+            path: 'debt',
+            name: 'business.business-report.debt',
+            component: 'views/Pages/Business/BusinessReport/Debt',
+            meta: {
+              title: 'router.debt'
+            }
+          },
+          {
+            path: 'turnover',
+            name: 'business.business-report.turnover',
+            component: 'views/Pages/Business/BusinessReport/Turnover',
+            meta: {
+              title: 'router.turnover'
+            }
+          }
+        ]
       }
     ]
   },

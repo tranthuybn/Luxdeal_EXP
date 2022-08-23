@@ -157,7 +157,7 @@ export default {
     customerManagement: 'Customer management',
     employeeManagement: 'employee management',
     orderManagement: 'Order management',
-    promotionStrategy: 'Promotion strategy',
+    promotionCampaign: 'Promotion strategy',
     serviceSurvey: 'Service survey',
     orderList: 'Order list',
     createANewOrder: 'Create a new order',

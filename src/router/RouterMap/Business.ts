@@ -113,7 +113,7 @@ export default {
       name: 'business.promotion-strategy',
       redirect: { name: 'business.promotion-strategy.flash-sale' },
       meta: {
-        title: t('router.promotionStrategy')
+        title: t('router.promotionCampaign')
       },
       children: [
         {

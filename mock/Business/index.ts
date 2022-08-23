@@ -12,6 +12,7 @@ import { collectionList, collectionListMock } from './promotionstrategy/collecti
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 import { warehouseList, warehouseListMock } from './warehouse'
+import { customerPointsList, customerPointsListMock } from './customerpoints'
 
 const { result_code } = config
 const timeout = 1000
@@ -30,6 +31,7 @@ for (let i = 0; i < count; i++) {
   newproductList.push(Mock.mock(newproductListMock))
   servicesurveyList.push(Mock.mock(servicesurveyListMock))
   warehouseList.push(Mock.mock(warehouseListMock))
+  customerPointsList.push(Mock.mock(customerPointsListMock))
 }
 export default [
   {
@@ -213,6 +215,24 @@ export default [
         code: result_code,
         data: {
           total: warehouseList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/customerpoints',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = customerPointsList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: customerPointsList.length,
           list: pageList
         }
       }

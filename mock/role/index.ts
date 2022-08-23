@@ -147,7 +147,7 @@ const adminList = [
         name: 'business.promotion-strategy',
         redirect: { name: 'business.promotion-strategy.flash-sale' },
         meta: {
-          title: 'router.promotionStrategy'
+          title: 'router.promotionCampaign'
         },
         children: [
           {
@@ -707,7 +707,7 @@ const adminList = [
   {
     path: '/new-and-advertisement',
     component: '#',
-    redirect: { name: 'new-and-advertisement.new-and-advertisement-list' },
+    redirect: { name: 'New-and-advertisement.notify' },
     name: 'New-and-advertisement',
     meta: {
       title: 'router.newsAndAdvertisement',
@@ -716,12 +716,78 @@ const adminList = [
     },
     children: [
       {
-        path: 'new-and-advertisement-list',
-        component: 'views/Pages/NewsAndAdvertisement/index',
-        name: 'New-and-advertisement.new-and-advertisement-list',
+        path: 'notify',
+        component: 'views/Pages/NewsAndAdvertisement/Notify',
+        name: 'New-and-advertisement.notify',
         meta: {
-          title: 'router.newsAndAdvertisement'
+          title: 'router.notify'
         }
+      },
+      {
+        path: 'forum',
+        component: 'views/Pages/NewsAndAdvertisement/Forum',
+        name: 'New-and-advertisement.forum',
+        meta: {
+          title: 'router.forum'
+        }
+      },
+      {
+        path: 'news-site',
+        component: 'views/Pages/NewsAndAdvertisement/NewsSites',
+        name: 'New-and-advertisement.news-site',
+        meta: {
+          title: 'router.newsSite'
+        }
+      },
+      {
+        path: 'banner-advertisement',
+        component: 'views/Pages/NewsAndAdvertisement/BannerAdvertisement',
+        name: 'New-and-advertisement.banner-advertisement',
+        meta: {
+          title: 'router.bannerAdvertisement'
+        }
+      },
+      {
+        path: 'profile-admin',
+        name: 'New-and-advertisement.profile-admin',
+        redirect: { name: 'New-and-advertisement.profile-admin.policies-guidelines' },
+        meta: {
+          title: 'router.profileAdmin'
+        },
+        children: [
+          {
+            path: 'policies-guidelines',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/PoliciesGuidelines',
+            name: 'New-and-advertisement.profile-admin.policies-guidelines',
+            meta: {
+              title: 'router.policiesGuidelines'
+            }
+          },
+          {
+            path: 'about-us',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/AboutUs',
+            name: 'New-and-advertisement.profile-admin.about-us',
+            meta: {
+              title: 'router.aboutUs'
+            }
+          },
+          {
+            path: 'contact',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/Contact',
+            name: 'New-and-advertisement.profile-admin.contact',
+            meta: {
+              title: 'router.contact'
+            }
+          },
+          {
+            path: 'transaction-point',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/TransactionPoint',
+            name: 'New-and-advertisement.profile-admin.transaction-point',
+            meta: {
+              title: 'router.transactionPoint'
+            }
+          }
+        ]
       }
     ]
   },

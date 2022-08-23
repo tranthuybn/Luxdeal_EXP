@@ -42,3 +42,7 @@ export const getWareHouseList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/warehouse/List', params })
   return res && res.data
 }
+export const getCustomerPointsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/customerpoints', params })
+  return res && res.data
+}

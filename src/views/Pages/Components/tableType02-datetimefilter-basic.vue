@@ -88,6 +88,7 @@ const tabChangeEvent = (name) => {
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
             :maxHeight="'65vh'"
+            :filter="dynamicColumns?.filter"
             @total-record="fnGetTotalRecord"
             @selected-record="fnGetSelectedRecord"
           />

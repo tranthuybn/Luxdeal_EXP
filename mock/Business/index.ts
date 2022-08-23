@@ -13,7 +13,10 @@ import { newproductList, newproductListMock } from './promotionstrategy/newprodu
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 import { warehouseList, warehouseListMock } from './warehouse'
 import { customerPointsList, customerPointsListMock } from './customerpoints'
-
+import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualwallet'
+import { voucherList, voucherListMock } from './promotionstrategy/voucher'
+import { comboList, comboListMock } from './promotionstrategy/combo'
+import { auctionList, auctionListMock } from './promotionstrategy/auction'
 const { result_code } = config
 const timeout = 1000
 const count = 100
@@ -32,6 +35,10 @@ for (let i = 0; i < count; i++) {
   servicesurveyList.push(Mock.mock(servicesurveyListMock))
   warehouseList.push(Mock.mock(warehouseListMock))
   customerPointsList.push(Mock.mock(customerPointsListMock))
+  customerVirtualWalletList.push(Mock.mock(customerVirtualWalletListMock))
+  voucherList.push(Mock.mock(voucherListMock))
+  comboList.push(Mock.mock(comboListMock))
+  auctionList.push(Mock.mock(auctionListMock))
 }
 export default [
   {
@@ -233,6 +240,78 @@ export default [
         code: result_code,
         data: {
           total: customerPointsList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/customervirtualwallet',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = customerVirtualWalletList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: customerVirtualWalletList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/voucher',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = voucherList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: voucherList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/combo',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = comboList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: comboList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/auction',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = auctionList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: auctionList.length,
           list: pageList
         }
       }

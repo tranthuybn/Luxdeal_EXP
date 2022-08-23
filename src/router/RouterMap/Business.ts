@@ -291,7 +291,7 @@ export default {
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
       meta: {
-        title: t('router.employeeManagement')
+        title: t('router.businessMan')
       },
       children: [
         {

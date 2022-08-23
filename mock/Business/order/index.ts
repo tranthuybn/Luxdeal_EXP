@@ -17,9 +17,9 @@ const SellOrderListMock = {
   creator: '@name',
   customer: '@name',
   description: '@paragraph(1)',
-  saleNumber: '@number',
-  totalMoney: '@number',
-  debitTotal: '@number',
+  saleNumber: '@natural(1,1000)',
+  totalMoney: '@natural(10000,1000000)',
+  debitTotal: '@natural(10000,1000000)',
   receiptAndExpenditure: '@boolean',
   status: '@boolean'
 }

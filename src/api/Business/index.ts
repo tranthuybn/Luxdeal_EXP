@@ -46,3 +46,19 @@ export const getCustomerPointsList = async (params: any): Promise<IResponse> => 
   const res = await request.get({ url: '/customerpoints', params })
   return res && res.data
 }
+export const getCustomerVirtualEWalletList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/customervirtualwallet', params })
+  return res && res.data
+}
+export const getVoucherList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/voucher', params })
+  return res && res.data
+}
+export const getComboList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/combo', params })
+  return res && res.data
+}
+export const getAuctionList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/auction', params })
+  return res && res.data
+}

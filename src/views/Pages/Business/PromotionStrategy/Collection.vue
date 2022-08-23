@@ -34,7 +34,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'start',
-    label: t('countToDemo.start'),
+    label: t('reuse.start'),
     minWidth: '130'
   },
   {

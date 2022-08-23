@@ -155,7 +155,7 @@ export default {
     businessReport: 'Business report',
     collaborators: 'Collaborators',
     customerManagement: 'Customer management',
-    employeeManagement: 'employee management',
+    businessMan: 'Business man',
     orderManagement: 'Order management',
     promotionCampaign: 'Promotion strategy',
     serviceSurvey: 'Service survey',
@@ -182,7 +182,10 @@ export default {
     customerAdd: 'Customer Add',
     employeeList: 'Employee List',
     employeeRatings: 'Employee Ratings',
-    productCategory: 'Product Categories'
+    productCategory: 'Product Categories',
+    totalRecharge: 'Total Recharge',
+    usedMoney: 'Used money',
+    cashReturn: 'Cash in return'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -382,6 +385,19 @@ export default {
     businessManagement: 'Business Management',
     stockCard: 'Stock Card',
     categoryTitle: 'Product category information',
-    position: 'Position'
+    position: 'Position',
+    pending: 'Pending',
+    closedTheOrder: 'Closed the order',
+    delivery: 'Delivery',
+    successfulDelivery: 'Successful delivery',
+    deliveryFailed: 'Delivery failed',
+    cancelled: 'Cancelled',
+    comboCode: 'Combo code',
+    cost: 'Cost',
+    comboPrice: 'Combo Price',
+    floorPrice: 'floor price',
+    priceStep: 'price step',
+    highestBid: 'highest bid',
+    joined: 'joined(số người)'
   }
 }

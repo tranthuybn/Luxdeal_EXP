@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.employeeManagement') }}</div>
+  <div>{{ t('router.businessMan') }}</div>
 </template>
 
 <script setup lang="ts">

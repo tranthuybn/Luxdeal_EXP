@@ -1,5 +1,20 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import { Filter } from '../../Components/Type'
 const { t } = useI18n()
+const filtersReceiptExpenditure: Array<Filter> = [
+  { text: t('reuse.haveToCollect'), value: true },
+  { text: t('reuse.havetoPay'), value: false }
+]
+const filtersStatus: Array<Filter> = [
+  { text: t('reuse.pending'), value: false },
+  { text: t('reuse.closedTheOrder'), value: true },
+  { text: t('reuse.delivery'), value: false },
+  { text: t('reuse.successfulDelivery'), value: false },
+  { text: t('reuse.paying'), value: true },
+  { text: t('reuse.deliveryFailed'), value: false },
+  { text: t('common.doneLabel'), value: true },
+  { text: t('reuse.cancelled'), value: false }
+]
 //Đơn bán hàng
 export const sellOrder = [
   {
@@ -11,52 +26,62 @@ export const sellOrder = [
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'orderCode',
     label: t('reuse.customerName') + ' ' + t('reuse.representative'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
-    minWidth: '250'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'customer',
     label: t('reuse.customerName'),
-    minWidth: '100'
+    minWidth: '170',
+    sortable: true
   },
   {
     field: 'description',
     label: t('reuse.descriptions'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'saleNumber',
     label: t('reuse.saleNumber'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'totalMoney',
     label: t('reuse.totaMoney'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'debitTotal',
     label: t('reuse.debt'),
-    minWidth: '100'
+    minWidth: '130',
+    sortable: true
   },
   {
     field: 'receiptAndExpenditure',
     label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '100'
+    minWidth: '170',
+    filters: filtersReceiptExpenditure
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '120',
+    filters: filtersStatus
   }
 ]
 //Đơn hàng cho thuê

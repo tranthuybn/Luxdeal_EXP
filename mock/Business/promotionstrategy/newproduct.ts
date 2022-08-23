@@ -4,7 +4,7 @@ const newproductList: {
   descriptions: string
   subject: string
   start: Date
-  doneLabel: number
+  doneLabel: Date
   promotion: string
   status: boolean
 }[] = []

@@ -333,7 +333,7 @@ const adminList = [
         name: 'business.employee-management',
         redirect: { name: 'business.employee-management.employeeList' },
         meta: {
-          title: 'router.employeeManagement'
+          title: 'router.businessMan'
         },
         children: [
           {

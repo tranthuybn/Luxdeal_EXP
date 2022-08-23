@@ -1,18 +1,20 @@
-const flashsaleList: {
+const voucherList: {
   createDate: Date
-  flashSaleCode: string
+  voucherCode: string
   descriptions: string
+  type: string
   subject: string
   start: Date
-  doneLabel: Date
+  doneLabel: number
   promotion: string
   status: boolean
 }[] = []
 
-const flashsaleListMock = {
+const voucherListMock = {
   createDate: '@date("dd/MM/yyyy")',
-  flashSaleCode: '@natural',
+  voucherCode: '@natural',
   descriptions: '@string(10,20)',
+  type: '@string(10,20)',
   subject: '@string',
   start: '@date("dd/MM/yyyy")',
   doneLabel: '@date("dd/MM/yyyy")',
@@ -20,4 +22,4 @@ const flashsaleListMock = {
   status: '@boolean'
 }
 
-export { flashsaleList, flashsaleListMock }
+export { voucherList, voucherListMock }

@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
-import { getSellOrderList } from '@/api/Business'
+import { getAuctionList } from '@/api/Business'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -13,62 +13,72 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150'
+    field: 'auctionCode',
+    label: t('reuse.auctionCode'),
+    minWidth: '130'
   },
   {
-    field: 'collaboratorsName',
-    label: t('reuse.collaboratorsName'),
-    minWidth: '150'
-  },
-  {
-    field: 'collaboratorsCode',
-    label: t('reuse.collaboratorsCode'),
-    minWidth: '100'
-  },
-  {
-    field: 'contact',
-    label: t('reuse.contact'),
+    field: 'descriptions',
+    label: t('reuse.descriptions'),
     minWidth: '250'
   },
   {
-    field: 'account',
-    label: t('reuse.account'),
+    field: 'subject',
+    label: t('reuse.subject'),
+    minWidth: '130'
+  },
+  {
+    field: 'productCode',
+    label: t('reuse.productCode'),
     minWidth: '200'
   },
   {
-    field: 'totalMoney',
-    label: t('reuse.totalMoney'),
+    field: 'start',
+    label: t('reuse.start'),
+    minWidth: '130'
+  },
+  {
+    field: 'doneLabel',
+    label: t('common.doneLabel'),
+    minWidth: '130'
+  },
+  {
+    field: 'comboPrice',
+    label: t('reuse.comboPrice'),
     minWidth: '150'
   },
   {
-    field: 'debt',
-    label: t('reuse.debtCom'),
+    field: 'floorPrice',
+    label: t('reuse.floorPrice'),
     minWidth: '150'
   },
   {
-    field: 'withdrawalRequest',
-    label: t('reuse.withdrawalRequest'),
+    field: 'priceStep',
+    label: t('reuse.priceStep'),
     minWidth: '150'
   },
   {
-    field: 'requestDate',
-    label: t('reuse.requestDate'),
+    field: 'highestBid',
+    label: t('reuse.highestBid'),
     minWidth: '150'
   },
   {
-    field: 'requestStatus',
-    label: t('reuse.requestStatus'),
+    field: 'joined',
+    label: t('reuse.joined'),
     minWidth: '150'
   },
   {
-    field: 'accountStatus',
-    label: t('reuse.accountStatus'),
-    minWidth: '200'
+    field: 'result',
+    label: t('reuse.result'),
+    minWidth: '150'
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    minWidth: '150'
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getSellOrderList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getAuctionList" />
 </template>

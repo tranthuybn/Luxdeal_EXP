@@ -3,8 +3,12 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getCustomerPointsList } from '@/api/Business'
-
+import { Filter } from '../../Components/Type'
 const { t } = useI18n()
+const filters: Array<Filter> = [
+  { text: 'true', value: 'true' },
+  { text: 'false', value: 'false' }
+]
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
@@ -45,7 +49,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filters
   }
 ])
 </script>

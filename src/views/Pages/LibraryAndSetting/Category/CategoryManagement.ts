@@ -88,191 +88,223 @@ export const colorCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryColorTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const sizeCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categorySizeTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const materialCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryMaterialTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const statusCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryStatusTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const genderCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryGenderTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const unitCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryUnitTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const brandCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryBrandTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]
 export const originCategories = [
   { field: 'void', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650'
+    label: t('reuse.categoryOriginTitle'),
+    minWidth: '650',
+    sortable: true
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   }
 ]

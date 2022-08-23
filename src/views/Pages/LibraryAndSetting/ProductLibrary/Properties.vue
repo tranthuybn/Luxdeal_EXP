@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
 import { businessProductLibrary } from './ProductLibraryManagement'
-import ApiPropTable from '../../Components/apiprop-table.vue'
+import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <api-prop-table
-    :selection="true"
+  <TableType01
+    :selection="false"
     :columns="businessProductLibrary"
     :api="getBusinessProductLibrary"
   />

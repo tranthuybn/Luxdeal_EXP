@@ -23,6 +23,10 @@ const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  selection: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -46,7 +50,11 @@ onBeforeMount(() => {
         <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
-    <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
+    <TableExtension
+      v-if="selection"
+      :totalRecord="getTotalRecord"
+      :selectedRecord="getSelectedRecord"
+    />
     <TableType01
       ref="tableBase01"
       :api="dynamicApi"
@@ -54,6 +62,7 @@ onBeforeMount(() => {
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"
+      :selection="selection"
     />
   </section>
 </template>

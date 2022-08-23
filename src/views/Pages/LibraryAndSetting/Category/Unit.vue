@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getUnitCategories } from '@/api/LibraryAndSetting'
 import { unitCategories } from './CategoryManagement'
-import apipropTable from '../../Components/apiprop-table.vue'
+import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <apipropTable :columns="unitCategories" :api="getUnitCategories" />
+  <TableType01 :columns="unitCategories" :api="getUnitCategories" :selection="false" />
 </template>

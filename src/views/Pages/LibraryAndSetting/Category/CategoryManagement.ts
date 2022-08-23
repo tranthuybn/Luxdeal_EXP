@@ -27,9 +27,9 @@ export const productCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -60,9 +60,9 @@ export const spaProductCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -92,9 +92,9 @@ export const propertyProductCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -124,9 +124,9 @@ export const colorCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -156,9 +156,9 @@ export const sizeCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -188,9 +188,9 @@ export const materialCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -220,9 +220,9 @@ export const statusCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -252,9 +252,9 @@ export const genderCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -284,9 +284,9 @@ export const unitCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -316,9 +316,9 @@ export const brandCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]
@@ -348,9 +348,9 @@ export const originCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]

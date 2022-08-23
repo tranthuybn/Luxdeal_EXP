@@ -417,6 +417,12 @@ export default {
     categoryGenderTitle: 'Thông tin đặc tính giới tính',
     categoryUnitTitle: 'Thông tin đơn vị tính',
     categoryBrandTitle: 'Thông tin thương hiệu',
-    categoryOriginTitle: 'Thông tin xuất xứ'
+    categoryOriginTitle: 'Thông tin xuất xứ',
+    bag: 'Túi',
+    wallet: 'Ví',
+    balo: 'Balo',
+    active: 'Đang hoạt động',
+    inactive: 'Ngưng hoạt động',
+    pending: 'Chờ duyệt'
   }
 }

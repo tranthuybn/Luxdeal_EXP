@@ -38,10 +38,9 @@ export const businessProductLibrary = [
     label: t('reuse.category'),
     minWidth: '150',
     filters: [
-      { text: 'Túi', value: 'Túi' },
-      { text: 'Ví', value: 'Ví' },
-      { text: 'Balo', value: 'Balo' },
-      { text: 'Giày', value: 'Giày' }
+      { text: t('reuse.bag'), value: t('reuse.bag') },
+      { text: t('reuse.wallet'), value: t('reuse.wallet') },
+      { text: t('reuse.balo'), value: t('reuse.balo') }
     ]
   },
   {
@@ -60,9 +59,9 @@ export const businessProductLibrary = [
     label: t('reuse.status'),
     minWidth: '150',
     filters: [
-      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
-      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
-      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+      { text: t('reuse.active'), value: t('reuse.active') },
+      { text: t('reuse.inactive'), value: t('reuse.inactive') },
+      { text: t('reuse.pending'), value: t('reuse.pending') }
     ]
   }
 ]

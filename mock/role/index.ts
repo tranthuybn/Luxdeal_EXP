@@ -776,7 +776,7 @@ const adminList = [
             component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/Contact',
             name: 'New-and-advertisement.profile-admin.contact',
             meta: {
-              title: 'router.contact'
+              title: 'reuse.contact'
             }
           },
           {

@@ -241,7 +241,7 @@ export default {
     potentialCustomerList: 'Danh sách KH tiềm năng',
     manageChat: 'Quản lý chat',
     notify: 'Thông báo',
-    Forum: 'Forum(New feed',
+    forum: 'Forum(New feed)',
     newsSite: 'Trang tin tức',
     bannerAdvertisement: 'Baner Quảng cáo',
     profileAdmin: 'Thông tin quản trị',
@@ -459,14 +459,6 @@ export default {
     material: 'Chất liệu',
     businessProduct: 'Sản phẩm kinh doanh',
     spaProduct: 'Vật tư(Step 2)',
-    propertyProduct: 'Tài sản(Step 2)',
-    categoryColorTitle: 'Thông tin đặc tính màu sắc',
-    categorySizeTitle: 'Thông tin đặc tính kích thước',
-    categoryMaterialTitle: 'Thông tin đặc tính chất liệu',
-    categoryStatusTitle: 'Thông tin đặc tính tình trạng',
-    categoryGenderTitle: 'Thông tin đặc tính giới tính',
-    categoryUnitTitle: 'Thông tin đơn vị tính',
-    categoryBrandTitle: 'Thông tin thương hiệu',
-    categoryOriginTitle: 'Thông tin xuất xứ'
+    propertyProduct: 'Tài sản(Step 2)'
   }
 }

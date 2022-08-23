@@ -1,5 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+import { filterTableStatus, filterTableCategory } from '@/utils/filters'
 export const businessProductLibrary = [
   {
     field: 'index',
@@ -12,28 +13,32 @@ export const businessProductLibrary = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    sortable: true
   },
   {
     field: 'productCode',
     label: t('reuse.productCode'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'productName',
     label: t('reuse.productName'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'category',
     label: t('reuse.category'),
     minWidth: '150',
-    sortable: true
+    filters: filterTableCategory
   },
   {
     field: 'image',
@@ -50,6 +55,6 @@ export const businessProductLibrary = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    sortable: true
+    filters: filterTableStatus
   }
 ]

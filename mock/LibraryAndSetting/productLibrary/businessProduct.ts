@@ -10,8 +10,9 @@ const BusinessProductLibrary: {
   creator: string
   status: string
 }[] = []
-
+const status = ['Đang hoạt động', 'Chờ duyệt', 'Ngưng hoạt động']
 for (let i = 0; i < 100; i++) {
+  const random = Math.floor(Math.random() * status.length)
   BusinessProductLibrary.push(
     Mock.mock({
       id: i,
@@ -22,7 +23,7 @@ for (let i = 0; i < 100; i++) {
       category: '@sentence(3, 5)',
       image: 'https://protkd.com/wp-content/uploads/2017/04/default-image.jpg',
       creator: '@first',
-      status: 'Đang hoạt động'
+      status: status[random]
     })
   )
 }

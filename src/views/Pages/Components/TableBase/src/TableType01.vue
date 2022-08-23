@@ -78,6 +78,11 @@ async function getTableSelected() {
 defineExpose({
   getData
 })
+//call api when filter in header change
+const { setSearchParams } = methods
+const filterChange = (filterValue) => {
+  setSearchParams(filterValue)
+}
 </script>
 <template>
   <ContentWrap>
@@ -95,6 +100,7 @@ defineExpose({
       @select="getTableSelected"
       @select-all="getTableSelected"
       @register="register"
+      @filter-change="filterChange"
       :selection="selection"
     >
       <template #imgTitle="data">

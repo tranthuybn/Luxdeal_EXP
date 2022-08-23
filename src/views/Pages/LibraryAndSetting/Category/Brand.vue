@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getBrandCategories } from '@/api/LibraryAndSetting'
 import { brandCategories } from './CategoryManagement'
-import apipropTable from '../../Components/apiprop-table.vue'
+import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <apipropTable :columns="brandCategories" :api="getBrandCategories" />
-</template>
+  <TableType01 :columns="brandCategories" :api="getBrandCategories" :selection="false"
+/></template>

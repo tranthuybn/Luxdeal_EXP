@@ -10,9 +10,9 @@ interface productList {
   title: string
   children: Array<productList>
 }
-
+const count = 77
 let productList: productList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   productList.push(
     Mock.mock({
       id: i,
@@ -56,7 +56,7 @@ interface SpaProductList {
 }
 let SpaProductList: SpaProductList[] = []
 
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   if (SpaProductList !== undefined) {
     SpaProductList?.push(
       Mock.mock({
@@ -101,7 +101,7 @@ interface PropertyProductList {
   children: Array<PropertyProductList>
 }
 let PropertyProductList: PropertyProductList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   PropertyProductList.push(
     Mock.mock({
       id: i,

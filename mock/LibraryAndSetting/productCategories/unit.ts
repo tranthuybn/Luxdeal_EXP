@@ -9,8 +9,9 @@ interface UnitCategoriesList {
   title: string
   children: Array<UnitCategoriesList>
 }
+const count = 77
 let UnitCategoriesList: UnitCategoriesList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   UnitCategoriesList.push(
     Mock.mock({
       id: i,

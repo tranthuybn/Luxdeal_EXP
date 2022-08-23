@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getOriginCategories } from '@/api/LibraryAndSetting'
 import { originCategories } from './CategoryManagement'
-import apipropTable from '../../Components/apiprop-table.vue'
+import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <apipropTable :columns="originCategories" :api="getOriginCategories" />
+  <TableType01 :columns="originCategories" :api="getOriginCategories" :selection="false" />
 </template>

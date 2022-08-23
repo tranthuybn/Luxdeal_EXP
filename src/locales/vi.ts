@@ -409,6 +409,14 @@ export default {
     material: 'Chất liệu',
     businessProduct: 'Sản phẩm kinh doanh',
     spaProduct: 'Vật tư(Step 2)',
-    propertyProduct: 'Tài sản(Step 2)'
+    propertyProduct: 'Tài sản(Step 2)',
+    categoryColorTitle: 'Thông tin đặc tính màu sắc',
+    categorySizeTitle: 'Thông tin đặc tính kích thước',
+    categoryMaterialTitle: 'Thông tin đặc tính chất liệu',
+    categoryStatusTitle: 'Thông tin đặc tính tình trạng',
+    categoryGenderTitle: 'Thông tin đặc tính giới tính',
+    categoryUnitTitle: 'Thông tin đơn vị tính',
+    categoryBrandTitle: 'Thông tin thương hiệu',
+    categoryOriginTitle: 'Thông tin xuất xứ'
   }
 }

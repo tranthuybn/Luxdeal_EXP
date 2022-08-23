@@ -9,9 +9,9 @@ interface ColorCategoriesList {
   title: string
   children: Array<ColorCategoriesList>
 }
-
+const count = 77
 let ColorCategoriesList: ColorCategoriesList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   ColorCategoriesList.push(
     Mock.mock({
       id: i,
@@ -51,7 +51,7 @@ interface SizeCategoriesList {
   children: Array<SizeCategoriesList>
 }
 let SizeCategoriesList: SizeCategoriesList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   SizeCategoriesList.push(
     Mock.mock({
       id: i,
@@ -91,12 +91,12 @@ interface MaterialCategoriesList {
   children: Array<MaterialCategoriesList>
 }
 let MaterialCategoriesList: MaterialCategoriesList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   MaterialCategoriesList.push(
     Mock.mock({
       id: i,
       image:
-        'https://5.imimg.com/data5/SELLER/Default/2021/1/FY/UQ/FQ/84248060/100-cotton-fabric-500x500.jpg',
+        'https://5.imimg.com/data5/SELLER/Default/2021/1/FY/UQ/FQ/84248060/count-cotton-fabric-500x500.jpg',
       createDate: '@date("dd/MM/yyyy")',
       position: '@integer(1, 3)',
       status: 'Đang hoạt động',
@@ -133,7 +133,7 @@ interface StatusCategoriesList {
 }
 let StatusCategoriesList: StatusCategoriesList[] = []
 
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   StatusCategoriesList.push(
     Mock.mock({
       id: i,
@@ -173,7 +173,7 @@ interface GenderCategoriesList {
   children: Array<GenderCategoriesList>
 }
 let GenderCategoriesList: GenderCategoriesList[] = []
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < count; i++) {
   GenderCategoriesList.push(
     Mock.mock({
       id: i,

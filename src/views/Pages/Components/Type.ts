@@ -12,9 +12,5 @@ interface Tab {
   api: <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
   column: TableColumn[]
 }
-interface Filter {
-  text: string
-  value: any
-}
 
-export { apiType, TableResponse, Tab, Filter }
+export { apiType, TableResponse, Tab }

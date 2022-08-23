@@ -286,6 +286,7 @@ export default defineComponent({
             if (props.children) delete props.children
             return (
               <ElTableColumn
+                column-key={v.field}
                 showOverflowTooltip={showOverflowTooltip}
                 align={v.align || align}
                 headerAlign={headerAlign}

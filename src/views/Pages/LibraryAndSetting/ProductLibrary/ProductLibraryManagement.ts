@@ -12,28 +12,37 @@ export const businessProductLibrary = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    sortable: true
   },
   {
     field: 'productCode',
     label: t('reuse.productCode'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'productName',
     label: t('reuse.productName'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'category',
     label: t('reuse.category'),
     minWidth: '150',
-    sortable: true
+    filters: [
+      { text: 'Túi', value: 'Túi' },
+      { text: 'Ví', value: 'Ví' },
+      { text: 'Balo', value: 'Balo' },
+      { text: 'Giày', value: 'Giày' }
+    ]
   },
   {
     field: 'image',
@@ -50,6 +59,10 @@ export const businessProductLibrary = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]

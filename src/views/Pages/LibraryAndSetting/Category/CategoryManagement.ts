@@ -1,5 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+
 export const productCategories = [
   { field: 'void', width: '50' },
   {
@@ -25,9 +26,14 @@ export const productCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
+
 export const spaProductCategories = [
   { field: 'void', width: '50' },
   {
@@ -53,7 +59,11 @@ export const spaProductCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const propertyProductCategories = [
@@ -81,7 +91,11 @@ export const propertyProductCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const colorCategories = [
@@ -109,7 +123,11 @@ export const colorCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const sizeCategories = [
@@ -137,7 +155,11 @@ export const sizeCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const materialCategories = [
@@ -165,7 +187,11 @@ export const materialCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const statusCategories = [
@@ -193,7 +219,11 @@ export const statusCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const genderCategories = [
@@ -221,7 +251,11 @@ export const genderCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const unitCategories = [
@@ -249,7 +283,11 @@ export const unitCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const brandCategories = [
@@ -277,7 +315,11 @@ export const brandCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]
 export const originCategories = [
@@ -305,6 +347,10 @@ export const originCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    sortable: true
+    filters: [
+      { text: 'Đang hoạt động', value: 'Đang hoạt động' },
+      { text: 'Ngưng hoạt động', value: 'Ngưng hoạt động' },
+      { text: 'Chờ duyệt', value: 'Chờ duyệt' }
+    ]
   }
 ]

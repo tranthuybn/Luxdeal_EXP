@@ -218,8 +218,12 @@ export default [
     method: 'get',
     timeout,
     response: ({ query }) => {
-      const { pageIndex, pageSize } = query
-      const pageList = BusinessProductLibrary.filter(
+      const { status, pageIndex, pageSize } = query
+      const mockList = BusinessProductLibrary.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
       return {

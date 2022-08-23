@@ -164,7 +164,7 @@ export default {
     humanResourceManagement: 'Quản lý nhân sự',
     libraryAndSetting: 'Thư viện & cài đặt',
     newsAndAdvertisement: 'Tin tức & quảng cáo',
-    potentialCustomerCare: 'Chăm sóc khách hàng tiềm năng',
+    potentialCustomerCare: 'Khách hàng tiềm năng',
     warehouseList: 'Danh sách kho',
     listOfRequest: 'Danh sách yêu cầu',
     businessReport: 'Báo cáo kinh doanh',
@@ -232,7 +232,10 @@ export default {
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
     purchaseOrderAdd: 'Thêm mới đơn mua hàng',
-    personnelAccounts: 'Nhân sự & Tài khoản'
+    personnelAccounts: 'Nhân sự & Tài khoản',
+    potentialCustomerAdd: 'Thêm mới KH tiềm năng',
+    potentialCustomerList: 'Danh sách KH tiềm năng',
+    manageChat: 'Quản lý chat'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

@@ -14,11 +14,39 @@ export default {
   children: [
     {
       path: 'potential-customer-care',
-      component: () => import('@/views/Pages/Business/PotentialCustomerCare.vue'),
+      redirect: { name: 'business.potential-customer-care.potential-customer-list' },
       name: 'business.potential-customer-care',
       meta: {
         title: t('router.potentialCustomerCare')
-      }
+      },
+      children: [
+        {
+          path: 'potential-customer-list',
+          component: () =>
+            import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerList.vue'),
+          name: 'business.potential-customer-care.potential-customer-list',
+          meta: {
+            title: t('router.potentialCustomerList')
+          }
+        },
+        {
+          path: 'potential-customer-add',
+          component: () =>
+            import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd.vue'),
+          name: 'business.potential-customer-care.potential-customer-add',
+          meta: {
+            title: t('router.potentialCustomerAdd')
+          }
+        },
+        {
+          path: 'manage-chat',
+          component: () => import('@/views/Pages/Business/PotentialCustomerCare/ManageChat.vue'),
+          name: 'business.potential-customer-care.manage-chat',
+          meta: {
+            title: t('router.manageChat')
+          }
+        }
+      ]
     },
     {
       path: 'order-management',

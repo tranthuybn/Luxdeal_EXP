@@ -50,11 +50,37 @@ const adminList = [
     children: [
       {
         path: 'potential-customer-care',
-        component: 'views/Pages/Business/PotentialCustomerCare',
+        redirect: { name: 'business.potential-customer-care.potential-customer-list' },
         name: 'Business.PotentialCustomerCare',
         meta: {
           title: 'router.potentialCustomerCare'
-        }
+        },
+        children: [
+          {
+            path: 'potential-customer-list',
+            component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerList',
+            name: 'business.potential-customer-care.potential-customer-list',
+            meta: {
+              title: 'router.potentialCustomerList'
+            }
+          },
+          {
+            path: 'potential-customer-add',
+            component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
+            name: 'business.potential-customer-care.potential-customer-add',
+            meta: {
+              title: 'router.potentialCustomerAdd'
+            }
+          },
+          {
+            path: 'manage-chat',
+            component: 'views/Pages/Business/PotentialCustomerCare/ManageChat',
+            name: 'business.potential-customer-care.manage-chat',
+            meta: {
+              title: 'router.manageChat'
+            }
+          }
+        ]
       },
       {
         path: 'order-management',

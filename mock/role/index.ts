@@ -213,7 +213,7 @@ const adminList = [
         name: 'business.accumulate-points',
         redirect: { name: 'business.accumulate-points.customer' },
         meta: {
-          title: 'router.accumulatepoints'
+          title: 'router.accumulatePoints'
         },
         children: [
           {
@@ -221,7 +221,7 @@ const adminList = [
             name: 'business.accumulate-points.customer-points',
             component: 'views/Pages/Business/AccumulatePoints/CustomerPoints',
             meta: {
-              title: 'router.customerpoints'
+              title: 'router.customerPoints'
             }
           },
           {
@@ -229,7 +229,7 @@ const adminList = [
             name: 'business.accumulate-points.settings-points',
             component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
             meta: {
-              title: 'router.installpoints'
+              title: 'router.installPoints'
             }
           }
         ]
@@ -239,7 +239,7 @@ const adminList = [
         name: 'business.virtual-wallet',
         redirect: { name: 'business.virtual-wallet.customer' },
         meta: {
-          title: 'router.virtualwallet'
+          title: 'router.virtualWallet'
         },
         children: [
           {
@@ -247,7 +247,7 @@ const adminList = [
             name: 'business.virtual-wallet.customer',
             component: 'views/Pages/Business/VirtualWallet/CustomerVirtualWallet',
             meta: {
-              title: 'router.customervirtualwallet'
+              title: 'router.customervirtualWallet'
             }
           },
           {
@@ -255,7 +255,7 @@ const adminList = [
             name: 'business.virtual-wallet.with-drewal-request',
             component: 'views/Pages/Business/VirtualWallet/WithdrawalRequest',
             meta: {
-              title: 'router.withdrawalrequest'
+              title: 'router.withDrawalRequest'
             }
           },
           {
@@ -263,7 +263,7 @@ const adminList = [
             name: 'business.virtual-wallet.settings',
             component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
             meta: {
-              title: 'router.settingsvirtualwallet'
+              title: 'router.settingsvirtualWallet'
             }
           }
         ]
@@ -307,7 +307,7 @@ const adminList = [
         name: 'business.business-product',
         redirect: { name: 'business.business-product.employeeList' },
         meta: {
-          title: 'router.businessproducts'
+          title: 'router.businessProducts'
         },
         children: [
           {

@@ -58,7 +58,7 @@ onBeforeMount(() => {
     <TableType01
       ref="tableBase01"
       :api="dynamicApi"
-      :maxHeight="'65vh'"
+      :maxHeight="'69vh'"
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"

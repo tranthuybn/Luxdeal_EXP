@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.withdrawalrequest') }}</div>
+  <div>{{ t('router.withDrawalRequest') }}</div>
 </template>
 
 <script setup lang="ts">

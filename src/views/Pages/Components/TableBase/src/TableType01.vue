@@ -3,7 +3,7 @@ import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
-import { onBeforeMount, PropType, ref, watch } from 'vue'
+import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage } from 'element-plus'
 const paginationObj = ref<Pagination>()
@@ -81,6 +81,11 @@ defineExpose({
 //call api when filter in header change
 const { setSearchParams } = methods
 const filterChange = (filterValue) => {
+  if (filterValue && typeof unref(filterValue) === 'object')
+    for (let key in filterValue) {
+      if (typeof unref(filterValue[key]) === 'object')
+        filterValue[key] = Object.values(filterValue[key]).toString()
+    }
   setSearchParams(filterValue)
 }
 </script>

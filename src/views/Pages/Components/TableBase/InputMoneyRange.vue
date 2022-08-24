@@ -12,20 +12,32 @@ const ruleForm = reactive({ inputFrom: '', inputTo: '' })
 const props = defineProps(['field'])
 const field = ref(props.field)
 const emit = defineEmits(['confirm'])
-const confirm = () => {
+const confirm2 = () => {
   var arrValue = [ruleForm.inputFrom, ruleForm.inputTo]
   const objValue = {}
   objValue[field.value] = arrValue
   console.log(objValue[field.value])
   emit('confirm', objValue)
 }
-const cancel = () => {
-  ruleForm.inputFrom = ruleForm.inputTo = ''
-}
 const rules = reactive<FormRules>({
   inputFrom: [{ required: true, message: t('reuse.warningMoney'), trigger: 'blur' }],
   inputTo: [{ required: true, message: t('reuse.warningMoney'), trigger: 'blur' }]
 })
+const confirm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      confirm2()
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
+
+const cancel = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.resetFields()
+}
 </script>
 <template>
   <el-popover placement="bottom" trigger="click" width="fit-content">
@@ -33,7 +45,7 @@ const rules = reactive<FormRules>({
       <el-button :icon="ArrowDown" text />
     </template>
     <ElForm ref="ruleFormRef" :model="ruleForm" :rules="rules">
-      <el-form-item :label="t('reuse.from')" prop="inputFrom">
+      <el-form-item :label="t('reuse.from')" prop="inputFrom" label-width="50px">
         <el-input
           v-model="ruleForm.inputFrom"
           :placeholder="t('reuse.placeholderMoney')"
@@ -42,7 +54,7 @@ const rules = reactive<FormRules>({
           ><template #suffix> đ</template>
         </el-input>
       </el-form-item>
-      <el-form-item :label="t('reuse.to')" prop="inputTo">
+      <el-form-item :label="t('reuse.to')" prop="inputTo" label-width="50px">
         <el-input
           v-model="ruleForm.inputTo"
           :placeholder="t('reuse.placeholderMoney')"
@@ -51,9 +63,11 @@ const rules = reactive<FormRules>({
           ><template #suffix> đ</template>
         </el-input>
       </el-form-item>
+      <el-divider />
+      <el-form-item>
+        <el-button type="primary" @click="confirm(ruleFormRef)">{{ t('reuse.confirm') }}</el-button>
+        <el-button @click="cancel(ruleFormRef)">{{ t('reuse.cancel') }}</el-button>
+      </el-form-item>
     </ElForm>
-    <el-divider />
-    <el-button @click="confirm">{{ t('reuse.confirm') }}</el-button>
-    <el-button @click="cancel">{{ t('reuse.cancel') }}</el-button>
   </el-popover>
 </template>

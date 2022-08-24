@@ -500,6 +500,7 @@ export default {
     placeholderMoney: 'Nhập số tiền',
     placeholderDate: 'Chọn thời gian',
     placeholderNumber: 'Nhập số lượng',
-    warningMoney: 'Vui lòng nhập số tiền'
+    warningMoney: 'Vui lòng nhập số tiền',
+    warningNumber: 'Vui lòng nhập số lượng'
   }
 }

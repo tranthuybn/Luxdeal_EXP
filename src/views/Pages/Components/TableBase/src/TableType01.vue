@@ -6,6 +6,9 @@ import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage } from 'element-plus'
+import { InputMoneyRange } from '../index'
+import { InputDateRange } from '../index'
+import { InputNumberRange } from '../index'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -86,8 +89,15 @@ const filterChange = (filterValue) => {
       if (typeof unref(filterValue[key]) === 'object')
         filterValue[key] = Object.values(filterValue[key]).toString()
     }
+  console.log(filterValue)
+
   setSearchParams(filterValue)
 }
+const confirm = (value) => {
+  console.log('emitValue', value)
+  setSearchParams(value)
+}
+const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
 </script>
 <template>
   <ContentWrap>
@@ -111,13 +121,33 @@ const filterChange = (filterValue) => {
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.image"
-          /></div>
+            <el-image style="width: 100px; height: 100px" :src="data.row.image" />
+          </div>
           <div>{{ data.row.title }}</div>
         </div>
       </template>
       <template #image="data">
-        <div> <el-image style="width: 100px; height: 100px" :src="data.row.image" /></div>
+        <div>
+          <el-image style="width: 100px; height: 100px" :src="data.row.image" />
+        </div>
+      </template>
+      <template v-for="header in headerFilter" :key="header.field" #[`${header.field}-header`]>
+        {{ header.label }}
+        <InputMoneyRange
+          v-if="header.headerFilter == 'Money'"
+          :field="header.field"
+          @confirm="confirm"
+        />
+        <InputDateRange
+          v-if="header.headerFilter == 'Date'"
+          :field="header.field"
+          @confirm="confirm"
+        />
+        <InputNumberRange
+          v-if="header.headerFilter == 'Number'"
+          :field="header.field"
+          @confirm="confirm"
+        />
       </template>
     </Table>
   </ContentWrap>

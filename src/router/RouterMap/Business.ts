@@ -179,7 +179,7 @@ export default {
           name: 'business.accumulate-points.customer-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/CustomerPoints.vue'),
           meta: {
-            title: 'router.customerpoints'
+            title: 'router.customerPoints'
           }
         },
         {
@@ -187,7 +187,7 @@ export default {
           name: 'business.accumulate-points.settings-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
           meta: {
-            title: 'router.installpoints'
+            title: 'router.installPoints'
           }
         }
       ]
@@ -197,7 +197,7 @@ export default {
       name: 'business.virtual-wallet',
       redirect: { name: 'business.virtual-wallet.customer' },
       meta: {
-        title: t('router.virtualwallet')
+        title: t('router.virtualWallet')
       },
       children: [
         {
@@ -205,7 +205,7 @@ export default {
           name: 'business.virtual-wallet.customer',
           component: () => import('@/views/Pages/Business/VirtualWallet/CustomerVirtualWallet.vue'),
           meta: {
-            title: t('router.customervirtualwallet')
+            title: t('router.customervirtualWallet')
           }
         },
         {
@@ -213,7 +213,7 @@ export default {
           name: 'business.virtual-wallet.with-drewal-request',
           component: () => import('@/views/Pages/Business/VirtualWallet/WithdrawalRequest.vue'),
           meta: {
-            title: t('router.withdrawalrequest')
+            title: t('router.withDrawalRequest')
           }
         },
         {
@@ -221,7 +221,7 @@ export default {
           name: 'business.virtual-wallet.settings',
           component: () => import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWallet.vue'),
           meta: {
-            title: t('router.settingsvirtualwallet')
+            title: t('router.settingsvirtualWallet')
           }
         }
       ]
@@ -265,7 +265,7 @@ export default {
       name: 'business.business-product',
       redirect: { name: 'business.business-product.employeeList' },
       meta: {
-        title: t('router.businessproducts')
+        title: t('router.businessProducts')
       },
       children: [
         {

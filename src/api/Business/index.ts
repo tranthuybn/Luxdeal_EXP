@@ -43,11 +43,11 @@ export const getWareHouseList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getCustomerPointsList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/customerpoints', params })
+  const res = await request.get({ url: '/customerPoints', params })
   return res && res.data
 }
 export const getCustomerVirtualEWalletList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/customervirtualwallet', params })
+  const res = await request.get({ url: '/customervirtualWallet', params })
   return res && res.data
 }
 export const getVoucherList = async (params: any): Promise<IResponse> => {

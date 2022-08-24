@@ -12,8 +12,8 @@ import { collectionList, collectionListMock } from './promotionstrategy/collecti
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 import { warehouseList, warehouseListMock } from './warehouse'
-import { customerPointsList, customerPointsListMock } from './customerpoints'
-import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualwallet'
+import { customerPointsList, customerPointsListMock } from './customerPoints'
+import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualWallet'
 import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
 import { auctionList, auctionListMock } from './promotionstrategy/auction'
@@ -228,7 +228,7 @@ export default [
     }
   },
   {
-    url: '/customerpoints',
+    url: '/customerPoints',
     method: 'get',
     timeout,
     response: ({ query }) => {
@@ -246,7 +246,7 @@ export default [
     }
   },
   {
-    url: '/customervirtualwallet',
+    url: '/customervirtualWallet',
     method: 'get',
     timeout,
     response: ({ query }) => {

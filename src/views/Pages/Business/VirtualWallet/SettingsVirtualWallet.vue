@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.settingsvirtualwallet') }}</div>
+  <div>{{ t('router.settingsvirtualWallet') }}</div>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.installpoints') }}</div>
+  <div>{{ t('router.installPoints') }}</div>
 </template>
 
 <script setup lang="ts">

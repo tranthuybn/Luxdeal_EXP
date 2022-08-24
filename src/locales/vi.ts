@@ -492,6 +492,14 @@ export default {
     priceStep: 'Bước giá',
     highestBid: 'Trả giá cao nhất',
     joined: 'Đã tham gia(số người)',
-    auctionCode: 'Mã đấu giá'
+    auctionCode: 'Mã đấu giá',
+    from: 'Từ',
+    to: 'Đến',
+    confirm: 'Xác nhận',
+    cancel: 'Hủy bỏ',
+    placeholderMoney: 'Nhập số tiền',
+    placeholderDate: 'Chọn thời gian',
+    placeholderNumber: 'Nhập số lượng',
+    warningMoney: 'Vui lòng nhập số tiền'
   }
 }

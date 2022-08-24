@@ -15,4 +15,16 @@ export const statusTransferToText = (val) => {
   if (val) return 'Đang hoạt động'
   return 'Dừng hoạt động'
 }
-export default { formatMoneyInput, formatDateTime, statusTransferToText }
+export const dateTimeFormat = 'DD/MM/YYYY'
+export const valueDateFormat = 'YYYY-MM-DD'
+export const dateFormType = 'date'
+export const dateTimeDisable = false
+export default {
+  formatMoneyInput,
+  formatDateTime,
+  statusTransferToText,
+  dateTimeFormat,
+  valueDateFormat,
+  dateFormType,
+  dateTimeDisable
+}

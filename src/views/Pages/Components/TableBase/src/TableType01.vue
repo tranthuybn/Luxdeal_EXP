@@ -93,6 +93,7 @@ const filterChange = (filterValue) => {
 
   setSearchParams(filterValue)
 }
+//value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
   console.log('emitValue', value)
   setSearchParams(value)

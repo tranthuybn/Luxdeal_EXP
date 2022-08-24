@@ -18,7 +18,7 @@ const confirm = () => {
   emit('confirm', objValue)
 }
 const cancel = () => {
-  console.log('cancel')
+  inputFrom.value = inputTo.value = ''
 }
 </script>
 <template>

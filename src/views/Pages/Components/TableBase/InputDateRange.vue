@@ -1,41 +1,68 @@
 <script lang="ts" setup>
 import { ElPopover, ElButton, ElDatePicker, ElDivider } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { reactive, ref, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import { dateTimeFormat, valueDateFormat } from '@/utils/format'
+import { Form, FormExpose } from '@/components/Form'
+import { useForm } from '@/hooks/web/useForm'
+import { useValidator } from '@/hooks/web/useValidator'
+const { required } = useValidator()
 const { t } = useI18n()
 // eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['field'])
-const field = ref(props.field)
+const propField = ref(props.field)
 const emit = defineEmits(['confirm'])
-const dateValue = ref('')
-const trigger = ref('click')
-const confirm = () => {
-  var arrValue = [dateValue.value[0], dateValue.value[1]]
-  const objValue = {}
-  objValue[field.value] = arrValue
-  console.log(objValue[field.value])
-  emit('confirm', objValue)
+const { register, methods } = useForm()
+const { getFormData } = methods
+const dateFilterFormRefer = ref<FormExpose>()
+const schema = reactive<FormSchema[]>([
+  {
+    field: propField,
+    component: 'DatePicker',
+    value: '',
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      rules: [required()]
+    },
+    componentProps: {
+      type: 'daterange',
+      rangeSeparator: t('reuse.to'),
+      startPlaceholder: t('reuse.placeholderDate'),
+      endPlaceholder: t('reuse.placeholderDate'),
+      unlinkPanels: true,
+      format: dateTimeFormat,
+      valueFormat: valueDateFormat
+    }
+  }
+])
+async function confirm() {
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.validate((valid) => {
+    if (valid) {
+      getFormData()
+        .then((res) => {
+          emit('confirm', res)
+        })
+        .catch(() => {
+          console.error('have some issues while emitting')
+        })
+    }
+  })
 }
 const cancel = () => {
-  console.log('cancel')
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.resetFields()
 }
 </script>
 <template>
-  <el-popover placement="bottom" width="fit-content" :key="trigger">
+  <el-popover placement="bottom" width="fit-content" trigger="click">
     <template #reference>
       <el-button :icon="ArrowDown" text />
     </template>
-    <el-date-picker
-      v-model="dateValue"
-      type="daterange"
-      range-separator="To"
-      start-placeholder="Start date"
-      end-placeholder="End date"
-      unlink-panels
-      format="YYYY/MM/DD"
-      value-format="YYYY-MM-DD"
-    />
+    <Form :schema="schema" ref="dateFilterFormRefer" @register="register" />
     <el-divider />
     <el-button @click="confirm">{{ t('reuse.confirm') }}</el-button>
     <el-button @click="cancel">{{ t('reuse.cancel') }}</el-button>

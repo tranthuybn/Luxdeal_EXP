@@ -147,7 +147,7 @@ export default {
     warehouseManagement: 'Warehouse management',
     accountant: 'Accountant',
     approve: 'Approval',
-    libraryAndSetting: 'Library & Setting',
+    productsAndServices: 'Products & services',
     newsAndAdvertisement: 'News & Advertisement',
     potentialCustomerCare: 'potential customer care',
     warehouseList: 'Warehouse List',
@@ -448,6 +448,8 @@ export default {
     floorPrice: 'floor price',
     priceStep: 'price step',
     highestBid: 'highest bid',
-    joined: 'joined(số người)'
+    joined: 'joined',
+    notSeen: 'Not seen',
+    takingCare: 'Taking care'
   }
 }

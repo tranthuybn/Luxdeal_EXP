@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.libraryAndSetting') }}</div>
+  <div>{{ t('router.productsAndServices') }}</div>
 </template>
 
 <script setup lang="ts">

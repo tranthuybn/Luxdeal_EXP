@@ -60,7 +60,9 @@ const cancel = () => {
 <template>
   <el-popover placement="bottom" width="fit-content" trigger="click">
     <template #reference>
-      <el-button :icon="ArrowDown" text style="padding: 0" />
+      <span>
+        <el-button :icon="ArrowDown" text style="padding: 0" />
+      </span>
     </template>
     <Form :schema="schema" ref="dateFilterFormRefer" @register="register" />
     <el-divider />

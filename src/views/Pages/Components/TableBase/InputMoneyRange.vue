@@ -42,7 +42,9 @@ const cancel = (formEl: FormInstance | undefined) => {
 <template>
   <el-popover placement="bottom" trigger="click" width="fit-content">
     <template #reference>
-      <el-button :icon="ArrowDown" text style="padding: 0" />
+      <span>
+        <el-button :icon="ArrowDown" text style="padding: 0" />
+      </span>
     </template>
     <ElForm ref="ruleFormRef" :model="ruleForm" :rules="rules">
       <el-form-item :label="t('reuse.from')" prop="inputFrom" label-width="50px">

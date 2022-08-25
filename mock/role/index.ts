@@ -818,7 +818,7 @@ const adminList = [
     redirect: { name: 'library-and-setting.product-category' },
     name: 'library-and-setting',
     meta: {
-      title: 'router.libraryAndSetting',
+      title: 'router.productsAndServices',
       icon: 'carbon:cloud-satellite-config',
       alwaysShow: true
     },

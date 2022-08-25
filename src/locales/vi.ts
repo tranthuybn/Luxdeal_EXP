@@ -539,6 +539,21 @@ export default {
     pendingConsult: 'Chưa tư vấn',
     success: 'Thành công',
     outOfStock: 'Hết hàng',
-    fail: 'Thất bại'
+    fail: 'Thất bại',
+    enterprise: 'Doanh nghiệp',
+    personal: 'Cá nhân',
+    voucherCode: 'Mã voucher',
+    allCustomer: 'Tất cả khách hàng',
+    groupCustomer: 'Nhóm khách hàng',
+    onlyCustomer: 'Một khách hàng',
+    sale30: 'Giảm 30%',
+    sale500k: 'Giảm 500.000đ',
+    mix: 'Hỗn hợp',
+    finishPending: 'Đã duyệt',
+    auctioning: 'Đang đấu giá',
+    voucherSpa: 'Giảm giá dịch vụ Spa',
+    voucherCart: 'Giảm giá đơn hàng',
+    buyProduct: 'Mua hàng',
+    notBuy: 'Không mua'
   }
 }

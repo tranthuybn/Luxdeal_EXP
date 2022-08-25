@@ -23,29 +23,9 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250'
   },
   {
-    field: 'subject',
-    label: t('reuse.subject'),
-    minWidth: '130'
-  },
-  {
     field: 'productCode',
     label: t('reuse.productCode'),
     minWidth: '200'
-  },
-  {
-    field: 'start',
-    label: t('reuse.start'),
-    minWidth: '130'
-  },
-  {
-    field: 'doneLabel',
-    label: t('common.doneLabel'),
-    minWidth: '130'
-  },
-  {
-    field: 'comboPrice',
-    label: t('reuse.comboPrice'),
-    minWidth: '150'
   },
   {
     field: 'floorPrice',
@@ -71,6 +51,26 @@ const columns = reactive<TableColumn[]>([
     field: 'result',
     label: t('reuse.result'),
     minWidth: '150'
+  },
+  {
+    field: 'start',
+    label: t('reuse.start'),
+    minWidth: '130'
+  },
+  {
+    field: 'doneLabel',
+    label: t('common.doneLabel'),
+    minWidth: '130'
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '130'
+  },
+  {
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '130'
   },
   {
     field: 'status',

@@ -435,6 +435,7 @@ export default {
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
     promotion: 'Khuyến mại',
+    promotionCode: 'Mã khuyến mại',
     newproductCode: 'Mã HMV',
     flashSaleCode: 'Mã Flash Sale',
     surveyContent: 'Nội dung khảo sát',
@@ -501,6 +502,13 @@ export default {
     male: 'Nam',
     female: 'Nữ',
     pause: 'Tạm dừng',
-    lockAccount: 'Khóa tài khoản'
+    lockAccount: 'Khóa tài khoản',
+    referralCode: 'Mã giới thiệu',
+    employeeCode: 'Mã nhân viên',
+    employeeName: 'Tên nhân viên',
+    dateOfBirth: 'Ngày sinh',
+    branch: 'Chi nhánh',
+    department: 'Phòng ban',
+    rank: 'Cấp bậc'
   }
 }

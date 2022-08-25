@@ -12,11 +12,12 @@ import { collectionList, collectionListMock } from './promotionstrategy/collecti
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 import { warehouseList, warehouseListMock } from './warehouse'
-import { customerPointsList, customerPointsListMock } from './customerPoints'
-import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualWallet'
+import { customerPointsList, customerPointsListMock } from './customerpoints'
+import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualwallet'
 import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
 import { auctionList, auctionListMock } from './promotionstrategy/auction'
+import { employeeList, employeeListMock } from './promotionstrategy/employeeList'
 const { result_code } = config
 const timeout = 1000
 const count = 100
@@ -39,6 +40,7 @@ for (let i = 0; i < count; i++) {
   voucherList.push(Mock.mock(voucherListMock))
   comboList.push(Mock.mock(comboListMock))
   auctionList.push(Mock.mock(auctionListMock))
+  employeeList.push(Mock.mock(employeeListMock))
 }
 export default [
   {
@@ -50,8 +52,8 @@ export default [
       const pageList = potentialCustomerCareTable.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
-      if (startDate) potentialCustomerCareTable.filter((el) => el.receivedDate > startDate)
-      if (endDate) potentialCustomerCareTable.filter((el) => el.receivedDate < endDate)
+      if (startDate) potentialCustomerCareTable.filter((el) => el.createDate > startDate)
+      if (endDate) potentialCustomerCareTable.filter((el) => el.createDate < endDate)
       if (searchingKey)
         potentialCustomerCareTable.filter(
           (el) => el.sale == searchingKey || el.customerInfo == searchingKey
@@ -300,18 +302,18 @@ export default [
     }
   },
   {
-    url: '/auction',
+    url: '/employee',
     method: 'get',
     timeout,
     response: ({ query }) => {
       const { pageIndex, pageSize } = query
-      const pageList = auctionList.filter(
+      const pageList = employeeList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
       return {
         code: result_code,
         data: {
-          total: auctionList.length,
+          total: employeeList.length,
           list: pageList
         }
       }

@@ -8,6 +8,7 @@ const voucherList: {
   doneLabel: number
   promotion: string
   status: boolean
+  creator: string
 }[] = []
 
 const voucherListMock = {
@@ -19,7 +20,8 @@ const voucherListMock = {
   start: '@date("dd/MM/yyyy")',
   doneLabel: '@date("dd/MM/yyyy")',
   promotion: '@image',
-  status: '@boolean'
+  status: '@boolean',
+  creator: '@name'
 }
 
 export { voucherList, voucherListMock }

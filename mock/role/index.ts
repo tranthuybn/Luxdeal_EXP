@@ -552,7 +552,7 @@ const adminList = [
         children: [
           {
             path: 'product-storage',
-            component: 'views/Pages/ProductsAndServices/createRepositoryDirectory/ProductStorage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
             name: 'Warehouse.createRepositoryDirectory.ProductStorage',
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
@@ -560,7 +560,7 @@ const adminList = [
           },
           {
             path: 'spa-storage',
-            component: 'views/Pages/ProductsAndServices/createRepositoryDirectory/SpaStorage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
             name: 'Warehouse.createRepositoryDirectory.productLibrarySpaStorage',
             meta: {
               title: 'router.productLibrarySpaStorage'
@@ -568,7 +568,7 @@ const adminList = [
           },
           {
             path: 'property-storage',
-            component: 'views/Pages/ProductsAndServices/createRepositoryDirectory/PropertyStorage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
             name: 'Warehouse.createRepositoryDirectory.productPropertyStorage',
             meta: {
               title: 'router.productLibrarypropertiesPropertyStorage'

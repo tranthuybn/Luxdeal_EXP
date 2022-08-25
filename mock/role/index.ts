@@ -419,7 +419,7 @@ const adminList = [
         children: [
           {
             path: 'purchase-order-list',
-            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderList',
             name: 'purchase.business-purchases.purchase-order-list',
             meta: {
               title: 'router.purchaseOrderList'
@@ -427,7 +427,7 @@ const adminList = [
           },
           {
             path: 'purchase-order-add',
-            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderList',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
             name: 'purchase.business-purchases.purchase-order-add',
             meta: {
               title: 'router.purchaseOrderAdd'

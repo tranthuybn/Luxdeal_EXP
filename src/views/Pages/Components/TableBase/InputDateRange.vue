@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElPopover, ElButton, ElDivider } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
+import { useIcon } from '@/hooks/web/useIcon'
 import { reactive, ref, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat, valueDateFormat } from '@/utils/format'
@@ -9,6 +9,7 @@ import { useForm } from '@/hooks/web/useForm'
 import { useValidator } from '@/hooks/web/useValidator'
 const { required } = useValidator()
 const { t } = useI18n()
+const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
 // eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['field'])
 const propField = ref(props.field)
@@ -66,7 +67,15 @@ const cancel = () => {
     </template>
     <Form :schema="schema" ref="dateFilterFormRefer" @register="register" />
     <el-divider />
-    <el-button @click="confirm">{{ t('reuse.confirm') }}</el-button>
-    <el-button @click="cancel">{{ t('reuse.cancel') }}</el-button>
+    <div class="flexButton">
+      <el-button @click="confirm" type="primary">{{ t('reuse.confirm') }}</el-button>
+      <el-button @click="cancel">{{ t('reuse.cancel') }}</el-button>
+    </div>
   </el-popover>
 </template>
+<style scoped>
+.flexButton {
+  display: flex;
+  justify-content: center;
+}
+</style>

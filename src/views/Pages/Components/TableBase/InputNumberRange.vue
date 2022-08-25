@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ElPopover, ElButton, ElInput, ElDivider, ElForm, ElFormItem } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({ inputFrom: '', inputTo: '' })
 // eslint-disable-next-line vue/require-prop-types
@@ -54,10 +55,20 @@ const cancel = (formEl: FormInstance | undefined) => {
         </el-input>
       </el-form-item>
       <el-divider />
-      <el-form-item>
-        <el-button type="primary" @click="confirm(ruleFormRef)">{{ t('reuse.confirm') }}</el-button>
-        <el-button @click="cancel(ruleFormRef)">{{ t('reuse.cancel') }}</el-button>
-      </el-form-item>
+      <div class="flexButton">
+        <el-form-item>
+          <el-button type="primary" @click="confirm(ruleFormRef)">{{
+            t('reuse.confirm')
+          }}</el-button>
+          <el-button @click="cancel(ruleFormRef)">{{ t('reuse.cancel') }}</el-button>
+        </el-form-item>
+      </div>
     </ElForm>
   </el-popover>
 </template>
+<style scoped>
+.flexButton {
+  display: flex;
+  justify-content: center;
+}
+</style>

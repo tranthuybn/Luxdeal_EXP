@@ -1,12 +1,8 @@
-<template>
-  <div>{{ t(currentRoute?.meta?.title ? currentRoute?.meta?.title?.toString() : '') }}</div>
-</template>
-
 <script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-import { useRouter } from 'vue-router'
-const { currentRoute } = useRouter()
-const { t } = useI18n()
+import { getPurchaseOrderList } from '@/api/Purchase'
+import { PurchaseOrderColumn } from './PurchaseOrder'
+import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
-
-<style></style>
+<template>
+  <TableType01 :columns="PurchaseOrderColumn" :api="getPurchaseOrderList" />
+</template>

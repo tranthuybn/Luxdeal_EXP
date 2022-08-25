@@ -14,25 +14,24 @@ export const businessProductLibrary = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    headerFilter: 'Date'
   },
   {
     field: 'productCode',
     label: t('reuse.productCode'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Money'
   },
   {
     field: 'productName',
     label: t('reuse.productName'),
     minWidth: '250',
-    sortable: true
+    headerFilter: 'Number'
   },
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'category',

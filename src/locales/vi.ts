@@ -509,6 +509,23 @@ export default {
     dateOfBirth: 'Ngày sinh',
     branch: 'Chi nhánh',
     department: 'Phòng ban',
-    rank: 'Cấp bậc'
+    rank: 'Cấp bậc',
+    from: 'Từ',
+    to: 'Đến',
+    confirm: 'Xác nhận',
+    cancel: 'Hủy bỏ',
+    placeholderMoney: 'Nhập số tiền',
+    placeholderDate: 'Chọn thời gian',
+    placeholderNumber: 'Nhập số lượng',
+    warningMoney: 'Vui lòng nhập số tiền',
+    warningNumber: 'Vui lòng nhập số lượng',
+    saleCode: 'Mã CTV',
+    saleName: 'Tên người bán',
+    companyInformation: 'Thông tin công ty',
+    numberInput: 'Số lượng nhập',
+    totalMoneyInput: 'Tổng tiền nhập',
+    unpaidDebt: 'Công nợ tồn',
+    revenueAndExpenditure: 'Phải thu/Phải chi',
+    inputName: 'Nhập tên'
   }
 }

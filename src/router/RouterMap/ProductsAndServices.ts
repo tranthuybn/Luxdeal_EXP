@@ -14,7 +14,7 @@ export default {
   children: [
     {
       path: 'dashboard',
-      component: () => import('@/views/Pages/LibraryAndSetting/index.vue'),
+      component: () => import('@/views/Pages/ProductsAndServices/index.vue'),
       name: 'Library-and-setting.dashboard',
       meta: {
         title: t('router.productsAndServices')

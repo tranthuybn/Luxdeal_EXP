@@ -8,7 +8,7 @@ const collaboratorsList: {
   debt: number
   withdrawalRequest: number
   requestDate: Date
-  requestStatus: string
+  creator: string
   accountStatus: string
 }[] = []
 
@@ -22,7 +22,7 @@ const collaboratorsListMock = {
   debt: '10.000.000 đ',
   withdrawalRequest: '10.000.000 đ',
   requestDate: '@date("dd/MM/yyyy")',
-  requestStatus: 'Chờ Duyệt',
+  creator: '@name',
   accountStatus: 'Đang hoạt động'
 }
 

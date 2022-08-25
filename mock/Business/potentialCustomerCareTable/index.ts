@@ -1,5 +1,5 @@
 const potentialCustomerCareTable: {
-  receivedDate: Date
+  createDate: Date
 
   sale: String
 
@@ -27,11 +27,13 @@ const potentialCustomerCareTable: {
 
   feedBack: String
 
+  creator: string
+
   status: String
 }[] = []
 
 const potentialCustomerCareTableMock = {
-  receivedDate: '@date("dd/MM/yyyy")',
+  createDate: '@date("dd/MM/yyyy")',
 
   sale: '@name',
 
@@ -58,6 +60,8 @@ const potentialCustomerCareTableMock = {
   order: '@word(3,5)',
 
   feedBack: '@sentence(3, 5)',
+
+  creator: '@name',
 
   status: '@word(3,5)'
 }

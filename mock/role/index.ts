@@ -38,6 +38,119 @@ const adminList = [
     ]
   },
   {
+    path: '/products-sevices',
+    component: '#',
+    redirect: { name: 'products-sevices.ProductLibrary' },
+    name: 'products-sevices',
+    meta: {
+      title: 'router.productsAndServices',
+      icon: 'gridicons:product-virtual',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'product-library',
+        name: 'products-sevices.ProductLibrary',
+        meta: {
+          title: 'router.productManagement'
+        },
+        children: [
+          {
+            path: 'products',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/Products',
+            name: 'products-sevices.productLibraryProducts',
+            meta: {
+              title: 'router.productLibraryProducts'
+            }
+          },
+          {
+            path: 'spa-material',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/SpaMaterial',
+            name: 'products-sevices.productLibrarySpaMaterial',
+            meta: {
+              title: 'router.productLibrarySpaMaterial'
+            }
+          },
+          {
+            path: 'properties',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/Properties',
+            name: 'products-sevices.productLibraryproperties',
+            meta: {
+              title: 'router.productLibraryproperties'
+            }
+          }
+        ]
+      },
+      {
+        path: 'service-library',
+        name: 'products-sevices.ServiceLibrary',
+        meta: {
+          title: 'router.serviceManagement',
+          alwaysShow: true
+        },
+        children: [
+          {
+            path: 'spa-service',
+            component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaService',
+            name: 'products-sevices.ServiceLibrarySpaService',
+            meta: {
+              title: 'router.ServiceLibrarySpaService'
+            }
+          }
+        ]
+      },
+      {
+        path: 'product-property',
+        name: 'products-sevices.product-property',
+        meta: {
+          title: 'router.productPropertyNew'
+        },
+        children: [
+          {
+            path: 'product-category',
+            component: 'views/Pages/ProductsAndServices/Category/Product',
+            name: 'products-sevices.productCategoryProducts',
+            meta: {
+              title: 'router.productCategoryProducts'
+            }
+          },
+          {
+            path: 'attribute-category',
+            component: 'views/Pages/ProductsAndServices/Category/Attribute',
+            name: 'products-sevices.productCategoryAttribute',
+            meta: {
+              title: 'router.productCategoryAttribute'
+            }
+          },
+          {
+            path: 'unit-category',
+            component: 'views/Pages/ProductsAndServices/Category/Unit',
+            name: 'products-sevices.productCategoryUnit',
+            meta: {
+              title: 'router.productCategoryUnit'
+            }
+          },
+          {
+            path: 'brand-category',
+            component: 'views/Pages/ProductsAndServices/Category/Brand',
+            name: 'products-sevices.productCategoryBrand',
+            meta: {
+              title: 'router.productCategoryBrand'
+            }
+          },
+          {
+            path: 'origin-category',
+            component: 'views/Pages/ProductsAndServices/Category/Origin',
+            name: 'products-sevices.productCategoryOrigin',
+            meta: {
+              title: 'router.productCategoryOrigin'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     path: '/business',
     component: '#',
     redirect: '/business/potential-customer-care',
@@ -303,32 +416,6 @@ const adminList = [
         ]
       },
       {
-        path: 'business-product',
-        name: 'business.business-product',
-        redirect: { name: 'business.business-product.employeeList' },
-        meta: {
-          title: 'router.businessProducts'
-        },
-        children: [
-          {
-            path: 'product-list',
-            name: 'business.business-product.product-list',
-            component: 'views/Pages/Business/BusinessProducts/ProductList',
-            meta: {
-              title: 'router.productlist'
-            }
-          },
-          {
-            path: 'product-add',
-            name: 'business.business-product.product-add',
-            component: 'views/Pages/Business/BusinessProducts/ProductAdd',
-            meta: {
-              title: 'router.productadd'
-            }
-          }
-        ]
-      },
-      {
         path: 'employee-management',
         name: 'business.employee-management',
         redirect: { name: 'business.employee-management.employeeList' },
@@ -455,6 +542,39 @@ const adminList = [
         meta: {
           title: 'router.warehouseList'
         }
+      },
+      {
+        path: 'create-repository-directory',
+        name: 'Warehouse.createRepositoryDirectory',
+        meta: {
+          title: 'router.createRepositoryDirectory'
+        },
+        children: [
+          {
+            path: 'product-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
+            name: 'Warehouse.createRepositoryDirectory.ProductStorage',
+            meta: {
+              title: 'router.createRepositoryDirectoryProductStorage'
+            }
+          },
+          {
+            path: 'spa-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
+            name: 'Warehouse.createRepositoryDirectory.productLibrarySpaStorage',
+            meta: {
+              title: 'router.productLibrarySpaStorage'
+            }
+          },
+          {
+            path: 'property-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
+            name: 'Warehouse.createRepositoryDirectory.productPropertyStorage',
+            meta: {
+              title: 'router.productLibrarypropertiesPropertyStorage'
+            }
+          }
+        ]
       }
     ]
   },
@@ -809,152 +929,6 @@ const adminList = [
         meta: {
           title: 'router.personnelAccounts'
         }
-      }
-    ]
-  },
-  {
-    path: '/library-and-setting',
-    component: '#',
-    redirect: { name: 'library-and-setting.product-category' },
-    name: 'library-and-setting',
-    meta: {
-      title: 'router.productsAndServices',
-      icon: 'carbon:cloud-satellite-config',
-      alwaysShow: true
-    },
-    children: [
-      {
-        path: 'product-property',
-        name: 'library-and-setting.product-property',
-        meta: {
-          title: 'router.productProperty'
-        },
-        children: [
-          {
-            path: 'product-category',
-            component: 'views/Pages/LibraryAndSetting/Category/Product',
-            name: 'library-and-setting.productCategoryProducts',
-            meta: {
-              title: 'router.productCategoryProducts'
-            }
-          },
-          {
-            path: 'attribute-category',
-            component: 'views/Pages/LibraryAndSetting/Category/Attribute',
-            name: 'library-and-setting.productCategoryAttribute',
-            meta: {
-              title: 'router.productCategoryAttribute'
-            }
-          },
-          {
-            path: 'unit-category',
-            component: 'views/Pages/LibraryAndSetting/Category/Unit',
-            name: 'library-and-setting.productCategoryUnit',
-            meta: {
-              title: 'router.productCategoryUnit'
-            }
-          },
-          {
-            path: 'brand-category',
-            component: 'views/Pages/LibraryAndSetting/Category/Brand',
-            name: 'library-and-setting.productCategoryBrand',
-            meta: {
-              title: 'router.productCategoryBrand'
-            }
-          },
-          {
-            path: 'origin-category',
-            component: 'views/Pages/LibraryAndSetting/Category/Origin',
-            name: 'library-and-setting.productCategoryOrigin',
-            meta: {
-              title: 'router.productCategoryOrigin'
-            }
-          }
-        ]
-      },
-      {
-        path: 'product-library',
-        name: 'library-and-setting.ProductLibrary',
-        meta: {
-          title: 'router.ProductLibrary'
-        },
-        children: [
-          {
-            path: 'products',
-            component: 'views/Pages/LibraryAndSetting/ProductLibrary/Products',
-            name: 'library-and-setting.productLibraryProducts',
-            meta: {
-              title: 'router.productLibraryProducts'
-            }
-          },
-          {
-            path: 'spa-material',
-            component: 'views/Pages/LibraryAndSetting/ProductLibrary/SpaMaterial',
-            name: 'library-and-setting.productLibrarySpaMaterial',
-            meta: {
-              title: 'router.productLibrarySpaMaterial'
-            }
-          },
-          {
-            path: 'properties',
-            component: 'views/Pages/LibraryAndSetting/ProductLibrary/Properties',
-            name: 'library-and-setting.productLibraryproperties',
-            meta: {
-              title: 'router.productLibraryproperties'
-            }
-          }
-        ]
-      },
-      {
-        path: 'service-library',
-        name: 'library-and-setting.ServiceLibrary',
-        meta: {
-          title: 'router.ServiceLibrary',
-          alwaysShow: true
-        },
-        children: [
-          {
-            path: 'spa-service',
-            component: 'views/Pages/LibraryAndSetting/ServiceLibrary/SpaService',
-            name: 'library-and-setting.ServiceLibrarySpaService',
-            meta: {
-              title: 'router.ServiceLibrarySpaService'
-            }
-          }
-        ]
-      },
-      {
-        path: 'storage-library',
-        name: 'library-and-setting.StorageLibrary',
-        meta: {
-          title: 'router.StorageLibrary'
-        },
-        children: [
-          {
-            path: 'product-storage',
-            component: 'views/Pages/LibraryAndSetting/StorageLibrary/ProductStorage',
-            name: 'library-and-setting.ProductStorage',
-            meta: {
-              title: 'router.StorageLibraryProductStorage'
-            }
-          },
-          {
-            path: 'spa-storage',
-            component: 'views/Pages/LibraryAndSetting/StorageLibrary/SpaStorage',
-            name: 'library-and-setting.productLibrarySpaStorage',
-            meta: {
-              title: 'router.productLibrarySpaStorage'
-            }
-          },
-          {
-            path: 'property-storage',
-            component: 'views/Pages/LibraryAndSetting/StorageLibrary/PropertyStorage',
-            name: 'library-and-setting.productPropertyStorage',
-            meta: {
-              title: 'router.productLibrarypropertiesPropertyStorage'
-            }
-          }
-        ]
       }
     ]
   }

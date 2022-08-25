@@ -229,8 +229,8 @@ export default {
     productLibraryproperties: 'Tài sản(Step 2)',
     ServiceLibrary: 'Thư viện dịch vụ',
     ServiceLibrarySpaService: 'Dịch vụ Spa',
-    StorageLibrary: 'Thư viện kho',
-    StorageLibraryProductStorage: 'Kho sản phẩm kinh doanh',
+    createRepositoryDirectory: 'Khởi tạo danh mục kho',
+    createRepositoryDirectoryProductStorage: 'Kho sản phẩm kinh doanh',
     productLibrarySpaStorage: 'Kho nguyên vật liệu(Step 2)',
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
@@ -251,7 +251,10 @@ export default {
     totalRecharge: 'Tổng nạp tiền',
     usedMoney: 'Tiền đã sử dụng',
     cashReturn: 'Tiền còn lại',
-    voucherCode: 'Mã vocher'
+    voucherCode: 'Mã vocher',
+    productPropertyNew: 'Khởi tạo danh mục & thuộc tính',
+    productManagement: 'Quản lý sản phẩm',
+    serviceManagement: 'Quản lý dịch vụ'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -432,6 +435,7 @@ export default {
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
     promotion: 'Khuyến mại',
+    promotionCode: 'Mã khuyến mại',
     newproductCode: 'Mã HMV',
     flashSaleCode: 'Mã Flash Sale',
     surveyContent: 'Nội dung khảo sát',
@@ -498,6 +502,13 @@ export default {
     male: 'Nam',
     female: 'Nữ',
     pause: 'Tạm dừng',
-    lockAccount: 'Khóa tài khoản'
+    lockAccount: 'Khóa tài khoản',
+    referralCode: 'Mã giới thiệu',
+    employeeCode: 'Mã nhân viên',
+    employeeName: 'Tên nhân viên',
+    dateOfBirth: 'Ngày sinh',
+    branch: 'Chi nhánh',
+    department: 'Phòng ban',
+    rank: 'Cấp bậc'
   }
 }

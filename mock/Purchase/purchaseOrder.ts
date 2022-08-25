@@ -4,7 +4,7 @@ const PurchaseOrder: {
   productCode: string
   saleCode: string
   saleName: string
-  companyName: string
+  companyInformation: string
   description: string
   numberInput: string
   totalMoneyInput: string
@@ -18,7 +18,7 @@ const PurchaseOrderList = {
   productCode: '@string(10,20)',
   saleCode: '@string(10,20)',
   saleName: '@last',
-  companyName: '@name',
+  companyInformation: '@name',
   description: '@title',
   numberInput: '@natural',
   totalMoneyInput: '@natural',

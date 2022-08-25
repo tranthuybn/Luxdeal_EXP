@@ -510,6 +510,14 @@ export default {
     placeholderDate: 'Chọn thời gian',
     placeholderNumber: 'Nhập số lượng',
     warningMoney: 'Vui lòng nhập số tiền',
-    warningNumber: 'Vui lòng nhập số lượng'
+    warningNumber: 'Vui lòng nhập số lượng',
+    saleCode: 'Mã CTV',
+    saleName: 'Tên người bán',
+    companyInformation: 'Thông tin công ty',
+    numberInput: 'Số lượng nhập',
+    totalMoneyInput: 'Tổng tiền nhập',
+    unpaidDebt: 'Công nợ tồn',
+    revenueAndExpenditure: 'Phải thu/Phải chi',
+    inputName: 'Nhập tên'
   }
 }

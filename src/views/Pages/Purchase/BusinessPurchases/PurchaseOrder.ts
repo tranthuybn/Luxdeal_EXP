@@ -27,8 +27,8 @@ export const PurchaseOrderColumn = [
     headerFilter: 'Name'
   },
   {
-    field: 'companyName',
-    label: t('reuse.companyName'),
+    field: 'companyInformation',
+    label: t('reuse.companyInformation'),
     minWidth: '200',
     headerFilter: 'Name'
   },

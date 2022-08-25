@@ -1,7 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { filterTableStatus, filterTableCategory } from '@/utils/filters'
-export const PurchaseOrderColumn = [
+export const businessProductLibrary = [
   {
     field: 'index',
     label: t('reuse.index'),

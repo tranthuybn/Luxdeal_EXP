@@ -121,6 +121,8 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
 
   const methods = {
     getList: async () => {
+      console.log('params', unref(paramsObj))
+
       tableObject.loading = true
       const res = await config?.getListApi(unref(paramsObj)).finally(() => {
         tableObject.loading = false
@@ -141,6 +143,10 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
     getSelections: async () => {
       const table = await getTable()
       return (table?.selections || []) as T[]
+    },
+    clearSearchParams: (field) => {
+      delete tableObject.params[field]
+      methods.getList()
     },
     // Combined with Search component
     setSearchParams: (data: Recordable) => {

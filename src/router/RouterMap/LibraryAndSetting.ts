@@ -7,7 +7,7 @@ export default {
   redirect: { name: 'library-and-setting.dashboard' },
   name: 'Library-and-setting',
   meta: {
-    title: t('router.libraryAndSetting'),
+    title: t('router.productsAndServices'),
     icon: 'carbon:cloud-satellite-config',
     alwaysShow: true
   },
@@ -17,7 +17,7 @@ export default {
       component: () => import('@/views/Pages/LibraryAndSetting/index.vue'),
       name: 'Library-and-setting.dashboard',
       meta: {
-        title: t('router.libraryAndSetting')
+        title: t('router.productsAndServices')
       }
     }
   ]

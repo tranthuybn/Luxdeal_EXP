@@ -1,6 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { filterTableStatus, filterTableCategory } from '@/utils/filters'
+import { filtersStatus, filtersReceiptExpenditure } from '@/utils/filters'
 export const PurchaseOrderColumn = [
   {
     field: 'index',
@@ -59,25 +59,25 @@ export const PurchaseOrderColumn = [
     field: 'revenueAndExpenditure',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '200',
-    sortable: true
+    sortable: true,
+    filters: filtersReceiptExpenditure
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center',
-    headerFilter: 'Date'
+    align: 'center'
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filtersStatus
   }
 ]

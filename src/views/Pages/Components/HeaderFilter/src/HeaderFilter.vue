@@ -19,7 +19,7 @@ let dateTimeDisable = ref<boolean>(false)
 let dateFormType = ref<IDatePickerType>('date')
 const { t } = useI18n()
 const dateTimeFormat = ref<string>('DD/MM/YYYY')
-const valueFormat = ref<string>('YYYY-MM-DD')
+const valueDateFormat = ref<string>('YYYY-MM-DD')
 
 type Callback = (error?: string | Error | undefined) => void
 const { register, methods } = useForm()
@@ -50,7 +50,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.startDate'),
       format: dateTimeFormat,
-      valueFormat: valueFormat,
+      valueDateFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }
@@ -63,7 +63,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.endDate'),
       format: dateTimeFormat,
-      valueFormat: valueFormat,
+      valueDateFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }

@@ -8,20 +8,15 @@ export const businessProductLibrary = [
     align: 'center',
     sortable: true
   },
+
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'productCode',
-    label: t('reuse.productCode'),
+    field: 'serviceCode',
+    label: t('reuse.serviceCode'),
     minWidth: '150'
   },
   {
-    field: 'productName',
-    label: t('reuse.productName'),
+    field: 'serviceName',
+    label: t('reuse.serviceName'),
     minWidth: '250'
   },
   {
@@ -30,8 +25,20 @@ export const businessProductLibrary = [
     minWidth: '250'
   },
   {
-    field: 'category',
-    label: t('reuse.category'),
+    field: 'unitPrice',
+    label: t('reuse.unitPrice'),
+    minWidth: '150',
+    sortable: true
+  },
+  {
+    field: 'time',
+    label: t('reuse.time'),
+    minWidth: '150',
+    sortable: true
+  },
+  {
+    field: 'insurance',
+    label: t('reuse.insurance'),
     minWidth: '150',
     sortable: true
   },
@@ -39,6 +46,12 @@ export const businessProductLibrary = [
     field: 'image',
     label: t('reuse.image'),
     minWidth: '150'
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center'
   },
   {
     field: 'creator',

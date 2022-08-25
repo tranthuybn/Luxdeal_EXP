@@ -11,6 +11,8 @@ import { UnitCategoriesList } from './productCategories/unit'
 import { BrandCategoriesList } from './productCategories/brand'
 import { OriginCategoriesList } from './productCategories/origin'
 import { BusinessProductLibrary } from './productLibrary/businessProduct'
+import { SpaLibrary } from './ServiceLibrary/spa'
+
 const { result_code } = config
 const timeout = 1000
 
@@ -230,6 +232,28 @@ export default [
         code: result_code,
         data: {
           total: BusinessProductLibrary.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/spa',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = SpaLibrary.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: SpaLibrary.length,
           list: pageList
         }
       }

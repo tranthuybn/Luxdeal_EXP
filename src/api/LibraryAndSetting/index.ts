@@ -50,3 +50,7 @@ export const getBusinessProductLibrary = async (params: any): Promise<IResponse>
   const res = await request.get({ url: '/BusinessProductLibrary/List', params })
   return res && res.data
 }
+export const getSpaLibrary = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/spa', params })
+  return res && res.data
+}

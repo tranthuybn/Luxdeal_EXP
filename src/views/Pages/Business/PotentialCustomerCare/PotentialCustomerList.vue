@@ -3,7 +3,16 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { getPotentialCustomerList } from '@/api/Business'
 import TableDatetimefilterBasic from '../../Components/tableType01-datetimefilter-basic.vue'
-import { filterStatus } from '@/utils/filters'
+import {
+  filterStatus,
+  filterResultTable,
+  filterStatusTagTable,
+  filterService,
+  filterSource,
+  filterApproaching,
+  filterTransactionStatus,
+  filterTransaction
+} from '@/utils/filters'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -16,7 +25,7 @@ const columns = reactive<TableColumn[]>([
     field: 'sale',
     label: t('reuse.sale'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'customerInfo',
@@ -28,18 +37,19 @@ const columns = reactive<TableColumn[]>([
     field: 'transaction',
     label: t('reuse.transaction'),
     minWidth: '200',
-    sortable: true
+    filters: filterTransaction
   },
   {
     field: 'transactionStatus',
     label: t('reuse.transactionStatus'),
-    minWidth: '100'
+    minWidth: '100',
+    filters: filterTransactionStatus
   },
   {
     field: 'approachingChannel',
     label: t('reuse.approachingChannel'),
     minWidth: '100',
-    sortable: true
+    filters: filterApproaching
   },
   {
     field: 'note',
@@ -51,13 +61,13 @@ const columns = reactive<TableColumn[]>([
     field: 'originated',
     label: t('reuse.originated'),
     minWidth: '100',
-    sortable: true
+    filters: filterSource
   },
   {
     field: 'service',
     label: t('reuse.service'),
     minWidth: '100',
-    sortable: true
+    filters: filterService
   },
   {
     field: 'serviceDetail',
@@ -69,13 +79,13 @@ const columns = reactive<TableColumn[]>([
     field: 'statusTag',
     label: t('reuse.statusTag'),
     minWidth: '150',
-    sortable: true
+    filters: filterStatusTagTable
   },
   {
     field: 'result',
     label: t('reuse.result'),
     minWidth: '150',
-    sortable: true
+    filters: filterResultTable
   },
   {
     field: 'order',
@@ -87,7 +97,7 @@ const columns = reactive<TableColumn[]>([
     field: 'feedBack',
     label: t('reuse.feedBack'),
     minWidth: '180',
-    sortable: true
+    filters: filterStatus
   },
   {
     field: 'createDate',
@@ -100,7 +110,7 @@ const columns = reactive<TableColumn[]>([
     field: 'creator',
     label: t('reuse.creator'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'status',

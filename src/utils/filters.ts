@@ -43,3 +43,35 @@ export const filterCustomer: Array<Filter> = [
   { text: t('reuse.pause'), value: 2 },
   { text: t('reuse.lockAccount'), value: 0 }
 ]
+export const filterResultTable: Array<Filter> = [
+  { text: t('reuse.success'), value: 1 },
+  { text: t('reuse.outOfStock'), value: 2 },
+  { text: t('reuse.fail'), value: 3 }
+]
+export const filterStatusTagTable: Array<Filter> = [
+  { text: t('reuse.finishConsult'), value: 1 },
+  { text: t('reuse.pendingConsult'), value: 2 }
+]
+export const filterService: Array<Filter> = [
+  { text: t('reuse.buying'), value: 1 },
+  { text: t('reuse.deposit'), value: 2 },
+  { text: t('reuse.pawn'), value: 3 }
+]
+export const filterSource: Array<Filter> = [
+  { text: 'Facebook', value: 1 },
+  { text: 'App', value: 2 }
+]
+export const filterApproaching: Array<Filter> = [
+  { text: t('reuse.online'), value: 1 },
+  { text: t('reuse.booking'), value: 2 },
+  { text: t('reuse.offline'), value: 3 }
+]
+export const filterTransactionStatus: Array<Filter> = [
+  { text: t('reuse.online'), value: 1 },
+  { text: t('reuse.booking'), value: 2 },
+  { text: t('reuse.offline'), value: 3 }
+]
+export const filterTransaction: Array<Filter> = [
+  { text: t('reuse.firstTime'), value: 1 },
+  { text: t('reuse.secondTime'), value: 2 }
+]

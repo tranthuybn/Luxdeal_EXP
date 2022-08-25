@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ElPopover, ElButton, ElDatePicker, ElDivider } from 'element-plus'
+import { ElPopover, ElButton, ElDivider } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { reactive, ref, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -60,7 +60,7 @@ const cancel = () => {
 <template>
   <el-popover placement="bottom" width="fit-content" trigger="click">
     <template #reference>
-      <el-button :icon="ArrowDown" text />
+      <el-button :icon="ArrowDown" text style="padding: 0" />
     </template>
     <Form :schema="schema" ref="dateFilterFormRefer" @register="register" />
     <el-divider />

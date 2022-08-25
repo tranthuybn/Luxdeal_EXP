@@ -4,5 +4,5 @@ import { brandCategories } from './CategoryManagement'
 import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <TableType01 :columns="brandCategories" :api="getBrandCategories" />
+  <TableType01 :columns="brandCategories" :api="getBrandCategories" :selection="false" />
 </template>

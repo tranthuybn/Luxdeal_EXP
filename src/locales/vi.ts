@@ -229,8 +229,8 @@ export default {
     productLibraryproperties: 'Tài sản(Step 2)',
     ServiceLibrary: 'Thư viện dịch vụ',
     ServiceLibrarySpaService: 'Dịch vụ Spa',
-    StorageLibrary: 'Thư viện kho',
-    StorageLibraryProductStorage: 'Kho sản phẩm kinh doanh',
+    createRepositoryDirectory: 'Khởi tạo danh mục kho',
+    createRepositoryDirectoryProductStorage: 'Kho sản phẩm kinh doanh',
     productLibrarySpaStorage: 'Kho nguyên vật liệu(Step 2)',
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
@@ -251,7 +251,10 @@ export default {
     totalRecharge: 'Tổng nạp tiền',
     usedMoney: 'Tiền đã sử dụng',
     cashReturn: 'Tiền còn lại',
-    voucherCode: 'Mã vocher'
+    voucherCode: 'Mã vocher',
+    productPropertyNew: 'Khởi tạo danh mục & thuộc tính',
+    productManagement: 'Quản lý sản phẩm',
+    serviceManagement: 'Quản lý dịch vụ'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

@@ -205,7 +205,7 @@ export default {
     personnelAccounts: 'Personnel accounts',
     ProductLibrary: 'Product library',
     ServiceLibrary: 'Service library',
-    StorageLibrary: 'Storage library',
+    createRepositoryDirectory: 'Storage library',
     productProperty: 'Product property',
     potentialCustomerAdd: 'Potential Customer Add',
     potentialCustomerList: 'Potential Customer List',
@@ -235,7 +235,11 @@ export default {
     advertisingBanner: 'Banner advertising',
     policiesGuidelines: 'Policies guide lines',
     aboutUs: 'About us',
-    transactionPoint: 'Transaction point'
+    transactionPoint: 'Transaction point',
+    voucherCode: 'Voucher code',
+    productPropertyNew: 'Creart a product property',
+    productManagement: 'Product management',
+    serviceManagement: 'product management'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

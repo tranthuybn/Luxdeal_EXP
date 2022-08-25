@@ -87,17 +87,13 @@ const filterChange = (filterValue) => {
       if (typeof unref(filterValue[key]) === 'object')
         filterValue[key] = Object.values(filterValue[key]).toString()
     }
-  console.log(filterValue)
-
   setSearchParams(filterValue)
 }
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
-  console.log('emitValue', value)
   setSearchParams(value)
 }
 const filterSelect = (value) => {
-  console.log('emitValue', value)
   setSearchParams(value)
 }
 //get array of headerFilter in column (if there is a headerFilter)

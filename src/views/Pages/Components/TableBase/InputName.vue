@@ -42,7 +42,6 @@ const remoteMethod = (query: string) => {
   }
 }
 watch(value, (newValue) => {
-  console.log(newValue)
   if (newValue !== '') {
     const objValue = {}
     objValue[propField.value] = newValue

@@ -16,7 +16,6 @@ const confirm2 = () => {
   var arrValue = [ruleForm.inputFrom, ruleForm.inputTo]
   const objValue = {}
   objValue[field.value] = arrValue
-  console.log(objValue[field.value])
   emit('confirm', objValue)
 }
 const rules = reactive<FormRules>({
@@ -29,7 +28,7 @@ const confirm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       confirm2()
     } else {
-      console.log('error submit!', fields)
+      console.error('error submit!', fields)
     }
   })
 }

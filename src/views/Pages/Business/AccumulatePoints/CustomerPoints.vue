@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getCustomerPointsList } from '@/api/Business'
+import { filterPointStatus } from '@/utils/filters'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -24,27 +25,32 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'totalRechargePoints',
     label: t('router.totalRechargePoints'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   },
   {
     field: 'pointsUsed',
     label: t('router.pointsUsed'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'remainingPoints',
     label: t('router.remainingPoints'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'mostRecentChange',
     label: t('router.mostRecentChange'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterPointStatus
   }
 ])
 </script>

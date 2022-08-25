@@ -5,6 +5,45 @@ interface Filter {
   text: string
   value: any
 }
+export const filterBranch: Array<Filter> = [
+  { text: t('reuse.hanoi'), value: 1 },
+  { text: t('reuse.hochiminh'), value: 2 }
+]
+export const filterDepartment: Array<Filter> = [
+  { text: t('reuse.administrative'), value: 1 },
+  { text: t('reuse.humanResources'), value: 2 }
+]
+export const filterRankEmployee: Array<Filter> = [
+  { text: t('reuse.employee'), value: 1 },
+  { text: t('reuse.boss'), value: 2 }
+]
+export const filterTypeEmployee: Array<Filter> = [
+  { text: t('reuse.offical'), value: 1 },
+  { text: t('reuse.unoffical'), value: 2 }
+]
+export const filterWalletStatus: Array<Filter> = [
+  { text: t('reuse.using'), value: 1 },
+  { text: t('reuse.lockMoney'), value: 2 }
+]
+export const filterPointStatus: Array<Filter> = [
+  { text: t('reuse.using'), value: 1 },
+  { text: t('reuse.lockPoint'), value: 2 }
+]
+export const filterSeen: Array<Filter> = [
+  { text: t('reuse.seen'), value: 1 },
+  { text: t('reuse.notSeen'), value: 2 }
+]
+export const filterYesNo: Array<Filter> = [
+  { text: t('reuse.yes'), value: 1 },
+  { text: t('reuse.no'), value: 2 }
+]
+export const filterRating: Array<Filter> = [
+  { text: '1', value: 1 },
+  { text: '2', value: 2 },
+  { text: '3', value: 3 },
+  { text: '4', value: 4 },
+  { text: '5', value: 5 }
+]
 export const filterAuctionResult: Array<Filter> = [
   { text: t('reuse.buyProduct'), value: 1 },
   { text: t('reuse.notBuy'), value: 2 }

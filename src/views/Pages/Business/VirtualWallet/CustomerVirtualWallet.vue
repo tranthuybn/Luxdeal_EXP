@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getCustomerVirtualEWalletList } from '@/api/Business'
+import { filterWalletStatus } from '@/utils/filters'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -24,27 +25,32 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'totalRecharge',
     label: t('router.totalRecharge'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   },
   {
     field: 'usedMoney',
     label: t('router.usedMoney'),
-    minWidth: '250'
+    minWidth: '250',
+    sortable: true
   },
   {
     field: 'cashReturn',
     label: t('router.cashReturn'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'mostRecentChange',
     label: t('router.mostRecentChange'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterWalletStatus
   }
 ])
 </script>

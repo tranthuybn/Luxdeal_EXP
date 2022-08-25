@@ -554,6 +554,20 @@ export default {
     voucherSpa: 'Giảm giá dịch vụ Spa',
     voucherCart: 'Giảm giá đơn hàng',
     buyProduct: 'Mua hàng',
-    notBuy: 'Không mua'
+    notBuy: 'Không mua',
+    yes: 'Có',
+    no: 'Không',
+    seen: 'Đã xem',
+    using: 'Đang sử dụng',
+    lockPoint: 'Khóa điểm',
+    lockMoney: 'Khóa tiền',
+    offical: 'Chính thức',
+    unoffical: 'Không chính thức',
+    employee: 'Nhân viên',
+    boss: 'Sếp',
+    administrative: 'Hành chính',
+    humanResources: 'Nhân sự',
+    hanoi: 'Hà Nội',
+    hochiminh: 'Hồ Chí Minh'
   }
 }

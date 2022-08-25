@@ -6,9 +6,7 @@ import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage } from 'element-plus'
-import { InputMoneyRange } from '../index'
-import { InputDateRange } from '../index'
-import { InputNumberRange } from '../index'
+import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -98,6 +96,11 @@ const confirm = (value) => {
   console.log('emitValue', value)
   setSearchParams(value)
 }
+const filterSelect = (value) => {
+  console.log('emitValue', value)
+  setSearchParams(value)
+}
+//get array of headerFilter in column (if there is a headerFilter)
 const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
 </script>
 <template>
@@ -148,6 +151,11 @@ const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
           v-if="header.headerFilter == 'Number'"
           :field="header.field"
           @confirm="confirm"
+        />
+        <InputName
+          v-if="header.headerFilter == 'Name'"
+          :field="header.field"
+          @filter-select="filterSelect"
         />
       </template>
     </Table>

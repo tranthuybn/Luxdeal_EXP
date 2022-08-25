@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { getPurchaseOrderList } from '@/api/Purchase'
 import { PurchaseOrderColumn } from './PurchaseOrder'
 import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <TableType01 :columns="PurchaseOrderColumn" :api="getBusinessProductLibrary" />
+  <TableType01 :columns="PurchaseOrderColumn" :api="getPurchaseOrderList" />
 </template>

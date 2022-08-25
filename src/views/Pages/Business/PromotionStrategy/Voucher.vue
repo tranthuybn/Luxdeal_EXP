@@ -13,11 +13,6 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '130'
-  },
-  {
     field: 'voucherCode',
     label: t('router.voucherCode'),
     minWidth: '130'
@@ -38,6 +33,11 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
+    field: 'promotion',
+    label: t('reuse.promotion'),
+    minWidth: '150'
+  },
+  {
     field: 'start',
     label: t('reuse.start'),
     minWidth: '130'
@@ -48,9 +48,14 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'promotion',
-    label: t('reuse.promotion'),
-    minWidth: '150'
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '130'
+  },
+  {
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '130'
   },
   {
     field: 'status',

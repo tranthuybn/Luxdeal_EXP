@@ -14,20 +14,21 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150'
+    field: 'customerCode',
+    label: t('reuse.customerCode'),
+    minWidth: '250',
+    sortable: true
   },
   {
-    field: 'customerOrRepresentative',
-    label: t('reuse.customerName') + ' ' + t('reuse.representative'),
+    field: 'customerName',
+    label: t('reuse.customerName'),
     minWidth: '150',
     sortable: true
   },
   {
-    field: 'customerCode',
-    label: t('reuse.customerCode'),
-    minWidth: '250',
+    field: 'referralCode',
+    label: t('reuse.referralCode'),
+    minWidth: '150',
     sortable: true
   },
   {
@@ -59,6 +60,16 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.accountType'),
     minWidth: '100',
     sortable: true
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '150'
+  },
+  {
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '150'
   },
   {
     field: 'status',

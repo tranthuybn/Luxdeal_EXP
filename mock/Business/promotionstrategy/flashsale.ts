@@ -7,6 +7,7 @@ const flashsaleList: {
   doneLabel: Date
   promotion: string
   status: boolean
+  creator: string
 }[] = []
 
 const flashsaleListMock = {
@@ -17,7 +18,8 @@ const flashsaleListMock = {
   start: '@date("dd/MM/yyyy")',
   doneLabel: '@date("dd/MM/yyyy")',
   promotion: '@image',
-  status: '@boolean'
+  status: '@boolean',
+  creator: '@name'
 }
 
 export { flashsaleList, flashsaleListMock }

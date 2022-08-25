@@ -7,6 +7,7 @@ const collectionList: {
   doneLabel: number
   promotion: string
   status: boolean
+  creator: string
 }[] = []
 
 const collectionListMock = {
@@ -17,7 +18,8 @@ const collectionListMock = {
   start: '@date("dd/MM/yyyy")',
   doneLabel: '@date("dd/MM/yyyy")',
   promotion: '@image',
-  status: '@boolean'
+  status: '@boolean',
+  creator: '@name'
 }
 
 export { collectionList, collectionListMock }

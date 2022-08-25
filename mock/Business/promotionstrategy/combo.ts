@@ -9,6 +9,7 @@ const comboList: {
   cost: number
   comboPrice: number
   status: boolean
+  creator: string
 }[] = []
 
 const comboListMock = {
@@ -21,7 +22,8 @@ const comboListMock = {
   doneLabel: '@date("dd/MM/yyyy")',
   cost: '@natural(10000,10000000)',
   comboPrice: '@natural(10000,10000000)',
-  status: '@boolean'
+  status: '@boolean',
+  creator: '@name'
 }
 
 export { comboList, comboListMock }

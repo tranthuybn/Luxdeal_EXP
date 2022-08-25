@@ -9,6 +9,10 @@ const SellOrder: {
   debitTotal: number
   receiptAndExpenditure: boolean
   status: boolean
+  collaboratorsCode: string
+  promotionCode: string
+  companyInfo: string
+  explain: string
 }[] = []
 
 const SellOrderListMock = {
@@ -21,7 +25,11 @@ const SellOrderListMock = {
   totalMoney: '@natural(10000,1000000)',
   debitTotal: '@natural(10000,1000000)',
   receiptAndExpenditure: '@boolean',
-  status: '@boolean'
+  status: '@boolean',
+  collaboratorsCode: '@natural',
+  promotionCode: '@natural',
+  companyInfo: '@natural',
+  explain: '@paragraph(1)'
 }
 
 export { SellOrder, SellOrderListMock }

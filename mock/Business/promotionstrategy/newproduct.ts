@@ -7,6 +7,7 @@ const newproductList: {
   doneLabel: Date
   promotion: string
   status: boolean
+  creator: string
 }[] = []
 
 const newproductListMock = {
@@ -17,7 +18,8 @@ const newproductListMock = {
   start: '@date("dd/MM/yyyy")',
   doneLabel: '@date("dd/MM/yyyy")',
   promotion: '@image',
-  status: '@boolean'
+  status: '@boolean',
+  creator: '@name'
 }
 
 export { newproductList, newproductListMock }

@@ -9,7 +9,7 @@ import Accountant from './RouterMap/Accountant'
 import Approve from './RouterMap/Approve'
 import Authentication from './RouterMap/Authentication'
 import NewAndAdvertisement from './RouterMap/NewAndAdvertisement'
-import LibraryAndSetting from './RouterMap/LibraryAndSetting'
+import ProductsAndServices from './RouterMap/ProductsAndServices'
 import Error from './RouterMap/Error'
 export const asyncRouterMap: AppRouteRecordRaw[] = [
   DashBoard,
@@ -18,7 +18,7 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   Accountant,
   Approve,
   NewAndAdvertisement,
-  LibraryAndSetting,
+  ProductsAndServices,
   Authentication,
   Error,
   {

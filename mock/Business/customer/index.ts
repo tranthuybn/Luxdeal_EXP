@@ -1,6 +1,6 @@
 const customerList: {
   createDate: Date
-  customerOrRepresentative: string
+  customerName: string
   customerCode: string
   gender: string
   contact: string
@@ -8,11 +8,13 @@ const customerList: {
   type: string
   accountType: string
   status: boolean
+  referralCode: string
+  creator: string
 }[] = []
 
 const customerListMock = {
   createDate: '@date("dd/MM/yyyy")',
-  customerOrRepresentative: '@name',
+  customerName: '@name',
   customerCode: '@natural',
   gender: '@string(4)',
   contact: '@sentence(3,5)',
@@ -20,8 +22,8 @@ const customerListMock = {
   type: '@string(5)',
   accountType: '@string(5)',
   status: '@boolean',
-  collaboratorsName: '@name',
-  collaboratorsCode: '@natural',
+  creator: '@name',
+  referralCode: '@natural',
   account: '@string(10,20)',
   totalMoney: '@integer(500-1000)',
   debt: '@integer(500-1000)',

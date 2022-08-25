@@ -33,6 +33,16 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
+    field: 'cost',
+    label: t('reuse.cost'),
+    minWidth: '150'
+  },
+  {
+    field: 'comboPrice',
+    label: t('reuse.comboPrice'),
+    minWidth: '150'
+  },
+  {
     field: 'start',
     label: t('reuse.start'),
     minWidth: '130'
@@ -43,14 +53,14 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'cost',
-    label: t('reuse.cost'),
-    minWidth: '150'
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '130'
   },
   {
-    field: 'comboPrice',
-    label: t('reuse.comboPrice'),
-    minWidth: '150'
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '130'
   },
   {
     field: 'status',

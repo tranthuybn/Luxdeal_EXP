@@ -62,3 +62,7 @@ export const getAuctionList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/auction', params })
   return res && res.data
 }
+export const getEmployeeList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/employee', params })
+  return res && res.data
+}

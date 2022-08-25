@@ -11,20 +11,20 @@ export const sellOrder = [
     align: 'center'
   },
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
     field: 'orderCode',
-    label: t('reuse.customerName') + ' ' + t('reuse.representative'),
+    label: t('reuse.orderCode'),
     minWidth: '150',
     sortable: true
   },
   {
-    field: 'creator',
-    label: t('reuse.creator'),
+    field: 'collaboratorsCode',
+    label: t('reuse.collaboratorsCode'),
+    minWidth: '150',
+    sortable: true
+  },
+  {
+    field: 'promotionCode',
+    label: t('reuse.promotionCode'),
     minWidth: '150',
     sortable: true
   },
@@ -35,9 +35,15 @@ export const sellOrder = [
     sortable: true
   },
   {
-    field: 'description',
-    label: t('reuse.descriptions'),
-    minWidth: '200',
+    field: 'companyInfo',
+    label: t('reuse.companyInfo'),
+    minWidth: '170',
+    sortable: true
+  },
+  {
+    field: 'explain',
+    label: t('reuse.explain'),
+    minWidth: '170',
     sortable: true
   },
   {
@@ -63,6 +69,18 @@ export const sellOrder = [
     label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
     minWidth: '170',
     filters: filtersReceiptExpenditure
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    sortable: true
+  },
+  {
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',

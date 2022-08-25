@@ -509,6 +509,22 @@ export default {
     dateOfBirth: 'Ngày sinh',
     branch: 'Chi nhánh',
     department: 'Phòng ban',
-    rank: 'Cấp bậc'
+    rank: 'Cấp bậc',
+    currentlyLeased: 'Đang cho thuê',
+    quantitySold: 'Số lượng đã bán',
+    numberOfTimesrRented: 'Số lần cho thuê',
+    numberOfTimesDeposited: 'Số lần đã kí gửi',
+    numberOfTimesPawn: 'Số lần đã cầm đồ',
+    numberOfTimesSpa: 'Số lần đã spa',
+    setInventoryForSale: 'Đặt tồn kho bán',
+    setInventoryForRent: 'Đặt tồn kho thuê',
+    sellingPriceFrom: 'Giá bán từ',
+    rentalPriceFrom: 'Giá thuê từ',
+    dram: 'Đơn vị',
+    serviceCode: 'Mã dịch vụ',
+    serviceName: 'Tên dịch vụ',
+    time: 'Thời gian',
+    insurance: 'Bảo hành',
+    unitPrice: 'Đơn giá'
   }
 }

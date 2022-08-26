@@ -629,6 +629,15 @@ export default {
     byWeek: 'Theo tuần',
     byMonth: 'Theo tháng',
     byYear: 'Theo năm',
-    rentTerm: 'Kỳ hạn thuê'
+    rentTerm: 'Kỳ hạn thuê',
+    notificationCode: 'Mã thông báo',
+    shortDescription: 'Mô tả ngắn',
+    notificationType: 'Loại thông báo',
+    sendDate: 'Ngày gửi',
+    sented: 'Đã gửi',
+    notSent: 'Chưa gửi',
+    auto: 'Tự động',
+    manual: 'Thủ công',
+    title: 'Tiêu đề'
   }
 }

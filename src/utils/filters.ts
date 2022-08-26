@@ -5,6 +5,14 @@ interface Filter {
   text: string
   value: any
 }
+export const filterSentStatus: Array<Filter> = [
+  { text: t('reuse.sented'), value: 1 },
+  { text: t('reuse.notSent'), value: 2 }
+]
+export const filterNotification: Array<Filter> = [
+  { text: t('reuse.auto'), value: 1 },
+  { text: t('reuse.manual'), value: 2 }
+]
 export const filterSpaService: Array<Filter> = [
   { text: t('reuse.cleaning'), value: 1 },
   { text: t('reuse.steaming'), value: 2 }

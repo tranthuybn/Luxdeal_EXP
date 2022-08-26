@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getCustomerList } from '@/api/Business'
-import { filterGender, filterCustomer } from '@/utils/filters'
+import { filterGender, filterStatusCustomer, filterType, filterAccount } from '@/utils/filters'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -16,14 +16,12 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'customerCode',
     label: t('reuse.customerCode'),
-    minWidth: '250',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'customerName',
     label: t('reuse.customerName'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'referralCode',
@@ -40,8 +38,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '100',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'companyInfo',
@@ -53,29 +50,31 @@ const columns = reactive<TableColumn[]>([
     field: 'type',
     label: t('reuse.type'),
     minWidth: '150',
-    sortable: true
+    filters: filterType
   },
   {
     field: 'accountType',
     label: t('reuse.accountType'),
     minWidth: '100',
-    sortable: true
+    filters: filterAccount
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
-    minWidth: '150'
+    minWidth: '150',
+    headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filterCustomer
+    filters: filterStatusCustomer
   }
 ])
 </script>

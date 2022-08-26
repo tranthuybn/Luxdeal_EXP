@@ -256,6 +256,40 @@ const adminList = [
         ]
       },
       {
+        path: 'collaborators',
+        name: 'business.collaborators',
+        redirect: { name: 'business.collaborators.collaboratorsList' },
+        meta: {
+          title: 'router.collaborators'
+        },
+        children: [
+          {
+            path: 'collaboratorsList',
+            name: 'business.collaborators.collaboratorsList',
+            component: 'views/Pages/Business/Collaborators/Collaborators',
+            meta: {
+              title: 'router.collaboratorsList'
+            }
+          },
+          {
+            path: 'paymentRequest',
+            name: 'business.collaborators.paymentRequest',
+            component: 'views/Pages/Business/Collaborators/PaymentRequest',
+            meta: {
+              title: 'router.paymentRequest'
+            }
+          },
+          {
+            path: 'collaboratorsAdd',
+            name: 'business.collaborators.collaboratorsAdd',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+            meta: {
+              title: 'router.collaboratorsAdd'
+            }
+          }
+        ]
+      },
+      {
         path: 'promotion-strategy',
         name: 'business.promotion-strategy',
         redirect: { name: 'business.promotion-strategy.flash-sale' },
@@ -381,40 +415,7 @@ const adminList = [
           }
         ]
       },
-      {
-        path: 'collaborators',
-        name: 'business.collaborators',
-        redirect: { name: 'business.collaborators.collaboratorsList' },
-        meta: {
-          title: 'router.collaborators'
-        },
-        children: [
-          {
-            path: 'collaboratorsList',
-            name: 'business.collaborators.collaboratorsList',
-            component: 'views/Pages/Business/Collaborators/Collaborators',
-            meta: {
-              title: 'router.collaboratorsList'
-            }
-          },
-          {
-            path: 'paymentRequest',
-            name: 'business.collaborators.paymentRequest',
-            component: 'views/Pages/Business/Collaborators/PaymentRequest',
-            meta: {
-              title: 'router.paymentRequest'
-            }
-          },
-          {
-            path: 'collaboratorsAdd',
-            name: 'business.collaborators.collaboratorsAdd',
-            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
-            meta: {
-              title: 'router.collaboratorsAdd'
-            }
-          }
-        ]
-      },
+
       {
         path: 'employee-management',
         name: 'business.employee-management',

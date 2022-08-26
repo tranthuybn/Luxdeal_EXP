@@ -80,7 +80,7 @@ defineExpose({
   getData
 })
 //call api when filter in header change
-const { setSearchParams } = methods
+const { setSearchParams, clearSearchParams } = methods
 const filterChange = (filterValue) => {
   if (filterValue && typeof unref(filterValue) === 'object')
     for (let key in filterValue) {
@@ -92,6 +92,9 @@ const filterChange = (filterValue) => {
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
   setSearchParams(value)
+}
+const cancel = (field) => {
+  clearSearchParams(field)
 }
 const filterSelect = (value) => {
   setSearchParams(value)
@@ -137,16 +140,19 @@ const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
           v-if="header.headerFilter == 'Money'"
           :field="header.field"
           @confirm="confirm"
+          @cancel="cancel"
         />
         <InputDateRange
           v-if="header.headerFilter == 'Date'"
           :field="header.field"
           @confirm="confirm"
+          @cancel="cancel"
         />
         <InputNumberRange
           v-if="header.headerFilter == 'Number'"
           :field="header.field"
           @confirm="confirm"
+          @cancel="cancel"
         />
         <InputName
           v-if="header.headerFilter == 'Name'"

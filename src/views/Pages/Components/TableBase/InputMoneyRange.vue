@@ -12,7 +12,7 @@ const ruleForm = reactive({ inputFrom: '', inputTo: '' })
 // eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['field'])
 const field = ref(props.field)
-const emit = defineEmits(['confirm'])
+const emit = defineEmits(['confirm', 'cancel'])
 const confirm2 = () => {
   var arrValue = [ruleForm.inputFrom, ruleForm.inputTo]
   const objValue = {}
@@ -37,6 +37,7 @@ const confirm = async (formEl: FormInstance | undefined) => {
 const cancel = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
+  emit('cancel', field.value)
 }
 </script>
 <template>

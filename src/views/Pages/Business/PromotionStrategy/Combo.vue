@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getComboList } from '@/api/Business'
+import { filterTableStatus } from '@/utils/filters'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -35,37 +36,44 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'cost',
     label: t('reuse.cost'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'comboPrice',
     label: t('reuse.comboPrice'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'start',
     label: t('reuse.start'),
-    minWidth: '130'
+    minWidth: '130',
+    sortable: true
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
-    minWidth: '130'
+    minWidth: '130',
+    sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '130'
+    minWidth: '130',
+    sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
-    minWidth: '130'
+    minWidth: '130',
+    headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterTableStatus
   }
 ])
 </script>

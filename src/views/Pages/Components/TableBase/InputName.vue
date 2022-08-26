@@ -49,17 +49,19 @@ watch(value, (newValue) => {
     emit('filter-select', objValue)
   }
 })
+//fix cung field = creator de lay api
+const field = 'creator'
 const setValuesForFilter = async () => {
   loading.value = true
   await getList()
   loading.value = false
   options.value = tableObject.tableList.map((item) => ({
-    value: item['companyInformation'],
-    label: item['companyInformation']
+    value: item[field],
+    label: item[field]
   }))
 }
 const clear = () => {
-  emit('cancel', 'companyInformation')
+  emit('cancel', propField.value)
 }
 </script>
 <template>

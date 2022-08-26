@@ -66,3 +66,15 @@ export const getEmployeeList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/employee', params })
   return res && res.data
 }
+export const getOrderDepositList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/orderDeposit/List', params })
+  return res && res.data
+}
+export const getOrderPawnList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/orderPawn/List', params })
+  return res && res.data
+}
+export const getOrderSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/orderSpa/List', params })
+  return res && res.data
+}

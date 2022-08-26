@@ -37,30 +37,35 @@ const columns = reactive<TableColumn[]>([
     field: 'cost',
     label: t('reuse.cost'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'comboPrice',
     label: t('reuse.comboPrice'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'start',
     label: t('reuse.start'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {

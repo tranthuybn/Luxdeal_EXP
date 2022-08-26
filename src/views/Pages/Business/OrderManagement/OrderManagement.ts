@@ -48,6 +48,7 @@ export const sellOrder = [
     field: 'saleNumber',
     label: t('reuse.saleNumber'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
@@ -72,6 +73,7 @@ export const sellOrder = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -98,6 +100,7 @@ export const rentalorder = [
   {
     field: 'createDate',
     label: t('reuse.createDate'),
+    align: 'center',
     minWidth: '150'
   },
   {

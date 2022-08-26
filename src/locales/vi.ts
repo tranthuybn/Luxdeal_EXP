@@ -584,6 +584,10 @@ export default {
     mix: 'Hỗn hợp',
     voucherCart: 'Voucher mua sắm',
     voucherSpa: 'Voucher spa',
-    auctioning: 'Đang đấu giá'
+    auctioning: 'Đang đấu giá',
+    totalRechargePoints: 'Tổng nạp điểm',
+    pointsUsed: 'Điểm đã sử dụng',
+    remainingPoints: 'Điểm còn lại',
+    mostRecentChange: 'Thay đổi gần nhất'
   }
 }

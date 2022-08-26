@@ -36,18 +36,21 @@ export const productsList = [
     field: 'saleNumber',
     label: t('reuse.saleNumber'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
     field: 'totalMoney',
     label: t('reuse.totaMoney'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'debitTotal',
     label: t('reuse.debt'),
     minWidth: '130',
+    align: 'right',
     sortable: true
   },
   {

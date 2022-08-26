@@ -26,24 +26,28 @@ const columns = reactive<TableColumn[]>([
     field: 'totalRechargePoints',
     label: t('reuse.totalRechargePoints'),
     minWidth: '100',
+    align: 'center',
     sortable: true
   },
   {
     field: 'pointsUsed',
     label: t('reuse.pointsUsed'),
     minWidth: '250',
+    align: 'center',
     sortable: true
   },
   {
     field: 'remainingPoints',
     label: t('reuse.remainingPoints'),
     minWidth: '200',
+    align: 'center',
     sortable: true
   },
   {
     field: 'mostRecentChange',
     label: t('reuse.mostRecentChange'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {

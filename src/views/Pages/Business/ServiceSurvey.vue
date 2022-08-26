@@ -24,7 +24,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterService
   },
-
   {
     field: 'customerName',
     label: t('reuse.customerName'),
@@ -35,6 +34,7 @@ const columns = reactive<TableColumn[]>([
     field: 'serviceRating',
     label: t('reuse.serviceRating'),
     minWidth: '130',
+    align: 'right',
     filters: filterRating
   },
   {

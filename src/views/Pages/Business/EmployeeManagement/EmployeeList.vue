@@ -41,6 +41,7 @@ const columns = reactive<TableColumn[]>([
     field: 'dateOfBirth',
     label: t('reuse.dateOfBirth'),
     minWidth: '100',
+    align: 'center',
     sortable: true
   },
   {
@@ -77,6 +78,7 @@ const columns = reactive<TableColumn[]>([
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {

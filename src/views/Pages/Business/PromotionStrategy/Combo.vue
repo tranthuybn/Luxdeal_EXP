@@ -25,7 +25,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'ServiceLibrarySpaService',
-    label: t('router.ServiceLibrarySpaService'),
+    label: t('reuse.spaService'),
     minWidth: '130'
   },
   {

@@ -18,8 +18,8 @@ export const filterRankEmployee: Array<Filter> = [
   { text: t('reuse.boss'), value: 2 }
 ]
 export const filterTypeEmployee: Array<Filter> = [
-  { text: t('reuse.offical'), value: 1 },
-  { text: t('reuse.unoffical'), value: 2 }
+  { text: t('reuse.official'), value: 1 },
+  { text: t('reuse.unofficial'), value: 2 }
 ]
 export const filterWalletStatus: Array<Filter> = [
   { text: t('reuse.using'), value: 1 },

@@ -42,7 +42,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'mostRecentChange',
-    label: t('router.mostRecentChange'),
+    label: t('reuse.mostRecentChange'),
     minWidth: '150',
     sortable: true
   },

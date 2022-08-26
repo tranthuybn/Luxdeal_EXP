@@ -32,24 +32,28 @@ const columns = reactive<TableColumn[]>([
     field: 'floorPrice',
     label: t('reuse.floorPrice'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'priceStep',
     label: t('reuse.priceStep'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'highestBid',
     label: t('reuse.highestBid'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'joined',
     label: t('reuse.joined'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right'
   },
   {
     field: 'result',
@@ -61,18 +65,21 @@ const columns = reactive<TableColumn[]>([
     field: 'start',
     label: t('reuse.start'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {

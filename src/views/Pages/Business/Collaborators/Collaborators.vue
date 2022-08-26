@@ -39,12 +39,14 @@ const columns = reactive<TableColumn[]>([
     field: 'totalMoney',
     label: t('reuse.totalMoney'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {

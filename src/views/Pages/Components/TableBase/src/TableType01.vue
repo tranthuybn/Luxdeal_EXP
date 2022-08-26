@@ -158,6 +158,7 @@ const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
           v-if="header.headerFilter == 'Name'"
           :field="header.field"
           @filter-select="filterSelect"
+          @cancel="cancel"
         />
       </template>
     </Table>

@@ -50,18 +50,21 @@ const columns = reactive<TableColumn[]>([
     field: 'start',
     label: t('reuse.start'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '130',
+    align: 'center',
     sortable: true
   },
   {

@@ -26,24 +26,28 @@ const columns = reactive<TableColumn[]>([
     field: 'totalRecharge',
     label: t('router.totalRecharge'),
     minWidth: '100',
+    align: 'center',
     sortable: true
   },
   {
     field: 'usedMoney',
     label: t('router.usedMoney'),
     minWidth: '250',
+    align: 'center',
     sortable: true
   },
   {
     field: 'cashReturn',
     label: t('router.cashReturn'),
     minWidth: '200',
+    align: 'center',
     sortable: true
   },
   {
     field: 'mostRecentChange',
-    label: t('router.mostRecentChange'),
+    label: t('reuse.mostRecentChange'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {

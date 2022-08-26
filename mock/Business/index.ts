@@ -18,6 +18,11 @@ import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
 import { auctionList, auctionListMock } from './promotionstrategy/auction'
 import { employeeList, employeeListMock } from './promotionstrategy/employeeList'
+import { paymentList, paymentListMock } from './paymentproposallist'
+import {
+  receiptsAndExpendituresList,
+  receiptsAndExpendituresListMock
+} from './receiptsandexpenditures'
 import { orderDepositList, orderDepositListMock } from './order/orderDeposit'
 import { orderPawnList, orderPawnListMock } from './order/orderPawn'
 import { orderSpaList, orderSpaListMock } from './order/orderSpa'
@@ -25,7 +30,6 @@ const { result_code } = config
 const timeout = 1000
 const count = 100
 import Mock from 'mockjs'
-import { el } from 'element-plus/es/locale'
 
 for (let i = 0; i < count; i++) {
   potentialCustomerCareTable.push(Mock.mock(potentialCustomerCareTableMock))
@@ -47,6 +51,8 @@ for (let i = 0; i < count; i++) {
   comboList.push(Mock.mock(comboListMock))
   auctionList.push(Mock.mock(auctionListMock))
   employeeList.push(Mock.mock(employeeListMock))
+  paymentList.push(Mock.mock(paymentListMock))
+  receiptsAndExpendituresList.push(Mock.mock(receiptsAndExpendituresListMock))
 }
 export default [
   {
@@ -392,6 +398,42 @@ export default [
         code: result_code,
         data: {
           total: employeeList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/payment',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = paymentList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: paymentList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/receipts-expenditures',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = receiptsAndExpendituresList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: receiptsAndExpendituresList.length,
           list: pageList
         }
       }

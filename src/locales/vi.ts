@@ -254,7 +254,11 @@ export default {
     voucherCode: 'Mã vocher',
     productPropertyNew: 'Khởi tạo danh mục & thuộc tính',
     productManagement: 'Quản lý sản phẩm',
-    serviceManagement: 'Quản lý dịch vụ'
+    serviceManagement: 'Quản lý dịch vụ',
+    inventoryTracking: 'Theo dõi tồn kho',
+    warehouse: 'Nhập kho',
+    export: 'Xuất kho',
+    departmentDirectory: 'Danh mục phòng ban'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -280,11 +284,11 @@ export default {
     december: 'Tháng 12',
     estimate: 'Dự đoán',
     actual: 'Actual',
-    directAccess: 'Trực tiếp',
-    mailMarketing: 'Tiếp thị qua tin nhắn',
-    allianceAdvertising: 'Quảng cáo giải đấu',
-    videoAdvertising: 'Quảng cáo video',
-    searchEngines: 'máy tìm kiếm',
+    directAccess: 'Truy cập trực tiếp',
+    mailMarketing: 'Tin nhắn',
+    allianceAdvertising: 'Người giới thiệu',
+    videoAdvertising: 'Quảng cáo',
+    searchEngines: 'Công cụ tìm kiếm',
     weeklyUserActivity: 'Hoạt động của người dùng hàng tuần',
     activeQuantity: 'Số lượng hoạt động',
     monday: 'Thứ hai',

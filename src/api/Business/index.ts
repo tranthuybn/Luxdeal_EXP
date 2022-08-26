@@ -66,6 +66,14 @@ export const getEmployeeList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/employee', params })
   return res && res.data
 }
+export const getPaymentList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/payment', params })
+  return res && res.data
+}
+export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/receipts-expenditures', params })
+  return res && res.data
+}
 export const getOrderDepositList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/orderDeposit/List', params })
   return res && res.data

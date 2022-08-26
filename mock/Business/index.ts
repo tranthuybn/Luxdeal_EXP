@@ -5,8 +5,8 @@ import {
 } from './potentialCustomerCareTable'
 import { customerList, customerListMock } from './customer'
 import { collaboratorsList, collaboratorsListMock } from './collaborators'
-import { rentalorderList, rentalorderListMock } from './rentalorder'
-import { SellOrder, SellOrderListMock } from './order'
+import { rentalorderList, rentalorderListMock } from './order/rentalorder'
+import { SellOrder, SellOrderListMock } from './order/sellOrder'
 import { flashsaleList, flashsaleListMock } from './promotionstrategy/flashsale'
 import { collectionList, collectionListMock } from './promotionstrategy/collection'
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
@@ -18,6 +18,9 @@ import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
 import { auctionList, auctionListMock } from './promotionstrategy/auction'
 import { employeeList, employeeListMock } from './promotionstrategy/employeeList'
+import { orderDepositList, orderDepositListMock } from './order/orderDeposit'
+import { orderPawnList, orderPawnListMock } from './order/orderPawn'
+import { orderSpaList, orderSpaListMock } from './order/orderSpa'
 import { paymentList, paymentListMock } from './paymentproposallist'
 import {
   receiptsAndExpendituresList,
@@ -34,6 +37,9 @@ for (let i = 0; i < count; i++) {
   customerList.push(Mock.mock(customerListMock))
   collaboratorsList.push(Mock.mock(collaboratorsListMock))
   rentalorderList.push(Mock.mock(rentalorderListMock))
+  orderDepositList.push(Mock.mock(orderDepositListMock))
+  orderPawnList.push(Mock.mock(orderPawnListMock))
+  orderSpaList.push(Mock.mock(orderSpaListMock))
   SellOrder.push(Mock.mock(SellOrderListMock))
   flashsaleList.push(Mock.mock(flashsaleListMock))
   collectionList.push(Mock.mock(collectionListMock))
@@ -123,6 +129,60 @@ export default [
         code: result_code,
         data: {
           total: rentalorderList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/orderDeposit/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = orderDepositList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: orderDepositList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/orderPawn/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = orderPawnList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: orderPawnList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/orderSpa/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = orderSpaList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: orderSpaList.length,
           list: pageList
         }
       }

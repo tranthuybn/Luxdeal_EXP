@@ -5,6 +5,21 @@ interface Filter {
   text: string
   value: any
 }
+export const filterSpaService: Array<Filter> = [
+  { text: t('reuse.cleaning'), value: 1 },
+  { text: t('reuse.steaming'), value: 2 }
+]
+export const filterDeposit: Array<Filter> = [
+  { text: t('reuse.deposit'), value: 1 },
+  { text: t('reuse.sell'), value: 2 },
+  { text: t('reuse.rent'), value: 3 }
+]
+export const filterRentTerm: Array<Filter> = [
+  { text: t('reuse.byDay'), value: 1 },
+  { text: t('reuse.byWeek'), value: 2 },
+  { text: t('reuse.byMonth'), value: 3 },
+  { text: t('reuse.byYear'), value: 4 }
+]
 export const filterBranch: Array<Filter> = [
   { text: t('reuse.hanoi'), value: 1 },
   { text: t('reuse.hochiminh'), value: 2 }

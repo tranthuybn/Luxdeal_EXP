@@ -1,38 +1,46 @@
 <script setup lang="ts">
 import tableDatetimeFilterBasicVue from '../../Components/TableInTab-base.vue'
-import { getSellOrderList, getRentalorderList } from '@/api/Business'
-import { sellOrder, rentalorder } from './OrderManagement'
+import {
+  getSellOrderList,
+  getRentalorderList,
+  getOrderDepositList,
+  getOrderPawnList,
+  getOrderSpaList
+} from '@/api/Business'
+import { sellOrder, rentalorder, orderDeposit, orderPawn, orderSpa } from './OrderManagement'
 import { Tab } from '../../Components/Type'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
     name: 'orderSell',
-    label: 'Đơn hàng bán',
+    label: t('reuse.orderSell'),
     api: getSellOrderList,
     column: sellOrder
   },
   {
     name: 'orderRental',
-    label: 'Đơn hàng cho thuê',
+    label: t('reuse.orderRental'),
     api: getRentalorderList,
     column: rentalorder
   },
   {
-    name: 'orderConsignment',
-    label: 'Đơn hàng kí gửi',
-    api: getSellOrderList,
-    column: sellOrder
+    name: 'orderDeposit',
+    label: t('reuse.orderDeposit'),
+    api: getOrderDepositList,
+    column: orderDeposit
   },
   {
     name: 'orderPawn',
-    label: 'Đơn hàng cầm đồ',
-    api: getSellOrderList,
-    column: sellOrder
+    label: t('reuse.orderPawn'),
+    api: getOrderPawnList,
+    column: orderPawn
   },
   {
     name: 'orderSpa',
-    label: 'Đơn hàng kí Spa',
-    api: getSellOrderList,
-    column: sellOrder
+    label: t('reuse.orderSpa'),
+    api: getOrderSpaList,
+    column: orderSpa
   }
 ]
 </script>

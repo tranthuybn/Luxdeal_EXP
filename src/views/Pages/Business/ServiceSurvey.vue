@@ -52,6 +52,7 @@ const columns = reactive<TableColumn[]>([
     field: 'surveyDate',
     label: t('reuse.surveyDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {

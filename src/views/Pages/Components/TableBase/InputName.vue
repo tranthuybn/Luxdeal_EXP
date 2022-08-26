@@ -17,7 +17,7 @@ const { tableObject, methods } = useTable<TableData>({
 })
 
 const { getList } = methods
-const emit = defineEmits(['filter-select'])
+const emit = defineEmits(['filter-select', 'cancel'])
 // eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['field'])
 const propField = ref(props.field)
@@ -53,10 +53,13 @@ const setValuesForFilter = async () => {
   loading.value = true
   await getList()
   loading.value = false
-  options.value = tableObject.tableList.map((item, index) => ({
-    value: index.toString(),
+  options.value = tableObject.tableList.map((item) => ({
+    value: item['companyInformation'],
     label: item['companyInformation']
   }))
+}
+const clear = () => {
+  emit('cancel', 'companyInformation')
 }
 </script>
 <template>
@@ -73,6 +76,7 @@ const setValuesForFilter = async () => {
       :placeholder="t('reuse.inputName')"
       :remote-method="remoteMethod"
       :loading="loading"
+      @clear="clear"
     >
       <el-option
         v-for="item in options"

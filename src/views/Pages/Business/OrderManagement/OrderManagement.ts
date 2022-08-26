@@ -1,5 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { filtersReceiptExpenditure, filtersStatus } from '@/utils/filters'
+import { filtersReceiptExpenditure, filtersStatus, filterPromotionCode } from '@/utils/filters'
 const { t } = useI18n()
 
 //Đơn bán hàng
@@ -13,8 +13,7 @@ export const sellOrder = [
   {
     field: 'orderCode',
     label: t('reuse.orderCode'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'collaboratorsCode',
@@ -32,24 +31,24 @@ export const sellOrder = [
     field: 'customer',
     label: t('reuse.customerName'),
     minWidth: '170',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'companyInfo',
     label: t('reuse.companyInfo'),
     minWidth: '170',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'explain',
     label: t('reuse.explain'),
-    minWidth: '170',
-    sortable: true
+    minWidth: '170'
   },
   {
     field: 'saleNumber',
     label: t('reuse.saleNumber'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
@@ -74,13 +73,14 @@ export const sellOrder = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'status',
@@ -100,6 +100,7 @@ export const rentalorder = [
   {
     field: 'createDate',
     label: t('reuse.createDate'),
+    align: 'center',
     minWidth: '150'
   },
   {

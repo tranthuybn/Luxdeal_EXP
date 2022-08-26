@@ -30,8 +30,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'customerInfo',
     label: t('reuse.customerInfo'),
-    minWidth: '250',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'transaction',
@@ -54,8 +53,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'note',
     label: t('reuse.note'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'originated',
@@ -72,8 +70,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'serviceDetail',
     label: t('reuse.serviceDetail'),
-    minWidth: '200',
-    sortable: true
+    minWidth: '200'
   },
   {
     field: 'statusTag',
@@ -90,8 +87,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'order',
     label: t('reuse.order'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'feedBack',

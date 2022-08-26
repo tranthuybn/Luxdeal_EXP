@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../Components/tableType01-datetimefilter-basic.vue'
 import { getServiceSurveyList } from '@/api/Business'
+import { filterService, filterRating, filterYesNo, filterSeen } from '@/utils/filters'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -20,9 +21,9 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'service',
     label: t('reuse.service'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterService
   },
-
   {
     field: 'customerName',
     label: t('reuse.customerName'),
@@ -32,7 +33,9 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'serviceRating',
     label: t('reuse.serviceRating'),
-    minWidth: '130'
+    minWidth: '130',
+    align: 'right',
+    filters: filterRating
   },
   {
     field: 'surveyContent',
@@ -42,17 +45,20 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'picture',
     label: t('reuse.picture'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterYesNo
   },
   {
     field: 'surveyDate',
     label: t('reuse.surveyDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterSeen
   }
 ])
 </script>

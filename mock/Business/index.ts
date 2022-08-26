@@ -309,6 +309,24 @@ export default [
     }
   },
   {
+    url: '/auction',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = auctionList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: auctionList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
     url: '/employee',
     method: 'get',
     timeout,

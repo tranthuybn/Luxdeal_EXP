@@ -13,7 +13,7 @@ const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
 // eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['field'])
 const propField = ref(props.field)
-const emit = defineEmits(['confirm'])
+const emit = defineEmits(['confirm', 'cancel'])
 const { register, methods } = useForm()
 const { getFormData } = methods
 const dateFilterFormRefer = ref<FormExpose>()
@@ -56,6 +56,7 @@ async function confirm() {
 const cancel = () => {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.resetFields()
+  emit('cancel', propField.value)
 }
 </script>
 <template>

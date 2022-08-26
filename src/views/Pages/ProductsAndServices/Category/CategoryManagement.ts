@@ -20,6 +20,7 @@ export const productCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -49,6 +50,7 @@ export const spaProductCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -77,6 +79,7 @@ export const propertyProductCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -105,6 +108,7 @@ export const colorCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -133,6 +137,7 @@ export const sizeCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -161,6 +166,7 @@ export const materialCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -189,6 +195,7 @@ export const statusCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -217,6 +224,7 @@ export const genderCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -245,6 +253,7 @@ export const unitCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -273,6 +282,7 @@ export const brandCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -301,6 +311,7 @@ export const originCategories = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {

@@ -142,6 +142,10 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
       const table = await getTable()
       return (table?.selections || []) as T[]
     },
+    clearSearchParams: (field) => {
+      delete tableObject.params[field]
+      methods.getList()
+    },
     // Combined with Search component
     setSearchParams: (data: Recordable) => {
       tableObject.currentPage = 1

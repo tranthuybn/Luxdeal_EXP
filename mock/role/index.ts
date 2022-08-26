@@ -526,10 +526,10 @@ const adminList = [
     ]
   },
   {
-    path: '/warehouse',
+    path: '/inventory-management',
     component: '#',
-    redirect: '/warehouse/list-warehouse',
-    name: 'Warehouse',
+    redirect: '/inventory-management/business-product-warehouse',
+    name: 'Inventorymanagement',
     meta: {
       title: 'router.warehouseManagement',
       icon: 'maki:warehouse',
@@ -537,16 +537,42 @@ const adminList = [
     },
     children: [
       {
-        path: 'list-warehouse',
-        component: 'views/Pages/Warehouse/index',
-        name: 'Warehouse.ListWarehouse',
+        path: 'business-product-warehouse',
+        name: 'Inventorymanagement.ListWarehouse',
+        redirect: { name: 'Inventorymanagement.ListWarehouse.inventory-tracking' },
         meta: {
-          title: 'router.warehouseList'
-        }
+          title: 'router.createRepositoryDirectoryProductStorage'
+        },
+        children: [
+          {
+            path: 'inventory-tracking',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/index',
+            name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
+            meta: {
+              title: 'router.inventoryTracking'
+            }
+          },
+          {
+            path: 'ware-house',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/WareHouse',
+            name: 'Inventorymanagement.ListWarehouse.ware-house',
+            meta: {
+              title: 'router.warehouse'
+            }
+          },
+          {
+            path: 'export',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Export',
+            name: 'Inventorymanagement.ListWarehouse.export',
+            meta: {
+              title: 'router.export'
+            }
+          }
+        ]
       },
       {
         path: 'create-repository-directory',
-        name: 'Warehouse.createRepositoryDirectory',
+        name: 'Inventorymanagement.createRepositoryDirectory',
         meta: {
           title: 'router.createRepositoryDirectory'
         },
@@ -554,7 +580,7 @@ const adminList = [
           {
             path: 'product-storage',
             component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
-            name: 'Warehouse.createRepositoryDirectory.ProductStorage',
+            name: 'Inventorymanagement.createRepositoryDirectory.ProductStorage',
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
             }
@@ -562,7 +588,7 @@ const adminList = [
           {
             path: 'spa-storage',
             component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
-            name: 'Warehouse.createRepositoryDirectory.productLibrarySpaStorage',
+            name: 'Inventorymanagement.createRepositoryDirectory.productLibrarySpaStorage',
             meta: {
               title: 'router.productLibrarySpaStorage'
             }
@@ -570,7 +596,7 @@ const adminList = [
           {
             path: 'property-storage',
             component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
-            name: 'Warehouse.createRepositoryDirectory.productPropertyStorage',
+            name: 'Inventorymanagement.createRepositoryDirectory.productPropertyStorage',
             meta: {
               title: 'router.productLibrarypropertiesPropertyStorage'
             }
@@ -929,6 +955,14 @@ const adminList = [
         component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
         meta: {
           title: 'router.personnelAccounts'
+        }
+      },
+      {
+        path: 'department-directory',
+        name: 'human-resource-management.department-directory',
+        component: 'views/Pages/HumanResourceManagement/DepartmentDirectory',
+        meta: {
+          title: 'router.departmentDirectory'
         }
       }
     ]

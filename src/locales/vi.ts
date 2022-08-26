@@ -258,7 +258,10 @@ export default {
     inventoryTracking: 'Theo dõi tồn kho',
     warehouse: 'Nhập kho',
     export: 'Xuất kho',
-    departmentDirectory: 'Danh mục phòng ban'
+    departmentDirectory: 'Danh mục phòng ban',
+    receiptsAdd: 'thêm mới phiếu thu',
+    paymentsAdd: 'Thêm mới phiếu chi',
+    receiptsAndExpendituresList: 'Danh sách phiếu thu/chi'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -574,6 +577,13 @@ export default {
     serviceName: 'Tên dịch vụ',
     time: 'Thời gian',
     insurance: 'Bảo hành',
-    unitPrice: 'Đơn giá'
+    unitPrice: 'Đơn giá',
+    formCode: 'Mã Phiếu',
+    contentDescriptions: 'Nội dung / Mô tả',
+    amountOfMoney: 'Số tiền',
+    reciprocalProfile: 'Hồ sơ đối ứng',
+    accountCode: 'Mã tài khoản',
+    accountingDate: 'Ngày hoạch toán',
+    proposalCode: 'Mã đề nghị'
   }
 }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import tableDatetimeFilterBasicVue from '../Components/tableType02-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../../Components/tableType02-datetimefilter-basic.vue'
 import { getWareHouseList } from '@/api/Business'
-import { wareHouse } from './Warehouse'
-import { Tab } from '../Components/Type'
+import { wareHouse } from '../Warehouse'
+import { Tab } from '../../Components/Type'
 const tabs: Array<Tab> = [
   {
     name: 'followinventory',

@@ -239,7 +239,16 @@ export default {
     voucherCode: 'Voucher code',
     productPropertyNew: 'Creart a product property',
     productManagement: 'Product management',
-    serviceManagement: 'product management'
+    serviceManagement: 'Service management',
+    productLibraryProducts: 'Product library',
+    productLibrarySpaMaterial: 'Product library spa material',
+    productLibraryproperties: 'Product library properties',
+    ServiceLibrarySpaService: 'Service Library Spa',
+    productCategoryAttribute: 'Attribute',
+    productCategoryUnit: 'Unit',
+    productCategoryBrand: 'Brand',
+    productCategoryOrigin: 'Origin',
+    productCategoryProducts: 'Products category'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

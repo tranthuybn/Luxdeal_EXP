@@ -1,10 +1,68 @@
-<template>
-  <div>{{ t('router.serviceSurvey') }}</div>
-</template>
-
 <script setup lang="ts">
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
-</script>
+import tableDatetimeFilterBasicVue from '../Components/tableType01-datetimefilter-basic.vue'
+import { getServiceSurveyList } from '@/api/Business'
+import { filterService, filterRating, filterYesNo, filterSeen } from '@/utils/filters'
 
-<style></style>
+const { t } = useI18n()
+const columns = reactive<TableColumn[]>([
+  {
+    field: 'index',
+    label: t('reuse.index'),
+    type: 'index',
+    align: 'center'
+  },
+  {
+    field: 'orderCode',
+    label: t('reuse.orderCode'),
+    minWidth: '150'
+  },
+  {
+    field: 'service',
+    label: t('reuse.service'),
+    minWidth: '150',
+    filters: filterService
+  },
+  {
+    field: 'customerName',
+    label: t('reuse.customerName'),
+    minWidth: '150'
+  },
+
+  {
+    field: 'serviceRating',
+    label: t('reuse.serviceRating'),
+    minWidth: '130',
+    align: 'right',
+    filters: filterRating
+  },
+  {
+    field: 'surveyContent',
+    label: t('reuse.surveyContent'),
+    minWidth: '200'
+  },
+  {
+    field: 'picture',
+    label: t('reuse.picture'),
+    minWidth: '150',
+    filters: filterYesNo
+  },
+  {
+    field: 'surveyDate',
+    label: t('reuse.surveyDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    minWidth: '150',
+    filters: filterSeen
+  }
+])
+</script>
+<template>
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getServiceSurveyList" />
+</template>

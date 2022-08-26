@@ -1,9 +1,13 @@
 import { createProdMockServer } from 'vite-plugin-mock/es/createProdMockServer'
 
-const modules = import.meta.glob('./**/*.ts', {
+const modules = import.meta.glob('./*/index.ts', {
   import: 'default',
   eager: true
 })
+// const modules = import.meta.glob('./**/*.ts', {
+//   import: 'default',
+//   eager: true
+// })
 
 const mockModules: any[] = []
 Object.keys(modules).forEach(async (key) => {
@@ -11,7 +15,6 @@ Object.keys(modules).forEach(async (key) => {
     return
   }
   mockModules.push(...(modules[key] as any))
-  console.log(mockModules)
 })
 
 export function setupProdMockServer() {

@@ -1,4 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -36,10 +37,10 @@ export const useValidator = () => {
     }
   }
 
-  const notSpecialCharacters = (val: any, callback: Callback, message: string) => {
+  const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
     if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
-      callback(new Error(message))
+      callback(new Error('Không nhập ký tự đặc biệt'))
     } else {
       callback()
     }

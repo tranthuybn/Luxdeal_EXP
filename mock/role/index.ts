@@ -38,6 +38,119 @@ const adminList = [
     ]
   },
   {
+    path: '/products-sevices',
+    component: '#',
+    redirect: { name: 'products-sevices.ProductLibrary' },
+    name: 'products-sevices',
+    meta: {
+      title: 'router.productsAndServices',
+      icon: 'gridicons:product-virtual',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'product-library',
+        name: 'products-sevices.ProductLibrary',
+        meta: {
+          title: 'router.productManagement'
+        },
+        children: [
+          {
+            path: 'products',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/Products',
+            name: 'products-sevices.productLibraryProducts',
+            meta: {
+              title: 'router.productLibraryProducts'
+            }
+          },
+          {
+            path: 'spa-material',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/SpaMaterial',
+            name: 'products-sevices.productLibrarySpaMaterial',
+            meta: {
+              title: 'router.productLibrarySpaMaterial'
+            }
+          },
+          {
+            path: 'properties',
+            component: 'views/Pages/ProductsAndServices/ProductLibrary/Properties',
+            name: 'products-sevices.productLibraryproperties',
+            meta: {
+              title: 'router.productLibraryproperties'
+            }
+          }
+        ]
+      },
+      {
+        path: 'service-library',
+        name: 'products-sevices.ServiceLibrary',
+        meta: {
+          title: 'router.serviceManagement',
+          alwaysShow: true
+        },
+        children: [
+          {
+            path: 'spa-service',
+            component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaService',
+            name: 'products-sevices.ServiceLibrarySpaService',
+            meta: {
+              title: 'router.ServiceLibrarySpaService'
+            }
+          }
+        ]
+      },
+      {
+        path: 'product-property',
+        name: 'products-sevices.product-property',
+        meta: {
+          title: 'router.productPropertyNew'
+        },
+        children: [
+          {
+            path: 'product-category',
+            component: 'views/Pages/ProductsAndServices/Category/Product',
+            name: 'products-sevices.productCategoryProducts',
+            meta: {
+              title: 'router.productCategoryProducts'
+            }
+          },
+          {
+            path: 'attribute-category',
+            component: 'views/Pages/ProductsAndServices/Category/Attribute',
+            name: 'products-sevices.productCategoryAttribute',
+            meta: {
+              title: 'router.productCategoryAttribute'
+            }
+          },
+          {
+            path: 'unit-category',
+            component: 'views/Pages/ProductsAndServices/Category/Unit',
+            name: 'products-sevices.productCategoryUnit',
+            meta: {
+              title: 'router.productCategoryUnit'
+            }
+          },
+          {
+            path: 'brand-category',
+            component: 'views/Pages/ProductsAndServices/Category/Brand',
+            name: 'products-sevices.productCategoryBrand',
+            meta: {
+              title: 'router.productCategoryBrand'
+            }
+          },
+          {
+            path: 'origin-category',
+            component: 'views/Pages/ProductsAndServices/Category/Origin',
+            name: 'products-sevices.productCategoryOrigin',
+            meta: {
+              title: 'router.productCategoryOrigin'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     path: '/business',
     component: '#',
     redirect: '/business/potential-customer-care',
@@ -50,11 +163,37 @@ const adminList = [
     children: [
       {
         path: 'potential-customer-care',
-        component: 'views/Pages/Business/PotentialCustomerCare',
+        redirect: { name: 'business.potential-customer-care.potential-customer-list' },
         name: 'Business.PotentialCustomerCare',
         meta: {
           title: 'router.potentialCustomerCare'
-        }
+        },
+        children: [
+          {
+            path: 'potential-customer-list',
+            component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerList',
+            name: 'business.potential-customer-care.potential-customer-list',
+            meta: {
+              title: 'router.potentialCustomerList'
+            }
+          },
+          {
+            path: 'potential-customer-add',
+            component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
+            name: 'business.potential-customer-care.potential-customer-add',
+            meta: {
+              title: 'router.potentialCustomerAdd'
+            }
+          },
+          {
+            path: 'manage-chat',
+            component: 'views/Pages/Business/PotentialCustomerCare/ManageChat',
+            name: 'business.potential-customer-care.manage-chat',
+            meta: {
+              title: 'router.manageChat'
+            }
+          }
+        ]
       },
       {
         path: 'order-management',
@@ -65,44 +204,11 @@ const adminList = [
         },
         children: [
           {
-            path: 'sell-order-list',
-            name: 'business.order-management.sell-order-list',
-            component: 'views/Pages/Business/OrderManagement/SellOrders',
+            path: 'order-list',
+            name: 'business.order-management.order-list',
+            component: 'views/Pages/Business/OrderManagement/OrderList',
             meta: {
-              title: 'reuse.sellOrderList'
-            }
-          },
-          {
-            path: 'lease-order-list',
-            name: 'business.order-management.lease-order-list',
-            params: { type: 'lease' },
-            component: 'views/Pages/Business/OrderManagement/LeaseOrders',
-            meta: {
-              title: 'reuse.leaseOrderList'
-            }
-          },
-          {
-            path: 'deposit-order-list',
-            name: 'business.order-management.deposit-order-list',
-            component: 'views/Pages/Business/OrderManagement/DepositOrders',
-            meta: {
-              title: 'reuse.depositOrderList'
-            }
-          },
-          {
-            path: 'mortgage-order-list',
-            name: 'business.order-management.mortgage-order-list',
-            component: 'views/Pages/Business/OrderManagement/MortgageOrders',
-            meta: {
-              title: 'reuse.mortgageOrderList'
-            }
-          },
-          {
-            path: 'spa-order-list',
-            name: 'business.order-management.spa-order-list',
-            component: 'views/Pages/Business/OrderManagement/SpaOrders',
-            meta: {
-              title: 'reuse.spaOrderList'
+              title: 'router.orderList'
             }
           },
           {
@@ -117,19 +223,129 @@ const adminList = [
       },
       {
         path: 'customer-management',
-        component: 'views/Pages/Business/CustomerManagement',
         name: 'business.customer-management',
+        redirect: { name: 'business.customer-management.customerList' },
         meta: {
           title: 'router.customerManagement'
-        }
+        },
+        children: [
+          {
+            path: 'customerList',
+            name: 'business.customer-management.customerList',
+            component: 'views/Pages/Business/CustomerManagement/CustomerList',
+            meta: {
+              title: 'router.customerList'
+            }
+          },
+          {
+            path: 'customerRatings',
+            name: 'business.customer-management.customerRatings',
+            component: 'views/Pages/Business/CustomerManagement/CustomerRatings',
+            meta: {
+              title: 'router.customerRatings'
+            }
+          },
+          {
+            path: 'customerAdd',
+            name: 'business.customer-management.customerAdd',
+            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+            meta: {
+              title: 'router.customerAdd'
+            }
+          }
+        ]
+      },
+      {
+        path: 'collaborators',
+        name: 'business.collaborators',
+        redirect: { name: 'business.collaborators.collaboratorsList' },
+        meta: {
+          title: 'router.collaborators'
+        },
+        children: [
+          {
+            path: 'collaboratorsList',
+            name: 'business.collaborators.collaboratorsList',
+            component: 'views/Pages/Business/Collaborators/Collaborators',
+            meta: {
+              title: 'router.collaboratorsList'
+            }
+          },
+          {
+            path: 'paymentRequest',
+            name: 'business.collaborators.paymentRequest',
+            component: 'views/Pages/Business/Collaborators/PaymentRequest',
+            meta: {
+              title: 'router.paymentRequest'
+            }
+          },
+          {
+            path: 'collaboratorsAdd',
+            name: 'business.collaborators.collaboratorsAdd',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+            meta: {
+              title: 'router.collaboratorsAdd'
+            }
+          }
+        ]
       },
       {
         path: 'promotion-strategy',
-        component: 'views/Pages/Business/PromotionStrategy',
         name: 'business.promotion-strategy',
+        redirect: { name: 'business.promotion-strategy.flash-sale' },
         meta: {
-          title: 'router.promotionStrategy'
-        }
+          title: 'router.promotionCampaign'
+        },
+        children: [
+          {
+            path: 'flash-sale',
+            name: 'business.promotion-strategy.flash-sale',
+            component: 'views/Pages/Business/PromotionStrategy/FlashSale',
+            meta: {
+              title: 'router.flashsale'
+            }
+          },
+          {
+            path: 'collection',
+            name: 'business.promotion-strategy.collection',
+            component: 'views/Pages/Business/PromotionStrategy/Collection',
+            meta: {
+              title: 'router.collection'
+            }
+          },
+          {
+            path: 'new-product',
+            name: 'business.promotion-strategy.new-product',
+            component: 'views/Pages/Business/PromotionStrategy/NewProduct',
+            meta: {
+              title: 'router.newproduct'
+            }
+          },
+          {
+            path: 'voucher',
+            name: 'business.promotion-strategy.voucher',
+            component: 'views/Pages/Business/PromotionStrategy/Voucher',
+            meta: {
+              title: 'router.voucher'
+            }
+          },
+          {
+            path: 'combo',
+            name: 'business.promotion-strategy.combo',
+            component: 'views/Pages/Business/PromotionStrategy/Combo',
+            meta: {
+              title: 'router.combo'
+            }
+          },
+          {
+            path: 'auction',
+            name: 'business.promotion-strategy.auction',
+            component: 'views/Pages/Business/PromotionStrategy/Auction',
+            meta: {
+              title: 'router.auction'
+            }
+          }
+        ]
       },
       {
         path: 'service-survey',
@@ -140,28 +356,172 @@ const adminList = [
         }
       },
       {
-        path: 'collaborators',
-        component: 'views/Pages/Business/Collaborators',
-        name: 'business.collaborators',
+        path: 'accumulate-points',
+        name: 'business.accumulate-points',
+        redirect: { name: 'business.accumulate-points.customer' },
         meta: {
-          title: 'router.collaborators'
-        }
+          title: 'router.accumulatePoints'
+        },
+        children: [
+          {
+            path: 'customer-points',
+            name: 'business.accumulate-points.customer-points',
+            component: 'views/Pages/Business/AccumulatePoints/CustomerPoints',
+            meta: {
+              title: 'router.customerPoints'
+            }
+          },
+          {
+            path: 'settings-points',
+            name: 'business.accumulate-points.settings-points',
+            component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
+            meta: {
+              title: 'router.installPoints'
+            }
+          }
+        ]
       },
       {
-        path: 'employee-management',
-        component: 'views/Pages/Business/EmployeeManagement',
-        name: 'business.employee-management',
+        path: 'virtual-wallet',
+        name: 'business.virtual-wallet',
+        redirect: { name: 'business.virtual-wallet.customer' },
         meta: {
-          title: 'router.employeeManagement'
-        }
+          title: 'router.virtualWallet'
+        },
+        children: [
+          {
+            path: 'customer',
+            name: 'business.virtual-wallet.customer',
+            component: 'views/Pages/Business/VirtualWallet/CustomerVirtualWallet',
+            meta: {
+              title: 'router.customervirtualWallet'
+            }
+          },
+          {
+            path: 'with-drewal-request',
+            name: 'business.virtual-wallet.with-drewal-request',
+            component: 'views/Pages/Business/VirtualWallet/WithdrawalRequest',
+            meta: {
+              title: 'router.withDrawalRequest'
+            }
+          },
+          {
+            path: 'settings',
+            name: 'business.virtual-wallet.settings',
+            component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
+            meta: {
+              title: 'router.settingsvirtualWallet'
+            }
+          }
+        ]
+      },
+
+      {
+        path: 'employee-management',
+        name: 'business.employee-management',
+        redirect: { name: 'business.employee-management.employeeList' },
+        meta: {
+          title: 'router.businessMan'
+        },
+        children: [
+          {
+            path: 'employeeList',
+            name: 'business.employee-management.employeeList',
+            component: 'views/Pages/Business/EmployeeManagement/EmployeeList',
+            meta: {
+              title: 'router.employeeList'
+            }
+          },
+          {
+            path: 'employeeRatings',
+            name: 'business.employee-management.employeeRatings',
+            component: 'views/Pages/Business/EmployeeManagement/EmployeeRatings',
+            meta: {
+              title: 'router.employeeRatings'
+            }
+          }
+        ]
       },
       {
         path: 'business-report',
-        component: 'views/Pages/Business/BusinessReport',
         name: 'business.business-report',
+        redirect: { name: 'business.business-report.growth' },
         meta: {
           title: 'router.businessReport'
-        }
+        },
+        children: [
+          {
+            path: 'growth',
+            name: 'business.business-report.growth',
+            component: 'views/Pages/Business/BusinessReport/Growth',
+            meta: {
+              title: 'router.growth'
+            }
+          },
+          {
+            path: 'sales',
+            name: 'business.business-report.sales',
+            component: 'views/Pages/Business/BusinessReport/Sales',
+            meta: {
+              title: 'router.sales'
+            }
+          },
+          {
+            path: 'debt',
+            name: 'business.business-report.debt',
+            component: 'views/Pages/Business/BusinessReport/Debt',
+            meta: {
+              title: 'router.debt'
+            }
+          },
+          {
+            path: 'turnover',
+            name: 'business.business-report.turnover',
+            component: 'views/Pages/Business/BusinessReport/Turnover',
+            meta: {
+              title: 'router.turnover'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/purchase',
+    component: '#',
+    redirect: '/purchase',
+    name: 'purchase',
+    meta: {
+      title: 'router.purchase',
+      icon: 'arcticons:purchased-apps',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'business-purchases',
+        name: 'purchase.business-purchases',
+        redirect: { name: 'purchase.business-purchases.purchase-order-list' },
+        meta: {
+          title: 'router.businessPurchases'
+        },
+        children: [
+          {
+            path: 'purchase-order-list',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderList',
+            name: 'purchase.business-purchases.purchase-order-list',
+            meta: {
+              title: 'router.purchaseOrderList'
+            }
+          },
+          {
+            path: 'purchase-order-add',
+            component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
+            name: 'purchase.business-purchases.purchase-order-add',
+            meta: {
+              title: 'router.purchaseOrderAdd'
+            }
+          }
+        ]
       }
     ]
   },
@@ -183,6 +543,39 @@ const adminList = [
         meta: {
           title: 'router.warehouseList'
         }
+      },
+      {
+        path: 'create-repository-directory',
+        name: 'Warehouse.createRepositoryDirectory',
+        meta: {
+          title: 'router.createRepositoryDirectory'
+        },
+        children: [
+          {
+            path: 'product-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
+            name: 'Warehouse.createRepositoryDirectory.ProductStorage',
+            meta: {
+              title: 'router.createRepositoryDirectoryProductStorage'
+            }
+          },
+          {
+            path: 'spa-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
+            name: 'Warehouse.createRepositoryDirectory.productLibrarySpaStorage',
+            meta: {
+              title: 'router.productLibrarySpaStorage'
+            }
+          },
+          {
+            path: 'property-storage',
+            component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
+            name: 'Warehouse.createRepositoryDirectory.productPropertyStorage',
+            meta: {
+              title: 'router.productLibrarypropertiesPropertyStorage'
+            }
+          }
+        ]
       }
     ]
   },
@@ -199,14 +592,32 @@ const adminList = [
     children: [
       {
         path: 'payment-proposal',
-        component: 'views/Pages/Accountant/PaymentProposal',
         name: 'accountant.payment-proposal',
+        redirect: { name: 'accountant.payment-proposal.payment-proposal-list' },
         meta: {
           title: 'router.paymentProposal'
-        }
+        },
+        children: [
+          {
+            path: 'payment-proposal-list',
+            component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalList',
+            name: 'accountant.payment-proposal.payment-proposal-list',
+            meta: {
+              title: 'router.paymentProposalList'
+            }
+          },
+          {
+            path: 'apayment-proposal-add',
+            component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
+            name: 'accountant.payment-proposal.payment-proposal-add',
+            meta: {
+              title: 'router.paymentProposalAdd'
+            }
+          }
+        ]
       },
       {
-        path: 'receipts-and-expenditures',
+        path: 'receipts-expenditures',
         component: 'views/Pages/Accountant/ReceiptsAndExpenditures',
         name: 'accountant.receiptsAndExpenditures',
         meta: {
@@ -236,42 +647,188 @@ const adminList = [
     children: [
       {
         path: 'products-approval',
-        component: 'views/Pages/Approval/Products/index',
         name: 'approve.products-approval',
+        redirect: { name: 'approve.products-approval.newly-initialized' },
         meta: {
-          title: 'router.products'
-        }
+          title: 'router.approveProducts'
+        },
+        children: [
+          {
+            path: 'newly-initialized',
+            component: 'views/Pages/Approval/Products/index',
+            name: 'approve.products-approval.newly-initialized',
+            meta: {
+              title: 'router.newlyInitialized'
+            }
+          },
+          {
+            path: 'edit',
+            component: 'views/Pages/Approval/Products/index',
+            name: 'approve.products-approval.edit',
+            meta: {
+              title: 'router.edit'
+            }
+          }
+        ]
       },
       {
         path: 'orders-approval',
-        component: 'views/Pages/Approval/Orders/index',
         name: 'approve.orders-approval',
+        redirect: { name: 'approve.orders-approval.oders-new' },
         meta: {
-          title: 'router.orders'
-        }
+          title: 'router.approveOrders'
+        },
+        children: [
+          {
+            path: 'oders-new',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.oders-new',
+            meta: {
+              title: 'router.odersNew'
+            }
+          },
+          {
+            path: 'oders-cancel',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.oders-cancel',
+            meta: {
+              title: 'router.odersCancel'
+            }
+          }
+        ]
       },
       {
         path: 'payment-approval',
-        component: 'views/Pages/Approval/Payments/index',
         name: 'approve.payment-approval',
+        redirect: { name: 'approve.payment-approval.proposal' },
         meta: {
-          title: 'router.payments'
-        }
+          title: 'router.approvePayments'
+        },
+        children: [
+          {
+            path: 'proposal',
+            component: 'views/Pages/Approval/Payments/index',
+            name: 'approve.payment-approval.proposal',
+            meta: {
+              title: 'router.paymentProposal'
+            }
+          },
+          {
+            path: 'receipts-and-expenditures',
+            component: 'views/Pages/Approval/Payments/index',
+            name: 'approve.payment-approval.receipts-and-expenditures',
+            meta: {
+              title: 'router.receiptsAndExpenditures'
+            }
+          }
+        ]
       },
       {
         path: 'accounts-approval',
-        component: 'views/Pages/Approval/Accounts/index',
         name: 'approve.accounts-approval',
+        redirect: { name: 'approve.accounts-approval.user-account' },
         meta: {
-          title: 'router.accounts'
-        }
+          title: 'router.approveAccounts'
+        },
+        children: [
+          {
+            path: 'user-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.user-account',
+            meta: {
+              title: 'router.userAccount'
+            }
+          },
+          {
+            path: 'collaborator-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.collaborator-account',
+            meta: {
+              title: 'router.collaboratorAccount'
+            }
+          },
+          {
+            path: 'internal-account',
+            component: 'views/Pages/Approval/Accounts/index',
+            name: 'approve.accounts-approval.internal-account',
+            meta: {
+              title: 'router.internalAccount'
+            }
+          }
+        ]
+      },
+      {
+        path: 'approve-promotion-strategy',
+        name: 'approve.approve-promotion-strategy',
+        redirect: { name: 'approve.approve-promotion-strategy.approve-flashsale' },
+        meta: {
+          title: 'router.approvePromotionStrategy'
+        },
+        children: [
+          {
+            path: 'approve-flashsale',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-flashsale',
+            meta: {
+              title: 'router.flashsale'
+            }
+          },
+          {
+            path: 'approve-collection',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-collection',
+            meta: {
+              title: 'router.collection'
+            }
+          },
+          {
+            path: 'approve-newproduct',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-newproduct',
+            meta: {
+              title: 'router.newproduct'
+            }
+          },
+          {
+            path: 'approve-voucher',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-voucher',
+            meta: {
+              title: 'router.voucher'
+            }
+          },
+          {
+            path: 'approve-combo',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-combo',
+            meta: {
+              title: 'router.combo'
+            }
+          },
+          {
+            path: 'approve-auction',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-auction',
+            meta: {
+              title: 'router.auction'
+            }
+          },
+          {
+            path: 'approve-advertisingBanner',
+            component: 'views/Pages/Approval/PromotionStrategy/index',
+            name: 'approve.approve-promotion-strategy.approve-advertisingBanner',
+            meta: {
+              title: 'router.advertisingBanner'
+            }
+          }
+        ]
       }
     ]
   },
   {
     path: '/new-and-advertisement',
     component: '#',
-    redirect: { name: 'new-and-advertisement.new-and-advertisement-list' },
+    redirect: { name: 'New-and-advertisement.notify' },
     name: 'New-and-advertisement',
     meta: {
       title: 'router.newsAndAdvertisement',
@@ -280,69 +837,98 @@ const adminList = [
     },
     children: [
       {
-        path: 'new-and-advertisement-list',
-        component: 'views/Pages/NewsAndAdvertisement/index',
-        name: 'New-and-advertisement.new-and-advertisement-list',
+        path: 'notify',
+        component: 'views/Pages/NewsAndAdvertisement/Notify',
+        name: 'New-and-advertisement.notify',
         meta: {
-          title: 'router.newsAndAdvertisement'
+          title: 'router.notify'
         }
+      },
+      {
+        path: 'forum',
+        component: 'views/Pages/NewsAndAdvertisement/Forum',
+        name: 'New-and-advertisement.forum',
+        meta: {
+          title: 'router.forum'
+        }
+      },
+      {
+        path: 'news-site',
+        component: 'views/Pages/NewsAndAdvertisement/NewsSites',
+        name: 'New-and-advertisement.news-site',
+        meta: {
+          title: 'router.newsSite'
+        }
+      },
+      {
+        path: 'banner-advertisement',
+        component: 'views/Pages/NewsAndAdvertisement/BannerAdvertisement',
+        name: 'New-and-advertisement.banner-advertisement',
+        meta: {
+          title: 'router.bannerAdvertisement'
+        }
+      },
+      {
+        path: 'profile-admin',
+        name: 'New-and-advertisement.profile-admin',
+        redirect: { name: 'New-and-advertisement.profile-admin.policies-guidelines' },
+        meta: {
+          title: 'router.profileAdmin'
+        },
+        children: [
+          {
+            path: 'policies-guidelines',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/PoliciesGuidelines',
+            name: 'New-and-advertisement.profile-admin.policies-guidelines',
+            meta: {
+              title: 'router.policiesGuidelines'
+            }
+          },
+          {
+            path: 'about-us',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/AboutUs',
+            name: 'New-and-advertisement.profile-admin.about-us',
+            meta: {
+              title: 'router.aboutUs'
+            }
+          },
+          {
+            path: 'contact',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/Contact',
+            name: 'New-and-advertisement.profile-admin.contact',
+            meta: {
+              title: 'reuse.contact'
+            }
+          },
+          {
+            path: 'transaction-point',
+            component: 'views/Pages/NewsAndAdvertisement/ProfileAdmin/TransactionPoint',
+            name: 'New-and-advertisement.profile-admin.transaction-point',
+            meta: {
+              title: 'router.transactionPoint'
+            }
+          }
+        ]
       }
     ]
   },
   {
-    path: '/library-and-setting',
+    path: '/human-resource-management',
     component: '#',
-    redirect: { name: 'library-and-setting.dashboard' },
-    name: 'library-and-setting',
+    redirect: '/human-resource-management',
+    name: 'human-resource-management',
     meta: {
-      title: 'router.libraryAndSetting',
-      icon: 'carbon:cloud-satellite-config',
+      title: 'router.humanResourceManagement',
+      icon: 'bx:user',
       alwaysShow: true
     },
     children: [
       {
-        path: 'dashboard',
-        component: 'views/Pages/LibraryAndSetting/index',
-        name: 'library-and-setting.dashboard',
+        path: 'personnel-accounts',
+        name: 'human-resource-management.personnel-accounts',
+        component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
         meta: {
-          title: 'router.libraryAndSetting'
-        }
-      }
-    ]
-  },
-  {
-    path: '/error',
-    component: '#',
-    redirect: '/error/404',
-    name: 'Error',
-    meta: {
-      title: 'router.errorPage',
-      icon: 'ci:error',
-      alwaysShow: true
-    },
-    children: [
-      {
-        path: '404-demo',
-        component: 'views/Error/404',
-        name: '404Demo',
-        meta: {
-          title: '404'
-        }
-      },
-      {
-        path: '403-demo',
-        component: 'views/Error/403',
-        name: '403Demo',
-        meta: {
-          title: '403'
-        }
-      },
-      {
-        path: '500-demo',
-        component: 'views/Error/500',
-        name: '500Demo',
-        meta: {
-          title: '500'
+          title: 'router.personnelAccounts'
         }
       }
     ]

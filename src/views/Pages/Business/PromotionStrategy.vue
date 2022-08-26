@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.promotionStrategy') }}</div>
+  <div>{{ t('router.promotionCampaign') }}</div>
 </template>
 
 <script setup lang="ts">

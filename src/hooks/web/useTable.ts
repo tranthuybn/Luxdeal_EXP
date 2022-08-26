@@ -121,8 +121,6 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
 
   const methods = {
     getList: async () => {
-      console.log('params', unref(paramsObj))
-
       tableObject.loading = true
       const res = await config?.getListApi(unref(paramsObj)).finally(() => {
         tableObject.loading = false

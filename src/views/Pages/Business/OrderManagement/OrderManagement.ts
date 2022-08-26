@@ -1,5 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { filtersReceiptExpenditure, filtersStatus, filterPromotion } from '@/utils/filters'
+import { filtersReceiptExpenditure, filtersStatus, filterPromotionCode } from '@/utils/filters'
 const { t } = useI18n()
 
 //Đơn bán hàng
@@ -42,8 +42,7 @@ export const sellOrder = [
   {
     field: 'explain',
     label: t('reuse.explain'),
-    minWidth: '170',
-    sortable: true
+    minWidth: '170'
   },
   {
     field: 'saleNumber',

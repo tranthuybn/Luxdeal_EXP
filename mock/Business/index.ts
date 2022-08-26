@@ -30,7 +30,6 @@ const { result_code } = config
 const timeout = 1000
 const count = 100
 import Mock from 'mockjs'
-import { el } from 'element-plus/es/locale'
 
 for (let i = 0; i < count; i++) {
   potentialCustomerCareTable.push(Mock.mock(potentialCustomerCareTableMock))

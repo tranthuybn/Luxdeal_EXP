@@ -45,7 +45,8 @@ export const businessProductLibrary = [
   {
     field: 'image',
     label: t('reuse.image'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'center'
   },
   {
     field: 'createDate',

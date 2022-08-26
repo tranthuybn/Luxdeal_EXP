@@ -596,6 +596,15 @@ export default {
     byWeek: 'By Week',
     byMonth: 'By Month',
     byYear: 'By Year',
-    rentTerm: 'Rent Term'
+    rentTerm: 'Rent Term',
+    notificationCode: 'Notification Code',
+    shortDescription: 'Short Description',
+    notificationType: 'NotificationT ype',
+    sendDate: 'Send Date',
+    sented: 'Sented',
+    notSent: 'Not Sent',
+    auto: 'Auto',
+    manual: 'Manual',
+    title: 'Title'
   }
 }

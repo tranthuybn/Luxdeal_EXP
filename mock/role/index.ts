@@ -256,40 +256,6 @@ const adminList = [
         ]
       },
       {
-        path: 'collaborators',
-        name: 'business.collaborators',
-        redirect: { name: 'business.collaborators.collaboratorsList' },
-        meta: {
-          title: 'router.collaborators'
-        },
-        children: [
-          {
-            path: 'collaboratorsList',
-            name: 'business.collaborators.collaboratorsList',
-            component: 'views/Pages/Business/Collaborators/Collaborators',
-            meta: {
-              title: 'router.collaboratorsList'
-            }
-          },
-          {
-            path: 'paymentRequest',
-            name: 'business.collaborators.paymentRequest',
-            component: 'views/Pages/Business/Collaborators/PaymentRequest',
-            meta: {
-              title: 'router.paymentRequest'
-            }
-          },
-          {
-            path: 'collaboratorsAdd',
-            name: 'business.collaborators.collaboratorsAdd',
-            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
-            meta: {
-              title: 'router.collaboratorsAdd'
-            }
-          }
-        ]
-      },
-      {
         path: 'promotion-strategy',
         name: 'business.promotion-strategy',
         redirect: { name: 'business.promotion-strategy.flash-sale' },
@@ -415,7 +381,40 @@ const adminList = [
           }
         ]
       },
-
+      {
+        path: 'collaborators',
+        name: 'business.collaborators',
+        redirect: { name: 'business.collaborators.collaboratorsList' },
+        meta: {
+          title: 'router.collaborators'
+        },
+        children: [
+          {
+            path: 'collaboratorsList',
+            name: 'business.collaborators.collaboratorsList',
+            component: 'views/Pages/Business/Collaborators/Collaborators',
+            meta: {
+              title: 'router.collaboratorsList'
+            }
+          },
+          {
+            path: 'paymentRequest',
+            name: 'business.collaborators.paymentRequest',
+            component: 'views/Pages/Business/Collaborators/PaymentRequest',
+            meta: {
+              title: 'router.paymentRequest'
+            }
+          },
+          {
+            path: 'collaboratorsAdd',
+            name: 'business.collaborators.collaboratorsAdd',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+            meta: {
+              title: 'router.collaboratorsAdd'
+            }
+          }
+        ]
+      },
       {
         path: 'employee-management',
         name: 'business.employee-management',
@@ -633,7 +632,7 @@ const adminList = [
             }
           },
           {
-            path: 'apayment-proposal-add',
+            path: 'payment-proposal-add',
             component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
             name: 'accountant.payment-proposal.payment-proposal-add',
             meta: {
@@ -644,11 +643,36 @@ const adminList = [
       },
       {
         path: 'receipts-expenditures',
-        component: 'views/Pages/Accountant/ReceiptsAndExpenditures',
-        name: 'accountant.receiptsAndExpenditures',
+        name: 'accountant.receipts-expenditures',
         meta: {
           title: 'router.receiptsAndExpenditures'
-        }
+        },
+        children: [
+          {
+            path: 'receipts-expenditures-list',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAndExpenditures',
+            name: 'accountant.receipts-expenditures.receipts-expenditures-list',
+            meta: {
+              title: 'router.receiptsAndExpendituresList'
+            }
+          },
+          {
+            path: 'receipts-add',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',
+            name: 'accountant.receipts-expenditures.receipts-add',
+            meta: {
+              title: 'router.receiptsAdd'
+            }
+          },
+          {
+            path: 'payment-add',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/PaymentsAdd',
+            name: 'accountant.receipts-expenditures.payment-add',
+            meta: {
+              title: 'router.paymentsAdd'
+            }
+          }
+        ]
       },
       {
         path: 'balanceSheet',

@@ -107,7 +107,6 @@ const save = async () => {
         })
       if (res) {
         emitter.emit('getList', 'add')
-        push('/example/example-page')
       }
     }
   })

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElSwitch } from 'element-plus'
-const { t } = useI18n()
 import { getApproveManagementList } from '@/api/Approval'
 import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
 import { ContentWrap } from '@/components/ContentWrap'
 
 import { h } from 'vue'
+const { t } = useI18n()
 
 const seeDetail = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)

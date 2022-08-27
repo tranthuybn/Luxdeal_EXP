@@ -264,7 +264,8 @@ export default {
     receiptsAdd: 'thêm mới phiếu thu',
     paymentsAdd: 'Thêm mới phiếu chi',
     receiptsAndExpendituresList: 'Danh sách phiếu thu/chi',
-    approveManagement: 'Quản lý duyệt'
+    approveManagement: 'Quản lý duyệt',
+    BalanceSheetUtility: 'Thêm mới tài khoản'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -683,6 +684,15 @@ export default {
     approvalManagement: 'Quản lý danh mục duyệt',
     //banner advertisement
     bannerCode: 'Mã banner',
-    linkBanner: 'Link Banner'
+    linkBanner: 'Link Banner',
+    //BalanceSheetUtility
+    chooseRankAccount: 'Chọn cấp tài khoản',
+    rank1Account: 'Tài khoản cấp 1',
+    rank2Account: 'Tài khoản cấp 2',
+    badgeAccount1: 'Số hiệu tài khoản 1',
+    nameAccount1: 'Tên tài khoản cấp 1',
+    closeAccount: 'Đóng tài khoản',
+    typeAccount: 'Loại tài khoản',
+    saveAndAdd: 'Lưu và thêm mới'
   }
 }

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton } from 'element-plus'
-const { t } = useI18n()
 import { getAccountantBalanceList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import TableType01 from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
 import { h } from 'vue'
+const { t } = useI18n()
 
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 
@@ -15,11 +15,10 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
 const unitCategories = [
   { field: 'void', width: '50' },
   {
-    field: 'accountNumber',
+    field: 'accountCode',
     label: t('reuse.accountCode'),
     minWidth: '100'
   },
-
   {
     field: 'accountName',
     label: t('userDemo.username'),
@@ -101,6 +100,7 @@ const unitCategories = [
     :api="getAccountantBalanceList"
     :selection="false"
     isOperatorColumnCustomize
+    nameRouter="accountant.balanceSheetUtility"
   />
 </template>
 <style></style>

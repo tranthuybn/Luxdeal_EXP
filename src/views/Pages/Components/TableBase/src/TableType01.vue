@@ -100,7 +100,7 @@ const filterSelect = (value) => {
   setSearchParams(value)
 }
 //get array of headerFilter in column (if there is a headerFilter)
-const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
+const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
 </script>
 <template>
   <ContentWrap>
@@ -134,28 +134,32 @@ const headerFilter = props.fullColumns.filter((col) => col.headerFilter)
           <el-image style="width: 100px; height: 100px" :src="data.row.image" />
         </div>
       </template>
-      <template v-for="header in headerFilter" :key="header.field" #[`${header.field}-header`]>
+      <template
+        v-for="(header, index) in ColumnsHaveHeaderFilter"
+        :key="index"
+        #[`${header.field}-item`]
+      >
         {{ header.label }}
         <InputMoneyRange
-          v-if="header.headerFilter == 'Money'"
+          v-if="header.headerFilter === 'Money'"
           :field="header.field"
           @confirm="confirm"
           @cancel="cancel"
         />
         <InputDateRange
-          v-if="header.headerFilter == 'Date'"
+          v-if="header.headerFilter === 'Date'"
           :field="header.field"
           @confirm="confirm"
           @cancel="cancel"
         />
         <InputNumberRange
-          v-if="header.headerFilter == 'Number'"
+          v-if="header.headerFilter === 'Number'"
           :field="header.field"
           @confirm="confirm"
           @cancel="cancel"
         />
         <InputName
-          v-if="header.headerFilter == 'Name'"
+          v-if="header.headerFilter === 'Name'"
           :field="header.field"
           @filter-select="filterSelect"
           @cancel="cancel"

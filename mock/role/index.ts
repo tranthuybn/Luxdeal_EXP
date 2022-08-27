@@ -869,6 +869,14 @@ const adminList = [
             }
           }
         ]
+      },
+      {
+        path: 'approve-management',
+        component: 'views/Pages/Approval/ApprovalManagement',
+        name: 'approve.approve-management',
+        meta: {
+          title: 'router.approveManagement'
+        }
       }
     ]
   },

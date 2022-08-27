@@ -27,6 +27,9 @@ const columns = reactive<TableColumn[]>([
     filters: filterTableStatus
   }
 ])
+const emitsth = () => {
+  console.log('emit')
+}
 </script>
 <template>
   <tableDatetimeFilterBasicVue
@@ -34,5 +37,6 @@ const columns = reactive<TableColumn[]>([
     :api="getProductStorageList"
     :selection="false"
     nameRouter="Inventorymanagement.CreateStorageCategory.ProductStorageUtility"
+    @emitsth="emitsth"
   />
 </template>

@@ -18,6 +18,7 @@ const accountBallance: accountBallance[] = []
 for (let i = 0; i < count; i++) {
   accountBallance.push(
     Mock.mock({
+      id: i,
       accountCode: '@title(5, 10)',
       accountName: '@title(5, 10)',
       openingBalanceOwed: '@integer(1, 3)',
@@ -28,6 +29,7 @@ for (let i = 0; i < count; i++) {
       cashArisingInTheEndOfPeriod: '@integer(1, 3)',
       children: [
         {
+          id: i,
           accountCode: '@title(5, 10)',
           accountName: '@title(5, 10)',
           openingBalanceOwed: '@integer(1, 3)',
@@ -38,6 +40,7 @@ for (let i = 0; i < count; i++) {
           cashArisingInTheEndOfPeriod: '@integer(1, 3)'
         },
         {
+          id: i,
           accountCode: '@title(5, 10)',
           accountName: '@title(5, 10)',
           openingBalanceOwed: '@integer(1, 3)',

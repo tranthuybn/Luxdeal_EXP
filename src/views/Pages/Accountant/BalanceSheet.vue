@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton } from 'element-plus'
-const { t } = useI18n()
 import { getAccountantBalanceList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import TableType01 from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
 import { h } from 'vue'
+const { t } = useI18n()
 
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 

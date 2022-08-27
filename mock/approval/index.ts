@@ -2,8 +2,10 @@ import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
 
 interface ApprovalManagement {
+  id: Number
   categoryInfo: string
   condition: string
+  approveOrNot: boolean
   children: Array<ApprovalManagement>
 }
 
@@ -12,16 +14,22 @@ const ApprovalManagementList: ApprovalManagement[] = []
 for (let i = 0; i < count; i++) {
   ApprovalManagementList.push(
     Mock.mock({
+      id: i,
       categoryInfo: '@title(5, 10)',
       condition: '@title(5, 10)',
+      approveOrNot: '@boolean',
       children: [
         {
+          id: i,
           categoryInfo: '@title(5, 10)',
-          condition: '@title(5, 10)'
+          condition: '@title(5, 10)',
+          approveOrNot: '@boolean'
         },
         {
+          id: i,
           categoryInfo: '@title(5, 10)',
-          condition: '@title(5, 10)'
+          condition: '@title(5, 10)',
+          approveOrNot: '@boolean'
         }
       ]
     })

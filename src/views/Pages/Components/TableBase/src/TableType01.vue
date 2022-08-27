@@ -100,7 +100,6 @@ const cancel = (field) => {
 const filterSelect = (value) => {
   setSearchParams(value)
 }
-
 const action = (row: TableData, type: string) => {
   console.log('row', row, 'type', type)
   //push(`/example/example-${type}?id=${row.id}`)
@@ -110,7 +109,6 @@ const delData = async (row: TableData | null, multiple: boolean) => {
 }
 //get array of headerFilter in column (if there is a headerFilter)
 const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
-
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })

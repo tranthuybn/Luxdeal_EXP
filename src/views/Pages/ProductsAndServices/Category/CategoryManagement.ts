@@ -7,13 +7,14 @@ export const productCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -37,13 +38,14 @@ export const spaProductCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -66,13 +68,14 @@ export const propertyProductCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -95,13 +98,14 @@ export const colorCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -124,13 +128,14 @@ export const sizeCategories = [
     field: 'imgTitle',
     label: t('reuse.categorySizeTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -153,13 +158,14 @@ export const materialCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryMaterialTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -182,13 +188,14 @@ export const statusCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryStatusTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -211,13 +218,14 @@ export const genderCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryGenderTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -240,13 +248,14 @@ export const unitCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryUnitTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -269,13 +278,14 @@ export const brandCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryBrandTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
@@ -298,13 +308,14 @@ export const originCategories = [
     field: 'imgTitle',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {

@@ -29,5 +29,10 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getProductStorageList" :selection="false" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getProductStorageList"
+    :selection="false"
+    nameRouter="Inventorymanagement.CreateStorageCategory.ProductStorageUtility"
+  />
 </template>

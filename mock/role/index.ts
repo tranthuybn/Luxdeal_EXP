@@ -584,6 +584,18 @@ const adminList = [
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
             }
+          },
+          {
+            path: 'product-storage-utility',
+            component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorageUtility',
+            meta: {
+              title: 'router.createRepositoryDirectoryProductStorageUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
           }
         ]
       }

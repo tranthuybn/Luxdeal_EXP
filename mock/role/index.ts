@@ -573,31 +573,28 @@ const adminList = [
         path: 'create-repository-directory',
         name: 'Inventorymanagement.createRepositoryDirectory',
         meta: {
-          title: 'router.createRepositoryDirectory'
+          title: 'router.createRepositoryDirectory',
+          alwaysShow: true
         },
         children: [
           {
             path: 'product-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
-            name: 'Inventorymanagement.createRepositoryDirectory.ProductStorage',
+            component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorage',
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
             }
           },
           {
-            path: 'spa-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
-            name: 'Inventorymanagement.createRepositoryDirectory.productLibrarySpaStorage',
+            path: 'product-storage-utility',
+            component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorageUtility',
             meta: {
-              title: 'router.productLibrarySpaStorage'
-            }
-          },
-          {
-            path: 'property-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
-            name: 'Inventorymanagement.createRepositoryDirectory.productPropertyStorage',
-            meta: {
-              title: 'router.productLibrarypropertiesPropertyStorage'
+              title: 'router.createRepositoryDirectoryProductStorageUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
             }
           }
         ]

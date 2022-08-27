@@ -15,6 +15,7 @@ import {
   dynamicApi,
   dynamicColumns
 } from './TablesReusabilityFunction'
+import { useRouter } from 'vue-router'
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -31,6 +32,10 @@ const props = defineProps({
   selection: {
     type: Boolean,
     default: true
+  },
+  nameRouter: {
+    type: String,
+    default: ''
   }
 })
 
@@ -46,12 +51,17 @@ onBeforeMount(() => {
   dynamicColumns.value = props.columns
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
+const { push } = useRouter()
+const pushAdd = () => {
+  console.log('name:', props.nameRouter)
+  push({ name: props.nameRouter })
+}
 </script>
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData">
       <template #headerFilterSlot>
-        <el-button type="primary" :icon="createIcon"> Khởi tạo mới </el-button>
+        <el-button type="primary" :icon="createIcon" @click="pushAdd"> Khởi tạo mới </el-button>
       </template>
     </HeaderFiler>
     <TableExtension

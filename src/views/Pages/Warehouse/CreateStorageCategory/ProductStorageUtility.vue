@@ -120,9 +120,12 @@ const save = async () => {
   >
     <TableOperator ref="TableOperatorRef" :schema="schema" />
 
-    <template #right>
+    <template #under>
       <ElButton type="primary" :loading="loading" @click="save">
         {{ t('reuse.save') }}
+      </ElButton>
+      <ElButton type="primary" :loading="loading" @click="save">
+        {{ t('reuse.saveAndAdd') }}
       </ElButton>
     </template>
   </ContentDetailWrap>

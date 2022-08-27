@@ -605,6 +605,20 @@ export default {
     notSent: 'Not Sent',
     auto: 'Auto',
     manual: 'Manual',
-    title: 'Title'
+    title: 'Title',
+    //warehouse
+    save: 'Save',
+    addCategory: 'Add Category',
+    typeCategory: 'Type of Category',
+    chooseRankCategory: 'Choose Rank of Category',
+    rank1Category: 'Rank 1 Category',
+    rank2Category: 'Rank 2 Category',
+    generalInformation: 'General Information',
+    nameRank1Category: 'Name of Rank1 Category',
+    displayPosition: 'Display Position',
+    statusAndFunction: 'Satus And Function',
+    stopShowAppWeb: 'Stop show app/web user',
+    stopActive: 'Stop active',
+    addImage: 'Add Image'
   }
 }

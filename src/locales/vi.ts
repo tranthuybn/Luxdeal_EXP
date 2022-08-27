@@ -680,6 +680,9 @@ export default {
     categoriesInfor: 'Thông tin danh mục',
     approveCondition: 'Điều kiện duyệt',
     approveOrNot: 'Duyệt(On)/Không duyệt(Off)',
-    approvalManagement: 'Quản lý danh mục duyệt'
+    approvalManagement: 'Quản lý danh mục duyệt',
+    //banner advertisement
+    bannerCode: 'Mã banner',
+    linkBanner: 'Link Banner'
   }
 }

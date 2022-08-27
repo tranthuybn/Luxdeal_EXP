@@ -150,7 +150,7 @@ const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         :key="index"
-        #[`${header.field}-item`]
+        #[`${header.field}-header`]
       >
         {{ header.label }}
         <InputMoneyRange

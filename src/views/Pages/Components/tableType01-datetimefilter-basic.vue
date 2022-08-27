@@ -20,6 +20,10 @@ const props = defineProps({
     type: Array as PropType<TableColumn[]>,
     default: () => []
   },
+  isOperatorColumnCustomize: {
+    type: Boolean,
+    default: false
+  },
   api: {
     type: Function as PropType<apiType>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
@@ -40,7 +44,7 @@ const getData = (data) => {
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  addOperatorColumn(dynamicColumns.value)
+  if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
 </script>
 <template>

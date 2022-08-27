@@ -1,3 +1,5 @@
+import approval from 'mock/approval'
+
 export default {
   common: {
     inputText: 'Vui lòng nhập',
@@ -261,7 +263,8 @@ export default {
     departmentDirectory: 'Danh mục phòng ban',
     receiptsAdd: 'thêm mới phiếu thu',
     paymentsAdd: 'Thêm mới phiếu chi',
-    receiptsAndExpendituresList: 'Danh sách phiếu thu/chi'
+    receiptsAndExpendituresList: 'Danh sách phiếu thu/chi',
+    approveManagement: 'Quản lý duyệt'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -594,6 +597,17 @@ export default {
     notSent: 'Chưa gửi',
     auto: 'Tự động',
     manual: 'Thủ công',
-    title: 'Tiêu đề'
+    title: 'Tiêu đề',
+    // account balance
+    openingBalance: 'Số dư đầu kỳ',
+    arisingInThePeriod: 'Số phát sinh trong kỳ',
+    arisingInTheEndOfPeriod: 'Số phát sinh cuối kỳ',
+    owed: 'Nợ',
+    cash: 'Có',
+    //approve management
+    categoriesInfor: 'Thông tin danh mục',
+    approveCondition: 'Điều kiện duyệt',
+    approveOrNot: 'Duyệt(On)/Không duyệt(Off)',
+    approvalManagement: 'Quản lý danh mục duyệt'
   }
 }

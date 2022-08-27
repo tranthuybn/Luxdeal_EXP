@@ -248,7 +248,8 @@ export default {
     productCategoryUnit: 'Unit',
     productCategoryBrand: 'Brand',
     productCategoryOrigin: 'Origin',
-    productCategoryProducts: 'Products category'
+    productCategoryProducts: 'Products category',
+    approveManagement: 'Approve Management'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -605,6 +606,16 @@ export default {
     notSent: 'Not Sent',
     auto: 'Auto',
     manual: 'Manual',
-    title: 'Title'
+    title: 'Title',
+    openingBalance: 'Opening balance',
+    arisingInThePeriod: 'Arising in the period',
+    arisingInTheEndOfPeriod: 'Arising in the end of period',
+    owed: 'owed',
+    cash: 'cash',
+    //approve management
+    categoriesInfo: 'Categories Info',
+    approveCondition: 'Approve Condition',
+    approveOrNot: 'Approve(On)/Unapproved(Off)',
+    approvalManagement: 'Approval Management'
   }
 }

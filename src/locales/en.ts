@@ -630,6 +630,9 @@ export default {
     statusAndFunction: 'Satus And Function',
     stopShowAppWeb: 'Stop show app/web user',
     stopActive: 'Stop active',
-    addImage: 'Add Image'
+    addImage: 'Add Image',
+    //banner advertisement
+    bannerCode: 'Banner Code',
+    linkBanner: 'Link Banner'
   }
 }

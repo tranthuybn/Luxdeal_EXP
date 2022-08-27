@@ -648,6 +648,20 @@ export default {
     byDay: 'Theo ngày',
     byWeek: 'Theo tuần',
     byMonth: 'Theo tháng',
-    byYear: 'Theo năm'
+    byYear: 'Theo năm',
+    //warehouse
+    save: 'Lưu',
+    addCategory: 'Thêm danh mục',
+    typeCategory: 'Loại danh mục',
+    chooseRankCategory: 'Chọn cấp danh mục',
+    rank1Category: 'Danh mục cấp 1',
+    rank2Category: 'Danh mục cấp 2',
+    generalInformation: 'Thông tin chung',
+    nameRank1Category: 'Tên danh mục cấp 1',
+    displayPosition: 'Vị trí hiển thị',
+    statusAndFunction: 'Trạng thái và chức năng',
+    stopShowAppWeb: 'Dừng hiển thị app/web user',
+    stopActive: 'Dừng hoạt động',
+    addImage: 'Thêm ảnh'
   }
 }

@@ -78,7 +78,7 @@ const schema = reactive<FormSchema[]>([
           value: '1'
         },
         {
-          label: t('reuse.stopShow'),
+          label: t('reuse.stopShowAppWeb'),
           value: '2'
         },
         {

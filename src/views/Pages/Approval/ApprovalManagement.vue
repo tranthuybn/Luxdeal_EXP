@@ -6,6 +6,7 @@ import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
 import { ContentWrap } from '@/components/ContentWrap'
 const { t } = useI18n()
 import { h } from 'vue'
+const { t } = useI18n()
 
 const seeDetail = (...param) => {
   console.log(param)

@@ -55,5 +55,8 @@ onMounted(() => {
         </div>
       </ElCard>
     </div>
+    <div :class="[`${prefixCls}-header__title`, 'flex flex-1  justify-center pb-8']"
+      ><slot name="under"></slot
+    ></div>
   </div>
 </template>

@@ -249,7 +249,8 @@ export default {
     productCategoryBrand: 'Brand',
     productCategoryOrigin: 'Origin',
     productCategoryProducts: 'Products category',
-    approveManagement: 'Approve Management'
+    approveManagement: 'Approve Management',
+    BalanceSheetUtility: 'Add new account'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -633,6 +634,15 @@ export default {
     addImage: 'Add Image',
     //banner advertisement
     bannerCode: 'Banner Code',
-    linkBanner: 'Link Banner'
+    linkBanner: 'Link Banner',
+    //BalanceSheetUtility
+    chooseRankAccount: 'Choose Rank Account',
+    rank1Account: 'Account Rank 1',
+    rank2Account: 'Account Rank 2',
+    badgeAccount1: 'Account 1 Badge',
+    nameAccount1: 'Account 1 Name',
+    closeAccount: 'Close Account',
+    typeAccount: 'Type of Account',
+    saveAndAdd: 'Save and Add'
   }
 }

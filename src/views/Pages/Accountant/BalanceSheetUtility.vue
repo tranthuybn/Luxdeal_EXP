@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 import { saveTableApi } from '@/api/table'
 import { TableData } from '@/api/table/types'
 import { useEmitt } from '@/hooks/web/useEmitt'
-import { TableOperator } from '../../Components/TableBase'
+import { TableOperator } from '../Components/TableBase'
 const { emitter } = useEmitt()
 
 const { push } = useRouter()
@@ -17,21 +17,21 @@ const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
   {
     field: 'field13',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeAccount'),
     component: 'Divider'
   },
   {
     field: 'field14',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.chooseRankAccount'),
     component: 'Select',
     componentProps: {
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.rank1Account'),
           value: '1'
         },
         {
-          label: t('reuse.rank2Category'),
+          label: t('reuse.rank2Account'),
           value: '2'
         }
       ]
@@ -47,7 +47,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field2',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.badgeAccount1'),
     component: 'Input',
     colProps: {
       span: 13
@@ -55,7 +55,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field3',
-    label: t('reuse.displayPosition'),
+    label: t('reuse.nameAccount1'),
     component: 'Input',
     colProps: {
       span: 13
@@ -78,12 +78,8 @@ const schema = reactive<FormSchema[]>([
           value: '1'
         },
         {
-          label: t('reuse.stopShowAppWeb'),
+          label: t('reuse.closeAccount'),
           value: '2'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '3'
         }
       ]
     }
@@ -116,9 +112,9 @@ const save = async () => {
 <template>
   <ContentDetailWrap
     :title="t('reuse.addCategory')"
-    @back="push({ name: 'Inventorymanagement.CreateStorageCategory.ProductStorage' })"
+    @back="push({ name: 'accountant.balanceSheet' })"
   >
-    <TableOperator ref="TableOperatorRef" :schema="schema" />
+    <TableOperator ref="TableOperatorRef" :schema="schema" :fullScreen="false" />
 
     <template #under>
       <ElButton type="primary" :loading="loading" @click="save">

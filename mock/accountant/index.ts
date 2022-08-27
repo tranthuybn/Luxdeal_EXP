@@ -2,6 +2,7 @@ import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
 
 interface accountBallance {
+  id: Number
   accountCode: string
   accountName: string
   openingBalanceOwed: Number
@@ -19,7 +20,7 @@ for (let i = 0; i < count; i++) {
   accountBallance.push(
     Mock.mock({
       id: i,
-      accountCode: '@title(5, 10)',
+      accountCode: '@integer(0,100)',
       accountName: '@title(5, 10)',
       openingBalanceOwed: '@integer(1, 3)',
       openingBalanceCash: '@integer(1, 3)',
@@ -29,8 +30,8 @@ for (let i = 0; i < count; i++) {
       cashArisingInTheEndOfPeriod: '@integer(1, 3)',
       children: [
         {
-          id: i,
-          accountCode: '@title(5, 10)',
+          id: ++i,
+          accountCode: '@integer(0,100)',
           accountName: '@title(5, 10)',
           openingBalanceOwed: '@integer(1, 3)',
           openingBalanceCash: '@integer(1, 3)',
@@ -40,8 +41,8 @@ for (let i = 0; i < count; i++) {
           cashArisingInTheEndOfPeriod: '@integer(1, 3)'
         },
         {
-          id: i,
-          accountCode: '@title(5, 10)',
+          id: ++i,
+          accountCode: '@integer(0,100)',
           accountName: '@title(5, 10)',
           openingBalanceOwed: '@integer(1, 3)',
           openingBalanceCash: '@integer(1, 3)',

@@ -1,13 +1,8 @@
-import { useIcon } from '@/hooks/web/useIcon'
-import { ElButton, ElCol, ElRow } from 'element-plus'
-import { h, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { apiType } from './Type'
-// declare
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
+
 // Add operation column for table
 const operatorColumn: TableColumn = {
   field: 'operator',

@@ -17,6 +17,10 @@ const props = defineProps({
   schema: {
     type: Array as PropType<FormSchema[]>,
     default: () => []
+  },
+  fullScreen: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -84,14 +88,17 @@ const addIcon = useIcon({ icon: 'uil:plus' })
 const downloadIcon = useIcon({ icon: 'uil:download-alt' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+
+let fullSpan = ref<number>()
+props.fullScreen ? (fullSpan.value = 16) : (fullSpan.value = 24)
 </script>
 
 <template>
   <ElRow :gutter="20" justify="space-between">
-    <ElCol :span="16">
+    <ElCol :span="fullSpan">
       <Form :rules="rules" @register="register" :schema="schema" />
     </ElCol>
-    <ElCol :span="8">
+    <ElCol :span="8" v-if="fullScreen">
       <div>{{ t('reuse.addImage') }}</div>
       <el-upload action="#" list-type="picture-card" :auto-upload="false">
         <el-button :icon="addIcon" />

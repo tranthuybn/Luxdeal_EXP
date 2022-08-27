@@ -15,11 +15,10 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
 const unitCategories = [
   { field: 'void', width: '50' },
   {
-    field: 'accountNumber',
+    field: 'accountCode',
     label: t('reuse.accountCode'),
     minWidth: '100'
   },
-
   {
     field: 'accountName',
     label: t('userDemo.username'),
@@ -101,6 +100,7 @@ const unitCategories = [
     :api="getAccountantBalanceList"
     :selection="false"
     isOperatorColumnCustomize
+    nameRouter="accountant.balanceSheetUtility"
   />
 </template>
 <style></style>

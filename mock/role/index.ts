@@ -677,7 +677,21 @@ const adminList = [
         name: 'accountant.balanceSheet',
         meta: {
           title: 'router.balanceSheet'
-        }
+        },
+        children: [
+          {
+            path: 'balanceSheetUtility',
+            component: 'views/Pages/Accountant/BalanceSheetUtility',
+            name: 'accountant.balanceSheetUtility',
+            meta: {
+              title: 'router.BalanceSheetUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          }
+        ]
       }
     ]
   },

@@ -584,6 +584,16 @@ export default {
     reciprocalProfile: 'Hồ sơ đối ứng',
     accountCode: 'Mã tài khoản',
     accountingDate: 'Ngày hoạch toán',
-    proposalCode: 'Mã đề nghị'
+    proposalCode: 'Mã đề nghị',
+    rentTerm: 'Kỳ hạn thuê',
+    notificationCode: 'Mã thông báo',
+    shortDescription: 'Mô tả ngắn',
+    notificationType: 'Loại thông báo',
+    sendDate: 'Ngày gửi',
+    sented: 'Đã gửi',
+    notSent: 'Chưa gửi',
+    auto: 'Tự động',
+    manual: 'Thủ công',
+    title: 'Tiêu đề'
   }
 }

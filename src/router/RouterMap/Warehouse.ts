@@ -14,7 +14,7 @@ export default {
   children: [
     {
       path: 'dashboard',
-      component: () => import('@/views/Pages/Warehouse/index.vue'),
+      component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/index.vue'),
       name: 'warehouse-dashboard',
       meta: {
         title: 'dashboard'

@@ -42,7 +42,8 @@ export default {
     },
     {
       path: 'receipts-and-expenditures',
-      component: () => import('@/views/Pages/Accountant/ReceiptsAndExpenditures.vue'),
+      component: () =>
+        import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAndExpenditures.vue'),
       name: 'accountant.receiptsAndExpenditures',
       meta: {
         title: t('router.receiptsAndExpenditures')

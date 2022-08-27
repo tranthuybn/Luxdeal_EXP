@@ -12,17 +12,8 @@ const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const operatorColumn: TableColumn = {
   field: 'operator',
   label: t('reuse.operator'),
-  minWidth: '180',
-  fixed: false,
-  formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-    return h(ElRow, { gutter: 20, justify: 'space-around' }, () => [
-      h(ElCol, { span: 8 }, () =>
-        h(ElButton, { icon: eyeIcon, onClick: () => addingEvent(record, cellValue) })
-      ),
-      h(ElCol, { span: 8 }, () => h(ElButton, { icon: editIcon })),
-      h(ElCol, { span: 8 }, () => h(ElButton, { icon: trashIcon }))
-    ])
-  }
+  minWidth: '200',
+  fixed: false
 }
 // add operator column at the end if dynamicColumns doesnt have
 const addOperatorColumn = (dynamicColumns) => {

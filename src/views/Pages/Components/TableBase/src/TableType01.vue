@@ -5,8 +5,9 @@ import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
-import { ElImage } from 'element-plus'
+import { ElImage, ElButton } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
+import { useIcon } from '@/hooks/web/useIcon'
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -99,8 +100,20 @@ const cancel = (field) => {
 const filterSelect = (value) => {
   setSearchParams(value)
 }
+
+const action = (row: TableData, type: string) => {
+  console.log('row', row, 'type', type)
+  //push(`/example/example-${type}?id=${row.id}`)
+}
+const delData = async (row: TableData | null, multiple: boolean) => {
+  console.log('row', row, 'multiple', multiple)
+}
 //get array of headerFilter in column (if there is a headerFilter)
 const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
+
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 </script>
 <template>
   <ContentWrap>
@@ -164,6 +177,11 @@ const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilt
           @filter-select="filterSelect"
           @cancel="cancel"
         />
+      </template>
+      <template #operator="{ row }">
+        <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
+        <ElButton @click="action(row, 'detail')" :icon="editIcon" />
+        <ElButton @click="delData(row, false)" :icon="trashIcon" />
       </template>
     </Table>
   </ContentWrap>

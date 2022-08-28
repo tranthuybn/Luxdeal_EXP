@@ -79,5 +79,5 @@ const schema = reactive<FormSchema[]>([
 </script>
 
 <template>
-  <TableOperator :schema="schema" :fullScreen="false" />
+  <TableOperator :schema="schema" :hasImage="false" />
 </template>

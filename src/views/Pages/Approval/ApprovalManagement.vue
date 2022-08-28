@@ -7,8 +7,8 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { h } from 'vue'
 const { t } = useI18n()
 
-const seeDetail = (record: Recordable, data: TableSlotDefault) => {
-  console.log(record, data)
+const seeDetail = (...param) => {
+  console.log(param)
 }
 const unitCategories = [
   { field: 'void', width: '50' },
@@ -29,10 +29,11 @@ const unitCategories = [
     minWidth: '100',
     fixed: false,
     align: 'center',
-    formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
       return h(ElSwitch, {
         style: { margin: 'auto' },
-        onClick: () => seeDetail(record, cellValue)
+        modelValue: record.approveOrNot,
+        onClick: () => seeDetail(record, column, cellValue)
       })
     }
   }

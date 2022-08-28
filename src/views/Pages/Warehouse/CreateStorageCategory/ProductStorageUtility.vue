@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import { ContentDetailWrap } from '@/components/ContentDetailWrap'
-import { ref, unref, reactive } from 'vue'
-import { ElButton } from 'element-plus'
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useRouter } from 'vue-router'
-import { saveTableApi } from '@/api/table'
-import { TableData } from '@/api/table/types'
-import { useEmitt } from '@/hooks/web/useEmitt'
 import { TableOperator } from '../../Components/TableBase'
-const { emitter } = useEmitt()
-
-const { push } = useRouter()
 
 const { t } = useI18n()
 
@@ -89,44 +80,8 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-
-const TableOperatorRef = ref<ComponentRef<typeof TableOperator>>()
-
-const loading = ref(false)
-
-const save = async () => {
-  const write = unref(TableOperatorRef)
-  await write?.elFormRef?.validate(async (isValid) => {
-    if (isValid) {
-      loading.value = true
-      const data = (await write?.getFormData()) as TableData
-      const res = await saveTableApi(data)
-        .catch(() => {})
-        .finally(() => {
-          loading.value = false
-        })
-      if (res) {
-        emitter.emit('getList', 'add')
-      }
-    }
-  })
-}
 </script>
 
 <template>
-  <ContentDetailWrap
-    :title="t('reuse.addCategory')"
-    @back="push({ name: 'Inventorymanagement.CreateStorageCategory.ProductStorage' })"
-  >
-    <TableOperator ref="TableOperatorRef" :schema="schema" />
-
-    <template #under>
-      <ElButton type="primary" :loading="loading" @click="save">
-        {{ t('reuse.save') }}
-      </ElButton>
-      <ElButton type="primary" :loading="loading" @click="save">
-        {{ t('reuse.saveAndAdd') }}
-      </ElButton>
-    </template>
-  </ContentDetailWrap>
+  <TableOperator :schema="schema" />
 </template>

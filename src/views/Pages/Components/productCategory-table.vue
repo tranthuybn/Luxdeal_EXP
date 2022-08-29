@@ -58,10 +58,8 @@ const { push } = useRouter()
 const router = useRouter()
 
 const pushAdd = () => {
-  console.log(router.currentRoute.value)
-
   push({
-    name: props.nameRouter,
+    name: `${String(router.currentRoute.value.name)}.Utility`,
     params: { tabName: currentTab.value, backRoute: String(router.currentRoute.value.name) }
   })
 }

@@ -5,7 +5,6 @@ import { getAccountantBalanceList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import TableType01 from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
 import { h } from 'vue'
-import { useRouter } from 'vue-router'
 const { t } = useI18n()
 
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
@@ -94,9 +93,6 @@ const unitCategories = [
     }
   }
 ]
-const router = useRouter()
-var nameRouter = String(router.currentRoute.value.name)
-nameRouter = `${nameRouter}Utility`
 </script>
 <template>
   <TableType01
@@ -104,7 +100,6 @@ nameRouter = `${nameRouter}Utility`
     :api="getAccountantBalanceList"
     :selection="false"
     isOperatorColumnCustomize
-    :nameRouter="nameRouter"
   />
 </template>
 <style></style>

@@ -1,6 +1,6 @@
 import { config } from '@/config/axios/config'
 import { MockMethod } from 'vite-plugin-mock'
-
+const utility = 'Utility'
 const { result_code } = config
 
 const timeout = 1000
@@ -115,11 +115,11 @@ const adminList = [
             },
             children: [
               {
-                path: 'utility',
+                path: `${utility}`,
                 component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
-                name: 'products-services.ProductCategoryUtility',
+                name: `products-services.ProductCategory.${utility}`,
                 meta: {
-                  title: 'router.BalanceSheetUtility',
+                  title: 'reuse.addNewProductCategory',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -137,11 +137,11 @@ const adminList = [
             },
             children: [
               {
-                path: 'utility',
+                path: `${utility}`,
                 component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
-                name: 'products-services.AttributeCategoryUtility',
+                name: `products-services.AttributeCategory.${utility}`,
                 meta: {
-                  title: 'router.BalanceSheetUtility',
+                  title: 'reuse.addNewAttribute',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -159,11 +159,11 @@ const adminList = [
             },
             children: [
               {
-                path: 'utility',
+                path: `${utility}`,
                 component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
-                name: 'products-services.UnitCategoryUtility',
+                name: `products-services.UnitCategory.${utility}`,
                 meta: {
-                  title: 'router.BalanceSheetUtility',
+                  title: 'reuse.addNewUnit',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -181,11 +181,11 @@ const adminList = [
             },
             children: [
               {
-                path: 'utility',
+                path: `${utility}`,
                 component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
-                name: 'products-services.BrandCategoryUtility',
+                name: `products-services.BrandCategory.${utility}`,
                 meta: {
-                  title: 'router.BalanceSheetUtility',
+                  title: 'reuse.addNewBrand',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -203,11 +203,11 @@ const adminList = [
             },
             children: [
               {
-                path: 'utility',
+                path: `${utility}`,
                 component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
-                name: 'products-services.OriginCategoryUtility',
+                name: `products-services.OriginCategory.${utility}`,
                 meta: {
-                  title: 'router.BalanceSheetUtility',
+                  title: 'reuse.addNewOrigin',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -656,11 +656,11 @@ const adminList = [
             }
           },
           {
-            path: 'utility',
+            path: `${utility}`,
             component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
-            name: 'Inventorymanagement.CreateStorageCategory.ProductStorageUtility',
+            name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
             meta: {
-              title: 'router.createRepositoryDirectoryProductStorageUtility',
+              title: 'reuse.addNewWarehouse',
               noTagsView: true,
               noCache: true,
               hidden: true,
@@ -750,11 +750,11 @@ const adminList = [
         },
         children: [
           {
-            path: 'utility',
+            path: `${utility}`,
             component: 'views/Pages/Accountant/BalanceSheetUtility',
-            name: 'accountant.balanceSheetUtility',
+            name: `accountant.balanceSheet.${utility}`,
             meta: {
-              title: 'router.BalanceSheetUtility',
+              title: 'reuse.addNewAccount',
               noTagsView: true,
               noCache: true,
               hidden: true,

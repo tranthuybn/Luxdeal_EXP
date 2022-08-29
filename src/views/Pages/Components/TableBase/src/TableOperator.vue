@@ -134,7 +134,7 @@ if (props.title == 'undefined') {
 </script>
 
 <template>
-  <ContentDetailWrap :title="t(`reuse.addNew${title}`)" @back="push({ name: nameBack })">
+  <ContentDetailWrap :title="t(title)" @back="push({ name: nameBack })">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" :schema="schema" />

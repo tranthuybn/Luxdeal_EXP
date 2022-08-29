@@ -56,7 +56,10 @@ onBeforeMount(() => {
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
-  push({ name: props.nameRouter, params: { backRoute: String(router.currentRoute.value.name) } })
+  push({
+    name: `${String(router.currentRoute.value.name)}.Utility`,
+    params: { backRoute: String(router.currentRoute.value.name) }
+  })
 }
 </script>
 <template>

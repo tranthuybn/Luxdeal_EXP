@@ -78,7 +78,8 @@ async function getTableSelected() {
     .catch(() => {})
 }
 defineExpose({
-  getData
+  getData,
+  tableObject
 })
 //call api when filter in header change
 const { setSearchParams, clearSearchParams } = methods

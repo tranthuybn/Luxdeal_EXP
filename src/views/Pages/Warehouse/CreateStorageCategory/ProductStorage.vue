@@ -4,6 +4,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getProductStorageList } from '@/api/Warehouse'
 import { filterTableStatus } from '@/utils/filters'
+import { useRouter } from 'vue-router'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   { field: 'void', width: '50' },
@@ -27,12 +28,15 @@ const columns = reactive<TableColumn[]>([
     filters: filterTableStatus
   }
 ])
+const router = useRouter()
+var nameRouter = String(router.currentRoute.value.name)
+nameRouter = `${nameRouter}Utility`
 </script>
 <template>
   <tableDatetimeFilterBasicVue
     :columns="columns"
     :api="getProductStorageList"
     :selection="false"
-    nameRouter="Inventorymanagement.CreateStorageCategory.ProductStorageUtility"
+    :nameRouter="nameRouter"
   />
 </template>

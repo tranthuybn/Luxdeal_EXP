@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { apiType } from './Type'
+import { useRoute } from 'vue-router'
 
 // Add operation column for table
 const operatorColumn: TableColumn = {
@@ -41,6 +42,11 @@ const resetTable = () => {
     dynamicColumns.value?.splice(0, dynamicColumns.value.length)
   dynamicApi.value = undefined
 }
+//get utility route
+const route = useRoute()
+const utilityRoute = () => {
+  return route
+}
 export {
   operatorColumn,
   addingEvent,
@@ -51,5 +57,6 @@ export {
   dynamicApi,
   dynamicColumns,
   resetTable,
-  addOperatorColumn
+  addOperatorColumn,
+  utilityRoute
 }

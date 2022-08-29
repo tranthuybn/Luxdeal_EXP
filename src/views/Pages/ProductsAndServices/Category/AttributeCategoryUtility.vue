@@ -87,5 +87,6 @@ const currentRoute = String(route.params.backRoute)
 </script>
 
 <template>
+  {{ currentRoute }}
   <TableOperator :schema="schema" :nameBack="currentRoute" title="Attribute" />
 </template>

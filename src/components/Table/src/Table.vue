@@ -351,11 +351,6 @@ export default defineComponent({
     white-space: unset;
   }
 }
-::v-deep(.el-table__row--level-1) {
-  .cell {
-    padding-left: 30px;
-  }
-}
 ::v-deep(.el-pagination.is-background .btn-next),
 ::v-deep(.el-pagination.is-background .btn-prev),
 ::v-deep(.el-pagination.is-background .el-pager li) {

@@ -12,6 +12,7 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useRouter } from 'vue-router'
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
@@ -33,7 +34,10 @@ const tabs: Array<Tab> = [
     column: propertyProductCategories
   }
 ]
+const router = useRouter()
+var nameRouter = String(router.currentRoute.value.name)
+nameRouter = `${nameRouter}Utility`
 </script>
 <template>
-  <productCategoryTable :tabs="tabs" nameRouter="products-services.ProductCategoryUtility" />
+  <productCategoryTable :tabs="tabs" :nameRouter="nameRouter" />
 </template>

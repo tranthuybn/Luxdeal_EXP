@@ -38,10 +38,10 @@ const adminList = [
     ]
   },
   {
-    path: '/products-sevices',
+    path: '/products-services',
     component: '#',
-    redirect: { name: 'products-sevices.ProductLibrary' },
-    name: 'products-sevices',
+    redirect: { name: 'products-services.ProductLibrary' },
+    name: 'products-services',
     meta: {
       title: 'router.productsAndServices',
       icon: 'gridicons:product-virtual',
@@ -50,7 +50,7 @@ const adminList = [
     children: [
       {
         path: 'product-library',
-        name: 'products-sevices.ProductLibrary',
+        name: 'products-services.ProductLibrary',
         meta: {
           title: 'router.productManagement'
         },
@@ -58,7 +58,7 @@ const adminList = [
           {
             path: 'products',
             component: 'views/Pages/ProductsAndServices/ProductLibrary/Products',
-            name: 'products-sevices.productLibraryProducts',
+            name: 'products-services.productLibraryProducts',
             meta: {
               title: 'router.productLibraryProducts'
             }
@@ -66,7 +66,7 @@ const adminList = [
           {
             path: 'spa-material',
             component: 'views/Pages/ProductsAndServices/ProductLibrary/SpaMaterial',
-            name: 'products-sevices.productLibrarySpaMaterial',
+            name: 'products-services.productLibrarySpaMaterial',
             meta: {
               title: 'router.productLibrarySpaMaterial'
             }
@@ -74,7 +74,7 @@ const adminList = [
           {
             path: 'properties',
             component: 'views/Pages/ProductsAndServices/ProductLibrary/Properties',
-            name: 'products-sevices.productLibraryproperties',
+            name: 'products-services.productLibraryproperties',
             meta: {
               title: 'router.productLibraryproperties'
             }
@@ -83,7 +83,7 @@ const adminList = [
       },
       {
         path: 'service-library',
-        name: 'products-sevices.ServiceLibrary',
+        name: 'products-services.ServiceLibrary',
         meta: {
           title: 'router.serviceManagement',
           alwaysShow: true
@@ -92,7 +92,7 @@ const adminList = [
           {
             path: 'spa-service',
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaService',
-            name: 'products-sevices.ServiceLibrarySpaService',
+            name: 'products-services.ServiceLibrarySpaService',
             meta: {
               title: 'router.ServiceLibrarySpaService'
             }
@@ -101,7 +101,7 @@ const adminList = [
       },
       {
         path: 'product-property',
-        name: 'products-sevices.product-property',
+        name: 'products-services.product-property',
         meta: {
           title: 'router.productPropertyNew'
         },
@@ -109,13 +109,13 @@ const adminList = [
           {
             path: 'product-category',
             component: 'views/Pages/ProductsAndServices/Category/Product',
-            name: 'products-sevices.productCategoryProducts',
+            name: 'products-services.ProductCategory',
             meta: {
               title: 'router.productCategoryProducts'
             },
             children: [
               {
-                path: 'ProductCategoryUtility',
+                path: 'utility',
                 component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
                 name: 'products-services.ProductCategoryUtility',
                 meta: {
@@ -131,13 +131,13 @@ const adminList = [
           {
             path: 'attribute-category',
             component: 'views/Pages/ProductsAndServices/Category/Attribute',
-            name: 'products-sevices.productCategoryAttribute',
+            name: 'products-services.AttributeCategory',
             meta: {
               title: 'router.productCategoryAttribute'
             },
             children: [
               {
-                path: 'AttributeCategoryUtility',
+                path: 'utility',
                 component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
                 name: 'products-services.AttributeCategoryUtility',
                 meta: {
@@ -153,13 +153,13 @@ const adminList = [
           {
             path: 'unit-category',
             component: 'views/Pages/ProductsAndServices/Category/Unit',
-            name: 'products-sevices.productCategoryUnit',
+            name: 'products-services.UnitCategory',
             meta: {
               title: 'router.productCategoryUnit'
             },
             children: [
               {
-                path: 'UnitCategoryUtility',
+                path: 'utility',
                 component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
                 name: 'products-services.UnitCategoryUtility',
                 meta: {
@@ -175,13 +175,13 @@ const adminList = [
           {
             path: 'brand-category',
             component: 'views/Pages/ProductsAndServices/Category/Brand',
-            name: 'products-sevices.productCategoryBrand',
+            name: 'products-services.BrandCategory',
             meta: {
               title: 'router.productCategoryBrand'
             },
             children: [
               {
-                path: 'BrandCategoryUtility',
+                path: 'utility',
                 component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
                 name: 'products-services.BrandCategoryUtility',
                 meta: {
@@ -197,13 +197,13 @@ const adminList = [
           {
             path: 'origin-category',
             component: 'views/Pages/ProductsAndServices/Category/Origin',
-            name: 'products-sevices.productCategoryOrigin',
+            name: 'products-services.OriginCategory',
             meta: {
               title: 'router.productCategoryOrigin'
             },
             children: [
               {
-                path: 'OriginCategoryUtility',
+                path: 'utility',
                 component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
                 name: 'products-services.OriginCategoryUtility',
                 meta: {
@@ -656,7 +656,7 @@ const adminList = [
             }
           },
           {
-            path: 'product-storage-utility',
+            path: 'utility',
             component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
             name: 'Inventorymanagement.CreateStorageCategory.ProductStorageUtility',
             meta: {
@@ -750,7 +750,7 @@ const adminList = [
         },
         children: [
           {
-            path: 'balanceSheetUtility',
+            path: 'utility',
             component: 'views/Pages/Accountant/BalanceSheetUtility',
             name: 'accountant.balanceSheetUtility',
             meta: {

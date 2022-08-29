@@ -82,9 +82,10 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const route = useRoute()
+const tabName = String(route.params.tabName)
 const currentRoute = String(route.params.backRoute)
 </script>
 
 <template>
-  <TableOperator :schema="schema" :nameBack="currentRoute" />
+  <TableOperator :schema="schema" :nameBack="currentRoute" :title="tabName" />
 </template>

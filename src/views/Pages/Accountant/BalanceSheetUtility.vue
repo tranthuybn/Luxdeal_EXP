@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
+import { useRoute } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -76,8 +77,10 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+const route = useRoute()
+const currentRoute = String(route.params.backRoute)
 </script>
 
 <template>
-  <TableOperator :schema="schema" :hasImage="false" />
+  <TableOperator :schema="schema" :nameBack="currentRoute" :hasImage="false" />
 </template>

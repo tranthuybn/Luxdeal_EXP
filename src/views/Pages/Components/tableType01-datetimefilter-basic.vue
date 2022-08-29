@@ -16,6 +16,8 @@ import {
   dynamicColumns
 } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -52,15 +54,18 @@ onBeforeMount(() => {
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
 const { push } = useRouter()
+const router = useRouter()
 const pushAdd = () => {
-  push({ name: props.nameRouter })
+  push({ name: props.nameRouter, params: { backRoute: String(router.currentRoute.value.name) } })
 }
 </script>
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData">
       <template #headerFilterSlot>
-        <el-button type="primary" :icon="createIcon" @click="pushAdd"> Khởi tạo mới </el-button>
+        <el-button type="primary" :icon="createIcon" @click="pushAdd">
+          {{ t('reuse.addCategory') }}</el-button
+        >
       </template>
     </HeaderFiler>
     <TableExtension

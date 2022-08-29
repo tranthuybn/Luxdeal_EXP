@@ -29,6 +29,14 @@ const props = defineProps({
   hasImage: {
     type: Boolean,
     default: true
+  },
+  title: {
+    type: String,
+    default: 'Category'
+  },
+  nameBack: {
+    type: String,
+    default: ''
   }
 })
 
@@ -114,15 +122,16 @@ const downloadIcon = useIcon({ icon: 'uil:download-alt' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
+//if schema has image then split screen
 let fullSpan = ref<number>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
+
+//set Title
+const title = ref(props.title)
 </script>
 
 <template>
-  <ContentDetailWrap
-    :title="t('reuse.addCategory')"
-    @back="push({ name: 'Inventorymanagement.CreateStorageCategory.ProductStorage' })"
-  >
+  <ContentDetailWrap :title="t(`reuse.add${title}`)" @back="push({ name: nameBack })">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" :schema="schema" />

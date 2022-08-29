@@ -4,5 +4,10 @@ import { originCategories } from './CategoryManagement'
 import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <TableType01 :columns="originCategories" :api="getOriginCategories" :selection="false" />
+  <TableType01
+    :columns="originCategories"
+    :api="getOriginCategories"
+    :selection="false"
+    nameRouter="products-services.OriginCategoryUtility"
+  />
 </template>

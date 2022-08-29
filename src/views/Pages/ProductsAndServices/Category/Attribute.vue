@@ -51,5 +51,5 @@ const tabs: Array<Tab> = [
 ]
 </script>
 <template>
-  <productCategoryTable :tabs="tabs" />
+  <productCategoryTable :tabs="tabs" nameRouter="products-services.AttributeCategoryUtility" />
 </template>

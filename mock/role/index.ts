@@ -112,7 +112,21 @@ const adminList = [
             name: 'products-sevices.productCategoryProducts',
             meta: {
               title: 'router.productCategoryProducts'
-            }
+            },
+            children: [
+              {
+                path: 'ProductCategoryUtility',
+                component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
+                name: 'products-services.ProductCategoryUtility',
+                meta: {
+                  title: 'router.BalanceSheetUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'attribute-category',
@@ -120,7 +134,21 @@ const adminList = [
             name: 'products-sevices.productCategoryAttribute',
             meta: {
               title: 'router.productCategoryAttribute'
-            }
+            },
+            children: [
+              {
+                path: 'AttributeCategoryUtility',
+                component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
+                name: 'products-services.AttributeCategoryUtility',
+                meta: {
+                  title: 'router.BalanceSheetUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'unit-category',
@@ -128,7 +156,21 @@ const adminList = [
             name: 'products-sevices.productCategoryUnit',
             meta: {
               title: 'router.productCategoryUnit'
-            }
+            },
+            children: [
+              {
+                path: 'UnitCategoryUtility',
+                component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
+                name: 'products-services.UnitCategoryUtility',
+                meta: {
+                  title: 'router.BalanceSheetUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'brand-category',
@@ -136,7 +178,21 @@ const adminList = [
             name: 'products-sevices.productCategoryBrand',
             meta: {
               title: 'router.productCategoryBrand'
-            }
+            },
+            children: [
+              {
+                path: 'BrandCategoryUtility',
+                component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
+                name: 'products-services.BrandCategoryUtility',
+                meta: {
+                  title: 'router.BalanceSheetUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'origin-category',
@@ -144,7 +200,21 @@ const adminList = [
             name: 'products-sevices.productCategoryOrigin',
             meta: {
               title: 'router.productCategoryOrigin'
-            }
+            },
+            children: [
+              {
+                path: 'OriginCategoryUtility',
+                component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
+                name: 'products-services.OriginCategoryUtility',
+                meta: {
+                  title: 'router.BalanceSheetUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       }

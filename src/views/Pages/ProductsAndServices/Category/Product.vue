@@ -21,13 +21,13 @@ const tabs: Array<Tab> = [
     column: productCategories
   },
   {
-    name: 'Spa',
+    name: 'spaProductStep2',
     label: t('reuse.spaProduct'),
     api: getSpaProductCategories,
     column: spaProductCategories
   },
   {
-    name: 'Property',
+    name: 'propertyProductStep2',
     label: t('reuse.propertyProduct'),
     api: getPropertyProductCategories,
     column: propertyProductCategories
@@ -35,5 +35,5 @@ const tabs: Array<Tab> = [
 ]
 </script>
 <template>
-  <productCategoryTable :tabs="tabs" />
+  <productCategoryTable :tabs="tabs" nameRouter="products-services.ProductCategoryUtility" />
 </template>

@@ -6,11 +6,17 @@ import { HeaderFiler } from './HeaderFilter/index'
 import { TableType01 } from './TableBase/index'
 import { Tab } from './Type'
 import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
-
+import { useRouter } from 'vue-router'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const props = defineProps({
   tabs: {
     type: Array<Tab>,
     default: () => []
+  },
+  nameRouter: {
+    type: String,
+    default: ''
   }
 })
 // declare
@@ -47,6 +53,16 @@ const tabChangeEvent = (name) => {
     addOperatorColumn(dynamicColumns.value)
   }
 }
+
+const { push } = useRouter()
+const router = useRouter()
+
+const pushAdd = () => {
+  push({
+    name: props.nameRouter,
+    params: { tabName: currentTab.value, backRoute: String(router.currentRoute.value.name) }
+  })
+}
 </script>
 <template>
   <section>
@@ -66,7 +82,9 @@ const tabChangeEvent = (name) => {
         <div :key="currentTab" v-if="item.name === currentTab">
           <HeaderFiler @get-data="getData" @refresh-data="getData">
             <template #headerFilterSlot>
-              <el-button type="primary" :icon="createIcon"> Thêm mới danh mục </el-button>
+              <el-button type="primary" :icon="createIcon" @click="pushAdd">
+                {{ t('reuse.addCategory') }}
+              </el-button>
             </template>
           </HeaderFiler>
           <TableType01

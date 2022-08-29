@@ -1,5 +1,3 @@
-import approval from 'mock/approval'
-
 export default {
   common: {
     inputText: 'Vui lòng nhập',
@@ -655,7 +653,7 @@ export default {
     byYear: 'Theo năm',
     //warehouse
     save: 'Lưu',
-    addCategory: 'Thêm danh mục',
+    addCategory: 'Thêm mới danh mục',
     typeCategory: 'Loại danh mục',
     chooseRankCategory: 'Chọn cấp danh mục',
     rank1Category: 'Danh mục cấp 1',
@@ -693,6 +691,15 @@ export default {
     nameAccount1: 'Tên tài khoản cấp 1',
     closeAccount: 'Đóng tài khoản',
     typeAccount: 'Loại tài khoản',
-    saveAndAdd: 'Lưu và thêm mới'
+    saveAndAdd: 'Lưu và thêm mới',
+    //khoi tao moi San pham va dich vu
+    addNewCategory: 'Thêm mới danh mục',
+    addNewProductCategory: 'Thêm mới danh mục sản phẩm',
+    addNewAttribute: 'Thêm mới đặc tính',
+    addNewBrand: 'Thêm mới thương hiệu',
+    addNewOrigin: 'Thêm mới xuất xứ',
+    addNewUnit: 'Thêm mới đơn vị tính',
+    addNewWarehouse: 'Thêm mới kho',
+    addNewAccount: 'Thêm mới tài khoản'
   }
 }

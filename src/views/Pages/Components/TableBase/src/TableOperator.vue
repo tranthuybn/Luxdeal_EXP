@@ -127,11 +127,14 @@ let fullSpan = ref<number>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 
 //set Title
-const title = ref(props.title)
+let title = ref(props.title)
+if (props.title == 'undefined') {
+  title.value = 'Category'
+}
 </script>
 
 <template>
-  <ContentDetailWrap :title="t(`reuse.add${title}`)" @back="push({ name: nameBack })">
+  <ContentDetailWrap :title="t(`reuse.addNew${title}`)" @back="push({ name: nameBack })">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" :schema="schema" />

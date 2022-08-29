@@ -643,6 +643,15 @@ export default {
     nameAccount1: 'Account 1 Name',
     closeAccount: 'Close Account',
     typeAccount: 'Type of Account',
-    saveAndAdd: 'Save and Add'
+    saveAndAdd: 'Save and Add',
+    //khoi tao moi San pham va dich vu
+    addNewCategory: 'Add New Category',
+    addNewProductCategory: 'Add New Product Category',
+    addNewAttribute: 'Add New Attribute',
+    addNewBrand: 'Add New Brand',
+    addNewOrigin: 'Add New Origin',
+    addNewUnit: 'Add New Unit',
+    addNewWarehouse: 'Add New Warehouse',
+    addNewAccount: 'Add New Account'
   }
 }

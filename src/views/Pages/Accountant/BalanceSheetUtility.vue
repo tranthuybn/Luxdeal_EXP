@@ -82,5 +82,5 @@ const currentRoute = String(route.params.backRoute)
 </script>
 
 <template>
-  <TableOperator :schema="schema" :nameBack="currentRoute" :hasImage="false" />
-</template>
+  <TableOperator :schema="schema" :nameBack="currentRoute" :hasImage="false" title="Account"
+/></template>

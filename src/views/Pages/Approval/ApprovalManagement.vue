@@ -4,11 +4,19 @@ import { ElSwitch } from 'element-plus'
 import { getApproveManagementList } from '@/api/Approval'
 import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
 import { ContentWrap } from '@/components/ContentWrap'
-import { h } from 'vue'
+import { h, ref, unref } from 'vue'
 const { t } = useI18n()
+const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 
 const seeDetail = (...param) => {
-  console.log(param)
+  const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
+    ? unref(tableBase01)?.tableObject.tableList
+    : []
+  if (array && array.length > 0) {
+    array.forEach((el) => {
+      if (el.id === param[0].id) el['approveOrNot'] = !param[2]
+    })
+  }
 }
 const unitCategories = [
   { field: 'void', width: '50' },
@@ -41,7 +49,12 @@ const unitCategories = [
 </script>
 <template>
   <ContentWrap :title="t('reuse.approvalManagement')">
-    <TableType01 :fullColumns="unitCategories" :api="getApproveManagementList" :selection="false" />
+    <TableType01
+      ref="tableBase01"
+      :fullColumns="unitCategories"
+      :api="getApproveManagementList"
+      :selection="false"
+    />
   </ContentWrap>
 </template>
 <style></style>

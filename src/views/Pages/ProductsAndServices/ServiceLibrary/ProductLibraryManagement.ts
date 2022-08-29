@@ -1,4 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import { filterTableStatus } from '@/utils/filters'
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -28,18 +29,21 @@ export const businessProductLibrary = [
     field: 'unitPrice',
     label: t('reuse.unitPrice'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'time',
-    label: t('reuse.time'),
+    label: t('reuse.timeMinute'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'insurance',
-    label: t('reuse.insurance'),
+    label: t('reuse.insuranceDate'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
@@ -52,18 +56,19 @@ export const businessProductLibrary = [
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    sortable: true
+    filters: filterTableStatus
   }
 ]

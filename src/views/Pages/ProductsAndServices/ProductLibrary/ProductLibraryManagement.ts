@@ -1,6 +1,11 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { filterTableStatus, filterTableCategory } from '@/utils/filters'
+import {
+  filterTableStatus,
+  filterTableCategory,
+  filterIventory,
+  filterDeposit
+} from '@/utils/filters'
 export const businessProductLibrary = [
   {
     field: 'index',
@@ -10,23 +15,14 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center',
-    headerFilter: 'Date'
-  },
-  {
     field: 'productCode',
     label: t('reuse.productCode'),
-    minWidth: '150',
-    headerFilter: 'Money'
+    minWidth: '150'
   },
   {
     field: 'productName',
     label: t('reuse.productName'),
-    minWidth: '250',
-    headerFilter: 'Number'
+    minWidth: '250'
   },
   {
     field: 'description',
@@ -42,57 +38,77 @@ export const businessProductLibrary = [
   {
     field: 'inventory',
     label: t('reuse.inventory'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'currentlyLeased',
     label: t('reuse.currentlyLeased'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'quantitySold',
     label: t('reuse.quantitySold'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesrRented',
     label: t('reuse.numberOfTimesrRented'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesDeposited',
     label: t('reuse.numberOfTimesDeposited'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesPawn',
     label: t('reuse.numberOfTimesPawn'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesSpa',
     label: t('reuse.numberOfTimesSpa'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'setInventoryForSale',
     label: t('reuse.setInventoryForSale'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterIventory
   },
   {
     field: 'setInventoryForRent',
     label: t('reuse.setInventoryForRent'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterIventory
   },
   {
     field: 'sellingPriceFrom',
     label: t('reuse.sellingPriceFrom'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'rentalPriceFrom',
     label: t('reuse.rentalPriceFrom'),
-    minWidth: '150'
+    minWidth: '150',
+    align: 'right',
+    sortable: true
   },
   {
     field: 'dram',
@@ -108,7 +124,8 @@ export const businessProductLibrary = [
   {
     field: 'businessManagement',
     label: t('reuse.businessManagement'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterDeposit
   },
   {
     field: 'createDate',
@@ -121,7 +138,7 @@ export const businessProductLibrary = [
     field: 'creator',
     label: t('reuse.creator'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Name'
   },
   {
     field: 'status',

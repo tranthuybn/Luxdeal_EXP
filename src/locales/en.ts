@@ -652,6 +652,9 @@ export default {
     addNewOrigin: 'Add New Origin',
     addNewUnit: 'Add New Unit',
     addNewWarehouse: 'Add New Warehouse',
-    addNewAccount: 'Add New Account'
+    addNewAccount: 'Add New Account',
+    //san pham va dich vu
+    timeMinute: 'Time (Minute)',
+    insuranceDate: 'Insurance (Day)'
   }
 }

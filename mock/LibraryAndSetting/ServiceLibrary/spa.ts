@@ -22,10 +22,10 @@ for (let i = 0; i < 100; i++) {
       serviceCode: '@sentence(3, 5)',
       serviceName: '@sentence(3, 5)',
       description: '@sentence(3, 5)',
-      unitPrice: '@natural(20,30)',
-      time: '@date("dd/MM/yyyy")',
-      insurance: '@string',
-      image: 'https://protkd.com/wp-content/uploads/2017/04/default-image.jpg',
+      unitPrice: '@natural(0,10000) đ',
+      time: '@natural(0,20)',
+      insurance: '@natural(0,20)',
+      image: '@image',
       creator: '@first',
       status: status[random]
     })

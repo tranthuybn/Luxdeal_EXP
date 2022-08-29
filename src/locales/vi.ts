@@ -700,6 +700,9 @@ export default {
     addNewOrigin: 'Thêm mới xuất xứ',
     addNewUnit: 'Thêm mới đơn vị tính',
     addNewWarehouse: 'Thêm mới kho',
-    addNewAccount: 'Thêm mới tài khoản'
+    addNewAccount: 'Thêm mới tài khoản',
+    //san pham va dich vu
+    timeMinute: 'Thời gian (Phút)',
+    insuranceDate: 'Bảo hành (Ngày)'
   }
 }

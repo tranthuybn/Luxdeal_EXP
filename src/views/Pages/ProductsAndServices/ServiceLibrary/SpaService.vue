@@ -4,5 +4,5 @@ import { businessProductLibrary } from './ProductLibraryManagement'
 import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 </script>
 <template>
-  <TableType01 :selection="false" :columns="businessProductLibrary" :api="getSpaLibrary" />
+  <TableType01 :columns="businessProductLibrary" :api="getSpaLibrary" />
 </template>

@@ -41,32 +41,35 @@ export const PurchaseOrderColumn = [
     field: 'numberInput',
     label: t('reuse.numberInput'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
     field: 'totalMoneyInput',
     label: t('reuse.totalMoneyInput'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
     field: 'unpaidDebt',
     label: t('reuse.unpaidDebt'),
     minWidth: '200',
+    align: 'right',
     sortable: true
   },
   {
     field: 'revenueAndExpenditure',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '200',
-    sortable: true,
     filters: filtersReceiptExpenditure
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    sortable: true
   },
   {
     field: 'creator',

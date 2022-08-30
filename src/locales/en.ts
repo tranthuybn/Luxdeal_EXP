@@ -250,7 +250,15 @@ export default {
     productCategoryOrigin: 'Origin',
     productCategoryProducts: 'Products category',
     approveManagement: 'Approve Management',
-    BalanceSheetUtility: 'Add new account'
+    BalanceSheetUtility: 'Add new account',
+    createRepositoryDirectoryProductStorage: 'Create Repository Directory Product Storage',
+    inventoryTracking: 'Inventory Tracking',
+    warehouse: 'Ware house',
+    export: 'Export',
+    receiptsAndExpendituresList: 'Receipts And Expenditures',
+    receiptsAdd: 'Receipts Add',
+    paymentsAdd: 'Payments Add',
+    departmentDirectory: 'Department Directory'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -658,6 +666,29 @@ export default {
     insuranceDate: 'Insurance (Day)',
     addNewBranch: 'Add New Branch',
     numberOfEmployees: 'Number of employees',
-    DepartmentName: 'Department of name'
+    DepartmentName: 'Department of name',
+    //Quan ly san pham
+    currentlyLeased: 'Currently leased',
+    quantitySold: 'Quantity Sold',
+    numberOfTimesrRented: 'Number Of Timesr Rented',
+    numberOfTimesDeposited: 'Number Of Times Deposited',
+    numberOfTimesPawn: 'Number Of Times Pawn',
+    numberOfTimesSpa: 'number Of Times Spa',
+    setInventoryForSale: 'Set Inventory For Sale',
+    setInventoryForRent: 'Set Inventory For Rent',
+    sellingPriceFrom: 'Selling Price From',
+    rentalPriceFrom: 'Rental Price From',
+    dram: 'Dram',
+    serviceCode: 'Service Code',
+    serviceName: 'Service Name',
+    unitPrice: 'Unit Price',
+    proposalCode: 'Proposal Code',
+    contentDescriptions: 'Content Descriptions',
+    amountOfMoney: 'Amount Of Money',
+    formCode: 'Form Code',
+    reciprocalProfile: 'Reciprocal profile',
+    accountCode: 'Account Code',
+    accountingDate: 'Accounting Date',
+    branchName: 'Branch name'
   }
 }

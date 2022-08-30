@@ -2,6 +2,7 @@
 import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
 interface productRankList {
+  id: number
   managementCode: string
   RankName: Date
   numberOfEmployees: string
@@ -14,6 +15,7 @@ let productRankList: productRankList[] = []
 for (let i = 0; i < count; i++) {
   productRankList.push(
     Mock.mock({
+      id: '@id',
       managementCode: '@string',
       RankName: '@name',
       numberOfEmployees: '@string',

@@ -1,4 +1,5 @@
 const receiptsAndExpendituresList: {
+  id: number
   formCode: string
   contentDescriptions: string
   amountOfMoney: number
@@ -14,6 +15,7 @@ const receiptsAndExpendituresList: {
 }[] = []
 
 const receiptsAndExpendituresListMock = {
+  id: '@id',
   formCode: '@natural',
   contentDescriptions: '@string(10,20)',
   amountOfMoney: '@natural(1000,100000)',

@@ -1,4 +1,5 @@
 const bannerAdvertisementList: {
+  id: number
   bannerCode: string
   shortDescription: string
   linkBanner: string
@@ -11,6 +12,7 @@ const bannerAdvertisementList: {
   status: string
 }[] = []
 const bannerAdvertisementListMock = {
+  id: '@id',
   bannerCode: '@string(5,10)',
   linkBanner: '@url',
   shortDescription: '@string(10,20)',

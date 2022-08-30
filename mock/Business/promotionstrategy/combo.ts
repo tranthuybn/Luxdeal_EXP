@@ -1,4 +1,5 @@
 const comboList: {
+  id: number
   createDate: Date
   comboCode: string
   descriptions: string
@@ -13,6 +14,7 @@ const comboList: {
 }[] = []
 
 const comboListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   comboCode: '@natural',
   descriptions: '@string(10,20)',

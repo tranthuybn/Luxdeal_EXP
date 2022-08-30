@@ -1,6 +1,6 @@
 import Mock from 'mockjs'
 const PurchaseOrder: {
-  id: string
+  id: number
   productCode: string
   saleCode: string
   saleName: string
@@ -15,6 +15,7 @@ const PurchaseOrder: {
   status: string
 }[] = []
 const PurchaseOrderList = {
+  id: '@id',
   productCode: '@string(10,20)',
   saleCode: '@string(10,20)',
   saleName: '@last',

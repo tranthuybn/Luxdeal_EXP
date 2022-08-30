@@ -1,4 +1,5 @@
 const newproductList: {
+  id: number
   createDate: Date
   newproductCode: string
   descriptions: string
@@ -11,6 +12,7 @@ const newproductList: {
 }[] = []
 
 const newproductListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   newproductCode: '@natural',
   descriptions: '@string(10,20)',

@@ -1,4 +1,5 @@
 const orderSpaList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -24,6 +25,7 @@ const orderSpaList: {
 }[] = []
 
 const orderSpaListMock = {
+  id: '@id',
   spaService: 'Vệ sinh, hấp nhiệt',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',

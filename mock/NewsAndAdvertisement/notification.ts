@@ -1,4 +1,5 @@
 const NotificationList: {
+  id: number
   notificationCode: string
   title: string
   shortDescription: string
@@ -11,6 +12,7 @@ const NotificationList: {
   status: string
 }[] = []
 const NotificationListMock = {
+  id: '@id',
   notificationCode: '@string(5,10)',
   title: '@title',
   shortDescription: '@string(10,20)',

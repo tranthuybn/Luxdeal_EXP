@@ -1,4 +1,5 @@
 const auctionList: {
+  id: number
   createDate: Date
   creator: string
   auctionCode: string
@@ -16,6 +17,7 @@ const auctionList: {
 }[] = []
 
 const auctionListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   creator: '@first',
   auctionCode: '@natural',

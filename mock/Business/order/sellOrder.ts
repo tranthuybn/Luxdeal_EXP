@@ -1,4 +1,5 @@
 const SellOrder: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -16,6 +17,7 @@ const SellOrder: {
 }[] = []
 
 const SellOrderListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
   creator: '@name',

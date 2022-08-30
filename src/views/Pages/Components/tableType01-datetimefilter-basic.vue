@@ -35,10 +35,6 @@ const props = defineProps({
   selection: {
     type: Boolean,
     default: true
-  },
-  nameRouter: {
-    type: String,
-    default: ''
   }
 })
 
@@ -49,6 +45,7 @@ const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 const getData = (data) => {
   unref(tableBase01)?.getData(data)
 }
+//add operator for every table
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
@@ -60,8 +57,6 @@ const Utility = appStore.getUtility
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
-  console.log(`${String(router.currentRoute.value.name)}.${Utility}`)
-
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: { backRoute: String(router.currentRoute.value.name) }

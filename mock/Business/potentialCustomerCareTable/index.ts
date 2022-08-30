@@ -1,4 +1,5 @@
 const potentialCustomerCareTable: {
+  id: number
   createDate: Date
 
   sale: String
@@ -33,6 +34,7 @@ const potentialCustomerCareTable: {
 }[] = []
 
 const potentialCustomerCareTableMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
 
   sale: '@name',

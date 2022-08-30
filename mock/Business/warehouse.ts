@@ -1,4 +1,5 @@
 const warehouseList: {
+  id: number
   productCode: string
   managementCode: string
   productInformation: string
@@ -20,6 +21,7 @@ const warehouseList: {
 }[] = []
 
 const warehouseListMock = {
+  id: '@id',
   productCode: '@natural',
   managementCode: '@natural',
   productInformation: '@string',

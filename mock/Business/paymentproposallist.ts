@@ -1,4 +1,5 @@
 const paymentList: {
+  id: number
   proposalCode: string
   contentDescriptions: string
   amountOfMoney: number
@@ -12,6 +13,7 @@ const paymentList: {
 }[] = []
 
 const paymentListMock = {
+  id: '@id',
   proposalCode: '@natural',
   contentDescriptions: '@string(10,20)',
   amountOfMoney: '@natural(1000,100000)',

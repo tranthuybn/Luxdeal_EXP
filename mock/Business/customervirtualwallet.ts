@@ -1,4 +1,5 @@
 const customerVirtualWalletList: {
+  id: number
   customerCode: string
   customerName: string
   totalRecharge: number
@@ -9,6 +10,7 @@ const customerVirtualWalletList: {
 }[] = []
 
 const customerVirtualWalletListMock = {
+  id: '@id',
   customerCode: '@string(10,20)',
   customerName: '@string(10,20)',
   totalRecharge: '@natural',

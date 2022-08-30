@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import Mock from 'mockjs'
 interface productStorageList {
-  id: string
+  id: number
   image: string
   createDate: Date
   status: string

@@ -1,5 +1,6 @@
 import { config } from '@/config/axios/config'
 import { MockMethod } from 'vite-plugin-mock'
+
 const utility = 'Utility'
 const { result_code } = config
 

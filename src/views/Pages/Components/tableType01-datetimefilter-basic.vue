@@ -17,6 +17,7 @@ import {
 } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useAppStore } from '@/store/modules/app'
 const { t } = useI18n()
 const props = defineProps({
   columns: {
@@ -53,11 +54,16 @@ onBeforeMount(() => {
   dynamicColumns.value = props.columns
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
+  console.log(`${String(router.currentRoute.value.name)}.${Utility}`)
+
   push({
-    name: `${String(router.currentRoute.value.name)}.Utility`,
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: { backRoute: String(router.currentRoute.value.name) }
   })
 }

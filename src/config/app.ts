@@ -1,5 +1,4 @@
 import { useCache } from '@/hooks/web/useCache'
-import { utility } from './utility'
 
 const { wsCache } = useCache()
 
@@ -49,7 +48,7 @@ export interface AppState {
 }
 
 export const appModules: AppState = {
-  utility: utility,
+  utility: 'Utility', // push to Add-Component of each route
   userInfo: 'userInfo', // Login information storage field-It is recommended to change a field for each project to avoid conflicting with other projects
   sizeMap: ['default', 'large', 'small'],
   mobile: false, // Whether it is a mobile terminal

@@ -1,4 +1,3 @@
-import Mock from 'mockjs'
 const PurchaseOrder: {
   id: number
   productCode: string

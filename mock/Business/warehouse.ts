@@ -1,5 +1,3 @@
-import { number } from '@intlify/core-base'
-
 const warehouseList: {
   id: number
   productCode: string

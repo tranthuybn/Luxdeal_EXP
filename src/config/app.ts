@@ -1,4 +1,5 @@
 import { useCache } from '@/hooks/web/useCache'
+import { utility } from './utility'
 
 const { wsCache } = useCache()
 
@@ -44,13 +45,15 @@ export interface AppState {
   mobile: boolean
   footer: boolean
   theme: ThemeTypes
+  utility: string
 }
 
 export const appModules: AppState = {
+  utility: utility,
   userInfo: 'userInfo', // Login information storage field-It is recommended to change a field for each project to avoid conflicting with other projects
   sizeMap: ['default', 'large', 'small'],
   mobile: false, // Whether it is a mobile terminal
-  title: import.meta.env.VITE_APP_TITLE, //title
+  title: 'Luxdeal ERP', //title
   pageLoading: false, // Route jumping loading
 
   breadcrumb: true, //Bread crumbs

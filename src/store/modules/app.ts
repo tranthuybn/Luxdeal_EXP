@@ -83,9 +83,15 @@ export const useAppStore = defineStore({
     },
     getFooter(): boolean {
       return this.footer
+    },
+    getUtility(): string {
+      return this.utility
     }
   },
   actions: {
+    setUtility(utility: string) {
+      this.utility = utility
+    },
     setBreadcrumb(breadcrumb: boolean) {
       this.breadcrumb = breadcrumb
     },

@@ -8,6 +8,7 @@ import { Tab } from './Type'
 import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useAppStore } from '@/store/modules/app'
 const { t } = useI18n()
 const props = defineProps({
   tabs: {
@@ -56,10 +57,11 @@ const tabChangeEvent = (name) => {
 
 const { push } = useRouter()
 const router = useRouter()
-
+const appStore = useAppStore()
+const Utility = appStore.getUtility
 const pushAdd = () => {
   push({
-    name: `${String(router.currentRoute.value.name)}.Utility`,
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: { tabName: currentTab.value, backRoute: String(router.currentRoute.value.name) }
   })
 }

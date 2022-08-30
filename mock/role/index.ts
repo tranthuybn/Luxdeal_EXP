@@ -1076,7 +1076,21 @@ const adminList = [
         component: 'views/Pages/HumanResourceManagement/DepartmentDirectory',
         meta: {
           title: 'router.departmentDirectory'
-        }
+        },
+        children: [
+          {
+            path: `${utility}`,
+            component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
+            name: `human-resource-management.department-directory.${utility}`,
+            meta: {
+              title: 'reuse.addNewBranch',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          }
+        ]
       }
     ]
   }

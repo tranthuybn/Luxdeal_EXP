@@ -449,7 +449,7 @@ export default {
     flashSaleCode: 'Mã Flash Sale',
     surveyContent: 'Nội dung khảo sát',
     productCode: 'Mã sản phẩm',
-    managementCode: 'Mã quản lý (Của sản phẩm)',
+    managementCode: 'Mã quản lý',
     productInformation: 'Thông tin SP',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
@@ -700,6 +700,11 @@ export default {
     addNewOrigin: 'Thêm mới xuất xứ',
     addNewUnit: 'Thêm mới đơn vị tính',
     addNewWarehouse: 'Thêm mới kho',
-    addNewAccount: 'Thêm mới tài khoản'
+    addNewAccount: 'Thêm mới tài khoản',
+    addNewBranch: 'Thêm mới chi nhánh',
+    branchCode: 'Mã chi nhánh',
+    branchName: 'Tên chi nhánh',
+    numberOfEmployees: 'Số lượng nhân sự',
+    DepartmentName: 'Tên phòng ban'
   }
 }

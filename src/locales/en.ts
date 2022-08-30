@@ -652,6 +652,9 @@ export default {
     addNewOrigin: 'Add New Origin',
     addNewUnit: 'Add New Unit',
     addNewWarehouse: 'Add New Warehouse',
-    addNewAccount: 'Add New Account'
+    addNewAccount: 'Add New Account',
+    addNewBranch: 'Add New Branch',
+    numberOfEmployees: 'Number of employees',
+    DepartmentName: 'Department of name'
   }
 }

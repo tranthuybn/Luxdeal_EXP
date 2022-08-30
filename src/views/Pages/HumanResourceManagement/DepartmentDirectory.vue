@@ -13,6 +13,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { RendererElement, RendererNode, VNode } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppStore } from '@/store/modules/app'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -243,31 +244,33 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref('branch')
 
+const appStore = useAppStore()
+const Utility = appStore.getUtility
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = (val) => {
   switch (val) {
     case 0:
       push({
-        name: `${String(router.currentRoute.value.name)}.Utility`,
+        name: `${String(router.currentRoute.value.name)}.${Utility}`,
         params: { backRoute: String(router.currentRoute.value.name) }
       })
       break
     case 1:
       push({
-        name: `${String(router.currentRoute.value.name)}.Utility`,
+        name: `${String(router.currentRoute.value.name)}.${Utility}`,
         params: { backRoute: String(router.currentRoute.value.name) }
       })
       break
     case 2:
       push({
-        name: `${String(router.currentRoute.value.name)}.Utility`,
+        name: `${String(router.currentRoute.value.name)}.${Utility}`,
         params: { backRoute: String(router.currentRoute.value.name) }
       })
       break
     case 3:
       push({
-        name: `${String(router.currentRoute.value.name)}.Utility`,
+        name: `${String(router.currentRoute.value.name)}.${Utility}`,
         params: { backRoute: String(router.currentRoute.value.name) }
       })
       break

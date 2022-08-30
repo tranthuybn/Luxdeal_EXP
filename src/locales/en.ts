@@ -258,7 +258,9 @@ export default {
     receiptsAndExpendituresList: 'Receipts And Expenditures',
     receiptsAdd: 'Receipts Add',
     paymentsAdd: 'Payments Add',
-    departmentDirectory: 'Department Directory'
+    departmentDirectory: 'Department Directory',
+    newsList: 'News List',
+    manageNew: 'Manage news categori'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -670,7 +672,7 @@ export default {
     //Quan ly san pham
     currentlyLeased: 'Currently leased',
     quantitySold: 'Quantity Sold',
-    numberOfTimesrRented: 'Number Of Timesr Rented',
+    numberOfTimesRented: 'Number Of Times Rented',
     numberOfTimesDeposited: 'Number Of Times Deposited',
     numberOfTimesPawn: 'Number Of Times Pawn',
     numberOfTimesSpa: 'number Of Times Spa',
@@ -689,6 +691,9 @@ export default {
     reciprocalProfile: 'Reciprocal profile',
     accountCode: 'Account Code',
     accountingDate: 'Accounting Date',
-    branchName: 'Branch name'
+    branchName: 'Branch name',
+    branchCode: 'Branch code',
+    stocking: 'Stocking',
+    newsDerectoryinformation: 'News derectory information'
   }
 }

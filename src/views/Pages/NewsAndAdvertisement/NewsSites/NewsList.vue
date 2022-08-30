@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
-import { getPoliciesGuidelinesList } from '@/api/NewsAndAdvertisement'
+import { getNewsList } from '@/api/NewsAndAdvertisement'
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
@@ -18,18 +18,13 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'content',
-    label: t('reuse.content'),
+    field: 'shortDescription',
+    label: t('reuse.shortDescription'),
     minWidth: '200'
   },
   {
-    field: 'type',
-    label: t('reuse.type'),
-    minWidth: '100'
-  },
-  {
-    field: 'show',
-    label: t('tableDemo.show'),
+    field: 'category',
+    label: t('reuse.category'),
     minWidth: '150'
   },
   {
@@ -59,5 +54,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getPoliciesGuidelinesList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getNewsList" />
 </template>

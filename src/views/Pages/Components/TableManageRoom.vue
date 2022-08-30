@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { PropType, ref, onBeforeMount } from 'vue'
-import { TableType01 } from './TableBase/index2'
+import { TableType01, TableExtension } from './TableBase/index2'
 import { TableResponse, apiType } from './Type'
 import {
   addOperatorColumn,
+  getTotalRecord,
+  getSelectedRecord,
   fnGetTotalRecord,
   fnGetSelectedRecord,
   dynamicApi,
@@ -39,6 +41,11 @@ onBeforeMount(() => {
 </script>
 <template>
   <section>
+    <TableExtension
+      v-if="selection"
+      :totalRecord="getTotalRecord"
+      :selectedRecord="getSelectedRecord"
+    />
     <TableType01
       ref="tableBase01"
       :api="dynamicApi"

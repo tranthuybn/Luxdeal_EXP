@@ -95,7 +95,6 @@ const save = async () => {
           loading.value = false
         })
       if (res) {
-        console.log('add', data)
         emitter.emit('getList', 'add')
       }
     }

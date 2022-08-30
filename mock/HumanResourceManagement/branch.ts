@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 import Mock from 'mockjs'
 interface productBranchList {
+  id: number
   managementCode: string
   branchName: Date
   numberOfEmployees: string
@@ -13,6 +14,7 @@ let productBranchList: productBranchList[] = []
 for (let i = 0; i < count; i++) {
   productBranchList.push(
     Mock.mock({
+      id: '@id',
       managementCode: '@string',
       branchName: '@name',
       numberOfEmployees: '@string',

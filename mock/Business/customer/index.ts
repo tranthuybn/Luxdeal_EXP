@@ -1,4 +1,5 @@
 const customerList: {
+  id: number
   createDate: Date
   customerName: string
   customerCode: string
@@ -13,6 +14,7 @@ const customerList: {
 }[] = []
 
 const customerListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   customerName: '@name',
   customerCode: '@natural',

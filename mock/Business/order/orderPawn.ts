@@ -1,4 +1,5 @@
 const orderPawnList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -26,6 +27,7 @@ const orderPawnList: {
 }[] = []
 
 const orderPawnListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
   creator: '@name',

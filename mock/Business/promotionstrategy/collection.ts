@@ -1,4 +1,5 @@
 const collectionList: {
+  id: number
   createDate: Date
   collectionCode: string
   descriptions: string
@@ -11,6 +12,7 @@ const collectionList: {
 }[] = []
 
 const collectionListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   collectionCode: '@natural',
   descriptions: '@string(10,20)',

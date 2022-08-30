@@ -1,4 +1,5 @@
 const collaboratorsList: {
+  id: number
   contact: string
   createDate: Date
   collaboratorsName: string
@@ -13,6 +14,7 @@ const collaboratorsList: {
 }[] = []
 
 const collaboratorsListMock = {
+  id: '@id',
   contact: '@string(10,20)',
   createDate: '@date("dd/MM/yyyy")',
   collaboratorsName: '@name',

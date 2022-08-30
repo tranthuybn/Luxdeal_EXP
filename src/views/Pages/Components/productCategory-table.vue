@@ -14,10 +14,6 @@ const props = defineProps({
   tabs: {
     type: Array<Tab>,
     default: () => []
-  },
-  nameRouter: {
-    type: String,
-    default: ''
   }
 })
 // declare

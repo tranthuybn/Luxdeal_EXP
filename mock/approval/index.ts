@@ -1,6 +1,9 @@
 import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
-
+import {
+  ProductsApprovalList,
+  ProductsApprovalListMock
+} from './productsApproval/productsApprovalTable'
 interface ApprovalManagement {
   id: Number
   categoryInfo: string
@@ -12,6 +15,7 @@ interface ApprovalManagement {
 const count = 77
 const ApprovalManagementList: ApprovalManagement[] = []
 for (let i = 0; i < count; i++) {
+  ProductsApprovalList.push(Mock.mock(ProductsApprovalListMock))
   ApprovalManagementList.push(
     Mock.mock({
       id: i,
@@ -52,6 +56,24 @@ export default [
         code: result_code,
         data: {
           total: ApprovalManagementList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/ProductsApproval/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = ProductsApprovalList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: ProductsApprovalList.length,
           list: pageList
         }
       }

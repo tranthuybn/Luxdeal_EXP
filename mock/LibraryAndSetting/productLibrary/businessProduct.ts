@@ -13,7 +13,7 @@ const BusinessProductLibrary: {
   numberOfTimesPawn: number
   numberOfTimesSpa: number
   setInventoryForSale: string
-  setInventoryForRent: number
+  setInventoryForRent: string
   sellingPriceFrom: string
   rentalPriceFrom: string
   dram: string
@@ -41,13 +41,13 @@ for (let i = 0; i < 100; i++) {
       numberOfTimesDeposited: '@natural(20,30)',
       numberOfTimesPawn: '@natural(20,30)',
       numberOfTimesSpa: '@natural(20,30)',
-      setInventoryForSale: '@sentence(3, 5)',
-      setInventoryForRent: '@natural(20,30)',
-      sellingPriceFrom: '@sentence(3, 5)',
-      rentalPriceFrom: '@sentence(3, 5)',
-      dram: '@sentence(3, 5)',
+      setInventoryForSale: 'Còn hàng',
+      setInventoryForRent: 'Hết hàng',
+      sellingPriceFrom: '@natural(0,3000) đ',
+      rentalPriceFrom: '@natural(0,3000) đ',
+      dram: 'Chiếc',
       businessManagement: '@sentence(3, 5)',
-      image: 'https://protkd.com/wp-content/uploads/2017/04/default-image.jpg',
+      image: '@image',
       creator: '@first',
       status: status[random]
     })

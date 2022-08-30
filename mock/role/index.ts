@@ -52,7 +52,8 @@ const adminList = [
         path: 'product-library',
         name: 'products-services.ProductLibrary',
         meta: {
-          title: 'router.productManagement'
+          title: 'router.productManagement',
+          alwaysShow: true
         },
         children: [
           {
@@ -61,22 +62,6 @@ const adminList = [
             name: 'products-services.productLibraryProducts',
             meta: {
               title: 'router.productLibraryProducts'
-            }
-          },
-          {
-            path: 'spa-material',
-            component: 'views/Pages/ProductsAndServices/ProductLibrary/SpaMaterial',
-            name: 'products-services.productLibrarySpaMaterial',
-            meta: {
-              title: 'router.productLibrarySpaMaterial'
-            }
-          },
-          {
-            path: 'properties',
-            component: 'views/Pages/ProductsAndServices/ProductLibrary/Properties',
-            name: 'products-services.productLibraryproperties',
-            meta: {
-              title: 'router.productLibraryproperties'
             }
           }
         ]

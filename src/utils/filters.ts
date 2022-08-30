@@ -5,6 +5,10 @@ interface Filter {
   text: string
   value: any
 }
+export const filterIventory: Array<Filter> = [
+  { text: t('reuse.outOfStock'), value: 1 },
+  { text: t('reuse.stocking'), value: 2 }
+]
 export const filterSentStatus: Array<Filter> = [
   { text: t('reuse.sented'), value: 1 },
   { text: t('reuse.notSent'), value: 2 }

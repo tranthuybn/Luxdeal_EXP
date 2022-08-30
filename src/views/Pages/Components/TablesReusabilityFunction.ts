@@ -9,6 +9,7 @@ const operatorColumn: TableColumn = {
   field: 'operator',
   label: t('reuse.operator'),
   minWidth: '200',
+  align: 'center',
   fixed: false
 }
 // add operator column at the end if dynamicColumns doesnt have

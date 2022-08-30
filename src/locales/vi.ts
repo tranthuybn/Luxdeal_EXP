@@ -701,6 +701,9 @@ export default {
     addNewUnit: 'Thêm mới đơn vị tính',
     addNewWarehouse: 'Thêm mới kho',
     addNewAccount: 'Thêm mới tài khoản',
+    //san pham va dich vu
+    timeMinute: 'Thời gian (Phút)',
+    insuranceDate: 'Bảo hành (Ngày)',
     addNewBranch: 'Thêm mới chi nhánh',
     branchCode: 'Mã chi nhánh',
     branchName: 'Tên chi nhánh',

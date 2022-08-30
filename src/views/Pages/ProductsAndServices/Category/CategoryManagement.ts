@@ -14,7 +14,7 @@ export const productCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -45,7 +45,7 @@ export const spaProductCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -75,7 +75,7 @@ export const propertyProductCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -105,7 +105,7 @@ export const colorCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -135,7 +135,7 @@ export const sizeCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -165,7 +165,7 @@ export const materialCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -195,7 +195,7 @@ export const statusCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -225,7 +225,7 @@ export const genderCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -255,7 +255,7 @@ export const unitCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -285,7 +285,7 @@ export const brandCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {
@@ -315,7 +315,7 @@ export const originCategories = [
     field: 'position',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'center',
+    align: 'right',
     sortable: true
   },
   {

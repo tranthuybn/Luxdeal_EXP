@@ -22,7 +22,7 @@ export default {
     },
     {
       path: 'forum',
-      component: () => import('@/views/Pages/NewsAndAdvertisement/Forum.vue'),
+      component: () => import('@/views/Pages/NewsAndAdvertisement/ForumPage/forum.vue'),
       name: 'New-and-advertisement.forum',
       meta: {
         title: t('router.forum')

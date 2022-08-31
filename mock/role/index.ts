@@ -971,11 +971,37 @@ const adminList = [
       },
       {
         path: 'forum',
-        component: 'views/Pages/NewsAndAdvertisement/Forum',
         name: 'New-and-advertisement.forum',
+        component: 'views/Pages/NewsAndAdvertisement/ForumPage/forum',
         meta: {
           title: 'router.forum'
-        }
+        },
+        children: [
+          {
+            path: 'homepage',
+            component: 'views/Pages/NewsAndAdvertisement/ForumPage/Homepage',
+            name: 'New-and-advertisement.forumHomepage',
+            meta: {
+              title: 'router.forumHomepage',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
+            path: 'EmployeeManagement',
+            component: 'views/Pages/NewsAndAdvertisement/ForumPage/EmployeeManagement',
+            name: 'New-and-advertisement.forumEmployeeManagement',
+            meta: {
+              title: 'router.forumEmployeeManagement',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          }
+        ]
       },
       {
         path: 'banner-advertisement',

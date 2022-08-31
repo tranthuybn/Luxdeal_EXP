@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElRow, ElCol, ElCard, ElTabs, ElTabPane, ElCheckbox, ElPopover } from 'element-plus'
 import { ref } from 'vue'
-
+import CarouselComponent from './carousel.vue'
 const sliders = [
   'https://api.cooftech.net/PostsImages\\637829583833908676_fpLD6o.jpg',
   'https://api.cooftech.net/PostsImages\\637829583834658748_4665561.jpg',
@@ -812,7 +812,9 @@ const totalMember = '43'
   <div>
     <div class="ps-4 pb-1 base__main-background">
       <el-card>
-        <div class="text-end position-relative"> </div>
+        <div class="text-end position-relative">
+          <CarouselComponent :items="sliders" />
+        </div>
         <div class="mt-3 pb-4">
           <div class="fs-4 fw-bold pt-2">{{ formInfo.value.name }}</div>
           <img :src="social" alt="" />
@@ -955,17 +957,15 @@ const totalMember = '43'
   }
 }
 
-::v-deep {
-  .el-tabs__item {
-    font-size: 15px;
-  }
-  .el-tabs__item.is-active {
-    color: red;
-    font-weight: bold;
-  }
-  .el-tabs__active-bar {
-    background-color: red;
-  }
+:deep(.el-tabs__item) {
+  font-size: 15px;
+}
+:deep(.el-tabs__item.is-active) {
+  color: red;
+  font-weight: bold;
+}
+:deep(.el-tabs__active-bar) {
+  background-color: red;
 }
 
 .directory-bar {
@@ -977,24 +977,24 @@ const totalMember = '43'
   height: 67px;
 }
 
-::v-deep .el-tabs__nav-scroll {
+:deep(.el-tabs__nav-scroll) {
   border-bottom: 0;
 }
 
-::v-deep .el-tabs__nav-wrap::after {
+:deep(.el-tabs__nav-wrap::after) {
   background: none;
   height: 0;
 }
 
-::v-deep .el-tabs__nav-scroll {
+:deep(.el-tabs__nav-scroll) {
   min-height: 3rem;
 }
 
-::v-deep .el-tabs__header {
+:deep(.el-tabs__header) {
   margin: 0;
 }
 
-::v-deep .el-tabs__active-bar {
+:deep(.el-tabs__active-bar) {
   top: 100%;
 }
 
@@ -1050,16 +1050,16 @@ const totalMember = '43'
   }
 }
 
-::v-deep .el-textarea__inner {
+:deep(.el-textarea__inner) {
   border: none;
   padding-left: 2px;
 }
 
-::v-deep .el-textarea__inner::placeholder {
+:deep(.el-textarea__inner::placeholder) {
   font-style: italic;
 }
 
-::v-deep .el-dialog--center .el-dialog__body {
+:deep(.el-dialog--center .el-dialog__body) {
   padding-top: 0;
 }
 
@@ -1067,11 +1067,11 @@ const totalMember = '43'
   font-size: 80%;
 }
 
-::v-deep .el-popover {
+:deep(.el-popover) {
   padding: 0;
 }
 
-::v-deep .el-popover--plain {
+:deep(.el-popover--plain) {
   padding: 0 !important;
 }
 </style>

@@ -230,24 +230,24 @@ export default {
   height: 67px;
 }
 
-::v-deep .el-tabs__nav-scroll {
+:deep(.el-tabs__nav-scroll) {
   border-bottom: 0;
 }
 
-::v-deep .el-tabs__nav-wrap::after {
+:deep(.el-tabs__nav-wrap::after) {
   background: none;
   height: 0;
 }
 
-::v-deep .el-tabs__nav-scroll {
+:deep(.el-tabs__nav-scroll) {
   min-height: 3rem;
 }
 
-::v-deep .el-tabs__header {
+:deep(.el-tabs__header) {
   margin: 0;
 }
 
-::v-deep .el-tabs__active-bar {
+:deep(.el-tabs__active-bar) {
   top: 100%;
 }
 
@@ -303,16 +303,16 @@ export default {
   }
 }
 
-::v-deep .el-textarea__inner {
+:deep(.el-textarea__inner) {
   border: none;
   padding-left: 2px;
 }
 
-::v-deep .el-textarea__inner::placeholder {
+:deep(.el-textarea__inner::placeholder) {
   font-style: italic;
 }
 
-::v-deep .el-dialog--center .el-dialog__body {
+:deep(.el-dialog--center .el-dialog__body) {
   padding-top: 0;
 }
 
@@ -320,11 +320,11 @@ export default {
   font-size: 80%;
 }
 
-::v-deep .el-popover {
+:deep(.el-popover) {
   padding: 0;
 }
 
-::v-deep .el-popover--plain {
+:deep(.el-popover--plain) {
   padding: 0 !important;
 }
 </style>

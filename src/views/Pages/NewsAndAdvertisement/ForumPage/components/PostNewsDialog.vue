@@ -248,7 +248,7 @@ export default {
   height: 25vh;
   overflow-y: scroll;
 }
-::v-deep .el-tag {
+:deep(.el-tag) {
   margin-right: 4px;
   margin-top: 4px;
 }

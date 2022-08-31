@@ -1,6 +1,5 @@
 /* eslint-disable prefer-const */
 import Mock from 'mockjs'
-import { type } from 'os'
 interface productList {
   id: string
   image: string

@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import productCategoryTable from '../../Components/productCategory-table.vue'
-import {
-  getProductCategories,
-  getSpaProductCategories,
-  getPropertyProductCategories
-} from '@/api/LibraryAndSetting'
-import {
-  productCategories,
-  spaProductCategories,
-  propertyProductCategories
-} from './CategoryManagement'
+import { getProductCategories } from '@/api/LibraryAndSetting'
+import { productCategories } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
@@ -19,18 +11,6 @@ const tabs: Array<Tab> = [
     label: t('reuse.businessProduct'),
     api: getProductCategories,
     column: productCategories
-  },
-  {
-    name: 'spaProductStep2',
-    label: t('reuse.spaProduct'),
-    api: getSpaProductCategories,
-    column: spaProductCategories
-  },
-  {
-    name: 'propertyProductStep2',
-    label: t('reuse.propertyProduct'),
-    api: getPropertyProductCategories,
-    column: propertyProductCategories
   }
 ]
 </script>

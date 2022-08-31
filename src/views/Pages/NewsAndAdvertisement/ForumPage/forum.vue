@@ -68,7 +68,7 @@ const social = 'luxdeal'
       </el-card>
     </el-col>
     <el-col :span="18" class="main-content-column">
-      <homepage />
+      <Homepage />
     </el-col>
   </el-row>
 </template>

@@ -2,6 +2,7 @@
 import { ElRow, ElCol, ElCard, ElTabs, ElTabPane, ElCheckbox, ElPopover } from 'element-plus'
 import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
+import ApprovedPosting from './components/ApprovedPosting.vue'
 const sliders = [
   'https://api.cooftech.net/PostsImages\\637829583833908676_fpLD6o.jpg',
   'https://api.cooftech.net/PostsImages\\637829583834658748_4665561.jpg',
@@ -853,6 +854,7 @@ const totalMember = '43'
           </el-card>
 
           <div class="fw-bold p-3">Gần đây <i class="el-icon-caret-bottom" role="button"></i></div>
+          <approved-posting v-for="(item, index) in posts" :key="index" :content="item" />
         </el-col>
         <el-col :span="13" v-else>
           <el-card class="p-3">

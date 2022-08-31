@@ -1,4 +1,44 @@
-<!-- eslint-disable vue/no-deprecated-slot-attribute -->
+<!-- eslint-disable vue/no-setup-props-destructure -->
+<script setup lang="ts">
+import { useIcon } from '@/hooks/web/useIcon'
+import {
+  ElRow,
+  ElCol,
+  ElCard,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElAvatar,
+  ElButton
+} from 'element-plus'
+import moment from 'moment'
+const props = defineProps({
+  content: {
+    type: Object,
+    default: () => {},
+    require: true
+  }
+})
+let flexibleContent = props.content
+const baseUrl = 'https://api.cooftech.net/'
+const prohibitToPost = (id, obj) => {
+  console.log('call api check permission', id, obj)
+}
+const deletePost = (id) => {
+  console.log('delte this post:id', id)
+}
+//fix icon
+const likeIcon = useIcon({ icon: 'uil:plus' })
+const dislikeIcon = useIcon({ icon: 'uil:search' })
+const commentImage = useIcon({ icon: 'uil:comment' })
+const updateLikeStatus = () => {
+  console.log('call api to like/unlike')
+}
+const timeAgo = (time) => {
+  time = new Date(time)
+  return moment(time).fromNow()
+}
+</script>
 <template>
   <section>
     <el-card class="bg-white mb-3">
@@ -21,34 +61,36 @@
           </div>
         </div>
         <el-dropdown trigger="click" role="button" class="user-info-bar__utility">
-          <div class="d-flex justify-content-center align-items-center w-100 h-100">
+          <div class="d-flex justify-content-center align-items-center">
             <div class="dots"></div>
             <div class="dots"></div>
             <div class="dots"></div>
           </div>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
-              <div
-                class="flex-item"
-                :class="flexibleContent.isPostProhibit ? 'text-success' : 'text-danger'"
-                style="width: 100%"
-                @click="prohibitToPost(flexibleContent.userId, flexibleContent)"
-              >
-                {{ flexibleContent.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
-                <i class="el-icon-arrow-right"></i>
-              </div>
-            </el-dropdown-item>
-            <el-dropdown-item>
-              <div
-                class="flex-item text-danger"
-                style="width: 100%"
-                @click="deletePost(flexibleContent.id)"
-              >
-                Gỡ bài viết
-                <i class="el-icon-arrow-right"></i>
-              </div>
-            </el-dropdown-item>
-          </el-dropdown-menu>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item>
+                <div
+                  class="flex-item"
+                  :class="flexibleContent.isPostProhibit ? 'text-success' : 'text-danger'"
+                  style="width: 100%"
+                  @click="prohibitToPost(flexibleContent.userId, flexibleContent)"
+                >
+                  {{ flexibleContent.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
+                  <i class="el-icon-arrow-right"></i>
+                </div>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <div
+                  class="flex-item text-danger"
+                  style="width: 100%"
+                  @click="deletePost(flexibleContent.id)"
+                >
+                  Gỡ bài viết
+                  <i class="el-icon-arrow-right"></i>
+                </div>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
         </el-dropdown>
       </div>
       <div class="p-3" v-if="flexibleContent.content">{{ flexibleContent.content }} </div>
@@ -70,7 +112,7 @@
         <div class="row" style="align-self: center">
           <div class="col-6 text-start">
             <div class="d-flex">
-              <img src="@/assets/images/like.svg" width="18" alt="" />
+              <el-button :icon="likeIcon" width="18" alt="" disabled />
               <div class="px-2" style="align-self: center">
                 {{ flexibleContent.totalLike }}
               </div>
@@ -84,15 +126,15 @@
       </div>
       <div class="border-bottom">
         <div class="row justify-content-between align-items-center" style="height: 4vh">
-          <div class="col-6 h-100">
-            <button-N045
-              :btnIcon="flexibleContent.isUserLiked ? likeImage : unlikeImage"
+          <div class="col-6">
+            <el-button
+              :icon="flexibleContent.isUserLiked ? likeIcon : dislikeIcon"
               :btnName="'Like'"
               @click="updateLikeStatus"
             />
           </div>
-          <div class="col-6 h-100">
-            <button-N045 :btnIcon="commentImage" :btnName="'comment'" />
+          <div class="col-6">
+            <el-button :icon="commentImage" :btnName="'comment'" />
           </div>
         </div>
       </div>
@@ -119,76 +161,7 @@
   </section>
 </template>
 
-<script>
-import moment from 'moment'
-import { BASE_URL } from '@/services/EndPoint'
-import unlikeImage from '@/assets/images/unlike.svg'
-import likeImage from '@/assets/images/like.svg'
-import commentImage from '@/assets/images/comment.svg'
-import { updateLikeOfPosting, getPostingContentDetail } from '@/services/api/appManager.js'
-import forumMixins from '../mixins'
-export default {
-  name: 'ApprovedPosting',
-  components: {
-    'button-N045': () => import('@/components/ButtonN045.vue')
-  },
-  mixins: [forumMixins],
-  props: {
-    content: {
-      type: Object,
-      default: () => {},
-      require: true
-    }
-  },
-  data() {
-    return {
-      flexibleContent: this.content,
-      baseUrl: BASE_URL + '/',
-      unlikeImage,
-      commentImage,
-      likeImage
-    }
-  },
-
-  methods: {
-    timeAgo(time) {
-      time = new Date(time)
-      return moment(time).fromNow()
-    },
-    updateLikeStatus() {
-      updateLikeOfPosting({ PostId: this.flexibleContent.id })
-        .then((res) => {
-          const { data } = res.data
-          if (res.data.statusCode === 200 && data?.errorCode === 200) {
-            this.flexibleContent.isUserLiked = data.data.likeSatus
-            this.flexibleContent.totalLike = data.data.totalLike
-            this.$base_notify(
-              `${this.flexibleContent.isUserLiked ? 'success' : 'error'}`,
-              res.data?.data?.message
-            )
-          }
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-    },
-    getPostingInfoDetail() {
-      getPostingContentDetail({ PostId: this.flexibleContent.id })
-        .then((res) => {
-          this.flexibleContent = res.data.data
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-    },
-    deletePost(id) {}
-  }
-}
-</script>
-
 <style lang="scss" scoped>
-@import '@/scss/variables.scss';
-
 .user-info-bar {
   display: flex;
   justify-content: space-between;
@@ -213,7 +186,7 @@ export default {
   align-items: center;
   border-radius: 10px;
   &:hover {
-    box-shadow: $card-shadow;
+    box-shadow: 0 2px 12px 0 #a2bced;
   }
 }
 </style>

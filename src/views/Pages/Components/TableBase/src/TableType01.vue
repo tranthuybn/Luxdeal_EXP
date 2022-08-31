@@ -118,7 +118,9 @@ const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const drawer = ref(false)
-const showingColumnList = ref([])
+const showingColumnList = ref<Array<string>>(
+  props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field) : []
+)
 const showingColumn =
   props.fullColumns.length > 0
     ? props.fullColumns.map((el) => ({ value: el.field, label: el.label }))

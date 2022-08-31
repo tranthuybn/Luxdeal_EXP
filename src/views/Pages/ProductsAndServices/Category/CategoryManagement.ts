@@ -31,67 +31,6 @@ export const productCategories = [
     filters: filterTableStatus
   }
 ]
-
-export const spaProductCategories = [
-  { field: 'void', width: '50' },
-  {
-    field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650',
-    headerFilter: 'Name'
-  },
-
-  {
-    field: 'position',
-    label: t('reuse.position'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center',
-    sortable: true
-  },
-  {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '100',
-    filters: filterTableStatus
-  }
-]
-export const propertyProductCategories = [
-  { field: 'void', width: '50' },
-  {
-    field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650',
-    headerFilter: 'Name'
-  },
-
-  {
-    field: 'position',
-    label: t('reuse.position'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center',
-    sortable: true
-  },
-  {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '100',
-    filters: filterTableStatus
-  }
-]
 export const colorCategories = [
   { field: 'void', width: '50' },
   {

@@ -19,9 +19,14 @@ export const wareHouse = [
     minWidth: '150'
   },
   {
-    field: 'productInformation',
-    label: t('reuse.productInformation'),
-    minWidth: '100'
+    field: 'productName',
+    label: t('reuse.productName'),
+    minWidth: '150'
+  },
+  {
+    field: 'description',
+    label: t('reuse.description'),
+    minWidth: '150'
   },
   {
     field: 'characteristic',
@@ -34,15 +39,11 @@ export const wareHouse = [
     minWidth: '100'
   },
   {
-    field: 'firstEntryDate',
-    label: t('reuse.firstEntryDate'),
-    minWidth: '100'
-  },
-  {
     field: 'singleEntryCode',
     label: t('reuse.singleEntryCode'),
     minWidth: '100'
   },
+
   {
     field: 'typeOfFirstEntry',
     label: t('reuse.typeOfFirstEntry'),
@@ -74,6 +75,11 @@ export const wareHouse = [
     minWidth: '100'
   },
   {
+    field: 'dram',
+    label: t('reuse.dram'),
+    minWidth: '100'
+  },
+  {
     field: 'priceImport',
     label: t('reuse.priceImport'),
     minWidth: '100'
@@ -86,6 +92,11 @@ export const wareHouse = [
   {
     field: 'businessManagement',
     label: t('reuse.businessManagement'),
+    minWidth: '100'
+  },
+  {
+    field: 'firstEntryDate',
+    label: t('reuse.firstEntryDate'),
     minWidth: '100'
   },
   {

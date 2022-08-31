@@ -455,7 +455,7 @@ export default {
     productInformation: 'Thông tin SP',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
-    firstEntryDate: 'Ngày nhập lần đầu',
+    firstEntryDate: 'Ngày nhập',
     singleEntryCode: 'Mã đơn nhập',
     typeOfFirstEntry: 'Loại hình nhập lần đầu',
     typeOfTransfer: 'Loại hình chuyển kho',

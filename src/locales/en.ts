@@ -694,6 +694,7 @@ export default {
     branchName: 'Branch name',
     branchCode: 'Branch code',
     stocking: 'Stocking',
-    newsDerectoryinformation: 'News derectory information'
+    newsDerectoryinformation: 'News derectory information',
+    warehouseListInformation: 'Warehouse List Information'
   }
 }

@@ -713,6 +713,7 @@ export default {
     DepartmentName: 'Tên phòng ban',
     stocking: 'Còn hàng',
     newsDerectoryinformation: 'Thông tin danh mục tin tức',
-    content: 'Nội dung'
+    content: 'Nội dung',
+    warehouseListInformation: 'Thông tin danh sách kho'
   }
 }

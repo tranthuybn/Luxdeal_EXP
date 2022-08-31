@@ -2,16 +2,16 @@
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 import { PropType, reactive, watch, ref, unref } from 'vue'
-import type { UploadFile } from 'element-plus'
 import { TableData } from '@/api/table/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElRow, ElCol, ElUpload, ElButton } from 'element-plus'
+import { ElRow, ElCol, ElUpload, ElButton, ElDialog, UploadUserFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
 import { useEmitt } from '@/hooks/web/useEmitt'
 import { useRouter } from 'vue-router'
 import { ContentDetailWrap } from '@/components/ContentDetailWrap'
+import type { UploadFile } from 'element-plus'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
@@ -100,24 +100,7 @@ const save = async () => {
     }
   })
 }
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
-}
 const addIcon = useIcon({ icon: 'uil:plus' })
-const downloadIcon = useIcon({ icon: 'uil:download-alt' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
@@ -130,6 +113,25 @@ let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
+
+let fileList = ref<UploadUserFile[]>([
+  {
+    name: 'luxdeal.png',
+    url: 'https://is1-ssl.mzstatic.com/image/thumb/Purple112/v4/6e/4e/01/6e4e01ac-7f16-4a51-151b-61dc05ebd7fa/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/1200x600wa.png'
+  }
+])
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
+
+const handleRemove = (file: UploadFile) => {
+  fileList.value = fileList.value.filter((image) => image.url !== file.url)
+}
+
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
 </script>
 
 <template>
@@ -140,21 +142,20 @@ if (props.title == 'undefined') {
       </ElCol>
       <ElCol :span="8" v-if="hasImage">
         <div>{{ t('reuse.addImage') }}</div>
-        <el-upload action="#" list-type="picture-card" :auto-upload="false">
+        <el-upload
+          action="#"
+          list-type="picture-card"
+          :auto-upload="false"
+          v-model:file-list="fileList"
+        >
           <el-button :icon="addIcon" />
+
           <template #file="{ file }">
             <div>
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <el-button :icon="viewIcon" />
-                </span>
-                <span
-                  v-if="!disabled"
-                  class="el-upload-list__item-delete"
-                  @click="handleDownload(file)"
-                >
-                  <el-button :icon="downloadIcon" />
                 </span>
                 <span
                   v-if="!disabled"
@@ -167,6 +168,9 @@ if (props.title == 'undefined') {
             </div>
           </template>
         </el-upload>
+        <el-dialog v-model="dialogVisible">
+          <img w-full :src="dialogImageUrl" alt="Preview Image" />
+        </el-dialog>
       </ElCol>
     </ElRow>
 

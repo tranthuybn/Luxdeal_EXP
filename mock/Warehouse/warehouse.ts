@@ -2,8 +2,9 @@ const warehouseList: {
   id: number
   productCode: string
   managementCode: string
-  productInformation: string
+  productName: string
   characteristic: string
+  description: string
   accessory: string
   firstEntryDate: Date
   singleEntryCode: string
@@ -12,6 +13,7 @@ const warehouseList: {
   warehouseManagement: string
   location: string
   amountImport: number
+  dram: string
   inventory: number
   priceImport: number
   CashIntoInventory: string
@@ -24,8 +26,9 @@ const warehouseListMock = {
   id: '@id',
   productCode: '@natural',
   managementCode: '@natural',
-  productInformation: '@string',
+  productName: '@string',
   characteristic: '@string',
+  description: '@name',
   accessory: '@string',
   firstEntryDate: '@date("dd/MM/yyyy")',
   singleEntryCode: '@string',
@@ -34,6 +37,7 @@ const warehouseListMock = {
   warehouseManagement: '@string',
   location: '@string',
   amountImport: '@natural',
+  dram: '@natural',
   inventory: '@natural',
   priceImport: '@natural',
   CashIntoInventory: '@natural',

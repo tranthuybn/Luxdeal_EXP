@@ -10,7 +10,6 @@ import { flashsaleList, flashsaleListMock } from './promotionstrategy/flashsale'
 import { collectionList, collectionListMock } from './promotionstrategy/collection'
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
-import { warehouseList, warehouseListMock } from './warehouse'
 import { customerPointsList, customerPointsListMock } from './customerpoints'
 import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualwallet'
 import { voucherList, voucherListMock } from './promotionstrategy/voucher'
@@ -35,7 +34,6 @@ for (let i = 0; i < count; i++) {
   collectionList.push(Mock.mock(collectionListMock))
   newproductList.push(Mock.mock(newproductListMock))
   servicesurveyList.push(Mock.mock(servicesurveyListMock))
-  warehouseList.push(Mock.mock(warehouseListMock))
   customerPointsList.push(Mock.mock(customerPointsListMock))
   customerVirtualWalletList.push(Mock.mock(customerVirtualWalletListMock))
   voucherList.push(Mock.mock(voucherListMock))
@@ -173,24 +171,6 @@ export default [
         code: result_code,
         data: {
           total: servicesurveyList.length,
-          list: pageList
-        }
-      }
-    }
-  },
-  {
-    url: '/warehouse/List',
-    method: 'get',
-    timeout,
-    response: ({ query }) => {
-      const { pageIndex, pageSize } = query
-      const pageList = warehouseList.filter(
-        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
-      )
-      return {
-        code: result_code,
-        data: {
-          total: warehouseList.length,
           list: pageList
         }
       }

@@ -1,5 +1,4 @@
 import Mock from 'mockjs'
-import { config } from '@/config/axios/config'
 
 interface PoliciesGuidelines {
   id: Number
@@ -30,26 +29,5 @@ for (let i = 0; i < count; i++) {
     })
   )
 }
-const { result_code } = config
-const timeout = 1000
 
-export default [
-  {
-    url: '/PoliciesGuidelinesList',
-    method: 'get',
-    timeout,
-    response: ({ query }) => {
-      const { pageIndex, pageSize } = query
-      const pageList = PoliciesGuidelinesList.filter(
-        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
-      )
-      return {
-        code: result_code,
-        data: {
-          total: PoliciesGuidelinesList.length,
-          list: pageList
-        }
-      }
-    }
-  }
-]
+export { PoliciesGuidelinesList }

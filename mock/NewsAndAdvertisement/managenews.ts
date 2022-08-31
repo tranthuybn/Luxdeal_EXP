@@ -1,6 +1,5 @@
 /* eslint-disable prefer-const */
 import Mock from 'mockjs'
-import { config } from '@/config/axios/config'
 interface manageNews {
   id: string
   image: string
@@ -46,25 +45,4 @@ for (let i = 0; i < count; i++) {
   )
 }
 
-const { result_code } = config
-const timeout = 1000
-export default [
-  {
-    url: '/manageNews',
-    method: 'get',
-    timeout,
-    response: ({ query }) => {
-      const { pageIndex, pageSize } = query
-      const pageList = manageNews.filter(
-        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
-      )
-      return {
-        code: result_code,
-        data: {
-          total: manageNews.length,
-          list: pageList
-        }
-      }
-    }
-  }
-]
+export { manageNews }

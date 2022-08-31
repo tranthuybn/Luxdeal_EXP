@@ -259,7 +259,7 @@ export default {
     warehouse: 'Nhập kho',
     export: 'Xuất kho',
     departmentDirectory: 'Danh mục phòng ban',
-    receiptsAdd: 'thêm mới phiếu thu',
+    receiptsAdd: 'Thêm mới phiếu thu',
     paymentsAdd: 'Thêm mới phiếu chi',
     receiptsAndExpendituresList: 'Danh sách phiếu thu/chi',
     approveManagement: 'Quản lý duyệt',

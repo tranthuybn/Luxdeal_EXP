@@ -5,9 +5,13 @@ import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
-import { ElImage, ElButton } from 'element-plus'
+import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
+import { useRoute } from 'vue-router'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
+const route = useRoute()
 const paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -113,9 +117,34 @@ const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilt
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
+const drawer = ref(false)
+const showingColumnList = ref([])
+const showingColumn =
+  props.fullColumns.length > 0
+    ? props.fullColumns.map((el) => ({ value: el.field, label: el.label }))
+    : []
 </script>
 <template>
-  <ContentWrap>
+  <ContentWrap class="relative">
+    <div class="absolute" id="rabbit-ear" @click="drawer = !drawer">
+      <Icon icon="ic:baseline-keyboard-double-arrow-down" />
+    </div>
+    <ElDrawer v-model="drawer" direction="ttb" size="10%">
+      <template #title>
+        <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
+      </template>
+      <template #default>
+        <ElCheckboxGroup v-model="showingColumnList" fill="var(--el-color-primary)">
+          <ElCheckboxButton
+            v-for="(item, index) in showingColumn"
+            :key="index"
+            :label="item.value"
+            size="small"
+            >{{ item.label }}</ElCheckboxButton
+          >
+        </ElCheckboxGroup>
+      </template>
+    </ElDrawer>
     <Table
       ref="tableRef"
       v-model:pageSize="tableObject.pageSize"
@@ -185,3 +214,55 @@ const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
     </Table>
   </ContentWrap>
 </template>
+<style lang="less" scoped>
+::v-deep(.el-overlay) {
+  position: absolute !important;
+}
+::v-deep(.el-drawer__body) {
+  padding: 3px !important ;
+  &::-webkit-scrollbar {
+    display: block;
+    width: 10px; /* width of vertical scrollbar */
+    background-color: var(--top-tool-border-color);
+    height: 10px; /* height of horizontal scrollbar ← You're missing this */
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--el-color-primary);
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0px 0px 1px var(--el-color-info);
+    box-shadow: inset 0px 0px 1px var(--el-color-info);
+    background-color: var(--el-color-primary);
+  }
+}
+::v-deep(.el-drawer__header) {
+  margin-bottom: 0;
+  padding: 0;
+}
+::v-deep(.el-checkbox-group) {
+  display: flex;
+  width: max-content;
+  justify-content: center;
+  align-items: flex-start;
+}
+#rabbit-ear {
+  width: 132px;
+  text-align: center;
+  z-index: 28;
+  border-radius: 0 0 5px 5px;
+  border: 1px solid var(--tags-view-border-color);
+  background-color: var(--logo-title-text-color);
+  box-shadow: 0px 0px 2px 1px var(--left-menu-text-color);
+  top: -10px;
+  height: 24px;
+  right: calc(50% - 66px);
+  &:hover {
+    top: 0;
+    border: 0px 1px 1px 1px solid var(--el-color-primary);
+    box-shadow: 0px 0px 2px 1px var(--el-color-primary);
+    color: var(--el-color-primary);
+  }
+}
+</style>

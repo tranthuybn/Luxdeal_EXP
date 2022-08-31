@@ -288,7 +288,7 @@ const pushAdd = (val) => {
           <el-button class="header-icon" :icon="item.icon" link />
           <span class="text-center">{{ item.title }}</span>
         </template>
-        <tableDatetimeFilterBasicVue :columns="item.columns" :api="item.api" />
+        <tableDatetimeFilterBasicVue :columns="item.columns" :api="item.api" :key="index" />
         <el-button :icon="plusIcon" @click="pushAdd(index)"> {{ item.buttonAdd }} </el-button>
       </el-collapse-item>
     </el-collapse>

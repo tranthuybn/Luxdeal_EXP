@@ -57,8 +57,8 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'numberOfTimesrRented',
-    label: t('reuse.numberOfTimesrRented'),
+    field: 'numberOfTimesRented',
+    label: t('reuse.numberOfTimesRented'),
     minWidth: '150',
     align: 'right',
     sortable: true

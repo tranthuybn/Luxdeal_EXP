@@ -1,4 +1,5 @@
 const voucherList: {
+  id: number
   createDate: Date
   voucherCode: string
   descriptions: string
@@ -12,6 +13,7 @@ const voucherList: {
 }[] = []
 
 const voucherListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   voucherCode: '@natural',
   descriptions: '@string(10,20)',

@@ -263,7 +263,9 @@ export default {
     paymentsAdd: 'Thêm mới phiếu chi',
     receiptsAndExpendituresList: 'Danh sách phiếu thu/chi',
     approveManagement: 'Quản lý duyệt',
-    BalanceSheetUtility: 'Thêm mới tài khoản'
+    BalanceSheetUtility: 'Thêm mới tài khoản',
+    newsList: 'Danh sách tin tức',
+    manageNew: 'Quản lý danh mục tin tức'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -566,7 +568,7 @@ export default {
     fail: 'Thất bại',
     currentlyLeased: 'Đang cho thuê',
     quantitySold: 'Số lượng đã bán',
-    numberOfTimesrRented: 'Số lần cho thuê',
+    numberOfTimesRented: 'Số lần cho thuê',
     numberOfTimesDeposited: 'Số lần đã kí gửi',
     numberOfTimesPawn: 'Số lần đã cầm đồ',
     numberOfTimesSpa: 'Số lần đã spa',
@@ -708,6 +710,9 @@ export default {
     branchCode: 'Mã chi nhánh',
     branchName: 'Tên chi nhánh',
     numberOfEmployees: 'Số lượng nhân sự',
-    DepartmentName: 'Tên phòng ban'
+    DepartmentName: 'Tên phòng ban',
+    stocking: 'Còn hàng',
+    newsDerectoryinformation: 'Thông tin danh mục tin tức',
+    content: 'Nội dung'
   }
 }

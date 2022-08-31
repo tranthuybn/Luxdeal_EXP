@@ -29,20 +29,38 @@ export default {
       }
     },
     {
-      path: 'news-site',
-      component: () => import('@/views/Pages/NewsAndAdvertisement/NewsSites.vue'),
-      name: 'New-and-advertisement.news-site',
-      meta: {
-        title: t('router.newsSite')
-      }
-    },
-    {
       path: 'banner-advertisement',
       component: () => import('@/views/Pages/NewsAndAdvertisement/BannerAdvertisement.vue'),
       name: 'New-and-advertisement.banner-advertisement',
       meta: {
         title: t('router.bannerAdvertisement')
       }
+    },
+    {
+      path: 'news-site',
+      name: 'New-and-advertisement.news-site',
+      meta: {
+        title: t('router.newsSite')
+      },
+      children: [
+        {
+          path: 'news-list',
+          component: () => import('@/views/Pages/NewsAndAdvertisement/NewsSites/NewsList.vue'),
+          name: 'New-and-advertisement.news-site.news-list',
+          meta: {
+            title: t('router.newsList')
+          }
+        },
+        {
+          path: 'manage-news',
+          component: () =>
+            import('@/views/Pages/NewsAndAdvertisement/NewsSites/ManageNewsCategories.vue'),
+          name: 'New-and-advertisement.news-site.manage-news',
+          meta: {
+            title: t('router.manageNew')
+          }
+        }
+      ]
     },
     {
       path: 'profile-admin',

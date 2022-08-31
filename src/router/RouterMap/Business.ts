@@ -109,6 +109,40 @@ export default {
       ]
     },
     {
+      path: 'collaborators',
+      name: 'business.collaborators',
+      redirect: { name: 'business.collaborators.collaboratorsList' },
+      meta: {
+        title: t('router.collaborators')
+      },
+      children: [
+        {
+          path: 'collaboratorsList',
+          name: 'business.collaborators.collaboratorsList',
+          component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
+          meta: {
+            title: t('router.collaboratorsList')
+          }
+        },
+        {
+          path: 'paymentRequest',
+          name: 'business.collaborators.paymentRequest',
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
+          meta: {
+            title: t('router.paymentRequest')
+          }
+        },
+        {
+          path: 'collaboratorsAdd',
+          name: 'business.collaborators.collaboratorsAdd',
+          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd')
+          }
+        }
+      ]
+    },
+    {
       path: 'promotion-strategy',
       name: 'business.promotion-strategy',
       redirect: { name: 'business.promotion-strategy.flash-sale' },
@@ -222,40 +256,6 @@ export default {
           component: () => import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWallet.vue'),
           meta: {
             title: t('router.settingsvirtualWallet')
-          }
-        }
-      ]
-    },
-    {
-      path: 'collaborators',
-      name: 'business.collaborators',
-      redirect: { name: 'business.collaborators.collaboratorsList' },
-      meta: {
-        title: t('router.collaborators')
-      },
-      children: [
-        {
-          path: 'collaboratorsList',
-          name: 'business.collaborators.collaboratorsList',
-          component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
-          meta: {
-            title: t('router.collaboratorsList')
-          }
-        },
-        {
-          path: 'paymentRequest',
-          name: 'business.collaborators.paymentRequest',
-          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
-          meta: {
-            title: t('router.paymentRequest')
-          }
-        },
-        {
-          path: 'collaboratorsAdd',
-          name: 'business.collaborators.collaboratorsAdd',
-          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
-          meta: {
-            title: t('router.collaboratorsAdd')
           }
         }
       ]

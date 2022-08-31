@@ -312,6 +312,40 @@ const adminList = [
         ]
       },
       {
+        path: 'collaborators',
+        name: 'business.collaborators',
+        redirect: { name: 'business.collaborators.collaboratorsList' },
+        meta: {
+          title: 'router.collaborators'
+        },
+        children: [
+          {
+            path: 'collaboratorsList',
+            name: 'business.collaborators.collaboratorsList',
+            component: 'views/Pages/Business/Collaborators/Collaborators',
+            meta: {
+              title: 'router.collaboratorsList'
+            }
+          },
+          {
+            path: 'paymentRequest',
+            name: 'business.collaborators.paymentRequest',
+            component: 'views/Pages/Business/Collaborators/PaymentRequest',
+            meta: {
+              title: 'router.paymentRequest'
+            }
+          },
+          {
+            path: 'collaboratorsAdd',
+            name: 'business.collaborators.collaboratorsAdd',
+            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+            meta: {
+              title: 'router.collaboratorsAdd'
+            }
+          }
+        ]
+      },
+      {
         path: 'promotion-strategy',
         name: 'business.promotion-strategy',
         redirect: { name: 'business.promotion-strategy.flash-sale' },
@@ -433,40 +467,6 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
             meta: {
               title: 'router.settingsvirtualWallet'
-            }
-          }
-        ]
-      },
-      {
-        path: 'collaborators',
-        name: 'business.collaborators',
-        redirect: { name: 'business.collaborators.collaboratorsList' },
-        meta: {
-          title: 'router.collaborators'
-        },
-        children: [
-          {
-            path: 'collaboratorsList',
-            name: 'business.collaborators.collaboratorsList',
-            component: 'views/Pages/Business/Collaborators/Collaborators',
-            meta: {
-              title: 'router.collaboratorsList'
-            }
-          },
-          {
-            path: 'paymentRequest',
-            name: 'business.collaborators.paymentRequest',
-            component: 'views/Pages/Business/Collaborators/PaymentRequest',
-            meta: {
-              title: 'router.paymentRequest'
-            }
-          },
-          {
-            path: 'collaboratorsAdd',
-            name: 'business.collaborators.collaboratorsAdd',
-            component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
-            meta: {
-              title: 'router.collaboratorsAdd'
             }
           }
         ]
@@ -978,20 +978,37 @@ const adminList = [
         }
       },
       {
-        path: 'news-site',
-        component: 'views/Pages/NewsAndAdvertisement/NewsSites',
-        name: 'New-and-advertisement.news-site',
-        meta: {
-          title: 'router.newsSite'
-        }
-      },
-      {
         path: 'banner-advertisement',
         component: 'views/Pages/NewsAndAdvertisement/BannerAdvertisement',
         name: 'New-and-advertisement.banner-advertisement',
         meta: {
           title: 'router.bannerAdvertisement'
         }
+      },
+      {
+        path: 'news-site',
+        name: 'New-and-advertisement.news-site',
+        meta: {
+          title: 'router.newsSite'
+        },
+        children: [
+          {
+            path: 'news-list',
+            component: 'views/Pages/NewsAndAdvertisement/NewsSites/NewsList',
+            name: 'New-and-advertisement.news-site.news-list',
+            meta: {
+              title: 'router.newsList'
+            }
+          },
+          {
+            path: 'manage-news',
+            component: 'views/Pages/NewsAndAdvertisement/NewsSites/ManageNewsCategories',
+            name: 'New-and-advertisement.news-site.manage-news',
+            meta: {
+              title: 'router.manageNew'
+            }
+          }
+        ]
       },
       {
         path: 'profile-admin',

@@ -8,7 +8,7 @@ const BusinessProductLibrary: {
   inventory: number
   currentlyLeased: number
   quantitySold: number
-  numberOfTimesrRented: number
+  numberOfTimesRented: number
   numberOfTimesDeposited: number
   numberOfTimesPawn: number
   numberOfTimesSpa: number
@@ -37,7 +37,7 @@ for (let i = 0; i < 100; i++) {
       inventory: '@natural(20,30)',
       currentlyLeased: '@natural(20,30)',
       quantitySold: '@natural(20,30)',
-      numberOfTimesrRented: '@natural(20,30)',
+      numberOfTimesRented: '@natural(20,30)',
       numberOfTimesDeposited: '@natural(20,30)',
       numberOfTimesPawn: '@natural(20,30)',
       numberOfTimesSpa: '@natural(20,30)',

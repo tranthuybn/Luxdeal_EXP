@@ -1,3 +1,31 @@
+<!-- eslint-disable vue/no-setup-props-destructure -->
+<script setup lang="ts">
+import {
+  ElRow,
+  ElCol,
+  ElCard,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElAvatar,
+  ElButton
+} from 'element-plus'
+const props = defineProps({
+  content: {
+    type: Object,
+    default: () => {},
+    require: true
+  }
+})
+let flexibleContent = props.content
+const baseUrl = 'https://api.cooftech.net/'
+const approvePost = (id) => {
+  console.log('call api duyet bai id:', id)
+}
+const cancelPost = (id) => {
+  console.log('call api ko cho duyet bai id:', id)
+}
+</script>
 <template>
   <section>
     <el-card class="my-3">
@@ -70,27 +98,6 @@
     </el-card>
   </section>
 </template>
-
-<script>
-import { BASE_URL } from '@/services/EndPoint'
-export default {
-  name: 'PendingPost',
-  props: {
-    content: {
-      type: Object,
-      default: () => {},
-      require: true
-    }
-  },
-  data() {
-    return {
-      flexibleContent: this.content,
-      baseUrl: BASE_URL + '/'
-    }
-  }
-}
-</script>
-
 <style>
 .dots {
   margin-right: 3px;

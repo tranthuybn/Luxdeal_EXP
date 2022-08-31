@@ -3,6 +3,7 @@ import { ElRow, ElCol, ElCard, ElTabs, ElTabPane, ElCheckbox, ElPopover } from '
 import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
 import ApprovedPosting from './components/ApprovedPosting.vue'
+import PendingPosting from './components/PendingPosting.vue'
 const sliders = [
   'https://api.cooftech.net/PostsImages\\637829583833908676_fpLD6o.jpg',
   'https://api.cooftech.net/PostsImages\\637829583834658748_4665561.jpg',
@@ -913,6 +914,11 @@ const totalMember = '43'
             </div>
           </el-card>
           <!-- pending -->
+          <pending-posting
+            v-for="(item, index) in posts"
+            :key="index + '-' + item.id"
+            :content="item"
+          />
         </el-col>
         <el-col :span="11">
           <el-card class="p-3 mb-3">

@@ -162,6 +162,7 @@ const timeAgo = (time) => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/styles/function.scss';
 .user-info-bar {
   display: flex;
   justify-content: space-between;

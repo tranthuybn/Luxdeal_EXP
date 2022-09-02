@@ -1,22 +1,32 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElCard, ElButton } from 'element-plus'
+import { ElRow, ElCol, ElCard, ElButton, ElDivider } from 'element-plus'
+import { ref } from 'vue'
 import Homepage from './Homepage.vue'
-const forums = [
-  { name: 'Forum Khách Hàng', description: 'Nơi giao lưu kết nối của các tín đồ hàng hiệu', id: 1 }
-]
+import EmployeeManagement from './EmployeeManagement.vue'
 const social = 'luxdeal'
+const activeButton = ref([
+  { index: 0, active: true },
+  { index: 1, active: false },
+  { index: 2, active: false },
+  { index: 3, active: false }
+])
+// pass index to function
+const changeStyleButton = (index) => {
+  //find index in array if index == array element active of index = true and others = false
+  activeButton.value.map((element) =>
+    element.index == index
+      ? (activeButton.value[element.index].active = true)
+      : (activeButton.value[element.index].active = false)
+  )
+}
 </script>
 
 <template>
-  <el-row type="flex" justify="space-between" class="base__main-background forum-container">
+  <el-row type="flex" justify="space-between" class="forum-container">
+    <el-divider content-position="left">Quản lý Forum (New Feed)</el-divider>
     <el-col :span="6" class="h-full">
       <el-card class="h-full">
-        <div class="fs-4 fw-bold pb-3">Quản lý Forum</div>
-        <div
-          class="d-flex bg-primary bg-opacity-10 rounded-2 p-2"
-          v-for="(item, index) in forums"
-          :key="index"
-        >
+        <div class="flex bg-primary bg-opacity-10 rounded-2 p-2">
           <div class="w-25 h-67-px">
             <img
               src="https://ap.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-coussin-bb-h27-handbags--M21191_PM2_Front%20view.png?wid=656&hei=656"
@@ -25,60 +35,63 @@ const social = 'luxdeal'
             />
           </div>
           <div class="ps-2 w-75">
-            <div class="fs-6 fw-bold pt-2">
-              {{ item.name }}
-            </div>
-            <div class="d-flex">
+            <div class="fs-6 fw-bold pt-2 font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
+            <div class="flex">
               <img :src="social" alt="" />
-              <small class="ms-1 description"> {{ item.description }}</small>
+              <span class="font-bold">Authonly Luxury</span>
             </div>
           </div>
         </div>
-        <el-button class="base__btn-primary w-100 py-3 mt-lg-5">Thêm mới +</el-button>
-        <div class="border-bottom border-top my-3">
-          <router-link to="/forums/homepage">
-            <div class="bg-primary bg-opacity-10 my-2 py-3" role="button"
-              ><b class="ps-lg-5">Trang chủ</b></div
-            >
-          </router-link>
+        <el-button class="w-full py-3 mt-lg-5 rounded-5px !h-45px">Thêm mới +</el-button>
+        <div class="menu-list-item my-2">
+          <el-divider class="!mt-4 !mb-4" />
+          <el-button
+            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
+            :class="activeButton[0].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            @click="changeStyleButton(0)"
+            ><b class="">Trang chủ</b>
+          </el-button>
+          <el-divider class="!mt-4 !mb-4" />
         </div>
         <div class="menu-list-item my-2">
-          <router-link to="forums/EmployeeManagement">
-            <b class="ps-lg-5">Quản lý thành viên</b>
-          </router-link>
-        </div>
-        <div class="menu-list-item my-2">
-          <router-link
-            :to="{
-              name: 'New-and-advertisement.news-site.news-list'
-            }"
+          <el-button
+            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
+            :class="activeButton[1].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            @click="changeStyleButton(1)"
           >
-            <b class="ps-lg-5">Quản lý hệ thông</b>
-          </router-link>
+            <b class="ps-lg-5">Quản lý thành viên</b>
+          </el-button>
         </div>
         <div class="menu-list-item my-2">
-          <router-link
-            :to="{
-              name: 'New-and-advertisement.news-site.manage-news'
-            }"
+          <el-button
+            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
+            :class="activeButton[2].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            @click="changeStyleButton(2)"
+          >
+            <b class="ps-lg-5">Quản lý hệ thống</b>
+          </el-button>
+        </div>
+        <div class="menu-list-item my-2">
+          <el-button
+            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
+            :class="activeButton[3].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            @click="changeStyleButton(3)"
           >
             <b class="ps-lg-5">Thiết lập forum</b>
-          </router-link>
+          </el-button>
         </div>
       </el-card>
     </el-col>
     <el-col :span="18" class="main-content-column">
-      <Homepage />
+      <Homepage v-if="activeButton[0].active" />
+      <EmployeeManagement v-if="activeButton[1].active" />
     </el-col>
   </el-row>
 </template>
 <style lang="scss" scoped>
 .menu-list-item {
-  height: 5vh;
-  box-shadow: inset 0 11px 10px -12px #6596f3;
   text-align: left;
   vertical-align: middle;
-  line-height: 5vh;
 }
 .menu-list-item:hover b {
   text-decoration: underline;
@@ -87,7 +100,9 @@ const social = 'luxdeal'
 .forum-container {
   width: 100%;
   height: 100%;
-  position: relative;
+  position: fixed;
+  background-color: none;
+  border: none;
 }
 .main-content-column {
   height: 100%;

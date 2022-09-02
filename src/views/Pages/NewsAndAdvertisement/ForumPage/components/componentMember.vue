@@ -206,6 +206,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import '@/styles/function.scss';
 .menu-list-item {
   box-shadow: inset 0 11px 10px -12px #6596f3;
   &:hover {

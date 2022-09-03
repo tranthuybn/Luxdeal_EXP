@@ -1,3 +1,75 @@
+<script setup lang="ts">
+import { ElCard, ElPopover, ElAvatar, ElButton, ElSelect, ElOption } from 'element-plus'
+import { ref } from 'vue'
+const memberType = ref(-1)
+const memberTypes = ref([
+  {
+    value: -1,
+    name: 'Tất cả'
+  },
+  {
+    value: 1,
+    name: 'Khách hàng'
+  },
+  {
+    value: 2,
+    name: 'Nhân viên'
+  }
+])
+const emit = defineEmits(['get-member'])
+let keyword = ref('')
+
+const memberSelectChange = () => {
+  keyword.value = ''
+  getMemberEvent()
+}
+const getMemberEvent = () => {
+  emit('get-member', { Keyword: keyword.value, UserType: memberType.value })
+}
+const searchingMember = () => {
+  // searching in all members
+  memberType.value = -1
+  getMemberEvent()
+}
+const props = defineProps({
+  search: { type: Object },
+  members: { type: Array },
+  isHomePage: { type: Boolean },
+  totalMember: { type: String }
+})
+type Member = {
+  [key: string]: any
+}
+let memberListShowUp = ref<Member>()
+if (Array.isArray(props.members)) {
+  memberListShowUp.value = props.members.slice(0, 5)
+}
+const prohibitToPost = (id, item) => {
+  console.log(id, item)
+}
+const removeUserForum = (obj) => {
+  console.log(obj)
+}
+const loadMoreMember = () => {
+  if (Array.isArray(props.members) && props.members.length > 0) {
+    if (
+      memberListShowUp.value != undefined &&
+      memberListShowUp.value.length === props.members.length
+    ) {
+      //base_notify('warning', 'Đã hiển thị tất cả thành viên')
+    } else {
+      if (
+        memberListShowUp.value != undefined &&
+        props.members.length > memberListShowUp.value.length + 5
+      ) {
+        memberListShowUp.value = props.members.slice(0, memberListShowUp.value.length + 5)
+      } else {
+        memberListShowUp.value = props.members
+      }
+    }
+  } else memberListShowUp.value = []
+}
+</script>
 <template>
   <div>
     <el-card class="p-3">
@@ -11,7 +83,7 @@
               :value="item.value"
               :label="item.name"
             >
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="flex justify-content-between align-items-center">
                 <span>{{ item.name }}</span>
                 <i class="el-icon-arrow-right"></i>
               </div>
@@ -31,23 +103,23 @@
       </div>
       <div class="my-3">
         <div
-          ><span class="fw-bold dot pe-2">Thành viên</span
-          ><span class="fw-bold ps-3">{{ totalMember }}</span></div
+          ><span class="fw-bold dot pr-2">Thành viên</span
+          ><span class="fw-bold pl-2">{{ totalMember }}</span></div
         >
         <small>Đây là những thành viên đã có trong forum</small>
       </div>
       <div class="my-3">
         <div
-          class="menu-list-item d-flex justify-content-between align-items-stretch p-3"
+          class="menu-list-item flex justify-content-between align-items-stretch p-3"
           v-for="(item, index) in memberListShowUp"
           :class="item.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
           :key="index + '-members'"
         >
-          <div class="d-flex justify-content-start">
+          <div class="flex justify-content-start">
             <el-avatar :src="item.avatar" v-if="item.avatar" alt="" :size="47" />
             <el-avatar v-else icon="el-icon-user-solid" :size="47" />
-            <div class="ps-3 w-75">
-              <div class="fullName fw-bold fs-6">{{ item.fullName }}</div>
+            <div class="ps-3 w-75 pl-4">
+              <div class="fullName fw-bold">{{ item.fullName }}</div>
               <small>salon</small>
             </div>
           </div>
@@ -62,21 +134,21 @@
                 <div class="w-100 p-3">
                   <div
                     style="cursor: pointer"
-                    class="pb-2 d-flex justify-content-between"
+                    class="pb-2 flex justify-content-between"
                     :class="item.isPostProhibit ? 'text-success' : 'text-danger'"
                     @click="prohibitToPost(item.id, item)"
                   >
                     {{ item.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
                     <i class="el-icon-arrow-right"></i>
                   </div>
-                  <div class="d-flex justify-content-between cursor"
+                  <div class="flex justify-content-between cursor"
                     ><span class="text-danger" @click="removeUserForum(item)">Xóa khỏi nhóm</span>
                     <i class="el-icon-arrow-right"></i
                   ></div>
                 </div>
               </template>
               <template #reference>
-                <div class="d-flex justify-content-center align-item-center user-info-bar__utility">
+                <div class="flex justify-content-center align-item-center user-info-bar__utility">
                   <div class="dots"></div>
                   <div class="dots"></div>
                   <div class="dots"></div>
@@ -94,117 +166,6 @@
     >
   </div>
 </template>
-<script>
-import imageIcon from '@/assets/images/image-icon.svg'
-import { RemoveUserInGroup } from '@/services/api/appManager'
-import forumMixins from '../mixins'
-export default {
-  name: 'ComponentMember',
-  mixins: [forumMixins],
-  props: {
-    search: { type: Object },
-    members: { type: Array },
-    isHomePage: { type: Boolean },
-    totalMember: { type: String }
-  },
-  data() {
-    return {
-      imageIcon: imageIcon,
-      keyword: '',
-      memberListShowUp: [],
-      memberType: -1,
-      memberTypes: [
-        {
-          value: -1,
-          name: 'Tất cả'
-        },
-        {
-          value: 1,
-          name: 'Khách hàng'
-        },
-        {
-          value: 2,
-          name: 'Nhân viên'
-        }
-      ]
-    }
-  },
-  watch: {
-    members: {
-      immediate: true,
-      deep: true,
-      handler(newVal, oldVal) {
-        if (newVal.length === 0) {
-          if (this.memberListShowUp.length > 0) {
-            this.memberListShowUp.splice(0, this.memberListShowUp.length)
-          }
-        } else if (newVal.length !== oldVal.length || this.memberListShowUp.length === 0) {
-          this.loadMoreMember()
-        }
-      }
-    }
-  },
-  methods: {
-    handleClick(tab) {
-      this.activeName = tab.name
-    },
-    removeUserForum(obj) {
-      this.$prompt("Vui lòng nhập 'Xóa' để xóa người dùng ", 'Xóa người dùng', {
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Đóng',
-        inputValidator: (value) => {
-          if (value !== 'Xóa') {
-            return 'Không hợp lệ'
-          }
-        },
-        inputErrorMessage: 'Không hợp lệ'
-      })
-        .then(({ value }) => {
-          RemoveUserInGroup({ Id: obj.id, Email: obj.email, Phone: obj.phone }).then((res) => {
-            const { data } = res.data
-            if (res.status === 200 && res.data.statusCode === 200 && data) {
-              this.$base_notify('success', data.message ?? 'Xóa thành công')
-              this.memberListShowUp.splice(
-                this.memberListShowUp.findIndex((el) => el.id === obj.id),
-                1
-              )
-            } else {
-              this.$base_notify('error', data.message ?? 'Xóa thất bại')
-            }
-          })
-        })
-        .catch(() => {
-          this.$base_notify('error', 'Xóa thất bại')
-        })
-    },
-    loadMoreMember() {
-      if (this.members.length > 0) {
-        if (this.memberListShowUp.length === this.members.length) {
-          this.$base_notify('warning', 'Đã hiển thị tất cả thành viên')
-        } else {
-          if (this.members.length > this.memberListShowUp.length + 5) {
-            this.memberListShowUp = this.members.slice(0, this.memberListShowUp.length + 5)
-          } else {
-            this.memberListShowUp = this.members
-          }
-        }
-      } else this.memberListShowUp = []
-    },
-    memberSelectChange() {
-      this.keyword = ''
-      this.getMemberEvent()
-    },
-    searchingMember() {
-      // searching in all members
-      this.memberType = -1
-      this.getMemberEvent()
-    },
-    getMemberEvent() {
-      this.$emit('getMember', { Keyword: this.keyword, UserType: this.memberType })
-    }
-  }
-}
-</script>
 <style lang="scss" scoped>
 @import '@/styles/function.scss';
 .menu-list-item {
@@ -212,7 +173,7 @@ export default {
   &:hover {
     .fullName {
       text-decoration: underline;
-      color: $main-color;
+      color: black;
     }
   }
 }
@@ -224,7 +185,7 @@ export default {
   align-items: center;
   border-radius: 10px;
   &:hover {
-    box-shadow: $card-shadow;
+    box-shadow: inset 0 11px 10px -12px #6596f3;
   }
 }
 .h-67-px {

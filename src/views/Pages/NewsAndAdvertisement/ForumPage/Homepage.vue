@@ -18,6 +18,7 @@ import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
 import ApprovedPosting from './components/ApprovedPosting.vue'
 import PendingPosting from './components/PendingPosting.vue'
+import componentMember from './components/componentMember.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 const imagesIcon = useIcon({ icon: 'fa-solid:images' })
@@ -973,6 +974,12 @@ const postOptions = [
               <span class="ps-4">{{ item.keyword }}</span>
             </div>
           </el-card>
+          <componentMember
+            :members="members"
+            :is-home-page="true"
+            @get-member="getMember"
+            :total-member="totalMember"
+          />
         </el-col>
       </el-row>
     </div>

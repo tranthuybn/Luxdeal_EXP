@@ -10,9 +10,8 @@ const activeButton = ref([
   { index: 2, active: false },
   { index: 3, active: false }
 ])
-// pass index to function
 const changeStyleButton = (index) => {
-  //find index in array if index == array element active of index = true and others = false
+  //find index in array if index == element then active = true and others = false
   activeButton.value.map((element) =>
     element.index == index
       ? (activeButton.value[element.index].active = true)
@@ -82,7 +81,7 @@ const changeStyleButton = (index) => {
         </div>
       </el-card>
     </el-col>
-    <el-col :span="18" class="main-content-column">
+    <el-col :span="18" class="main-content-column pl-10">
       <Homepage v-if="activeButton[0].active" />
       <EmployeeManagement v-if="activeButton[1].active" />
     </el-col>

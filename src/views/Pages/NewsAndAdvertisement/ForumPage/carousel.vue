@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import { ElCarousel, ElCarouselItem, ElEmpty } from 'element-plus'
-import { onMounted, ref } from 'vue'
-let carouselHeight = ref(350)
-onMounted(() => {
-  const carouselWidth = document.getElementsByClassName('el-carousel__container')[0].clientWidth
-  carouselHeight.value = (carouselWidth * 9) / 16
-})
+import { ElCarousel, ElCarouselItem, ElEmpty, ElImage } from 'element-plus'
 const emit = defineEmits(['prev', 'next'])
 const previousClick = (event) => {
   emit('prev', event)
@@ -24,7 +18,7 @@ defineProps({
 <template>
   <div>
     <el-carousel
-      :height="carouselHeight.toString() + 'px'"
+      height="350px"
       :interval="5000"
       arrow="hover"
       @prev="previousClick"
@@ -33,13 +27,13 @@ defineProps({
       id="carousel"
     >
       <el-carousel-item v-for="(item, index) in items" :key="index">
-        <img
+        <el-image
           v-if="typeof item === 'string'"
           class="base__right-detail__img-banner"
           :src="item"
           :alt="item.toString()"
         />
-        <el-empty v-else :image-size="carouselHeight / 2" description="Không có ảnh" />
+        <el-empty v-else :image-size="180" description="Không có ảnh" />
       </el-carousel-item>
     </el-carousel>
   </div>

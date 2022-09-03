@@ -9,7 +9,8 @@ import {
   ElDropdownMenu,
   ElDropdownItem,
   ElAvatar,
-  ElButton
+  ElButton,
+  ElDivider
 } from 'element-plus'
 import moment from 'moment'
 const props = defineProps({
@@ -28,8 +29,8 @@ const deletePost = (id) => {
   console.log('delte this post:id', id)
 }
 //fix icon
-const likeIcon = useIcon({ icon: 'uil:plus' })
-const dislikeIcon = useIcon({ icon: 'uil:search' })
+const likeFilledIcon = useIcon({ icon: 'ant-design:like-filled' })
+const likeIcon = useIcon({ icon: 'ant-design:like-outlined' })
 const commentImage = useIcon({ icon: 'uil:comment' })
 const updateLikeStatus = () => {
   console.log('call api to like/unlike')
@@ -46,7 +47,7 @@ const timeAgo = (time) => {
         class="user-info-bar"
         :class="flexibleContent.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
       >
-        <div class="d-flex justify-content-start align-items-center">
+        <div class="flex justify-content-start align-items-center">
           <div class="user-avatar">
             <el-avatar
               v-if="flexibleContent.avatar"
@@ -55,13 +56,13 @@ const timeAgo = (time) => {
             />
             <el-avatar v-else icon="el-icon-user-solid" :size="47" />
           </div>
-          <div class="ps-3">
+          <div class="ps-3 pl-4">
             <div class="fw-bold">{{ flexibleContent.fullName }}</div>
             <small>{{ flexibleContent.timeAgo }}</small>
           </div>
         </div>
         <el-dropdown trigger="click" role="button" class="user-info-bar__utility">
-          <div class="d-flex justify-content-center align-items-center">
+          <div class="flex justify-content-center align-items-center">
             <div class="dots"></div>
             <div class="dots"></div>
             <div class="dots"></div>
@@ -109,40 +110,46 @@ const timeAgo = (time) => {
         </el-col>
       </el-row>
       <div class="p-3 pt-0 border-bottom">
-        <div class="row" style="align-self: center">
+        <div class="flex items-center self-center justify-between">
           <div class="col-6 text-start">
-            <div class="d-flex">
-              <el-button :icon="likeIcon" width="18" alt="" disabled />
-              <div class="px-2" style="align-self: center">
+            <div class="flex">
+              <el-button :icon="likeFilledIcon" width="18" alt="" type="text" />
+              <div class="px-1 self-center">
                 {{ flexibleContent.totalLike }}
               </div>
             </div>
           </div>
           <div class="text-end col-6">
             <span class="text-secondary">{{ flexibleContent.totalLike }}</span>
-            <span class="px-3 text-secondary">Comments</span>
+            <span class="px-1 text-secondary">Comments</span>
           </div>
         </div>
       </div>
       <div class="border-bottom">
-        <div class="row justify-content-between align-items-center" style="height: 4vh">
+        <el-divider />
+        <div class="flex gap-10" style="height: 4vh">
           <div class="col-6">
             <el-button
-              :icon="flexibleContent.isUserLiked ? likeIcon : dislikeIcon"
+              :icon="likeIcon"
               :btnName="'Like'"
               @click="updateLikeStatus"
-            />
+              size="large"
+              class="!border-0"
+              >Like</el-button
+            >
           </div>
           <div class="col-6">
-            <el-button :icon="commentImage" :btnName="'comment'" />
-          </div>
-        </div>
+            <el-button :icon="commentImage" :btnName="'comment'" size="large" class="!border-0"
+              >Comment</el-button
+            >
+          </div> </div
+        ><el-divider />
       </div>
-      <div class="d-flex justify-content-between">
+      <div class="flex justify-content-between">
         <i class="fa fa-thumbs-o-up"></i>
       </div>
       <div
-        class="d-flex pt-3 ps-3"
+        class="flex pt-3 ps-3"
         v-for="(comment, index) in flexibleContent.comments"
         :key="comment.commentId + '-comments-' + index"
       >

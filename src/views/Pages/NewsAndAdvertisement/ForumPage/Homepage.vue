@@ -1,9 +1,26 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElCard, ElTabs, ElTabPane, ElCheckbox, ElPopover } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import {
+  ElRow,
+  ElCol,
+  ElCard,
+  ElTabs,
+  ElTabPane,
+  ElCheckbox,
+  ElPopover,
+  ElAvatar,
+  ElButton,
+  ElInput,
+  ElSelect,
+  ElOption
+} from 'element-plus'
 import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
 import ApprovedPosting from './components/ApprovedPosting.vue'
 import PendingPosting from './components/PendingPosting.vue'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
+const imagesIcon = useIcon({ icon: 'fa-solid:images' })
 const sliders = [
   'https://api.cooftech.net/PostsImages\\637829583833908676_fpLD6o.jpg',
   'https://api.cooftech.net/PostsImages\\637829583834658748_4665561.jpg',
@@ -20,8 +37,7 @@ let activeName = ref('first')
 let listActive = ref(true)
 const social = '/img/GlobeHemisphereWest.8d0f5605.svg'
 const handleClick = (tab) => {
-  activeName.value = tab.name
-  listActive.value = activeName.value == 'first'
+  tab.props.name == 'first' ? (listActive.value = true) : (listActive.value = false)
   //getPostForum()
 }
 const userInfo = {
@@ -809,12 +825,24 @@ const getPostForum = () => {
   //   })
 }
 const totalMember = '43'
+const postSelectOption = ref(1)
+
+const postOptions = [
+  {
+    value: 1,
+    label: t('reuse.recently')
+  },
+  {
+    value: 2,
+    label: t('reuse.feature')
+  }
+]
 </script>
 <template>
   <div>
-    <div class="ps-4 pb-1 base__main-background">
+    <div class="w-4/5">
       <el-card>
-        <div class="text-end position-relative">
+        <div class="w-full">
           <CarouselComponent :items="sliders" />
         </div>
         <div class="mt-3 pb-4">
@@ -830,36 +858,43 @@ const totalMember = '43'
         </div>
       </el-card>
     </div>
-    <div class="ps-3 py-4 base__main-background">
+    <div class="py-4 w-4/5">
       <el-row :gutter="20" class="m-0">
         <el-col :span="13" v-if="listActive">
           <el-card class="p-3">
-            <div class="d-flex">
+            <div class="flex items-center">
               <div class="">
                 <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
                 <el-avatar v-else icon="el-icon-user-solid" :size="47" />
               </div>
-              <div class="input-group input-group-lg ps-4">
-                <input
+              <div class="w-full pl-4">
+                <el-input
                   type="text"
-                  class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
+                  class="bg-opacity-10 h-47px"
                   placeholder="Nhập nội dung..."
+                  @focus="openPostNewsDialog"
                 />
               </div>
             </div>
-            <div class="menu-list-item ps-3 mt-3" @click="openPostNewsDialog" role="button">
-              <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
-              <el-avatar v-else icon="el-icon-user-solid" :size="47" />
-              <span class="ps-2" name="text">Chọn ảnh</span>
+            <div class="mt-3">
+              <el-button :icon="imagesIcon" class="!border-0" @click="openPostNewsDialog"
+                >Chọn ảnh</el-button
+              >
             </div>
           </el-card>
-
-          <div class="fw-bold p-3">Gần đây <i class="el-icon-caret-bottom" role="button"></i></div>
+          <el-select v-model="postSelectOption" class="m-2">
+            <el-option
+              v-for="item in postOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
           <approved-posting v-for="(item, index) in posts" :key="index" :content="item" />
         </el-col>
         <el-col :span="13" v-else>
           <el-card class="p-3">
-            <div class="d-flex justify-content-between">
+            <div class="flex justify-content-between">
               <div class="pt-3">
                 <span class="fw-bold pe-3 dot">Bài viết chờ duyệt</span>
                 <span class="fw-bold ps-2">{{ posts.length }}</span>
@@ -883,7 +918,7 @@ const totalMember = '43'
                 >
               </div>
             </div>
-            <div class="d-flex justify-content-between pt-3">
+            <div class="flex justify-content-between pt-3">
               <div class="pt-3">
                 <el-checkbox v-model="allPick" :value="true"> Chọn tất cả</el-checkbox>
               </div>
@@ -896,11 +931,11 @@ const totalMember = '43'
                 >
                   <template #default>
                     <div class="w-100 p-3">
-                      <div class="pb-2 d-flex justify-content-between"
+                      <div class="pb-2 flex justify-content-between"
                         ><span class="fw-bold">Mới nhất trước</span>
                         <i class="el-icon-arrow-right"></i
                       ></div>
-                      <div class="d-flex justify-content-between"
+                      <div class="flex justify-content-between"
                         ><span class="text-secondary">Cũ nhất trước</span>
                         <i class="el-icon-arrow-right"></i
                       ></div>
@@ -977,7 +1012,6 @@ const totalMember = '43'
 }
 
 .directory-bar {
-  box-shadow: inset 0 11px 10px -12px #6596f3;
   padding: get-vh(17px) get-vw(19px) 0;
   border-radius: 10px;
 }
@@ -1011,11 +1045,6 @@ const totalMember = '43'
   height: 50px;
   border-radius: 50%;
 }
-
-.rounded-20 {
-  border-radius: 2rem;
-}
-
 .dot {
   position: relative;
 }
@@ -1086,5 +1115,12 @@ const totalMember = '43'
 <style lang="scss" scoped>
 .el-popover--plain {
   padding: 0;
+}
+.h-47px :deep(.el-input__wrapper) {
+  border-radius: 50px;
+}
+.m-2 :deep(.el-input__wrapper) {
+  background: none;
+  box-shadow: none;
 }
 </style>

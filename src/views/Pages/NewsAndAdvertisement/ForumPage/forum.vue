@@ -23,7 +23,7 @@ const changeStyleButton = (index) => {
 <template>
   <el-row type="flex" justify="space-between" class="forum-container">
     <el-divider content-position="left">Quản lý Forum (New Feed)</el-divider>
-    <el-col :span="6" class="h-full">
+    <el-col :span="6" class="sticky">
       <el-card class="h-full">
         <div class="flex bg-primary bg-opacity-10 rounded-2 p-2">
           <div class="w-25 h-67-px">
@@ -81,7 +81,7 @@ const changeStyleButton = (index) => {
         </div>
       </el-card>
     </el-col>
-    <el-col :span="18" class="main-content-column pl-10">
+    <el-col :span="18" class="main-content-column">
       <Homepage v-if="activeButton[0].active" />
       <EmployeeManagement v-if="activeButton[1].active" />
     </el-col>
@@ -99,12 +99,12 @@ const changeStyleButton = (index) => {
 .forum-container {
   width: 100%;
   height: 100%;
-  position: fixed;
+  position: absolute;
   background-color: none;
   border: none;
 }
 .main-content-column {
-  height: 100%;
+  height: 93%;
   overflow-y: scroll;
   overflow-x: auto;
 }

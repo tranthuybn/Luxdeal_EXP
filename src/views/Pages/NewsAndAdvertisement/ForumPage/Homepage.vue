@@ -840,8 +840,8 @@ const postOptions = [
 ]
 </script>
 <template>
-  <div>
-    <div class="w-4/5">
+  <div class="flex justify-center flex-wrap">
+    <div class="w-95/100">
       <el-card>
         <div class="w-full">
           <CarouselComponent :items="sliders" />
@@ -859,7 +859,7 @@ const postOptions = [
         </div>
       </el-card>
     </div>
-    <div class="py-4 w-4/5">
+    <div class="py-4 w-95/100">
       <el-row :gutter="20" class="m-0">
         <el-col :span="13" v-if="listActive">
           <el-card class="p-3">

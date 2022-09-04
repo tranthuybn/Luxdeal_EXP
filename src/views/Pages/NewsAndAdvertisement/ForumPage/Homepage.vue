@@ -19,6 +19,7 @@ import CarouselComponent from './carousel.vue'
 import ApprovedPosting from './components/ApprovedPosting.vue'
 import PendingPosting from './components/PendingPosting.vue'
 import componentMember from './components/componentMember.vue'
+import PostNewsDialog from './components/PostNewsDialog.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 const imagesIcon = useIcon({ icon: 'fa-solid:images' })
@@ -41,6 +42,7 @@ const handleClick = (tab) => {
   tab.props.name == 'first' ? (listActive.value = true) : (listActive.value = false)
   //getPostForum()
 }
+let postDialog = ref(false)
 const userInfo = {
   id: 'fd83c99a-44a4-4756-baaa-a5a9d26f7bda',
   idNhanVien: '5854d17e-9379-4b67-aa52-80116f956934',
@@ -67,6 +69,7 @@ const userInfo = {
 }
 const baseUrl = 'https://api.cooftech.net/'
 const openPostNewsDialog = () => {
+  postDialog.value = true
   console.log('this open post dialog')
 }
 const posts = [
@@ -838,6 +841,9 @@ const postOptions = [
     label: t('reuse.feature')
   }
 ]
+const updatePostDialog = () => {
+  postDialog.value = false
+}
 </script>
 <template>
   <div class="flex justify-center flex-wrap">
@@ -868,13 +874,8 @@ const postOptions = [
                 <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
                 <el-avatar v-else icon="el-icon-user-solid" :size="47" />
               </div>
-              <div class="w-full pl-4">
-                <el-input
-                  type="text"
-                  class="bg-opacity-10 h-47px"
-                  placeholder="Nhập nội dung..."
-                  @focus="openPostNewsDialog"
-                />
+              <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
+                <el-input type="text" class="bg-opacity-10 h-47px" placeholder="Nhập nội dung..." />
               </div>
             </div>
             <div class="mt-3">
@@ -959,7 +960,7 @@ const postOptions = [
         <el-col :span="11">
           <el-card class="p-3 mb-3">
             <div class="input-group input-group-lg">
-              <input
+              <el-input
                 type="text"
                 class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
                 placeholder="Tìm kiếm trong nhóm này ..."
@@ -970,8 +971,8 @@ const postOptions = [
             </div>
             <div class="fs-6 pt-3 fw-bold" v-if="dataSearch.length > 0"> Tìm kiếm gần đây</div>
             <div class="pt-3" v-for="item in dataSearch" :key="item.id">
-              <span class="fw-bold" style="cursor: pointer" @click="removeSearch(item.id)">x</span>
-              <span class="ps-4">{{ item.keyword }}</span>
+              <el-button class="fw-bold" @click="removeSearch(item.id)">X</el-button>
+              <span class="pl-4">{{ item.keyword }}</span>
             </div>
           </el-card>
           <componentMember
@@ -982,6 +983,12 @@ const postOptions = [
           />
         </el-col>
       </el-row>
+      <post-news-dialog
+        v-if="postDialog"
+        :userInfo="userInfo"
+        @update-new-posting="getPostForum"
+        @update-post-dialog="updatePostDialog"
+      />
     </div>
   </div>
 </template>
@@ -1118,8 +1125,7 @@ const postOptions = [
 :deep(.el-popover--plain) {
   padding: 0 !important;
 }
-</style>
-<style lang="scss" scoped>
+
 .el-popover--plain {
   padding: 0;
 }

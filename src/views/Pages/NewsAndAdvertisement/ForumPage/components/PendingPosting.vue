@@ -29,7 +29,7 @@ const cancelPost = (id) => {
 <template>
   <section>
     <el-card class="my-3">
-      <div class="d-flex p-3">
+      <div class="flex p-3">
         <div class="">
           <el-avatar
             v-if="flexibleContent.avatar"
@@ -60,24 +60,24 @@ const cancelPost = (id) => {
           </el-image>
         </el-col>
       </el-row>
-      <div class="d-flex justify-content-between">
+      <div class="flex justify-content-between">
         <i class="fa fa-thumbs-o-up"></i>
       </div>
-      <div class="row p-3">
+      <div class="flex flex-wrap p-3">
         <div class="col-5">
-          <el-button class="base__btn-primary w-100 me-3" @click="approvePost(flexibleContent.id)"
+          <el-button class="base__btn-primary w-full me-3" @click="approvePost(flexibleContent.id)"
             >Phê duyệt</el-button
           >
         </div>
         <div class="col-5">
-          <el-button class="base__btn-info w-100 px-3" @click="cancelPost(flexibleContent.id)"
+          <el-button class="base__btn-info w-full px-3" @click="cancelPost(flexibleContent.id)"
             >từ chối</el-button
           >
         </div>
         <div class="col-2">
-          <el-dropdown class="w-100">
+          <el-dropdown class="w-full">
             <div
-              class="d-flex justify-content-sm-center bg-dark bg-opacity-10 py-3 rounded"
+              class="flex justify-content-sm-center bg-dark bg-opacity-10 py-3 rounded"
               role="button"
             >
               <div class="dots"></div>

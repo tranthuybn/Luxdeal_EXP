@@ -1,17 +1,90 @@
+<script setup lang="ts">
+import { useIcon } from '@/hooks/web/useIcon'
+import {
+  ElDialog,
+  ElRow,
+  ElAvatar,
+  ElButton,
+  ElInput,
+  ElUpload,
+  UploadUserFile
+} from 'element-plus'
+import type { UploadFile } from 'element-plus'
+import { ref } from 'vue'
+
+type Tag = {
+  [key: string]: any
+}
+const baseUrl = 'https://api.cooftech.net/'
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+const uploadDialogVisible = ref(true)
+const innerVisible = ref(false)
+const searchingKey = ref('')
+const choseTags = ref<Tag>([])
+const totalTags = ref(0)
+const tags = ref<Tag>([])
+let currentTags = ref<Tag>([])
+let postContent = ref('')
+let fileList = ref<UploadUserFile[]>([])
+const disabled = ref(false)
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+defineProps({
+  userInfo: {
+    type: Object,
+    default: () => {},
+    require: true
+  }
+})
+const emit = defineEmits(['update-new-posting', 'update-post-dialog'])
+const resetUploadDialogField = () => {
+  emit('update-post-dialog')
+  console.log('resetData')
+}
+const getAllTags = () => {
+  console.log('getAllTag')
+}
+const searchTags = () => {
+  if (searchingKey.value.length > 0) {
+    currentTags = tags.value.filter((el) => el.name.includes(searchingKey))
+  } else {
+    currentTags = tags
+  }
+}
+const removeTag = (val) => {
+  const position = choseTags.value.findIndex((el) => el.id === val.id)
+  if (position !== -1) {
+    choseTags.value.splice(position, 1)
+  }
+}
+const chooseTag = (val) => {
+  if (!choseTags.value.find((el) => el.id === val.id)) {
+    choseTags.value.push(val)
+  } else console.error('error', 'Thẻ đã được chọn')
+}
+const uploadPosting = () => {
+  emit('update-new-posting')
+  console.log('upload post')
+}
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
+const handleRemove = (file: UploadFile) => {
+  fileList.value = fileList.value.filter((image) => image.url !== file.url)
+}
+</script>
 <template>
-  <el-dialog
-    v-model:visible="uploadDialogVisible"
-    width="30%"
-    center
-    @closed="resetUploadDialogField"
-  >
+  <el-dialog v-model="uploadDialogVisible" width="30%" center @closed="resetUploadDialogField">
     <template #title>
       <div class="text-center pb-3 border-bottom"><b>Tạo bài viết</b></div>
     </template>
     <el-dialog
       width="30%"
       style="top: 10%"
-      v-model:visible="innerVisible"
+      v-model="innerVisible"
       @opened="getAllTags"
       append-to-body
     >
@@ -61,7 +134,7 @@
         </div>
       </div>
     </el-dialog>
-    <div class="d-flex justify-content-start align-items-baseline pt-2">
+    <div class="flex justify-content-start align-items-baseline pt-2">
       <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
       <el-avatar v-else icon="el-icon-user-solid" :size="47" />
       <div class="ps-3 w-75">
@@ -79,7 +152,32 @@
     </div>
     <div class="pt-3">
       <el-row :gutter="5" class="upload-image-box">
-        <multiple-upload-images ref="multipleUploadImages" @updateImageList="updateUploadImage" />
+        <el-upload
+          action="#"
+          list-type="picture-card"
+          :auto-upload="false"
+          v-model:file-list="fileList"
+        >
+          <el-button :icon="addIcon" />
+
+          <template #file="{ file }">
+            <div>
+              <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+              <span class="el-upload-list__item-actions">
+                <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
+                  <el-button :icon="viewIcon" />
+                </span>
+                <span
+                  v-if="!disabled"
+                  class="el-upload-list__item-delete"
+                  @click="handleRemove(file)"
+                >
+                  <el-button :icon="deleteIcon" />
+                </span>
+              </span>
+            </div>
+          </template>
+        </el-upload>
       </el-row>
     </div>
     <template #footer>
@@ -99,7 +197,6 @@
 <style lang="scss" scoped>
 .upload-image-box {
   height: 25vh;
-  overflow-y: scroll;
 }
 :deep(.el-tag) {
   margin-right: 4px;

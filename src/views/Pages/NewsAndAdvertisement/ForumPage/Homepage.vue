@@ -12,7 +12,8 @@ import {
   ElButton,
   ElInput,
   ElSelect,
-  ElOption
+  ElOption,
+  ElIcon
 } from 'element-plus'
 import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
@@ -24,20 +25,20 @@ import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 const imagesIcon = useIcon({ icon: 'fa-solid:images' })
 const sliders = [
-  'https://api.cooftech.net/PostsImages\\637829583833908676_fpLD6o.jpg',
-  'https://api.cooftech.net/PostsImages\\637829583834658748_4665561.jpg',
-  'https://api.cooftech.net/PostsImages\\637829583835486538_car_2.jpg'
+  'https://images.prestigeonline.com/wp-content/uploads/sites/8/2022/04/08183305/marmont-1-1600x900.jpeg',
+  'https://images.prestigeonline.com/wp-content/uploads/sites/8/2022/04/08183224/cho-gi-seok_gucci-bamboo-1947-6.jpeg',
+  'https://images.prestigeonline.com/wp-content/uploads/sites/8/2022/04/08183226/gucci-diana.jpeg'
 ]
 const formInfo = {
   value: {
     name: 'Forum Khách Hàng',
-    description: 'Nơi giao lưu kết nối của các tín đồ hàng hiệu',
+    description: 'Forum chung',
     id: 1
   }
 }
 let activeName = ref('first')
 let listActive = ref(true)
-const social = '/img/GlobeHemisphereWest.8d0f5605.svg'
+const social = 'globe'
 const handleClick = (tab) => {
   tab.props.name == 'first' ? (listActive.value = true) : (listActive.value = false)
   //getPostForum()
@@ -67,7 +68,7 @@ const userInfo = {
     isDeleted: false
   }
 }
-const baseUrl = 'https://api.cooftech.net/'
+const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const openPostNewsDialog = () => {
   postDialog.value = true
   console.log('this open post dialog')
@@ -342,7 +343,10 @@ const actionAllPost = (type) => {
   // }
 }
 const keyword = ref('')
-const dataSearch = ref([{ id: 1, keyword: '' }])
+type Search = {
+  [key: string]: any
+}
+const dataSearch = ref<Search>([])
 const search = () => {
   const times = new Date().getTime()
   if (keyword.value) {
@@ -853,9 +857,9 @@ const updatePostDialog = () => {
           <CarouselComponent :items="sliders" />
         </div>
         <div class="mt-3 pb-4">
-          <div class="fs-4 fw-bold pt-2">{{ formInfo.value.name }}</div>
-          <img :src="social" alt="" />
-          <small class="ms-1"> {{ formInfo.value.description }}</small>
+          <div class="fs-4 font-bold pt-2">{{ formInfo.value.name }}</div>
+          <i src="@/assets/svgs/globe"></i>
+          <span class="ms-1"> {{ formInfo.value.description }}</span>
         </div>
         <div class="directory-bar">
           <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -868,10 +872,10 @@ const updatePostDialog = () => {
     <div class="py-4 w-95/100">
       <el-row :gutter="20" class="m-0">
         <el-col :span="13" v-if="listActive">
-          <el-card class="p-3">
+          <el-card class="p-3 pb-0">
             <div class="flex items-center">
               <div class="">
-                <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
+                <el-avatar v-if="userInfo.avatar" :src="circleUrl" :size="47" />
                 <el-avatar v-else icon="el-icon-user-solid" :size="47" />
               </div>
               <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
@@ -884,7 +888,7 @@ const updatePostDialog = () => {
               >
             </div>
           </el-card>
-          <el-select v-model="postSelectOption" class="m-2">
+          <el-select v-model="postSelectOption" class="m-2 fontBold">
             <el-option
               v-for="item in postOptions"
               :key="item.value"
@@ -896,31 +900,31 @@ const updatePostDialog = () => {
         </el-col>
         <el-col :span="13" v-else>
           <el-card class="p-3">
-            <div class="flex justify-content-between">
+            <div class="flex justify-between items-center">
               <div class="pt-3">
-                <span class="fw-bold pe-3 dot">Bài viết chờ duyệt</span>
-                <span class="fw-bold ps-2">{{ posts.length }}</span>
+                <span class="font-bold pr-3 dot">Bài viết chờ duyệt</span>
+                <span class="font-bold pl-2">{{ posts.length }}</span>
               </div>
               <div>
-                <button
+                <el-button
                   :class="[
                     allPick ? 'bg-success bg-gradient text-dark' : 'bg-secondary',
                     'btn bg-opacity-50 me-4'
                   ]"
                   @click="actionAllPost('approve')"
-                  >Phê duyệt</button
+                  >Phê duyệt</el-button
                 >
-                <button
+                <el-button
                   :class="[
                     allPick ? 'bg-danger bg-gradient text-light' : 'bg-secondary',
                     'btn bg-opacity-50'
                   ]"
                   @click="actionAllPost('cancel')"
-                  >Từ chối</button
+                  >Từ chối</el-button
                 >
               </div>
             </div>
-            <div class="flex justify-content-between pt-3">
+            <div class="flex justify-between pt-3">
               <div class="pt-3">
                 <el-checkbox v-model="allPick" :value="true"> Chọn tất cả</el-checkbox>
               </div>
@@ -933,18 +937,18 @@ const updatePostDialog = () => {
                 >
                   <template #default>
                     <div class="w-100 p-3">
-                      <div class="pb-2 flex justify-content-between"
-                        ><span class="fw-bold">Mới nhất trước</span>
+                      <div class="pb-2 flex justify-between"
+                        ><span class="font-bold">Mới nhất trước</span>
                         <i class="el-icon-arrow-right"></i
                       ></div>
-                      <div class="flex justify-content-between"
+                      <div class="flex justify-between"
                         ><span class="text-secondary">Cũ nhất trước</span>
                         <i class="el-icon-arrow-right"></i
                       ></div>
                     </div>
                   </template>
                   <template #reference>
-                    <span class="fw-bold"> Mới nhất trước</span>
+                    <span class="font-bold"> Mới nhất trước</span>
                   </template>
                 </el-popover>
               </div>
@@ -961,7 +965,6 @@ const updatePostDialog = () => {
           <el-card class="p-3 mb-3">
             <div class="input-group input-group-lg">
               <el-input
-                type="text"
                 class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
                 placeholder="Tìm kiếm trong nhóm này ..."
                 v-model="keyword"
@@ -969,9 +972,9 @@ const updatePostDialog = () => {
                 style="height: 50px"
               />
             </div>
-            <div class="fs-6 pt-3 fw-bold" v-if="dataSearch.length > 0"> Tìm kiếm gần đây</div>
+            <div class="fs-6 pt-3 font-bold" v-if="dataSearch.length > 0"> Tìm kiếm gần đây</div>
             <div class="pt-3" v-for="item in dataSearch" :key="item.id">
-              <el-button class="fw-bold" @click="removeSearch(item.id)">X</el-button>
+              <el-button class="font-bold" @click="removeSearch(item.id)">X</el-button>
               <span class="pl-4">{{ item.keyword }}</span>
             </div>
           </el-card>
@@ -1053,7 +1056,9 @@ const updatePostDialog = () => {
 :deep(.el-tabs__active-bar) {
   top: 100%;
 }
-
+.fontBold :deep(.el-input__inner) {
+  font-weight: 700;
+}
 .circle {
   width: 50px;
   height: 50px;

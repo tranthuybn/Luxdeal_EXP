@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElCard, ElPopover, ElAvatar, ElButton, ElSelect, ElOption } from 'element-plus'
 import { ref } from 'vue'
+const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const memberType = ref(-1)
 const memberTypes = ref([
   {
@@ -74,7 +75,7 @@ const loadMoreMember = () => {
   <div>
     <el-card class="p-3">
       <div class="pb-4 border-bottom">
-        <div class="fs-4 pt-3 fw-bold"> Mọi người</div>
+        <div class="fs-4 pt-3 font-bold"> Mọi người</div>
         <div class="pt-3">
           <el-select v-model="memberType" @change="memberSelectChange">
             <el-option
@@ -83,7 +84,7 @@ const loadMoreMember = () => {
               :value="item.value"
               :label="item.name"
             >
-              <div class="flex justify-content-between align-items-center">
+              <div class="flex justify-between align-items-center">
                 <span>{{ item.name }}</span>
                 <i class="el-icon-arrow-right"></i>
               </div>
@@ -92,7 +93,6 @@ const loadMoreMember = () => {
         </div>
         <div class="input-group input-group-lg mt-3">
           <input
-            type="text"
             class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
             placeholder="Tìm kiếm ..."
             style="height: 40px"
@@ -103,23 +103,23 @@ const loadMoreMember = () => {
       </div>
       <div class="my-3">
         <div
-          ><span class="fw-bold dot pr-2">Thành viên</span
-          ><span class="fw-bold pl-2">{{ totalMember }}</span></div
+          ><span class="font-bold dot pr-2">Thành viên</span
+          ><span class="font-bold pl-2">{{ totalMember }}</span></div
         >
         <small>Đây là những thành viên đã có trong forum</small>
       </div>
       <div class="my-3">
         <div
-          class="menu-list-item flex justify-content-between align-items-stretch p-3"
+          class="menu-list-item flex justify-between align-items-stretch p-3"
           v-for="(item, index) in memberListShowUp"
           :class="item.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
           :key="index + '-members'"
         >
           <div class="flex justify-content-start">
-            <el-avatar :src="item.avatar" v-if="item.avatar" alt="" :size="47" />
+            <el-avatar :src="circleUrl" v-if="item.avatar" alt="" :size="47" />
             <el-avatar v-else icon="el-icon-user-solid" :size="47" />
             <div class="ps-3 w-75 pl-4">
-              <div class="fullName fw-bold">{{ item.fullName }}</div>
+              <div class="fullName font-bold">{{ item.fullName }}</div>
               <small>salon</small>
             </div>
           </div>
@@ -134,14 +134,14 @@ const loadMoreMember = () => {
                 <div class="w-100 p-3">
                   <div
                     style="cursor: pointer"
-                    class="pb-2 flex justify-content-between"
+                    class="pb-2 flex justify-between"
                     :class="item.isPostProhibit ? 'text-success' : 'text-danger'"
                     @click="prohibitToPost(item.id, item)"
                   >
                     {{ item.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
                     <i class="el-icon-arrow-right"></i>
                   </div>
-                  <div class="flex justify-content-between cursor"
+                  <div class="flex justify-between cursor"
                     ><span class="text-danger" @click="removeUserForum(item)">Xóa khỏi nhóm</span>
                     <i class="el-icon-arrow-right"></i
                   ></div>

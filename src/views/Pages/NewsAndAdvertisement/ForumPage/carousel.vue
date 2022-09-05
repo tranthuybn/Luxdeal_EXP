@@ -18,7 +18,7 @@ defineProps({
 <template>
   <div>
     <el-carousel
-      height="350px"
+      height="500px"
       :interval="5000"
       arrow="hover"
       @prev="previousClick"
@@ -29,9 +29,10 @@ defineProps({
       <el-carousel-item v-for="(item, index) in items" :key="index">
         <el-image
           v-if="typeof item === 'string'"
-          class="base__right-detail__img-banner"
+          class="h-full w-full"
           :src="item"
           :alt="item.toString()"
+          fit="cover"
         />
         <el-empty v-else :image-size="180" description="Không có ảnh" />
       </el-carousel-item>

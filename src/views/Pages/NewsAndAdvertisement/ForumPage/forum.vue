@@ -34,7 +34,7 @@ const changeStyleButton = (index) => {
             />
           </div>
           <div class="ps-2 w-75">
-            <div class="fs-6 fw-bold pt-2 font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
+            <div class="fs-6 font-bold pt-2 font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
             <div class="flex">
               <img :src="social" alt="" />
               <span class="font-bold">Authonly Luxury</span>
@@ -67,7 +67,7 @@ const changeStyleButton = (index) => {
             :class="activeButton[2].active ? '!bg-blue-800 !text-white' : 'text-red'"
             @click="changeStyleButton(2)"
           >
-            <b class="ps-lg-5">Quản lý hệ thống</b>
+            <b class="ps-lg-5"> Quản lý hệ thống</b>
           </el-button>
         </div>
         <div class="menu-list-item my-2">
@@ -91,10 +91,6 @@ const changeStyleButton = (index) => {
 .menu-list-item {
   text-align: left;
   vertical-align: middle;
-}
-.menu-list-item:hover b {
-  text-decoration: underline;
-  color: blue;
 }
 .forum-container {
   width: 100%;

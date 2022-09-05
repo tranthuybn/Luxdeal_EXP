@@ -10,7 +10,7 @@ import {
   ElDropdownItem,
   ElAvatar,
   ElButton,
-  ElDivider
+  ElEmpty
 } from 'element-plus'
 import moment from 'moment'
 const props = defineProps({
@@ -21,7 +21,9 @@ const props = defineProps({
   }
 })
 let flexibleContent = props.content
-const baseUrl = 'https://api.cooftech.net/'
+const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+const defaultBagImage =
+  'https://assets.vogue.in/photos/5e32959a05b08e00085306c2/2:3/w_2560%2Cc_limit/Sonam-Kapoor-Ahuja-Louis-Vuitton-bag.jpg'
 const prohibitToPost = (id, obj) => {
   console.log('call api check permission', id, obj)
 }
@@ -44,20 +46,16 @@ const timeAgo = (time) => {
   <section>
     <el-card class="bg-white mb-3">
       <div
-        class="user-info-bar"
+        class="user-info-bar pl-3"
         :class="flexibleContent.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
       >
         <div class="flex justify-content-start align-items-center">
           <div class="user-avatar">
-            <el-avatar
-              v-if="flexibleContent.avatar"
-              :src="baseUrl + flexibleContent.avatar"
-              :size="47"
-            />
+            <el-avatar v-if="flexibleContent.avatar" :src="circleUrl" :size="47" />
             <el-avatar v-else icon="el-icon-user-solid" :size="47" />
           </div>
-          <div class="ps-3 pl-4">
-            <div class="fw-bold">{{ flexibleContent.fullName }}</div>
+          <div class="pl-4 pl-4">
+            <div class="font-bold">{{ flexibleContent.fullName }}</div>
             <small>{{ flexibleContent.timeAgo }}</small>
           </div>
         </div>
@@ -105,7 +103,7 @@ const timeAgo = (time) => {
           v-for="(img, index) in flexibleContent.imagePosts"
           :key="img.imagePath + 'img-post-1' + index"
         >
-          <img v-if="img.imagePath" :src="baseUrl + img.imagePath" alt="" class="w-100" />
+          <img v-if="img.imagePath" :src="defaultBagImage" alt="" class="w-100" />
           <el-empty v-else description="Không có ảnh" />
         </el-col>
       </el-row>
@@ -113,7 +111,7 @@ const timeAgo = (time) => {
         <div class="flex items-center self-center justify-between">
           <div class="col-6 text-start">
             <div class="flex">
-              <el-button :icon="likeFilledIcon" width="18" alt="" type="text" />
+              <el-button :icon="likeFilledIcon" width="18" alt="" class="!border-0 !p-0" />
               <div class="px-1 self-center">
                 {{ flexibleContent.totalLike }}
               </div>
@@ -125,38 +123,36 @@ const timeAgo = (time) => {
           </div>
         </div>
       </div>
-      <div class="border-bottom">
-        <el-divider />
+      <div class="border-top-1 border-bottom-1">
         <div class="flex gap-10" style="height: 4vh">
           <div class="col-6">
             <el-button
-              :icon="likeIcon"
+              :icon="flexibleContent.isUserLiked ? likeFilledIcon : likeIcon"
               :btnName="'Like'"
               @click="updateLikeStatus"
-              size="large"
               class="!border-0"
               >Like</el-button
             >
           </div>
           <div class="col-6">
-            <el-button :icon="commentImage" :btnName="'comment'" size="large" class="!border-0"
+            <el-button :icon="commentImage" :btnName="'comment'" class="!border-0"
               >Comment</el-button
             >
-          </div> </div
-        ><el-divider />
+          </div>
+        </div>
       </div>
-      <div class="flex justify-content-between">
+      <div class="flex justify-between">
         <i class="fa fa-thumbs-o-up"></i>
       </div>
       <div
-        class="flex pt-3 ps-3"
+        class="flex pt-3 pl-4"
         v-for="(comment, index) in flexibleContent.comments"
         :key="comment.commentId + '-comments-' + index"
       >
         <div class="">
           <el-avatar icon="el-icon-user-solid" :size="47" />
         </div>
-        <div class="ps-3">
+        <div class="pl-4">
           <div class="mb-1"
             ><b>{{ comment.userFullName }}</b
             ><br /><small class="text-secondary">{{ timeAgo(comment.createAt) }}</small></div
@@ -174,7 +170,6 @@ const timeAgo = (time) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: get-vh(15px) get-vw(15px) get-vh(3px);
   border-radius: 10px;
 }
 .dots {

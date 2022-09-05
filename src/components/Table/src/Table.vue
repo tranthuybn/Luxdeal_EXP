@@ -356,12 +356,4 @@ export default defineComponent({
 ::v-deep(.el-pagination.is-background .el-pager li) {
   border-radius: 50%;
 }
-.arrowRight {
-  border: solid white;
-  border-width: 0 3px 3px 0;
-  display: inline-block;
-  padding: 3px;
-  transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
-}
 </style>

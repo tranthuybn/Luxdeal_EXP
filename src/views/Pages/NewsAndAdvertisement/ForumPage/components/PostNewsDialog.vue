@@ -7,6 +7,7 @@ import {
   ElButton,
   ElInput,
   ElUpload,
+  ElTag,
   UploadUserFile
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
@@ -15,7 +16,7 @@ import { ref } from 'vue'
 type Tag = {
   [key: string]: any
 }
-const baseUrl = 'https://api.cooftech.net/'
+const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
@@ -23,9 +24,25 @@ const uploadDialogVisible = ref(true)
 const innerVisible = ref(false)
 const searchingKey = ref('')
 const choseTags = ref<Tag>([])
-const totalTags = ref(0)
-const tags = ref<Tag>([])
-let currentTags = ref<Tag>([])
+const totalTags = ref(7)
+const tags = ref<Tag>([
+  { id: 1, name: 'Hàng Authentic' },
+  { id: 2, name: 'Giày Sneaker' },
+  { id: 3, name: 'Trang sức' },
+  { id: 4, name: 'Đồng hồ' },
+  { id: 5, name: 'Túi Hermes' },
+  { id: 6, name: 'Vòng Cartier' },
+  { id: 7, name: 'Thắt lưng' }
+])
+let currentTags = ref<Tag>([
+  { id: 1, name: 'Hàng Authentic' },
+  { id: 2, name: 'Giày Sneaker' },
+  { id: 3, name: 'Trang sức' },
+  { id: 4, name: 'Đồng hồ' },
+  { id: 5, name: 'Túi Hermes' },
+  { id: 6, name: 'Vòng Cartier' },
+  { id: 7, name: 'Thắt lưng' }
+])
 let postContent = ref('')
 let fileList = ref<UploadUserFile[]>([])
 const disabled = ref(false)
@@ -78,29 +95,18 @@ const handleRemove = (file: UploadFile) => {
 </script>
 <template>
   <el-dialog v-model="uploadDialogVisible" width="30%" center @closed="resetUploadDialogField">
-    <template #title>
-      <div class="text-center pb-3 border-bottom"><b>Tạo bài viết</b></div>
-    </template>
-    <el-dialog
-      width="30%"
-      style="top: 10%"
-      v-model="innerVisible"
-      @opened="getAllTags"
-      append-to-body
-    >
-      <template #title>
-        <div class="w-100 text-center">
-          <el-input
-            type="text"
-            v-model="searchingKey"
-            class="w-75"
-            placeholder="Nhập thẻ tag ..."
-            @input="searchTags"
-          />
-        </div>
-      </template>
+    <div class="text-center pb-3 border-bottom-1"><b>Tạo bài viết</b></div>
+    <el-dialog width="30%" v-model="innerVisible" @opened="getAllTags" append-to-body>
+      <div class="w-full text-center">
+        <el-input
+          v-model="searchingKey"
+          class="w-75"
+          placeholder="Nhập thẻ tag ..."
+          @input="searchTags"
+        />
+      </div>
       <div class="py-3">
-        <span class="fw-bold">Đã gắn thẻ:</span>
+        <span class="font-bold">Đã gắn thẻ:</span>
         <i class="float-end" v-if="choseTags.length > 0"
           >{{ choseTags.length }}/{{ totalTags }} {{ totalTags > 1 ? 'tags' : 'tag' }}</i
         >
@@ -116,7 +122,7 @@ const handleRemove = (file: UploadFile) => {
           </el-tag>
         </div>
         <div class="py-3">
-          <span class="fw-bold">Thẻ tag:</span>
+          <span class="font-bold">Thẻ tag:</span>
           <i class="float-end" v-if="currentTags.length > 0"
             >{{ totalTags }} {{ totalTags > 1 ? 'tags' : 'tag' }}</i
           >
@@ -125,7 +131,7 @@ const handleRemove = (file: UploadFile) => {
               v-for="tag in currentTags"
               :key="tag.name"
               :type="tag.type"
-              class="base__btn-primary-outline"
+              class="cursor-pointer"
               @click="chooseTag(tag)"
             >
               {{ tag.name }}
@@ -135,10 +141,10 @@ const handleRemove = (file: UploadFile) => {
       </div>
     </el-dialog>
     <div class="flex justify-content-start align-items-baseline pt-2">
-      <el-avatar v-if="userInfo.avatar" :src="baseUrl + userInfo.avatar" :size="47" />
+      <el-avatar v-if="userInfo.avatar" :src="circleUrl" :size="47" />
       <el-avatar v-else icon="el-icon-user-solid" :size="47" />
-      <div class="ps-3 w-75">
-        <div class="fw-bold fs-6">{{ userInfo ? userInfo.fullName : '' }}</div>
+      <div class="pl-4 w-75">
+        <div class="font-bold fs-6">{{ userInfo ? userInfo.fullName : '' }}</div>
       </div>
     </div>
     <div class="pt-1">
@@ -180,18 +186,14 @@ const handleRemove = (file: UploadFile) => {
         </el-upload>
       </el-row>
     </div>
-    <template #footer>
-      <div class="dialog-footer border-top">
-        <div class="py-3 text-start">
-          <el-button class="base__btn-primary-outline" @click="innerVisible = true"
-            ><span>Gắn thẻ</span>
-          </el-button>
-        </div>
-        <div>
-          <el-button class="base__btn-primary w-100" @click="uploadPosting">Đăng</el-button>
-        </div>
+    <div class="dialog-footer border-top-1">
+      <div class="py-3 text-start">
+        <el-button @click="innerVisible = true"><span>Gắn thẻ</span> </el-button>
       </div>
-    </template>
+      <div>
+        <el-button class="w-full" @click="uploadPosting">Đăng</el-button>
+      </div>
+    </div>
   </el-dialog>
 </template>
 <style lang="scss" scoped>

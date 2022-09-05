@@ -7,13 +7,11 @@ import {
   ElTabs,
   ElTabPane,
   ElCheckbox,
-  ElPopover,
   ElAvatar,
   ElButton,
   ElInput,
   ElSelect,
-  ElOption,
-  ElIcon
+  ElOption
 } from 'element-plus'
 import { ref } from 'vue'
 import CarouselComponent from './carousel.vue'
@@ -31,14 +29,13 @@ const sliders = [
 ]
 const formInfo = {
   value: {
-    name: 'Forum Khách Hàng',
-    description: 'Forum chung',
+    name: t('reuse.forumCustomer'),
+    description: t('reuse.generalForum'),
     id: 1
   }
 }
 let activeName = ref('first')
 let listActive = ref(true)
-const social = 'globe'
 const handleClick = (tab) => {
   tab.props.name == 'first' ? (listActive.value = true) : (listActive.value = false)
   //getPostForum()
@@ -86,33 +83,12 @@ const posts = [
     totalLike: 1,
     userId: 210,
     totalComment: 0,
-    isPostProhibit: false,
+    isPostProhibit: true,
     email: 'vinh@gmail.con',
     phone: '0971425768',
     comments: [],
     tags: [{ postId: 2071, id: 1, name: 'Hàng Authentic' }],
     id: 2071
-  },
-  {
-    userName: 'admin',
-    fullName: 'admin',
-    content: 'Lamborghini',
-    avatar: null,
-    timeAgo: '148 ngày trước',
-    imagePosts: [
-      { postId: 1088, imageId: 1458, imagePath: 'PostsImages\\637847560936862582_car_3.jpg' }
-    ],
-    isUserLiked: true,
-    createAt: '2022-04-05T11:48:12.45',
-    totalLike: 1,
-    userId: 207,
-    totalComment: 0,
-    isPostProhibit: false,
-    email: 'NoahKhalifa1781310207@gmail.com',
-    phone: null,
-    comments: [],
-    tags: [{ postId: 1088, id: 1, name: 'Hàng Authentic' }],
-    id: 1088
   },
   {
     userName: 'admin',
@@ -164,7 +140,7 @@ const posts = [
     totalLike: 1,
     userId: 207,
     totalComment: 0,
-    isPostProhibit: false,
+    isPostProhibit: true,
     email: 'NoahKhalifa1781310207@gmail.com',
     phone: null,
     comments: [],
@@ -357,7 +333,7 @@ const removeSearch = (id) => {
   const indexById = dataSearch.value.findIndex((el) => el.id == id)
   dataSearch.value.splice(indexById, 1)
 }
-const members = [
+const members = ref([
   {
     fullName: null,
     accountName: null,
@@ -789,7 +765,7 @@ const members = [
     email: 'dungtest1602email@gmail.com',
     phone: '09123123123'
   }
-]
+])
 const getMember = (obj) => {
   console.log('this call api get member', obj)
 
@@ -845,6 +821,17 @@ const postOptions = [
     label: t('reuse.feature')
   }
 ]
+const approveSelectOption = ref(1)
+const approveOptions = [
+  {
+    value: 1,
+    label: t('reuse.newestFirst')
+  },
+  {
+    value: 2,
+    label: t('reuse.oldestFirst')
+  }
+]
 const updatePostDialog = () => {
   postDialog.value = false
 }
@@ -852,24 +839,29 @@ const updatePostDialog = () => {
 <template>
   <div class="flex justify-center flex-wrap">
     <div class="w-95/100">
-      <el-card>
+      <div>
         <div class="w-full">
           <CarouselComponent :items="sliders" />
         </div>
-        <div class="mt-3 pb-4">
-          <div class="fs-4 font-bold pt-2">{{ formInfo.value.name }}</div>
-          <i src="@/assets/svgs/globe"></i>
-          <span class="ms-1"> {{ formInfo.value.description }}</span>
-        </div>
-        <div class="directory-bar">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane label="Bài viết" name="first" />
-            <el-tab-pane label="Chờ duyệt" name="second" />
-          </el-tabs>
-        </div>
-      </el-card>
+      </div>
     </div>
-    <div class="py-4 w-95/100">
+    <div class="py-4 w-95/100 pl-4">
+      <div class="w-full">
+        <div class="mt-3 pb-4">
+          <div class="fs-4 font-bold pt-2 text-24px pb-2">{{ formInfo.value.name }}</div>
+          <div class="flex">
+            <img src="@/assets/svgs/globe.svg" width="24" />
+            <span class="pl-1"> {{ formInfo.value.description }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="w-full"
+        ><div class="directory-bar">
+          <el-tabs v-model="activeName" @tab-click="handleClick">
+            <el-tab-pane :label="t('reuse.post')" name="first" />
+            <el-tab-pane :label="t('reuse.pending')" name="second" />
+          </el-tabs> </div
+      ></div>
       <el-row :gutter="20" class="m-0">
         <el-col :span="13" v-if="listActive">
           <el-card class="p-3 pb-0">
@@ -879,13 +871,17 @@ const updatePostDialog = () => {
                 <el-avatar v-else icon="el-icon-user-solid" :size="47" />
               </div>
               <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
-                <el-input type="text" class="bg-opacity-10 h-47px" placeholder="Nhập nội dung..." />
+                <el-input
+                  type="text"
+                  class="bg-opacity-10 h-47px"
+                  :placeholder="`${t('reuse.inputContent')}...`"
+                />
               </div>
             </div>
             <div class="mt-3">
-              <el-button :icon="imagesIcon" class="!border-0" @click="openPostNewsDialog"
-                >Chọn ảnh</el-button
-              >
+              <el-button :icon="imagesIcon" class="!border-0" @click="openPostNewsDialog">{{
+                t('reuse.chooseImage')
+              }}</el-button>
             </div>
           </el-card>
           <el-select v-model="postSelectOption" class="m-2 fontBold">
@@ -902,56 +898,43 @@ const updatePostDialog = () => {
           <el-card class="p-3">
             <div class="flex justify-between items-center">
               <div class="pt-3">
-                <span class="font-bold pr-3 dot">Bài viết chờ duyệt</span>
+                <span class="font-bold pr-3 dot">{{ t('reuse.pendingPost') }}</span>
                 <span class="font-bold pl-2">{{ posts.length }}</span>
               </div>
               <div>
                 <el-button
                   :class="[
-                    allPick ? 'bg-success bg-gradient text-dark' : 'bg-secondary',
+                    allPick ? '!bg-green-500 !text-black' : 'bg-secondary',
                     'btn bg-opacity-50 me-4'
                   ]"
                   @click="actionAllPost('approve')"
-                  >Phê duyệt</el-button
+                  >{{ t('reuse.approve') }}</el-button
                 >
                 <el-button
                   :class="[
-                    allPick ? 'bg-danger bg-gradient text-light' : 'bg-secondary',
+                    allPick ? '!bg-red-500 !text-white' : 'bg-secondary',
                     'btn bg-opacity-50'
                   ]"
                   @click="actionAllPost('cancel')"
-                  >Từ chối</el-button
+                  >{{ t('reuse.deny') }}</el-button
                 >
               </div>
             </div>
             <div class="flex justify-between pt-3">
               <div class="pt-3">
-                <el-checkbox v-model="allPick" :value="true"> Chọn tất cả</el-checkbox>
+                <el-checkbox v-model="allPick" :value="true">
+                  {{ t('reuse.chooseAll') }}
+                </el-checkbox>
               </div>
-              <div style="align-self: center">
-                <el-popover
-                  placement="bottom"
-                  width="200"
-                  trigger="click"
-                  content="this is content, this is content, this is content"
-                >
-                  <template #default>
-                    <div class="w-100 p-3">
-                      <div class="pb-2 flex justify-between"
-                        ><span class="font-bold">Mới nhất trước</span>
-                        <i class="el-icon-arrow-right"></i
-                      ></div>
-                      <div class="flex justify-between"
-                        ><span class="text-secondary">Cũ nhất trước</span>
-                        <i class="el-icon-arrow-right"></i
-                      ></div>
-                    </div>
-                  </template>
-                  <template #reference>
-                    <span class="font-bold"> Mới nhất trước</span>
-                  </template>
-                </el-popover>
-              </div>
+              <div style="align-self: center"
+                ><el-select v-model="approveSelectOption" class="m-2">
+                  <el-option
+                    v-for="item in approveOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  /> </el-select
+              ></div>
             </div>
           </el-card>
           <!-- pending -->
@@ -965,14 +948,16 @@ const updatePostDialog = () => {
           <el-card class="p-3 mb-3">
             <div class="input-group input-group-lg">
               <el-input
-                class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
-                placeholder="Tìm kiếm trong nhóm này ..."
+                class="bg-opacity-10"
+                :placeholder="`${t('reuse.searchInThisGroup')}...`"
                 v-model="keyword"
                 @change="search()"
                 style="height: 50px"
               />
             </div>
-            <div class="fs-6 pt-3 font-bold" v-if="dataSearch.length > 0"> Tìm kiếm gần đây</div>
+            <div class="fs-6 pt-3 font-bold" v-if="dataSearch.length > 0">
+              {{ t('reuse.searchRecently') }}
+            </div>
             <div class="pt-3" v-for="item in dataSearch" :key="item.id">
               <el-button class="font-bold" @click="removeSearch(item.id)">X</el-button>
               <span class="pl-4">{{ item.keyword }}</span>
@@ -1058,6 +1043,7 @@ const updatePostDialog = () => {
 }
 .fontBold :deep(.el-input__inner) {
   font-weight: 700;
+  width: 100px;
 }
 .circle {
   width: 50px;
@@ -1140,5 +1126,8 @@ const updatePostDialog = () => {
 .m-2 :deep(.el-input__wrapper) {
   background: none;
   box-shadow: none;
+}
+.input-group :deep(.el-input__wrapper) {
+  border-radius: 50px;
 }
 </style>

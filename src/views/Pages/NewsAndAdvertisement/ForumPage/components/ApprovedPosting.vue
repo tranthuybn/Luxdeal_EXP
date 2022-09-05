@@ -10,9 +10,13 @@ import {
   ElDropdownItem,
   ElAvatar,
   ElButton,
-  ElEmpty
+  ElEmpty,
+  ElInput
 } from 'element-plus'
 import moment from 'moment'
+import { ref } from 'vue'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const props = defineProps({
   content: {
     type: Object,
@@ -20,6 +24,7 @@ const props = defineProps({
     require: true
   }
 })
+const inputComment = ref('')
 let flexibleContent = props.content
 const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const defaultBagImage =
@@ -46,8 +51,8 @@ const timeAgo = (time) => {
   <section>
     <el-card class="bg-white mb-3">
       <div
-        class="user-info-bar pl-3"
-        :class="flexibleContent.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
+        class="user-info-bar p-3"
+        :class="flexibleContent.isPostProhibit ? 'bg-red-500 bg-opacity-10' : ''"
       >
         <div class="flex justify-content-start align-items-center">
           <div class="user-avatar">
@@ -74,7 +79,11 @@ const timeAgo = (time) => {
                   style="width: 100%"
                   @click="prohibitToPost(flexibleContent.userId, flexibleContent)"
                 >
-                  {{ flexibleContent.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
+                  {{
+                    flexibleContent.isPostProhibit
+                      ? t('reuse.allowPosting')
+                      : t('reuse.prohibitPosting')
+                  }}
                   <i class="el-icon-arrow-right"></i>
                 </div>
               </el-dropdown-item>
@@ -84,7 +93,7 @@ const timeAgo = (time) => {
                   style="width: 100%"
                   @click="deletePost(flexibleContent.id)"
                 >
-                  Gỡ bài viết
+                  {{ t('reuse.removePosts') }}
                   <i class="el-icon-arrow-right"></i>
                 </div>
               </el-dropdown-item>
@@ -149,7 +158,7 @@ const timeAgo = (time) => {
         v-for="(comment, index) in flexibleContent.comments"
         :key="comment.commentId + '-comments-' + index"
       >
-        <div class="">
+        <div>
           <el-avatar icon="el-icon-user-solid" :size="47" />
         </div>
         <div class="pl-4">
@@ -157,8 +166,19 @@ const timeAgo = (time) => {
             ><b>{{ comment.userFullName }}</b
             ><br /><small class="text-secondary">{{ timeAgo(comment.createAt) }}</small></div
           >
-          <div class="">{{ comment.content }} </div>
+          <div>{{ comment.content }} </div>
         </div>
+      </div>
+      <div class="flex pt-3 pl-4">
+        <div>
+          <el-avatar icon="el-icon-user-solid" :size="47" />
+        </div>
+        <el-input
+          v-model="inputComment"
+          type="text"
+          class="w-full pl-4 bg-opacity-10 h-47px"
+          :placeholder="`${t('reuse.inputContent')}...`"
+        />
       </div>
     </el-card>
   </section>
@@ -191,5 +211,8 @@ const timeAgo = (time) => {
   &:hover {
     box-shadow: 0 2px 12px 0 #a2bced;
   }
+}
+.h-47px :deep(.el-input__wrapper) {
+  border-radius: 50px;
 }
 </style>

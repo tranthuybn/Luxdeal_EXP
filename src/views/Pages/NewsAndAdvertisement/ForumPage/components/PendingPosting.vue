@@ -11,6 +11,8 @@ import {
   ElButton,
   ElImage
 } from 'element-plus'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const props = defineProps({
   content: {
     type: Object,
@@ -65,13 +67,13 @@ const cancelPost = (id) => {
       <div class="flex flex-wrap p-3 justify-around">
         <div class="w-45/100">
           <el-button type="primary" class="w-full me-3" @click="approvePost(flexibleContent.id)"
-            >Phê duyệt</el-button
-          >
+            >{{ t('reuse.approve') }}
+          </el-button>
         </div>
         <div class="w-45/100">
           <el-button class="base__btn-info w-full px-3" @click="cancelPost(flexibleContent.id)"
-            >từ chối</el-button
-          >
+            >{{ t('reuse.deny') }}
+          </el-button>
         </div>
         <div class="col-2">
           <el-dropdown class="w-full">
@@ -84,8 +86,8 @@ const cancelPost = (id) => {
               <el-dropdown-menu>
                 <el-dropdown-item>
                   <div class="flex-item" style="width: 100%">
-                    Từ chối và chặn người đăng
-                    <i class="arrowRight !border-black"></i>
+                    {{ t('reuse.denyAndBlockUser') }}
+                    <i class="arrowRight !border-gray-500"></i>
                   </div>
                 </el-dropdown-item>
               </el-dropdown-menu>

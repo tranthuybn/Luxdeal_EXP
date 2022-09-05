@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ElCarousel, ElCarouselItem, ElEmpty, ElImage } from 'element-plus'
+import { ElCarousel, ElCarouselItem, ElImage, ElButton } from 'element-plus'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const emit = defineEmits(['prev', 'next'])
 const previousClick = (event) => {
   emit('prev', event)
@@ -29,12 +31,12 @@ defineProps({
       <el-carousel-item v-for="(item, index) in items" :key="index">
         <el-image
           v-if="typeof item === 'string'"
-          class="h-full w-full"
+          class="h-full w-full relative"
           :src="item"
           :alt="item.toString()"
           fit="cover"
         />
-        <el-empty v-else :image-size="180" description="Không có ảnh" />
+        <el-button class="bottomright">{{ t('reuse.edit') }}</el-button>
       </el-carousel-item>
     </el-carousel>
   </div>
@@ -99,5 +101,11 @@ defineProps({
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.18);
   }
+}
+.bottomright {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  font-size: 18px;
 }
 </style>

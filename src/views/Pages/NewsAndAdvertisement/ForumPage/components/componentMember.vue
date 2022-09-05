@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { ElCard, ElPopover, ElAvatar, ElButton, ElSelect, ElOption } from 'element-plus'
+import { useI18n } from '@/hooks/web/useI18n'
+import { ElCard, ElPopover, ElAvatar, ElButton, ElSelect, ElOption, ElInput } from 'element-plus'
 import { ref } from 'vue'
+const { t } = useI18n()
 const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const memberType = ref(-1)
 const memberTypes = ref([
   {
     value: -1,
-    name: 'Tất cả'
+    name: t('reuse.all')
   },
   {
     value: 1,
-    name: 'Khách hàng'
+    name: t('reuse.customer')
   },
   {
     value: 2,
-    name: 'Nhân viên'
+    name: t('reuse.employee')
   }
 ])
 const emit = defineEmits(['get-member'])
@@ -75,7 +77,7 @@ const loadMoreMember = () => {
   <div>
     <el-card class="p-3">
       <div class="pb-4 border-bottom">
-        <div class="fs-4 pt-3 font-bold"> Mọi người</div>
+        <div class="fs-4 pt-3 font-bold">{{ t('reuse.people') }}</div>
         <div class="pt-3">
           <el-select v-model="memberType" @change="memberSelectChange">
             <el-option
@@ -91,10 +93,9 @@ const loadMoreMember = () => {
             </el-option>
           </el-select>
         </div>
-        <div class="input-group input-group-lg mt-3">
-          <input
-            class="form-control rounded-20 bg-primary bg-opacity-10 fs-6"
-            placeholder="Tìm kiếm ..."
+        <div class="input-group mt-3">
+          <el-input
+            :placeholder="`${t('reuse.search')}...`"
             style="height: 40px"
             v-model="keyword"
             @change="searchingMember"
@@ -103,16 +104,16 @@ const loadMoreMember = () => {
       </div>
       <div class="my-3">
         <div
-          ><span class="font-bold dot pr-2">Thành viên</span
+          ><span class="font-bold dot pr-2">{{ t('reuse.member') }}</span
           ><span class="font-bold pl-2">{{ totalMember }}</span></div
         >
-        <small>Đây là những thành viên đã có trong forum</small>
+        <small>{{ t('reuse.thisIsAllTheMemberInTheForum') }}</small>
       </div>
       <div class="my-3">
         <div
           class="menu-list-item flex justify-between align-items-stretch p-3"
           v-for="(item, index) in memberListShowUp"
-          :class="item.isPostProhibit ? 'bg-danger bg-opacity-10' : ''"
+          :class="item.isPostProhibit ? 'bg-red-500 bg-opacity-10' : ''"
           :key="index + '-members'"
         >
           <div class="flex justify-content-start">
@@ -138,11 +139,13 @@ const loadMoreMember = () => {
                     :class="item.isPostProhibit ? 'text-success' : 'text-danger'"
                     @click="prohibitToPost(item.id, item)"
                   >
-                    {{ item.isPostProhibit ? 'Cho phép đăng' : 'Cấm đăng' }}
+                    {{ item.isPostProhibit ? t('reuse.allowPosting') : t('reuse.prohibitPosting') }}
                     <i class="el-icon-arrow-right"></i>
                   </div>
                   <div class="flex justify-between cursor"
-                    ><span class="text-danger" @click="removeUserForum(item)">Xóa khỏi nhóm</span>
+                    ><span class="text-danger" @click="removeUserForum(item)">
+                      {{ t('reuse.removeFromGroup') }}
+                    </span>
                     <i class="el-icon-arrow-right"></i
                   ></div>
                 </div>
@@ -160,9 +163,9 @@ const loadMoreMember = () => {
       </div>
     </el-card>
     <div class="mt-3 text-center"
-      ><el-button class="base__btn-primary-outline" @click="loadMoreMember"
-        >Xem thêm</el-button
-      ></div
+      ><el-button class="base__btn-primary-outline" @click="loadMoreMember">{{
+        t('reuse.loadMore')
+      }}</el-button></div
     >
   </div>
 </template>
@@ -288,5 +291,8 @@ const loadMoreMember = () => {
 
 :deep(.el-popover--plain) {
   padding: 0 !important;
+}
+.input-group :deep(.el-input__wrapper) {
+  border-radius: 50px;
 }
 </style>

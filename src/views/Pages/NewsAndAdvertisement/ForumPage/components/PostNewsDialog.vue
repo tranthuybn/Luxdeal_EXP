@@ -12,7 +12,8 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { ref } from 'vue'
-
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 type Tag = {
   [key: string]: any
 }
@@ -95,18 +96,20 @@ const handleRemove = (file: UploadFile) => {
 </script>
 <template>
   <el-dialog v-model="uploadDialogVisible" width="30%" center @closed="resetUploadDialogField">
-    <div class="text-center pb-3 border-bottom-1"><b>Tạo bài viết</b></div>
+    <div class="text-center pb-3 border-bottom-1">
+      <b>{{ t('reuse.createPosts') }}</b>
+    </div>
     <el-dialog width="30%" v-model="innerVisible" @opened="getAllTags" append-to-body>
       <div class="w-full text-center">
         <el-input
           v-model="searchingKey"
           class="w-75"
-          placeholder="Nhập thẻ tag ..."
+          :placeholder="`${t('reuse.inputTag')}...`"
           @input="searchTags"
         />
       </div>
       <div class="py-3">
-        <span class="font-bold">Đã gắn thẻ:</span>
+        <span class="font-bold">{{ t('reuse.tagged') }}:</span>
         <i class="float-end" v-if="choseTags.length > 0"
           >{{ choseTags.length }}/{{ totalTags }} {{ totalTags > 1 ? 'tags' : 'tag' }}</i
         >
@@ -122,7 +125,7 @@ const handleRemove = (file: UploadFile) => {
           </el-tag>
         </div>
         <div class="py-3">
-          <span class="font-bold">Thẻ tag:</span>
+          <span class="font-bold">{{ t('reuse.tag') }}:</span>
           <i class="float-end" v-if="currentTags.length > 0"
             >{{ totalTags }} {{ totalTags > 1 ? 'tags' : 'tag' }}</i
           >
@@ -150,7 +153,7 @@ const handleRemove = (file: UploadFile) => {
     <div class="pt-1">
       <el-input
         type="textarea"
-        placeholder="Nhập nội dung... "
+        :placeholder="`${t('reuse.inputContent')}...`"
         v-model="postContent"
         maxlength="30"
         class="border-0"
@@ -188,10 +191,12 @@ const handleRemove = (file: UploadFile) => {
     </div>
     <div class="dialog-footer border-top-1">
       <div class="py-3 text-start">
-        <el-button @click="innerVisible = true"><span>Gắn thẻ</span> </el-button>
+        <el-button @click="innerVisible = true">
+          <span>{{ t('reuse.addTag') }}</span>
+        </el-button>
       </div>
       <div>
-        <el-button class="w-full" @click="uploadPosting">Đăng</el-button>
+        <el-button class="w-full" @click="uploadPosting">{{ t('reuse.post') }}</el-button>
       </div>
     </div>
   </el-dialog>

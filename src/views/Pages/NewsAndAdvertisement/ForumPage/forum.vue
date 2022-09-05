@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElCard, ElButton, ElDivider } from 'element-plus'
+import { ElRow, ElCol, ElButton, ElDivider } from 'element-plus'
 import { ref } from 'vue'
 import Homepage from './Homepage.vue'
-import EmployeeManagement from './EmployeeManagement.vue'
+import memberVue from './member.vue'
+import settingVue from './setting.vue'
+import systemVue from './system.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const social = 'luxdeal'
 const activeButton = ref([
   { index: 0, active: true },
@@ -22,9 +26,11 @@ const changeStyleButton = (index) => {
 
 <template>
   <el-row type="flex" justify="space-between" class="forum-container">
-    <el-divider content-position="left">Quản lý Forum (New Feed)</el-divider>
+    <el-divider content-position="left">
+      {{ t('reuse.forumManagementNewFeed') }}
+    </el-divider>
     <el-col :span="6" class="sticky">
-      <el-card class="h-full">
+      <div class="h-full border-right-1 pl-8 pr-8">
         <div class="flex bg-primary bg-opacity-10 rounded-2 p-2">
           <div class="w-25 h-67-px">
             <img
@@ -41,14 +47,16 @@ const changeStyleButton = (index) => {
             </div>
           </div>
         </div>
-        <el-button class="w-full py-3 mt-lg-5 rounded-5px !h-45px">Thêm mới +</el-button>
+        <el-button class="w-full py-3 mt-lg-5 rounded-5px !h-45px">
+          {{ t('reuse.addNew') }} +
+        </el-button>
         <div class="menu-list-item my-2">
           <el-divider class="!mt-4 !mb-4" />
           <el-button
             class="!justify-start w-full !pl-1em !h-45px rounded-5px"
             :class="activeButton[0].active ? '!bg-blue-800 !text-white' : 'text-red'"
             @click="changeStyleButton(0)"
-            ><b class="">Trang chủ</b>
+            ><b class="">{{ t('reuse.homepage') }}</b>
           </el-button>
           <el-divider class="!mt-4 !mb-4" />
         </div>
@@ -58,7 +66,7 @@ const changeStyleButton = (index) => {
             :class="activeButton[1].active ? '!bg-blue-800 !text-white' : 'text-red'"
             @click="changeStyleButton(1)"
           >
-            <b class="ps-lg-5">Quản lý thành viên</b>
+            <b class="ps-lg-5">{{ t('reuse.employeeManagement') }}</b>
           </el-button>
         </div>
         <div class="menu-list-item my-2">
@@ -67,7 +75,7 @@ const changeStyleButton = (index) => {
             :class="activeButton[2].active ? '!bg-blue-800 !text-white' : 'text-red'"
             @click="changeStyleButton(2)"
           >
-            <b class="ps-lg-5"> Quản lý hệ thống</b>
+            <b class="ps-lg-5">{{ t('reuse.systemManagement') }}</b>
           </el-button>
         </div>
         <div class="menu-list-item my-2">
@@ -76,14 +84,16 @@ const changeStyleButton = (index) => {
             :class="activeButton[3].active ? '!bg-blue-800 !text-white' : 'text-red'"
             @click="changeStyleButton(3)"
           >
-            <b class="ps-lg-5">Thiết lập forum</b>
+            <b class="ps-lg-5">{{ t('reuse.forumSetting') }}</b>
           </el-button>
         </div>
-      </el-card>
+      </div>
     </el-col>
     <el-col :span="18" class="main-content-column">
       <Homepage v-if="activeButton[0].active" />
-      <EmployeeManagement v-if="activeButton[1].active" />
+      <memberVue v-if="activeButton[1].active" />
+      <systemVue v-if="activeButton[2].active" />
+      <settingVue v-if="activeButton[3].active" />
     </el-col>
   </el-row>
 </template>
@@ -245,5 +255,10 @@ const changeStyleButton = (index) => {
   height: 1em;
   z-index: 1;
   right: 0;
+}
+
+:deep(.el-divider__text) {
+  font-size: 18px;
+  font-weight: 700;
 }
 </style>

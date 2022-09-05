@@ -9,7 +9,7 @@ const columns = reactive<TableColumn[]>([
   { field: '', width: '50' },
   {
     field: 'imgTitle',
-    label: t('reuse.categoryColorTitle'),
+    label: t('reuse.warehouseListInformation'),
     minWidth: '650',
     headerFilter: 'Name'
   },

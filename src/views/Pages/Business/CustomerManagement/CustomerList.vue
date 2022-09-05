@@ -43,8 +43,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'companyInfo',
     label: t('reuse.companyInfo'),
-    minWidth: '200',
-    sortable: true
+    minWidth: '200'
   },
   {
     field: 'type',

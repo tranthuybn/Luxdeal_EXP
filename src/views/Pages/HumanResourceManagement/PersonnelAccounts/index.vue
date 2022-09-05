@@ -3,7 +3,13 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getEmployeeList } from '@/api/Business'
-import { filterGender, filterDepartment } from '@/utils/filters'
+import {
+  filterGender,
+  filterDepartment,
+  filterBranch,
+  filterRankEmployee,
+  filterTypeEmployee
+} from '@/utils/filters'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -16,14 +22,12 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'employeeCode',
     label: t('reuse.employeeCode'),
-    minWidth: '250',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'employeeName',
     label: t('reuse.employeeName'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'gender',
@@ -34,47 +38,49 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'dateOfBirth',
     label: t('reuse.dateOfBirth'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   },
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '100',
-    sortable: true
+    minWidth: '100'
   },
   {
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '200',
-    sortable: true
+    filters: filterBranch
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '200',
-    sortable: true
+    filters: filterDepartment
   },
   {
     field: 'rank',
     label: t('reuse.rank'),
     minWidth: '200',
-    sortable: true
+    filters: filterRankEmployee
   },
   {
     field: 'type',
     label: t('reuse.type'),
     minWidth: '150',
-    sortable: true
+    filters: filterTypeEmployee
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'creator',
     label: t('reuse.creator'),
-    minWidth: '150'
+    minWidth: '150',
+    headerFilter: 'Name'
   },
   {
     field: 'status',

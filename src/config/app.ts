@@ -45,9 +45,11 @@ export interface AppState {
   footer: boolean
   theme: ThemeTypes
   utility: string
+  version: string
 }
 
 export const appModules: AppState = {
+  version: 'V.1.0.1', // version
   utility: 'Utility', // push to Add-Component of each route
   userInfo: 'userInfo', // Login information storage field-It is recommended to change a field for each project to avoid conflicting with other projects
   sizeMap: ['default', 'large', 'small'],

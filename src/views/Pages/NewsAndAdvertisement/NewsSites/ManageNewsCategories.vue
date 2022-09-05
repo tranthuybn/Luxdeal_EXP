@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getManageNewsList } from '@/api/NewsAndAdvertisement'
+import { filterTableStatus } from '@/utils/filters'
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
@@ -23,7 +24,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100'
+    minWidth: '100',
+    filters: filterTableStatus
   }
 ])
 </script>

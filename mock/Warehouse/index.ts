@@ -1,11 +1,7 @@
 import { config } from '@/config/axios/config'
 import { productStorageList } from './productStorage'
-import { warehouseList, warehouseListMock } from '../Warehouse/warehouse'
-
-warehouseList.push(Mock.mock(warehouseListMock))
-import Mock from 'mockjs'
+import { warehouseList } from '../Warehouse/warehouse'
 const { result_code } = config
-const count = 77
 const timeout = 1000
 export default [
   {

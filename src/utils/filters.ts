@@ -176,3 +176,34 @@ export const filterAuctionStatus: Array<Filter> = [
   { text: t('reuse.finishPending'), value: 2 },
   { text: t('reuse.auctioning'), value: 3 }
 ]
+export const filterLocation: Array<Filter> = [
+  { text: t('Tầng 1'), value: 1 },
+  { text: t('Tầng 2'), value: 2 },
+  { text: t('Tầng 3'), value: 3 }
+]
+export const filterWarehouseManagement: Array<Filter> = [
+  { text: t('Kho 1'), value: 1 },
+  { text: t('Kho 2'), value: 2 },
+  { text: t('Kho 3'), value: 3 }
+]
+export const filterStatusRevenueExpenditure: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.auctioning'), value: 3 }
+]
+export const filterReciprocalProfile: Array<Filter> = [
+  { text: t('reuse.yes'), value: 1 },
+  { text: t('reuse.no'), value: 2 }
+]
+export const filterTypeNotification: Array<Filter> = [
+  { text: t('reuse.auto'), value: 1 },
+  { text: t('reuse.handmade'), value: 2 }
+]
+export const filterTypePolicies: Array<Filter> = [
+  { text: t('reuse.showing'), value: 1 },
+  { text: t('reuse.hiding'), value: 2 }
+]
+export const filterShow: Array<Filter> = [
+  { text: t('reuse.home'), value: 1 },
+  { text: t('reuse.trending'), value: 2 }
+]

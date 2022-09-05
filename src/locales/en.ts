@@ -695,6 +695,13 @@ export default {
     branchCode: 'Branch code',
     stocking: 'Stocking',
     newsDerectoryinformation: 'News derectory information',
-    warehouseListInformation: 'Warehouse List Information'
+    warehouseListInformation: 'Warehouse List Information',
+    featureGroup: 'Feature Group',
+    handmade: 'Handmade',
+    showing: 'Showing',
+    hiding: 'Hiding',
+    home: 'Home page',
+    trending: 'Outstanding',
+    content: 'Content'
   }
 }

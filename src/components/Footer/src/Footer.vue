@@ -10,6 +10,8 @@ const prefixCls = getPrefixCls('footer')
 const appStore = useAppStore()
 
 const title = computed(() => appStore.getTitle)
+
+const version = computed(() => appStore.getVersion)
 </script>
 
 <template>
@@ -17,6 +19,6 @@ const title = computed(() => appStore.getTitle)
     :class="prefixCls"
     class="text-center text-[var(--el-text-color-placeholder)] bg-[var(--app-contnet-bg-color)] h-[var(--app-footer-height)] leading-[var(--app-footer-height)] dark:bg-[var(--el-bg-color)]"
   >
-    {{ title }}
+    {{ title }} : {{ version }}
   </div>
 </template>

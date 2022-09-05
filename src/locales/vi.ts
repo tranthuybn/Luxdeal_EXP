@@ -714,6 +714,12 @@ export default {
     stocking: 'Còn hàng',
     newsDerectoryinformation: 'Thông tin danh mục tin tức',
     content: 'Nội dung',
-    warehouseListInformation: 'Thông tin danh sách kho'
+    warehouseListInformation: 'Thông tin danh sách kho',
+    featureGroup: 'Nhóm đặc tính',
+    handmade: 'Thủ công',
+    showing: 'Đang hiển thị',
+    hiding: 'Đang ẩn',
+    home: 'Trang chủ',
+    trending: 'Nổi bật'
   }
 }

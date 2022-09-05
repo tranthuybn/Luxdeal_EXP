@@ -2,15 +2,20 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
-import { getNewsList } from '@/api/NewsAndAdvertisement'
+import { getNotificationList } from '@/api/NewsAndAdvertisement'
+import { filterSubject, filterSentStatus, filterNotification } from '@/utils/filters'
 const { t } = useI18n()
-
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
     align: 'center'
+  },
+  {
+    field: 'notificationCode',
+    label: t('reuse.notificationCode'),
+    minWidth: '150'
   },
   {
     field: 'title',
@@ -23,15 +28,29 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'category',
-    label: t('reuse.category'),
-    minWidth: '150'
+    field: 'notificationType',
+    label: t('reuse.notificationType'),
+    minWidth: '150',
+    filters: filterNotification
+  },
+  {
+    field: 'subject',
+    label: t('reuse.subject'),
+    minWidth: '150',
+    filters: filterSubject
   },
   {
     field: 'image',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'
+  },
+  {
+    field: 'sendDate',
+    label: t('reuse.sendDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true
   },
   {
     field: 'createDate',
@@ -49,10 +68,11 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterSentStatus
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getNewsList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getNotificationList" />
 </template>

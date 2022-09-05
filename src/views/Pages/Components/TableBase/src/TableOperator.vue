@@ -114,12 +114,7 @@ if (props.title == 'undefined') {
   title.value = 'Category'
 }
 
-let fileList = ref<UploadUserFile[]>([
-  {
-    name: 'luxdeal.png',
-    url: 'https://is1-ssl.mzstatic.com/image/thumb/Purple112/v4/6e/4e/01/6e4e01ac-7f16-4a51-151b-61dc05ebd7fa/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/1200x600wa.png'
-  }
-])
+let fileList = ref<UploadUserFile[]>([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)

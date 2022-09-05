@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
 import { getPoliciesGuidelinesList } from '@/api/NewsAndAdvertisement'
+import { filterTypePolicies, filterShow } from '@/utils/filters'
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
@@ -30,7 +31,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'show',
     label: t('tableDemo.show'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterShow
   },
   {
     field: 'image',
@@ -54,7 +56,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150'
+    minWidth: '150',
+    filters: filterTypePolicies
   }
 ])
 </script>

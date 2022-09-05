@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
+import { filtersReceiptExpenditure } from '@/utils/filters'
 import { getPaymentList } from '@/api/Business'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -24,12 +25,14 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'amountOfMoney',
     label: t('reuse.amountOfMoney'),
-    minWidth: '100'
+    minWidth: '100',
+    sortable: true
   },
   {
     field: 'revenueAndExpenditure',
     label: t('reuse.revenueAndExpenditure'),
-    minWidth: '100'
+    minWidth: '100',
+    filters: filtersReceiptExpenditure
   },
   {
     field: 'subject',

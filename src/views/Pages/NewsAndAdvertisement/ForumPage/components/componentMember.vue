@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCard, ElPopover, ElAvatar, ElButton, ElSelect, ElOption, ElInput } from 'element-plus'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 const { t } = useI18n()
 const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const memberType = ref(-1)
@@ -38,15 +38,27 @@ const props = defineProps({
   search: { type: Object },
   members: { type: Array },
   isHomePage: { type: Boolean },
-  totalMember: { type: String }
+  totalMember: { type: Number }
 })
 type Member = {
   [key: string]: any
 }
 let memberListShowUp = ref<Member>()
+
 if (Array.isArray(props.members)) {
   memberListShowUp.value = props.members.slice(0, 5)
+  console.log('memberList', memberListShowUp.value)
 }
+
+watch(
+  () => props.members,
+  () => {
+    if (Array.isArray(props.members)) {
+      memberListShowUp.value = props.members.slice(0, 5)
+      console.log('memberList', memberListShowUp.value)
+    }
+  }
+)
 const prohibitToPost = (id, item) => {
   console.log(id, item)
 }

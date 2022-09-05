@@ -4,7 +4,7 @@ import { manageNews } from './managenews'
 import { PoliciesGuidelinesList } from './policiesGuidelines'
 import { NewsList } from './newslist'
 import { bannerAdvertisementList, bannerAdvertisementListMock } from './bannerAdvertisement'
-
+import { members, MemberListMock } from './Forum/member'
 import Mock from 'mockjs'
 const { result_code } = config
 const count = 77
@@ -12,6 +12,7 @@ const timeout = 1000
 for (let i = 0; i < count; i++) {
   NotificationList.push(Mock.mock(NotificationListMock))
   bannerAdvertisementList.push(Mock.mock(bannerAdvertisementListMock))
+  members.push(Mock.mock(MemberListMock))
 }
 export default [
   {
@@ -101,6 +102,17 @@ export default [
           total: NewsList.length,
           list: pageList
         }
+      }
+    }
+  },
+  {
+    url: '/member/List',
+    method: 'get',
+    timeout,
+    response: () => {
+      return {
+        code: result_code,
+        data: members
       }
     }
   }

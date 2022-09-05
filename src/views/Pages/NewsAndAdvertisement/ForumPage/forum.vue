@@ -43,7 +43,7 @@ const changeStyleButton = (index) => {
             <div class="fs-6 font-bold pt-2 font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
             <div class="flex">
               <img :src="social" alt="" />
-              <span class="font-bold">Authonly Luxury</span>
+              <span class="font-bold">(Authonly Luxury)</span>
             </div>
           </div>
         </div>

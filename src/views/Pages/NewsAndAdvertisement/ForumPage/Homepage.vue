@@ -879,9 +879,12 @@ const updatePostDialog = () => {
               </div>
             </div>
             <div class="mt-3">
-              <el-button :icon="imagesIcon" class="!border-0" @click="openPostNewsDialog">{{
-                t('reuse.chooseImage')
-              }}</el-button>
+              <el-button
+                :icon="imagesIcon"
+                class="!border-0 font-bold"
+                @click="openPostNewsDialog"
+                >{{ t('reuse.chooseImage') }}</el-button
+              >
             </div>
           </el-card>
           <el-select v-model="postSelectOption" class="m-2 fontBold">

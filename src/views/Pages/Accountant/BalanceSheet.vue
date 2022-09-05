@@ -13,7 +13,7 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
   console.log(record, data)
 }
 const unitCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'accountCode',
     label: t('reuse.accountCode'),

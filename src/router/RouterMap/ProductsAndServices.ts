@@ -1,7 +1,8 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
-const utility = 'Utility'
 
 export default {
   path: '/products-services',

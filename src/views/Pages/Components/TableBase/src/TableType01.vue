@@ -119,11 +119,14 @@ const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const drawer = ref(false)
 const showingColumnList = ref<Array<string>>(
-  props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field) : []
+  props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
 )
+
 const showingColumn =
   props.fullColumns.length > 0
-    ? props.fullColumns.map((el) => ({ value: el.field, label: el.label }))
+    ? props.fullColumns
+        .map((el) => ({ value: el.field, label: el.label }))
+        ?.filter((el) => el.value)
     : []
 </script>
 <template>
@@ -132,7 +135,7 @@ const showingColumn =
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
     <ElDrawer v-model="drawer" direction="ttb" size="10%">
-      <template #title>
+      <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
       <template #default>
@@ -156,8 +159,8 @@ const showingColumn =
       :pagination="paginationObj"
       :showOverflowTooltip="false"
       :maxHeight="maxHeight"
-      @cell-mouse-enter="operatorColumnToggle('right')"
-      @cell-mouse-leave="operatorColumnToggle(false)"
+      @mouseenter="operatorColumnToggle('right')"
+      @mouseleave="operatorColumnToggle(false)"
       @select="getTableSelected"
       @select-all="getTableSelected"
       @register="register"
@@ -244,6 +247,7 @@ const showingColumn =
   padding: 0;
 }
 ::v-deep(.el-checkbox-group) {
+  margin: auto;
   display: flex;
   width: max-content;
   justify-content: center;

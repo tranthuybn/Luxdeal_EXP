@@ -2,7 +2,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { filterTableStatus } from '@/utils/filters'
 export const productCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryTitle'),
@@ -32,7 +32,7 @@ export const productCategories = [
   }
 ]
 export const colorCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryColorTitle'),
@@ -62,7 +62,7 @@ export const colorCategories = [
   }
 ]
 export const sizeCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categorySizeTitle'),
@@ -92,7 +92,7 @@ export const sizeCategories = [
   }
 ]
 export const materialCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryMaterialTitle'),
@@ -122,7 +122,7 @@ export const materialCategories = [
   }
 ]
 export const statusCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryStatusTitle'),
@@ -152,7 +152,7 @@ export const statusCategories = [
   }
 ]
 export const genderCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryGenderTitle'),
@@ -182,7 +182,7 @@ export const genderCategories = [
   }
 ]
 export const unitCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryUnitTitle'),
@@ -212,7 +212,7 @@ export const unitCategories = [
   }
 ]
 export const brandCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryBrandTitle'),
@@ -242,7 +242,7 @@ export const brandCategories = [
   }
 ]
 export const originCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryOriginTitle'),

@@ -19,7 +19,7 @@ const seeDetail = (...param) => {
   }
 }
 const unitCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'categoryInfo',
     label: t('reuse.categoriesInfor'),

@@ -72,7 +72,7 @@ export const appModules: AppState = {
   footer: false, // Display foot
   greyMode: false, // Whether the gray mode starts for special mourning days
 
-  layout: wsCache.get('layout') || 'classic', // layout layout
+  layout: wsCache.get('layout') || 'cutMenu', // layout layout
   isDark: wsCache.get('isDark') || false, // Is it a dark mode
   currentSize: wsCache.get('default') || 'default', // Component size
   theme: wsCache.get('theme') || {

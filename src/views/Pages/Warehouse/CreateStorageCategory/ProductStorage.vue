@@ -6,7 +6,7 @@ import { getProductStorageList } from '@/api/Warehouse'
 import { filterTableStatus } from '@/utils/filters'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.warehouseListInformation'),

@@ -1,18 +1,18 @@
+<!-- eslint-disable vue/no-deprecated-v-on-native-modifier -->
 <template>
   <section class="flex flex-col h-680px">
-    <div class="flex message-box__header items-center justify-between">
+    <div class="flex message-box__header items-center justify-between p-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
         {{ user.Name ? user.Name : user.UserName }}
       </div>
       <el-form class="message-box__search">
-        <el-input placeholder="Tìm theo nội dung ..." v-model="search" />
-        <el-button><i class="el-icon-search"></i></el-button>
+        <el-input placeholder="Tìm theo nội dung ..." v-model="search" :suffix-icon="searchIcon" />
       </el-form>
     </div>
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
-    <section class="h-4/5">
+    <section class="h-3/4">
       <ul class="message-box__body py-3 !h-full" id="scroll-body">
         <li class="content-message" v-for="(mess, index) in messageStreamContent" :key="index">
           <section class="friend-send" v-if="mess.user !== 'admin'">
@@ -169,15 +169,20 @@
       </ul>
     </section>
     <div class="message-box__footer p-4">
-      <el-form class="message-box__send h-full" ref="messageInput" :model="messageInputForm">
-        <el-form-item prop="chatContent" class="h-full" style="margin: 0">
+      <el-form
+        class="message-box__send h-full"
+        ref="messageInput"
+        :model="messageInputForm"
+        @submit.native.prevent
+      >
+        <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
           <el-input
             class="h-full"
             placeholder="Nhập nội dung ..."
             v-model="messageInputForm.chatContent"
-            @keyup.prevent.enter="onSubmit"
-            :suffix-icon="sendIcon"
+            @keyup.enter.native="onSubmit"
           />
+          <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-4" />
         </el-form-item>
       </el-form>
       <div class="flex flex-nowrap justify-around gap-4">
@@ -222,6 +227,7 @@ import {
 } from '@/utils/chatConstants'
 import { useIcon } from '@/hooks/web/useIcon'
 const sendIcon = useIcon({ icon: 'mdi:send' })
+const searchIcon = useIcon({ icon: 'uiw:search' })
 export default {
   name: 'MessagePanel',
   props: {

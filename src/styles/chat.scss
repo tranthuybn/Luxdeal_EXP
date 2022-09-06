@@ -74,8 +74,9 @@
             transform: translateY(-50%);
             right: get-vw(16px);
         }
-        :deep(.el-input__inner){
+        :deep(.el-input__wrapper){
             border-color: $light-gray;
+            border-radius: 1rem;
             height: get-vh(26px);
         }
         &.v2{

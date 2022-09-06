@@ -66,7 +66,7 @@ export const sellOrder = [
   },
   {
     field: 'debitTotal',
-    label: t('reuse.debt'),
+    label: t('reuse.outstandingDebt'),
     minWidth: '130',
     align: 'right',
     sortable: true
@@ -313,7 +313,7 @@ export const orderDeposit = [
   },
   {
     field: 'totalFeeMoney',
-    label: t('reuse.totalDepositRevenue'),
+    label: t('reuse.totalFeeMoney'),
     minWidth: '150',
     align: 'right',
     sortable: true

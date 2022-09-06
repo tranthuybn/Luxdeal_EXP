@@ -43,14 +43,14 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'createDate',
-    label: t('reuse.createDate'),
+    label: t('reuse.createDate') + '/' + t('reuse.edit'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
     field: 'creator',
-    label: t('reuse.creator'),
+    label: t('reuse.creator') + '/' + t('reuse.edit'),
     minWidth: '150',
     headerFilter: 'Name'
   },

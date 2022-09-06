@@ -12,7 +12,7 @@
         </template>
       </el-tab-pane>
       <div class="message-box">
-        <el-row>
+        <el-row class="h-4/5 w-4/5 bg-white">
           <el-col :span="5">
             <el-card class="message-box__left-site">
               <el-input
@@ -169,11 +169,13 @@
                 <div class="product-link__time">{{ item.createdDate }}</div>
               </div>
             </div>
-            <div class="message-box__right-site" v-else>
+            <div class="message-box__right-site flex flex-col h-full" v-else>
               <div class="message-box__child-title">Tài liệu</div>
-              <div class="message-box__emtpy">
-                <img :src="emptyIcon" alt="..." />
-                Không có dữ liệu
+              <div class="message-box__emtpy h-full flex items-center justify-center flex-wrap">
+                <div>
+                  <div><img :src="emptyIcon" alt="..." /></div>
+                  <div>Không có dữ liệu</div>
+                </div>
               </div>
             </div>
           </el-col>

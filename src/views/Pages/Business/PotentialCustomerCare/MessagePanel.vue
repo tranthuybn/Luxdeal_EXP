@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col h-full">
+  <section class="flex flex-col h-680px">
     <div class="flex message-box__header items-center justify-between">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
@@ -169,9 +169,10 @@
       </ul>
     </section>
     <div class="message-box__footer p-4">
-      <el-form class="message-box__send" ref="messageInput" :model="messageInputForm">
-        <el-form-item prop="chatContent" class="m-0">
+      <el-form class="message-box__send h-full" ref="messageInput" :model="messageInputForm">
+        <el-form-item prop="chatContent" class="h-full" style="margin: 0">
           <el-input
+            class="h-full"
             placeholder="Nhập nội dung ..."
             v-model="messageInputForm.chatContent"
             @keyup.prevent.enter="onSubmit"
@@ -226,7 +227,6 @@ export default {
   props: {
     user: Object,
     channelId: String,
-    typeMessage: String,
     messagesOfCurrentUser: Array
   },
   data() {
@@ -417,95 +417,6 @@ export default {
         }
         for (const el of this.message) {
           if (el.messages.from !== 'admin') {
-            if (el.messages.idDeal) {
-              await getDeal({
-                ChannelId: this.channelId,
-                DealId: el.messages.idDeal
-              })
-                .then((res) => {
-                  if (res.data?.data) {
-                    this.getEachMessageOfAConversation(res.data?.data, el)
-                  } else {
-                    this.getEachMessageOfAConversation(res.data?.data, el)
-                  }
-                })
-                .catch((er) => {
-                  console.error(er)
-                  this.getEachMessageOfAConversation(null, el)
-                })
-                .finally(() => {})
-            } else if (el.messages.idContract && el.type === TYPE_OF_MESSAGE_DEPOSIT) {
-              await getContractDeposit({
-                OrderServiceId: el.messages.idContract
-              })
-                .then((res) => {
-                  if (res.data?.data?.data) {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  } else {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  }
-                })
-                .catch((er) => {
-                  console.error(er)
-                  this.getEachMessageOfAConversation(null, el)
-                })
-                .finally(() => {})
-            } else if (el.messages.idContract && el.type === TYPE_OF_MESSAGE_LEASE) {
-              await getContractRent({
-                OrderServiceId: el.messages.idContract
-              })
-                .then((res) => {
-                  if (res.data?.data?.data) {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  } else {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  }
-                })
-                .catch((er) => {
-                  console.error(er)
-                  this.getEachMessageOfAConversation(null, el)
-                })
-                .finally(() => {})
-            } else if (el.messages.idContract && el.type === TYPE_OF_MESSAGE_PAWN) {
-              await getContractMortgage({
-                OrderServiceId: el.messages.idContract
-              })
-                .then((res) => {
-                  if (res.data?.data?.data) {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  } else {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  }
-                })
-                .catch((er) => {
-                  console.error(er)
-                  this.getEachMessageOfAConversation(null, el)
-                })
-                .finally(() => {})
-            } else if (el.messages.idDeal === null && el.messages.idProduct) {
-              await GetProductItem({
-                ProductpropertyId: el.messages.idProduct
-              })
-                .then((res) => {
-                  if (res.data?.data?.data) {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  } else {
-                    this.getEachMessageOfAConversation(res.data?.data?.data, el)
-                  }
-                })
-                .catch((er) => {
-                  console.error(er)
-                  this.getEachMessageOfAConversation(null, el)
-                })
-                .finally(() => {})
-            } else {
-              this.messageStreamContent.push({
-                content: el.messages.content ?? '',
-                user: el.messages.from,
-                createdDate: el.messages.createdDate,
-                type: el.type
-              })
-            }
           } else {
             this.messageStreamContent.push({
               content: el.messages.content ?? '',

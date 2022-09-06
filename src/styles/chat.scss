@@ -45,10 +45,9 @@
 }
 
 .message-box{
-    background: $white;
-    width: get-vw(1090px);
-    margin: get-vw(16px) auto;
-    box-shadow: $main-shadow;
+    display: flex;
+    justify-content: center;
+    box-shadow: $main-shadow !important;
     &__header{
         padding: get-vw(8px);
         border-bottom: 1px solid $color-border;
@@ -172,8 +171,9 @@
     &__send{
         position: relative;
         width: 70%;
-        :deep(.el-input__inner){
+        :deep(.el-input__wrapper){
             border-radius: 20px;
+            height: 100%;
             &:focus{
                 border-color: $main-color;
             }
@@ -192,6 +192,9 @@
         width: 10%;
     }
     &__icon{
+        display:flex;
+        flex-direction: column;
+        justify-content: space-between;
         text-align: center;
         margin-left: get-vw(20px);
         white-space: nowrap;
@@ -220,8 +223,8 @@
         margin-top: get-vw(80px);
         img{
             display: block;
-            margin: 0 auto get-vw(8px);
-            width: get-vw(60px);
+            margin: 0;
+            width: 100%;
         }
     }
 }

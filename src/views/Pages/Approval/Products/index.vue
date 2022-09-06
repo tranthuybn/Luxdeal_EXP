@@ -67,18 +67,10 @@ const columns = reactive<TableColumn[]>([
     fixed: false,
     align: 'center',
     formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(
-        ElButton,
-        {
-          style: { margin: 'auto' },
-          type: 'primary',
-          onClick: () => seeDetail(record, cellValue)
-        },
-        h('div', [
-          h('div', { style: 'display:inline-block;padding-right:1em' }, 'Duyệt chi tiết'),
-          h('span', { class: 'arrowRight' })
-        ])
-      )
+      return h(ElButton, {
+        style: { margin: 'auto' },
+        onClick: () => seeDetail(record, cellValue)
+      })
     }
   }
 ])

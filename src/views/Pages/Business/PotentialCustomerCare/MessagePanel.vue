@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-deprecated-v-on-native-modifier -->
 <template>
-  <section class="flex flex-col h-680px">
+  <el-card class="flex flex-col h-680px">
     <div class="flex message-box__header items-center justify-between p-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
@@ -206,10 +206,10 @@
         </el-upload>
       </div>
     </div>
-  </section>
+  </el-card>
 </template>
 <script setup>
-import { ElUpload, ElForm, ElFormItem, ElInput, ElButton, ElAlert } from 'element-plus'
+import { ElUpload, ElForm, ElFormItem, ElInput, ElButton, ElAlert, ElCard } from 'element-plus'
 </script>
 <script>
 import contractIcon from '@/assets/svgs/chat/contract.svg'

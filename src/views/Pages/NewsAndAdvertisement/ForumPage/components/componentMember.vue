@@ -47,7 +47,6 @@ let memberListShowUp = ref<Member>()
 
 if (Array.isArray(props.members)) {
   memberListShowUp.value = props.members.slice(0, 5)
-  console.log('memberList', memberListShowUp.value)
 }
 
 watch(
@@ -55,7 +54,6 @@ watch(
   () => {
     if (Array.isArray(props.members)) {
       memberListShowUp.value = props.members.slice(0, 5)
-      console.log('memberList', memberListShowUp.value)
     }
   }
 )

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElSwitch } from 'element-plus'
 import { getApproveManagementList } from '@/api/Approval'
 import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -38,7 +37,7 @@ const unitCategories = [
     fixed: false,
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
+      return h('ElSwitch', {
         style: { margin: 'auto' },
         modelValue: record.approveOrNot,
         onClick: () => seeDetail(record, column, cellValue)

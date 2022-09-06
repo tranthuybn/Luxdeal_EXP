@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton } from 'element-plus'
 import { getAccountantBalanceList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import TableType01 from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
@@ -85,7 +84,7 @@ const unitCategories = [
     fixed: false,
     align: 'center',
     formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElButton, {
+      return h('ElButton', {
         style: { margin: 'auto' },
         icon: eyeIcon,
         onClick: () => seeDetail(record, cellValue)

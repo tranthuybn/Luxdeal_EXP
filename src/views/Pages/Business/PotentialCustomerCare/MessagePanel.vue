@@ -4,7 +4,7 @@
     <div class="flex message-box__header items-center justify-between p-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
-        {{ user.Name ? user.Name : user.UserName }}
+        <span class="pl-2">{{ user.Name ? user.Name : user.UserName }}</span>
       </div>
       <el-form class="message-box__search">
         <el-input placeholder="Tìm theo nội dung ..." v-model="search" :suffix-icon="searchIcon" />
@@ -13,8 +13,12 @@
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
     <section class="h-3/4">
-      <ul class="message-box__body py-3 !h-full" id="scroll-body">
-        <li class="content-message" v-for="(mess, index) in messageStreamContent" :key="index">
+      <ul class="message-box__body !h-full dark:!bg-[var(--el-bg-color)] border-1">
+        <li
+          class="content-message dark:!bg-[var(--el-bg-color)]"
+          v-for="(mess, index) in messageStreamContent"
+          :key="index"
+        >
           <section class="friend-send" v-if="mess.user !== 'admin'">
             <div class="media">
               <div class="media-body ml-0">
@@ -185,7 +189,7 @@
           <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-4" />
         </el-form-item>
       </el-form>
-      <div class="flex flex-nowrap justify-around gap-4">
+      <div class="flex flex-nowrap justify-around gap-2">
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
             <img :src="faceIcon" alt="..." />
@@ -461,13 +465,13 @@ export default {
 .ml-0 {
   margin-left: 0 !important;
 }
-#scroll-body {
-  padding-bottom: 50px !important;
-}
 ul {
   list-style: none;
 }
 .message-box__body {
   box-shadow: inset 0px 0px 5px rgba(129, 168, 244, 0.6);
+}
+.h-680px :deep(.el-card__body) {
+  height: 100%;
 }
 </style>

@@ -50,7 +50,6 @@
     box-shadow: $main-shadow !important;
     &__header{
         padding: get-vw(8px);
-        border-bottom: 1px solid $color-border;
     }
     &__customer{
         font-weight: bold;
@@ -66,6 +65,7 @@
         position: relative;
         width: get-vw(180px);
         padding: get-vw(9px);
+        border: 0;
         .el-button{
             padding: 0;
             border: none;
@@ -103,15 +103,14 @@
         }
     }
     .message-box__search{
-        margin-bottom: 0;
         min-height: get-vh(40px);
-       border-bottom: 1px solid $table-row-border-bottom;
     }
     .hover-message{
         padding-left: get-vw(9px);
         cursor: pointer;
         &.selected{
             background: $light-blue;
+            color:black
         }
        border-bottom: 1px solid $table-row-border-bottom;
     }
@@ -119,6 +118,9 @@
         padding: 0 get-vw(14px) get-vw(12px);
         max-height: get-vh(580px);
         overflow: auto;
+        :deep(.el-card__body){
+            height: 100%;
+        }
         &::-webkit-scrollbar {
             width: 6px;
             background-color: #e5e5e5;
@@ -155,6 +157,7 @@
         }
     }
     &__body{
+        background-color: white;
         height: 70%;
         overflow-y:scroll ;
         // // &::-webkit-scrollbar {
@@ -166,7 +169,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-top: 1px solid $color-border;
         padding: get-vw(10px) 0 get-vw(10px) get-vw(10px);
     }
     &__send{
@@ -203,6 +205,8 @@
         img{
             display: block;
             margin: auto;
+            width: 24px;
+            height: 24px;
             margin-bottom: get-vw(3px);
         }
     }
@@ -213,7 +217,6 @@
         margin-bottom: get-vw(15px);
         position: sticky;
         top: 0;
-        background: $white;
         z-index: 5;
         padding: .8rem 0;
     }

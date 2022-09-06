@@ -8,7 +8,9 @@
         @click="getTypeMessage(item.value)"
       >
         <template #label>
-          <div class="library-tab__name" :class="{ active: item.isActive }">{{ item.label }}</div>
+          <div class="library-tab__name dark:(text-white)" :class="{ active: item.isActive }">{{
+            item.label
+          }}</div>
         </template>
       </el-tab-pane>
       <div class="message-box">
@@ -16,6 +18,7 @@
           <el-col :span="5">
             <el-card class="message-box__left-site">
               <el-input
+                class="pb-4"
                 placeholder="Tìm theo tên tài khoản ..."
                 v-model="searchPeople"
                 :suffix-icon="searchIcon"
@@ -31,7 +34,7 @@
               />
             </el-card>
           </el-col>
-          <el-col :span="14" class="border-x">
+          <el-col :span="14" class="border-x dark:!bg-[var(--el-bg-color)]">
             <MessagePanel
               v-if="selectedUser"
               :user="selectedUser"
@@ -41,7 +44,7 @@
               @input="onMessage"
           /></el-col>
           <el-col :span="5">
-            <div class="message-box__right-site" v-if="documentList.length > 0">
+            <el-card class="message-box__right-site" v-if="documentList.length > 0">
               <div class="message-box__child-title">Tài liệu</div>
               <div class="product-link" v-for="(item, index) in documentList" :key="index">
                 <div v-if="item.type === 'TuVanMuaHang'">
@@ -168,16 +171,16 @@
                 </div>
                 <div class="product-link__time">{{ item.createdDate }}</div>
               </div>
-            </div>
-            <div class="message-box__right-site flex flex-col h-full" v-else>
-              <div class="message-box__child-title">Tài liệu</div>
-              <div class="message-box__emtpy h-full flex items-center justify-center flex-wrap">
+            </el-card>
+            <el-card class="message-box__right-site flex flex-col !h-full" v-else>
+              <div class="message-box__child-title h-1/5">Tài liệu</div>
+              <div class="message-box__emtpy h-4/5 flex items-center justify-center flex-wrap">
                 <div>
                   <div><img :src="emptyIcon" alt="..." /></div>
                   <div>Không có dữ liệu</div>
                 </div>
               </div>
-            </div>
+            </el-card>
           </el-col>
         </el-row>
       </div>

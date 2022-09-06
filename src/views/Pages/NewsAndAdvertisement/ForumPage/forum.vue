@@ -25,7 +25,7 @@ const changeStyleButton = (index) => {
 </script>
 
 <template>
-  <el-row type="flex" justify="space-between" class="forum-container">
+  <el-row type="flex" justify="space-between" class="forum-container dark:bg-[var(--el-bg-color)]">
     <el-divider content-position="left">
       {{ t('reuse.forumManagementNewFeed') }}
     </el-divider>
@@ -105,7 +105,6 @@ const changeStyleButton = (index) => {
 .forum-container {
   width: 100%;
   height: 100%;
-  position: absolute;
   background-color: none;
   border: none;
 }

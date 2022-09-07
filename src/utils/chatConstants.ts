@@ -1,26 +1,28 @@
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 export const TYPE_OF_MESSAGE = [
   {
-    label: 'Tư vấn mua hàng',
+    label: t('reuse.shoppingConsult'),
     value: 'TuVanMuaHang',
     isActive: false
   },
   {
-    label: 'Từ vấn thế chấp',
+    label: t('reuse.rentalConsult'),
     value: 'CamDo',
     isActive: false
   },
   {
-    label: 'Tư vấn cho thuê',
+    label: t('reuse.depositConsult'),
     value: 'ChoThue',
     isActive: false
   },
   {
-    label: 'Tư vấn ký gửi',
+    label: t('reuse.pawnConsult'),
     value: 'KyGui',
     isActive: false
   },
   {
-    label: 'CSKH',
+    label: t('reuse.customerCareConsult'),
     value: 'CSKH',
     isActive: false
   }

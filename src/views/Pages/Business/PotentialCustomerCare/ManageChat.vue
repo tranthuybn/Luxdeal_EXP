@@ -9,11 +9,15 @@
       >
         <template #label>
           <div
-            class="library-tab__name h-full dark:(text-white) text-center flex flex-col content-center items-center pb-2"
+            class="library-tab__name pr-2 w-full h-full dark:(text-white) text-center flex flex-col content-center items-center pt-4"
             :class="{ active: item.isActive }"
           >
-            <div><img :src="headphoneIcon" alt="..." width="24" height="24" /></div>
-            <div>{{ item.label }}</div></div
+            <Icon icon="uil:headphones" :size="24" />
+            <div
+              style="word-break: break-word"
+              class="whitespace-normal overflow-ellipsis w-full overflow-hidden leading-normal"
+              >{{ item.label }}</div
+            ></div
           >
         </template>
       </el-tab-pane>
@@ -30,57 +34,48 @@
           /></div>
           <el-col :span="5" class="h-full" id="hideDocument">
             <el-card class="message-box__right-site flex flex-col !h-full">
-              <div class="message-box__child-title h-1/5">
+              <div class="message-box__child-title">
                 <el-button
                   :icon="rightArrow"
                   @click="hideDocumentList()"
                   class="!flex !border-0 !w-full !justify-between !font-bold"
-                  >Tài liệu</el-button
+                  >{{ t('reuse.document') }}</el-button
                 >
               </div>
               <div v-if="documentList.length > 0">
-                <div class="product-link" v-for="(item, index) in documentList" :key="index">
-                  <div v-if="item.type === 'TuVanMuaHang'">
-                    <div class="product-link__header">
-                      <div class="media">
-                        <img class="product-link__img" :src="item.image" alt="..." />
-                        <div class="media-body">
-                          <div class="product-link__name">{{ item.content.name }}</div>
-                          <div class="product-link__font">{{
-                            item.content.productPropertyAttribute
-                          }}</div>
-                          <div class="product-link__font"
-                            >{{ item.content.price }} <img :src="dIcon" alt="..."
-                          /></div>
-                        </div>
+                <div v-for="(item, index) in documentList" :key="index" class="pb-16">
+                  <div v-if="item.type === 'TuVanMuaHang'" class="flex flex-col">
+                    <div class="flex border-bottom-1">
+                      <div class="basis-1/2"
+                        ><img :src="item.content.productImagePath" class="w-full" />
                       </div>
-                    </div>
-                    <div class="product-link__footer">
-                      <div class="product-link__price"
-                        >Đang trả giá: {{ item.content.dealPrice }} đ</div
+                      <div class="pl-4">
+                        <div class="font-bold">{{ item.content.productBrand }}</div>
+                        <div>{{ item.content.productName }}</div>
+                        <div
+                          >{{ formatMoneyInput(item.content.totalMoney)
+                          }}{{ t('reuse.currency') }}</div
+                        >
+                      </div> </div
+                    ><div class="flex flex-col"
+                      ><div class="my-2"
+                        >{{ t('reuse.negotiationPrice') }}
+                        {{ formatMoneyInput(item.content.currentInterestMoney)
+                        }}{{ t('reuse.currency') }}</div
                       >
-                      <div
-                        class="product-link__cancel"
-                        v-if="item.content.isActive === false && item.content.isAccept !== true"
-                        >Đã huỷ !</div
+                      <el-button class="w-full my-2 !font-bold" @click="documentAction(0)">{{
+                        t('reuse.cancel')
+                      }}</el-button>
+                      <el-button class="!m-0 w-full !bg-black !font-bold" @click="documentAction(1)"
+                        ><span class="text-white">{{ t('reuse.agreeToSell') }}</span></el-button
                       >
-                      <div class="product-link__done" v-if="item.content.isAccept"
-                        >Đồng ý bán !</div
-                      >
-                      <div
-                        class="flex-item"
-                        v-if="item.content.isAccept === false && item.content.isActive === true"
-                      >
-                        <el-button @click="cancelProduct(item.content.id)">Hủy</el-button>
-                        <el-button @click="allowToSell(item.content.id)">Đồng ý bán</el-button>
-                      </div>
                     </div>
                   </div>
-                  <div v-if="item.type === TYPE_OF_MESSAGE_PAWN">
+                  <div v-if="item.type === 'CamDo'">
+                    {{ item.content }}
                     <div class="contract">
                       <div class="contract__header">
                         <div class="contract__name">
-                          Mã hợp Đồng
                           <span>{{ item.content.orderCode }}</span>
                         </div>
                         <div class="contract__view"
@@ -91,19 +86,16 @@
                         <div class="contract__item">
                           Dư nợ gốc
                           <span
-                            >{{ formatPrice(item.content.debtTotalMoney) }}
-                            <img :src="dIcon" alt="..."
+                            >{{ item.content.debtTotalMoney }} <img :src="dIcon" alt="..."
                           /></span>
                         </div>
                         <div class="contract__item">
                           Dư nợ phí thế chấp
                           <span
                             >{{
-                              formatPrice(
-                                item.content.currentInterestMoney,
-                                '+',
-                                item.content.currentWarrantyMoney
-                              )
+                              (item.content.currentInterestMoney,
+                              '+',
+                              item.content.currentWarrantyMoney)
                             }}
                             <img :src="dIcon" alt="..."
                           /></span>
@@ -170,7 +162,7 @@
                       <!-- <div class="contract__time">12:20 am</div> -->
                     </div>
                   </div>
-                  <div class="product-link__time">{{ item.createdDate }}</div>
+                  <div>{{ item.createdDate }}</div>
                 </div></div
               >
               <div
@@ -188,7 +180,7 @@
             <el-card class="message-box__left-site h-full">
               <el-input
                 class="pb-4 h-60px"
-                placeholder="Tìm theo tên tài khoản ..."
+                :placeholder="`${t('reuse.findNameAccount')} ...`"
                 v-model="searchPeople"
                 :suffix-icon="searchIcon"
               />
@@ -215,7 +207,7 @@ import UserList from './User.vue'
 import MessagePanel from './MessagePanel.vue'
 </script>
 <script>
-import headphoneIcon from '@/assets/svgs/chat/headphone.svg'
+import { formatMoneyInput } from '@/utils/format.ts'
 import dIcon from '@/assets/svgs/chat/d.svg'
 import emptyIcon from '@/assets/svgs/chat/emtpy.svg'
 import moment from 'moment'
@@ -227,6 +219,8 @@ import {
   TYPE_OF_MESSAGE_DEPOSIT
 } from '@/utils/chatConstants'
 import { useIcon } from '@/hooks/web/useIcon'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const searchIcon = useIcon({ icon: 'uiw:search' })
 const rightArrow = useIcon({ icon: 'material-symbols:chevron-right' })
 export default {
@@ -236,7 +230,6 @@ export default {
       TYPE_OF_MESSAGE_PAWN,
       TYPE_OF_MESSAGE_LEASE,
       TYPE_OF_MESSAGE_DEPOSIT,
-      headphoneIcon,
       dIcon,
       emptyIcon,
       searchIcon,
@@ -254,9 +247,10 @@ export default {
         {
           _id: '619b472a8f0d634cb1dbc90a',
           userID: '3388729826251144eff683e410c6a1cc',
-          UserName: 'vinhnt',
+          UserName: 'vinhntry',
           Name: 'Trọng Vinh',
           connected: true,
+          unreadMessage: true,
           message: [
             {
               _id: '61a9edd594281cb25174f3e2',
@@ -434,6 +428,7 @@ export default {
           _id: '619b480d8f0d634cb1dbc90b',
           userID: 'c8afe1e6e67a545d2d3d898bca9a983f',
           UserName: 'vinhnt1',
+          unreadMessage: true,
           connected: true,
           message: []
         },
@@ -441,6 +436,7 @@ export default {
           _id: '619b4e7e8f0d634cb1dbc90c',
           userID: '1118aa62d3b31f7177e878c382c91594',
           UserName: 'aaa',
+          unreadMessage: true,
           connected: true,
           message: [
             {
@@ -2503,7 +2499,99 @@ export default {
           ]
         }
       ],
-      documentList: [],
+      documentList: [
+        {
+          content: {
+            orderServiceId: 95,
+            orderServiceDetailsId: 12,
+            orderCode: 'DHTC4375213',
+            orderStatus: 2,
+            userFullName: 'LangVi',
+            userPhone: '0987156423',
+            userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
+            totalMoney: 129000000,
+            paidTotalMoney: 0,
+            debtTotalMoney: 0,
+            currentInterestMoney: 46956000,
+            currentWarrantyMoney: 23478000,
+            productId: 0,
+            productName: 'Hand Bag',
+            productBrand: 'Louis Vuitton',
+            productImagePath:
+              'https://1.bp.blogspot.com/-UwwTcoPkWl4/YVCSZaQ1xxI/AAAAAAAAIHE/aZi9kWLEs3A17oqVEdByaARpQ7iDPsm1QCLcBGAsYHQ/s680/LV2.jpg'
+          },
+          createdDate: '10:55 AM',
+          type: 'TuVanMuaHang'
+        },
+        {
+          content: {
+            orderServiceId: 37,
+            orderServiceDetailsId: 119,
+            orderCode: 'DHTC8431',
+            orderStatus: 2,
+            userFullName: '0866936832',
+            userPhone: '0866936832',
+            userAddress: null,
+            totalMoney: 39000000,
+            paidTotalMoney: 0,
+            debtTotalMoney: 0,
+            currentInterestMoney: 14872000,
+            currentWarrantyMoney: 7436000,
+            productId: 8,
+            productName: 'Lady Dior Red Lambskin Bag',
+            productBrand: 'Dior',
+            productImagePath:
+              'https://webassets.ashford.com/images/web/louis_erard/78225PR15BRC37_FXA.jpg'
+          },
+          createdDate: '10:03 AM',
+          type: 'TuVanMuaHang'
+        },
+        {
+          content: {
+            orderServiceId: 95,
+            orderServiceDetailsId: 12,
+            orderCode: 'DHTC4375213',
+            orderStatus: 2,
+            userFullName: 'LangVi',
+            userPhone: '0987156423',
+            userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
+            totalMoney: 129000000,
+            paidTotalMoney: 0,
+            debtTotalMoney: 0,
+            currentInterestMoney: 46956000,
+            currentWarrantyMoney: 23478000,
+            productId: 0,
+            productName: 'Hand Bag',
+            productBrand: 'Christian Dior',
+            productImagePath: 'https://cf.shopee.vn/file/527759b3eb97d8903651e452105fe8cd'
+          },
+          createdDate: '10:55 AM',
+          type: 'TuVanMuaHang'
+        },
+        {
+          content: {
+            orderServiceId: 95,
+            orderServiceDetailsId: 12,
+            orderCode: 'DHTC4375213',
+            orderStatus: 2,
+            userFullName: 'LangVi',
+            userPhone: '0987156423',
+            userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
+            totalMoney: 129000000,
+            paidTotalMoney: 0,
+            debtTotalMoney: 0,
+            currentInterestMoney: 46956000,
+            currentWarrantyMoney: 23478000,
+            productId: 0,
+            productName: 'Hand Bag',
+            productBrand: 'Louis Vuitton',
+            productImagePath:
+              'https://1.bp.blogspot.com/-UwwTcoPkWl4/YVCSZaQ1xxI/AAAAAAAAIHE/aZi9kWLEs3A17oqVEdByaARpQ7iDPsm1QCLcBGAsYHQ/s680/LV2.jpg'
+          },
+          createdDate: '10:55 AM',
+          type: 'TuVanMuaHang'
+        }
+      ],
       listTypeMessage: TYPE_OF_MESSAGE,
       currentUsersFollowTab: [
         {
@@ -2511,6 +2599,7 @@ export default {
           userID: '3388729826251144eff683e410c6a1cc',
           UserName: 'vinhnt',
           Name: 'Trọng Vinh',
+          unreadMessage: true,
           connected: true,
           message: [
             {
@@ -4685,7 +4774,7 @@ export default {
   watch: {
     selectedUser: {
       handler() {
-        this.documentList = []
+        //this.documentList = []
         this.getDocument()
       }
     },
@@ -4723,10 +4812,4 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '@/styles/chat.scss';
-:deep(.el-tabs__nav) {
-  height: 50%;
-}
-:deep(.el-tabs__item) {
-  height: 20% !important;
-}
 </style>

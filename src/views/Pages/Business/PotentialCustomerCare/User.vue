@@ -6,7 +6,9 @@
       :class="{ selected: selected }"
     >
       <div class="media message-list" :class="{ active: user.hasNewMessages }">
-        <span class="brage"><img :src="defaultImg" alt="..." /></span>
+        <el-badge :is-dot="unreadMessage" class="brage" type="primary">
+          <img :src="defaultImg" alt="..."
+        /></el-badge>
         <div class="media-body pl-2">
           <div class="message-list__name">{{ user.Name ? user.Name : user.UserName }}</div>
           <div class="message-list__description truncate-h" data-line="1">{{ getLastMessage }}</div>
@@ -19,6 +21,9 @@
   </section>
 </template>
 
+<script setup>
+import { ElBadge } from 'element-plus'
+</script>
 <script>
 import moment from 'moment'
 import defaultImg from '@/assets/svgs/chat/default.jpg'
@@ -43,6 +48,9 @@ export default {
     },
     getLastMessage() {
       return this.user.message.slice(-1).pop().messages.content
+    },
+    unreadMessage() {
+      return this.user.message.slice(-1).pop().newMessage
     }
   },
   watch: {
@@ -63,6 +71,7 @@ export default {
   },
   methods: {
     onClick() {
+      this.user.message.slice(-1).pop().newMessage = false
       this.$emit('select')
     },
     sortMessage() {

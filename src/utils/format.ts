@@ -1,5 +1,5 @@
 import moment from 'moment'
-export const formatMoneyInput = (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+export const formatMoneyInput = (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 export const parseMoneyInput = (value) => value.replace(/\$\s?|(,*)/g, '')
 export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   if (dateTime && moment(dateTime, typeDefinition).isValid()) {

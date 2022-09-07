@@ -9,7 +9,7 @@
       <div class="flex items-center w-1/4">
         <el-form class="message-box__search w-full">
           <el-input
-            placeholder="Tìm theo nội dung ..."
+            :placeholder="`${t('reuse.findContent')} ...`"
             v-model="search"
             :suffix-icon="searchIcon"
             class="h-50px"
@@ -56,7 +56,8 @@
                     </div>
                     <div class="product-link__footer">
                       <div class="product-link__price"
-                        >Đang trả giá: {{ formatPrice(message.content.dealPrice) }} đ</div
+                        >Đang trả giá: {{ formatPrice(message.content.dealPrice) }}
+                        {{ t('reuse.currency') }}</div
                       >
                       <div
                         class="product-link__cancel"
@@ -197,7 +198,7 @@
         <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
           <el-input
             class="h-45px"
-            placeholder="Nhập nội dung ..."
+            :placeholder="`${t('reuse.inputContent')} ...`"
             v-model="messageInputForm.chatContent"
             @keyup.enter.native="onSubmit"
           />
@@ -207,20 +208,20 @@
       <div class="flex flex-nowrap justify-around gap-2">
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <img :src="faceIcon" alt="..." />
-            Trạng thái
+            <Icon icon="carbon:face-satisfied" :size="24" />
+            {{ t('reuse.status') }}
           </div>
         </el-upload>
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <img :src="albumIcon" alt="..." />
-            Thư viện
+            <Icon icon="ic:outline-image" :size="24" />
+            {{ t('reuse.library') }}
           </div>
         </el-upload>
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <img :src="contractIcon" alt="..." />
-            Hợp đồng
+            <Icon icon="ion:document-text" :size="24" />
+            {{ t('reuse.contract') }}
           </div>
         </el-upload>
       </div>
@@ -229,6 +230,7 @@
 </template>
 <script setup>
 import { ElUpload, ElForm, ElFormItem, ElInput, ElButton, ElAlert, ElCard } from 'element-plus'
+import { Icon } from '@/components/Icon'
 </script>
 <script>
 import contractIcon from '@/assets/svgs/chat/contract.svg'
@@ -245,6 +247,8 @@ import {
   PAGE_SIZE_ARRAY
 } from '@/utils/chatConstants'
 import { useIcon } from '@/hooks/web/useIcon'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 const sendIcon = useIcon({ icon: 'mdi:send' })
 const searchIcon = useIcon({ icon: 'uiw:search' })
 const leftArrow = useIcon({ icon: 'material-symbols:chevron-left' })

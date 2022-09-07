@@ -768,6 +768,20 @@ export default {
     createPosts: 'Tạo bài viết',
     forumCustomer: 'Forum khách hàng',
     generalForum: 'Forum chung',
-    removePosts: 'Xóa bài viết'
+    removePosts: 'Xóa bài viết',
+    //Chat
+    shoppingConsult: 'Tư vấn mua hàng',
+    rentalConsult: 'Tư vấn cho thuê',
+    depositConsult: 'Tư vấn ký gửi',
+    pawnConsult: 'Tư vấn cầm đồ',
+    customerCareConsult: 'Tư vấn CSKH',
+    document: 'Tài liệu',
+    negotiationPrice: 'Đang trả giá',
+    agreeToSell: 'Đồng ý bán',
+    findNameAccount: 'Tìm theo tên tài khoản',
+    findContent: 'Tìm theo nội dung',
+    library: 'Thư viện',
+    contract: 'Hợp đồng',
+    currency: 'đ'
   }
 }

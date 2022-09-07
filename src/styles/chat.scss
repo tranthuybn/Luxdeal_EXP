@@ -1,6 +1,21 @@
 @import "./mixin-library.scss";
 @import "./variables.scss";
-
+:deep(.el-tabs__header){
+    margin-right: 0 !important;
+}
+:deep(.el-badge__content){
+    width: 16px;
+    height: 16px;
+    right: 16px !important;
+    top: 8px;
+}
+:deep(.el-tabs__nav) {
+    height: 50%;
+}
+:deep(.el-tabs__item) {
+    height: 20% !important;
+    padding: 0;
+}
 #showDocument{
     display:none
 }
@@ -34,6 +49,9 @@
         }
 }
 .library-tab{
+    :deep(.el-tabs__header){
+        width: 5%;
+    }
     :deep(.el-tabs__content){
         height: 100%;
     }
@@ -208,6 +226,7 @@
         display:flex;
         flex-direction: column;
         justify-content: space-between;
+        align-items: center;
         text-align: center;
         margin-left: get-vw(20px);
         white-space: nowrap;

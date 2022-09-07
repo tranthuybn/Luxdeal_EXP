@@ -751,6 +751,20 @@ export default {
     createPosts: 'Create Posts',
     forumCustomer: 'Customer Forum',
     generalForum: 'General Forum',
-    removePosts: 'Remove Posts'
+    removePosts: 'Remove Posts',
+    //Chat
+    shoppingConsult: 'Shopping Consult',
+    rentalConsult: 'Rental Consult',
+    depositConsult: 'Deposit Consult',
+    pawnConsult: 'Pawn Consult',
+    customerCareConsult: 'Customer Care Consult',
+    document: 'Document',
+    negotiationPrice: 'Negotiation Price',
+    agreeToSell: 'Agree To Sell',
+    findNameAccount: 'Find Name Account',
+    findContent: 'Find Content',
+    library: 'Library',
+    contract: 'Contract',
+    currency: 'USD'
   }
 }

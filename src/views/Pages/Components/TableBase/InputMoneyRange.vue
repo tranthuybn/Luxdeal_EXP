@@ -92,7 +92,7 @@ const hide = (formEl: FormInstance | undefined) => {
           :placeholder="t('reuse.placeholderMoney')"
           :formatter="(value) => formatMoneyInput(value)"
           :parser="(value) => parseMoneyInput(value)"
-          ><template #suffix> đ</template>
+          ><template #suffix> {{ t('reuse.currency') }}</template>
         </el-input>
       </el-form-item>
       <el-form-item :label="t('reuse.to')" prop="inputTo" label-width="50px">
@@ -101,7 +101,7 @@ const hide = (formEl: FormInstance | undefined) => {
           :placeholder="t('reuse.placeholderMoney')"
           :formatter="(value) => formatMoneyInput(value)"
           :parser="(value) => parseMoneyInput(value)"
-          ><template #suffix> đ</template>
+          ><template #suffix> {{ t('reuse.currency') }}</template>
         </el-input>
       </el-form-item>
       <el-divider />

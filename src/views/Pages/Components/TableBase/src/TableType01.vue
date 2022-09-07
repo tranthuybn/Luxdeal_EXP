@@ -10,6 +10,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
+
 const { t } = useI18n()
 const route = useRoute()
 const paginationObj = ref<Pagination>()

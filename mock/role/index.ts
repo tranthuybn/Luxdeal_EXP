@@ -82,6 +82,18 @@ const adminList = [
             meta: {
               title: 'router.ServiceLibrarySpaService'
             }
+          },
+          {
+            path: `${utility}`,
+            component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
+            name: `products-services.ServiceLibrarySpaService.${utility}`,
+            meta: {
+              title: 'reuse.addNewSpaService',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
           }
         ]
       },

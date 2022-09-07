@@ -33,7 +33,7 @@ const orderDepositListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
-  explain: '@string(15)',
+  explain: '@paragraph(1)',
   depositManagement: 'Ký gửi, bán, cho thuê',
   depositNumber: '@integer(1, 10)',
   soldNumber: '@integer(1, 10)',

@@ -140,11 +140,12 @@ const timeAgo = (time) => {
               :btnName="'Like'"
               @click="updateLikeStatus"
               class="!border-0"
+              size="large"
               >Like</el-button
             >
           </div>
           <div class="col-6">
-            <el-button :icon="commentImage" :btnName="'comment'" class="!border-0"
+            <el-button :icon="commentImage" :btnName="'comment'" class="!border-0" size="large"
               >Comment</el-button
             >
           </div>

@@ -1,6 +1,6 @@
 <template>
-  <section>
-    <el-tabs v-model="activeName" class="library-tab">
+  <section class="!h-full">
+    <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
       <el-tab-pane
         :name="item.value"
         v-for="item in listTypeMessage"
@@ -8,17 +8,186 @@
         @click="getTypeMessage(item.value)"
       >
         <template #label>
-          <div class="library-tab__name dark:(text-white)" :class="{ active: item.isActive }">{{
-            item.label
-          }}</div>
+          <div
+            class="library-tab__name h-full dark:(text-white) text-center flex flex-col content-center items-center pb-2"
+            :class="{ active: item.isActive }"
+          >
+            <div><img :src="headphoneIcon" alt="..." width="24" height="24" /></div>
+            <div>{{ item.label }}</div></div
+          >
         </template>
       </el-tab-pane>
-      <div class="message-box">
-        <el-row class="h-4/5 w-4/5 bg-white">
-          <el-col :span="5">
-            <el-card class="message-box__left-site">
+      <div class="message-box h-full">
+        <el-row class="h-full w-full bg-white dark:bg-[var(--el-bg-color)]">
+          <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2">
+            <MessagePanel
+              v-if="selectedUser"
+              :user="selectedUser"
+              :messagesOfCurrentUser="selectedUser.message"
+              :typeMessage="typeMessageSelected"
+              :channelId="isChannelId"
+              @input="onMessage"
+          /></div>
+          <el-col :span="5" class="h-full" id="hideDocument">
+            <el-card class="message-box__right-site flex flex-col !h-full">
+              <div class="message-box__child-title h-1/5">
+                <el-button
+                  :icon="rightArrow"
+                  @click="hideDocumentList()"
+                  class="!flex !border-0 !w-full !justify-between !font-bold"
+                  >Tài liệu</el-button
+                >
+              </div>
+              <div v-if="documentList.length > 0">
+                <div class="product-link" v-for="(item, index) in documentList" :key="index">
+                  <div v-if="item.type === 'TuVanMuaHang'">
+                    <div class="product-link__header">
+                      <div class="media">
+                        <img class="product-link__img" :src="item.image" alt="..." />
+                        <div class="media-body">
+                          <div class="product-link__name">{{ item.content.name }}</div>
+                          <div class="product-link__font">{{
+                            item.content.productPropertyAttribute
+                          }}</div>
+                          <div class="product-link__font"
+                            >{{ item.content.price }} <img :src="dIcon" alt="..."
+                          /></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-link__footer">
+                      <div class="product-link__price"
+                        >Đang trả giá: {{ item.content.dealPrice }} đ</div
+                      >
+                      <div
+                        class="product-link__cancel"
+                        v-if="item.content.isActive === false && item.content.isAccept !== true"
+                        >Đã huỷ !</div
+                      >
+                      <div class="product-link__done" v-if="item.content.isAccept"
+                        >Đồng ý bán !</div
+                      >
+                      <div
+                        class="flex-item"
+                        v-if="item.content.isAccept === false && item.content.isActive === true"
+                      >
+                        <el-button @click="cancelProduct(item.content.id)">Hủy</el-button>
+                        <el-button @click="allowToSell(item.content.id)">Đồng ý bán</el-button>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="item.type === TYPE_OF_MESSAGE_PAWN">
+                    <div class="contract">
+                      <div class="contract__header">
+                        <div class="contract__name">
+                          Mã hợp Đồng
+                          <span>{{ item.content.orderCode }}</span>
+                        </div>
+                        <div class="contract__view"
+                          >Chi tiết <i class="el-icon-arrow-right"></i
+                        ></div>
+                      </div>
+                      <div class="contract__footer">
+                        <div class="contract__item">
+                          Dư nợ gốc
+                          <span
+                            >{{ formatPrice(item.content.debtTotalMoney) }}
+                            <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                        <div class="contract__item">
+                          Dư nợ phí thế chấp
+                          <span
+                            >{{
+                              formatPrice(
+                                item.content.currentInterestMoney,
+                                '+',
+                                item.content.currentWarrantyMoney
+                              )
+                            }}
+                            <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                      </div>
+                      <!-- <div class="contract__time">12:20 am</div> -->
+                    </div>
+                  </div>
+                  <div v-if="item.type === TYPE_OF_MESSAGE_LEASE">
+                    <div class="contract">
+                      <div class="contract__header">
+                        <div class="contract__name">
+                          Mã hợp Đồng
+                          <span>{{ item.content.orderCode }}</span>
+                        </div>
+                        <div class="contract__view"
+                          >Chi tiết <i class="el-icon-arrow-right"></i
+                        ></div>
+                      </div>
+                      <div class="contract__footer">
+                        <div class="contract__item">
+                          Đã nhận cọc
+                          <span
+                            >{{ formatPrice(item.content.depositPaidMoney) }}
+                            <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                        <div class="contract__item">
+                          Dư nợ phí thuê
+                          <span
+                            >{{ formatPrice(item.content.duNoPhiThueQuaHan) }}
+                            <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                      </div>
+                      <!-- <div class="contract__time">12:20 am</div> -->
+                    </div>
+                  </div>
+                  <div v-if="item.type === TYPE_OF_MESSAGE_DEPOSIT">
+                    <div class="contract">
+                      <div class="contract__header">
+                        <div class="contract__name">
+                          Mã hợp Đồng
+                          <span>{{ item.content.orderCode }}</span>
+                        </div>
+                        <div class="contract__view"
+                          >Chi tiết <i class="el-icon-arrow-right"></i
+                        ></div>
+                      </div>
+                      <div class="contract__footer">
+                        <div class="contract__item">
+                          Đã bán
+                          <span
+                            >{{ formatPrice(item.content.sellPrice) }} <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                        <div class="contract__item">
+                          Phí ký gửi
+                          <span
+                            >{{ formatPrice(item.content.feeMoney) }} <img :src="dIcon" alt="..."
+                          /></span>
+                        </div>
+                      </div>
+                      <!-- <div class="contract__time">12:20 am</div> -->
+                    </div>
+                  </div>
+                  <div class="product-link__time">{{ item.createdDate }}</div>
+                </div></div
+              >
+              <div
+                v-else
+                class="message-box__emtpy h-4/5 flex items-center justify-center flex-wrap"
+              >
+                <div>
+                  <div><img :src="emptyIcon" alt="..." /></div>
+                  <div>Không có dữ liệu</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="5" class="h-4/5">
+            <el-card class="message-box__left-site h-full">
               <el-input
-                class="pb-4"
+                class="pb-4 h-60px"
                 placeholder="Tìm theo tên tài khoản ..."
                 v-model="searchPeople"
                 :suffix-icon="searchIcon"
@@ -34,154 +203,6 @@
               />
             </el-card>
           </el-col>
-          <el-col :span="14" class="border-x dark:!bg-[var(--el-bg-color)]">
-            <MessagePanel
-              v-if="selectedUser"
-              :user="selectedUser"
-              :messagesOfCurrentUser="selectedUser.message"
-              :typeMessage="typeMessageSelected"
-              :channelId="isChannelId"
-              @input="onMessage"
-          /></el-col>
-          <el-col :span="5">
-            <el-card class="message-box__right-site" v-if="documentList.length > 0">
-              <div class="message-box__child-title">Tài liệu</div>
-              <div class="product-link" v-for="(item, index) in documentList" :key="index">
-                <div v-if="item.type === 'TuVanMuaHang'">
-                  <div class="product-link__header">
-                    <div class="media">
-                      <img class="product-link__img" :src="item.image" alt="..." />
-                      <div class="media-body">
-                        <div class="product-link__name">{{ item.content.name }}</div>
-                        <div class="product-link__font">{{
-                          item.content.productPropertyAttribute
-                        }}</div>
-                        <div class="product-link__font"
-                          >{{ item.content.price }} <img :src="dIcon" alt="..."
-                        /></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="product-link__footer">
-                    <div class="product-link__price"
-                      >Đang trả giá: {{ item.content.dealPrice }} đ</div
-                    >
-                    <div
-                      class="product-link__cancel"
-                      v-if="item.content.isActive === false && item.content.isAccept !== true"
-                      >Đã huỷ !</div
-                    >
-                    <div class="product-link__done" v-if="item.content.isAccept">Đồng ý bán !</div>
-                    <div
-                      class="flex-item"
-                      v-if="item.content.isAccept === false && item.content.isActive === true"
-                    >
-                      <el-button @click="cancelProduct(item.content.id)">Hủy</el-button>
-                      <el-button @click="allowToSell(item.content.id)">Đồng ý bán</el-button>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="item.type === TYPE_OF_MESSAGE_PAWN">
-                  <div class="contract">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ item.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Dư nợ gốc
-                        <span
-                          >{{ formatPrice(item.content.debtTotalMoney) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Dư nợ phí thế chấp
-                        <span
-                          >{{
-                            formatPrice(
-                              item.content.currentInterestMoney,
-                              '+',
-                              item.content.currentWarrantyMoney
-                            )
-                          }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                    <!-- <div class="contract__time">12:20 am</div> -->
-                  </div>
-                </div>
-                <div v-if="item.type === TYPE_OF_MESSAGE_LEASE">
-                  <div class="contract">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ item.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Đã nhận cọc
-                        <span
-                          >{{ formatPrice(item.content.depositPaidMoney) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Dư nợ phí thuê
-                        <span
-                          >{{ formatPrice(item.content.duNoPhiThueQuaHan) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                    <!-- <div class="contract__time">12:20 am</div> -->
-                  </div>
-                </div>
-                <div v-if="item.type === TYPE_OF_MESSAGE_DEPOSIT">
-                  <div class="contract">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ item.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Đã bán
-                        <span
-                          >{{ formatPrice(item.content.sellPrice) }} <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Phí ký gửi
-                        <span
-                          >{{ formatPrice(item.content.feeMoney) }} <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                    <!-- <div class="contract__time">12:20 am</div> -->
-                  </div>
-                </div>
-                <div class="product-link__time">{{ item.createdDate }}</div>
-              </div>
-            </el-card>
-            <el-card class="message-box__right-site flex flex-col !h-full" v-else>
-              <div class="message-box__child-title h-1/5">Tài liệu</div>
-              <div class="message-box__emtpy h-4/5 flex items-center justify-center flex-wrap">
-                <div>
-                  <div><img :src="emptyIcon" alt="..." /></div>
-                  <div>Không có dữ liệu</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
         </el-row>
       </div>
     </el-tabs>
@@ -194,7 +215,7 @@ import UserList from './User.vue'
 import MessagePanel from './MessagePanel.vue'
 </script>
 <script>
-import globe from '@/assets/svgs/globe.svg'
+import headphoneIcon from '@/assets/svgs/chat/headphone.svg'
 import dIcon from '@/assets/svgs/chat/d.svg'
 import emptyIcon from '@/assets/svgs/chat/emtpy.svg'
 import moment from 'moment'
@@ -207,6 +228,7 @@ import {
 } from '@/utils/chatConstants'
 import { useIcon } from '@/hooks/web/useIcon'
 const searchIcon = useIcon({ icon: 'uiw:search' })
+const rightArrow = useIcon({ icon: 'material-symbols:chevron-right' })
 export default {
   name: 'ManageChat',
   data() {
@@ -214,6 +236,7 @@ export default {
       TYPE_OF_MESSAGE_PAWN,
       TYPE_OF_MESSAGE_LEASE,
       TYPE_OF_MESSAGE_DEPOSIT,
+      headphoneIcon,
       dIcon,
       emptyIcon,
       searchIcon,
@@ -4659,6 +4682,23 @@ export default {
       ]
     }
   },
+  watch: {
+    selectedUser: {
+      handler() {
+        this.documentList = []
+        this.getDocument()
+      }
+    },
+    activeName: {
+      immediate: true,
+      handler(val) {
+        // load user immediate
+        if (val) {
+          this.getTypeMessage(val)
+        }
+      }
+    }
+  },
   methods: {
     onSelectUser(user) {
       this.selectedUser = user
@@ -4666,10 +4706,27 @@ export default {
     },
     onMessage(content) {
       console.log('content', content)
+    },
+    hideDocumentList() {
+      document.getElementById('hideDocument').style.display = 'none'
+      document.getElementById('showDocument').style.display = 'block'
+    },
+    getDocument() {
+      console.log('getDocument')
+    },
+    getTypeMessage(val) {
+      console.log('filter this', val)
+      this.selectedUser = this.currentUsersFollowTab[0]
     }
   }
 }
 </script>
 <style lang="scss" scoped>
 @import '@/styles/chat.scss';
+:deep(.el-tabs__nav) {
+  height: 50%;
+}
+:deep(.el-tabs__item) {
+  height: 20% !important;
+}
 </style>

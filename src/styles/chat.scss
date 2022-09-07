@@ -1,6 +1,9 @@
 @import "./mixin-library.scss";
 @import "./variables.scss";
 
+#showDocument{
+    display:none
+}
 .truncate-h {
     overflow: hidden;
     word-break: break-word;
@@ -24,8 +27,16 @@
     -webkit-line-clamp: 4;
 }
 
-
-:deep(.library-tab){
+.border-x {
+        :deep(.el-card__body){
+            height: 90%;
+            padding: 0;
+        }
+}
+.library-tab{
+    :deep(.el-tabs__content){
+        height: 100%;
+    }
     .el-tabs__nav-scroll{
         @include center-item(flex, center, center);
     }
@@ -90,7 +101,6 @@
     }
     &__left-site{
         overflow: auto;
-        height: 680px;
 
         &::-webkit-scrollbar {
             width: 6px;
@@ -234,7 +244,6 @@
 }
 
 .content-message {
-    background: $white;
     padding: get-vw(2px) get-vw(16px);
 
     &__name {

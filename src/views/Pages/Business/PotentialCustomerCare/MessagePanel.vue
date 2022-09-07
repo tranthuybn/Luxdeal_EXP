@@ -1,21 +1,36 @@
 <!-- eslint-disable vue/no-deprecated-v-on-native-modifier -->
 <template>
-  <el-card class="flex flex-col h-680px">
-    <div class="flex message-box__header items-center justify-between p-4">
+  <el-card class="h-100vh">
+    <div class="flex message-box__header items-center justify-between h-1/10 px-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
         <span class="pl-2">{{ user.Name ? user.Name : user.UserName }}</span>
       </div>
-      <el-form class="message-box__search">
-        <el-input placeholder="Tìm theo nội dung ..." v-model="search" :suffix-icon="searchIcon" />
-      </el-form>
+      <div class="flex items-center w-1/4">
+        <el-form class="message-box__search w-full">
+          <el-input
+            placeholder="Tìm theo nội dung ..."
+            v-model="search"
+            :suffix-icon="searchIcon"
+            class="h-50px"
+          />
+        </el-form>
+        <div id="showDocument">
+          <el-button
+            :icon="leftArrow"
+            class="!pl-4 !border-0 !font-bold hidden"
+            @click="showDocumentList(0)"
+            >Tài liệu</el-button
+          ></div
+        ></div
+      >
     </div>
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
-    <section class="h-3/4">
-      <ul class="message-box__body !h-full dark:!bg-[var(--el-bg-color)] border-1">
+    <section class="h-4/5">
+      <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-1">
         <li
-          class="content-message dark:!bg-[var(--el-bg-color)]"
+          class="content-message dark:bg-[var(--el-bg-color)]"
           v-for="(mess, index) in messageStreamContent"
           :key="index"
         >
@@ -172,16 +187,16 @@
         <!-- messages here -->
       </ul>
     </section>
-    <div class="message-box__footer p-4">
+    <div class="message-box__footer p-3">
       <el-form
-        class="message-box__send h-full"
+        class="message-box__send h-full flex-grow pr-4"
         ref="messageInput"
         :model="messageInputForm"
         @submit.native.prevent
       >
         <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
           <el-input
-            class="h-full"
+            class="h-45px"
             placeholder="Nhập nội dung ..."
             v-model="messageInputForm.chatContent"
             @keyup.enter.native="onSubmit"
@@ -232,6 +247,7 @@ import {
 import { useIcon } from '@/hooks/web/useIcon'
 const sendIcon = useIcon({ icon: 'mdi:send' })
 const searchIcon = useIcon({ icon: 'uiw:search' })
+const leftArrow = useIcon({ icon: 'material-symbols:chevron-left' })
 export default {
   name: 'MessagePanel',
   props: {
@@ -455,6 +471,10 @@ export default {
     },
     getVh(pxVh, baseVh = 768) {
       return (pxVh * 100) / baseVh
+    },
+    showDocumentList() {
+      document.getElementById('hideDocument').style.display = 'block'
+      document.getElementById('showDocument').style.display = 'none'
     }
   }
 }

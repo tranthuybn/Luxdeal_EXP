@@ -54,3 +54,27 @@ export const getSpaLibrary = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/spa', params })
   return res && res.data
 }
+export const getFeaturesDepositFee = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/features-Deposit', params })
+  return res && res.data
+}
+export const getFeaturesPawnFee = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/features-pawn', params })
+  return res && res.data
+}
+export const getFeaturesPrices = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/features-prices', params })
+  return res && res.data
+}
+export const getFeaturesRentalPrice = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/features-Rental-Price', params })
+  return res && res.data
+}
+export const getSpaLPrice = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/spa-price', params })
+  return res && res.data
+}
+export const getInventoryTrading = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/inventory-trading', params })
+  return res && res.data
+}

@@ -63,7 +63,20 @@ const adminList = [
             name: 'products-services.productLibraryProducts',
             meta: {
               title: 'router.productLibraryProducts'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
+                name: `products-services.productLibraryProducts.${utility}`,
+                meta: {
+                  title: 'reuse.addNewProductCategory',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true
+                }
+              }
+            ]
           }
         ]
       },

@@ -98,7 +98,7 @@ const cancelPost = (id) => {
     </el-card>
   </section>
 </template>
-<style>
+<style scoped>
 .dots {
   margin-right: 3px;
   content: ' ';

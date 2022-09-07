@@ -7,7 +7,6 @@ import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
-import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
@@ -109,14 +108,8 @@ const action = (row: TableData, type: string) => {
   console.log('row', row, 'type', type)
   //push(`/example/example-${type}?id=${row.id}`)
 }
-const delData = async (row: TableData | null, multiple: boolean) => {
-  console.log('row', row, 'multiple', multiple)
-}
 //get array of headerFilter in column (if there is a headerFilter)
 const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const drawer = ref(false)
 const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
@@ -143,7 +136,7 @@ const showingColumn =
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
       <template #default>
-        <ElCheckboxGroup v-model="showingColumnList" fill="var(--el-color-primary)">
+        <ElCheckboxGroup v-if="false" v-model="showingColumnList" fill="var(--el-color-primary)">
           <ElCheckboxButton
             v-for="(item, index) in showingColumn"
             :key="index"
@@ -216,9 +209,12 @@ const showingColumn =
         />
       </template>
       <template #operator="{ row }">
-        <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-        <ElButton @click="action(row, 'detail')" :icon="editIcon" />
-        <ElButton @click="delData(row, false)" :icon="trashIcon" />
+        <ElButton type="primary" @click="action(row, 'edit')" plain>
+          {{ t('reuse.fix') }}
+        </ElButton>
+        <ElButton type="danger" @click="action(row, 'delete')">
+          {{ t('reuse.delete') }}
+        </ElButton>
       </template>
     </Table>
   </ContentWrap>

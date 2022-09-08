@@ -52,16 +52,12 @@
                       <div class="pl-4">
                         <div class="font-bold">{{ item.content.productBrand }}</div>
                         <div>{{ item.content.productName }}</div>
-                        <div
-                          >{{ formatMoneyInput(item.content.totalMoney)
-                          }}{{ t('reuse.currency') }}</div
-                        >
+                        <div>{{ formatMoneyInput(item.content.totalMoney) }}đ</div>
                       </div> </div
                     ><div class="flex flex-col"
                       ><div class="my-2"
                         >{{ t('reuse.negotiationPrice') }}
-                        {{ formatMoneyInput(item.content.currentInterestMoney)
-                        }}{{ t('reuse.currency') }}</div
+                        {{ formatMoneyInput(item.content.currentInterestMoney) }}đ</div
                       >
                       <el-button class="w-full my-2 !font-bold" @click="documentAction(0)">{{
                         t('reuse.cancel')

@@ -100,6 +100,7 @@ export default {
     codePlaceholder: 'vui lòng nhập mã xác nhận'
   },
   formDemo: {
+    generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
     serviceName: 'Tên dịch vụ',
     shortDescription: 'Mô tả ngắn',
@@ -107,7 +108,19 @@ export default {
     serviceUnitPrice: 'Đơn giá dịch vụ',
     promotionalPrice: 'Giá khuyến mãi',
     executionTime: 'Thời gian thực hiện',
-    insurance: 'Bảo hành'
+    insurance: 'Bảo hành',
+    servicePriceAndExecutionTime: 'Giá dịch vụ và thời gian thực hiện',
+    statusAndFunctional: 'Trạng thái và chức năng',
+    status: 'Trạng thái',
+    pending: 'Chờ duyệt',
+    isActive: 'Đang hoạt động',
+    pauseActivity: 'Tạm dừng hoạt động',
+    enterServiceCode: 'Nhập mã dịch vụ',
+    enterServiceName: 'Nhập tên dịch vụ',
+    enterDescription: 'Nhập mô tả',
+    enterPrice: 'Nhập giá',
+    enterNumberHours: 'Nhập số giờ',
+    enterNumberDays: 'Nhập số ngày'
   },
   router: {
     login: 'Đăng nhập',

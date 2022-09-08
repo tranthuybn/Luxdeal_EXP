@@ -11,7 +11,7 @@ const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
   {
     field: 'field7',
-    label: t('Thông tin chung dịch vụ'),
+    label: t('formDemo.generalServiceInformation'),
     component: 'Divider'
   },
   {
@@ -22,7 +22,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập mã dịch vụ'
+      placeholder: t('formDemo.enterServiceCode')
     }
   },
   {
@@ -33,7 +33,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập tên dịch vụ'
+      placeholder: t('formDemo.enterServiceName')
     }
   },
   {
@@ -44,7 +44,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập mô tả'
+      placeholder: t('formDemo.enterDescription')
     }
   },
   {
@@ -60,7 +60,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field7',
-    label: t('Giá dịch vụ và thời gian thực hiện'),
+    label: t('formDemo.servicePriceAndExecutionTime'),
     component: 'Divider'
   },
   {
@@ -71,7 +71,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập giá'
+      placeholder: t('formDemo.enterPrice')
     }
   },
   {
@@ -82,7 +82,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập giá'
+      placeholder: t('formDemo.enterPrice')
     }
   },
   {
@@ -93,7 +93,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập số giờ'
+      placeholder: t('formDemo.enterNumberHours')
     }
   },
   {
@@ -104,31 +104,31 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: 'Nhập số ngày'
+      placeholder: t('formDemo.enterNumberDays')
     }
   },
   {
     field: 'field8',
-    label: t('Trạng thái & chức năng'),
+    label: t('formDemo.statusAndFunctional'),
     component: 'Divider'
   },
   {
     field: 'field42',
-    label: t('Trạng thái'),
+    label: t('formDemo.status'),
     component: 'Checkbox',
     value: [],
     componentProps: {
       options: [
         {
-          label: 'Chờ duyệt',
+          label: t('formDemo.pending'),
           value: 'wating'
         },
         {
-          label: 'Đang hoạt động',
+          label: t('formDemo.isActive'),
           value: 'active'
         },
         {
-          label: 'Tạm dừng hoạt động',
+          label: t('formDemo.pauseActivity'),
           value: 'stop'
         }
       ]

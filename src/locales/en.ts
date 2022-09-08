@@ -100,6 +100,7 @@ export default {
     codePlaceholder: 'Please input verification code'
   },
   formDemo: {
+    generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
     serviceName: 'Service name',
     shortDescription: 'Short description',
@@ -107,7 +108,19 @@ export default {
     serviceUnitPrice: 'Service unit price',
     promotionalPrice: 'Promotional price',
     executionTime: 'Execution time',
-    insurance: 'Insurance'
+    insurance: 'Insurance',
+    servicePriceAndExecutionTime: 'Service price and execution time',
+    statusAndFunctional: 'Status and functional',
+    status: 'Status',
+    pending: 'Pending',
+    isActive: 'Is active',
+    pauseActivity: 'Pause activity',
+    enterServiceCode: 'Enter service code',
+    enterServiceName: 'Enter service name',
+    enterDescription: 'Enter description',
+    enterPrice: 'Enter price',
+    enterNumberHours: 'Enter the number of hours',
+    enterNumberDays: 'Enter the number of days'
   },
   router: {
     login: 'Login',

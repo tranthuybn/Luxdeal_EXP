@@ -788,6 +788,10 @@ export default {
     findContent: 'Find Content',
     library: 'Library',
     contract: 'Contract',
-    currency: 'USD'
+    currency: 'USD',
+    //Warehouse
+    typeStorage: 'Type of storage',
+    chooseRankStorage: 'Choose Rank Storage',
+    nameStorage: 'Name of Storage'
   }
 }

@@ -4,7 +4,7 @@ interface productStorageList {
   id: number
   image: string
   createDate: Date
-  status: string
+  status: Array<string>
   title: string
   children: Array<productStorageList>
 }
@@ -16,21 +16,21 @@ for (let i = 0; i < count; i++) {
       id: i,
       image: '@image',
       createDate: '@date("dd/MM/yyyy")',
-      status: 'Đang hoạt động',
+      status: ['Đang hoạt động'],
       title: '@title(5, 10)',
       children: [
         {
           id: ++i,
           image: '@image',
           createDate: '@date("dd/MM/yyyy")',
-          status: 'Đang hoạt động',
+          status: ['Đang hoạt động'],
           title: '@title(5,10)'
         },
         {
           id: ++i,
           image: '@image',
           createDate: '@date("dd/MM/yyyy")',
-          status: 'Đang hoạt động',
+          status: ['Đang hoạt động'],
           title: '@title(5,10)'
         }
       ]

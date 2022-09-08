@@ -37,6 +37,10 @@ const props = defineProps({
   nameBack: {
     type: String,
     default: ''
+  },
+  type: {
+    type: String,
+    default: ''
   }
 })
 
@@ -54,27 +58,42 @@ const schema = props.schema
 const { register, methods, elFormRef } = useForm({
   schema
 })
-
+let fileList = ref<UploadUserFile[]>([])
 watch(
   () => props.currentRow,
   (currentRow) => {
-    if (!currentRow) return
-    const { setValues, setSchema } = methods
-    setValues(currentRow)
-    setSchema([
-      {
-        field: 'content',
-        path: 'componentProps.defaultHtml',
-        value: currentRow.content
-      }
-    ])
+    if (!currentRow) {
+      return
+    }
+    if (currentRow.list.length !== 0) {
+      const { setValues } = methods
+      setValues(currentRow?.list[0])
+      fileList.value.push({
+        url: currentRow.list[0].image,
+        name: currentRow.list[0].title
+      })
+    }
   },
   {
     deep: true,
     immediate: true
   }
 )
-
+watch(
+  () => props.type,
+  () => {
+    if (props.type === 'detail') {
+      const { setProps } = methods
+      setProps({
+        disabled: true
+      })
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -114,7 +133,6 @@ if (props.title == 'undefined') {
   title.value = 'Category'
 }
 
-let fileList = ref<UploadUserFile[]>([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
@@ -127,13 +145,25 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+const saveAndAdd = () => {
+  console.log('saveAndAdd')
+}
+const edit = () => {
+  console.log('edit')
+}
+const delAction = () => {
+  console.log('del')
+}
+const cancel = () => {
+  console.log('cancel')
+}
 </script>
 
 <template>
   <ContentDetailWrap :title="t(title)" @back="push({ name: nameBack })">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" :schema="schema" />
+        <Form :rules="rules" @register="register" />
       </ElCol>
       <ElCol :span="8" v-if="hasImage">
         <div>{{ t('reuse.addImage') }}</div>
@@ -170,12 +200,33 @@ const handlePictureCardPreview = (file: UploadFile) => {
     </ElRow>
 
     <template #under>
-      <ElButton type="primary" :loading="loading" @click="save">
-        {{ t('reuse.save') }}
-      </ElButton>
-      <ElButton type="primary" :loading="loading" @click="save">
-        {{ t('reuse.saveAndAdd') }}
-      </ElButton>
+      <div v-if="props.type === 'add'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+          {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+      </div>
+      <div v-if="props.type === 'detail'">
+        <ElButton :loading="loading" @click="edit">
+          {{ t('reuse.edit') }}
+        </ElButton>
+        <ElButton type="danger" :loading="loading" @click="delAction">
+          {{ t('reuse.delete') }}
+        </ElButton>
+      </div>
+      <div v-if="props.type === 'edit'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="cancel">
+          {{ t('reuse.cancel') }}
+        </ElButton>
+        <ElButton type="danger" :loading="loading" @click="delAction">
+          {{ t('reuse.delete') }}
+        </ElButton>
+      </div>
     </template>
   </ContentDetailWrap>
 </template>

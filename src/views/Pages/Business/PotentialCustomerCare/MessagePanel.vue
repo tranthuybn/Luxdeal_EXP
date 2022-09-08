@@ -56,8 +56,7 @@
                     </div>
                     <div class="product-link__footer">
                       <div class="product-link__price"
-                        >Đang trả giá: {{ formatPrice(message.content.dealPrice) }}
-                        đ</div
+                        >Đang trả giá: {{ formatPrice(message.content.dealPrice) }}đ</div
                       >
                       <div
                         class="product-link__cancel"

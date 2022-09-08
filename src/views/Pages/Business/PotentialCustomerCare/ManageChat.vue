@@ -76,7 +76,7 @@
                           {{ t('reuse.cancelled') }}!
                         </div>
                         <div v-if="item.content.orderStatus == 1" class="font-bold">
-                          {{ t('reuse.agreeToSell') }}
+                          {{ t('reuse.agreeToSell') }}!
                         </div>
                       </div>
                     </el-card>

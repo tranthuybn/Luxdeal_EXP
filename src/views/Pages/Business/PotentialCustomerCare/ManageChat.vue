@@ -34,7 +34,9 @@
           /></div>
           <el-col :span="5" class="h-full" id="hideDocument">
             <el-card class="message-box__right-site flex flex-col !h-full">
-              <div class="message-box__child-title">
+              <div
+                class="message-box__child-title !sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] py-4"
+              >
                 <el-button
                   :icon="rightArrow"
                   @click="hideDocumentList()"

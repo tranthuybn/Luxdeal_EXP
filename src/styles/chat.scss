@@ -147,11 +147,14 @@
        border-bottom: 1px solid $table-row-border-bottom;
     }
     &__right-site{
-        padding: 0 get-vw(14px) get-vw(12px);
+        box-shadow: var(--el-box-shadow-light);
         max-height: get-vh(580px);
         overflow: auto;
         :deep(.el-card__body){
             height: 100%;
+        }
+        :deep(.el-card__body){
+            padding-top: 0 !important;
         }
         &::-webkit-scrollbar {
             width: 6px;

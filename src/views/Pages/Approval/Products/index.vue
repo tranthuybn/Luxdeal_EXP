@@ -4,7 +4,6 @@ import { h, reactive } from 'vue'
 import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { filterTableCategory, filterTableStatus } from '@/utils/filters'
-import { ElButton } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -68,7 +67,7 @@ const columns = reactive<TableColumn[]>([
     align: 'center',
     formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return h(
-        ElButton,
+        'ElButton',
         {
           style: { margin: 'auto' },
           type: 'primary',

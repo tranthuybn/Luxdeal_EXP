@@ -827,6 +827,20 @@ export default {
     spaInventory: 'Tồn kho Spa',
     total: 'Tổng',
     businessSynthesis: 'Tổng hợp kinh doanh',
-    inventoryConsolidation: 'Tổng hợp tồn kho'
+    inventoryConsolidation: 'Tổng hợp tồn kho',
+    //Chat
+    shoppingConsult: 'Tư vấn mua hàng',
+    rentalConsult: 'Tư vấn cho thuê',
+    depositConsult: 'Tư vấn ký gửi',
+    pawnConsult: 'Tư vấn cầm đồ',
+    customerCareConsult: 'Tư vấn CSKH',
+    document: 'Tài liệu',
+    negotiationPrice: 'Đang trả giá',
+    agreeToSell: 'Đồng ý bán',
+    findNameAccount: 'Tìm theo tên tài khoản',
+    findContent: 'Tìm theo nội dung',
+    library: 'Thư viện',
+    contract: 'Hợp đồng',
+    currency: 'đ'
   }
 }

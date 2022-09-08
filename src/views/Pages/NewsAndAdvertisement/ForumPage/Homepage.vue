@@ -808,7 +808,7 @@ const getPostForum = () => {
   //     loading.close()
   //   })
 }
-const totalMember = '43'
+const totalMember = ref(43)
 const postSelectOption = ref(1)
 
 const postOptions = [

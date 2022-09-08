@@ -120,7 +120,9 @@ export default {
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
     enterNumberHours: 'Nhập số giờ',
-    enterNumberDays: 'Nhập số ngày'
+    enterNumberDays: 'Nhập số ngày',
+    productInfomation: 'Thông tin sản phẩm',
+    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng'
   },
   router: {
     login: 'Đăng nhập',

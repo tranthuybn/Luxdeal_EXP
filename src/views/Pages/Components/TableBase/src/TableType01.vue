@@ -10,9 +10,11 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
+import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom1.vue'
+
 const { t } = useI18n()
 const route = useRoute()
-const paginationObj = ref<Pagination>()
+let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
@@ -27,6 +29,31 @@ const props = defineProps({
   maxHeight: {
     type: String || Number,
     default: '69vh'
+  },
+  customOperator: {
+    type: Number,
+    default: 1,
+    validator(value: number) {
+      // The value must match one of these strings
+      return [1, 2, 3].includes(value)
+    },
+    Descriptions: '1 thao tác 3 icon ;a 2 là thao tác 2 button sửa xóa; 3 không có thao tác'
+  },
+  paginationType: {
+    type: Boolean,
+    default: true
+  },
+  expand: {
+    type: Boolean,
+    default: false
+  },
+  apiTableChild: {
+    type: Function as PropType<apiType>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  columnsTableChild: {
+    type: Array as PropType<TableColumn[]>,
+    default: () => []
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -42,6 +69,7 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'center'
   }
 })
+
 // get api
 const getData = (data = {}) => {
   methods.setSearchParams(data)
@@ -53,9 +81,25 @@ onBeforeMount(() => {
 watch(
   () => tableObject.tableList,
   () => {
-    paginationObj.value = {
-      total: tableObject.total
-    }
+    props.paginationType
+      ? (paginationObj.value = {
+          total: tableObject.total
+        })
+      : (paginationObj.value = undefined)
+    emit('TotalRecord', tableObject.tableList.length)
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => tableObject.tableList,
+  () => {
+    props.paginationType
+      ? (paginationObj.value = {
+          total: tableObject.total
+        })
+      : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject.tableList.length)
   },
   {
@@ -112,6 +156,7 @@ const action = (row: TableData, type: string) => {
 const delData = async (row: TableData | null, multiple: boolean) => {
   console.log('row', row, 'multiple', multiple)
 }
+
 //get array of headerFilter in column (if there is a headerFilter)
 const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
@@ -132,6 +177,7 @@ const showingColumn =
 <template>
   <ContentWrap class="relative">
     <div
+      v-if="paginationType == true"
       class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
       id="rabbit-ear"
       @click="drawer = !drawer"
@@ -156,6 +202,7 @@ const showingColumn =
     </ElDrawer>
     <Table
       ref="tableRef"
+      :expand="expand"
       v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage"
       :data="tableObject.tableList"
@@ -215,10 +262,30 @@ const showingColumn =
           @cancel="cancel"
         />
       </template>
-      <template #operator="{ row }">
-        <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-        <ElButton @click="action(row, 'detail')" :icon="editIcon" />
-        <ElButton @click="delData(row, false)" :icon="trashIcon" />
+      <template v-if="!(customOperator === 3)" #operator="{ row }">
+        <div v-if="customOperator === 1">
+          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
+          <ElButton @click="action(row, 'detail')" :icon="editIcon" />
+          <ElButton @click="delData(row, false)" :icon="trashIcon" />
+        </div>
+        <div v-if="customOperator === 2">
+          <ElButton type="primary" @click="action(row, 'edit')" plain>
+            {{ t('reuse.fix') }}
+          </ElButton>
+          <ElButton type="danger" @click="action(row, 'delete')">
+            {{ t('reuse.delete') }}
+          </ElButton></div
+        >
+      </template>
+      <template #expand>
+        <div id="title-price-information">{{ t('reuse.rentalPriceTableByQuantity') }}</div>
+        <tableDatetimeFilterBasicVue
+          id="price-information"
+          :expand="false"
+          :columns="props.columnsTableChild"
+          :api="props.apiTableChild"
+          :customOperator="2"
+        />
       </template>
     </Table>
   </ContentWrap>
@@ -274,5 +341,15 @@ const showingColumn =
     box-shadow: 0px 0px 2px 1px var(--el-color-primary);
     color: var(--el-color-primary);
   }
+}
+#price-information {
+  max-width: 70vw;
+  position: relative;
+  left: 11vw;
+}
+#title-price-information {
+  font-size: large;
+  text-align: center;
+  font-weight: 600;
 }
 </style>

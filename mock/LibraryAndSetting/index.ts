@@ -11,7 +11,13 @@ import { UnitCategoriesList } from './productCategories/unit'
 import { BrandCategoriesList } from './productCategories/brand'
 import { OriginCategoriesList } from './productCategories/origin'
 import { BusinessProductLibrary } from './productLibrary/businessProduct'
+import { featuresDepositFee } from './productLibrary/featuresDepositFee'
+import { featuresPawnFee } from './productLibrary/featuresPawnFee'
+import { featuresPrices } from './productLibrary/featuresPrice'
+import { featuresRentalPrice } from './productLibrary/featuresRentalPrice'
+import { spaPrice } from './productLibrary/spaPrice'
 import { SpaLibrary } from './ServiceLibrary/spa'
+import { inventoryTrading } from './productLibrary/inventoryTrading'
 
 const { result_code } = config
 const timeout = 1000
@@ -218,6 +224,134 @@ export default [
         code: result_code,
         data: {
           total: SpaLibrary.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/features-Deposit',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = featuresDepositFee.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: featuresDepositFee.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/features-pawn',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = featuresPawnFee.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: featuresPawnFee.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/features-prices',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = featuresPrices.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: featuresPrices.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/features-Rental-Price',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = featuresRentalPrice.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: featuresRentalPrice.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/spa-price',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { status, pageIndex, pageSize } = query
+      const mockList = spaPrice.filter((item) => {
+        if (status && item.status.indexOf(status) < 0) return false
+        return true
+      })
+      const pageList = mockList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: spaPrice.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/inventory-trading',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = inventoryTrading.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: inventoryTrading.length,
           list: pageList
         }
       }

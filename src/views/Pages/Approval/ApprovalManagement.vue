@@ -56,4 +56,3 @@ const unitCategories = [
     />
   </ContentWrap>
 </template>
-<style></style>

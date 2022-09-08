@@ -35,7 +35,7 @@
           <el-col :span="5" class="h-full" id="hideDocument">
             <el-card class="message-box__right-site flex flex-col !h-full">
               <div
-                class="message-box__child-title !sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] py-4"
+                class="message-box__child-title !sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] py-4 mb-4"
               >
                 <el-button
                   :icon="rightArrow"
@@ -101,9 +101,12 @@
           </el-col>
           <el-col :span="5" class="h-full user_input">
             <el-card class="message-box__left-site h-full">
-              <div class="!sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)]">
+              <div
+                class="!sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] mb-4"
+                style="box-shadow: var(--el-box-shadow-light)"
+              >
                 <el-input
-                  class="py-4 h-70px"
+                  class="p-4 h-70px"
                   :placeholder="`${t('reuse.findNameAccount')} ...`"
                   v-model="searchPeople"
                   :suffix-icon="searchIcon"

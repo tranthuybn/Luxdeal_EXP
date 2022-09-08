@@ -247,6 +247,7 @@
         }
     }
     &__child-title{
+        box-shadow: var(--el-box-shadow-light);
         font-weight: bold;
         text-align: center;
         font-size: get-vw(12px);
@@ -254,7 +255,6 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        padding-bottom:1rem;
     }
     &__emtpy{
         text-align: center;

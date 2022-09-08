@@ -170,6 +170,7 @@ const cancel = () => {
         <div>{{ t('reuse.addImage') }}</div>
         <el-upload
           action="#"
+          :disabled="props.type === 'detail'"
           list-type="picture-card"
           :auto-upload="false"
           v-model:file-list="fileList"
@@ -188,7 +189,7 @@ const cancel = () => {
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
-                  <el-button :icon="deleteIcon" />
+                  <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" />
                 </span>
               </span>
             </div>

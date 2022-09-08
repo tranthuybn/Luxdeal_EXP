@@ -4,6 +4,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import TableAddBusinessProduct from '@/views/Pages/Components/TableAddBusinessProduct.vue'
 import { RendererElement, RendererNode, VNode } from 'vue'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { getBranchList } from '@/api/HumanResourceManagement'
 import { useIcon } from '@/hooks/web/useIcon'
 const { t } = useI18n()
 
@@ -151,9 +152,16 @@ const collapse: Array<Collapse> = [
     name: 'information',
     title: t('formDemo.productInfomation'),
     columns: schema,
-    api: undefined,
+    api: getBranchList,
     buttonAdd: '',
     buttons: 1
+  },
+  {
+    icon: plusIcon,
+    name: 'priceCharacteristics',
+    title: t('formDemo.standardManagementMaterialsUsed'),
+    buttonAdd: 'Thêm đặc tính và giá bán',
+    buttons: 2
   }
 ]
 let currentCollapse = ref<string>(collapse[0].name)
@@ -170,6 +178,8 @@ const collapseChangeEvent = (val) => {
 }
 
 const activeName = ref('information')
+// const router = useRouter()
+// const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = 'Thông tin dich vụ'
 </script>
 
@@ -200,8 +210,3 @@ const title = 'Thông tin dich vụ'
     </el-collapse>
   </div>
 </template>
-<style scoped>
-::v-deep(.el-checkbox-group) {
-  display: flex;
-}
-</style>

@@ -99,6 +99,16 @@ export default {
     code: 'Mã xác nhận',
     codePlaceholder: 'vui lòng nhập mã xác nhận'
   },
+  formDemo: {
+    serviceCode: 'Mã dịch vụ',
+    serviceName: 'Tên dịch vụ',
+    shortDescription: 'Mô tả ngắn',
+    description: 'Mô tả',
+    serviceUnitPrice: 'Đơn giá dịch vụ',
+    promotionalPrice: 'Giá khuyến mãi',
+    executionTime: 'Thời gian thực hiện',
+    insurance: 'Bảo hành'
+  },
   router: {
     login: 'Đăng nhập',
     level: 'Menu đa cấp',

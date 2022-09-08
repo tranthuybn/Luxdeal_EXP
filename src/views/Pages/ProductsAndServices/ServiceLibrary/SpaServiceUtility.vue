@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { TableOperator } from '../../Components/TableBase'
-import { useRouter } from 'vue-router'
+import TableAddBusinessProduct from '@/views/Pages/Components/TableAddBusinessProduct.vue'
+import { RendererElement, RendererNode, VNode } from 'vue'
+import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { getBranchList } from '@/api/HumanResourceManagement'
+import { useIcon } from '@/hooks/web/useIcon'
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
@@ -13,7 +16,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field1',
-    label: t('Mã dịch vụ'),
+    label: t('formDemo.serviceCode'),
     component: 'Input',
     colProps: {
       span: 18
@@ -24,7 +27,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field2',
-    label: t('Tên dịch vụ'),
+    label: t('formDemo.serviceName'),
     component: 'Input',
     colProps: {
       span: 18
@@ -35,7 +38,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field3',
-    label: t('Mô tả ngắn'),
+    label: t('formDemo.shortDescription'),
     component: 'Input',
     colProps: {
       span: 18
@@ -46,7 +49,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'fied4',
-    label: 'Mô tả',
+    label: t('formDemo.description'),
     component: 'Editor',
     colProps: {
       span: 24
@@ -62,7 +65,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field4',
-    label: t('Đơn giá dịch vụ'),
+    label: t('formDemo.serviceUnitPrice'),
     component: 'Input',
     colProps: {
       span: 18
@@ -73,7 +76,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field5',
-    label: t('Giá khuyến mãi'),
+    label: t('formDemo.promotionalPrice'),
     component: 'Input',
     colProps: {
       span: 18
@@ -84,7 +87,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field61',
-    label: t('Thời gian thực hiện'),
+    label: t('formDemo.executionTime'),
     component: 'Input',
     colProps: {
       span: 18
@@ -95,7 +98,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field7',
-    label: t('Bảo hành'),
+    label: t('formDemo.insurance'),
     component: 'Input',
     colProps: {
       span: 18
@@ -132,16 +135,79 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const router = useRouter()
-const currentRoute = String(router.currentRoute.value.params.backRoute)
+interface Collapse {
+  icon: VNode<RendererNode, RendererElement, { [key: string]: any }>
+  name: string
+  title: string
+  columns?: TableColumn[]
+  api?: <T = any>(option: any) => Promise<IResponse<T>>
+  buttonAdd: string
+  buttons: number
+}
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
+const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const collapse: Array<Collapse> = [
+  {
+    icon: minusIcon,
+    name: 'information',
+    title: 'Thông tin sản phẩm',
+    columns: schema,
+    api: getBranchList,
+    buttonAdd: '',
+    buttons: 1
+  },
+  {
+    icon: plusIcon,
+    name: 'priceCharacteristics',
+    title: 'Quản lý tiêu chuẩn vật tư sử dụng',
+    buttonAdd: 'Thêm đặc tính và giá bán',
+    buttons: 2
+  }
+]
+let currentCollapse = ref<string>(collapse[0].name)
+const collapseChangeEvent = (val) => {
+  if (val) {
+    collapse.forEach((el) => {
+      if (val.includes(el.name)) el.icon = minusIcon
+      else if (el.icon == minusIcon) el.icon = plusIcon
+    })
+  } else
+    collapse.forEach((el) => {
+      el.icon = plusIcon
+    })
+}
+
+const activeName = ref('information')
+// const router = useRouter()
+// const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = 'Thông tin dich vụ'
 </script>
 
 <template>
-  <div class="wrapper">
-    <el-scrollbar height="800px">
-      <TableOperator :schema="schema" :nameBack="currentRoute" :title="title" />
-    </el-scrollbar>
+  <div class="demo-collapse">
+    <el-collapse v-model="activeName" :collapse="collapse" @change="collapseChangeEvent">
+      <el-collapse-item
+        v-for="(item, index) in collapse"
+        :key="index"
+        :name="item.name"
+        v-model="currentCollapse"
+      >
+        <template #title>
+          <el-button class="header-icon" :icon="item.icon" link />
+          <span class="text-center">{{ item.title }}</span>
+        </template>
+        <TableAddBusinessProduct
+          :schema="schema"
+          :title="title"
+          :buttons="item.buttons"
+          :backButton="false"
+          :titleButtons="item.buttonAdd"
+          :api="item.api"
+          :key="index"
+          :columns="item.columns"
+        />
+      </el-collapse-item>
+    </el-collapse>
   </div>
 </template>
 

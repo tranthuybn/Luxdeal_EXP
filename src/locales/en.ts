@@ -99,6 +99,16 @@ export default {
     code: 'Verification code',
     codePlaceholder: 'Please input verification code'
   },
+  formDemo: {
+    serviceCode: 'Service code',
+    serviceName: 'Service name',
+    shortDescription: 'Short description',
+    description: 'Description',
+    serviceUnitPrice: 'Service unit price',
+    promotionalPrice: 'Promotional price',
+    executionTime: 'Execution time',
+    insurance: 'Insurance'
+  },
   router: {
     login: 'Login',
     level: 'Multi level menu',

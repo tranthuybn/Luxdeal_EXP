@@ -8,5 +8,3 @@ import { useRouter } from 'vue-router'
 const { currentRoute } = useRouter()
 const { t } = useI18n()
 </script>
-
-<style></style>

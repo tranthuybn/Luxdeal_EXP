@@ -63,7 +63,20 @@ const adminList = [
             name: 'products-services.productLibraryProducts',
             meta: {
               title: 'router.productLibraryProducts'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
+                name: `products-services.productLibraryProducts.${utility}`,
+                meta: {
+                  title: 'reuse.addNewProductCategory',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true
+                }
+              }
+            ]
           }
         ]
       },
@@ -81,6 +94,18 @@ const adminList = [
             name: 'products-services.ServiceLibrarySpaService',
             meta: {
               title: 'router.ServiceLibrarySpaService'
+            }
+          },
+          {
+            path: `${utility}`,
+            component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
+            name: `products-services.ServiceLibrarySpaService.${utility}`,
+            meta: {
+              title: 'reuse.addNewSpaService',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
             }
           }
         ]

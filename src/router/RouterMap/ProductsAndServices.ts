@@ -29,7 +29,22 @@ export default {
           name: 'products-services.productLibraryProducts',
           meta: {
             title: t('router.productLibraryProducts')
-          }
+          },
+          children: [
+            {
+              path: `${utility}`,
+              component: () =>
+                import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
+              name: `products-services.productLibraryProducts.${utility}`,
+              meta: {
+                title: t('reuse.addNewProductCategory'),
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         }
       ]
     },

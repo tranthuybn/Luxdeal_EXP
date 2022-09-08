@@ -37,7 +37,7 @@ interface Collapse {
   name: string
   title: string
   columns: TableColumn[]
-  api: apiType
+  api: apiType | undefined
   buttonAdd: string
   buttons: number
   expand: boolean

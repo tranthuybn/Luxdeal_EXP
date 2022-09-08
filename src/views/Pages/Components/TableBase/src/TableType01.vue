@@ -11,7 +11,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom1.vue'
-
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
@@ -37,7 +37,7 @@ const props = defineProps({
       // The value must match one of these strings
       return [1, 2, 3].includes(value)
     },
-    Descriptions: '1 thao tác 3 icon ;a 2 là thao tác 2 button sửa xóa; 3 không có thao tác'
+    Descriptions: '1 thao tác 3 icon ;2 là thao tác 2 button sửa xóa; 3 không có thao tác'
   },
   paginationType: {
     type: Boolean,
@@ -54,6 +54,10 @@ const props = defineProps({
   columnsTableChild: {
     type: Array as PropType<TableColumn[]>,
     default: () => []
+  },
+  titleButtons: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -288,9 +292,13 @@ const showingColumn =
         />
       </template>
     </Table>
+    <el-button id="bt-add" :icon="plusIcon"> {{ props.titleButtons }} </el-button>
   </ContentWrap>
 </template>
 <style lang="less" scoped>
+#bt-add {
+  margin-top: 20px;
+}
 ::v-deep(.el-overlay) {
   position: absolute !important;
 }

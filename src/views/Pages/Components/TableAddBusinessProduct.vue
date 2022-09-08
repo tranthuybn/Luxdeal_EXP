@@ -17,7 +17,7 @@ import { TableResponse, apiType } from './Type'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
-
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const { required } = useValidator()
 const props = defineProps({
   currentRow: {
@@ -176,7 +176,7 @@ setTimeout(() => {
   <tableDatetimeFilterBasicVue
     :expand="expand"
     v-if="buttons == 2"
-    :titleButtons="titleButtons"
+    :titleButtons="props.titleButtons"
     :columns="columns"
     :api="api"
     :key="buttons"
@@ -230,5 +230,13 @@ setTimeout(() => {
     <ElButton type="primary" plain :loading="loading" v-if="buttons == 3" @click="save">
       {{ t('reuse.fix') }}
     </ElButton>
+    <el-button id="bt-add" v-if="buttons == 2" :icon="plusIcon">
+      {{ props.titleButtons }}
+    </el-button>
   </ContentDetailWrap>
 </template>
+<style scoped>
+#bt-add {
+  margin-top: 20px;
+}
+</style>

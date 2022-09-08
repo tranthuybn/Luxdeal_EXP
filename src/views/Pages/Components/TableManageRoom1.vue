@@ -64,7 +64,7 @@ onBeforeMount(() => {
   <section>
     <TableType01
       :expand="expand"
-      :titleButtons="titleButtons"
+      :titleButtons="props.titleButtons"
       ref="tableBase01"
       :api="dynamicApi"
       :maxHeight="'69vh'"

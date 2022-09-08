@@ -59,6 +59,7 @@ const { register, methods, elFormRef } = useForm({
   schema
 })
 let fileList = ref<UploadUserFile[]>([])
+// luu du lieu vao form
 watch(
   () => props.currentRow,
   (currentRow) => {

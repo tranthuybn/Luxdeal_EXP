@@ -76,19 +76,23 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+//lay du lieu tu router
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = String(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const title = router.currentRoute.value.meta.title
+
+//luu data vao currentRow
 const currentRow = ref()
-const getTableDet = async () => {
+//goi api truyen params id
+const getTableData = async () => {
   const res = await getProductStorageList({ id: id })
   if (res) {
     currentRow.value = res.data
   }
 }
-getTableDet()
+getTableData()
 </script>
 
 <template>

@@ -150,7 +150,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: 'Thông tin sản phẩm',
+    title: t('formDemo.productInfomation'),
     columns: schema,
     api: getBranchList,
     buttonAdd: '',
@@ -159,7 +159,7 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'priceCharacteristics',
-    title: 'Quản lý tiêu chuẩn vật tư sử dụng',
+    title: t('formDemo.standardManagementMaterialsUsed'),
     buttonAdd: 'Thêm đặc tính và giá bán',
     buttons: 2
   }
@@ -210,12 +210,3 @@ const title = 'Thông tin dich vụ'
     </el-collapse>
   </div>
 </template>
-
-<style scoped>
-@media only screen and (min-width: 1920px) {
-  .el-col-xl-12 {
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
-  }
-}
-</style>

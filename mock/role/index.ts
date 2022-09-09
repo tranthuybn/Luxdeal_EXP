@@ -66,7 +66,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
                 name: `products-services.productLibraryProducts.${utility}`,
                 meta: {
@@ -97,7 +97,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
             name: `products-services.ServiceLibrarySpaService.${utility}`,
             meta: {
@@ -126,7 +126,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
                 name: `products-services.ProductCategory.${utility}`,
                 meta: {
@@ -148,7 +148,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
                 name: `products-services.AttributeCategory.${utility}`,
                 meta: {
@@ -170,7 +170,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
                 name: `products-services.UnitCategory.${utility}`,
                 meta: {
@@ -192,7 +192,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
                 name: `products-services.BrandCategory.${utility}`,
                 meta: {
@@ -214,7 +214,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}`,
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
                 name: `products-services.OriginCategory.${utility}`,
                 meta: {
@@ -763,7 +763,7 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Accountant/BalanceSheetUtility',
             name: `accountant.balanceSheet.${utility}`,
             meta: {
@@ -1109,7 +1109,7 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
             name: `human-resource-management.department-directory.${utility}`,
             meta: {

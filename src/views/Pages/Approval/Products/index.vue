@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getProductsApproval } from '@/api/Approval'
 import { h, reactive } from 'vue'
-import TableType01 from '../../Components/tableType01-datetimefilter-basic.vue'
+import TableType01 from '../../Components/TableDataBase.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { filterTableCategory, filterTableStatus } from '@/utils/filters'
 const { t } = useI18n()

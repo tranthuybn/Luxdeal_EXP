@@ -3,7 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElTabs, ElTabPane } from 'element-plus'
 import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableType01 } from './TableBase/index'
+import { TableBase } from './TableBase/index'
 import { Tab } from './Type'
 import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
@@ -14,12 +14,18 @@ const props = defineProps({
   tabs: {
     type: Array<Tab>,
     default: () => []
+  },
+  customHeaderButton: {
+    type: String,
+    default: 'Base'
   }
 })
 // declare
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-
+const tableBase01 = ref<ComponentRef<typeof TableBase>>()
+const addIcon = useIcon({ icon: 'carbon:add' })
+const dashIcon = useIcon({ icon: 'bi:dash-lg' })
+const changeIcon = useIcon({ icon: 'fa:exchange' })
 const getData = (data) => {
   unref(tableBase01)?.getData(data)
 }
@@ -84,12 +90,19 @@ const pushAdd = () => {
         <div :key="currentTab" v-if="item.name === currentTab">
           <HeaderFiler @get-data="getData" @refresh-data="getData">
             <template #headerFilterSlot>
-              <el-button type="primary" :icon="createIcon" @click="pushAdd">
-                {{ t('reuse.addCategory') }}
-              </el-button>
+              <div v-if="customHeaderButton === 'Warehouse'">
+                <el-button type="primary" :icon="addIcon"> Nhập kho </el-button>
+                <el-button type="primary" :icon="dashIcon"> Xuất kho </el-button>
+                <el-button type="primary" :icon="changeIcon"> Chuyển kho </el-button>
+              </div>
+              <div v-if="customHeaderButton === 'Base'">
+                <el-button type="primary" :icon="createIcon" @click="pushAdd">
+                  {{ t('reuse.addCategory') }}
+                </el-button>
+              </div>
             </template>
           </HeaderFiler>
-          <TableType01
+          <TableBase
             ref="tableBase01"
             :selection="false"
             :api="dynamicApi"

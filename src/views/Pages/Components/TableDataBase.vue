@@ -4,7 +4,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
 import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableExtension, TableType01 } from './TableBase/index'
+import { TableExtension, TableBase } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
 import {
   addOperatorColumn,
@@ -35,12 +35,44 @@ const props = defineProps({
   selection: {
     type: Boolean,
     default: true
+  },
+  expand: {
+    type: Boolean,
+    default: false
+  },
+  titleButtons: {
+    type: String,
+    default: ''
+  },
+  apiTableChild: {
+    type: Function as PropType<apiType>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  columnsTableChild: {
+    type: Array as PropType<TableColumn[]>,
+    default: () => []
+  },
+  customOperator: {
+    type: Number,
+    default: 1
+  },
+  pagination: {
+    type: Boolean,
+    default: true
+  },
+  removeDrawer: {
+    type: Boolean,
+    default: false
+  },
+  removeHeaderFilter: {
+    type: Boolean,
+    default: false
   }
 })
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)?.getData(data)
@@ -65,7 +97,7 @@ const pushAdd = () => {
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refresh-data="getData">
+    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon" @click="pushAdd">
           {{ t('reuse.addCategory') }}</el-button
@@ -77,14 +109,21 @@ const pushAdd = () => {
       :totalRecord="getTotalRecord"
       :selectedRecord="getSelectedRecord"
     />
-    <TableType01
+    <TableBase
+      :removeDrawer="removeDrawer"
+      :expand="expand"
+      :titleButtons="props.titleButtons"
+      :customOperator="props.customOperator"
+      :apiTableChild="apiTableChild"
+      :columnsTableChild="columnsTableChild"
+      :paginationType="props.pagination"
       ref="tableBase01"
       :api="dynamicApi"
       :maxHeight="'69vh'"
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"
-      :selection="selection"
+      :selection="props.selection"
     />
   </section>
 </template>

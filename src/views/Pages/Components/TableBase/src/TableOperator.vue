@@ -18,15 +18,19 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
 import { useEmitt } from '@/hooks/web/useEmitt'
-import { useRouter } from 'vue-router'
 import { ContentDetailWrap } from '@/components/ContentDetailWrap'
 import type { UploadFile } from 'element-plus'
+import { apiType, TableResponse } from '../../Type'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
 
 const { required } = useValidator()
 const props = defineProps({
+  api: {
+    type: Function as PropType<apiType>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
   currentRow: {
     type: Object as PropType<Nullable<TableData>>,
     default: () => null
@@ -41,11 +45,15 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Category'
+    default: ''
   },
   nameBack: {
     type: String,
     default: ''
+  },
+  id: {
+    type: Number,
+    default: NaN
   },
   type: {
     type: String,
@@ -65,34 +73,30 @@ const rules = reactive({
   display_time: [required()],
   content: [required()]
 })
-
+const formValue = ref()
+const getTableValue = async () => {
+  if (props.id !== NaN) {
+    const res = await props.api({ id: props.id })
+    formValue.value = res.data.list[0]
+    setFormValue()
+  }
+}
 // eslint-disable-next-line vue/no-setup-props-destructure
 const schema = props.schema
 const { register, methods, elFormRef } = useForm({
   schema
 })
-let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
-watch(
-  () => props.currentRow,
-  (currentRow) => {
-    if (!currentRow) {
-      return
-    }
-    if (currentRow.list.length !== 0) {
-      const { setValues } = methods
-      setValues(currentRow?.list[0])
-      fileList.value.push({
-        url: currentRow.list[0].image,
-        name: currentRow.list[0].title
-      })
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
+let fileList = ref<UploadUserFile[]>([])
+const setFormValue = () => {
+  const { setValues } = methods
+  setValues(formValue.value)
+  fileList.value.push({
+    url: formValue.value.image,
+    name: formValue.value.title
+  })
+}
 watch(
   () => props.type,
   () => {
@@ -101,6 +105,9 @@ watch(
       setProps({
         disabled: true
       })
+    }
+    if (props.type === 'detail' || props.type === 'edit') {
+      getTableValue()
     }
   },
   {
@@ -114,7 +121,6 @@ defineExpose({
 })
 
 const loading = ref(false)
-const { push } = useRouter()
 
 const save = async () => {
   await unref(elFormRef)!.validate(async (isValid) => {
@@ -141,12 +147,6 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 let fullSpan = ref<number>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 
-//set Title
-let title = ref(props.title)
-if (props.title == 'undefined') {
-  title.value = 'Category'
-}
-
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
@@ -158,9 +158,6 @@ const handleRemove = (file: UploadFile) => {
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
-}
-const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-  console.log('success', response, uploadFile)
 }
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
@@ -189,7 +186,8 @@ const cancel = () => {
 </script>
 
 <template>
-  <ContentDetailWrap :title="t(title)" @back="push({ name: nameBack })">
+  <ContentDetailWrap>
+    {{ title }}
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
@@ -199,15 +197,13 @@ const cancel = () => {
         <el-upload
           action="#"
           :disabled="props.type === 'detail'"
-          list-type="picture-card"
           :auto-upload="false"
           :limit="props.limitUpload"
           v-model:file-list="fileList"
-          :on-success="handleAvatarSuccess"
+          list-type="picture-card"
           :before-upload="beforeAvatarUpload"
         >
           <el-button :icon="addIcon" />
-
           <template #file="{ file }">
             <div>
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -231,7 +227,6 @@ const cancel = () => {
         </el-dialog>
       </ElCol>
     </ElRow>
-
     <template #under>
       <div v-if="props.type === 'add'">
         <ElButton type="primary" :loading="loading" @click="save">

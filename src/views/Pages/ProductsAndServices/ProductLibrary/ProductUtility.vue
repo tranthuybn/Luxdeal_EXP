@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import TableAddBusinessProduct from '@/views/Pages/Components/TableAddBusinessProduct.vue'
+import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { getBranchList, getTypePersonnelList } from '@/api/HumanResourceManagement'
 import {
   getFeaturesDepositFee,
@@ -13,8 +12,6 @@ import {
   getImportAndExportHistory
 } from '@/api/LibraryAndSetting'
 import { useIcon } from '@/hooks/web/useIcon'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
-import { RendererElement, RendererNode, VNode } from 'vue'
 import {
   columnProfileProduct,
   featuresPrice,
@@ -27,23 +24,11 @@ import {
   columnsPriceByQuantity,
   columnsImportAndExportHistory
 } from './ProductLibraryManagement'
-
+import { Collapse } from '../../Components/Type'
+import { useRouter } from 'vue-router'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
-type apiType = <T = any>(option: any) => Promise<IResponse<T>>
-interface Collapse {
-  icon: VNode<RendererNode, RendererElement, { [key: string]: any }>
-  name: string
-  title: string
-  columns: TableColumn[]
-  api: apiType | undefined
-  buttonAdd: string
-  buttons: number
-  expand: boolean
-  apiTableChild: apiType | undefined
-  columnsTableChild: TableColumn[] | undefined
-}
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -52,10 +37,14 @@ const collapse: Array<Collapse> = [
     columns: columnProfileProduct,
     api: getBranchList,
     buttonAdd: '',
-    buttons: 1,
+    type: 'form',
     expand: false,
     apiTableChild: undefined,
-    columnsTableChild: undefined
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -64,10 +53,14 @@ const collapse: Array<Collapse> = [
     columns: featuresPrice,
     api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
-    columnsTableChild: columnsPriceByQuantity
+    columnsTableChild: columnsPriceByQuantity,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -76,10 +69,14 @@ const collapse: Array<Collapse> = [
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
     buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
-    columnsTableChild: columnsPriceByQuantity
+    columnsTableChild: columnsPriceByQuantity,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -88,10 +85,14 @@ const collapse: Array<Collapse> = [
     columns: featuresDepositFee,
     api: getFeaturesDepositFee,
     buttonAdd: 'Thêm đặc tính và phí kí gửi',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
-    columnsTableChild: undefined
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -100,10 +101,14 @@ const collapse: Array<Collapse> = [
     columns: featuresPawnFee,
     api: getFeaturesPawnFee,
     buttonAdd: 'Thêm đặc tính và phí cầm đồ',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
-    columnsTableChild: undefined
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -112,10 +117,14 @@ const collapse: Array<Collapse> = [
     columns: spaPrice,
     api: getSpaLPrice,
     buttonAdd: 'Thêm dịch vụ và phí spa',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
-    columnsTableChild: undefined
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -124,10 +133,14 @@ const collapse: Array<Collapse> = [
     columns: inventoryTrading,
     api: getInventoryTrading,
     buttonAdd: 'Thêm đặc tính',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getImportAndExportHistory,
-    columnsTableChild: columnsImportAndExportHistory
+    columnsTableChild: columnsImportAndExportHistory,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   },
   {
     icon: plusIcon,
@@ -136,56 +149,22 @@ const collapse: Array<Collapse> = [
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     buttonAdd: '',
-    buttons: 3,
+    type: 'form',
     expand: false,
     apiTableChild: undefined,
-    columnsTableChild: undefined
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
   }
 ]
-let currentCollapse = ref<string>(collapse[0].name)
-const collapseChangeEvent = (val) => {
-  if (val) {
-    collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
-      else if (el.icon == minusIcon) el.icon = plusIcon
-    })
-  } else
-    collapse.forEach((el) => {
-      el.icon = plusIcon
-    })
-}
-const activeName = ref('information')
+//lay du lieu tu router
+const router = useRouter()
+const type = String(router.currentRoute.value.params.type)
+const id = String(router.currentRoute.value.params.id)
 </script>
-<template>
-  <div class="demo-collapse">
-    <el-collapse v-model="activeName" :collapse="collapse" @change="collapseChangeEvent">
-      <el-collapse-item
-        v-for="(item, index) in collapse"
-        :key="index"
-        :name="item.name"
-        v-model="currentCollapse"
-      >
-        <template #title>
-          <el-button class="header-icon" :icon="item.icon" link />
-          <span class="text-center">{{ item.title }}</span>
-        </template>
-        <TableAddBusinessProduct
-          :schema="item.columns"
-          :title="item.title"
-          :buttons="item.buttons"
-          :backButton="false"
-          :titleButtons="item.buttonAdd"
-          :api="item.api"
-          :key="index"
-          :columns="item.columns"
-          :expand="item.expand"
-          :apiTableChild="item.apiTableChild"
-          :columnsTableChild="item.columnsTableChild"
-        />
-      </el-collapse-item>
-    </el-collapse>
-  </div>
-</template>
+<template> <CollapseBase :collapse="collapse" :id="id" :type="type" /></template>
 <style scoped>
 .header-icon {
   margin: 10px;

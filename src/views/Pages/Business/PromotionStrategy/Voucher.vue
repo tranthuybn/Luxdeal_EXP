@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getVoucherList } from '@/api/Business'
 import {
   filterPromotionPrice,

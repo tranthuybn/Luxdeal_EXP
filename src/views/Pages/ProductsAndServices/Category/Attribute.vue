@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import productCategoryTable from '../../Components/productCategory-table.vue'
+import productCategoryTable from '../../Components/TabsBase.vue'
 import {
   getColorCategories,
   getSizeCategories,

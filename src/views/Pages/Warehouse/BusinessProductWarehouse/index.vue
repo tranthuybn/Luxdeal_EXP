@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import tableDatetimeFilterBasicVue from '../../Components/tableType02-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../../Components/TabsBase.vue'
 import { getWareHouseList } from '@/api/Business'
 import { wareHouse } from '../Warehouse'
 import { Tab } from '../../Components/Type'
@@ -35,7 +35,8 @@ const tabs: Array<Tab> = [
     column: wareHouse
   }
 ]
+const typeTable = 'Warehouse'
 </script>
 <template>
-  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" />
+  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" :customHeaderButton="typeTable" />
 </template>

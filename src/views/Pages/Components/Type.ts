@@ -12,5 +12,22 @@ interface Tab {
   api: <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
   column: TableColumn[]
 }
+import { RendererElement, RendererNode, VNode } from 'vue'
 
-export { apiType, TableResponse, Tab }
+interface Collapse {
+  icon: VNode<RendererNode, RendererElement, { [key: string]: any }>
+  name: string
+  title: string
+  columns: TableColumn[]
+  api: apiType | undefined
+  buttonAdd: string
+  buttons: number
+  expand: boolean
+  apiTableChild: apiType | undefined
+  columnsTableChild: TableColumn[] | undefined
+  pagination: boolean
+  removeHeaderFilter: boolean
+  removeDrawer: boolean
+  selection: boolean
+}
+export { apiType, TableResponse, Tab, Collapse }

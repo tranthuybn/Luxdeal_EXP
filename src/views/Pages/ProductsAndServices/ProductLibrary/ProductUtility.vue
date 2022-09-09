@@ -25,6 +25,7 @@ import {
   columnsImportAndExportHistory
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
+import { useRouter } from 'vue-router'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -36,7 +37,7 @@ const collapse: Array<Collapse> = [
     columns: columnProfileProduct,
     api: getBranchList,
     buttonAdd: '',
-    buttons: 1,
+    type: 'form',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -52,7 +53,7 @@ const collapse: Array<Collapse> = [
     columns: featuresPrice,
     api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
@@ -68,7 +69,7 @@ const collapse: Array<Collapse> = [
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
     buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
@@ -84,7 +85,7 @@ const collapse: Array<Collapse> = [
     columns: featuresDepositFee,
     api: getFeaturesDepositFee,
     buttonAdd: 'Thêm đặc tính và phí kí gửi',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -100,7 +101,7 @@ const collapse: Array<Collapse> = [
     columns: featuresPawnFee,
     api: getFeaturesPawnFee,
     buttonAdd: 'Thêm đặc tính và phí cầm đồ',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -116,7 +117,7 @@ const collapse: Array<Collapse> = [
     columns: spaPrice,
     api: getSpaLPrice,
     buttonAdd: 'Thêm dịch vụ và phí spa',
-    buttons: 2,
+    type: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -132,7 +133,7 @@ const collapse: Array<Collapse> = [
     columns: inventoryTrading,
     api: getInventoryTrading,
     buttonAdd: 'Thêm đặc tính',
-    buttons: 2,
+    type: 'table',
     expand: true,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportAndExportHistory,
@@ -148,7 +149,7 @@ const collapse: Array<Collapse> = [
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     buttonAdd: '',
-    buttons: 3,
+    type: 'form',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -158,8 +159,12 @@ const collapse: Array<Collapse> = [
     selection: false
   }
 ]
+//lay du lieu tu router
+const router = useRouter()
+const type = String(router.currentRoute.value.params.type)
+const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" /></template>
+<template> <CollapseBase :collapse="collapse" :id="id" :type="type" /></template>
 <style scoped>
 .header-icon {
   margin: 10px;

@@ -21,7 +21,7 @@ interface Collapse {
   columns: TableColumn[]
   api: apiType | undefined
   buttonAdd: string
-  buttons: number
+  type: string
   expand: boolean
   apiTableChild: apiType | undefined
   columnsTableChild: TableColumn[] | undefined

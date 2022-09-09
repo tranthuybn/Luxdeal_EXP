@@ -34,131 +34,58 @@
           /></div>
           <el-col :span="5" class="h-full" id="hideDocument">
             <el-card class="message-box__right-site flex flex-col !h-full">
-              <div class="message-box__child-title">
+              <div
+                class="message-box__child-title !sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] py-4 mb-4"
+              >
                 <el-button
                   :icon="rightArrow"
                   @click="hideDocumentList()"
-                  class="!flex !border-0 !w-full !justify-between !font-bold"
+                  class="!flex !border-0 !w-full !justify-between !font-bold !py-4 !rounded-none"
                   >{{ t('reuse.document') }}</el-button
                 >
               </div>
               <div v-if="documentList.length > 0">
                 <div v-for="(item, index) in documentList" :key="index" class="pb-16">
                   <div v-if="item.type === 'TuVanMuaHang'" class="flex flex-col">
-                    <div class="flex border-bottom-1">
-                      <div class="basis-1/2"
-                        ><img :src="item.content.productImagePath" class="w-full" />
+                    <el-card>
+                      <div class="flex border-bottom-1">
+                        <div class="basis-1/2"
+                          ><img :src="item.content.productImagePath" class="w-full" />
+                        </div>
+                        <div class="pl-4">
+                          <div class="font-bold">{{ item.content.productBrand }}</div>
+                          <div>{{ item.content.productName }}</div>
+                          <div>{{ formatMoneyInput(item.content.totalMoney) }}đ</div>
+                        </div> </div
+                      ><div class="flex flex-col"
+                        ><div class="my-2 font-bold"
+                          >{{ t('reuse.negotiationPrice') }}
+                          {{ formatMoneyInput(item.content.currentInterestMoney) }}đ</div
+                        >
+                        <div v-if="item.content.orderStatus == 3">
+                          <el-button
+                            class="w-full my-2 !font-bold !py-6"
+                            @click="documentAction(0)"
+                            >{{ t('reuse.cancel') }}</el-button
+                          >
+                          <el-button
+                            class="!m-0 w-full !bg-black !font-bold !py-6"
+                            @click="documentAction(1)"
+                            ><span class="text-white">{{ t('reuse.agreeToSell') }}</span></el-button
+                          >
+                        </div>
+                        <div v-if="item.content.orderStatus == 2" class="font-bold text-red-500">
+                          {{ t('reuse.cancelled') }}!
+                        </div>
+                        <div v-if="item.content.orderStatus == 1" class="font-bold">
+                          {{ t('reuse.agreeToSell') }}!
+                        </div>
                       </div>
-                      <div class="pl-4">
-                        <div class="font-bold">{{ item.content.productBrand }}</div>
-                        <div>{{ item.content.productName }}</div>
-                        <div>{{ formatMoneyInput(item.content.totalMoney) }}đ</div>
-                      </div> </div
-                    ><div class="flex flex-col"
-                      ><div class="my-2"
-                        >{{ t('reuse.negotiationPrice') }}
-                        {{ formatMoneyInput(item.content.currentInterestMoney) }}đ</div
-                      >
-                      <el-button class="w-full my-2 !font-bold" @click="documentAction(0)">{{
-                        t('reuse.cancel')
-                      }}</el-button>
-                      <el-button class="!m-0 w-full !bg-black !font-bold" @click="documentAction(1)"
-                        ><span class="text-white">{{ t('reuse.agreeToSell') }}</span></el-button
-                      >
-                    </div>
+                    </el-card>
                   </div>
-                  <div v-if="item.type === 'CamDo'">
-                    {{ item.content }}
-                    <div class="contract">
-                      <div class="contract__header">
-                        <div class="contract__name">
-                          <span>{{ item.content.orderCode }}</span>
-                        </div>
-                        <div class="contract__view"
-                          >Chi tiết <i class="el-icon-arrow-right"></i
-                        ></div>
-                      </div>
-                      <div class="contract__footer">
-                        <div class="contract__item">
-                          Dư nợ gốc
-                          <span
-                            >{{ item.content.debtTotalMoney }} <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                        <div class="contract__item">
-                          Dư nợ phí thế chấp
-                          <span
-                            >{{
-                              (item.content.currentInterestMoney,
-                              '+',
-                              item.content.currentWarrantyMoney)
-                            }}
-                            <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                      </div>
-                      <!-- <div class="contract__time">12:20 am</div> -->
-                    </div>
-                  </div>
-                  <div v-if="item.type === TYPE_OF_MESSAGE_LEASE">
-                    <div class="contract">
-                      <div class="contract__header">
-                        <div class="contract__name">
-                          Mã hợp Đồng
-                          <span>{{ item.content.orderCode }}</span>
-                        </div>
-                        <div class="contract__view"
-                          >Chi tiết <i class="el-icon-arrow-right"></i
-                        ></div>
-                      </div>
-                      <div class="contract__footer">
-                        <div class="contract__item">
-                          Đã nhận cọc
-                          <span
-                            >{{ formatPrice(item.content.depositPaidMoney) }}
-                            <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                        <div class="contract__item">
-                          Dư nợ phí thuê
-                          <span
-                            >{{ formatPrice(item.content.duNoPhiThueQuaHan) }}
-                            <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                      </div>
-                      <!-- <div class="contract__time">12:20 am</div> -->
-                    </div>
-                  </div>
-                  <div v-if="item.type === TYPE_OF_MESSAGE_DEPOSIT">
-                    <div class="contract">
-                      <div class="contract__header">
-                        <div class="contract__name">
-                          Mã hợp Đồng
-                          <span>{{ item.content.orderCode }}</span>
-                        </div>
-                        <div class="contract__view"
-                          >Chi tiết <i class="el-icon-arrow-right"></i
-                        ></div>
-                      </div>
-                      <div class="contract__footer">
-                        <div class="contract__item">
-                          Đã bán
-                          <span
-                            >{{ formatPrice(item.content.sellPrice) }} <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                        <div class="contract__item">
-                          Phí ký gửi
-                          <span
-                            >{{ formatPrice(item.content.feeMoney) }} <img :src="dIcon" alt="..."
-                          /></span>
-                        </div>
-                      </div>
-                      <!-- <div class="contract__time">12:20 am</div> -->
-                    </div>
-                  </div>
-                  <div>{{ item.createdDate }}</div>
+                  <div
+                    ><small class="text-[#a19c9c]">{{ item.createdDate }}</small></div
+                  >
                 </div></div
               >
               <div
@@ -172,14 +99,18 @@
               </div>
             </el-card>
           </el-col>
-          <el-col :span="5" class="h-4/5">
+          <el-col :span="5" class="h-full user_input">
             <el-card class="message-box__left-site h-full">
-              <el-input
-                class="pb-4 h-60px"
-                :placeholder="`${t('reuse.findNameAccount')} ...`"
-                v-model="searchPeople"
-                :suffix-icon="searchIcon"
-              />
+              <div
+                class="!sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] mb-4"
+                style="box-shadow: var(--el-box-shadow-light)"
+              >
+                <el-input
+                  class="p-4 h-70px"
+                  :placeholder="`${t('reuse.findNameAccount')} ...`"
+                  v-model="searchPeople"
+                  :suffix-icon="searchIcon"
+              /></div>
               <UserList
                 v-for="user in currentUsersFollowTab"
                 :key="user.userID"
@@ -2501,7 +2432,7 @@ export default {
             orderServiceId: 95,
             orderServiceDetailsId: 12,
             orderCode: 'DHTC4375213',
-            orderStatus: 2,
+            orderStatus: 3,
             userFullName: 'LangVi',
             userPhone: '0987156423',
             userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
@@ -2516,7 +2447,7 @@ export default {
             productImagePath:
               'https://1.bp.blogspot.com/-UwwTcoPkWl4/YVCSZaQ1xxI/AAAAAAAAIHE/aZi9kWLEs3A17oqVEdByaARpQ7iDPsm1QCLcBGAsYHQ/s680/LV2.jpg'
           },
-          createdDate: '10:55 AM',
+          createdDate: '20/10/2021',
           type: 'TuVanMuaHang'
         },
         {
@@ -2539,7 +2470,7 @@ export default {
             productImagePath:
               'https://webassets.ashford.com/images/web/louis_erard/78225PR15BRC37_FXA.jpg'
           },
-          createdDate: '10:03 AM',
+          createdDate: 'Sat',
           type: 'TuVanMuaHang'
         },
         {
@@ -2547,7 +2478,7 @@ export default {
             orderServiceId: 95,
             orderServiceDetailsId: 12,
             orderCode: 'DHTC4375213',
-            orderStatus: 2,
+            orderStatus: 1,
             userFullName: 'LangVi',
             userPhone: '0987156423',
             userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
@@ -2561,7 +2492,7 @@ export default {
             productBrand: 'Christian Dior',
             productImagePath: 'https://cf.shopee.vn/file/527759b3eb97d8903651e452105fe8cd'
           },
-          createdDate: '10:55 AM',
+          createdDate: '12:20 AM',
           type: 'TuVanMuaHang'
         },
         {
@@ -2691,6 +2622,40 @@ export default {
                 content: 'bạn muốn mình tư vấn gì ạ',
                 from: 'admin',
                 to: 'vinhnt',
+                idProduct: 0,
+                idDeal: 0,
+                idContract: 0,
+                images: null,
+                createdDate: '2022-03-14T04:57:09.039Z'
+              },
+              createdDate: '2021-12-03T10:13:41.308Z',
+              newMessage: true
+            },
+            {
+              _id: '61a9edd4f3e1231231233332',
+              channelId: '61a9c2ab94281cb25174f3d4',
+              type: 'TuVanMuaHang',
+              messages: {
+                content: 'hello world',
+                from: 'vinhnt',
+                to: 'admin',
+                idProduct: 0,
+                idDeal: 0,
+                idContract: 0,
+                images: null,
+                createdDate: '2022-03-14T04:57:09.039Z'
+              },
+              createdDate: '2021-12-03T10:13:41.308Z',
+              newMessage: true
+            },
+            {
+              _id: '61a9edd594281cb25174f3e1232132',
+              channelId: '61a9c2ab94281cb25174f3d4',
+              type: 'TuVanMuaHang',
+              messages: {
+                content: 'yessir',
+                from: 'vinhnt',
+                to: 'admin',
                 idProduct: 0,
                 idDeal: 0,
                 idContract: 0,

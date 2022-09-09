@@ -835,12 +835,23 @@ export default {
     monthlyRent: 'Đơn giá thuê tháng',
     rentDeposit: 'Tiền cọc thuê',
     internalInventory: 'Tồn kho nội bộ',
-    consignmentInventory: 'Tồn kho kí gửi',
+    consignmentInventory: 'Tồn kho ký gửi',
     pawnInventory: 'Tồn kho cầm đồ',
     spaInventory: 'Tồn kho Spa',
     total: 'Tổng',
     businessSynthesis: 'Tổng hợp kinh doanh',
     inventoryConsolidation: 'Tổng hợp tồn kho',
+    adjustmentDate: 'Ngày điều chỉnh',
+    rentalPriceTableByQuantity: 'Bảng tính giá thuê theo số lượng',
+    importExportDate: 'Ngày nhập/xuất',
+    importExportCode: 'Mã đơn nhập/xuất',
+    importExportForm: 'Hình thức nhập/xuất',
+    importExportWarehouse: 'Kho nhập/xuất',
+    internalWarehouse: 'Kho nội bộ',
+    consignmentWarehouse: 'Kho ký gửi',
+    pawnStore: 'Kho cầm đồ',
+    spaWarehouse: 'Kho Spa',
+    totalInventory: 'Tổng tồn',
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
     rentalConsult: 'Tư vấn cho thuê',
@@ -854,6 +865,10 @@ export default {
     findContent: 'Tìm theo nội dung',
     library: 'Thư viện',
     contract: 'Hợp đồng',
-    currency: 'đ'
+    currency: 'đ',
+    //Warehouse/storage
+    typeStorage: 'Loại kho',
+    chooseRankStorage: 'Chọn cấp kho',
+    nameStorage: 'Tên kho'
   }
 }

@@ -1,5 +1,9 @@
 @import "./mixin-library.scss";
 @import "./variables.scss";
+
+.user_input :deep(.el-card__body){
+    padding-top: 0 !important;
+}
 :deep(.el-tabs__header){
     margin-right: 0 !important;
 }
@@ -44,7 +48,7 @@
 
 .border-x {
         :deep(.el-card__body){
-            height: 90%;
+            height: 100%;
             padding: 0;
         }
 }
@@ -143,11 +147,14 @@
        border-bottom: 1px solid $table-row-border-bottom;
     }
     &__right-site{
-        padding: 0 get-vw(14px) get-vw(12px);
+        box-shadow: var(--el-box-shadow-light);
         max-height: get-vh(580px);
         overflow: auto;
         :deep(.el-card__body){
             height: 100%;
+        }
+        :deep(.el-card__body){
+            padding-top: 0 !important;
         }
         &::-webkit-scrollbar {
             width: 6px;
@@ -240,6 +247,7 @@
         }
     }
     &__child-title{
+        box-shadow: var(--el-box-shadow-light);
         font-weight: bold;
         text-align: center;
         font-size: get-vw(12px);
@@ -247,7 +255,6 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        padding: .8rem 0;
     }
     &__emtpy{
         text-align: center;

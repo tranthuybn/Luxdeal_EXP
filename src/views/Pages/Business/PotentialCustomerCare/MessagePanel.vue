@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-deprecated-v-on-native-modifier -->
 <template>
-  <el-card class="h-100vh">
+  <el-card class="h-full">
     <div class="flex message-box__header items-center justify-between h-1/10 px-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="45" height="45" />
@@ -27,7 +27,7 @@
     </div>
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
-    <section class="h-4/5">
+    <section class="h-650px">
       <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-1">
         <li
           class="content-message dark:bg-[var(--el-bg-color)]"
@@ -163,7 +163,7 @@
                   </div>
                 </section>
                 <section
-                  class="friend-send__message"
+                  class="friend-send__message !ml-4"
                   v-else-if="typeof mess.content === 'string' && mess.content !== ''"
                 >
                   {{ mess.content }}
@@ -187,7 +187,7 @@
         <!-- messages here -->
       </ul>
     </section>
-    <div class="message-box__footer p-3">
+    <div class="message-box__footer p-3 h-1/10">
       <el-form
         class="message-box__send h-full flex-grow pr-4"
         ref="messageInput"
@@ -445,18 +445,14 @@ export default {
           this.messageStreamContent.splice(0, this.messageStreamContent.length)
         }
         for (const el of this.message) {
-          if (el.messages.from !== 'admin') {
-          } else {
-            this.messageStreamContent.push({
-              content: el.messages.content ?? '',
-              user: el.messages.from,
-              createdDate: el.messages.createdDate,
-              type: el.type
-            })
-          }
+          this.messageStreamContent.push({
+            content: el.messages.content ?? '',
+            user: el.messages.from,
+            createdDate: el.messages.createdDate,
+            type: el.type
+          })
         }
       }
-      return []
     },
     scrollEvent() {
       if (!this.disableScroll) {

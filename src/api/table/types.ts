@@ -1,4 +1,5 @@
 export type TableData = {
+  list: any
   id: string
   author: string
   title: string

@@ -29,10 +29,6 @@ export default defineComponent({
   name: 'Form',
   props: {
     // The layout structure array of FORM
-    formSchema: {
-      type: Object as PropType<FormSchema>,
-      default: () => {}
-    },
     schema: {
       type: Array as PropType<FormSchema[]>,
       default: () => [] || {}
@@ -151,26 +147,24 @@ export default defineComponent({
 
     // Whether to render EL-COL
     const renderFormItemWrap = () => {
-      // Hidden attribute means hidden, not rendering
-      const { schema = [], isCol, formSchema } = unref(getProps)
+      // hidden属性表示隐藏，不做渲染
+      const { schema = [], isCol } = unref(getProps)
 
-      return schema.length > 0
-        ? schema
-            .filter((v) => !v.hidden)
-            .map((item) => {
-              // If it is a divider component, you need to occupy one line by yourself
-              const isDivider = item.component === 'Divider'
-              const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
-              return isDivider ? (
-                <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
-              ) : isCol ? (
-                // If you need a grid, you need to wrap ELCOL
-                <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
-              ) : (
-                renderFormItem(item)
-              )
-            })
-        : renderFormItem(formSchema)
+      return schema
+        .filter((v) => !v.hidden)
+        .map((item) => {
+          // 如果是 Divider 组件，需要自己占用一行
+          const isDivider = item.component === 'Divider'
+          const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
+          return isDivider ? (
+            <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
+          ) : isCol ? (
+            // 如果需要栅格，需要包裹 ElCol
+            <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
+          ) : (
+            renderFormItem(item)
+          )
+        })
     }
 
     // Rendering Formitem

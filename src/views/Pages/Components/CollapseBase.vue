@@ -4,7 +4,7 @@ import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from './Type'
 import { TableOperator } from '../Components/TableBase'
-import tableDatetimeFilterBasicVue from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 const props = defineProps({
   collapse: {
     type: Array<Collapse>,

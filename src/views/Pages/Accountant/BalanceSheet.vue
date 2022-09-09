@@ -2,7 +2,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { getAccountantBalanceList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
-import TableType01 from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
+import TableType01 from '@/views/Pages/Components/TableDataBase.vue'
 import { h } from 'vue'
 const { t } = useI18n()
 

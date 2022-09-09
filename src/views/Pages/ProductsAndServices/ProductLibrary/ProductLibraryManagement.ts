@@ -949,31 +949,31 @@ export const columnsImportAndExportHistory = reactive<TableColumn[]>([
   {
     field: 'internalWarehouse',
     label: t('reuse.internalWarehouse'),
-    minWidth: '150'
+    minWidth: '110'
   },
   {
     field: 'consignmentWarehouse',
     label: t('reuse.consignmentWarehouse'),
-    minWidth: '150'
+    minWidth: '110'
   },
   {
     field: 'pawnStore',
     label: t('reuse.pawnStore'),
-    minWidth: '150'
+    minWidth: '110'
   },
   {
     field: 'spaWarehouse',
     label: t('reuse.spaWarehouse'),
-    minWidth: '150'
+    minWidth: '110'
   },
   {
     field: 'totalInventory',
     label: t('reuse.totalInventory'),
-    minWidth: '150'
+    minWidth: '110'
   },
   {
     field: 'dram',
     label: t('reuse.dram'),
-    minWidth: '150'
+    minWidth: '110'
   }
 ])

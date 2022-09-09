@@ -26,6 +26,7 @@ import {
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
+import { t } from '@/hooks/web/useI18n'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -37,14 +38,15 @@ const collapse: Array<Collapse> = [
     columns: columnProfileProduct,
     api: getBranchList,
     buttonAdd: '',
-    type: 'form',
+    type: 'form01',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -59,8 +61,10 @@ const collapse: Array<Collapse> = [
     columnsTableChild: columnsPriceByQuantity,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2,
+    titleChilden: t('reuse.rentalPriceTableByQuantity')
   },
   {
     icon: plusIcon,
@@ -75,8 +79,10 @@ const collapse: Array<Collapse> = [
     columnsTableChild: columnsPriceByQuantity,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2,
+    titleChilden: t('reuse.rentalPriceTableByQuantity')
   },
   {
     icon: plusIcon,
@@ -91,8 +97,9 @@ const collapse: Array<Collapse> = [
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -107,8 +114,9 @@ const collapse: Array<Collapse> = [
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -123,8 +131,9 @@ const collapse: Array<Collapse> = [
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -137,10 +146,12 @@ const collapse: Array<Collapse> = [
     expand: true,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportAndExportHistory,
+    titleChilden: t('reuse.importAndExportHistoryByProductLine'),
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -149,22 +160,23 @@ const collapse: Array<Collapse> = [
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     buttonAdd: '',
-    type: 'form',
+    type: 'form02',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3,
+    hasImage: false
   }
 ]
 //lay du lieu tu router
 const router = useRouter()
-const type = String(router.currentRoute.value.params.type)
 const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" :id="id" :type="type" /></template>
+<template> <CollapseBase :collapse="collapse" :id="id" /></template>
 <style scoped>
 .header-icon {
   margin: 10px;

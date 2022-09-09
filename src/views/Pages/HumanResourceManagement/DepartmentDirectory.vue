@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom.vue'
 import {
   getBranchList,
   getDepartmentList,
@@ -10,10 +9,8 @@ import {
 } from '@/api/HumanResourceManagement'
 import { filterGender, filterDepartment } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
-import { RendererElement, RendererNode, VNode } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '@/store/modules/app'
+import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
+import { Collapse } from '../Components/Type'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -188,14 +185,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     filters: filterDepartment
   }
 ])
-interface Collapse {
-  icon: VNode<RendererNode, RendererElement, { [key: string]: any }>
-  name: string
-  title: string
-  columns: TableColumn[]
-  api: <T = any>(option: any) => Promise<IResponse<T>>
-  buttonAdd: string
-}
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -230,71 +220,10 @@ const collapse: Array<Collapse> = [
     buttonAdd: 'Thêm loại hình'
   }
 ]
-let currentCollapse = ref<string>(collapse[0].name)
-const collapseChangeEvent = (val) => {
-  if (val) {
-    collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
-      else if (el.icon == minusIcon) el.icon = plusIcon
-    })
-  } else
-    collapse.forEach((el) => {
-      el.icon = plusIcon
-    })
-}
-const activeName = ref('branch')
-
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const { push } = useRouter()
-const router = useRouter()
-const pushAdd = (val) => {
-  switch (val) {
-    case 0:
-      push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { backRoute: String(router.currentRoute.value.name) }
-      })
-      break
-    case 1:
-      push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { backRoute: String(router.currentRoute.value.name) }
-      })
-      break
-    case 2:
-      push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { backRoute: String(router.currentRoute.value.name) }
-      })
-      break
-    case 3:
-      push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { backRoute: String(router.currentRoute.value.name) }
-      })
-      break
-    default:
-  }
-}
 </script>
 <template>
   <div class="demo-collapse">
-    <el-collapse v-model="activeName" :collapse="collapse" @change="collapseChangeEvent">
-      <el-collapse-item
-        v-for="(item, index) in collapse"
-        :key="index"
-        :name="item.name"
-        v-model="currentCollapse"
-      >
-        <template #title>
-          <el-button class="header-icon" :icon="item.icon" link />
-          <span class="text-center">{{ item.title }}</span>
-        </template>
-        <tableDatetimeFilterBasicVue :columns="item.columns" :api="item.api" :key="index" />
-        <el-button :icon="plusIcon" @click="pushAdd(index)"> {{ item.buttonAdd }} </el-button>
-      </el-collapse-item>
-    </el-collapse>
+    <CollapseBase :collapse="collapse" />
   </div>
 </template>
 <style scoped>

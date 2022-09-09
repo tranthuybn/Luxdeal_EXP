@@ -9,15 +9,10 @@ const props = defineProps({
   collapse: {
     type: Array<Collapse>,
     default: () => []
-  },
-  type: {
-    type: String,
-    default: ''
   }
 })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-console.log(props.type)
 let currentCollapse = ref<string>(props.collapse[0].name)
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -62,9 +57,23 @@ const activeName = ref('information')
           :apiTableChild="item.apiTableChild"
           :columnsTableChild="item.columnsTableChild"
           :selection="item.selection"
+          :customOperator="item.customOperator"
+          :titleChilden="item.titleChilden"
         />
-        <TableOperator v-else :schema="item.columns" :title="item.title" :type="type" />
+        <TableOperator
+          v-else
+          :hasImage="item.hasImage"
+          :schema="item.columns"
+          :title="item.title"
+          :type="item.type"
+        />
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
+<style scoped>
+.text-center {
+  font-size: 20px;
+  margin-left: 5px;
+}
+</style>

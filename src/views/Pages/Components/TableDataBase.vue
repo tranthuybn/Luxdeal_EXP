@@ -44,6 +44,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  titleChilden: {
+    type: String,
+    default: ''
+  },
   apiTableChild: {
     type: Function as PropType<apiType>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
@@ -113,17 +117,18 @@ const pushAdd = () => {
       :removeDrawer="removeDrawer"
       :expand="expand"
       :titleButtons="props.titleButtons"
-      :customOperator="props.customOperator"
+      :customOperator="customOperator"
       :apiTableChild="apiTableChild"
       :columnsTableChild="columnsTableChild"
-      :paginationType="props.pagination"
+      :paginationType="pagination"
       ref="tableBase01"
       :api="dynamicApi"
       :maxHeight="'69vh'"
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"
-      :selection="props.selection"
+      :selection="selection"
+      :titleChilden="props.titleChilden"
     />
   </section>
 </template>

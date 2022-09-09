@@ -166,7 +166,7 @@ const cancel = () => {
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
       </ElCol>
-      <ElCol :span="8" v-if="hasImage">
+      <ElCol :span="hasImage ? 8 : 0" v-if="hasImage">
         <div>{{ t('reuse.addImage') }}</div>
         <el-upload
           action="#"
@@ -202,6 +202,19 @@ const cancel = () => {
     </ElRow>
 
     <template #under>
+      <div v-if="props.type === 'form01'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+          {{ t('reuse.addNew') }}
+        </ElButton>
+      </div>
+      <div v-if="props.type === 'form02'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.fix') }}
+        </ElButton>
+      </div>
       <div v-if="props.type === 'add'">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}

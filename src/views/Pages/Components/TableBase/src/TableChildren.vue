@@ -5,16 +5,10 @@ import { Table, TableExpose } from '@/components/Table'
 import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
-import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
-import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
-import { useIcon } from '@/hooks/web/useIcon'
-import { useRoute, useRouter } from 'vue-router'
+import { ElButton } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStore } from '@/store/modules/app'
-import TableChildren from './TableChildren.vue'
-
+import { addOperatorColumn, dynamicApi, dynamicColumns } from '../../TablesReusabilityFunction'
 const { t } = useI18n()
-const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
@@ -33,7 +27,7 @@ const props = defineProps({
   },
   customOperator: {
     type: Number,
-    default: 1,
+    default: 2,
     validator(value: number) {
       // The value must match one of these strings
       return [1, 2, 3].includes(value)
@@ -42,7 +36,7 @@ const props = defineProps({
   },
   paginationType: {
     type: Boolean,
-    default: true
+    default: false
   },
   expand: {
     type: Boolean,
@@ -57,10 +51,6 @@ const props = defineProps({
     default: () => []
   },
   titleButtons: {
-    type: String,
-    default: ''
-  },
-  titleChilden: {
     type: String,
     default: ''
   },
@@ -90,6 +80,7 @@ const getData = (data = {}) => {
 onBeforeMount(() => {
   getData()
 })
+
 // execute pagination
 watch(
   () => tableObject.tableList,
@@ -105,6 +96,7 @@ watch(
     immediate: true
   }
 )
+
 // operation colum toggle
 const { setColumn } = methods
 function operatorColumnToggle(param) {
@@ -129,7 +121,7 @@ defineExpose({
   tableObject
 })
 //call api when filter in header change
-const { setSearchParams, clearSearchParams } = methods
+const { setSearchParams } = methods
 const filterChange = (filterValue) => {
   if (filterValue && typeof unref(filterValue) === 'object')
     for (let key in filterValue) {
@@ -138,73 +130,14 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
-//value is an object, get called when filter range(to-from) value
-const confirm = (value) => {
-  setSearchParams(value)
-}
-const cancel = (field) => {
-  clearSearchParams(field)
-}
-const filterSelect = (value) => {
-  setSearchParams(value)
-}
-const { push } = useRouter()
-const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const action = (row: TableData, type: string) => {
-  push({
-    name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { id: row.id, type: type }
-  })
-}
-const delData = async (row: TableData | null, multiple: boolean) => {
-  console.log('row', row, 'multiple', multiple)
-}
-
-//get array of headerFilter in column (if there is a headerFilter)
-const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
-const drawer = ref(false)
-const showingColumnList = ref<Array<string>>(
-  props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
-)
-
-const showingColumn =
-  props.fullColumns.length > 0
-    ? props.fullColumns
-        .map((el) => ({ value: el.field, label: el.label }))
-        ?.filter((el) => el.value)
-    : []
+onBeforeMount(() => {
+  dynamicApi.value = props.api
+  dynamicColumns.value = props.fullColumns
+  if (props.customOperator === 2) addOperatorColumn(dynamicColumns.value)
+})
 </script>
 <template>
   <ContentWrap class="relative">
-    <div
-      v-if="!removeDrawer"
-      class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
-      id="rabbit-ear"
-      @click="drawer = !drawer"
-    >
-      <Icon icon="ic:baseline-keyboard-double-arrow-down" />
-    </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="10%">
-      <template #header>
-        <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
-      </template>
-      <template #default>
-        <ElCheckboxGroup v-model="showingColumnList" fill="var(--el-color-primary)">
-          <ElCheckboxButton
-            v-for="(item, index) in showingColumn"
-            :key="index"
-            :label="item.value"
-            size="small"
-            >{{ item.label }}</ElCheckboxButton
-          >
-        </ElCheckboxGroup>
-      </template>
-    </ElDrawer>
     <Table
       ref="tableRef"
       :expand="expand"
@@ -212,7 +145,7 @@ const showingColumn =
       v-model:currentPage="tableObject.currentPage"
       :data="tableObject.tableList"
       :loading="tableObject.loading"
-      :pagination="paginationObj"
+      :pagination="undefined"
       :showOverflowTooltip="false"
       :maxHeight="maxHeight"
       @mouseenter="operatorColumnToggle('right')"
@@ -223,84 +156,18 @@ const showingColumn =
       @filter-change="filterChange"
       :selection="selection"
     >
-      <template #imgTitle="data">
-        <div class="imageTitle" style="display: flex; align-items: center">
-          <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.image" />
-          </div>
-          <div>{{ data.row.title }}</div>
-        </div>
-      </template>
-      <template #image="data">
-        <div>
-          <el-image style="width: 100px; height: 100px" :src="data.row.image" />
-        </div>
-      </template>
-      <template
-        v-for="(header, index) in ColumnsHaveHeaderFilter"
-        :key="index"
-        #[`${header.field}-header`]
-      >
-        {{ header.label }}
-        <InputMoneyRange
-          v-if="header.headerFilter === 'Money'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputDateRange
-          v-if="header.headerFilter === 'Date'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputNumberRange
-          v-if="header.headerFilter === 'Number'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputName
-          v-if="header.headerFilter === 'Name'"
-          :field="header.field"
-          @filter-select="filterSelect"
-          @cancel="cancel"
-        />
-      </template>
-      <template v-if="!(customOperator === 3)" #operator="{ row }">
-        <div v-if="customOperator === 1">
-          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-          <ElButton @click="action(row, 'detail')" :icon="editIcon" />
-          <ElButton @click="delData(row, false)" :icon="trashIcon" />
-        </div>
-        <div v-if="customOperator === 2">
-          <ElButton type="primary" @click="action(row, 'edit')" plain>
-            {{ t('reuse.fix') }}
-          </ElButton>
-          <ElButton type="danger" @click="action(row, 'delete')">
-            {{ t('reuse.delete') }}
-          </ElButton></div
-        >
-      </template>
-      <template #expand>
-        <div id="title-price-information">{{ props.titleChilden }}</div>
-        <TableChildren
-          id="price-information"
-          :expand="false"
-          :selection="false"
-          :fullColumns="props.columnsTableChild"
-          :api="props.apiTableChild"
-          :customOperator="props.customOperator"
-        />
+      <template v-if="customOperator === 2" #operator>
+        <ElButton type="primary" plain>
+          {{ t('reuse.fix') }}
+        </ElButton>
+        <ElButton type="danger">
+          {{ t('reuse.delete') }}
+        </ElButton>
       </template>
     </Table>
-    <ElButton id="bt-add"> {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>
-#bt-add {
-  margin-top: 20px;
-}
 ::v-deep(.el-overlay) {
   position: absolute !important;
 }

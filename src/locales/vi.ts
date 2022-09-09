@@ -841,6 +841,10 @@ export default {
     findContent: 'Tìm theo nội dung',
     library: 'Thư viện',
     contract: 'Hợp đồng',
-    currency: 'đ'
+    currency: 'đ',
+    //Warehouse/storage
+    typeStorage: 'Loại kho',
+    chooseRankStorage: 'Chọn cấp kho',
+    nameStorage: 'Tên kho'
   }
 }

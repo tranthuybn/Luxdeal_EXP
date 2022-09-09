@@ -664,19 +664,21 @@ const adminList = [
             name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
-            }
-          },
-          {
-            path: `${utility}`,
-            component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
-            name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
-            meta: {
-              title: 'reuse.addNewWarehouse',
-              noTagsView: true,
-              noCache: true,
-              hidden: true,
-              showMainRoute: true
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
+                name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
+                meta: {
+                  title: 'reuse.addNewWarehouse',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       }

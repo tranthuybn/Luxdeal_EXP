@@ -59,7 +59,7 @@ const router = useRouter()
 const pushAdd = () => {
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { backRoute: String(router.currentRoute.value.name) }
+    params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
   })
 }
 </script>

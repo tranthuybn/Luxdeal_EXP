@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-
+import { getProductStorageList } from '@/api/Warehouse'
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
     field: 'field13',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeStorage'),
     component: 'Divider'
   },
   {
     field: 'field14',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.chooseRankStorage'),
     component: 'Select',
     componentProps: {
       options: [
@@ -38,16 +38,8 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field2',
-    label: t('reuse.nameRank1Category'),
-    component: 'Input',
-    colProps: {
-      span: 13
-    }
-  },
-  {
-    field: 'field3',
-    label: t('reuse.displayPosition'),
+    field: 'title',
+    label: t('reuse.nameStorage'),
     component: 'Input',
     colProps: {
       span: 13
@@ -59,7 +51,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -70,7 +62,7 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.active'),
-          value: '1'
+          value: 'Đang hoạt động'
         },
         {
           label: t('reuse.stopShowAppWeb'),
@@ -84,11 +76,31 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+//lay du lieu tu router
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
+const id = String(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 const title = router.currentRoute.value.meta.title
+
+//luu data vao currentRow
+const currentRow = ref()
+//goi api truyen params id
+const getTableData = async () => {
+  const res = await getProductStorageList({ id: id })
+  if (res) {
+    currentRow.value = res.data
+  }
+}
+getTableData()
 </script>
 
 <template>
-  <TableOperator :schema="schema" :nameBack="currentRoute" :title="title" />
+  <TableOperator
+    :schema="schema"
+    :nameBack="currentRoute"
+    :title="title"
+    :current-row="currentRow"
+    :type="type"
+  />
 </template>

@@ -8,8 +8,9 @@ import { apiType, TableResponse } from '../../Type'
 import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useAppStore } from '@/store/modules/app'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -106,9 +107,15 @@ const cancel = (field) => {
 const filterSelect = (value) => {
   setSearchParams(value)
 }
+const { push } = useRouter()
+const router = useRouter()
+const appStore = useAppStore()
+const Utility = appStore.getUtility
 const action = (row: TableData, type: string) => {
-  console.log('row', row, 'type', type)
-  //push(`/example/example-${type}?id=${row.id}`)
+  push({
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
+    params: { id: row.id, type: type }
+  })
 }
 const delData = async (row: TableData | null, multiple: boolean) => {
   console.log('row', row, 'multiple', multiple)
@@ -217,8 +224,8 @@ const showingColumn =
         />
       </template>
       <template #operator="{ row }">
-        <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-        <ElButton @click="action(row, 'detail')" :icon="editIcon" />
+        <ElButton @click="action(row, 'edit')" :icon="editIcon" />
+        <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="delData(row, false)" :icon="trashIcon" />
       </template>
     </Table>

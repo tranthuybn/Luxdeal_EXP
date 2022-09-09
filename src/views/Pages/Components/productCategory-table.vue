@@ -58,7 +58,11 @@ const Utility = appStore.getUtility
 const pushAdd = () => {
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { tabName: currentTab.value, backRoute: String(router.currentRoute.value.name) }
+    params: {
+      type: 'add',
+      tabName: currentTab.value,
+      backRoute: String(router.currentRoute.value.name)
+    }
   })
 }
 </script>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { PropType, ref, onBeforeMount } from 'vue'
-import { TableType01 } from './TableBase/index2'
+import { TableType01 } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
 import {
   addOperatorColumn,
@@ -46,7 +46,7 @@ onBeforeMount(() => {
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"
-      :selection="selection"
+      :selection="false"
     />
   </section>
 </template>

@@ -1,5 +1,6 @@
 import Mock from 'mockjs'
 const featuresRentalPrice: {
+  id: number
   managementCode: string
   featureGroup: string
   quantityTo: number
@@ -17,6 +18,7 @@ for (let i = 0; i < 100; i++) {
   const random = Math.floor(Math.random() * status.length)
   featuresRentalPrice.push(
     Mock.mock({
+      id: i,
       managementCode: '@sentence(3, 5)',
       featureGroup: '@sentence(3, 5)',
       quantityTo: '@natural(20,30)',

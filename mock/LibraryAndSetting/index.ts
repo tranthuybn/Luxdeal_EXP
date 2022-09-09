@@ -18,6 +18,8 @@ import { featuresRentalPrice } from './productLibrary/featuresRentalPrice'
 import { spaPrice } from './productLibrary/spaPrice'
 import { SpaLibrary } from './ServiceLibrary/spa'
 import { inventoryTrading } from './productLibrary/inventoryTrading'
+import { priceByQuantity } from './productLibrary/priceByQuantity'
+import { importAndExportHistory } from './productLibrary/importAndExportHistory'
 
 const { result_code } = config
 const timeout = 1000
@@ -352,6 +354,42 @@ export default [
         code: result_code,
         data: {
           total: inventoryTrading.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/price-by-quantity',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = priceByQuantity.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: priceByQuantity.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/import-Export-History',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = importAndExportHistory.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: importAndExportHistory.length,
           list: pageList
         }
       }

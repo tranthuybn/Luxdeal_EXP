@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom1.vue'
+import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom.vue'
 import {
   getBranchList,
   getDepartmentList,

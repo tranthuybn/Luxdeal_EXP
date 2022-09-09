@@ -120,7 +120,9 @@ export default {
     enterDescription: 'Enter description',
     enterPrice: 'Enter price',
     enterNumberHours: 'Enter the number of hours',
-    enterNumberDays: 'Enter the number of days'
+    enterNumberDays: 'Enter the number of days',
+    productInfomation: 'Product infomation',
+    standardManagementMaterialsUsed: 'Standard management of materials used'
   },
   router: {
     login: 'Login',

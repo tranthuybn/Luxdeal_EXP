@@ -78,3 +78,11 @@ export const getInventoryTrading = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/inventory-trading', params })
   return res && res.data
 }
+export const getPriceByQuantity = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/price-by-quantity', params })
+  return res && res.data
+}
+export const getImportAndExportHistory = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/import-Export-History', params })
+  return res && res.data
+}

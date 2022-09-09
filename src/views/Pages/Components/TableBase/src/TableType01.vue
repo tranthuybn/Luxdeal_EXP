@@ -10,7 +10,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom1.vue'
+import tableDatetimeFilterBasicVue from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
 import { useAppStore } from '@/store/modules/app'
 
 const { t } = useI18n()
@@ -59,6 +59,10 @@ const props = defineProps({
   titleButtons: {
     type: String,
     default: ''
+  },
+  removeDrawer: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -83,20 +87,6 @@ onBeforeMount(() => {
   getData()
 })
 // execute pagination
-watch(
-  () => tableObject.tableList,
-  () => {
-    props.paginationType
-      ? (paginationObj.value = {
-          total: tableObject.total
-        })
-      : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
-  },
-  {
-    immediate: true
-  }
-)
 watch(
   () => tableObject.tableList,
   () => {
@@ -188,7 +178,7 @@ const showingColumn =
 <template>
   <ContentWrap class="relative">
     <div
-      v-if="paginationType == true"
+      v-if="removeDrawer == true"
       class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
       id="rabbit-ear"
       @click="drawer = !drawer"
@@ -293,6 +283,7 @@ const showingColumn =
         <tableDatetimeFilterBasicVue
           id="price-information"
           :expand="false"
+          :selection="false"
           :columns="props.columnsTableChild"
           :api="props.apiTableChild"
           :customOperator="2"

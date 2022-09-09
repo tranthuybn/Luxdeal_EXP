@@ -18,7 +18,6 @@ import { TableResponse, apiType } from './Type'
 const { t } = useI18n()
 const { emitter } = useEmitt()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
-
 const { required } = useValidator()
 const props = defineProps({
   currentRow: {
@@ -41,6 +40,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  expand: {
+    type: Boolean,
+    default: true
+  },
   buttons: {
     type: Number,
     default: 0
@@ -55,6 +58,14 @@ const props = defineProps({
   },
   columns: {
     type: Array as PropType<TableColumn[]>,
+    default: () => []
+  },
+  apiTableChild: {
+    type: Function as PropType<apiType>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  columnsTableChild: {
+    type: Array as PropType<TableColumn[]> | null,
     default: () => []
   }
 })
@@ -162,7 +173,19 @@ setTimeout(() => {
 </script>
 
 <template>
-  <tableDatetimeFilterBasicVue v-if="buttons == 2" :columns="columns" :api="api" :key="buttons" />
+  <tableDatetimeFilterBasicVue
+    :expand="expand"
+    v-if="buttons == 2"
+    :titleButtons="props.titleButtons"
+    :columns="columns"
+    :api="api"
+    :key="buttons"
+    :apiTableChild="apiTableChild"
+    :columnsTableChild="columnsTableChild"
+    ><el-button id="bt-add" v-if="buttons == 2" :icon="plusIcon">
+      {{ props.titleButtons }}
+    </el-button>
+  </tableDatetimeFilterBasicVue>
   <ContentDetailWrap v-else :backButton="backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
@@ -210,8 +233,10 @@ setTimeout(() => {
     <ElButton type="primary" plain :loading="loading" v-if="buttons == 3" @click="save">
       {{ t('reuse.fix') }}
     </ElButton>
-    <el-button :icon="plusIcon" v-if="buttons == 2">
-      {{ titleButtons }}
-    </el-button>
   </ContentDetailWrap>
 </template>
+<style scoped>
+#bt-add {
+  margin-top: 20px;
+}
+</style>

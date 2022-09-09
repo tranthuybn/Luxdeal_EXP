@@ -10,129 +10,114 @@ const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'field7',
-    label: t('formDemo.generalServiceInformation'),
+    field: 'generalInformation',
+    label: t('formDemo.generalInformation'),
     component: 'Divider'
   },
   {
-    field: 'field1',
-    label: t('formDemo.serviceCode'),
+    field: 'orderCode',
+    label: t('formDemo.orderCode'),
     component: 'Input',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceCode')
+      placeholder: t('Nhập mã đơn hàng')
     }
   },
   {
-    field: 'field2',
-    label: t('formDemo.serviceName'),
+    field: 'collaborators',
+    label: t('formDemo.collaborators'),
+    component: 'Input',
+    colProps: {
+      span: 9
+    },
+    componentProps: {
+      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
+    }
+  },
+  {
+    field: 'discount',
+    formItemProps: {
+      labelWidth: '0px'
+    },
+    component: 'Input',
+    colProps: {
+      span: 9
+    },
+    componentProps: {
+      placeholder: t('formDemo.enterDiscount')
+    }
+  },
+  {
+    field: 'orderNotes',
+    label: t('formDemo.orderNotes'),
     component: 'Input',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceName')
+      placeholder: t('formDemo.addNotes')
     }
   },
   {
-    field: 'field3',
-    label: t('formDemo.shortDescription'),
-    component: 'Input',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterDescription')
-    }
-  },
-  {
-    field: 'fied4',
-    label: t('formDemo.description'),
-    component: 'Editor',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      defaultHtml: ''
-    }
-  },
-  {
-    field: 'field7',
-    label: t('formDemo.servicePriceAndExecutionTime'),
+    field: 'customer',
+    label: t('formDemo.customer'),
     component: 'Divider'
   },
   {
-    field: 'field4',
-    label: t('formDemo.serviceUnitPrice'),
+    field: 'customerName',
+    label: t('formDemo.customerName'),
+    component: 'Input',
+    colProps: {
+      span: 18
+    }
+  },
+  {
+    field: 'companyInformation',
+    label: t('formDemo.companyInformation'),
     component: 'Input',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterPrice')
+      modelValue: '123213213213\n Mã số thuế',
+      class: 'xoaBorder'
     }
   },
   {
-    field: 'field5',
-    label: t('formDemo.promotionalPrice'),
-    component: 'Input',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterPrice')
-    }
-  },
-  {
-    field: 'field61',
-    label: t('formDemo.executionTime'),
-    component: 'Input',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterNumberHours')
-    }
-  },
-  {
-    field: 'field7',
-    label: t('formDemo.insurance'),
-    component: 'Input',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterNumberDays')
-    }
-  },
-  {
-    field: 'field8',
-    label: t('formDemo.statusAndFunctional'),
+    field: 'customer',
+    label: t('reuse.promotion'),
     component: 'Divider'
   },
   {
-    field: 'field42',
-    label: t('formDemo.status'),
-    component: 'Checkbox',
-    value: [],
+    field: 'voucher',
+    label: t('router.voucher'),
+    component: 'Select',
+    colProps: {
+      span: 18
+    },
     componentProps: {
+      placeholder: t('formDemo.selectOrEnterCouponCode'),
       options: [
         {
-          label: t('formDemo.pending'),
-          value: 'wating'
+          label: 'option1',
+          value: '1'
         },
         {
-          label: t('formDemo.isActive'),
-          value: 'active'
-        },
-        {
-          label: t('formDemo.pauseActivity'),
-          value: 'stop'
+          label: 'option2',
+          value: '2'
         }
       ]
     }
+  }
+])
+
+const productForm = reactive<FormSchema[]>([
+  {
+    field: 'informationProduct',
+    label: 'quan ly',
+    component: 'Input'
   }
 ])
 interface Collapse {
@@ -150,18 +135,20 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: t('formDemo.productInfomation'),
+    title: t('formDemo.orderInformation'),
     columns: schema,
     api: getBranchList,
     buttonAdd: '',
-    buttons: 1
+    buttons: 3
   },
   {
     icon: plusIcon,
-    name: 'priceCharacteristics',
-    title: t('formDemo.standardManagementMaterialsUsed'),
-    buttonAdd: 'Thêm đặc tính và giá bán',
-    buttons: 2
+    name: 'product',
+    title: t('san pham'),
+    columns: productForm,
+    api: undefined,
+    buttonAdd: '',
+    buttons: 3
   }
 ]
 let currentCollapse = ref<string>(collapse[0].name)
@@ -180,7 +167,6 @@ const collapseChangeEvent = (val) => {
 const activeName = ref('information')
 // const router = useRouter()
 // const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = 'Thông tin dich vụ'
 </script>
 
 <template>
@@ -198,15 +184,18 @@ const title = 'Thông tin dich vụ'
         </template>
         <TableAddBusinessProduct
           :schema="schema"
-          :title="title"
-          :buttons="item.buttons"
           :backButton="false"
-          :titleButtons="item.buttonAdd"
           :api="item.api"
           :key="index"
           :columns="item.columns"
+          :buttons="item.buttons"
         />
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
+<style scoped>
+::v-deep(.el-select) {
+  width: 100%;
+}
+</style>

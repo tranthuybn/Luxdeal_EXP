@@ -122,7 +122,20 @@ export default {
     enterNumberHours: 'Nhập số giờ',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
-    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng'
+    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
+    orderInformation: 'Thông tin đơn hàng',
+    generalInformation: 'Thông tin chung',
+    orderCode: 'Mã đơn hàng',
+    collaborators: 'Cộng tác viên',
+    selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
+    enterDiscount: 'Nhập chiết khấu',
+    orderNotes: 'Ghi chú đơn hàng',
+    addNotes: 'Thêm ghi chú',
+    customer: 'Khách hàng',
+    customerName: 'Tên khách hàng',
+    selectOrEnterCouponCode: 'Chọn hoặc nhập mã voucher',
+    productInformation: 'Thông tin sản phẩm',
+    companyInformation: 'Thông tin công ty'
   },
   router: {
     login: 'Đăng nhập',

@@ -293,9 +293,21 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+            name: `business.order-management.order-list.${utility}`,
+            meta: {
+              title: 'reuse.createANewOrder',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'create-new-order',
             name: 'business.order-management.create-new-order',
-            component: 'views/Pages/Business/OrderManagement/CreateANewOrder',
+            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
             meta: {
               title: 'router.createANewOrder'
             }

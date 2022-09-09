@@ -1,12 +1,55 @@
-<template>
-  <div>{{ t(currentRoute?.meta?.title ? currentRoute?.meta?.title?.toString() : '') }}</div>
-</template>
-
 <script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
+import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
+import { getBranchList } from '@/api/HumanResourceManagement'
+import { getFeaturesPrices, getImportAndExportHistory } from '@/api/LibraryAndSetting'
+import { useIcon } from '@/hooks/web/useIcon'
+import { Collapse } from '../../Components/Type'
+import {
+  columnProfileCustomer,
+  saleHistoryCustomerCare,
+  columnsImportExportHistory
+} from './PotentialCustomerManagement'
 import { useRouter } from 'vue-router'
-const { currentRoute } = useRouter()
-const { t } = useI18n()
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
+const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const collapse: Array<Collapse> = [
+  {
+    icon: minusIcon,
+    name: 'information',
+    title: 'Thông tin khách hàng',
+    columns: columnProfileCustomer,
+    api: getBranchList,
+    buttonAdd: '',
+    type: 'form'
+  },
+  {
+    icon: plusIcon,
+    name: 'priceCharacteristics',
+    title: 'Sale & lịch sử chăm sóc khách hàng',
+    columns: saleHistoryCustomerCare,
+    api: getFeaturesPrices,
+    buttonAdd: 'Thêm đặc tính và giá bán',
+    type: 'table',
+    expand: true,
+    apiTableChild: getImportAndExportHistory,
+    columnsTableChild: columnsImportExportHistory,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: false,
+    selection: false
+  }
+]
+//lay du lieu tu router
+const router = useRouter()
+const type = String(router.currentRoute.value.params.type)
+const id = String(router.currentRoute.value.params.id)
 </script>
-
-<style></style>
+<template> <CollapseBase :collapse="collapse" :id="id" :type="type" /></template>
+<style scoped>
+.header-icon {
+  margin: 10px;
+}
+.text-center {
+  font-size: 20px;
+}
+</style>

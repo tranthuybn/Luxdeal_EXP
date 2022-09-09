@@ -4,7 +4,16 @@ import { useForm } from '@/hooks/web/useForm'
 import { PropType, reactive, watch, ref, unref } from 'vue'
 import { TableData } from '@/api/table/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElRow, ElCol, ElUpload, ElButton, ElDialog, UploadUserFile } from 'element-plus'
+import {
+  ElRow,
+  ElCol,
+  ElUpload,
+  ElButton,
+  ElDialog,
+  UploadUserFile,
+  UploadProps,
+  ElMessage
+} from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
@@ -41,6 +50,10 @@ const props = defineProps({
   type: {
     type: String,
     default: ''
+  },
+  limitUpload: {
+    type: Number,
+    default: 1
   }
 })
 
@@ -146,6 +159,21 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
+  console.log('success', response, uploadFile)
+}
+
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Avatar picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+
 const saveAndAdd = () => {
   console.log('saveAndAdd')
 }
@@ -173,7 +201,10 @@ const cancel = () => {
           :disabled="props.type === 'detail'"
           list-type="picture-card"
           :auto-upload="false"
+          :limit="props.limitUpload"
           v-model:file-list="fileList"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
         >
           <el-button :icon="addIcon" />
 
@@ -196,7 +227,7 @@ const cancel = () => {
           </template>
         </el-upload>
         <el-dialog v-model="dialogVisible">
-          <img w-full :src="dialogImageUrl" alt="Preview Image" />
+          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
     </ElRow>

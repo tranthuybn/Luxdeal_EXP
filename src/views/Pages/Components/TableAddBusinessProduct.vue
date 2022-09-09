@@ -182,7 +182,10 @@ setTimeout(() => {
     :key="buttons"
     :apiTableChild="apiTableChild"
     :columnsTableChild="columnsTableChild"
-  />
+    ><el-button id="bt-add" v-if="buttons == 2" :icon="plusIcon">
+      {{ props.titleButtons }}
+    </el-button>
+  </tableDatetimeFilterBasicVue>
   <ContentDetailWrap v-else :backButton="backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
@@ -230,9 +233,6 @@ setTimeout(() => {
     <ElButton type="primary" plain :loading="loading" v-if="buttons == 3" @click="save">
       {{ t('reuse.fix') }}
     </ElButton>
-    <el-button id="bt-add" v-if="buttons == 2" :icon="plusIcon">
-      {{ props.titleButtons }}
-    </el-button>
   </ContentDetailWrap>
 </template>
 <style scoped>

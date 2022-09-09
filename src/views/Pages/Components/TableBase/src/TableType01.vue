@@ -11,7 +11,6 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableManageRoom1.vue'
-const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
@@ -292,13 +291,9 @@ const showingColumn =
         />
       </template>
     </Table>
-    <el-button id="bt-add" :icon="plusIcon"> {{ props.titleButtons }} </el-button>
   </ContentWrap>
 </template>
 <style lang="less" scoped>
-#bt-add {
-  margin-top: 20px;
-}
 ::v-deep(.el-overlay) {
   position: absolute !important;
 }

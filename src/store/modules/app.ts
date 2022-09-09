@@ -86,15 +86,9 @@ export const useAppStore = defineStore({
     },
     getUtility(): string {
       return this.utility
-    },
-    getVersion(): string {
-      return this.version
     }
   },
   actions: {
-    setVersion(version: string) {
-      this.version = version
-    },
     setUtility(utility: string) {
       this.utility = utility
     },

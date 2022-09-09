@@ -12,6 +12,7 @@ import shoppingBagRight from '@/assets/svgs/login/shoppingBagRight.svg'
 import humanBG from '@/assets/svgs/login/human.svg'
 import plant from '@/assets/svgs/login/plant.svg'
 import loginBackground from '@/assets/svgs/login/loginBackground.svg'
+import { version } from '/package.json'
 
 const { getPrefixCls } = useDesign()
 
@@ -110,6 +111,7 @@ const toLogin = () => {
           </div>
         </Transition>
       </div>
+      <div class="text-gray-600 absolute bottom-0 right-2">version: {{ version }}</div>
     </div>
   </div>
 </template>

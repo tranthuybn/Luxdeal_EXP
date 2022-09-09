@@ -43,6 +43,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  multipleImages: {
+    type: Boolean,
+    default: true
+  },
   title: {
     type: String,
     default: ''
@@ -150,7 +154,7 @@ props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-
+const imageUrl = ref('')
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
 }
@@ -183,6 +187,28 @@ const delAction = () => {
 const cancel = () => {
   console.log('cancel')
 }
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
+  console.log('success', response, uploadFile)
+}
+const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+  console.log('success', uploadFile, uploadFiles)
+  if (!props.multipleImages) {
+    const file = fileList.value.pop()
+    if (file != undefined) {
+      imageUrl.value = URL.createObjectURL(file.raw!)
+    }
+  }
+}
+const previewImage = () => {
+  dialogVisible.value = true
+  dialogImageUrl.value = imageUrl.value
+}
+const removeImage = () => {
+  imageUrl.value = ''
+}
+type ListImages = 'text' | 'picture' | 'picture-card'
+const listType = ref<ListImages>('text')
+!props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
 
 <template>
@@ -196,14 +222,25 @@ const cancel = () => {
         <div>{{ t('reuse.addImage') }}</div>
         <el-upload
           action="#"
+          class="avatar-uploader"
           :disabled="props.type === 'detail'"
           :auto-upload="false"
-          :limit="props.limitUpload"
+          :show-file-list="multipleImages"
           v-model:file-list="fileList"
-          list-type="picture-card"
+          :list-type="listType"
+          :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
+          :on-change="handleChange"
         >
-          <el-button :icon="addIcon" />
+          <div v-if="!multipleImages">
+            <div v-if="imageUrl" class="relative">
+              <img :src="imageUrl" class="avatar" />
+            </div>
+            <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
+          </div>
+          <div v-else>
+            <el-button :icon="addIcon" />
+          </div>
           <template #file="{ file }">
             <div>
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -222,6 +259,10 @@ const cancel = () => {
             </div>
           </template>
         </el-upload>
+        <div class="w-250px flex justify-center" v-if="imageUrl">
+          <el-button :icon="viewIcon" @click="previewImage" />
+          <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+        </div>
         <el-dialog v-model="dialogVisible">
           <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
@@ -258,3 +299,27 @@ const cancel = () => {
     </template>
   </ContentDetailWrap>
 </template>
+<style scoped>
+.avatar-uploader .avatar {
+  padding-bottom: 1rem;
+  width: 250px;
+  display: block;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.avatar-uploader-icon {
+  width: 178px;
+  height: 178px;
+}
+</style>

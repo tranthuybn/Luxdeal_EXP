@@ -93,5 +93,6 @@ const title = router.currentRoute.value.meta.title
     :title="title"
     :id="id"
     :type="type"
+    :multipleImages="false"
   />
 </template>

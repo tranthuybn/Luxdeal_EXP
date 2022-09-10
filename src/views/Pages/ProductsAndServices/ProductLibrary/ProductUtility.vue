@@ -26,7 +26,6 @@ import {
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
-import { t } from '@/hooks/web/useI18n'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -85,7 +84,7 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 2,
-    titleChilden: t('reuse.rentalPriceTableByQuantity')
+    titleChilden: 'reuse.rentalPriceTableByQuantity'
   },
   {
     icon: plusIcon,
@@ -153,7 +152,7 @@ const collapse: Array<Collapse> = [
     expand: true,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportAndExportHistory,
-    titleChilden: t('reuse.importAndExportHistoryByProductLine'),
+    titleChilden: 'reuse.importAndExportHistoryByProductLine',
     pagination: false,
     removeHeaderFilter: true,
     removeDrawer: true,

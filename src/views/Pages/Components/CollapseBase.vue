@@ -66,7 +66,7 @@ const activeName = ref(props.default)
           :removeHeaderFilter="item.removeHeaderFilter"
           :removeDrawer="item.removeDrawer"
           :expand="item.expand"
-          v-if="item.type === 'table'"
+          v-if="item.typeForm === 'table' || item.typeForm === 'all'"
           :titleButtons="item.buttonAdd"
           :columns="item.columns"
           :api="item.api"
@@ -79,13 +79,13 @@ const activeName = ref(props.default)
           :customOperatorChilden="item.customOperatorChilden"
         />
         <TableOperator
-          v-else
+          v-if="item.typeForm === 'form' || item.typeForm === 'all'"
           class="infinite-list"
           style="overflow: auto"
           :hasImage="item.hasImage"
           :schema="item.columns"
           :title="item.title"
-          :type="item.type"
+          :typeButton="item.typeButton"
           :class="[
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"

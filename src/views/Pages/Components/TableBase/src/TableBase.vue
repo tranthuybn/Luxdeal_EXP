@@ -2,7 +2,6 @@
 import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
-import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
@@ -11,11 +10,13 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
+import { useTable } from '@/hooks/web/useTable'
 
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
+
 const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
@@ -47,12 +48,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-
   removeDrawer: {
     type: Boolean,
     default: false
   }
 })
+
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({

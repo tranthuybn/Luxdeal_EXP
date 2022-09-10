@@ -57,6 +57,10 @@ const props = defineProps({
   removeDrawer: {
     type: Boolean,
     default: false
+  },
+  customOperatorChilden: {
+    type: Boolean,
+    default: true
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -156,7 +160,7 @@ onBeforeMount(() => {
       @filter-change="filterChange"
       :selection="selection"
     >
-      <template v-if="customOperator === 2" #operator>
+      <template v-if="customOperatorChilden" #operator>
         <ElButton type="primary" plain>
           {{ t('reuse.fix') }}
         </ElButton>

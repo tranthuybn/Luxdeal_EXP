@@ -32,5 +32,6 @@ interface Collapse {
   customOperator?: number
   hasImage?: boolean
   titleChilden?: string
+  customOperatorChilden?: boolean
 }
 export { apiType, TableResponse, Tab, Collapse }

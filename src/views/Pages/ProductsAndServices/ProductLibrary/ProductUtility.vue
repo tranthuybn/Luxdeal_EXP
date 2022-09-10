@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
-import { getBranchList, getTypePersonnelList } from '@/api/HumanResourceManagement'
+import { getTypePersonnelList } from '@/api/HumanResourceManagement'
 import {
   getFeaturesDepositFee,
   getFeaturesPawnFee,
@@ -36,7 +36,7 @@ const collapse: Array<Collapse> = [
     name: 'information',
     title: 'Thông tin sản phẩm',
     columns: columnProfileProduct,
-    api: getBranchList,
+    api: undefined,
     buttonAdd: '',
     type: 'form01',
     expand: false,
@@ -99,7 +99,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -116,7 +116,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -133,7 +133,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -151,7 +151,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -169,19 +169,12 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3,
-    hasImage: false
+    hasImage: false,
+    customOperatorChilden: false
   }
 ]
 //lay du lieu tu router
 const router = useRouter()
 const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" :id="id" /></template>
-<style scoped>
-.header-icon {
-  margin: 10px;
-}
-.text-center {
-  font-size: 20px;
-}
-</style>
+<template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template>

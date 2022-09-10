@@ -2,7 +2,6 @@
 import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
-import { useTable } from '@/hooks/web/useTable'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
@@ -10,13 +9,14 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 import { useAppStore } from '@/store/modules/app'
+import { useTable } from '@/hooks/web/useTable'
 
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
+
 const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
@@ -38,7 +38,7 @@ const props = defineProps({
       // The value must match one of these strings
       return [1, 2, 3].includes(value)
     },
-    Descriptions: '1 thao tác 3 icon ;2 là thao tác 2 button sửa xóa; 3 không có thao tác'
+    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
   },
   paginationType: {
     type: Boolean,
@@ -48,23 +48,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  apiTableChild: {
-    type: Function as PropType<apiType>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
-  },
-  columnsTableChild: {
-    type: Array as PropType<TableColumn[]>,
-    default: () => []
-  },
-  titleButtons: {
-    type: String,
-    default: ''
-  },
   removeDrawer: {
     type: Boolean,
     default: false
   }
 })
+
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({
@@ -178,7 +167,7 @@ const showingColumn =
 <template>
   <ContentWrap class="relative">
     <div
-      v-if="removeDrawer == true"
+      v-if="!removeDrawer"
       class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
       id="rabbit-ear"
       @click="drawer = !drawer"
@@ -265,8 +254,8 @@ const showingColumn =
       </template>
       <template v-if="!(customOperator === 3)" #operator="{ row }">
         <div v-if="customOperator === 1">
-          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-          <ElButton @click="action(row, 'detail')" :icon="editIcon" />
+          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
+          <ElButton @click="action(row, 'edit')" :icon="editIcon" />
           <ElButton @click="delData(row, false)" :icon="trashIcon" />
         </div>
         <div v-if="customOperator === 2">
@@ -279,20 +268,15 @@ const showingColumn =
         >
       </template>
       <template #expand>
-        <div id="title-price-information">{{ t('reuse.rentalPriceTableByQuantity') }}</div>
-        <tableDatetimeFilterBasicVue
-          id="price-information"
-          :expand="false"
-          :selection="false"
-          :columns="props.columnsTableChild"
-          :api="props.apiTableChild"
-          :customOperator="2"
-        />
+        <slot name="expand"> </slot>
       </template>
     </Table>
   </ContentWrap>
 </template>
 <style lang="less" scoped>
+#bt-add {
+  margin-top: 20px;
+}
 ::v-deep(.el-overlay) {
   position: absolute !important;
 }
@@ -348,10 +332,5 @@ const showingColumn =
   max-width: 70vw;
   position: relative;
   left: 11vw;
-}
-#title-price-information {
-  font-size: large;
-  text-align: center;
-  font-weight: 600;
 }
 </style>

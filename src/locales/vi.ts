@@ -839,6 +839,7 @@ export default {
     pawnStore: 'Kho cầm đồ',
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
+    importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
     rentalConsult: 'Tư vấn cho thuê',

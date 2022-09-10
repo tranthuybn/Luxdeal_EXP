@@ -1,6 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, unref } from 'vue'
-import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
+import TableType01 from '@/views/Pages/Components/TableBase.vue'
 import {
   filterTableStatus,
   filterTableCategory,

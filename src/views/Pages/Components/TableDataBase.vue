@@ -75,6 +75,10 @@ const props = defineProps({
   customOperatorChilden: {
     type: Boolean,
     default: true
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 
@@ -134,6 +138,7 @@ const pushAdd = () => {
       :selection="selection"
       :titleChilden="props.titleChilden"
       :customOperatorChilden="props.customOperatorChilden"
+      :typeButton="props.typeButton"
     />
   </section>
 </template>

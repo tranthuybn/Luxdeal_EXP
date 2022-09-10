@@ -77,6 +77,7 @@ const activeName = ref(props.default)
           :customOperator="item.customOperator"
           :titleChilden="item.titleChilden"
           :customOperatorChilden="item.customOperatorChilden"
+          :typeButton="item.typeButton"
         />
         <TableOperator
           v-if="item.typeForm === 'form' || item.typeForm === 'all'"

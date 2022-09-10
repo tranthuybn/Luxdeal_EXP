@@ -71,6 +71,10 @@ const props = defineProps({
   customOperatorChilden: {
     type: Boolean,
     default: true
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -299,7 +303,7 @@ const showingColumn =
         />
       </template>
     </Table>
-    <ElButton id="bt-add"> {{ props.titleButtons }}</ElButton>
+    <ElButton v-if="props.typeButton === 'table'" id="bt-add"> {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>

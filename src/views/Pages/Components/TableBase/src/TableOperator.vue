@@ -63,6 +63,14 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  typeForm: {
+    type: String,
+    default: ''
+  },
+  typeButton: {
+    type: String,
+    default: ''
+  },
   limitUpload: {
     type: Number,
     default: 1
@@ -217,7 +225,11 @@ const listType = ref<ListImages>('text')
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
       </ElCol>
-      <ElCol :span="8" v-if="hasImage" class="max-h-400px overflow-y-auto shadow-inner p-1">
+      <ElCol
+        :span="hasImage ? 8 : 0"
+        v-if="hasImage"
+        class="max-h-400px overflow-y-auto shadow-inner p-1"
+      >
         <h3 class="text-center font-bold">{{ t('reuse.addImage') }}</h3>
         <el-upload
           action="#"
@@ -268,6 +280,19 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under>
+      <div v-if="props.typeButton === 'form01'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+          {{ t('reuse.addNew') }}
+        </ElButton>
+      </div>
+      <div v-if="props.typeButton === 'form02'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.fix') }}
+        </ElButton>
+      </div>
       <div v-if="props.type === 'add'">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}

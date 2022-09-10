@@ -59,7 +59,11 @@ const activeName = ref('information')
           :columnsTableChild="item.columnsTableChild"
           :selection="item.selection"
         />
-        <TableOperator v-else :schema="item.columns" :title="item.title" />
+        <TableOperator
+          v-if="item.buttons == 1 || item.buttons == 2"
+          :schema="item.columns"
+          :title="item.title"
+        />
       </el-collapse-item>
     </el-collapse>
   </div>

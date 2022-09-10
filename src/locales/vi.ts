@@ -126,6 +126,7 @@ export default {
     orderInformation: 'Thông tin đơn hàng',
     generalInformation: 'Thông tin chung',
     orderCode: 'Mã đơn hàng',
+    enterOrderCode: 'Nhập mã đơn hàng',
     collaborators: 'Cộng tác viên',
     selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
     enterDiscount: 'Nhập chiết khấu',
@@ -135,7 +136,15 @@ export default {
     customerName: 'Tên khách hàng',
     selectOrEnterCouponCode: 'Chọn hoặc nhập mã voucher',
     productInformation: 'Thông tin sản phẩm',
-    companyInformation: 'Thông tin công ty'
+    companyInformation: 'Thông tin công ty',
+    noDebt: 'Không có công nợ !',
+    debt: 'Có công nợ',
+    discountVoucher: 'Giảm 50% giá trị đơn hàng',
+    attachments: 'Hồ sơ đính kèm',
+    addPhotosOrFiles: 'Thêm ảnh hoặc file'
+  },
+  button: {
+    add: 'Thêm nhanh'
   },
   router: {
     login: 'Đăng nhập',
@@ -408,7 +417,6 @@ export default {
     remarkMessage1: 'Quyền điều khiển tuyến đường của điều khiển trở lại',
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
-
   reuse: {
     index: 'STT',
     receivedDate: 'Ngày nhận',

@@ -94,7 +94,7 @@ const activeName = ref(props.default)
               :customOperator="item.customOperator"
               :customOperatorChilden="item.customOperatorChilden"
             />
-            <ElButton id="bt-add"> {{ item.buttonAdd }}</ElButton>
+            <ElButton id="bt-add" class="mx-12"> {{ item.buttonAdd }}</ElButton>
           </template>
         </tableDatetimeFilterBasicVue>
 

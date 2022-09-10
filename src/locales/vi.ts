@@ -865,6 +865,9 @@ export default {
     lastContent: 'Nội dung cuối',
     orderSalesAssign: 'Gán doanh số đơn hàng',
     customerCareContent: 'Nội dung chăm sóc khách hàng',
+    saleHistoryCustomerCare: 'Sale & lịch sử chăm sóc khách hàng',
+    addSale: 'Thêm mới sale',
+    historySaleCustomerCare: 'Lịch sử sale chăm sóc khách hàng',
     //Warehouse/storage
     typeStorage: 'Loại kho',
     chooseRankStorage: 'Chọn cấp kho',

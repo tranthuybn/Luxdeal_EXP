@@ -13,9 +13,12 @@ import {
 import { useValidator } from '@/hooks/web/useValidator'
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/hooks/web/useI18n'
+
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const { required, ValidService } = useValidator()
+const { t } = useI18n()
 const rules = reactive({
   customerInfo: [required()],
   customerName: [required()],
@@ -29,7 +32,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: 'Thông tin khách hàng',
+    title: t('reuse.customerInfo'),
     columns: columnProfileCustomer,
     api: getBranchList,
     buttonAdd: '',
@@ -40,10 +43,10 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'priceCharacteristics',
-    title: 'Sale & lịch sử chăm sóc khách hàng',
+    title: t('reuse.saleHistoryCustomerCare'),
     columns: saleHistoryCustomerCare,
     api: getaddNewPotenialCustomerList,
-    buttonAdd: 'Thêm mới sale',
+    buttonAdd: t('reuse.addSale'),
     expand: true,
     customOperator: 2,
     apiTableChild: getImportAndExportHistory,
@@ -53,7 +56,7 @@ const collapse: Array<Collapse> = [
     removeDrawer: false,
     selection: false,
     typeForm: 'table',
-    titleChilden: 'Lịch sử sale chăm sóc khách hàng'
+    titleChilden: t('reuse.historySaleCustomerCare')
   }
 ]
 //lay du lieu tu router

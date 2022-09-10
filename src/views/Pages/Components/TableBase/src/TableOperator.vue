@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import { useValidator } from '@/hooks/web/useValidator'
 import {
@@ -24,6 +24,7 @@ import { apiType, TableResponse } from '../../Type'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
+const { required } = useValidator()
 
 const props = defineProps({
   api: {
@@ -101,10 +102,9 @@ const schema = props.schema
 const { register, methods, elFormRef } = useForm({
   schema
 })
+let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
 
-let fileList = ref<UploadUserFile[]>([])
-  / luu du lieu vao form
 watch(
   () => props.currentRow,
   (currentRow) => {

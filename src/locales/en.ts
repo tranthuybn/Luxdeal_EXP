@@ -802,6 +802,9 @@ export default {
     lastContent: 'Last Content',
     orderSalesAssign: 'Order Sale Assign',
     customerCareContent: 'Customer Care Content',
+    saleHistoryCustomerCare: 'Sale & History Custormer Care',
+    addSale: 'Add New Sale',
+    historySaleCustomerCare: 'History Sale Customer Care',
     //Warehouse
     typeStorage: 'Type of storage',
     chooseRankStorage: 'Choose Rank Storage',

@@ -134,6 +134,10 @@ const pushAdd = () => {
       :selection="selection"
       :titleChilden="props.titleChilden"
       :customOperatorChilden="props.customOperatorChilden"
-    />
+    >
+      <template #expand>
+        <slot name="expand"></slot>
+      </template>
+    </TableBase>
   </section>
 </template>

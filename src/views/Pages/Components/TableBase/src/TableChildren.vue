@@ -228,9 +228,4 @@ onBeforeMount(() => {
   position: relative;
   left: 11vw;
 }
-#title-price-information {
-  font-size: large;
-  text-align: center;
-  font-weight: 600;
-}
 </style>

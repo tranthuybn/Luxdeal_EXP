@@ -102,6 +102,7 @@ const activeName = ref(props.default)
           v-if="item.typeForm === 'form' || item.typeForm === 'all'"
           class="infinite-list"
           style="overflow: auto"
+          :rules="item.rules"
           :hasImage="item.hasImage"
           :schema="item.columns"
           :title="item.title"

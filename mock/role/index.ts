@@ -259,7 +259,7 @@ const adminList = [
             }
           },
           {
-            path: 'potential-customer-add/:type',
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
             name: `business.potential-customer-care.potential-customer-list.${utility}`,
             meta: {

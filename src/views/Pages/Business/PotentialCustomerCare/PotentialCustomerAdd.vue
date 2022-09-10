@@ -10,9 +10,21 @@ import {
   saleHistoryCustomerCare,
   columnsImportExportHistory
 } from './PotentialCustomerManagement'
+import { useValidator } from '@/hooks/web/useValidator'
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const { required, ValidService } = useValidator()
+const rules = reactive({
+  customerInfo: [required()],
+  customerName: [required()],
+  phoneNumber: [ValidService.checkPhone],
+  email: [required()],
+  link: [required()],
+  transactionHistory: [required()]
+})
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -21,8 +33,9 @@ const collapse: Array<Collapse> = [
     columns: columnProfileCustomer,
     api: getBranchList,
     buttonAdd: '',
-    type: 'form',
-    hasImage: false
+    hasImage: false,
+    rules: rules,
+    typeForm: 'form'
   },
   {
     icon: plusIcon,
@@ -31,22 +44,23 @@ const collapse: Array<Collapse> = [
     columns: saleHistoryCustomerCare,
     api: getaddNewPotenialCustomerList,
     buttonAdd: 'Thêm mới sale',
-    type: 'table',
     expand: true,
+    customOperator: 2,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportExportHistory,
     pagination: false,
     removeHeaderFilter: true,
     removeDrawer: false,
-    selection: false
+    selection: false,
+    typeForm: 'table',
+    titleChilden: 'Lịch sử sale chăm sóc khách hàng'
   }
 ]
 //lay du lieu tu router
 const router = useRouter()
-const type = String(router.currentRoute.value.params.type)
 const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" :id="id" :type="type" /></template>
+<template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template>
 <style scoped>
 .header-icon {
   margin: 10px;

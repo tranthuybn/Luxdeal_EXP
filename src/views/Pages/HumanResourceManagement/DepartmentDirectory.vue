@@ -11,6 +11,7 @@ import { filterGender, filterDepartment } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../Components/Type'
+import { useRouter } from 'vue-router'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -193,6 +194,12 @@ const collapse: Array<Collapse> = [
     title: 'Chi nhánh',
     columns: columnsBranch,
     api: getBranchList,
+    type: 'table',
+    pagination: false,
+    selection: false,
+    customOperator: 1,
+    removeHeaderFilter: true,
+    removeDrawer: true,
     buttonAdd: 'Thêm chi nhánh'
   },
   {
@@ -201,6 +208,12 @@ const collapse: Array<Collapse> = [
     title: 'Phòng ban',
     columns: columnsBDepartment,
     api: getDepartmentList,
+    type: 'table',
+    pagination: false,
+    selection: false,
+    customOperator: 1,
+    removeHeaderFilter: true,
+    removeDrawer: true,
     buttonAdd: 'Thêm Phòng ban'
   },
   {
@@ -209,6 +222,12 @@ const collapse: Array<Collapse> = [
     title: 'Cấp bậc',
     columns: columnsRank,
     api: getRankList,
+    type: 'table',
+    pagination: false,
+    selection: false,
+    customOperator: 1,
+    removeHeaderFilter: true,
+    removeDrawer: true,
     buttonAdd: 'Thêm cấp bậc'
   },
   {
@@ -217,20 +236,18 @@ const collapse: Array<Collapse> = [
     title: 'Loại hình nhân sự',
     columns: columnsTypePersonnel,
     api: getTypePersonnelList,
+    type: 'table',
+    pagination: false,
+    selection: false,
+    customOperator: 1,
+    removeHeaderFilter: true,
+    removeDrawer: true,
     buttonAdd: 'Thêm loại hình'
   }
 ]
+const router = useRouter()
+const id = String(router.currentRoute.value.params.id)
 </script>
 <template>
-  <div class="demo-collapse">
-    <CollapseBase :collapse="collapse" />
-  </div>
+  <CollapseBase :collapse="collapse" :default="'branch'" :id="id" />
 </template>
-<style scoped>
-.header-icon {
-  margin: 10px;
-}
-.text-center {
-  font-size: 20px;
-}
-</style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
-import { getBranchList, getTypePersonnelList } from '@/api/HumanResourceManagement'
+import { getTypePersonnelList } from '@/api/HumanResourceManagement'
 import {
   getFeaturesDepositFee,
   getFeaturesPawnFee,
@@ -36,9 +36,10 @@ const collapse: Array<Collapse> = [
     name: 'information',
     title: 'Thông tin sản phẩm',
     columns: columnProfileProduct,
-    api: getBranchList,
+    api: undefined,
     buttonAdd: '',
-    type: 'form01',
+    typeForm: 'form',
+    typeButton: 'form01',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -55,7 +56,8 @@ const collapse: Array<Collapse> = [
     columns: featuresPrice,
     api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
@@ -73,7 +75,8 @@ const collapse: Array<Collapse> = [
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
     buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
@@ -91,7 +94,8 @@ const collapse: Array<Collapse> = [
     columns: featuresDepositFee,
     api: getFeaturesDepositFee,
     buttonAdd: 'Thêm đặc tính và phí kí gửi',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -99,7 +103,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -108,7 +112,8 @@ const collapse: Array<Collapse> = [
     columns: featuresPawnFee,
     api: getFeaturesPawnFee,
     buttonAdd: 'Thêm đặc tính và phí cầm đồ',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -116,7 +121,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -125,7 +130,8 @@ const collapse: Array<Collapse> = [
     columns: spaPrice,
     api: getSpaLPrice,
     buttonAdd: 'Thêm dịch vụ và phí spa',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -133,7 +139,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -142,7 +148,8 @@ const collapse: Array<Collapse> = [
     columns: inventoryTrading,
     api: getInventoryTrading,
     buttonAdd: 'Thêm đặc tính',
-    type: 'table',
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportAndExportHistory,
@@ -151,7 +158,7 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    customOperator: 3
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -160,7 +167,8 @@ const collapse: Array<Collapse> = [
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     buttonAdd: '',
-    type: 'form02',
+    typeForm: 'form',
+    typeButton: 'form02',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
@@ -169,19 +177,12 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3,
-    hasImage: false
+    hasImage: false,
+    customOperatorChilden: false
   }
 ]
 //lay du lieu tu router
 const router = useRouter()
 const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" :id="id" /></template>
-<style scoped>
-.header-icon {
-  margin: 10px;
-}
-.text-center {
-  font-size: 20px;
-}
-</style>
+<template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template>

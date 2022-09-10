@@ -41,6 +41,14 @@ const props = defineProps({
   type: {
     type: String,
     default: ''
+  },
+  typeForm: {
+    type: String,
+    default: ''
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 
@@ -202,7 +210,7 @@ const cancel = () => {
     </ElRow>
 
     <template #under>
-      <div v-if="props.type === 'form01'">
+      <div v-if="props.typeButton === 'form01'">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}
         </ElButton>
@@ -210,7 +218,7 @@ const cancel = () => {
           {{ t('reuse.addNew') }}
         </ElButton>
       </div>
-      <div v-if="props.type === 'form02'">
+      <div v-if="props.typeButton === 'form02'">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.fix') }}
         </ElButton>

@@ -67,6 +67,10 @@ const props = defineProps({
   removeDrawer: {
     type: Boolean,
     default: false
+  },
+  customOperatorChilden: {
+    type: Boolean,
+    default: true
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -291,6 +295,7 @@ const showingColumn =
           :fullColumns="props.columnsTableChild"
           :api="props.apiTableChild"
           :customOperator="props.customOperator"
+          :customOperatorChilden="props.customOperatorChilden"
         />
       </template>
     </Table>

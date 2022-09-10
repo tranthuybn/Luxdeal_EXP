@@ -799,6 +799,9 @@ export default {
     customerService: 'Customer Service',
     serviceDetails: 'Service Details',
     newData: 'New  Data',
+    lastContent: 'Last Content',
+    orderSalesAssign: 'Order Sale Assign',
+    customerCareContent: 'Customer Care Content',
     //Warehouse
     typeStorage: 'Type of storage',
     chooseRankStorage: 'Choose Rank Storage',

@@ -21,7 +21,8 @@ const collapse: Array<Collapse> = [
     columns: columnProfileCustomer,
     api: getBranchList,
     buttonAdd: '',
-    type: 'form'
+    type: 'form',
+    hasImage: false
   },
   {
     icon: plusIcon,
@@ -29,7 +30,7 @@ const collapse: Array<Collapse> = [
     title: 'Sale & lịch sử chăm sóc khách hàng',
     columns: saleHistoryCustomerCare,
     api: getaddNewPotenialCustomerList,
-    buttonAdd: 'Thêm đặc tính và giá bán',
+    buttonAdd: 'Thêm mới sale',
     type: 'table',
     expand: true,
     apiTableChild: getImportAndExportHistory,

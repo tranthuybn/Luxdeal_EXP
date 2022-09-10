@@ -305,7 +305,7 @@ export const columnsImportExportHistory = reactive<TableColumn[]>([
   {
     field: 'customerCareContent',
     label: t('reuse.customerCareContent'),
-    minWidth: '150',
+    minWidth: '450',
     sortable: true
   },
   {

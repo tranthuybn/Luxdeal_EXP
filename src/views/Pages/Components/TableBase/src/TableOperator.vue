@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, reactive, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import { useValidator } from '@/hooks/web/useValidator'
 import {
@@ -24,8 +24,8 @@ import { apiType, TableResponse } from '../../Type'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
-
 const { required } = useValidator()
+
 const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
@@ -71,6 +71,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  rules: {
+    type: Object,
+    default: () => {}
+  },
   limitUpload: {
     type: Number,
     default: 1
@@ -98,9 +102,29 @@ const schema = props.schema
 const { register, methods, elFormRef } = useForm({
   schema
 })
+let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
 
-let fileList = ref<UploadUserFile[]>([])
+watch(
+  () => props.currentRow,
+  (currentRow) => {
+    if (!currentRow) {
+      return
+    }
+    if (currentRow.list.length !== 0) {
+      const { setValues } = methods
+      setValues(currentRow?.list[0])
+      fileList.value.push({
+        url: currentRow.list[0].image,
+        name: currentRow.list[0].title
+      })
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const setFormValue = () => {
   const { setValues } = methods
   setValues(formValue.value)
@@ -158,7 +182,11 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
-
+//set Title
+let title = ref(props.title)
+if (props.title == 'undefined') {
+  title.value = 'Category'
+}
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)

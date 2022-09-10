@@ -1,7 +1,8 @@
 import { useAxios } from '@/hooks/web/useAxios'
+import { objectToQueryParams } from '@/utils/format'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API_Variables'
 
 const request = useAxios()
-
 export const getProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/products/List', params })
   return res && res.data
@@ -43,7 +44,13 @@ export const getBrandCategories = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getOriginCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/OriginCategories/List', params })
+  const paramsObj = { TypeName: PRODUCTS_AND_SERVICES.ORIGIN, ...params }
+  const res = await request.get(
+    {
+      url: `/Category/GetCategory?${objectToQueryParams(paramsObj)}`
+    },
+    true
+  )
   return res && res.data
 }
 export const getBusinessProductLibrary = async (params: any): Promise<IResponse> => {

@@ -794,6 +794,9 @@ export default {
     //Warehouse
     typeStorage: 'Type of storage',
     chooseRankStorage: 'Choose Rank Storage',
-    nameStorage: 'Name of Storage'
+    nameStorage: 'Name of Storage',
+    //filter status product
+    show: 'Show',
+    notShow: 'Hidden'
   }
 }

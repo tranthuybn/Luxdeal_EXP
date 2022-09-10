@@ -856,6 +856,9 @@ export default {
     //Warehouse/storage
     typeStorage: 'Loại kho',
     chooseRankStorage: 'Chọn cấp kho',
-    nameStorage: 'Tên kho'
+    nameStorage: 'Tên kho',
+    //filter status product
+    show: 'Hiển thị',
+    notShow: 'Ẩn'
   }
 }

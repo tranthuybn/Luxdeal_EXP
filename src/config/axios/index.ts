@@ -15,7 +15,6 @@ const service: AxiosInstance = axios.create({
   baseURL: PATH_URL, // API's base_url
   timeout: config.request_timeout // Request timeout time
 })
-
 // Request interceptor
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
@@ -53,7 +52,7 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   (response: AxiosResponse<Recordable>) => {
-    if (response.data.code === result_code) {
+    if (response.data.code === result_code || response.data.code == null) {
       return response
     } else {
       ElMessage.error(response.data.message)

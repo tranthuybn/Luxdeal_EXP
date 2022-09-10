@@ -269,7 +269,12 @@ export const saleHistoryCustomerCare = reactive<TableColumn[]>([
   {
     field: 'lastContent',
     label: t('reuse.lastContent'),
-    minWidth: '650'
+    minWidth: '500'
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '150'
   },
   {
     field: 'saleName',

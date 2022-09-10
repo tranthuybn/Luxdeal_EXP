@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { getBranchList } from '@/api/HumanResourceManagement'
-import { getFeaturesPrices, getImportAndExportHistory } from '@/api/LibraryAndSetting'
+import { getImportAndExportHistory } from '@/api/LibraryAndSetting'
+import { getaddNewPotenialCustomerList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import {
@@ -27,7 +28,7 @@ const collapse: Array<Collapse> = [
     name: 'priceCharacteristics',
     title: 'Sale & lịch sử chăm sóc khách hàng',
     columns: saleHistoryCustomerCare,
-    api: getFeaturesPrices,
+    api: getaddNewPotenialCustomerList,
     buttonAdd: 'Thêm đặc tính và giá bán',
     type: 'table',
     expand: true,

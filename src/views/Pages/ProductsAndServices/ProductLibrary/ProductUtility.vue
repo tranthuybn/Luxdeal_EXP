@@ -66,7 +66,7 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 2,
-    titleChilden: t('reuse.rentalPriceTableByQuantity')
+    titleChilden: 'reuse.rentalPriceTableByQuantity'
   },
   {
     icon: plusIcon,

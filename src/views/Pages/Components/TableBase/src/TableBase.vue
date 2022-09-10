@@ -11,7 +11,6 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
-import TableChildren from './TableChildren.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -38,7 +37,7 @@ const props = defineProps({
       // The value must match one of these strings
       return [1, 2, 3].includes(value)
     },
-    Descriptions: '1 thao tác 3 icon ;2 là thao tác 2 button sửa xóa; 3 không có thao tác'
+    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
   },
   paginationType: {
     type: Boolean,
@@ -48,29 +47,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  apiTableChild: {
-    type: Function as PropType<apiType>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
-  },
-  columnsTableChild: {
-    type: Array as PropType<TableColumn[]>,
-    default: () => []
-  },
-  titleButtons: {
-    type: String,
-    default: ''
-  },
-  titleChilden: {
-    type: String,
-    default: ''
-  },
+
   removeDrawer: {
     type: Boolean,
     default: false
-  },
-  customOperatorChilden: {
-    type: Boolean,
-    default: true
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -287,19 +267,9 @@ const showingColumn =
         >
       </template>
       <template #expand>
-        <div id="title-price-information">{{ props.titleChilden }}</div>
-        <TableChildren
-          id="price-information"
-          :expand="false"
-          :selection="false"
-          :fullColumns="props.columnsTableChild"
-          :api="props.apiTableChild"
-          :customOperator="props.customOperator"
-          :customOperatorChilden="props.customOperatorChilden"
-        />
+        <slot name="expand"> </slot>
       </template>
     </Table>
-    <ElButton id="bt-add"> {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>
@@ -361,10 +331,5 @@ const showingColumn =
   max-width: 70vw;
   position: relative;
   left: 11vw;
-}
-#title-price-information {
-  font-size: large;
-  text-align: center;
-  font-weight: 600;
 }
 </style>

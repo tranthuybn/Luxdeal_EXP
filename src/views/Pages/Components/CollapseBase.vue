@@ -6,6 +6,11 @@ import { useDesign } from '@/hooks/web/useDesign'
 import { Collapse } from './Type'
 import { TableOperator } from '../Components/TableBase'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
+import TableChildren from './TableBase/src/TableChildren.vue'
+import { useI18n } from '@/hooks/web/useI18n'
+
+const { t } = useI18n()
+
 const props = defineProps({
   collapse: {
     type: Array<Collapse>,
@@ -77,7 +82,22 @@ const activeName = ref(props.default)
           :customOperator="item.customOperator"
           :titleChilden="item.titleChilden"
           :customOperatorChilden="item.customOperatorChilden"
-        />
+        >
+          <template #expand>
+            <div id="title-price-information">{{ t(`${item.titleChilden}`) }}</div>
+            <TableChildren
+              id="price-information"
+              :expand="false"
+              :selection="false"
+              :fullColumns="item.columnsTableChild"
+              :api="item.apiTableChild"
+              :customOperator="item.customOperator"
+              :customOperatorChilden="item.customOperatorChilden"
+            />
+            <ElButton id="bt-add"> {{ item.buttonAdd }}</ElButton>
+          </template>
+        </tableDatetimeFilterBasicVue>
+
         <TableOperator
           v-if="item.typeForm === 'form' || item.typeForm === 'all'"
           class="infinite-list"
@@ -101,5 +121,10 @@ const activeName = ref(props.default)
 }
 .infinite-list {
   max-height: 75vh;
+}
+#title-price-information {
+  font-size: large;
+  text-align: center;
+  font-weight: 600;
 }
 </style>

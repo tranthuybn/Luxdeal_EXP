@@ -18,7 +18,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
 import { useEmitt } from '@/hooks/web/useEmitt'
-import { ContentDetailWrap } from '@/components/ContentDetailWrap'
+import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { apiType, TableResponse } from '../../Type'
 
@@ -212,8 +212,7 @@ const listType = ref<ListImages>('text')
 </script>
 
 <template>
-  <ContentDetailWrap>
-    {{ t(title) }}
+  <ContentWrap :title="t(`${title}`)">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
@@ -297,7 +296,7 @@ const listType = ref<ListImages>('text')
         </ElButton>
       </div>
     </template>
-  </ContentDetailWrap>
+  </ContentWrap>
 </template>
 <style scoped>
 .avatar-uploader .avatar {

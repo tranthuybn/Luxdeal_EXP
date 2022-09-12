@@ -75,14 +75,10 @@ export const getUnitCategories = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const getBrandCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/BrandCategories/List', params })
-  return res && res.data
-}
-export const getOriginCategories = async (params?: any): Promise<IResponse> => {
+export const GETCATEGORY = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${PRODUCTS_AND_SERVICES_API.GET_ORIGIN}?${objectToQueryParams(params)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

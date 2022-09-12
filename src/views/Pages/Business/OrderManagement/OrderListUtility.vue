@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElUpload } from 'element-plus'
+import {
+  ElCollapse,
+  ElCollapseItem,
+  ElUpload,
+  ElSelect,
+  ElOption,
+  ElCheckbox,
+  ElButton
+} from 'element-plus'
 import type { UploadFile } from 'element-plus'
 // import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
 // import { getBranchList } from '@/api/HumanResourceManagement'
@@ -15,9 +23,10 @@ import { Form } from '@/components/Form'
 
 // import { TableOperator } from '../Components/TableBase'
 // import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
-// import tableDatetimeFilterBasicVue from '@/views/Pages/Components/tableType01-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 import { featuresPrice } from './ProductLibraryManagement'
-import { getPriceByQuantity } from '@/api/LibraryAndSetting'
+import { getFeaturesPrices } from '@/api/LibraryAndSetting'
+// import { getPriceByQuantity } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
 
@@ -31,7 +40,7 @@ const schema = reactive<FormSchema[]>([
     field: 'orderCode',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     },
     componentProps: {
       placeholder: t('formDemo.enterOrderCode')
@@ -41,7 +50,7 @@ const schema = reactive<FormSchema[]>([
     field: 'collaborators',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     },
     componentProps: {
       placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
@@ -51,7 +60,7 @@ const schema = reactive<FormSchema[]>([
     field: 'orderNotes',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     },
     componentProps: {
       placeholder: t('formDemo.addNotes')
@@ -66,121 +75,33 @@ const schema = reactive<FormSchema[]>([
     field: 'customerName',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     }
   },
   {
     field: 'companyInformation',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     }
   },
   {
     field: 'debt',
     component: 'Input',
     colProps: {
-      span: 18
+      span: 20
     }
   }
-  // {
-  //   field: 'customer',
-  //   label: t('reuse.promotion'),
-  //   component: 'Divider'
-  // },
-  // {
-  //   field: 'voucher',
-  //   component: 'Select',
-  //   colProps: {
-  //     span: 18
-  //   },
-  //   componentProps: {
-  //     placeholder: t('formDemo.selectOrEnterCouponCode'),
-  //     options: [
-  //       {
-  //         label: 'option1',
-  //         value: '1'
-  //       },
-  //       {
-  //         label: 'option2',
-  //         value: '2'
-  //       }
-  //     ]
-  //   }
-  // }
-  // {
-  //   field: 'discountVoucher',
-  //   component: 'Input',
-  //   colProps: {
-  //     span: 18
-  //   },
-  //   componentProps: {
-  //     modelValue: t('formDemo.discountVoucher'),
-  //     class: 'custom-background'
-  //   }
-  // }
 ])
+
 const activeName = ref('orderInformation')
 const handleChange = (val: string[]) => {
   console.log(val)
 }
 
-const { register } = useForm()
-// const props = defineProps({
-//   collapse: {
-//     type: Array<Collapse>,
-//     default: () => []
-//   }
-// })
-// const plusIcon = useIcon({ icon: 'akar-icons:plus' })
-// const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const titleName = t('formDemo.productAndPayment')
 
-// let currentCollapse = ref<string>(props.collapse[0].name)
-// const collapseChangeEvent = (val) => {
-//   if (val) {
-//     props.collapse.forEach((el) => {
-//       if (val.includes(el.name)) el.icon = minusIcon
-//       else if (el.icon == minusIcon) el.icon = plusIcon
-//     })
-//   } else
-//     props.collapse.forEach((el) => {
-//       el.icon = plusIcon
-//     })
-// }
-// const collapse: Array<Collapse> = [
-//   {
-//     icon: minusIcon,
-//     name: 'information',
-//     title: 'Thông tin sản phẩm',
-//     columns: [],
-//     api: undefined,
-//     buttonAdd: '',
-//     buttons: 1,
-//     expand: false,
-//     apiTableChild: undefined,
-//     columnsTableChild: undefined,
-//     pagination: false,
-//     removeHeaderFilter: true,
-//     removeDrawer: false,
-//     selection: false
-//   },
-//   {
-//     icon: minusIcon,
-//     name: 'information',
-//     title: 'Thông tin sản phẩm',
-//     columns: [],
-//     api: undefined,
-//     buttonAdd: '',
-//     buttons: 1,
-//     expand: false,
-//     apiTableChild: undefined,
-//     columnsTableChild: undefined,
-//     pagination: false,
-//     removeHeaderFilter: true,
-//     removeDrawer: false,
-//     selection: false
-//   }
-// ]
+const { register } = useForm()
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -208,57 +129,90 @@ const collapse: Array<Collapse> = [
     name: 'priceCharacteristics',
     title: 'Bảng đặc tính và giá bán',
     columns: featuresPrice,
-    api: undefined,
+    api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2,
+    titleChilden: 'reuse.rentalPriceTableByQuantity'
   }
 ]
-// Table column
-// const testTable = reactive<TableColumn[]>([
-//   {
-//     field: 'managementCode',
-//     label: t('reuse.managementCode'),
-//     minWidth: '250'
-//   },
-//   {
-//     field: 'featureGroup',
-//     label: t('Thông tin sản phẩm'),
-//     minWidth: '200'
-//   },
-//   {
-//     field: 'quantityTo',
-//     label: t('Kho xuất'),
-//     minWidth: '130'
-//   },
-//   {
-//     field: 'productCategoryUnit',
-//     label: t('Số lượng'),
-//     minWidth: '130'
-//   },
-//   {
-//     field: 'unitPrices',
-//     label: t('Đơn giá'),
-//     minWidth: '130'
-//   },
-//   {
-//     field: 'promotionPrice',
-//     label: t('Thành tiền'),
-//     minWidth: '130'
-//   }
-// ])
+
+const newSchema = reactive<FormSchema[]>([
+  {
+    field: 'paymenAndDelivery',
+    label: t('formDemo.paymenAndDelivery'),
+    component: 'Divider'
+  },
+  {
+    field: 'choosePayment',
+    component: 'Select'
+  },
+  {
+    field: 'chooseShipping',
+    component: 'Select'
+  },
+  {
+    field: 'orderStatus',
+    component: 'Input',
+    value: []
+  },
+  {
+    field: 'buttons',
+    component: 'Input',
+    value: []
+  }
+])
+
+const value = ref('')
+const value2 = ref('')
+
+const options1 = [
+  {
+    value: 'cashPayment',
+    label: t('formDemo.cashPayment')
+  },
+  {
+    value: 'cardPayment',
+    label: t('formDemo.cardPayment')
+  }
+]
+
+const options2 = [
+  {
+    value: 'deliveryAtTheCounter',
+    label: t('formDemo.deliveryAtTheCounter')
+  },
+  {
+    value: 'deliveryToYourPlace',
+    label: t('formDemo.deliveryToYourPlace')
+  }
+]
+
+const checked1 = ref(true)
+const checked2 = ref(false)
+const checked3 = ref(false)
+const checked4 = ref(false)
+const checked5 = ref(false)
+const checked6 = ref(false)
+const checked7 = ref(false)
+
+const doThis = () => {
+  console.log('sas')
+}
 </script>
 
 <template>
   <div class="demo-collapse">
     <el-collapse v-model="activeName" @change="handleChange">
-      <el-collapse-item :title="`- ${t('formDemo.orderInformation')}`" name="orderInformation">
+      <el-collapse-item :title="`${t('formDemo.orderInformation')}`" name="orderInformation">
         <div class="flex w-[100%]">
           <div class="w-[70%]">
             <Form
@@ -266,12 +220,12 @@ const collapse: Array<Collapse> = [
               label-position="top"
               hide-required-asterisk
               size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-solid rounded-3xl box-shadow-blue bg-white"
+              class="flex border-1 border-[var(--el-border-color)] border-solid rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
               @register="register"
             >
               <template #orderCode>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[12%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
+                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
                   <input
                     class="w-[80%] border-1 w-[100%] outline-none pl-2"
                     type="text"
@@ -281,7 +235,7 @@ const collapse: Array<Collapse> = [
               </template>
               <template #collaborators>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[12%] text-right" for="">{{ t('formDemo.collaborators') }}</label>
+                  <label class="w-[16%] text-right" for="">{{ t('formDemo.collaborators') }}</label>
                   <div class="flex w-[80%] gap-2">
                     <input
                       class="w-[50%] border-1 outline-none pl-2"
@@ -298,7 +252,7 @@ const collapse: Array<Collapse> = [
               </template>
               <template #orderNotes>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[12%] text-right" for="">{{ t('formDemo.orderNotes') }}</label>
+                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderNotes') }}</label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
@@ -308,10 +262,10 @@ const collapse: Array<Collapse> = [
               </template>
               <template #customerName>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[12%] text-right" for="">{{ t('formDemo.customerName') }}</label>
-                  <div class="flex w-[88%] gap-2">
+                  <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
+                  <div class="flex w-[84%] gap-2">
                     <input class="w-[80%] border-1 outline-none pl-2" type="text" />
-                    <button class="border-1 pl-5 pr-5 border-[#2C6DDA]"
+                    <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
                     >
                   </div>
@@ -319,7 +273,7 @@ const collapse: Array<Collapse> = [
               </template>
               <template #companyInformation>
                 <div class="flex items-center w-[100%] gap-4">
-                  <div class="w-[12%] text-right" for="">{{
+                  <div class="w-[16%] text-right" for="">{{
                     t('formDemo.companyInformation')
                   }}</div>
                   <div class="w-[80%] leading-5">
@@ -332,15 +286,15 @@ const collapse: Array<Collapse> = [
               </template>
               <template #debt>
                 <div class="flex items-center w-[100%]">
-                  <div class="ml-[13%] w-[80%] bg-[#f4f8fd] text-blue-500">
-                    <p class="ml-4">{{ t('formDemo.noDebt') }}</p>
+                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
+                    <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
                   </div>
                 </div>
               </template>
             </Form>
           </div>
           <div class="w-[30%] p-2">
-            <div class="text-sm text-[#303133] font-medium p-2 pl-4">{{
+            <div class="text-sm text-[#303133] font-medium p-2 pl-4 dark:text-[#fff]">{{
               t('formDemo.attachments')
             }}</div>
             <div class="pl-4">
@@ -370,7 +324,7 @@ const collapse: Array<Collapse> = [
                   </div>
                 </template>
                 <el-dialog v-model="dialogVisible" class="absolute">
-                  <div class="text-[#303133] font-medium"
+                  <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                   >
                 </el-dialog>
@@ -379,23 +333,117 @@ const collapse: Array<Collapse> = [
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item title="- Thông tin sản phẩm" name="productInformation">
-        <div v-for="(item, index) in collapse" :key="index" :name="item.name">
-          <tableDatetimeFilterBasicVue
-            :pagination="item.pagination"
-            :removeHeaderFilter="item.removeHeaderFilter"
-            :removeDrawer="item.removeDrawer"
-            :expand="item.expand"
-            v-if="item.buttons == 2"
-            :titleButtons="item.buttonAdd"
-            :columns="item.columns"
-            :api="item.api"
-            :key="item.buttons"
-            :apiTableChild="item.apiTableChild"
-            :columnsTableChild="item.columnsTableChild"
-            :selection="item.selection"
-          />
-        </div>
+      <el-collapse-item
+        :title="titleName"
+        v-for="(item, index) in collapse"
+        :name="item.name"
+        :key="index"
+      >
+        <tableDatetimeFilterBasicVue
+          :pagination="item.pagination"
+          :removeHeaderFilter="item.removeHeaderFilter"
+          :removeDrawer="item.removeDrawer"
+          :expand="item.expand"
+          v-if="item.typeForm === 'table' || item.typeForm === 'all'"
+          :titleButtons="item.buttonAdd"
+          :columns="item.columns"
+          :api="item.api"
+          :apiTableChild="item.apiTableChild"
+          :columnsTableChild="item.columnsTableChild"
+          :selection="item.selection"
+          :customOperator="item.customOperator"
+          :titleChilden="item.titleChilden"
+          :customOperatorChilden="item.customOperatorChilden"
+        />
+        <Form
+          :schema="newSchema"
+          label-position="top"
+          hide-required-asterisk
+          size="large"
+          @register="register"
+          class="d-block"
+        >
+          <template #choosePayment>
+            <div class="flex align-middle gap-4">
+              <label class="w-[9%] text-right">{{ t('formDemo.choosePayment') }}</label>
+              <div class="w-[46%]">
+                <el-select
+                  v-model="value"
+                  class="m-2"
+                  :placeholder="`${t('formDemo.cashPayment')}`"
+                  size="large"
+                >
+                  <el-option
+                    v-for="i in options1"
+                    :key="i.value"
+                    :label="i.label"
+                    :value="i.value"
+                  />
+                </el-select>
+              </div>
+            </div>
+          </template>
+          <template #chooseShipping>
+            <div class="flex gap-4">
+              <label class="w-[9%] text-right">{{ t('formDemo.chooseShipping') }}</label>
+              <div class="w-[46%]">
+                <el-select
+                  v-model="value2"
+                  class="m-2"
+                  :placeholder="`${t('formDemo.deliveryAtTheCounter')}`"
+                  size="large"
+                >
+                  <el-option
+                    v-for="i in options2"
+                    :key="i.value"
+                    :label="i.label"
+                    :value="i.value"
+                  />
+                </el-select>
+              </div>
+            </div>
+          </template>
+          <template #orderStatus>
+            <div class="flex gap-4 w-[100%] ml-1">
+              <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+              <div class="w-[84%] pl-1">
+                <el-checkbox v-model="checked1" :label="`${t('reuse.pending')}`" size="large" />
+                <el-checkbox
+                  v-model="checked2"
+                  :label="`${t('reuse.closedTheOrder')}`"
+                  size="large"
+                />
+                <el-checkbox v-model="checked3" :label="`${t('reuse.delivery')}`" size="large" />
+                <el-checkbox
+                  v-model="checked4"
+                  :label="`${t('reuse.successfulDelivery')}`"
+                  size="large"
+                />
+                <el-checkbox
+                  v-model="checked5"
+                  :label="`${t('reuse.deliveryFailed')}`"
+                  size="large"
+                />
+                <el-checkbox v-model="checked6" :label="`${t('reuse.paying')}`" size="large" />
+                <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
+              </div>
+            </div>
+          </template>
+          <template #buttons>
+            <div class="w-[100%] flex gap-4">
+              <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
+                <el-button class="min-w-40">{{ t('formDemo.edit') }}</el-button>
+                <el-button type="primary" class="min-w-40">{{
+                  t('formDemo.printSalesSlip')
+                }}</el-button>
+                <el-button class="min-w-40">{{ t('formDemo.printDepositSlip') }}</el-button>
+                <el-button type="primary" class="min-w-40">{{ t('formDemo.complete') }}</el-button>
+                <el-button class="min-w-40">{{ t('reuse.cancel') }}</el-button>
+                <el-button type="danger" class="min-w-40">{{ t('reuse.delete') }}</el-button>
+              </div>
+            </div>
+          </template>
+        </Form>
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -418,5 +466,18 @@ const collapse: Array<Collapse> = [
   width: 160px;
   height: 40px;
   border: 1px solid #409eff;
+}
+::v-deep(.d-block > .el-row) {
+  display: block;
+}
+
+::v-deep(.el-form-item__content) {
+  display: block;
+}
+
+@media only screen and (min-width: 1920px) {
+  ::v-deep(.el-col-xl-12) {
+    max-width: 100%;
+  }
 }
 </style>

@@ -141,7 +141,20 @@ export default {
     debt: 'Có công nợ',
     discountVoucher: 'Giảm 50% giá trị đơn hàng',
     attachments: 'Hồ sơ đính kèm',
-    addPhotosOrFiles: 'Thêm ảnh hoặc file'
+    addPhotosOrFiles: 'Thêm ảnh hoặc file',
+    productAndPayment: 'Sản phẩm và thanh toán',
+    paymentAndDelivery: 'Thanh toán và giao hàng',
+    choosePayment: 'Chọn thanh toán',
+    chooseShipping: 'Chọn giao vận',
+    cashPayment: 'Thanh toán tiền mặt',
+    cardPayment: 'Thanh toán thẻ',
+    deliveryAtTheCounter: 'Giao hàng tại quầy',
+    deliveryToYourPlace: 'Giao hàng tận nơi',
+    printSalesSlip: 'In phiếu bán hàng',
+    printDepositSlip: 'In phiếu đặt cọc',
+    complete: 'Hoàn thành',
+    edit: 'Sửa',
+    orderStatus: 'Trạng thái đơn hàng'
   },
   button: {
     add: 'Thêm nhanh'

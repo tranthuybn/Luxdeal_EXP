@@ -141,7 +141,20 @@ export default {
     debt: 'Have debt !',
     discountVoucher: 'Sale off 50% orders',
     attachments: 'Attachments',
-    addPhotosOrFiles: 'Add photos or files'
+    addPhotosOrFiles: 'Add photos or files',
+    productAndPayment: 'Product & payment',
+    paymentAndDilivery: 'Payment & delivery',
+    choosePayment: 'Choose payment',
+    chooseShipping: 'Choose shipping',
+    cashPayment: 'Cash payment',
+    cardPayment: 'Card payment',
+    deliveryAtTheCounter: 'Delivery at the counter',
+    deliveryToYourPlace: 'delivery to your place',
+    printSalesSlip: 'Print sales slip',
+    printDepositSlip: 'Print deposit slip',
+    complete: 'Completed',
+    edit: 'Edit',
+    orderStatus: 'Order status'
   },
   button: {
     add: 'Add quick'

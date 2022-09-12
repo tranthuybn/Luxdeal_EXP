@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { objectToQueryParams } from '@/utils/format'
+import { objectToQueryParams, FORM_DATA } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
 const fixedBaseURL = true
 const request = useAxios()
@@ -48,6 +48,14 @@ export const getOriginCategories = async (params?: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_ORIGIN}?${objectToQueryParams(params)}`
     },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postOriginCategories = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.ADD_ORIGIN}`, data },
     fixedBaseURL
   )
   return res && res.data

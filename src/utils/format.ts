@@ -36,8 +36,13 @@ export const objectToQueryParams = (params) => {
   }
   return requestString
 }
-
+export const FORM_DATA = (object) => {
+  const formData = new FormData()
+  Object.keys(object).forEach((key) => formData.append(key, object[key]))
+  return formData
+}
 export default {
+  FORM_DATA,
   objectToQueryParams,
   formatMoneyInput,
   formatDateTime,

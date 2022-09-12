@@ -153,6 +153,7 @@ const save = async () => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       const formData = Object.assign(data, fileList.value)
+      console.log(formData)
       const res = await saveTableApi(data)
         .catch(() => {})
         .finally(() => {
@@ -310,7 +311,7 @@ const listType = ref<ListImages>('text')
           {{ t('reuse.fix') }}
         </ElButton>
       </div>
-      <div v-if="props.type === 'add'">
+      <div v-if="props.type === 'add' || Number.isNaN(props.id)">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}
         </ElButton>

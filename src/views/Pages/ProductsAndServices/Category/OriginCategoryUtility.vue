@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getOriginCategories } from '@/api/LibraryAndSetting'
+import { getOriginCategories, postOriginCategories } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
 
 let rank1SelectOptions = reactive([])
@@ -49,7 +49,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'rank1Category',
+    field: 'Name',
     label: t('reuse.nameRank1Category'),
     component: 'Input',
     colProps: {
@@ -58,7 +58,7 @@ const schema = reactive<FormSchema[]>([
     hidden: false
   },
   {
-    field: 'parentid',
+    field: 'ParentId',
     label: t('reuse.nameRank1Category'),
     component: 'Select',
     componentProps: {
@@ -67,7 +67,7 @@ const schema = reactive<FormSchema[]>([
     hidden: true
   },
   {
-    field: 'selectRank2',
+    field: 'Name',
     label: t('reuse.nameRank2Category'),
     component: 'Input',
     colProps: {
@@ -111,7 +111,7 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const getRank1SelectOptions = async () => {
-  await getOriginCategories()
+  await getOriginCategories({ TypeName: 'xuatxu' })
     .then((res) => {
       if (res.data) {
         rank1SelectOptions = res.data.map((index) => ({
@@ -135,15 +135,28 @@ const addFormSchema = async (timesCallAPI) => {
     await getRank1SelectOptions()
     if (schema[4].componentProps?.options != undefined) {
       schema[4].componentProps.options = rank1SelectOptions
-      console.log(rank1SelectOptions)
     }
   }
   schema[3].hidden = true
   schema[4].hidden = false
   schema[5].hidden = false
 }
-const postData = (data) => {
-  console.log('data', data)
+const postData = async (data) => {
+  //manipulate Data
+  if (data.ParentId == undefined) {
+    data.ParentId = 0
+  }
+  if (data.status[0] === 1) {
+    data.isActive = true
+  } else {
+    data.isActive = false
+  }
+  if (data.status[1] === 2) {
+    data.isHide = false
+  } else {
+    data.isHide = true
+  }
+  await postOriginCategories({ TypeName: 'xuatxu', ...data })
 }
 
 const router = useRouter()

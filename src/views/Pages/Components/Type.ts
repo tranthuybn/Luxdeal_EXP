@@ -13,6 +13,7 @@ interface Tab {
   label: string
   api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
+  params?: Object
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
 

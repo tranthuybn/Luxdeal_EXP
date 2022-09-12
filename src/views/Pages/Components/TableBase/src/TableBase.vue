@@ -19,6 +19,10 @@ const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
+  paramsProp: {
+    type: Object,
+    default: () => {}
+  },
   api: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
@@ -70,7 +74,8 @@ const { register, tableObject, methods } = useTable<TableData>({
 })
 // get api
 const getData = (data = {}) => {
-  methods.setSearchParams({ ...params.params, ...data })
+  console.log('type', props.paramsProp)
+  methods.setSearchParams({ ...params.params, ...data, ...props.paramsProp })
 }
 onBeforeMount(() => {
   getData()

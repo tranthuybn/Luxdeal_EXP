@@ -184,33 +184,36 @@ export const genderCategories = [
   }
 ]
 export const unitCategories = [
-  { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryUnitTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
+    type: 'index',
     align: 'right',
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const brandCategories = [

@@ -36,7 +36,13 @@ export const getGenderCategories = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getUnitCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/UnitCategories/List', params })
+  const paramsObj = { TypeName: PRODUCTS_AND_SERVICES.UNIT, ...params }
+  const res = await request.get(
+    {
+      url: `/api/v1/Category/GetCategory?${objectToQueryParams(paramsObj)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getBrandCategories = async (params: any): Promise<IResponse> => {

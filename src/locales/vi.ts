@@ -141,7 +141,20 @@ export default {
     debt: 'Có công nợ',
     discountVoucher: 'Giảm 50% giá trị đơn hàng',
     attachments: 'Hồ sơ đính kèm',
-    addPhotosOrFiles: 'Thêm ảnh hoặc file'
+    addPhotosOrFiles: 'Thêm ảnh hoặc file',
+    productAndPayment: 'Sản phẩm và thanh toán',
+    paymentAndDelivery: 'Thanh toán và giao hàng',
+    choosePayment: 'Chọn thanh toán',
+    chooseShipping: 'Chọn giao vận',
+    cashPayment: 'Thanh toán tiền mặt',
+    cardPayment: 'Thanh toán thẻ',
+    deliveryAtTheCounter: 'Giao hàng tại quầy',
+    deliveryToYourPlace: 'Giao hàng tận nơi',
+    printSalesSlip: 'In phiếu bán hàng',
+    printDepositSlip: 'In phiếu đặt cọc',
+    complete: 'Hoàn thành',
+    edit: 'Sửa',
+    orderStatus: 'Trạng thái đơn hàng'
   },
   button: {
     add: 'Thêm nhanh'
@@ -585,7 +598,7 @@ export default {
     revenueAndExpenditure: 'Phải thu/Phải chi',
     inputName: 'Nhập tên',
     online: 'Online',
-    offline: 'Trực tiếp',
+    offline: 'Offline',
     booking: 'Booking',
     firstTime: 'Lần đầu',
     secondTime: 'Lần hai',
@@ -860,6 +873,7 @@ export default {
     pawnStore: 'Kho cầm đồ',
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
+    importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
     rentalConsult: 'Tư vấn cho thuê',
@@ -874,9 +888,26 @@ export default {
     library: 'Thư viện',
     contract: 'Hợp đồng',
     currency: 'đ',
+    customerClassification: 'Phân loại khách hàng',
+    phoneNumber: 'Số điện thoại',
+    email: 'Email',
+    link: 'Link',
+    transactionHistory: 'Lịch sử giao dịch',
+    customerService: 'Nhu cầu khách hàng',
+    serviceDetails: 'Chi tiết dịch vụ',
+    newData: 'Dữ liệu mới',
+    lastContent: 'Nội dung cuối',
+    orderSalesAssign: 'Gán doanh số đơn hàng',
+    customerCareContent: 'Nội dung chăm sóc khách hàng',
+    saleHistoryCustomerCare: 'Sale & lịch sử chăm sóc khách hàng',
+    addSale: 'Thêm mới sale',
+    historySaleCustomerCare: 'Lịch sử sale chăm sóc khách hàng',
     //Warehouse/storage
     typeStorage: 'Loại kho',
     chooseRankStorage: 'Chọn cấp kho',
-    nameStorage: 'Tên kho'
+    nameStorage: 'Tên kho',
+    //filter status product
+    show: 'Hiển thị',
+    notShow: 'Ẩn'
   }
 }

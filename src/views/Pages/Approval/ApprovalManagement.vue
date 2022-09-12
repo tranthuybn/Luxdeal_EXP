@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import { getApproveManagementList } from '@/api/Approval'
-import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
+import TableBase from '@/views/Pages/Components/TableBase/src/TableBase.vue'
 import { ContentWrap } from '@/components/ContentWrap'
 import { h, ref, unref } from 'vue'
 const { t } = useI18n()
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const seeDetail = (...param) => {
   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
@@ -48,7 +48,7 @@ const unitCategories = [
 </script>
 <template>
   <ContentWrap :title="t('reuse.approvalManagement')">
-    <TableType01
+    <TableBase
       ref="tableBase01"
       :fullColumns="unitCategories"
       :api="getApproveManagementList"

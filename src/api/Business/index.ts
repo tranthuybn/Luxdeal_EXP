@@ -86,3 +86,8 @@ export const getReceiptsExpendituresList = async (params: any): Promise<IRespons
   const res = await request.get({ url: '/receipts-expenditures', params })
   return res && res.data
 }
+
+export const getaddNewPotenialCustomerList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/addNewPotenialCustomer/List', params })
+  return res && res.data
+}

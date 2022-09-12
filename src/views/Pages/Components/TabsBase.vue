@@ -3,7 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElTabs, ElTabPane } from 'element-plus'
 import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableType01 } from './TableBase/index'
+import { TableBase } from './TableBase/index'
 import { Tab } from './Type'
 import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
@@ -22,7 +22,7 @@ const props = defineProps({
 })
 // declare
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 const addIcon = useIcon({ icon: 'carbon:add' })
 const dashIcon = useIcon({ icon: 'bi:dash-lg' })
 const changeIcon = useIcon({ icon: 'fa:exchange' })
@@ -102,7 +102,7 @@ const pushAdd = () => {
               </div>
             </template>
           </HeaderFiler>
-          <TableType01
+          <TableBase
             ref="tableBase01"
             :selection="false"
             :api="dynamicApi"

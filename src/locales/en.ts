@@ -141,7 +141,20 @@ export default {
     debt: 'Have debt !',
     discountVoucher: 'Sale off 50% orders',
     attachments: 'Attachments',
-    addPhotosOrFiles: 'Add photos or files'
+    addPhotosOrFiles: 'Add photos or files',
+    productAndPayment: 'Product & payment',
+    paymentAndDilivery: 'Payment & delivery',
+    choosePayment: 'Choose payment',
+    chooseShipping: 'Choose shipping',
+    cashPayment: 'Cash payment',
+    cardPayment: 'Card payment',
+    deliveryAtTheCounter: 'Delivery at the counter',
+    deliveryToYourPlace: 'delivery to your place',
+    printSalesSlip: 'Print sales slip',
+    printDepositSlip: 'Print deposit slip',
+    complete: 'Completed',
+    edit: 'Edit',
+    orderStatus: 'Order status'
   },
   button: {
     add: 'Add quick'
@@ -813,9 +826,26 @@ export default {
     library: 'Library',
     contract: 'Contract',
     currency: 'USD',
+    customerClassification: 'Customer Classification',
+    phoneNumber: 'Phone Number',
+    email: 'Email',
+    link: 'Link',
+    transactionHistory: 'Transaction History',
+    customerService: 'Customer Service',
+    serviceDetails: 'Service Details',
+    newData: 'New  Data',
+    lastContent: 'Last Content',
+    orderSalesAssign: 'Order Sale Assign',
+    customerCareContent: 'Customer Care Content',
+    saleHistoryCustomerCare: 'Sale & History Custormer Care',
+    addSale: 'Add New Sale',
+    historySaleCustomerCare: 'History Sale Customer Care',
     //Warehouse
     typeStorage: 'Type of storage',
     chooseRankStorage: 'Choose Rank Storage',
-    nameStorage: 'Name of Storage'
+    nameStorage: 'Name of Storage',
+    //filter status product
+    show: 'Show',
+    notShow: 'Hidden'
   }
 }

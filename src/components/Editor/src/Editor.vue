@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, computed, PropType, unref, nextTick, ref, watch, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import { IDomEditor, IEditorConfig, i18nChangeLanguage } from '@wangeditor/editor'
+import { IDomEditor, IEditorConfig, i18nChangeLanguage, i18nAddResources } from '@wangeditor/editor'
 import { propTypes } from '@/utils/propTypes'
 import { isNumber } from '@/utils/is'
 import { ElMessage } from 'element-plus'
@@ -12,7 +12,94 @@ const localeStore = useLocaleStore()
 const currentLocale = computed(() => localeStore.getCurrentLocale)
 
 i18nChangeLanguage(unref(currentLocale).lang)
-
+i18nAddResources('vi', {
+  // title
+  header: {
+    title: 'Text',
+    text: 'Text'
+  },
+  blockQuote: {
+    title: 'Đoạn trích dẫn'
+  },
+  textStyle: {
+    bold: 'In đậm',
+    underline: 'Gạch chân',
+    italic: 'In nghiêng',
+    through: 'Gạch ngang ở giữa',
+    code: 'Mã',
+    sup: 'Chỉ số trên',
+    sub: 'Chỉ số dưới',
+    clear: 'Tẩy'
+  },
+  color: {
+    color: 'Màu chữ',
+    default: 'Mặc định',
+    bgColor: 'Màu nền',
+    clear: 'Không màu'
+  },
+  fontSize: {
+    default: 'Mặc định',
+    title: 'Kích cỡ chữ'
+  },
+  fontFamily: {
+    title: 'Kiểu chữ',
+    default: 'Mặc định'
+  },
+  lineHeight: {
+    title: 'Chiều cao dòng',
+    default: 'Mặc định'
+  },
+  listModule: {
+    unOrderedList: 'Danh sách không thứ tự',
+    orderedList: 'Danh sách có thứ tự'
+  },
+  todo: {
+    todo: 'Việc cần làm'
+  },
+  justify: {
+    left: 'Căn trái lề',
+    right: 'Căn phải lề',
+    center: 'Căn giữa lề',
+    justify: 'Văn bản đồng đều giữa các lề'
+  },
+  indent: {
+    increase: 'Tăng thụt lề',
+    decrease: 'Giảm thụt lề'
+  },
+  emotion: {
+    title: 'Biểu tượng cảm xúc'
+  },
+  link: {
+    insert: 'Liên kết'
+  },
+  image: {
+    netImage: 'Thêm ảnh'
+  },
+  uploadImgModule: {
+    uploadImage: 'Tải ảnh từ máy'
+  },
+  videoModule: {
+    insertVideo: 'Thêm video',
+    uploadVideo: 'Tải video từ máy'
+  },
+  tableModule: {
+    insertTable: 'Thêm bảng'
+  },
+  codeBlock: {
+    title: 'Khối mã'
+  },
+  divider: {
+    title: 'Dải phân cách'
+  },
+  undo: {
+    undo: 'Hoàn tác',
+    redo: 'Làm lại'
+  },
+  fullScreen: {
+    title: 'Toàn màn hình'
+  }
+  // ... Other language vocabulary, below...
+})
 const props = defineProps({
   editorId: propTypes.string.def('wangeEditor-1'),
   height: propTypes.oneOfType([Number, String]).def('500px'),

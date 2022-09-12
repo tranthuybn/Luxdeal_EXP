@@ -22,6 +22,10 @@ import {
   receiptsAndExpendituresList,
   receiptsAndExpendituresListMock
 } from './receiptsandexpenditures'
+import {
+  potenialCustomerList,
+  potenialCustomerListMock
+} from './promotionstrategy/newPotenialCustomer'
 const { result_code } = config
 const timeout = 1000
 const count = 100
@@ -42,6 +46,7 @@ for (let i = 0; i < count; i++) {
   employeeList.push(Mock.mock(employeeListMock))
   paymentList.push(Mock.mock(paymentListMock))
   receiptsAndExpendituresList.push(Mock.mock(receiptsAndExpendituresListMock))
+  potenialCustomerList.push(Mock.mock(potenialCustomerListMock))
 }
 export default [
   {
@@ -315,6 +320,24 @@ export default [
         code: result_code,
         data: {
           total: receiptsAndExpendituresList.length,
+          list: pageList
+        }
+      }
+    }
+  },
+  {
+    url: '/addNewPotenialCustomer/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = potenialCustomerList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      return {
+        code: result_code,
+        data: {
+          total: potenialCustomerList.length,
           list: pageList
         }
       }

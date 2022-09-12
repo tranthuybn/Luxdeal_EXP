@@ -4,7 +4,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
 import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableExtension, TableType01 } from './TableBase/index'
+import { TableExtension, TableBase } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
 import {
   addOperatorColumn,
@@ -44,6 +44,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  titleChilden: {
+    type: String,
+    default: ''
+  },
   apiTableChild: {
     type: Function as PropType<apiType>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
@@ -54,7 +58,7 @@ const props = defineProps({
   },
   customOperator: {
     type: Number,
-    default: 2
+    default: 1
   },
   pagination: {
     type: Boolean,
@@ -67,12 +71,16 @@ const props = defineProps({
   removeHeaderFilter: {
     type: Boolean,
     default: false
+  },
+  customOperatorChilden: {
+    type: Boolean,
+    default: true
   }
 })
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)?.getData(data)
@@ -109,21 +117,27 @@ const pushAdd = () => {
       :totalRecord="getTotalRecord"
       :selectedRecord="getSelectedRecord"
     />
-    <TableType01
+    <TableBase
       :removeDrawer="removeDrawer"
       :expand="expand"
       :titleButtons="props.titleButtons"
-      :customOperator="props.customOperator"
+      :customOperator="customOperator"
       :apiTableChild="apiTableChild"
       :columnsTableChild="columnsTableChild"
-      :paginationType="props.pagination"
+      :paginationType="pagination"
       ref="tableBase01"
       :api="dynamicApi"
       :maxHeight="'69vh'"
       :fullColumns="dynamicColumns"
       @total-record="fnGetTotalRecord"
       @selected-record="fnGetSelectedRecord"
-      :selection="props.selection"
-    />
+      :selection="selection"
+      :titleChilden="props.titleChilden"
+      :customOperatorChilden="props.customOperatorChilden"
+    >
+      <template #expand>
+        <slot name="expand"></slot>
+      </template>
+    </TableBase>
   </section>
 </template>

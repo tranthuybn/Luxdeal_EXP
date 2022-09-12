@@ -1,23 +1,36 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, reactive, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElRow, ElCol, ElUpload, ElButton, ElDialog, UploadUserFile } from 'element-plus'
+import {
+  ElRow,
+  ElCol,
+  ElUpload,
+  ElButton,
+  ElDialog,
+  UploadUserFile,
+  UploadProps,
+  ElMessage
+} from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
 import { useEmitt } from '@/hooks/web/useEmitt'
-import { useRouter } from 'vue-router'
-import { ContentDetailWrap } from '@/components/ContentDetailWrap'
+import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
+import { apiType, TableResponse } from '../../Type'
 
 const { t } = useI18n()
 const { emitter } = useEmitt()
-
 const { required } = useValidator()
+
 const props = defineProps({
+  api: {
+    type: Function as PropType<apiType>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
   currentRow: {
     type: Object as PropType<Nullable<TableData>>,
     default: () => null
@@ -30,17 +43,41 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  multipleImages: {
+    type: Boolean,
+    default: true
+  },
   title: {
     type: String,
-    default: 'Category'
+    default: ''
   },
   nameBack: {
     type: String,
     default: ''
   },
+  id: {
+    type: Number,
+    default: NaN
+  },
   type: {
     type: String,
     default: ''
+  },
+  typeForm: {
+    type: String,
+    default: ''
+  },
+  typeButton: {
+    type: String,
+    default: ''
+  },
+  rules: {
+    type: Object,
+    default: () => {}
+  },
+  limitUpload: {
+    type: Number,
+    default: 1
   }
 })
 
@@ -52,7 +89,14 @@ const rules = reactive({
   display_time: [required()],
   content: [required()]
 })
-
+const formValue = ref()
+const getTableValue = async () => {
+  if (props.id !== NaN) {
+    const res = await props.api({ id: props.id })
+    formValue.value = res.data.list[0]
+    setFormValue()
+  }
+}
 // eslint-disable-next-line vue/no-setup-props-destructure
 const schema = props.schema
 const { register, methods, elFormRef } = useForm({
@@ -60,6 +104,7 @@ const { register, methods, elFormRef } = useForm({
 })
 let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
+
 watch(
   () => props.currentRow,
   (currentRow) => {
@@ -80,6 +125,14 @@ watch(
     immediate: true
   }
 )
+const setFormValue = () => {
+  const { setValues } = methods
+  setValues(formValue.value)
+  fileList.value.push({
+    url: formValue.value.image,
+    name: formValue.value.title
+  })
+}
 watch(
   () => props.type,
   () => {
@@ -88,6 +141,9 @@ watch(
       setProps({
         disabled: true
       })
+    }
+    if (props.type === 'detail' || props.type === 'edit') {
+      getTableValue()
     }
   },
   {
@@ -101,7 +157,6 @@ defineExpose({
 })
 
 const loading = ref(false)
-const { push } = useRouter()
 
 const save = async () => {
   await unref(elFormRef)!.validate(async (isValid) => {
@@ -127,17 +182,15 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
-
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
-
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-
+const imageUrl = ref('')
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
 }
@@ -146,6 +199,18 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Avatar picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+
 const saveAndAdd = () => {
   console.log('saveAndAdd')
 }
@@ -158,25 +223,63 @@ const delAction = () => {
 const cancel = () => {
   console.log('cancel')
 }
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
+  console.log('success', response, uploadFile)
+}
+const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+  console.log('success', uploadFile, uploadFiles)
+  if (!props.multipleImages) {
+    const file = fileList.value.pop()
+    if (file != undefined) {
+      imageUrl.value = URL.createObjectURL(file.raw!)
+    }
+  }
+}
+const previewImage = () => {
+  dialogVisible.value = true
+  dialogImageUrl.value = imageUrl.value
+}
+const removeImage = () => {
+  imageUrl.value = ''
+}
+type ListImages = 'text' | 'picture' | 'picture-card'
+const listType = ref<ListImages>('text')
+!props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
 
 <template>
-  <ContentDetailWrap :title="t(title)" @back="push({ name: nameBack })">
+  <ContentWrap :title="t(`${title}`)">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
       </ElCol>
-      <ElCol :span="8" v-if="hasImage">
-        <div>{{ t('reuse.addImage') }}</div>
+      <ElCol
+        :span="hasImage ? 8 : 0"
+        v-if="hasImage"
+        class="max-h-400px overflow-y-auto shadow-inner p-1"
+      >
+        <h3 class="text-center font-bold">{{ t('reuse.addImage') }}</h3>
         <el-upload
           action="#"
+          class="avatar-uploader"
           :disabled="props.type === 'detail'"
-          list-type="picture-card"
           :auto-upload="false"
+          :show-file-list="multipleImages"
           v-model:file-list="fileList"
+          :list-type="listType"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          :on-change="handleChange"
         >
-          <el-button :icon="addIcon" />
-
+          <div v-if="!multipleImages">
+            <div v-if="imageUrl" class="relative">
+              <img :src="imageUrl" class="avatar" />
+            </div>
+            <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
+          </div>
+          <div v-else>
+            <el-button :icon="addIcon" />
+          </div>
           <template #file="{ file }">
             <div>
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -195,13 +298,29 @@ const cancel = () => {
             </div>
           </template>
         </el-upload>
+        <div class="w-250px flex justify-center" v-if="imageUrl">
+          <el-button :icon="viewIcon" @click="previewImage" />
+          <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+        </div>
         <el-dialog v-model="dialogVisible">
-          <img w-full :src="dialogImageUrl" alt="Preview Image" />
+          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
     </ElRow>
-
     <template #under>
+      <div v-if="props.typeButton === 'form01'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+          {{ t('reuse.addNew') }}
+        </ElButton>
+      </div>
+      <div v-if="props.typeButton === 'form02'">
+        <ElButton type="primary" :loading="loading" @click="save">
+          {{ t('reuse.fix') }}
+        </ElButton>
+      </div>
       <div v-if="props.type === 'add'">
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}
@@ -230,5 +349,29 @@ const cancel = () => {
         </ElButton>
       </div>
     </template>
-  </ContentDetailWrap>
+  </ContentWrap>
 </template>
+<style scoped>
+.avatar-uploader .avatar {
+  padding-bottom: 1rem;
+  width: 250px;
+  display: block;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.avatar-uploader-icon {
+  width: 178px;
+  height: 178px;
+}
+</style>

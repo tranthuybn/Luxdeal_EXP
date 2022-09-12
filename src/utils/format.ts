@@ -17,7 +17,9 @@ export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.show')}`
   return `${t('reuse.notShow')}`
 }
-export const dateTimeFormat = 'DD/MM/YYYY'
+export const dateTimeFormat = (val) => {
+  return moment(val).format('l')
+}
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'
 export const dateTimeDisable = false

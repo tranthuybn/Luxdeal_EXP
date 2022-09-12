@@ -3,7 +3,7 @@ import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
-import { apiType, TableResponse } from '../../Type'
+import { TableResponse } from '../../Type'
 import { ElImage, ElButton, ElDrawer, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -11,15 +11,16 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
-
+import { inject } from 'vue'
+//provide from main component
+const params: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
-
 const props = defineProps({
   api: {
-    type: Function as PropType<apiType>,
+    type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
   fullColumns: {
@@ -67,10 +68,10 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'center'
   }
 })
-
 // get api
 const getData = (data = {}) => {
-  methods.setSearchParams(data)
+  methods.setSearchParams({ ...params.params, ...data })
+  console.log('param', params)
 }
 onBeforeMount(() => {
   getData()
@@ -264,8 +265,8 @@ const showingColumn =
           </ElButton>
           <ElButton type="danger" @click="action(row, 'delete')">
             {{ t('reuse.delete') }}
-          </ElButton></div
-        >
+          </ElButton>
+        </div>
       </template>
       <template #expand>
         <slot name="expand"> </slot>
@@ -277,32 +278,41 @@ const showingColumn =
 #bt-add {
   margin-top: 20px;
 }
+
 ::v-deep(.el-overlay) {
   position: absolute !important;
 }
+
 ::v-deep(.el-drawer__body) {
-  padding: 3px !important ;
+  padding: 3px !important;
+
   &::-webkit-scrollbar {
     display: block;
-    width: 10px; /* width of vertical scrollbar */
+    width: 10px;
+    /* width of vertical scrollbar */
     background-color: var(--top-tool-border-color);
-    height: 10px; /* height of horizontal scrollbar ← You're missing this */
+    height: 10px;
+    /* height of horizontal scrollbar ← You're missing this */
   }
+
   &::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: var(--el-color-primary);
     width: 4px;
   }
+
   ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0px 0px 1px var(--el-color-info);
     box-shadow: inset 0px 0px 1px var(--el-color-info);
     background-color: var(--el-color-primary);
   }
 }
+
 ::v-deep(.el-drawer__header) {
   margin-bottom: 0;
   padding: 0;
 }
+
 ::v-deep(.el-checkbox-group) {
   margin: auto;
   display: flex;
@@ -310,6 +320,7 @@ const showingColumn =
   justify-content: center;
   align-items: flex-start;
 }
+
 #rabbit-ear {
   width: 132px;
   text-align: center;
@@ -321,6 +332,7 @@ const showingColumn =
   top: -10px;
   height: 24px;
   right: calc(50% - 66px);
+
   &:hover {
     top: 0;
     border: 0px 1px 1px 1px solid var(--el-color-primary);
@@ -328,6 +340,7 @@ const showingColumn =
     color: var(--el-color-primary);
   }
 }
+
 #price-information {
   max-width: 70vw;
   position: relative;

@@ -29,7 +29,7 @@ const props = defineProps({
     default: false
   },
   api: {
-    type: Function as PropType<apiType>,
+    type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
   selection: {

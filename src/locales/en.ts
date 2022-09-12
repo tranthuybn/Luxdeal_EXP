@@ -154,7 +154,8 @@ export default {
     printDepositSlip: 'Print deposit slip',
     complete: 'Completed',
     edit: 'Edit',
-    orderStatus: 'Order status'
+    orderStatus: 'Order status',
+    paymenAndDelivery: 'Payment & delivery'
   },
   button: {
     add: 'Add quick'

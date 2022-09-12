@@ -11,22 +11,14 @@ import {
   ElButton
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-// import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
-// import { getBranchList } from '@/api/HumanResourceManagement'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useForm } from '@/hooks/web/useForm'
-// import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../../Components/Type'
-// import { columnProfileProduct } from './ProductLibraryManagement'
 import { Form } from '@/components/Form'
-// import { ElCheckbox, ElLink } from 'element-plus'
 
-// import { TableOperator } from '../Components/TableBase'
-// import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 import { featuresPrice } from './ProductLibraryManagement'
 import { getFeaturesPrices } from '@/api/LibraryAndSetting'
-// import { getPriceByQuantity } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
 
@@ -121,7 +113,6 @@ const handleDownload = (file: UploadFile) => {
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
-// const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
 const collapse: Array<Collapse> = [
   {
@@ -210,7 +201,7 @@ const doThis = () => {
 </script>
 
 <template>
-  <div class="demo-collapse">
+  <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="handleChange">
       <el-collapse-item :title="`${t('formDemo.orderInformation')}`" name="orderInformation">
         <div class="flex w-[100%]">
@@ -361,7 +352,7 @@ const doThis = () => {
           hide-required-asterisk
           size="large"
           @register="register"
-          class="d-block"
+          class="d-block dark:bg-[#141414]"
         >
           <template #choosePayment>
             <div class="flex align-middle gap-4">
@@ -452,6 +443,7 @@ const doThis = () => {
 ::v-deep(.el-select) {
   width: 100%;
 }
+
 ::v-deep(.el-textarea__inner) {
   box-shadow: none;
   padding: 5px 0;
@@ -467,6 +459,7 @@ const doThis = () => {
   height: 40px;
   border: 1px solid #409eff;
 }
+
 ::v-deep(.d-block > .el-row) {
   display: block;
 }

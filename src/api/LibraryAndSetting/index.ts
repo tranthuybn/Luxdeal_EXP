@@ -47,7 +47,7 @@ export const getOriginCategories = async (params: any): Promise<IResponse> => {
   const paramsObj = { TypeName: PRODUCTS_AND_SERVICES.ORIGIN, ...params }
   const res = await request.get(
     {
-      url: `/Category/GetCategory?${objectToQueryParams(paramsObj)}`
+      url: `/api/v1/Category/GetCategory?${objectToQueryParams(paramsObj)}`
     },
     true
   )

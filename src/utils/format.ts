@@ -21,7 +21,6 @@ export const dateTimeFormat = 'DD/MM/YYYY'
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'
 export const dateTimeDisable = false
-
 export const objectToQueryParams = (params) => {
   let requestString = ''
   if (params && Object.keys(params).length > 0) {

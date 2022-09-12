@@ -9,7 +9,7 @@ const { default_headers } = config
 const request = (option: AxiosConfig, fixedBaseURL: boolean) => {
   const { url, method, params, data, headersType, responseType } = option
   let baseURL = ''
-  fixedBaseURL ? (baseURL = 'http://103.81.87.134:910/api/v1') : (baseURL = '')
+  fixedBaseURL ? (baseURL = 'http://103.81.87.134:910') : (baseURL = '')
   return service({
     baseURL: baseURL,
     url: url,

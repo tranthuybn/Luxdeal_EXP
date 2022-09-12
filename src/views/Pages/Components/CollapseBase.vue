@@ -94,7 +94,7 @@ const activeName = ref(props.default)
               :customOperator="item.customOperator"
               :customOperatorChilden="item.customOperatorChilden"
             />
-            <ElButton id="bt-add"> {{ item.buttonAdd }}</ElButton>
+            <ElButton id="bt-add" class="mx-12"> {{ item.buttonAdd }}</ElButton>
           </template>
         </tableDatetimeFilterBasicVue>
 
@@ -102,6 +102,7 @@ const activeName = ref(props.default)
           v-if="item.typeForm === 'form' || item.typeForm === 'all'"
           class="infinite-list"
           style="overflow: auto"
+          :rules="item.rules"
           :hasImage="item.hasImage"
           :schema="item.columns"
           :title="item.title"

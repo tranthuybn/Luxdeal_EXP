@@ -65,11 +65,23 @@ export default {
           }
         },
         {
+          path: 'order-management',
+          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+          name: `business.order-management.order-list-add`,
+          meta: {
+            title: 'reuse.createANewOrder',
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
+        },
+        {
           path: 'create-new-order',
           name: 'business.order-management.create-new-order',
-          component: () => import('@/views/Pages/Business/OrderManagement/CreateANewOrder.vue'),
+          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
           meta: {
-            title: t('router.createANewOrder')
+            title: 'router.createANewOrder'
           }
         }
       ]

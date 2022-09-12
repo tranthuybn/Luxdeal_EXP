@@ -220,7 +220,7 @@ const doThis = () => {
               label-position="top"
               hide-required-asterisk
               size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-solid rounded-3xl box-shadow-blue bg-white"
+              class="flex border-1 border-[var(--el-border-color)] border-solid rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
               @register="register"
             >
               <template #orderCode>
@@ -286,7 +286,7 @@ const doThis = () => {
               </template>
               <template #debt>
                 <div class="flex items-center w-[100%]">
-                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] text-blue-500">
+                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
                     <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ const doThis = () => {
             </Form>
           </div>
           <div class="w-[30%] p-2">
-            <div class="text-sm text-[#303133] font-medium p-2 pl-4">{{
+            <div class="text-sm text-[#303133] font-medium p-2 pl-4 dark:text-[#fff]">{{
               t('formDemo.attachments')
             }}</div>
             <div class="pl-4">
@@ -324,7 +324,7 @@ const doThis = () => {
                   </div>
                 </template>
                 <el-dialog v-model="dialogVisible" class="absolute">
-                  <div class="text-[#303133] font-medium"
+                  <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                   >
                 </el-dialog>

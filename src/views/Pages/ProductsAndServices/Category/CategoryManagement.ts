@@ -216,7 +216,7 @@ export const unitCategories = [
 export const brandCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryBrandTitle'),
     minWidth: '650',
     headerFilter: 'Name'

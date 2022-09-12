@@ -122,7 +122,29 @@ export default {
     enterNumberHours: 'Enter the number of hours',
     enterNumberDays: 'Enter the number of days',
     productInfomation: 'Product infomation',
-    standardManagementMaterialsUsed: 'Standard management of materials used'
+    standardManagementMaterialsUsed: 'Standard management of materials used',
+    orderInformation: 'Order information',
+    generalInformation: 'General information',
+    orderCode: 'Order code',
+    enterOrderCode: 'Enter order code',
+    collaborators: 'Collaborators',
+    selectOrEnterTheCollaboratorCode: 'Select or enter the collaborator code',
+    enterDiscount: 'Enter discount',
+    orderNotes: 'Order notes',
+    addNotes: 'Add notes',
+    customer: 'Customer',
+    customerName: 'Customer Name',
+    selectOrEnterCouponCode: 'Select or enter coupon code',
+    productInformation: 'Product information',
+    companyInformation: ' Company information',
+    noDebt: 'No Debt !',
+    debt: 'Have debt !',
+    discountVoucher: 'Sale off 50% orders',
+    attachments: 'Attachments',
+    addPhotosOrFiles: 'Add photos or files'
+  },
+  button: {
+    add: 'Add quick'
   },
   router: {
     login: 'Login',

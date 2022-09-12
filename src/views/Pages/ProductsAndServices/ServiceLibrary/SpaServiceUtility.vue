@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import TableAddBusinessProduct from '@/views/Pages/Components/TableAddBusinessProduct.vue'
+import TableOperator from '@/views/Pages/Components/TableBase/src/TableOperator.vue'
 import { RendererElement, RendererNode, VNode } from 'vue'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -9,12 +9,12 @@ const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'field7',
+    field: 'generalServiceInformation',
     label: t('formDemo.generalServiceInformation'),
     component: 'Divider'
   },
   {
-    field: 'field1',
+    field: 'serviceCode',
     label: t('formDemo.serviceCode'),
     component: 'Input',
     colProps: {
@@ -25,7 +25,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field2',
+    field: 'serviceName',
     label: t('formDemo.serviceName'),
     component: 'Input',
     colProps: {
@@ -36,7 +36,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field3',
+    field: 'shortDescription',
     label: t('formDemo.shortDescription'),
     component: 'Input',
     colProps: {
@@ -47,7 +47,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'fied4',
+    field: 'description',
     label: t('formDemo.description'),
     component: 'Editor',
     colProps: {
@@ -58,12 +58,12 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field7',
+    field: 'servicePriceAndExecutionTime',
     label: t('formDemo.servicePriceAndExecutionTime'),
     component: 'Divider'
   },
   {
-    field: 'field4',
+    field: 'serviceUnitPrice',
     label: t('formDemo.serviceUnitPrice'),
     component: 'Input',
     colProps: {
@@ -74,7 +74,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field5',
+    field: 'promotionalPrice',
     label: t('formDemo.promotionalPrice'),
     component: 'Input',
     colProps: {
@@ -85,7 +85,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field61',
+    field: 'executionTime',
     label: t('formDemo.executionTime'),
     component: 'Input',
     colProps: {
@@ -96,7 +96,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field7',
+    field: 'insurance',
     label: t('formDemo.insurance'),
     component: 'Input',
     colProps: {
@@ -107,12 +107,12 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field8',
+    field: 'statusAndFunctional',
     label: t('formDemo.statusAndFunctional'),
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('formDemo.status'),
     component: 'Checkbox',
     value: [],
@@ -186,7 +186,7 @@ const title = 'Thông tin dich vụ'
           <el-button class="header-icon" :icon="item.icon" link />
           <span class="text-center">{{ item.title }}</span>
         </template>
-        <TableAddBusinessProduct
+        <TableOperator
           :schema="schema"
           :title="title"
           :buttons="item.buttons"

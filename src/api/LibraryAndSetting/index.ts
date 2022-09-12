@@ -1,7 +1,7 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API_Variables'
-
+const fixedBaseURL = true
 const request = useAxios()
 export const getProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/products/List', params })
@@ -49,7 +49,7 @@ export const getOriginCategories = async (params: any): Promise<IResponse> => {
     {
       url: `/api/v1/Category/GetCategory?${objectToQueryParams(paramsObj)}`
     },
-    true
+    fixedBaseURL
   )
   return res && res.data
 }

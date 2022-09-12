@@ -36,10 +36,10 @@ export const getGenderCategories = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getUnitCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { TypeName: PRODUCTS_AND_SERVICES.UNIT, ...params }
+  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.UNIT, ...params }
   const res = await request.get(
     {
-      url: `/api/v1/Category/GetCategory?${objectToQueryParams(paramsObj)}`
+      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
     },
     fixedBaseURL
   )
@@ -50,10 +50,10 @@ export const getBrandCategories = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getOriginCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { TypeName: PRODUCTS_AND_SERVICES.ORIGIN, ...params }
+  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.ORIGIN, ...params }
   const res = await request.get(
     {
-      url: `/api/v1/Category/GetCategory?${objectToQueryParams(paramsObj)}`
+      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
     },
     fixedBaseURL
   )

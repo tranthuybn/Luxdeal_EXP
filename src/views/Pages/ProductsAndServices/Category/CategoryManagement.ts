@@ -36,88 +36,97 @@ export const productCategories = [
 export const colorCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
+    type: 'index',
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const sizeCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categorySizeTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    type: 'index'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const materialCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryMaterialTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    type: 'index'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus
@@ -126,28 +135,29 @@ export const materialCategories = [
 export const statusCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryStatusTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    type: 'index'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus
@@ -156,28 +166,29 @@ export const statusCategories = [
 export const genderCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryGenderTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    type: 'index'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus

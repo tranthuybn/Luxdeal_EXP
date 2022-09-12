@@ -21,13 +21,19 @@ interface Collapse {
   columns: TableColumn[]
   api: apiType | undefined
   buttonAdd: string
-  buttons: number
-  expand: boolean
-  apiTableChild: apiType | undefined
-  columnsTableChild: TableColumn[] | undefined
-  pagination: boolean
-  removeHeaderFilter: boolean
-  removeDrawer: boolean
-  selection: boolean
+  typeForm?: string
+  typeButton?: string
+  expand?: boolean
+  apiTableChild?: apiType | undefined
+  columnsTableChild?: TableColumn[] | undefined
+  pagination?: boolean
+  removeHeaderFilter?: boolean
+  removeDrawer?: boolean
+  selection?: boolean
+  customOperator?: number
+  hasImage?: boolean
+  titleChilden?: string
+  rules?: Object
+  customOperatorChilden?: boolean
 }
 export { apiType, TableResponse, Tab, Collapse }

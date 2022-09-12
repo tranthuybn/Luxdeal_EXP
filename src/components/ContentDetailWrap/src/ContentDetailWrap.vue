@@ -13,8 +13,7 @@ const prefixCls = getPrefixCls('content-detail-wrap')
 
 defineProps({
   title: propTypes.string.def(''),
-  message: propTypes.string.def(''),
-  backButton: propTypes.bool
+  message: propTypes.string.def('')
 })
 const emit = defineEmits(['back'])
 const offset = ref(85)
@@ -26,7 +25,7 @@ onMounted(() => {
 
 <template>
   <div :class="[`${prefixCls}-container`, 'relative bg-[#fff]']" ref="contentDetailWrap">
-    <Sticky v-if="backButton" :offset="offset">
+    <Sticky :offset="offset">
       <div
         :class="[
           `${prefixCls}-header`,
@@ -44,7 +43,7 @@ onMounted(() => {
             <label class="text-16px font-700">{{ title }}</label>
           </slot>
         </div>
-        <div :class="[`${prefixCls}-header__right`, 'flex pl-10px pr-10px']">
+        <div :class="[`${prefixCls}-header__right`, 'flex  pl-10px pr-10px']">
           <slot name="right"></slot>
         </div>
       </div>
@@ -56,8 +55,5 @@ onMounted(() => {
         </div>
       </ElCard>
     </div>
-    <div :class="[`${prefixCls}-header__title`, 'flex flex-1  justify-center pb-8']"
-      ><slot name="under"></slot
-    ></div>
   </div>
 </template>

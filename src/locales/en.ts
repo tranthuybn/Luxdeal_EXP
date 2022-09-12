@@ -813,9 +813,26 @@ export default {
     library: 'Library',
     contract: 'Contract',
     currency: 'USD',
+    customerClassification: 'Customer Classification',
+    phoneNumber: 'Phone Number',
+    email: 'Email',
+    link: 'Link',
+    transactionHistory: 'Transaction History',
+    customerService: 'Customer Service',
+    serviceDetails: 'Service Details',
+    newData: 'New  Data',
+    lastContent: 'Last Content',
+    orderSalesAssign: 'Order Sale Assign',
+    customerCareContent: 'Customer Care Content',
+    saleHistoryCustomerCare: 'Sale & History Custormer Care',
+    addSale: 'Add New Sale',
+    historySaleCustomerCare: 'History Sale Customer Care',
     //Warehouse
     typeStorage: 'Type of storage',
     chooseRankStorage: 'Choose Rank Storage',
-    nameStorage: 'Name of Storage'
+    nameStorage: 'Name of Storage',
+    //filter status product
+    show: 'Show',
+    notShow: 'Hidden'
   }
 }

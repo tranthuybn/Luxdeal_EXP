@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
-import { getBranchList, getTypePersonnelList } from '@/api/HumanResourceManagement'
+import { getTypePersonnelList } from '@/api/HumanResourceManagement'
 import {
   getFeaturesDepositFee,
   getFeaturesPawnFee,
@@ -25,6 +25,7 @@ import {
   columnsImportAndExportHistory
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
+import { useRouter } from 'vue-router'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -34,16 +35,18 @@ const collapse: Array<Collapse> = [
     name: 'information',
     title: 'Thông tin sản phẩm',
     columns: columnProfileProduct,
-    api: getBranchList,
+    api: undefined,
     buttonAdd: '',
-    buttons: 1,
+    typeForm: 'form',
+    typeButton: 'form01',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   },
   {
     icon: plusIcon,
@@ -52,14 +55,17 @@ const collapse: Array<Collapse> = [
     columns: featuresPrice,
     api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2,
+    titleChilden: 'reuse.rentalPriceTableByQuantity'
   },
   {
     icon: plusIcon,
@@ -68,14 +74,17 @@ const collapse: Array<Collapse> = [
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
     buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getPriceByQuantity,
     columnsTableChild: columnsPriceByQuantity,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2,
+    titleChilden: 'reuse.rentalPriceTableByQuantity'
   },
   {
     icon: plusIcon,
@@ -84,14 +93,16 @@ const collapse: Array<Collapse> = [
     columns: featuresDepositFee,
     api: getFeaturesDepositFee,
     buttonAdd: 'Thêm đặc tính và phí kí gửi',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -100,14 +111,16 @@ const collapse: Array<Collapse> = [
     columns: featuresPawnFee,
     api: getFeaturesPawnFee,
     buttonAdd: 'Thêm đặc tính và phí cầm đồ',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -116,14 +129,16 @@ const collapse: Array<Collapse> = [
     columns: spaPrice,
     api: getSpaLPrice,
     buttonAdd: 'Thêm dịch vụ và phí spa',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -132,14 +147,17 @@ const collapse: Array<Collapse> = [
     columns: inventoryTrading,
     api: getInventoryTrading,
     buttonAdd: 'Thêm đặc tính',
-    buttons: 2,
+    typeForm: 'table',
+    typeButton: 'table',
     expand: true,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportAndExportHistory,
+    titleChilden: 'reuse.importAndExportHistoryByProductLine',
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 2
   },
   {
     icon: plusIcon,
@@ -148,23 +166,22 @@ const collapse: Array<Collapse> = [
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     buttonAdd: '',
-    buttons: 3,
+    typeForm: 'form',
+    typeButton: 'form02',
     expand: false,
     apiTableChild: undefined,
     columnsTableChild: undefined,
     pagination: false,
     removeHeaderFilter: true,
-    removeDrawer: false,
-    selection: false
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3,
+    hasImage: false,
+    customOperatorChilden: false
   }
 ]
+//lay du lieu tu router
+const router = useRouter()
+const id = String(router.currentRoute.value.params.id)
 </script>
-<template> <CollapseBase :collapse="collapse" /></template>
-<style scoped>
-.header-icon {
-  margin: 10px;
-}
-.text-center {
-  font-size: 20px;
-}
-</style>
+<template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template>

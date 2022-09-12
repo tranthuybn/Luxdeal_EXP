@@ -2,7 +2,7 @@
 import { useAppStore } from '@/store/modules/app'
 import { computed } from 'vue'
 import { useDesign } from '@/hooks/web/useDesign'
-
+import { version } from '/package.json'
 const { getPrefixCls } = useDesign()
 
 const prefixCls = getPrefixCls('footer')
@@ -10,8 +10,6 @@ const prefixCls = getPrefixCls('footer')
 const appStore = useAppStore()
 
 const title = computed(() => appStore.getTitle)
-
-const version = computed(() => appStore.getVersion)
 </script>
 
 <template>

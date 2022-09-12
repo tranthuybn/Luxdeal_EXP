@@ -1,6 +1,8 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { filterTableStatus } from '@/utils/filters'
+import { filterProductStatus } from '@/utils/filters'
+import { productStatusTransferToText } from '@/utils/format'
+import { h } from 'vue'
 export const productCategories = [
   { field: '', width: '50' },
   {
@@ -28,7 +30,7 @@ export const productCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const colorCategories = [
@@ -58,7 +60,7 @@ export const colorCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const sizeCategories = [
@@ -88,7 +90,7 @@ export const sizeCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const materialCategories = [
@@ -118,7 +120,7 @@ export const materialCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const statusCategories = [
@@ -148,7 +150,7 @@ export const statusCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const genderCategories = [
@@ -178,7 +180,7 @@ export const genderCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const unitCategories = [
@@ -208,7 +210,7 @@ export const unitCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const brandCategories = [
@@ -238,36 +240,40 @@ export const brandCategories = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const originCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'name',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
     headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
+    type: 'index',
     align: 'right',
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'isHide',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]

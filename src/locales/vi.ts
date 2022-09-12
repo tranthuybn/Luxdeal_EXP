@@ -154,7 +154,8 @@ export default {
     printDepositSlip: 'In phiếu đặt cọc',
     complete: 'Hoàn thành',
     edit: 'Sửa',
-    orderStatus: 'Trạng thái đơn hàng'
+    orderStatus: 'Trạng thái đơn hàng',
+    paymenAndDelivery: 'Sản phẩm & thanh toán'
   },
   button: {
     add: 'Thêm nhanh'

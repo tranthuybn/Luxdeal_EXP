@@ -1,15 +1,17 @@
+import { TableData } from '@/api/table/types'
+
 interface TableResponse<T = any> {
   total: number
   list: T[]
   pageNumber: number
   pageSize: number
 }
-type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
+type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
 
 interface Tab {
   name: string
   label: string
-  api: <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
+  api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
 }
 import { RendererElement, RendererNode, VNode } from 'vue'

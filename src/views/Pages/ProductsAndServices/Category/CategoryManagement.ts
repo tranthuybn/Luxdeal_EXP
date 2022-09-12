@@ -13,7 +13,8 @@ export const productCategories = [
   },
 
   {
-    field: 'position',
+    field: 'index',
+    type: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
@@ -268,7 +269,7 @@ export const originCategories = [
     sortable: true
   },
   {
-    field: 'isHide',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus,

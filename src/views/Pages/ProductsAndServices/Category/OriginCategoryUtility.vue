@@ -135,7 +135,6 @@ const addFormSchema = async (timesCallAPI) => {
     await getRank1SelectOptions()
     if (schema[4].componentProps?.options != undefined) {
       schema[4].componentProps.options = rank1SelectOptions
-      console.log(rank1SelectOptions)
     }
   }
   schema[3].hidden = true

@@ -71,7 +71,6 @@ const { register, tableObject, methods } = useTable<TableData>({
 // get api
 const getData = (data = {}) => {
   methods.setSearchParams({ ...params.params, ...data })
-  console.log('param', params)
 }
 onBeforeMount(() => {
   getData()

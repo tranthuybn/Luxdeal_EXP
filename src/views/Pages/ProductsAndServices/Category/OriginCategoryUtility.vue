@@ -216,7 +216,6 @@ type FormDataPost = {
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
-  console.log('custom data', data)
   customData.Id = data.id
   customData.Name = data.name
   customData.TypeName = data.typeName
@@ -228,7 +227,6 @@ const customPostData = (data) => {
 }
 const editData = async (data) => {
   data = customPostData(data)
-  console.log('send last data', data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
 }
 </script>

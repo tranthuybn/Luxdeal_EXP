@@ -297,20 +297,20 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under>
-      <div v-if="props.typeButton === 'form01'">
-        <ElButton type="primary" :loading="loading" @click="save">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
-          {{ t('reuse.addNew') }}
-        </ElButton>
-      </div>
-      <div v-if="props.typeButton === 'form02'">
-        <ElButton type="primary" :loading="loading" @click="save">
-          {{ t('reuse.fix') }}
-        </ElButton>
-      </div>
       <div v-if="props.type === 'add'">
+        <div v-if="props.typeButton === 'form01'">
+          <ElButton type="primary" :loading="loading" @click="save">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+            {{ t('reuse.addNew') }}
+          </ElButton>
+        </div>
+        <div v-if="props.typeButton === 'form02'">
+          <ElButton type="primary" :loading="loading" @click="save">
+            {{ t('reuse.fix') }}
+          </ElButton>
+        </div>
         <ElButton type="primary" :loading="loading" @click="save">
           {{ t('reuse.save') }}
         </ElButton>

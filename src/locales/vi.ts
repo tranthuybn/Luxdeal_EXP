@@ -909,6 +909,7 @@ export default {
     nameStorage: 'Tên kho',
     //filter status product
     show: 'Hiển thị',
-    notShow: 'Ẩn'
+    notShow: 'Ẩn',
+    dateEditCreate: 'Ngày tạo/sửa'
   }
 }

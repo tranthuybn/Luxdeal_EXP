@@ -58,11 +58,22 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  customOperatorChilden: {
+  customOperatorChildren: {
     type: Boolean,
     default: true
   }
 })
+
+//value is an object, get called when filter range(to-from) value
+const confirm = (value) => {
+  setSearchParams(value)
+}
+const cancel = (field) => {
+  clearSearchParams(field)
+}
+const filterSelect = (value) => {
+  setSearchParams(value)
+}
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({
@@ -100,13 +111,23 @@ watch(
     immediate: true
   }
 )
-
+const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilter)
+//call api when filter in header change
+const { setSearchParams, clearSearchParams } = methods
+const filterChange = (filterValue) => {
+  if (filterValue && typeof unref(filterValue) === 'object')
+    for (let key in filterValue) {
+      if (typeof unref(filterValue[key]) === 'object')
+        filterValue[key] = Object.values(filterValue[key]).toString()
+    }
+  setSearchParams(filterValue)
+}
 // operation colum toggle
 const { setColumn } = methods
 function operatorColumnToggle(param) {
   setColumn([
     {
-      field: 'operator',
+      field: props.customOperatorChildren ? 'operator' : '',
       path: 'fixed',
       value: param
     }
@@ -124,20 +145,12 @@ defineExpose({
   getData,
   tableObject
 })
-//call api when filter in header change
-const { setSearchParams } = methods
-const filterChange = (filterValue) => {
-  if (filterValue && typeof unref(filterValue) === 'object')
-    for (let key in filterValue) {
-      if (typeof unref(filterValue[key]) === 'object')
-        filterValue[key] = Object.values(filterValue[key]).toString()
-    }
-  setSearchParams(filterValue)
-}
+
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.fullColumns
-  if (props.customOperator === 2) addOperatorColumn(dynamicColumns.value)
+  if (props.customOperator === 2 && props.customOperatorChildren == true)
+    addOperatorColumn(dynamicColumns.value)
 })
 </script>
 <template>
@@ -160,13 +173,44 @@ onBeforeMount(() => {
       @filter-change="filterChange"
       :selection="selection"
     >
-      <template v-if="customOperatorChilden" #operator>
+      <template v-if="props.customOperatorChildren" #operator>
         <ElButton type="primary" plain>
           {{ t('reuse.fix') }}
         </ElButton>
         <ElButton type="danger">
           {{ t('reuse.delete') }}
         </ElButton>
+      </template>
+      <template
+        v-for="(header, index) in ColumnsHaveHeaderFilter"
+        :key="index"
+        #[`${header.field}-header`]
+      >
+        {{ header.label }}
+        <InputMoneyRange
+          v-if="header.headerFilter === 'Money'"
+          :field="header.field"
+          @confirm="confirm"
+          @cancel="cancel"
+        />
+        <InputDateRange
+          v-if="header.headerFilter === 'Date'"
+          :field="header.field"
+          @confirm="confirm"
+          @cancel="cancel"
+        />
+        <InputNumberRange
+          v-if="header.headerFilter === 'Number'"
+          :field="header.field"
+          @confirm="confirm"
+          @cancel="cancel"
+        />
+        <InputName
+          v-if="header.headerFilter === 'Name'"
+          :field="header.field"
+          @filter-select="filterSelect"
+          @cancel="cancel"
+        />
       </template>
     </Table>
   </ContentWrap>

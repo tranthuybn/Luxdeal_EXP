@@ -910,6 +910,7 @@ export default {
     //filter status product
     show: 'Hiển thị',
     notShow: 'Ẩn',
+    dateEditCreate: 'Ngày tạo/sửa',
     nameRank2Category: 'Tên danh mục cấp 2'
   }
 }

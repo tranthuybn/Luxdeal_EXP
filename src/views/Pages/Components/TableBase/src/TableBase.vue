@@ -64,6 +64,10 @@ const props = defineProps({
   removeDrawer: {
     type: Boolean,
     default: false
+  },
+  titleButtons: {
+    type: String,
+    default: ''
   }
 })
 
@@ -149,12 +153,23 @@ const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
+let buttonShow = true
 const action = (row: TableData, type: string) => {
-  push({
-    name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { id: row.id, type: type }
-  })
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type }
+    })
+  } else {
+    console.log(type)
+    if (buttonShow === true) {
+      buttonShow = false
+    } else {
+      buttonShow = true
+    }
+  }
 }
+
 const delData = async (row: TableData | null, multiple: boolean) => {
   {
     ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
@@ -189,11 +204,15 @@ const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilt
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const drawer = ref(false)
 const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
 )
 
+const localeChange = (show: boolean) => {
+  console.log(show)
+}
 const showingColumn =
   props.fullColumns.length > 0
     ? props.fullColumns
@@ -260,8 +279,8 @@ const showingColumn =
       </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
-        :key="index"
         #[`${header.field}-header`]
+        :key="index"
       >
         {{ header.label }}
         <InputMoneyRange
@@ -296,18 +315,27 @@ const showingColumn =
           <ElButton @click="delData(row, false)" :icon="trashIcon" />
         </div>
         <div v-if="customOperator === 2">
-          <ElButton type="primary" @click="action(row, 'edit')" plain>
+          <ElButton v-if="buttonShow" type="primary" @click="action(row, 'editRow')" plain>
             {{ t('reuse.fix') }}
+          </ElButton>
+          <ElButton v-if="!buttonShow" type="primary" @click="action(row, 'saveRow')">
+            {{ t('reuse.save') }}
           </ElButton>
           <ElButton type="danger" @click="action(row, 'delete')">
             {{ t('reuse.delete') }}
-          </ElButton>
-        </div>
+          </ElButton></div
+        >
+      </template>
+      <template #switch="data">
+        <ElSwitch v-model="data.row.switch" @change="localeChange" />
       </template>
       <template #expand>
-        <slot name="expand"> </slot>
+        <slot name="expand"></slot>
       </template>
     </Table>
+    <ElButton v-if="!(props.titleButtons === '')" id="bt-add" :icon="plusIcon" class="mx-12">
+      {{ props.titleButtons }}</ElButton
+    >
   </ContentWrap>
 </template>
 <style lang="less" scoped>

@@ -39,7 +39,7 @@ export const getUnitCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/UnitCategories/List', params })
   return res && res.data
 }
-export const GETCATEGORY = async (params: any): Promise<IResponse> => {
+export const getCategory = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`

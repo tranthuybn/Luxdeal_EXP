@@ -1,5 +1,5 @@
-export const PRODUCTS_AND_SERVICES = {
-  CATEGORY: 'danhmuc',
+export const PRODUCTS_AND_SERVICES_CATEGORY = {
+  CATEGORY: 'tatca',
   COLORS: 'mausac',
   GENDER: 'gioitinh',
   BRAND: 'thuonghieu',

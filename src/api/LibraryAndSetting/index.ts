@@ -25,10 +25,36 @@ export const getCategories = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const postOriginCategories = async (data): Promise<IResponse> => {
+export const getCategoryById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postCategory = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.ADD_ORIGIN}`, data },
+    { url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCategory = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_CATEGORY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteCategory = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_CATEGORY}?${objectToQueryParams(params)}`
+    },
     fixedBaseURL
   )
   return res && res.data

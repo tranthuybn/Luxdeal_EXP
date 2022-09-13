@@ -15,7 +15,6 @@ import {
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { saveTableApi } from '@/api/table'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { apiType, TableResponse } from '../../Type'
@@ -78,9 +77,13 @@ const props = defineProps({
   params: {
     type: Object,
     default: () => {}
+  },
+  formDataCustomize: {
+    type: Object,
+    default: () => {}
   }
 })
-const emit = defineEmits(['post-data'])
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 
 //get data from table
@@ -92,7 +95,7 @@ const getTableValue = async () => {
     } else {
       formValue.value = res.data
     }
-    setFormValue()
+    await setFormValue()
   }
 }
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -123,15 +126,27 @@ watch(
     immediate: true
   }
 )
+const customizeData = async () => {
+  await emit('customize-form-data', formValue.value)
+}
 //set data for form edit and detail
-const setFormValue = () => {
+const setFormValue = async () => {
+  //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
   const { setValues } = methods
-  setValues(formValue.value)
+  if (props.formDataCustomize !== undefined) {
+    console.log('have value')
+    setValues(props.formDataCustomize)
+  } else {
+    console.log('undefined')
+    setValues(formValue.value)
+  }
   fileList.value.push({
     url: formValue.value.image,
     name: formValue.value.title
   })
 }
+//watch and call get data form detail and edit
 watch(
   () => props.type,
   () => {
@@ -157,23 +172,24 @@ defineExpose({
 
 const loading = ref(false)
 
-const save = async () => {
+//doc du lieu tu bang roi emit len goi API
+const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     if (isValid) {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
+      console.log('data get', data)
       props.multipleImages
         ? (data.imageUrl = fileList.value)
         : (data.imageUrl = rawUploadFile.value?.raw)
-      console.log(data)
-      const res = await saveTableApi(data)
-        .catch(() => {})
-        .finally(() => {
-          loading.value = false
-        })
-      if (res) {
-        emit('post-data', data)
+      if (type == 'add') {
+        await emit('post-data', data)
+        loading.value = false
+      }
+      if (type == 'edit') {
+        await emit('edit-data', data)
+        loading.value = false
       }
     }
   })
@@ -327,7 +343,7 @@ const listType = ref<ListImages>('text')
         </ElButton>
       </div>
       <div v-if="props.type === 'add' || Number.isNaN(props.id)">
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="saveAndAdd">
@@ -343,7 +359,7 @@ const listType = ref<ListImages>('text')
         </ElButton>
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton :loading="loading" @click="cancel">

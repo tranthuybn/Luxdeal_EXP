@@ -32,6 +32,10 @@ const props = defineProps({
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
+  delApi: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
   selection: {
     type: Boolean,
     default: true
@@ -123,6 +127,7 @@ const pushAdd = () => {
       :titleButtons="props.titleButtons"
       :customOperator="customOperator"
       :apiTableChild="apiTableChild"
+      :delApi="delApi"
       :columnsTableChild="columnsTableChild"
       :paginationType="pagination"
       ref="tableBase01"

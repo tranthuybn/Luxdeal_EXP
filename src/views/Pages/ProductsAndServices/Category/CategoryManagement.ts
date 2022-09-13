@@ -216,7 +216,10 @@ export const unitCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',

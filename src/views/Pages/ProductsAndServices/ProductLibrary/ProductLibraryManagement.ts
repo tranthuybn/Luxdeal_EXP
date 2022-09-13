@@ -1,26 +1,22 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, unref } from 'vue'
-import TableType01 from '@/views/Pages/Components/TableBase.vue'
 import {
   filterTableStatus,
   filterTableCategory,
   filterIventory,
   filterDeposit
 } from '@/utils/filters'
-import { h } from 'vue'
-import { ElSwitch } from 'element-plus'
 import { reactive } from 'vue'
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-const seeDetail = (...param) => {
-  const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-    ? unref(tableBase01)?.tableObject.tableList
-    : []
-  if (array && array.length > 0) {
-    array.forEach((el) => {
-      if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-    })
-  }
-}
+//const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+// const seeDetail = (...param) => {
+//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
+//     ? unref(tableBase01)?.tableObject.tableList
+//     : []
+//   if (array && array.length > 0) {
+//     array.forEach((el) => {
+//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
+//     })
+//   }
+// }
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -154,12 +150,12 @@ export const businessProductLibrary = [
 ]
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
-    field: 'field1',
+    field: 'Divider',
     label: t('router.productCategoryProducts'),
     component: 'Divider'
   },
   {
-    field: 'field2',
+    field: 'Select01',
     label: t('reuse.selectCategory'),
     component: 'Select',
     componentProps: {
@@ -184,7 +180,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field',
+    field: 'Select02',
     component: 'Select',
     componentProps: {
       allowCreate: true,
@@ -208,7 +204,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field3',
+    field: 'Select03',
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
@@ -233,7 +229,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field',
+    field: 'Select04',
     component: 'Select',
     componentProps: {
       allowCreate: true,
@@ -257,7 +253,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field3',
+    field: 'Select05',
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
@@ -282,7 +278,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field4',
+    field: 'Select06',
     component: 'Select',
     componentProps: {
       allowCreate: true,
@@ -306,12 +302,12 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field41',
+    field: 'Divider02',
     label: t('reuse.generalProductInformation'),
     component: 'Divider'
   },
   {
-    field: 'field5',
+    field: 'Input01',
     label: t('reuse.productCode'),
     component: 'Input',
     componentProps: {
@@ -322,7 +318,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field6',
+    field: 'Input02',
     label: t('reuse.productName'),
     component: 'Input',
     componentProps: {
@@ -333,7 +329,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field7',
+    field: 'Input03',
     label: t('reuse.shortDescription'),
     component: 'Input',
     componentProps: {
@@ -344,7 +340,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field8',
+    field: 'Input04',
     label: t('reuse.inspectionInformation'),
     component: 'Input',
     componentProps: {
@@ -355,12 +351,12 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field42',
+    field: 'Divider03',
     label: t('reuse.descriptionParameters'),
     component: 'Divider'
   },
   {
-    field: 'field43',
+    field: 'Editor',
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
@@ -371,14 +367,14 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field41',
+    field: 'Divider04',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
   {
-    field: 'field47',
+    field: 'Radio01',
     label: t('reuse.setInventoryForSale'),
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
       span: 24
@@ -405,9 +401,9 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field46',
+    field: 'Radio02',
     label: t('reuse.setInventoryForRent'),
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
       span: 24
@@ -434,9 +430,9 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field45',
+    field: 'Radio03',
     label: t('reuse.productStatus'),
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
       span: 24
@@ -528,6 +524,13 @@ export const featuresPrice = reactive<TableColumn[]>([
   {
     field: 'managementCode',
     label: t('reuse.managementCode'),
+    component: 'Input',
+    componentProps: {
+      placeholder: 'Nhập mã sản phẩm'
+    },
+    colProps: {
+      span: 20
+    },
     minWidth: '250'
   },
   {
@@ -566,18 +569,10 @@ export const featuresPrice = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'businessManagement',
+    field: 'switch',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
+    align: 'center'
   }
 ])
 export const featuresRentalPrice = reactive<TableColumn[]>([
@@ -623,7 +618,7 @@ export const featuresRentalPrice = reactive<TableColumn[]>([
   },
   {
     field: 'createDate',
-    label: t('reuse.createDate'),
+    label: t('reuse.dateEditCreate'),
     minWidth: '130'
   },
   {
@@ -632,18 +627,10 @@ export const featuresRentalPrice = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'businessManagement',
+    field: 'switch',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
+    align: 'center'
   }
 ])
 export const featuresDepositFee = reactive<TableColumn[]>([
@@ -678,18 +665,10 @@ export const featuresDepositFee = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'businessManagement',
+    field: 'switch',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
+    align: 'center'
   }
 ])
 export const featuresPawnFee = reactive<TableColumn[]>([
@@ -734,18 +713,10 @@ export const featuresPawnFee = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'businessManagement',
+    field: 'switch',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
+    align: 'center'
   }
 ])
 export const spaPrice = reactive<TableColumn[]>([
@@ -780,18 +751,10 @@ export const spaPrice = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'businessManagement',
+    field: 'switch',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
+    align: 'center'
   }
 ])
 export const inventoryTrading = [
@@ -893,14 +856,12 @@ export const columnsPriceByQuantity = reactive<TableColumn[]>([
   {
     field: 'quantityTo',
     label: t('reuse.quantityTo'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'dayRentalUnitPrice',
     label: t('reuse.dayRentalUnitPrice'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'weeklyRent',
@@ -928,23 +889,24 @@ export const columnsImportAndExportHistory = reactive<TableColumn[]>([
     field: 'importExportDate',
     label: t('reuse.importExportDate'),
     minWidth: '150',
-    sortable: true
+    headerFilter: 'Date'
   },
   {
     field: 'importExportCode',
     label: t('reuse.importExportCode'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'importExportForm',
     label: t('reuse.importExportForm'),
-    minWidth: '150'
+    minWidth: '150',
+    headerFilter: 'Name'
   },
   {
     field: 'importExportWarehouse',
     label: t('reuse.importExportWarehouse'),
-    minWidth: '150'
+    minWidth: '150',
+    headerFilter: 'Name'
   },
   {
     field: 'internalWarehouse',

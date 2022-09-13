@@ -81,7 +81,7 @@ const activeName = ref(props.default)
           :selection="item.selection"
           :customOperator="item.customOperator"
           :titleChilden="item.titleChilden"
-          :customOperatorChilden="item.customOperatorChilden"
+          :typeButton="item.typeButton"
         >
           <template #expand>
             <div id="title-price-information">{{ t(`${item.titleChilden}`) }}</div>
@@ -92,12 +92,18 @@ const activeName = ref(props.default)
               :fullColumns="item.columnsTableChild"
               :api="item.apiTableChild"
               :customOperator="item.customOperator"
-              :customOperatorChilden="item.customOperatorChilden"
+              :customOperatorChildren="item.customOperatorChildren"
             />
-            <ElButton id="bt-add" class="mx-12"> {{ item.buttonAdd }}</ElButton>
+            <ElButton
+              v-if="!(item.titleButtonChildren === 'false')"
+              :icon="plusIcon"
+              id="bt-add"
+              class="mx-12"
+            >
+              {{ item.titleButtonChildren }}</ElButton
+            >
           </template>
         </tableDatetimeFilterBasicVue>
-
         <TableOperator
           v-if="item.typeForm === 'form' || item.typeForm === 'all'"
           class="infinite-list"

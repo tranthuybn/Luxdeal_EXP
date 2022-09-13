@@ -10,48 +10,51 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-import { provide } from 'vue'
+import { provide, reactive } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-
+let params = reactive({ TypeName: 'mausac' })
+provide('parameters', {
+  params
+})
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
-    name: 'colorCategories',
+    name: PRODUCTS_AND_SERVICES[1].key,
     label: t('reuse.color'),
     api: getCategories,
     column: colorCategories
   },
   {
-    name: 'sizeCategories',
+    name: PRODUCTS_AND_SERVICES[2].key,
     label: t('reuse.size'),
     api: getCategories,
     column: sizeCategories
   },
   {
-    name: 'materialCategories',
+    name: PRODUCTS_AND_SERVICES[3].key,
     label: t('reuse.material'),
     api: getCategories,
     column: materialCategories
   },
   {
-    name: 'statusCategories',
+    name: PRODUCTS_AND_SERVICES[4].key,
     label: t('reuse.status'),
     api: getCategories,
     column: statusCategories
   },
   {
-    name: 'genderCategories',
+    name: PRODUCTS_AND_SERVICES[5].key,
     label: t('reuse.gender'),
     api: getCategories,
     column: genderCategories
   }
 ]
-let params = { TypeName: tabs[].params }
-provide('parameters', {
-  params
-})
-const changeParam = (...val) => {
-  console.log(val)
+
+const changeParam = (val = '') => {
+  if (val.length > 0) params.TypeName = val
+  provide('parameters', {
+    params
+  })
 }
 </script>
-<template> <productCategoryTable :tabs="tabs" @change-param="changeParam" /></template>
+<template> <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" /></template>

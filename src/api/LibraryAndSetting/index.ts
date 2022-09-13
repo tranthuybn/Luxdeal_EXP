@@ -15,67 +15,8 @@ export const getPropertyProductCategories = async (params: any): Promise<IRespon
   const res = await request.get({ url: '/PropertyProduct/List', params })
   return res && res.data
 }
-export const getColorCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.COLORS, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const getSizeCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.SIZE, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const getMaterialCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.MATERIAL, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const getStatusCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.STATUS, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const getGenderCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.GENDER, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const getUnitCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.UNIT, ...params }
-  const res = await request.get(
-    {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const GETCATEGORY = async (params: any): Promise<IResponse> => {
+
+export const getCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`

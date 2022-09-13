@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, reactive } from 'vue'
+import { PropType, watch, ref, unref } from 'vue'
 import { TableData } from '@/api/table/types'
-import { useValidator } from '@/hooks/web/useValidator'
 import {
   ElRow,
   ElCol,
@@ -17,14 +16,11 @@ import {
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { saveTableApi } from '@/api/table'
-import { useEmitt } from '@/hooks/web/useEmitt'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { apiType, TableResponse } from '../../Type'
 
 const { t } = useI18n()
-const { emitter } = useEmitt()
-const { required } = useValidator()
 
 const props = defineProps({
   api: {
@@ -80,15 +76,7 @@ const props = defineProps({
     default: 1
   }
 })
-
-const rules = reactive({
-  title: [required()],
-  author: [required()],
-  importance: [required()],
-  pageviews: [required()],
-  display_time: [required()],
-  content: [required()]
-})
+const emit = defineEmits(['post-data'])
 const formValue = ref()
 const getTableValue = async () => {
   if (props.id !== NaN) {
@@ -163,14 +151,15 @@ const save = async () => {
     if (isValid) {
       loading.value = true
       const { getFormData } = methods
-      const data = (await getFormData()) as TableData
+      let data = (await getFormData()) as TableData
+      const formData = Object.assign(data, fileList.value)
       const res = await saveTableApi(data)
         .catch(() => {})
         .finally(() => {
           loading.value = false
         })
       if (res) {
-        emitter.emit('getList', 'add')
+        emit('post-data', formData)
       }
     }
   })

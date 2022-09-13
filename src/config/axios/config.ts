@@ -34,7 +34,7 @@ const config: {
   /**
    * Interface request timeout time
    */
-  request_timeout: 60000,
+  request_timeout: 7000,
 
   /**
    * Default interface request type

@@ -122,7 +122,43 @@ export default {
     enterNumberHours: 'Nhập số giờ',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
-    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng'
+    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
+    orderInformation: 'Thông tin đơn hàng',
+    generalInformation: 'Thông tin chung',
+    orderCode: 'Mã đơn hàng',
+    enterOrderCode: 'Nhập mã đơn hàng',
+    collaborators: 'Cộng tác viên',
+    selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
+    enterDiscount: 'Nhập chiết khấu',
+    orderNotes: 'Ghi chú đơn hàng',
+    addNotes: 'Thêm ghi chú',
+    customer: 'Khách hàng',
+    customerName: 'Tên khách hàng',
+    selectOrEnterCouponCode: 'Chọn hoặc nhập mã voucher',
+    productInformation: 'Thông tin sản phẩm',
+    companyInformation: 'Thông tin công ty',
+    noDebt: 'Không có công nợ !',
+    debt: 'Có công nợ',
+    discountVoucher: 'Giảm 50% giá trị đơn hàng',
+    attachments: 'Hồ sơ đính kèm',
+    addPhotosOrFiles: 'Thêm ảnh hoặc file',
+    productAndPayment: 'Sản phẩm và thanh toán',
+    paymentAndDelivery: 'Thanh toán và giao hàng',
+    choosePayment: 'Chọn thanh toán',
+    chooseShipping: 'Chọn giao vận',
+    cashPayment: 'Thanh toán tiền mặt',
+    cardPayment: 'Thanh toán thẻ',
+    deliveryAtTheCounter: 'Giao hàng tại quầy',
+    deliveryToYourPlace: 'Giao hàng tận nơi',
+    printSalesSlip: 'In phiếu bán hàng',
+    printDepositSlip: 'In phiếu đặt cọc',
+    complete: 'Hoàn thành',
+    edit: 'Sửa',
+    orderStatus: 'Trạng thái đơn hàng',
+    paymenAndDelivery: 'Sản phẩm & thanh toán'
+  },
+  button: {
+    add: 'Thêm nhanh'
   },
   router: {
     login: 'Đăng nhập',
@@ -395,7 +431,6 @@ export default {
     remarkMessage1: 'Quyền điều khiển tuyến đường của điều khiển trở lại',
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
-
   reuse: {
     index: 'STT',
     receivedDate: 'Ngày nhận',

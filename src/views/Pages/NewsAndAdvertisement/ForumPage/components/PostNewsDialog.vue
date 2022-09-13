@@ -59,7 +59,6 @@ defineProps({
 const emit = defineEmits(['update-new-posting', 'update-post-dialog'])
 const resetUploadDialogField = () => {
   emit('update-post-dialog')
-  console.log('resetData')
 }
 const getAllTags = () => {
   console.log('getAllTag')
@@ -84,7 +83,6 @@ const chooseTag = (val) => {
 }
 const uploadPosting = () => {
   emit('update-new-posting')
-  console.log('upload post')
 }
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!

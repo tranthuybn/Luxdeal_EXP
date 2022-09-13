@@ -56,20 +56,18 @@ export const getStatusCategories = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getGenderCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.GENDER, ...params }
   const res = await request.get(
     {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
   return res && res.data
 }
 export const getUnitCategories = async (params: any): Promise<IResponse> => {
-  const paramsObj = { categoryType: PRODUCTS_AND_SERVICES.UNIT, ...params }
   const res = await request.get(
     {
-      url: `/api/v1/Categories/GetCategories?${objectToQueryParams(paramsObj)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

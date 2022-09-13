@@ -4,8 +4,9 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
 import { getOriginCategories, postOriginCategories } from '@/api/LibraryAndSetting'
+import { useValidator } from '@/hooks/web/useValidator'
+const { required } = useValidator()
 const { t } = useI18n()
-
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
 const schema = reactive<FormSchema[]>([
@@ -110,6 +111,13 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+const rules = reactive({
+  rankCategory: [required()],
+  Name: [required()],
+  ParentId: [required()],
+  count: [required()]
+})
+//call api for select options
 const getRank1SelectOptions = async () => {
   await getOriginCategories({ TypeName: 'xuatxu' })
     .then((res) => {
@@ -152,9 +160,9 @@ const postData = async (data) => {
     data.isActive = false
   }
   if (data.status[1] === 2) {
-    data.isHide = false
-  } else {
     data.isHide = true
+  } else {
+    data.isHide = false
   }
   await postOriginCategories({ TypeName: 'xuatxu', ...data })
 }
@@ -175,5 +183,7 @@ const type = String(router.currentRoute.value.params.type)
     :type="type"
     :id="id"
     @post-data="postData"
+    :multipleImages="false"
+    :rules="rules"
   />
 </template>

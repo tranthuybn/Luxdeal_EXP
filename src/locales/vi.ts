@@ -895,6 +895,7 @@ export default {
     nameStorage: 'Tên kho',
     //filter status product
     show: 'Hiển thị',
-    notShow: 'Ẩn'
+    notShow: 'Ẩn',
+    nameRank2Category: 'Tên danh mục cấp 2'
   }
 }

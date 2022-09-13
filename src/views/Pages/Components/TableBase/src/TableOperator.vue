@@ -152,15 +152,17 @@ const save = async () => {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
-      const formData = Object.assign(data, fileList.value)
-      console.log(formData)
+      props.multipleImages
+        ? (data.imageUrl = fileList.value)
+        : (data.imageUrl = rawUploadFile.value?.raw)
+      console.log(data)
       const res = await saveTableApi(data)
         .catch(() => {})
         .finally(() => {
           loading.value = false
         })
       if (res) {
-        emit('post-data', formData)
+        emit('post-data', data)
       }
     }
   })
@@ -171,6 +173,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 //if schema has image then split screen
 let fullSpan = ref<number>()
+let rawUploadFile = ref<UploadFile>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
@@ -221,6 +224,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
     const file = fileList.value.pop()
     if (file != undefined) {
+      rawUploadFile.value = uploadFile
       imageUrl.value = URL.createObjectURL(file.raw!)
     }
   }

@@ -833,6 +833,8 @@ export default {
     nameStorage: 'Name of Storage',
     //filter status product
     show: 'Show',
-    notShow: 'Hidden'
+    notShow: 'Hidden',
+    //origin add
+    nameRank2Category: 'Name of rank 2 category'
   }
 }

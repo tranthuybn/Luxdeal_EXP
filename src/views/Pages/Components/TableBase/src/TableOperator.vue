@@ -88,7 +88,7 @@ const formValue = ref()
 
 //get data from table
 const getTableValue = async () => {
-  if (props.id !== NaN) {
+  if (isNaN(props.id)) {
     const res = await props.api({ ...props.params, id: props.id })
     if (res.data.list !== undefined) {
       formValue.value = res.data.list[0]
@@ -267,7 +267,6 @@ type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
-
 <template>
   <ContentWrap :title="t(`${title}`)">
     <ElRow :gutter="20" justify="space-between">
@@ -329,7 +328,7 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under>
-      <div v-if="props.type === 'add'">
+      <div v-if="props.type === 'add' || isNaN(props.id)">
         <div v-if="props.typeButton === 'form01'">
           <ElButton type="primary" :loading="loading" @click="save">
             {{ t('reuse.save') }}
@@ -343,7 +342,7 @@ const listType = ref<ListImages>('text')
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="saveAndAdd">

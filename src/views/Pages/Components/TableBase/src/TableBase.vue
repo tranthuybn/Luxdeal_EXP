@@ -11,7 +11,8 @@ import {
   ElCheckboxGroup,
   ElCheckboxButton,
   ElMessage,
-  ElMessageBox
+  ElMessageBox,
+  ElSwitch
 } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'

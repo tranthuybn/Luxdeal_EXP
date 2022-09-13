@@ -847,6 +847,24 @@ export default {
     nameStorage: 'Name of Storage',
     //filter status product
     show: 'Show',
-    notShow: 'Hidden'
+    notShow: 'Hidden',
+    // Check Validation
+    required: 'This is required',
+    notSpecialCharacters: 'Do not enter special characters',
+    lengthRange: 'Inappropriate character length',
+    notSpace: 'No spaces between characters',
+    isNotEqual: 'It is not equal',
+    phoneNumberFormat: 'It is not phone number format',
+    emailFormat: 'Please enter correct email format',
+    dateTimeFormat: 'Date and time format is incorrect',
+    dateFormat: 'Date format is incorrect',
+    monthFormat: 'Month format is incorrect',
+    yearFormat: 'Year format is incorrect',
+    numberFormat: 'Please just enter phone number',
+    positiveNumber: 'Please just enter positive number',
+    integerNumber: 'Please just enter integer number',
+    checkNameLength: 'Do not enter more than 50 character',
+    checkDescriptionLength: 'Do not enter more than 500 character',
+    checkStartDateTime: 'Date starts before current time'
   }
 }

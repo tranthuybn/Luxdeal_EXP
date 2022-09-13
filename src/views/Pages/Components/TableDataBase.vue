@@ -71,10 +71,6 @@ const props = defineProps({
   removeHeaderFilter: {
     type: Boolean,
     default: false
-  },
-  customOperatorChilden: {
-    type: Boolean,
-    default: true
   }
 })
 
@@ -133,7 +129,6 @@ const pushAdd = () => {
       @selected-record="fnGetSelectedRecord"
       :selection="selection"
       :titleChilden="props.titleChilden"
-      :customOperatorChilden="props.customOperatorChilden"
     >
       <template #expand>
         <slot name="expand"></slot>

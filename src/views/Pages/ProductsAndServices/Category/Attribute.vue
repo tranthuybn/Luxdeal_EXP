@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import productCategoryTable from '../../Components/TabsBase.vue'
-import {
-  getColorCategories,
-  getSizeCategories,
-  getMaterialCategories,
-  getStatusCategories,
-  getGenderCategories
-} from '@/api/LibraryAndSetting'
+import { getCategories } from '@/api/LibraryAndSetting'
 import {
   colorCategories,
   sizeCategories,
@@ -16,47 +10,48 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-import { PRODUCTS_AND_SERVICES_CATEGORY } from '@/utils/API.Variables'
+import { provide } from 'vue'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
     name: 'colorCategories',
     label: t('reuse.color'),
-    api: getColorCategories,
-    column: colorCategories,
-    params: { TypeName: PRODUCTS_AND_SERVICES_CATEGORY.COLORS }
+    api: getCategories,
+    column: colorCategories
   },
   {
     name: 'sizeCategories',
     label: t('reuse.size'),
-    api: getSizeCategories,
-    column: sizeCategories,
-    params: { TypeName: PRODUCTS_AND_SERVICES_CATEGORY.SIZE }
+    api: getCategories,
+    column: sizeCategories
   },
   {
     name: 'materialCategories',
     label: t('reuse.material'),
-    api: getMaterialCategories,
-    column: materialCategories,
-    params: { TypeName: PRODUCTS_AND_SERVICES_CATEGORY.MATERIAL }
+    api: getCategories,
+    column: materialCategories
   },
   {
     name: 'statusCategories',
     label: t('reuse.status'),
-    api: getStatusCategories,
-    column: statusCategories,
-    params: { TypeName: PRODUCTS_AND_SERVICES_CATEGORY.STATUS }
+    api: getCategories,
+    column: statusCategories
   },
   {
     name: 'genderCategories',
     label: t('reuse.gender'),
-    api: getGenderCategories,
-    column: genderCategories,
-    params: { TypeName: PRODUCTS_AND_SERVICES_CATEGORY.GENDER }
+    api: getCategories,
+    column: genderCategories
   }
 ]
+let params = { TypeName: tabs[].params }
+provide('parameters', {
+  params
+})
+const changeParam = (...val) => {
+  console.log(val)
+}
 </script>
-<template>
-  <productCategoryTable :tabs="tabs" />
-</template>
+<template> <productCategoryTable :tabs="tabs" @change-param="changeParam" /></template>

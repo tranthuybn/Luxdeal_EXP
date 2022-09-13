@@ -909,6 +909,25 @@ export default {
     nameStorage: 'Tên kho',
     //filter status product
     show: 'Hiển thị',
-    notShow: 'Ẩn'
+    notShow: 'Ẩn',
+    dateEditCreate: 'Ngày tạo/sửa',
+    // Check Validation
+    required: 'Không được để trống',
+    notSpecialCharacters: 'Không nhập ký tự đặc biệt',
+    lengthRange: 'Độ dài ký tự không phù hợp',
+    notSpace: 'Không được có khoảng trống giữa các ký tự',
+    isNotEqual: 'Không bằng nhau',
+    phoneNumberFormat: 'Không phải số điện thoại',
+    emailFormat: 'Vui lòng nhập đúng định dạng email',
+    dateTimeFormat: 'Định dạng ngày giờ không đúng',
+    dateFormat: 'Định dạng ngày không đúng',
+    monthFormat: 'Định dạng tháng không đúng',
+    yearFormat: 'Định dạng năm không đúng',
+    numberFormat: 'Vui lòng chỉ nhập số',
+    positiveNumber: 'Vui lòng chỉ nhập số dương',
+    integerNumber: 'Vui lòng chỉ nhập số nguyên',
+    checkNameLength: 'Không được nhập quá 50 ký tự',
+    checkDescriptionLength: 'Không được nhập quá 500 ký tự',
+    checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại'
   }
 }

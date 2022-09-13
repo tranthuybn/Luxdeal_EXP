@@ -31,7 +31,6 @@ const getData = (data) => {
 }
 // tab logic
 const currentTab = ref<string>('')
-let paramsProp = ref()
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
@@ -45,7 +44,6 @@ onBeforeMount(() => {
      * if api and column had been not assigned before then no content should be render
      */
     currentTab.value = theFirstTab.name
-    paramsProp.value = theFirstTab.params
   }
 })
 const tabChangeEvent = (name) => {
@@ -55,8 +53,6 @@ const tabChangeEvent = (name) => {
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
     addOperatorColumn(dynamicColumns.value)
-    paramsProp.value = tab?.params
-    console.log('params', paramsProp.value)
   }
 }
 
@@ -107,7 +103,6 @@ const pushAdd = () => {
           </HeaderFiler>
           <TableBase
             ref="tableBase01"
-            :paramsProp="paramsProp"
             :selection="false"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"

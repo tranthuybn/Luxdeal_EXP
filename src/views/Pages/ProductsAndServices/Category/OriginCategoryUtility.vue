@@ -166,12 +166,13 @@ const postData = async (data) => {
   }
   await postOriginCategories({ TypeName: 'xuatxu', ...data })
 }
-
+// get data from router
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const params = { TypeName: 'xuatxu' }
 </script>
 
 <template>
@@ -185,5 +186,7 @@ const type = String(router.currentRoute.value.params.type)
     @post-data="postData"
     :multipleImages="false"
     :rules="rules"
+    :api="getOriginCategories"
+    :params="params"
   />
 </template>

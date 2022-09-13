@@ -74,14 +74,24 @@ const props = defineProps({
   limitUpload: {
     type: Number,
     default: 1
+  },
+  params: {
+    type: Object,
+    default: () => {}
   }
 })
 const emit = defineEmits(['post-data'])
 const formValue = ref()
+
+//get data from table
 const getTableValue = async () => {
   if (props.id !== NaN) {
-    const res = await props.api({ id: props.id })
-    formValue.value = res.data.list[0]
+    const res = await props.api({ ...props.params, id: props.id })
+    if (res.data.list !== undefined) {
+      formValue.value = res.data.list[0]
+    } else {
+      formValue.value = res.data
+    }
     setFormValue()
   }
 }
@@ -113,6 +123,7 @@ watch(
     immediate: true
   }
 )
+//set data for form edit and detail
 const setFormValue = () => {
   const { setValues } = methods
   setValues(formValue.value)

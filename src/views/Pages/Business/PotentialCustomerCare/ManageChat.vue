@@ -1,5 +1,5 @@
 <template>
-  <section class="!h-full">
+  <section class="!h-87vh">
     <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
       <el-tab-pane
         :name="item.value"
@@ -23,7 +23,7 @@
       </el-tab-pane>
       <div class="message-box h-full">
         <el-row class="h-full w-full bg-white dark:bg-[var(--el-bg-color)]">
-          <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2">
+          <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2 h-full">
             <MessagePanel
               v-if="selectedUser"
               :user="selectedUser"

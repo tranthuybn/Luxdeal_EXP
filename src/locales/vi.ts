@@ -122,7 +122,43 @@ export default {
     enterNumberHours: 'Nhập số giờ',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
-    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng'
+    standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
+    orderInformation: 'Thông tin đơn hàng',
+    generalInformation: 'Thông tin chung',
+    orderCode: 'Mã đơn hàng',
+    enterOrderCode: 'Nhập mã đơn hàng',
+    collaborators: 'Cộng tác viên',
+    selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
+    enterDiscount: 'Nhập chiết khấu',
+    orderNotes: 'Ghi chú đơn hàng',
+    addNotes: 'Thêm ghi chú',
+    customer: 'Khách hàng',
+    customerName: 'Tên khách hàng',
+    selectOrEnterCouponCode: 'Chọn hoặc nhập mã voucher',
+    productInformation: 'Thông tin sản phẩm',
+    companyInformation: 'Thông tin công ty',
+    noDebt: 'Không có công nợ !',
+    debt: 'Có công nợ',
+    discountVoucher: 'Giảm 50% giá trị đơn hàng',
+    attachments: 'Hồ sơ đính kèm',
+    addPhotosOrFiles: 'Thêm ảnh hoặc file',
+    productAndPayment: 'Sản phẩm và thanh toán',
+    paymentAndDelivery: 'Thanh toán và giao hàng',
+    choosePayment: 'Chọn thanh toán',
+    chooseShipping: 'Chọn giao vận',
+    cashPayment: 'Thanh toán tiền mặt',
+    cardPayment: 'Thanh toán thẻ',
+    deliveryAtTheCounter: 'Giao hàng tại quầy',
+    deliveryToYourPlace: 'Giao hàng tận nơi',
+    printSalesSlip: 'In phiếu bán hàng',
+    printDepositSlip: 'In phiếu đặt cọc',
+    complete: 'Hoàn thành',
+    edit: 'Sửa',
+    orderStatus: 'Trạng thái đơn hàng',
+    paymenAndDelivery: 'Sản phẩm & thanh toán'
+  },
+  button: {
+    add: 'Thêm nhanh'
   },
   router: {
     login: 'Đăng nhập',
@@ -395,7 +431,6 @@ export default {
     remarkMessage1: 'Quyền điều khiển tuyến đường của điều khiển trở lại',
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
-
   reuse: {
     index: 'STT',
     receivedDate: 'Ngày nhận',
@@ -564,7 +599,7 @@ export default {
     revenueAndExpenditure: 'Phải thu/Phải chi',
     inputName: 'Nhập tên',
     online: 'Online',
-    offline: 'Trực tiếp',
+    offline: 'Offline',
     booking: 'Booking',
     firstTime: 'Lần đầu',
     secondTime: 'Lần hai',
@@ -839,6 +874,7 @@ export default {
     pawnStore: 'Kho cầm đồ',
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
+    importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
     rentalConsult: 'Tư vấn cho thuê',
@@ -853,9 +889,34 @@ export default {
     library: 'Thư viện',
     contract: 'Hợp đồng',
     currency: 'đ',
+    customerClassification: 'Phân loại khách hàng',
+    phoneNumber: 'Số điện thoại',
+    email: 'Email',
+    link: 'Link',
+    transactionHistory: 'Lịch sử giao dịch',
+    customerService: 'Nhu cầu khách hàng',
+    serviceDetails: 'Chi tiết dịch vụ',
+    newData: 'Dữ liệu mới',
+    lastContent: 'Nội dung cuối',
+    orderSalesAssign: 'Gán doanh số đơn hàng',
+    customerCareContent: 'Nội dung chăm sóc khách hàng',
+    saleHistoryCustomerCare: 'Sale & lịch sử chăm sóc khách hàng',
+    addSale: 'Thêm mới sale',
+    historySaleCustomerCare: 'Lịch sử sale chăm sóc khách hàng',
     //Warehouse/storage
     typeStorage: 'Loại kho',
     chooseRankStorage: 'Chọn cấp kho',
-    nameStorage: 'Tên kho'
+    nameStorage: 'Tên kho',
+    //filter status product
+    show: 'Hiển thị',
+    notShow: 'Ẩn',
+    dateEditCreate: 'Ngày tạo/sửa',
+    nameRank2Category: 'Tên danh mục cấp 2',
+    //them sua xoa
+    addSuccess: 'Thêm thành công',
+    updateSuccess: 'Sửa thành công',
+    deleteSuccess: 'Xóa thành công',
+    deleteCancel: 'Hủy xóa',
+    deleteFail: 'Xóa thất bại'
   }
 }

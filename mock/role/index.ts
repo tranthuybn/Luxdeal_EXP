@@ -259,9 +259,9 @@ const adminList = [
             }
           },
           {
-            path: 'potential-customer-add',
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
-            name: 'business.potential-customer-care.potential-customer-add',
+            name: `business.potential-customer-care.potential-customer-list.${utility}`,
             meta: {
               title: 'router.potentialCustomerAdd'
             }
@@ -293,9 +293,21 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+            name: `business.order-management.order-list.${utility}`,
+            meta: {
+              title: 'reuse.createANewOrder',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'create-new-order',
             name: 'business.order-management.create-new-order',
-            component: 'views/Pages/Business/OrderManagement/CreateANewOrder',
+            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
             meta: {
               title: 'router.createANewOrder'
             }

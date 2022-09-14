@@ -9,7 +9,7 @@ const featuresPrices: {
   promotionPrice: number
   createDate: Date
   status: string
-  businessManagement: boolean
+  switch: boolean
 }[] = []
 const status = ['Đã duyệt', 'Chờ duyệt']
 for (let i = 0; i < 100; i++) {
@@ -25,7 +25,7 @@ for (let i = 0; i < 100; i++) {
       promotionPrice: '@natural(0,3000) đ',
       createDate: '@date("dd/MM/yyyy")',
       status: status[random],
-      businessManagement: '@boolean'
+      switch: '@boolean'
     })
   )
 }

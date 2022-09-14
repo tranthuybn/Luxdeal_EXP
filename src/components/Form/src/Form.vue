@@ -147,19 +147,19 @@ export default defineComponent({
 
     // Whether to render EL-COL
     const renderFormItemWrap = () => {
-      // hidden属性表示隐藏，不做渲染
+      // Hidden attribute means hidden, not rendering
       const { schema = [], isCol } = unref(getProps)
 
       return schema
         .filter((v) => !v.hidden)
         .map((item) => {
-          // 如果是 Divider 组件，需要自己占用一行
+          // If it is a divider component, you need to occupy one line by yourself
           const isDivider = item.component === 'Divider'
           const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
           return isDivider ? (
             <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
           ) : isCol ? (
-            // 如果需要栅格，需要包裹 ElCol
+            // If you need a grid, you need to wrap ELCOL
             <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
           ) : (
             renderFormItem(item)

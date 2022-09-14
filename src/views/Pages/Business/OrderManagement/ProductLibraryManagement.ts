@@ -1,22 +1,26 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import { ref, unref } from 'vue'
+import TableType01 from '@/views/Pages/Components/TableBase/src/TableType01.vue'
 import {
   filterTableStatus,
   filterTableCategory,
   filterIventory,
   filterDeposit
 } from '@/utils/filters'
+import { h } from 'vue'
+import { ElSwitch } from 'element-plus'
 import { reactive } from 'vue'
-//const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-// const seeDetail = (...param) => {
-//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-//     ? unref(tableBase01)?.tableObject.tableList
-//     : []
-//   if (array && array.length > 0) {
-//     array.forEach((el) => {
-//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-//     })
-//   }
-// }
+const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+const seeDetail = (...param) => {
+  const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
+    ? unref(tableBase01)?.tableObject.tableList
+    : []
+  if (array && array.length > 0) {
+    array.forEach((el) => {
+      if (el.id === param[0].id) el['approveOrNot'] = !param[2]
+    })
+  }
+}
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -150,309 +154,39 @@ export const businessProductLibrary = [
 ]
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
-    field: 'Divider',
-    label: t('router.productCategoryProducts'),
+    field: 'field1',
+    label: t('mã quản lý'),
     component: 'Divider'
   },
   {
-    field: 'Select01',
-    label: t('reuse.selectCategory'),
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn danh mục cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select02',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn danh mục cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select03',
-    label: t('router.productCategoryBrand'),
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn thương hiệu cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select04',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn thương hiệu cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select05',
-    label: t('router.productCategoryOrigin'),
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn xuất xứ cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select06',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn xuất xứ cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Divider02',
-    label: t('reuse.generalProductInformation'),
+    field: 'field41',
+    label: t('Thông tin sản phẩm'),
     component: 'Divider'
   },
   {
-    field: 'Input01',
-    label: t('reuse.productCode'),
-    component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'Input02',
-    label: t('reuse.productName'),
-    component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập tên sản phẩm'
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'Input03',
-    label: t('reuse.shortDescription'),
-    component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập mô tả'
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'Input04',
-    label: t('reuse.inspectionInformation'),
-    component: 'Input',
-    componentProps: {
-      placeholder: 'Thêm Link ...'
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'Divider03',
-    label: t('reuse.descriptionParameters'),
+    field: 'field42',
+    label: t('Kho xuất'),
     component: 'Divider'
   },
   {
-    field: 'Editor',
-    label: t('reuse.descriptions'),
-    component: 'Editor',
-    componentProps: {
-      placeholder: 'Hello'
-    },
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'Divider04',
-    label: t('reuse.statusAndFunction'),
+    field: 'field41',
+    label: t('Tồn kho'),
     component: 'Divider'
   },
   {
-    field: 'Radio01',
-    label: t('reuse.setInventoryForSale'),
-    component: 'Radio',
-    value: [],
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.stocking'),
-          value: '1'
-        },
-        {
-          label: t('reuse.orders'),
-          value: '2'
-        },
-        {
-          label: t('reuse.outOfStock'),
-          value: '3'
-        },
-        {
-          label: t('reuse.displayed'),
-          value: '4'
-        }
-      ]
-    }
+    field: 'field41',
+    label: t('Số lượng'),
+    component: 'Divider'
   },
   {
-    field: 'Radio02',
-    label: t('reuse.setInventoryForRent'),
-    component: 'Radio',
-    value: [],
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.stocking'),
-          value: '1'
-        },
-        {
-          label: t('reuse.orders'),
-          value: '2'
-        },
-        {
-          label: t('reuse.outOfStock'),
-          value: '3'
-        },
-        {
-          label: t('reuse.displayed'),
-          value: '4'
-        }
-      ]
-    }
+    field: 'field41',
+    label: t('Đơn giá'),
+    component: 'Divider'
   },
   {
-    field: 'Radio03',
-    label: t('reuse.productStatus'),
-    component: 'Radio',
-    value: [],
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.pending'),
-          value: '1'
-        },
-        {
-          label: t('reuse.active'),
-          value: '2'
-        },
-        {
-          label: t('reuse.pauseOperation'),
-          value: '3'
-        }
-      ]
-    }
+    field: 'field41',
+    label: t('Thành tiền'),
+    component: 'Divider'
   }
 ])
 export const columnManagementSeo = reactive<FormSchema[]>([
@@ -524,55 +258,32 @@ export const featuresPrice = reactive<TableColumn[]>([
   {
     field: 'managementCode',
     label: t('reuse.managementCode'),
-    component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
-    },
-    colProps: {
-      span: 20
-    },
     minWidth: '250'
   },
   {
     field: 'featureGroup',
-    label: t('reuse.featureGroup'),
+    label: t('Thông tin sản phẩm'),
     minWidth: '200'
   },
   {
     field: 'quantityTo',
-    label: t('reuse.quantityTo'),
+    label: t('Kho xuất'),
     minWidth: '130'
   },
   {
     field: 'productCategoryUnit',
-    label: t('router.productCategoryUnit'),
+    label: t('Số lượng'),
     minWidth: '130'
   },
   {
     field: 'unitPrices',
-    label: t('reuse.unitPrices'),
+    label: t('Đơn giá'),
     minWidth: '130'
   },
   {
     field: 'promotionPrice',
-    label: t('reuse.promotionPrice'),
+    label: t('Thành tiền'),
     minWidth: '130'
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '130'
-  },
-  {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '130'
-  },
-  {
-    field: 'switch',
-    label: t('reuse.businessManagement'),
-    minWidth: '120',
-    align: 'center'
   }
 ])
 export const featuresRentalPrice = reactive<TableColumn[]>([
@@ -618,7 +329,7 @@ export const featuresRentalPrice = reactive<TableColumn[]>([
   },
   {
     field: 'createDate',
-    label: t('reuse.dateEditCreate'),
+    label: t('reuse.createDate'),
     minWidth: '130'
   },
   {
@@ -627,10 +338,18 @@ export const featuresRentalPrice = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'switch',
+    field: 'businessManagement',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    align: 'center'
+    fixed: false,
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
+      return h(ElSwitch, {
+        style: { margin: 'auto' },
+        modelValue: record.approveOrNot,
+        onClick: () => seeDetail(record, column, cellValue)
+      })
+    }
   }
 ])
 export const featuresDepositFee = reactive<TableColumn[]>([
@@ -665,10 +384,18 @@ export const featuresDepositFee = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'switch',
+    field: 'businessManagement',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    align: 'center'
+    fixed: false,
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
+      return h(ElSwitch, {
+        style: { margin: 'auto' },
+        modelValue: record.approveOrNot,
+        onClick: () => seeDetail(record, column, cellValue)
+      })
+    }
   }
 ])
 export const featuresPawnFee = reactive<TableColumn[]>([
@@ -713,10 +440,18 @@ export const featuresPawnFee = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'switch',
+    field: 'businessManagement',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    align: 'center'
+    fixed: false,
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
+      return h(ElSwitch, {
+        style: { margin: 'auto' },
+        modelValue: record.approveOrNot,
+        onClick: () => seeDetail(record, column, cellValue)
+      })
+    }
   }
 ])
 export const spaPrice = reactive<TableColumn[]>([
@@ -751,10 +486,18 @@ export const spaPrice = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'switch',
+    field: 'businessManagement',
     label: t('reuse.businessManagement'),
     minWidth: '120',
-    align: 'center'
+    fixed: false,
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
+      return h(ElSwitch, {
+        style: { margin: 'auto' },
+        modelValue: record.approveOrNot,
+        onClick: () => seeDetail(record, column, cellValue)
+      })
+    }
   }
 ])
 export const inventoryTrading = [
@@ -856,12 +599,14 @@ export const columnsPriceByQuantity = reactive<TableColumn[]>([
   {
     field: 'quantityTo',
     label: t('reuse.quantityTo'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'dayRentalUnitPrice',
     label: t('reuse.dayRentalUnitPrice'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'weeklyRent',
@@ -889,53 +634,52 @@ export const columnsImportAndExportHistory = reactive<TableColumn[]>([
     field: 'importExportDate',
     label: t('reuse.importExportDate'),
     minWidth: '150',
-    headerFilter: 'Date'
+    sortable: true
   },
   {
     field: 'importExportCode',
     label: t('reuse.importExportCode'),
-    minWidth: '150'
+    minWidth: '150',
+    sortable: true
   },
   {
     field: 'importExportForm',
     label: t('reuse.importExportForm'),
-    minWidth: '150',
-    headerFilter: 'Name'
+    minWidth: '150'
   },
   {
     field: 'importExportWarehouse',
     label: t('reuse.importExportWarehouse'),
-    minWidth: '150',
-    headerFilter: 'Name'
+    minWidth: '150'
   },
   {
     field: 'internalWarehouse',
     label: t('reuse.internalWarehouse'),
-    minWidth: '110'
+    minWidth: '150'
   },
   {
     field: 'consignmentWarehouse',
     label: t('reuse.consignmentWarehouse'),
-    minWidth: '110'
+    minWidth: '150'
   },
   {
     field: 'pawnStore',
     label: t('reuse.pawnStore'),
-    minWidth: '110'
+    minWidth: '150'
   },
   {
     field: 'spaWarehouse',
     label: t('reuse.spaWarehouse'),
-    minWidth: '110'
+    minWidth: '150'
   },
   {
     field: 'totalInventory',
     label: t('reuse.totalInventory'),
-    minWidth: '110'
+    minWidth: '150'
   },
   {
     field: 'dram',
     label: t('reuse.dram'),
-    minWidth: '110'
+    minWidth: '150'
   }
 ])

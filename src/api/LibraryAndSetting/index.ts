@@ -1,7 +1,8 @@
 import { useAxios } from '@/hooks/web/useAxios'
-
+import { FORM_DATA, objectToQueryParams } from '@/utils/format'
+import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
+const fixedBaseURL = true
 const request = useAxios()
-
 export const getProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/products/List', params })
   return res && res.data
@@ -14,36 +15,48 @@ export const getPropertyProductCategories = async (params: any): Promise<IRespon
   const res = await request.get({ url: '/PropertyProduct/List', params })
   return res && res.data
 }
-export const getColorCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/ColorCategories/List', params })
+
+export const getCategories = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
-export const getSizeCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/SizeCategories/List', params })
+export const getCategoryById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
-export const getMaterialCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/MaterialCategories/List', params })
+export const postCategory = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data },
+    fixedBaseURL
+  )
   return res && res.data
 }
-export const getStatusCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/StatusCategories/List', params })
+export const updateCategory = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_CATEGORY}`, data },
+    fixedBaseURL
+  )
   return res && res.data
 }
-export const getGenderCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/GenderCategories/List', params })
-  return res && res.data
-}
-export const getUnitCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/UnitCategories/List', params })
-  return res && res.data
-}
-export const getBrandCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/BrandCategories/List', params })
-  return res && res.data
-}
-export const getOriginCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/OriginCategories/List', params })
+export const deleteCategory = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_CATEGORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getBusinessProductLibrary = async (params: any): Promise<IResponse> => {

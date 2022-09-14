@@ -29,7 +29,7 @@ interface TableObject<T = any> {
   pageSize: number
   currentPage: number
   total: number
-  tableList: T[]
+  tableList: any
   params: any
   loading: boolean
   currentRow: Nullable<T>
@@ -126,7 +126,11 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
         tableObject.loading = false
       })
       if (res) {
-        tableObject.tableList = get(res.data || {}, config?.response.list as string)
+        if (res.data.list !== undefined) {
+          tableObject.tableList = res.data.list
+        } else {
+          tableObject.tableList = res.data
+        }
         tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
       }
     },

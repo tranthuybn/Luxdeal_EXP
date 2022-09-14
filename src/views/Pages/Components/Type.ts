@@ -1,15 +1,17 @@
+import { TableData } from '@/api/table/types'
+
 interface TableResponse<T = any> {
   total: number
   list: T[]
   pageNumber: number
   pageSize: number
 }
-type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
+type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
 
 interface Tab {
   name: string
   label: string
-  api: <T = any>(option: any) => Promise<IResponse<TableResponse<T>>>
+  api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
@@ -21,13 +23,20 @@ interface Collapse {
   columns: TableColumn[]
   api: apiType | undefined
   buttonAdd: string
-  type: string
-  expand: boolean
-  apiTableChild: apiType | undefined
-  columnsTableChild: TableColumn[] | undefined
-  pagination: boolean
-  removeHeaderFilter: boolean
-  removeDrawer: boolean
-  selection: boolean
+  typeForm?: string
+  typeButton?: string
+  expand?: boolean
+  apiTableChild?: apiType | undefined
+  columnsTableChild?: TableColumn[] | undefined
+  pagination?: boolean
+  removeHeaderFilter?: boolean
+  removeDrawer?: boolean
+  selection?: boolean
+  customOperator?: number
+  hasImage?: boolean
+  titleChilden?: string
+  rules?: Object
+  customOperatorChildren?: boolean
+  titleButtonChildren?: string
 }
 export { apiType, TableResponse, Tab, Collapse }

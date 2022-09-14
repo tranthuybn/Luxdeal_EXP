@@ -36,7 +36,7 @@ function fnGetSelectedRecord(val) {
   getSelectedRecord.value = val ?? []
 }
 // columns and api
-const dynamicApi = ref<apiType>()
+const dynamicApi = ref<any>()
 const dynamicColumns = ref<TableColumn[]>()
 const resetTable = () => {
   if (Array.isArray(dynamicColumns.value) && dynamicColumns.value?.length > 0)

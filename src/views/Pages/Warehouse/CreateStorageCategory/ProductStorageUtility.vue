@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -79,28 +79,20 @@ const schema = reactive<FormSchema[]>([
 //lay du lieu tu router
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
-const id = String(router.currentRoute.value.params.id)
+const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+//title lay trong router
 const title = router.currentRoute.value.meta.title
-
-//luu data vao currentRow
-const currentRow = ref()
-//goi api truyen params id
-const getTableData = async () => {
-  const res = await getProductStorageList({ id: id })
-  if (res) {
-    currentRow.value = res.data
-  }
-}
-getTableData()
 </script>
 
 <template>
   <TableOperator
+    :api="getProductStorageList"
     :schema="schema"
     :nameBack="currentRoute"
     :title="title"
-    :current-row="currentRow"
+    :id="id"
     :type="type"
+    :multipleImages="false"
   />
 </template>

@@ -286,7 +286,7 @@ export const originCategories = [
     label: t('reuse.position'),
     minWidth: '150',
     type: 'index',
-    align: 'right',
+    align: 'center',
     sortable: true
   },
   {
@@ -303,6 +303,7 @@ export const originCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))

@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import productCategoryTable from '../../Components/TabsBase.vue'
-import {
-  getColorCategories,
-  getSizeCategories,
-  getMaterialCategories,
-  getStatusCategories,
-  getGenderCategories
-} from '@/api/LibraryAndSetting'
+import { getCategories } from '@/api/LibraryAndSetting'
 import {
   colorCategories,
   sizeCategories,

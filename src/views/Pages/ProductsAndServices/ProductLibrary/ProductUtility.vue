@@ -40,7 +40,6 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { onBeforeMount } from 'vue'
-import { Key } from '@wangeditor/core/dist/core/src/utils/key'
 const { t } = useI18n()
 import { ref } from 'vue'
 import { inject } from 'vue'
@@ -288,13 +287,13 @@ const localeChange = (show: boolean) => {
 //const id = String(router.currentRoute.value.params.id)
 // using table's function
 const { tableObject, methods } = useTable<TableData>({
-  getListApi: collapse.api,
+  getListApi: getFeaturesPrices,
   response: {
     list: 'list',
     total: 'total'
   },
   props: {
-    columns: collapse.columns,
+    columns: featuresPrice,
     headerAlign: 'center'
   }
 })
@@ -406,7 +405,7 @@ onBeforeMount(() => {
               <ElSwitch v-model="scope.row.switch" @change="localeChange" />
             </template>
           </ElTableColumn>
-          <ElTableColumn :label="t('reuse.operator')">
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
             <template #default="scope">
               <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
                 t('reuse.save')
@@ -420,7 +419,7 @@ onBeforeMount(() => {
             </template>
           </ElTableColumn>
         </ElTable>
-        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ 'Thêm đặc tính và giá bán' }}</el-button>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[1].buttonAdd }}</el-button>
       </el-collapse-item>
       <el-collapse-item name="3">
         <template #title>
@@ -510,7 +509,7 @@ onBeforeMount(() => {
               <ElSwitch v-model="scope.row.switch" @change="localeChange" />
             </template>
           </ElTableColumn>
-          <ElTableColumn :label="t('reuse.operator')">
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
             <template #default="scope">
               <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
                 t('reuse.save')
@@ -524,7 +523,292 @@ onBeforeMount(() => {
             </template>
           </ElTableColumn>
         </ElTable>
-        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ 'Thêm đặc tính và giá bán' }}</el-button>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[2].buttonAdd }}</el-button>
+      </el-collapse-item>
+      <el-collapse-item name="4">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[3].icon" link />
+          <span class="text-center">{{ collapse[3].title }}</span>
+        </template>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+          <ElTableColumn prop="managementCode" :label="t('reuse.managementCode')" />
+          <ElTableColumn prop="featureGroup" :label="t('reuse.featureGroup')">
+            <template #default="scope">
+              <ElTreeSelect
+                v-model="scope.row.index"
+                :data="treeSelectData"
+                multiple
+                check-strictly
+                :render-after-expand="false"
+                v-if="scope.row.edited"
+              />
+              <span v-else>{{ scope.row.featureGroup }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="quantityTo" :label="t('reuse.quantityTo')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.quantityTo }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="productCategoryUnit" :label="t('router.productCategoryUnit')">
+            <template #default="scope">
+              <ElSelectV2
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                :options="options"
+                :placeholder="scope.row.date"
+              />
+              <span v-else>{{ scope.row.productCategoryUnit }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="depositFee" :label="t('reuse.depositFee')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.depositFee }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="status" :label="t('reuse.status')" />
+          <ElTableColumn :label="t('reuse.depositManagement')">
+            <template #default="scope">
+              <ElSwitch v-model="scope.row.switch" @change="localeChange" />
+            </template>
+          </ElTableColumn>
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
+            <template #default="scope">
+              <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
+                t('reuse.save')
+              }}</el-button>
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.fix')
+              }}</el-button>
+              <el-button type="danger" @click="handleEditRow(scope.row)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[3].buttonAdd }}</el-button>
+      </el-collapse-item>
+      <el-collapse-item name="5">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[4].icon" link />
+          <span class="text-center">{{ collapse[4].title }}</span>
+        </template>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+          <ElTableColumn prop="managementCode" :label="t('reuse.managementCode')" />
+          <ElTableColumn prop="featureGroup" :label="t('reuse.featureGroup')">
+            <template #default="scope">
+              <ElTreeSelect
+                v-model="scope.row.index"
+                :data="treeSelectData"
+                multiple
+                check-strictly
+                :render-after-expand="false"
+                v-if="scope.row.edited"
+              />
+              <span v-else>{{ scope.row.featureGroup }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="quantityTo" :label="t('reuse.quantityTo')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.quantityTo }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="productCategoryUnit" :label="t('router.productCategoryUnit')">
+            <template #default="scope">
+              <ElSelectV2
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                :options="options"
+                :placeholder="scope.row.date"
+              />
+              <span v-else>{{ scope.row.productCategoryUnit }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="interest" :label="t('reuse.interest')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.interest }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="InsuranceMoney" :label="t('reuse.InsuranceMoney')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.InsuranceMoney }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="intoMoney" :label="t('reuse.intoMoney')" />
+          <ElTableColumn prop="status" :label="t('reuse.status')" />
+          <ElTableColumn :label="t('reuse.depositManagement')">
+            <template #default="scope">
+              <ElSwitch v-model="scope.row.switch" @change="localeChange" />
+            </template>
+          </ElTableColumn>
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
+            <template #default="scope">
+              <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
+                t('reuse.save')
+              }}</el-button>
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.fix')
+              }}</el-button>
+              <el-button type="danger" @click="handleEditRow(scope.row)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[4].buttonAdd }}</el-button>
+      </el-collapse-item>
+      <el-collapse-item name="6">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[5].icon" link />
+          <span class="text-center">{{ collapse[5].title }}</span>
+        </template>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+          <ElTableColumn prop="managementCode" :label="t('reuse.managementCode')" />
+          <ElTableColumn prop="serviceOrGroupService" :label="t('reuse.serviceOrGroupService')">
+            <template #default="scope">
+              <ElTreeSelect
+                v-model="scope.row.index"
+                :data="treeSelectData"
+                multiple
+                check-strictly
+                :render-after-expand="false"
+                v-if="scope.row.edited"
+              />
+              <span v-else>{{ scope.row.serviceOrGroupService }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="spaTime" :label="t('reuse.spaTime')" />
+          <ElTableColumn prop="numberUses" :label="t('reuse.numberUses')" />
+          <ElTableColumn prop="spaPrice" :label="t('reuse.spaPrice')">
+            <template #default="scope">
+              <ElInput
+                v-model="scope.row.index"
+                v-if="scope.row.edited"
+                placeholder="Please input"
+              />
+              <span v-else>{{ scope.row.spaPrice }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="status" :label="t('reuse.status')" />
+          <ElTableColumn :label="t('reuse.depositManagement')">
+            <template #default="scope">
+              <ElSwitch v-model="scope.row.switch" @change="localeChange" />
+            </template>
+          </ElTableColumn>
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
+            <template #default="scope">
+              <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
+                t('reuse.save')
+              }}</el-button>
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.fix')
+              }}</el-button>
+              <el-button type="danger" @click="handleEditRow(scope.row)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[5].buttonAdd }}</el-button>
+      </el-collapse-item>
+      <el-collapse-item name="7">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[6].icon" link />
+          <span class="text-center">{{ collapse[6].title }}</span>
+        </template>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+          <ElTableColumn prop="managementCode" :label="t('reuse.managementCode')" />
+          <ElTableColumn prop="featureGroup" :label="t('reuse.featureGroup')">
+            <template #default="scope">
+              <ElTreeSelect
+                v-model="scope.row.index"
+                :data="treeSelectData"
+                multiple
+                check-strictly
+                :render-after-expand="false"
+                v-if="scope.row.edited"
+              />
+              <span v-else>{{ scope.row.featureGroup }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn :label="t('reuse.businessSynthesis')">
+            <ElTableColumn prop="dram" :label="t('reuse.quantitySold')" />
+            <ElTableColumn prop="dram" :label="t('reuse.numberOfTimesRented')" />
+            <ElTableColumn prop="dram" :label="t('reuse.numberOfTimesDeposited')" />
+            <ElTableColumn prop="numberOfTimesPawn" :label="t('reuse.numberOfTimesPawn')" />
+            <ElTableColumn prop="numberOfTimesSpa" :label="t('reuse.numberOfTimesSpa')" />
+          </ElTableColumn>
+          <ElTableColumn :label="t('reuse.inventoryConsolidation')">
+            <ElTableColumn prop="internalInventory" :label="t('reuse.internalInventory')" />
+            <ElTableColumn prop="consignmentInventory" :label="t('reuse.consignmentInventory')" />
+            <ElTableColumn prop="pawnInventory" :label="t('reuse.pawnInventory')" />
+            <ElTableColumn prop="spaInventory" :label="t('reuse.spaInventory')" />
+            <ElTableColumn prop="currentlyLeased" :label="t('reuse.currentlyLeased')" />
+            <ElTableColumn prop="total" :label="t('reuse.total')" />
+          </ElTableColumn>
+          <ElTableColumn prop="dram" :label="t('reuse.dram')" />
+          <ElTableColumn fixed="right" :label="t('reuse.operator')">
+            <template #default="scope">
+              <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
+                t('reuse.save')
+              }}</el-button>
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.fix')
+              }}</el-button>
+              <el-button type="danger" @click="handleEditRow(scope.row)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[6].buttonAdd }}</el-button>
+      </el-collapse-item>
+      <el-collapse-item name="8">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[7].icon" link />
+          <span class="text-center">{{ collapse[7].title }}</span>
+        </template>
+        <TableOperator
+          class="infinite-list"
+          :hasImage="collapse[7].hasImage"
+          style="overflow: auto"
+          :schema="collapse[7].columns"
+          :typeButton="collapse[7].typeButton"
+          :class="[
+            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+          ]"
+        />
+        <ElButton class="ml-5" type="primary">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary">
+          {{ t('reuse.addNew') }}
+        </ElButton>
       </el-collapse-item>
     </el-collapse>
   </div>

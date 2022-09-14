@@ -80,7 +80,7 @@
                     <img :src="defaultImg" alt="..." width="35" height="35" />
                     <span class="pl-2 text-black">{{ user.Name ? user.Name : user.UserName }}</span>
                   </div>
-                  <div class="friend-send__message ml-11 rounded">{{ mess.content }}</div>
+                  <div class="friend-send__message ml-11 rounded-10px">{{ mess.content }}</div>
                   <div class="ml-11 text-xs text-[#949494] pt-1 pb-2">20/10/2021</div>
                 </section>
                 <section class="content-message__time" v-else-if="mess.content !== ''">
@@ -90,7 +90,7 @@
             </div>
           </section>
           <section class="you-send" v-if="mess.user === 'admin'">
-            <section v-if="typeof mess.content === 'object'" class="rounded">
+            <section v-if="typeof mess.content === 'object'" class="rounded-10px">
               {{ mess.content }}
             </section>
             <section v-else>

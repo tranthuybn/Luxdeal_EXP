@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { objectToQueryParams } from '@/utils/format'
+import { FORM_DATA, objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
 const fixedBaseURL = true
 const request = useAxios()
@@ -20,6 +20,40 @@ export const getCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCategoryById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postCategory = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCategory = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_CATEGORY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteCategory = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_CATEGORY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

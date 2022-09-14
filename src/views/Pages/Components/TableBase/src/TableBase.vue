@@ -3,13 +3,15 @@ import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
-import { apiType, TableResponse } from '../../Type'
+import { TableResponse } from '../../Type'
 import {
   ElImage,
   ElButton,
   ElDrawer,
   ElCheckboxGroup,
   ElCheckboxButton,
+  ElMessage,
+  ElMessageBox,
   ElSwitch
 } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
@@ -27,6 +29,10 @@ let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  delApi: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
@@ -166,7 +172,46 @@ const action = (row: TableData, type: string) => {
 }
 
 const delData = async (row: TableData | null, multiple: boolean) => {
-  console.log('row', row, 'multiple', multiple)
+  {
+    ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    })
+      .then(() => {
+        console.log('row', row, multiple)
+        if (row !== null && row.children.length == 0) {
+          props
+            .delApi({ Id: row.id })
+            .then(() =>
+              ElMessage({
+                message: t('reuse.deleteSuccess'),
+                type: 'success'
+              })
+            )
+            .catch((error) =>
+              ElMessage({
+                message: error,
+                type: 'warning'
+              })
+            )
+        } else {
+          ElMessage({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+      .finally(() => {
+        getData()
+      })
+  }
 }
 
 //get array of headerFilter in column (if there is a headerFilter)

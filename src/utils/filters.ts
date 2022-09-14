@@ -76,8 +76,8 @@ export const filterAuctionResult: Array<Filter> = [
   { text: t('reuse.notBuy'), value: 2 }
 ]
 export const filterProductStatus: Array<Filter> = [
-  { text: t('reuse.show'), value: true },
-  { text: t('reuse.notShow'), value: false }
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false }
 ]
 export const filterTableStatus: Array<Filter> = [
   { text: t('reuse.active'), value: 'Đang hoạt động' },

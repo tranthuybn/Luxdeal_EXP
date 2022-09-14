@@ -849,6 +849,12 @@ export default {
     show: 'Show',
     notShow: 'Hidden',
     //origin add
-    nameRank2Category: 'Name of rank 2 category'
+    nameRank2Category: 'Name of rank 2 category',
+    //them sua xoa
+    addSuccess: 'Add success',
+    updateSuccess: 'Update success',
+    deleteSuccess: 'Delete success',
+    deleteCancel: 'Delete cancel',
+    deleteFail: 'Delete fail'
   }
 }

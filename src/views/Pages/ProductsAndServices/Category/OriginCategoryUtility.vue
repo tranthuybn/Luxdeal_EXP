@@ -11,6 +11,7 @@ import {
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { ElMessage } from 'element-plus'
 const { required } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
@@ -120,7 +121,7 @@ const schema = reactive<FormSchema[]>([
 const rules = reactive({
   rankCategory: [required()],
   name: [required()],
-  ParentId: [required()],
+  parentid: [required()],
   count: [required()]
 })
 //call api for select options
@@ -171,8 +172,19 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log(data)
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
+    .then(() =>
+      ElMessage({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElMessage({
+        message: error,
+        type: 'warning'
+      })
+    )
 }
 // get data from router
 const router = useRouter()
@@ -228,6 +240,18 @@ const customPostData = (data) => {
 const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
+    .then(() =>
+      ElMessage({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElMessage({
+        message: error,
+        type: 'warning'
+      })
+    )
 }
 </script>
 

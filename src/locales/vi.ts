@@ -911,6 +911,12 @@ export default {
     show: 'Hiển thị',
     notShow: 'Ẩn',
     dateEditCreate: 'Ngày tạo/sửa',
-    nameRank2Category: 'Tên danh mục cấp 2'
+    nameRank2Category: 'Tên danh mục cấp 2',
+    //them sua xoa
+    addSuccess: 'Thêm thành công',
+    updateSuccess: 'Sửa thành công',
+    deleteSuccess: 'Xóa thành công',
+    deleteCancel: 'Hủy xóa',
+    deleteFail: 'Xóa thất bại'
   }
 }

@@ -180,18 +180,32 @@ const delData = async (row: TableData | null, multiple: boolean) => {
     })
       .then(() => {
         console.log('row', row, multiple)
-        if (row !== null) {
-          props.delApi({ Id: row.id })
+        if (row !== null && row.children.length == 0) {
+          props
+            .delApi({ Id: row.id })
+            .then(() =>
+              ElMessage({
+                message: t('reuse.deleteSuccess'),
+                type: 'success'
+              })
+            )
+            .catch((error) =>
+              ElMessage({
+                message: error,
+                type: 'warning'
+              })
+            )
+        } else {
+          ElMessage({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
         }
-        ElMessage({
-          type: 'success',
-          message: 'Delete completed'
-        })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
-          message: 'Delete canceled'
+          message: t('reuse.deleteCancel')
         })
       })
       .finally(() => {

@@ -14,8 +14,8 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   return ''
 }
 export const productStatusTransferToText = (val) => {
-  if (val) return `${t('reuse.show')}`
-  return `${t('reuse.notShow')}`
+  if (val) return `${t('reuse.active')}`
+  return `${t('reuse.inactive')}`
 }
 export const dateTimeFormat = (val) => {
   return moment(val).format('l')

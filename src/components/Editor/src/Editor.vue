@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { onBeforeUnmount, computed, PropType, unref, nextTick, ref, watch, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import { IDomEditor, IEditorConfig, i18nChangeLanguage, i18nAddResources } from '@wangeditor/editor'
+import { IEditorConfig, i18nChangeLanguage, i18nAddResources, IDomEditor } from '@wangeditor/editor'
 import { propTypes } from '@/utils/propTypes'
 import { isNumber } from '@/utils/is'
 import { ElMessage } from 'element-plus'
 import { useLocaleStore } from '@/store/modules/locale'
 
+const editorRef = shallowRef<IDomEditor>()
+
 const localeStore = useLocaleStore()
 
 const currentLocale = computed(() => localeStore.getCurrentLocale)
+const toolbarConfig: any = {}
+toolbarConfig.excludeKeys = [
+  'insertLink',
+  'uploadVideo',
+  'uploadImage',
+  'InsertImg',
+  'insert Image',
+  'insertImage',
+  'insertVideo'
+]
 
 i18nChangeLanguage(unref(currentLocale).lang)
 i18nAddResources('vi', {
@@ -113,7 +125,6 @@ const props = defineProps({
 const emit = defineEmits(['change', 'update:modelValue'])
 
 // editorInstance,Must Be Used With Shallow ref
-const editorRef = shallowRef<IDomEditor>()
 
 const valueHtml = ref('')
 
@@ -208,6 +219,7 @@ defineExpose({
     <Toolbar
       :editor="editorRef"
       :editorId="editorId"
+      :defaultConfig="toolbarConfig"
       class="border-bottom-1 border-solid border-[var(--tags-view-border-color)]"
     />
     <!-- editor -->

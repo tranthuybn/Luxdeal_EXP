@@ -86,6 +86,8 @@ const schema = reactive<FormSchema[]>([
 ])
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
+console.log(currentRoute)
+
 const title = router.currentRoute.value.meta.title
 </script>
 

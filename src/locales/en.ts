@@ -148,14 +148,40 @@ export default {
     chooseShipping: 'Choose shipping',
     cashPayment: 'Cash payment',
     cardPayment: 'Card payment',
-    deliveryAtTheCounter: 'Delivery at the counter',
+    selfDelivery: 'Self-delivery (internal self-delivery to customers)',
     deliveryToYourPlace: 'delivery to your place',
     printSalesSlip: 'Print sales slip',
     printDepositSlip: 'Print deposit slip',
     complete: 'Completed',
     edit: 'Edit',
     orderStatus: 'Order status',
-    paymenAndDelivery: 'Payment & delivery'
+    paymenAndDelivery: 'Payment & delivery',
+    chooseACustomer: 'Choose a customer',
+    delivery: 'Delivery',
+    chooseDelivery: 'Choose delivery',
+    deliveryAddress: 'Delivery address',
+    changeTheAddress: 'Change the address',
+    ListOfProductsForSale: 'List of products for sale',
+    productManagementCode: 'Product management code',
+    selfImportAccessories: 'Self-import accessories',
+    amount: 'Amount',
+    exportWarehouse: 'Export warehouse',
+    manipulation: 'Manipulation',
+    debtTrackingSheet: 'Debt tracking sheet',
+    dateOfPayment: 'Date of payment',
+    receiptOrPayment: 'Receipt/payment',
+    paymentOrder: 'Payment order',
+    collected: 'Collected',
+    spent: 'Spent',
+    unpaidDebt: 'Unpaid debt',
+    chooseWarehouse: 'Choose warehouse',
+    intoMoney: 'Into money',
+    doesNotIncludeVAT: 'Does not include VAT',
+    choosePromotion: 'Choose promotion',
+    statusAndManipulation: 'Status and manipulation',
+    temporaryStorage: 'Temporary storage',
+    productImportHistory: 'Product import history',
+    orderReceiptsGoods: 'Order receipts goods'
   },
   button: {
     add: 'Add quick'
@@ -847,6 +873,7 @@ export default {
     nameStorage: 'Name of Storage',
     //filter status product
     show: 'Show',
-    notShow: 'Hidden'
+    notShow: 'Hidden',
+    intoMoney: 'Into money'
   }
 }

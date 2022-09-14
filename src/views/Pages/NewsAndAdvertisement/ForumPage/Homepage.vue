@@ -93,114 +93,6 @@ const posts = [
   {
     userName: 'admin',
     fullName: 'admin',
-    content: 'bugati',
-    avatar: null,
-    timeAgo: '148 ngày trước',
-    imagePosts: [
-      { postId: 1087, imageId: 1457, imagePath: 'PostsImages\\637847557518154766_car_5.jpg' }
-    ],
-    isUserLiked: true,
-    createAt: '2022-04-05T11:42:31.767',
-    totalLike: 1,
-    userId: 207,
-    totalComment: 1,
-    isPostProhibit: false,
-    email: 'NoahKhalifa1781310207@gmail.com',
-    phone: null,
-    comments: [
-      {
-        postId: 1087,
-        content: 'giá bán lẻ',
-        createAt: '2022-04-28T13:48:14.3',
-        userAccount: '0987654325',
-        userFullName: 'LangVi',
-        is_Deleted: false,
-        parentId: 0,
-        commentId: 10068,
-        avatar: ''
-      }
-    ],
-    tags: [
-      { postId: 1087, id: 1, name: 'Hàng Authentic' },
-      { postId: 1087, id: 3, name: 'Trang sức' }
-    ],
-    id: 1087
-  },
-  {
-    userName: 'admin',
-    fullName: 'admin',
-    content: 'maserati',
-    avatar: null,
-    timeAgo: '148 ngày trước',
-    imagePosts: [
-      { postId: 1086, imageId: 1456, imagePath: 'PostsImages\\637847553153917630_WLRzuf.jpg' }
-    ],
-    isUserLiked: true,
-    createAt: '2022-04-05T11:35:14.173',
-    totalLike: 1,
-    userId: 207,
-    totalComment: 0,
-    isPostProhibit: true,
-    email: 'NoahKhalifa1781310207@gmail.com',
-    phone: null,
-    comments: [],
-    tags: [
-      { postId: 1086, id: 1, name: 'Hàng Authentic' },
-      { postId: 1086, id: 2, name: 'Giày Sneaker' }
-    ],
-    id: 1086
-  },
-  {
-    userName: 'admin',
-    fullName: 'admin',
-    content: 'chevolet',
-    avatar: null,
-    timeAgo: '148 ngày trước',
-    imagePosts: [
-      { postId: 1085, imageId: 1455, imagePath: 'PostsImages\\637847542797692026_4665561.jpg' }
-    ],
-    isUserLiked: false,
-    createAt: '2022-04-05T11:17:58.57',
-    totalLike: 0,
-    userId: 207,
-    totalComment: 0,
-    isPostProhibit: false,
-    email: 'NoahKhalifa1781310207@gmail.com',
-    phone: null,
-    comments: [],
-    tags: [
-      { postId: 1085, id: 3, name: 'Trang sức' },
-      { postId: 1085, id: 2, name: 'Giày Sneaker' }
-    ],
-    id: 1085
-  },
-  {
-    userName: 'admin',
-    fullName: 'admin',
-    content: 'ferrari',
-    avatar: null,
-    timeAgo: '148 ngày trước',
-    imagePosts: [
-      { postId: 1084, imageId: 1454, imagePath: 'PostsImages\\637847541815059035_jvw2Xk.jpg' }
-    ],
-    isUserLiked: false,
-    createAt: '2022-04-05T11:16:20.307',
-    totalLike: 0,
-    userId: 207,
-    totalComment: 0,
-    isPostProhibit: false,
-    email: 'NoahKhalifa1781310207@gmail.com',
-    phone: null,
-    comments: [],
-    tags: [
-      { postId: 1084, id: 2, name: 'Giày Sneaker' },
-      { postId: 1084, id: 3, name: 'Trang sức' }
-    ],
-    id: 1084
-  },
-  {
-    userName: 'admin',
-    fullName: 'admin',
     content: 'xe bugati',
     avatar: null,
     timeAgo: '148 ngày trước',
@@ -837,154 +729,161 @@ const updatePostDialog = () => {
 }
 </script>
 <template>
-  <div class="flex justify-center flex-wrap">
-    <div class="w-95/100">
-      <div>
-        <div class="w-full">
-          <CarouselComponent :items="sliders" />
-        </div>
-      </div>
-    </div>
-    <div class="py-4 w-95/100 pl-4">
-      <div class="w-full">
-        <div class="mt-3 pb-4">
-          <div class="fs-4 font-bold pt-2 text-24px pb-2">{{ formInfo.value.name }}</div>
-          <div class="flex">
-            <img src="@/assets/svgs/globe.svg" width="24" />
-            <span class="pl-1"> {{ formInfo.value.description }}</span>
+  <section>
+    <div class="flex justify-center flex-wrap">
+      <div class="w-95/100">
+        <div>
+          <div class="w-full">
+            <CarouselComponent :items="sliders" />
           </div>
         </div>
       </div>
-      <div class="w-full"
-        ><div class="directory-bar">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane :label="t('reuse.post')" name="first" />
-            <el-tab-pane :label="t('reuse.pending')" name="second" />
-          </el-tabs> </div
-      ></div>
-      <el-row :gutter="20" class="m-0">
-        <el-col :span="13" v-if="listActive">
-          <el-card class="p-3 pb-0">
-            <div class="flex items-center">
-              <div class="">
-                <el-avatar v-if="userInfo.avatar" :src="circleUrl" :size="47" />
-                <el-avatar v-else icon="el-icon-user-solid" :size="47" />
+      <div class="py-4 w-95/100 px-8">
+        <div class="w-full">
+          <div class="mt-3 pb-4">
+            <div class="fs-4 font-bold pt-2 text-24px pb-2">{{ formInfo.value.name }}</div>
+            <div class="flex">
+              <img src="@/assets/svgs/globe.svg" width="24" />
+              <span class="pl-1"> {{ formInfo.value.description }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="w-full pb-4"
+          ><div class="directory-bar">
+            <el-tabs v-model="activeName" @tab-click="handleClick">
+              <el-tab-pane :label="t('reuse.posts')" name="first" />
+              <el-tab-pane :label="t('reuse.pending')" name="second" />
+            </el-tabs> </div
+        ></div>
+        <el-row :gutter="20" class="m-0">
+          <el-col :span="14" v-if="listActive">
+            <el-card class="p-3 pb-0">
+              <div class="flex items-center">
+                <div class="">
+                  <el-avatar v-if="userInfo.avatar" :src="circleUrl" :size="47" />
+                  <el-avatar v-else icon="el-icon-user-solid" :size="47" />
+                </div>
+                <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
+                  <el-input
+                    type="text"
+                    class="bg-opacity-10 h-40px"
+                    :placeholder="`${t('reuse.inputContent')}...`"
+                  />
+                </div>
               </div>
-              <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
+              <div class="mt-3">
+                <el-button
+                  :icon="imagesIcon"
+                  class="!border-0 font-bold"
+                  @click="openPostNewsDialog"
+                  ><b>{{ t('reuse.chooseImage') }}</b></el-button
+                >
+              </div>
+            </el-card>
+            <el-select v-model="postSelectOption" class="m-2 fontBold">
+              <el-option
+                v-for="item in postOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+            <approved-posting v-for="(item, index) in posts" :key="index" :content="item" />
+          </el-col>
+          <el-col :span="14" v-else>
+            <el-card class="p-3">
+              <div class="flex justify-between items-center">
+                <div class="pt-3">
+                  <span class="font-bold pr-3 dot">{{ t('reuse.pendingPost') }}</span>
+                  <span class="font-bold pl-2">{{ posts.length }}</span>
+                </div>
+                <div>
+                  <el-button
+                    :class="[
+                      allPick ? '!bg-green-500 !text-black' : 'bg-secondary',
+                      'btn bg-opacity-50 me-4'
+                    ]"
+                    @click="actionAllPost('approve')"
+                    >{{ t('reuse.approve') }}</el-button
+                  >
+                  <el-button
+                    :class="[
+                      allPick ? '!bg-red-500 !text-white' : 'bg-secondary',
+                      'btn bg-opacity-50'
+                    ]"
+                    @click="actionAllPost('cancel')"
+                    >{{ t('reuse.deny') }}</el-button
+                  >
+                </div>
+              </div>
+              <div class="flex justify-between pt-3">
+                <div class="pt-3">
+                  <el-checkbox v-model="allPick" :value="true">
+                    {{ t('reuse.chooseAll') }}
+                  </el-checkbox>
+                </div>
+                <div style="align-self: center"
+                  ><el-select v-model="approveSelectOption" class="m-2">
+                    <el-option
+                      v-for="item in approveOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    /> </el-select
+                ></div>
+              </div>
+            </el-card>
+            <!-- pending -->
+            <pending-posting
+              v-for="(item, index) in posts"
+              :key="index + '-' + item.id"
+              :content="item"
+            />
+          </el-col>
+          <el-col :span="10">
+            <el-card class="p-3 mb-3">
+              <div class="input-group input-group-lg">
                 <el-input
-                  type="text"
-                  class="bg-opacity-10 h-47px"
-                  :placeholder="`${t('reuse.inputContent')}...`"
+                  class="bg-opacity-10"
+                  :placeholder="`${t('reuse.searchInThisGroup')}...`"
+                  v-model="keyword"
+                  @change="search()"
+                  style="height: 40px"
                 />
               </div>
-            </div>
-            <div class="mt-3">
-              <el-button
-                :icon="imagesIcon"
-                class="!border-0 font-bold"
-                @click="openPostNewsDialog"
-                >{{ t('reuse.chooseImage') }}</el-button
-              >
-            </div>
-          </el-card>
-          <el-select v-model="postSelectOption" class="m-2 fontBold">
-            <el-option
-              v-for="item in postOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              <div class="fs-6 pt-3 font-bold" v-if="dataSearch.length > 0">
+                {{ t('reuse.searchRecently') }}
+              </div>
+              <div class="pt-3" v-for="item in dataSearch" :key="item.id">
+                <el-button class="font-bold" @click="removeSearch(item.id)">X</el-button>
+                <span class="pl-4">{{ item.keyword }}</span>
+              </div>
+            </el-card>
+            <componentMember
+              :members="members"
+              :is-home-page="true"
+              @get-member="getMember"
+              :total-member="totalMember"
             />
-          </el-select>
-          <approved-posting v-for="(item, index) in posts" :key="index" :content="item" />
-        </el-col>
-        <el-col :span="13" v-else>
-          <el-card class="p-3">
-            <div class="flex justify-between items-center">
-              <div class="pt-3">
-                <span class="font-bold pr-3 dot">{{ t('reuse.pendingPost') }}</span>
-                <span class="font-bold pl-2">{{ posts.length }}</span>
-              </div>
-              <div>
-                <el-button
-                  :class="[
-                    allPick ? '!bg-green-500 !text-black' : 'bg-secondary',
-                    'btn bg-opacity-50 me-4'
-                  ]"
-                  @click="actionAllPost('approve')"
-                  >{{ t('reuse.approve') }}</el-button
-                >
-                <el-button
-                  :class="[
-                    allPick ? '!bg-red-500 !text-white' : 'bg-secondary',
-                    'btn bg-opacity-50'
-                  ]"
-                  @click="actionAllPost('cancel')"
-                  >{{ t('reuse.deny') }}</el-button
-                >
-              </div>
-            </div>
-            <div class="flex justify-between pt-3">
-              <div class="pt-3">
-                <el-checkbox v-model="allPick" :value="true">
-                  {{ t('reuse.chooseAll') }}
-                </el-checkbox>
-              </div>
-              <div style="align-self: center"
-                ><el-select v-model="approveSelectOption" class="m-2">
-                  <el-option
-                    v-for="item in approveOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  /> </el-select
-              ></div>
-            </div>
-          </el-card>
-          <!-- pending -->
-          <pending-posting
-            v-for="(item, index) in posts"
-            :key="index + '-' + item.id"
-            :content="item"
-          />
-        </el-col>
-        <el-col :span="11">
-          <el-card class="p-3 mb-3">
-            <div class="input-group input-group-lg">
-              <el-input
-                class="bg-opacity-10"
-                :placeholder="`${t('reuse.searchInThisGroup')}...`"
-                v-model="keyword"
-                @change="search()"
-                style="height: 50px"
-              />
-            </div>
-            <div class="fs-6 pt-3 font-bold" v-if="dataSearch.length > 0">
-              {{ t('reuse.searchRecently') }}
-            </div>
-            <div class="pt-3" v-for="item in dataSearch" :key="item.id">
-              <el-button class="font-bold" @click="removeSearch(item.id)">X</el-button>
-              <span class="pl-4">{{ item.keyword }}</span>
-            </div>
-          </el-card>
-          <componentMember
-            :members="members"
-            :is-home-page="true"
-            @get-member="getMember"
-            :total-member="totalMember"
-          />
-        </el-col>
-      </el-row>
-      <post-news-dialog
-        v-if="postDialog"
-        :userInfo="userInfo"
-        @update-new-posting="getPostForum"
-        @update-post-dialog="updatePostDialog"
-      />
+          </el-col>
+        </el-row>
+        <post-news-dialog
+          v-if="postDialog"
+          :userInfo="userInfo"
+          @update-new-posting="getPostForum"
+          @update-post-dialog="updatePostDialog"
+        />
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="scss" scoped>
+.section::-webkit-scrollbar-thumb {
+  background-image: linear-gradient(180deg, #d0368a 0%, #708ad4 99%);
+  box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);
+  border-radius: 100px;
+}
 .menu-list-item {
   height: get-vh(47px);
   box-shadow: inset 0 11px 10px -12px #6596f3;
@@ -1009,11 +908,7 @@ const updatePostDialog = () => {
   font-size: 15px;
 }
 :deep(.el-tabs__item.is-active) {
-  color: red;
   font-weight: bold;
-}
-:deep(.el-tabs__active-bar) {
-  background-color: red;
 }
 
 .directory-bar {
@@ -1123,14 +1018,19 @@ const updatePostDialog = () => {
 .el-popover--plain {
   padding: 0;
 }
-.h-47px :deep(.el-input__wrapper) {
-  border-radius: 50px;
+.h-40px :deep(.el-input__wrapper) {
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
 }
 .m-2 :deep(.el-input__wrapper) {
   background: none;
   box-shadow: none;
+  padding-left: 16px;
 }
 .input-group :deep(.el-input__wrapper) {
-  border-radius: 50px;
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
 }
 </style>

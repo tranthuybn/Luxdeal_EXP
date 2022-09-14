@@ -1,6 +1,15 @@
 @import "./mixin-library.scss";
 @import "./variables.scss";
-
+.backgroundInput :deep(.el-input__wrapper) {
+    background: #f0f2f5;
+    border-radius: 88px;
+    padding-left: 16px;
+  }
+  html.dark .backgroundInput :deep(.el-input__wrapper) {
+    background: #3A3B3C;
+    border-radius: 88px;
+    padding-left: 16px;
+  }
 .user_input :deep(.el-card__body){
     padding-top: 0 !important;
 }

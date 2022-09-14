@@ -189,7 +189,7 @@ const timeAgo = (time) => {
         <el-input
           v-model="inputComment"
           type="text"
-          class="w-full pl-4 bg-opacity-10 h-40px"
+          class="w-full pl-4 bg-opacity-10 h-40px backgroundInput"
           :placeholder="`${t('reuse.inputContent')}...`"
         />
       </div>
@@ -225,8 +225,13 @@ const timeAgo = (time) => {
     box-shadow: 0 2px 12px 0 #a2bced;
   }
 }
-.h-40px :deep(.el-input__wrapper) {
+.backgroundInput :deep(.el-input__wrapper) {
   background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+html.dark .backgroundInput :deep(.el-input__wrapper) {
+  background: #3a3b3c;
   border-radius: 88px;
   padding-left: 16px;
 }

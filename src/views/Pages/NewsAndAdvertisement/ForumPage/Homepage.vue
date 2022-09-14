@@ -742,7 +742,7 @@ const updatePostDialog = () => {
         <div class="w-full">
           <div class="mt-3 pb-4">
             <div class="fs-4 font-bold pt-2 text-24px pb-2">{{ formInfo.value.name }}</div>
-            <div class="flex">
+            <div class="flex pt-2">
               <img src="@/assets/svgs/globe.svg" width="24" />
               <span class="pl-1"> {{ formInfo.value.description }}</span>
             </div>
@@ -766,7 +766,7 @@ const updatePostDialog = () => {
                 <div class="w-full pl-4" role="button" @click="openPostNewsDialog">
                   <el-input
                     type="text"
-                    class="bg-opacity-10 h-40px"
+                    class="bg-opacity-10 h-40px backgroundInput"
                     :placeholder="`${t('reuse.inputContent')}...`"
                   />
                 </div>
@@ -780,7 +780,7 @@ const updatePostDialog = () => {
                 >
               </div>
             </el-card>
-            <el-select v-model="postSelectOption" class="m-2 fontBold">
+            <el-select v-model="postSelectOption" class="m-2 fontBold pt-2">
               <el-option
                 v-for="item in postOptions"
                 :key="item.value"
@@ -823,7 +823,7 @@ const updatePostDialog = () => {
                   </el-checkbox>
                 </div>
                 <div style="align-self: center"
-                  ><el-select v-model="approveSelectOption" class="m-2">
+                  ><el-select v-model="approveSelectOption" class="m-2 backgroundInput">
                     <el-option
                       v-for="item in approveOptions"
                       :key="item.value"
@@ -842,7 +842,7 @@ const updatePostDialog = () => {
           </el-col>
           <el-col :span="10">
             <el-card class="p-3 mb-3">
-              <div class="input-group input-group-lg">
+              <div class="input-group input-group-lg backgroundInput">
                 <el-input
                   class="bg-opacity-10"
                   :placeholder="`${t('reuse.searchInThisGroup')}...`"
@@ -879,6 +879,16 @@ const updatePostDialog = () => {
 </template>
 
 <style lang="scss" scoped>
+.backgroundInput :deep(.el-input__wrapper) {
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+html.dark .backgroundInput :deep(.el-input__wrapper) {
+  background: #3a3b3c;
+  border-radius: 88px;
+  padding-left: 16px;
+}
 .section::-webkit-scrollbar-thumb {
   background-image: linear-gradient(180deg, #d0368a 0%, #708ad4 99%);
   box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);
@@ -941,6 +951,7 @@ const updatePostDialog = () => {
 }
 .fontBold :deep(.el-input__inner) {
   font-weight: 700;
+  box-shadow: none;
   width: 100px;
 }
 .circle {
@@ -1018,19 +1029,8 @@ const updatePostDialog = () => {
 .el-popover--plain {
   padding: 0;
 }
-.h-40px :deep(.el-input__wrapper) {
-  background: #f0f2f5;
-  border-radius: 88px;
-  padding-left: 16px;
-}
-.m-2 :deep(.el-input__wrapper) {
-  background: none;
-  box-shadow: none;
-  padding-left: 16px;
-}
-.input-group :deep(.el-input__wrapper) {
-  background: #f0f2f5;
-  border-radius: 88px;
-  padding-left: 16px;
+:deep(.el-card) {
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
 }
 </style>

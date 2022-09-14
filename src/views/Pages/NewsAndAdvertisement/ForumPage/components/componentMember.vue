@@ -89,7 +89,7 @@ const loadMoreMember = () => {
       <div class="pb-4 border-bottom">
         <div class="font-bold text-18px">{{ t('reuse.people') }}</div>
         <div class="pt-3">
-          <el-select v-model="memberType" @change="memberSelectChange" class="customBackground">
+          <el-select v-model="memberType" @change="memberSelectChange" class="backgroundInput">
             <el-option
               v-for="(item, index) in memberTypes"
               :key="index"
@@ -103,7 +103,7 @@ const loadMoreMember = () => {
             </el-option>
           </el-select>
         </div>
-        <div class="input-group pt-4">
+        <div class="input-group pt-4 backgroundInput">
           <el-input
             :placeholder="`${t('reuse.search')}...`"
             style="height: 40px"
@@ -180,6 +180,16 @@ const loadMoreMember = () => {
 </template>
 <style lang="scss" scoped>
 @import '@/styles/function.scss';
+.backgroundInput :deep(.el-input__wrapper) {
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+html.dark .backgroundInput :deep(.el-input__wrapper) {
+  background: #3a3b3c;
+  border-radius: 88px;
+  padding-left: 16px;
+}
 .menu-list-item {
   box-shadow: inset 0 11px 10px -12px #e2e2e2;
   &:hover {
@@ -300,15 +310,5 @@ const loadMoreMember = () => {
 
 :deep(.el-popover--plain) {
   padding: 0 !important;
-}
-.input-group :deep(.el-input__wrapper) {
-  background: #f0f2f5;
-  border-radius: 88px;
-  padding-left: 16px;
-}
-.customBackground :deep(.el-input__wrapper) {
-  background: #f0f2f5;
-  border-radius: 88px;
-  padding-left: 16px;
 }
 </style>

@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getOriginCategories } from '@/api/LibraryAndSetting'
+import { GETCATEGORY } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
 
 let rank1SelectOptions = reactive([])
@@ -111,7 +111,7 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const getRank1SelectOptions = async () => {
-  await getOriginCategories()
+  await GETCATEGORY({ TypeName: 'xuatxu' })
     .then((res) => {
       if (res.data) {
         rank1SelectOptions = res.data.map((index) => ({

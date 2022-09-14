@@ -3,7 +3,7 @@ import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
-import { apiType, TableResponse } from '../../Type'
+import { TableResponse } from '../../Type'
 import {
   ElImage,
   ElButton,

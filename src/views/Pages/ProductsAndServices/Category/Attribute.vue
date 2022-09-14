@@ -16,38 +16,43 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
     name: 'colorCategories',
     label: t('reuse.color'),
     api: getColorCategories,
-    column: colorCategories
+    column: colorCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: 'sizeCategories',
     label: t('reuse.size'),
     api: getSizeCategories,
-    column: sizeCategories
+    column: sizeCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: 'materialCategories',
     label: t('reuse.material'),
     api: getMaterialCategories,
-    column: materialCategories
+    column: materialCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: 'statusCategories',
     label: t('reuse.status'),
     api: getStatusCategories,
-    column: statusCategories
+    column: statusCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: 'genderCategories',
     label: t('reuse.gender'),
     api: getGenderCategories,
-    column: genderCategories
+    column: genderCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   }
 ]
 </script>

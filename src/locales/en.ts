@@ -847,6 +847,14 @@ export default {
     nameStorage: 'Name of Storage',
     //filter status product
     show: 'Show',
-    notShow: 'Hidden'
+    notShow: 'Hidden',
+    //origin add
+    nameRank2Category: 'Name of rank 2 category',
+    //them sua xoa
+    addSuccess: 'Add success',
+    updateSuccess: 'Update success',
+    deleteSuccess: 'Delete success',
+    deleteCancel: 'Delete cancel',
+    deleteFail: 'Delete fail'
   }
 }

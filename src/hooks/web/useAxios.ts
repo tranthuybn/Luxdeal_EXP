@@ -28,15 +28,18 @@ function getFn<T = any>(option: AxiosConfig, fixedBaseURL?: boolean): AxiosPromi
   return request({ method: 'get', ...option }, fixedBaseURL)
 }
 
-function postFn<T = any>(option: AxiosConfig, fixedBaseURL: boolean): AxiosPromise<T> {
+function postFn<T = any>(option: AxiosConfig, fixedBaseURL?: boolean): AxiosPromise<T> {
+  fixedBaseURL == undefined ? (fixedBaseURL = false) : fixedBaseURL
   return request({ method: 'post', ...option }, fixedBaseURL)
 }
 
-function deleteFn<T = any>(option: AxiosConfig, fixedBaseURL: boolean): AxiosPromise<T> {
+function deleteFn<T = any>(option: AxiosConfig, fixedBaseURL?: boolean): AxiosPromise<T> {
+  fixedBaseURL == undefined ? (fixedBaseURL = false) : fixedBaseURL
   return request({ method: 'delete', ...option }, fixedBaseURL)
 }
 
-function putFn<T = any>(option: AxiosConfig, fixedBaseURL: boolean): AxiosPromise<T> {
+function putFn<T = any>(option: AxiosConfig, fixedBaseURL?: boolean): AxiosPromise<T> {
+  fixedBaseURL == undefined ? (fixedBaseURL = false) : fixedBaseURL
   return request({ method: 'put', ...option }, fixedBaseURL)
 }
 

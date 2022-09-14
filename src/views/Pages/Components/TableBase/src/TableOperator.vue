@@ -15,7 +15,6 @@ import {
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { saveTableApi } from '@/api/table'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { apiType, TableResponse } from '../../Type'
@@ -74,15 +73,29 @@ const props = defineProps({
   limitUpload: {
     type: Number,
     default: 1
+  },
+  params: {
+    type: Object,
+    default: () => {}
+  },
+  formDataCustomize: {
+    type: Object,
+    default: () => {}
   }
 })
-const emit = defineEmits(['post-data'])
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+
+//get data from table
 const getTableValue = async () => {
-  if (props.id !== NaN) {
-    const res = await props.api({ id: props.id })
-    formValue.value = res.data.list[0]
-    setFormValue()
+  if (!isNaN(props.id)) {
+    const res = await props.api({ ...props.params, id: props.id })
+    if (res.data.list !== undefined) {
+      formValue.value = res.data.list[0]
+    } else {
+      formValue.value = res.data
+    }
+    await setFormValue()
   }
 }
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -113,14 +126,27 @@ watch(
     immediate: true
   }
 )
-const setFormValue = () => {
+const customizeData = async () => {
+  await emit('customize-form-data', formValue.value)
+}
+//set data for form edit and detail
+const setFormValue = async () => {
+  //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
   const { setValues } = methods
-  setValues(formValue.value)
+  if (props.formDataCustomize !== undefined) {
+    console.log('have value')
+    setValues(props.formDataCustomize)
+  } else {
+    console.log('undefined')
+    setValues(formValue.value)
+  }
   fileList.value.push({
     url: formValue.value.image,
     name: formValue.value.title
   })
 }
+//watch and call get data form detail and edit
 watch(
   () => props.type,
   () => {
@@ -146,20 +172,24 @@ defineExpose({
 
 const loading = ref(false)
 
-const save = async () => {
+//doc du lieu tu bang roi emit len goi API
+const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     if (isValid) {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
-      const formData = Object.assign(data, fileList.value)
-      const res = await saveTableApi(data)
-        .catch(() => {})
-        .finally(() => {
-          loading.value = false
-        })
-      if (res) {
-        emit('post-data', formData)
+      console.log('data get', data)
+      props.multipleImages
+        ? (data.imageUrl = fileList.value)
+        : (data.imageUrl = rawUploadFile.value?.raw)
+      if (type == 'add') {
+        await emit('post-data', data)
+        loading.value = false
+      }
+      if (type == 'edit') {
+        await emit('edit-data', data)
+        loading.value = false
       }
     }
   })
@@ -170,6 +200,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 //if schema has image then split screen
 let fullSpan = ref<number>()
+let rawUploadFile = ref<UploadFile>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
@@ -220,6 +251,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
     const file = fileList.value.pop()
     if (file != undefined) {
+      rawUploadFile.value = uploadFile
       imageUrl.value = URL.createObjectURL(file.raw!)
     }
   }
@@ -235,7 +267,6 @@ type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
-
 <template>
   <ContentWrap :title="t(`${title}`)">
     <ElRow :gutter="20" justify="space-between">
@@ -297,7 +328,7 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under>
-      <div v-if="props.type === 'add'">
+      <div v-if="props.type === 'add' || isNaN(props.id)">
         <div v-if="props.typeButton === 'form01'">
           <ElButton type="primary" :loading="loading" @click="save">
             {{ t('reuse.save') }}
@@ -311,7 +342,7 @@ const listType = ref<ListImages>('text')
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="saveAndAdd">
@@ -327,7 +358,7 @@ const listType = ref<ListImages>('text')
         </ElButton>
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton :loading="loading" @click="cancel">

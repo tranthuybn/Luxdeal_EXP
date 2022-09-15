@@ -17,6 +17,7 @@ export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
 }
+
 export const dateTimeFormat = (val) => {
   return moment(val).format('l')
 }

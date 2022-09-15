@@ -1,5 +1,5 @@
 <template>
-  <section class="!h-full">
+  <section class="!h-87vh">
     <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
       <el-tab-pane
         :name="item.value"
@@ -12,7 +12,7 @@
             class="library-tab__name pr-2 w-full h-full dark:(text-white) text-center flex flex-col content-center items-center pt-4"
             :class="{ active: item.isActive }"
           >
-            <Icon icon="uil:headphones" :size="24" />
+            <Icon icon="ps:headset" :size="24" />
             <div
               style="word-break: break-word"
               class="whitespace-normal overflow-ellipsis w-full overflow-hidden leading-normal"
@@ -23,7 +23,7 @@
       </el-tab-pane>
       <div class="message-box h-full">
         <el-row class="h-full w-full bg-white dark:bg-[var(--el-bg-color)]">
-          <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2">
+          <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2 h-full">
             <MessagePanel
               v-if="selectedUser"
               :user="selectedUser"
@@ -48,7 +48,7 @@
                 <div v-for="(item, index) in documentList" :key="index" class="pb-16">
                   <div v-if="item.type === 'TuVanMuaHang'" class="flex flex-col">
                     <el-card>
-                      <div class="flex border-bottom-1">
+                      <div class="flex pb-1 border-bottom-1">
                         <div class="basis-1/2"
                           ><img :src="item.content.productImagePath" class="w-full" />
                         </div>
@@ -120,6 +120,16 @@
                 :selected="selectedUser === user"
                 @select="onSelectUser(user)"
               />
+              <div class="absolute bottom-10px right-10px"
+                ><el-avatar
+                  :src="user.avatar"
+                  v-for="user in popUpChat"
+                  :key="user"
+                  size="large"
+                  class="cursor-pointer"
+                />
+                ></div
+              >
             </el-card>
           </el-col>
         </el-row>
@@ -129,7 +139,7 @@
 </template>
 
 <script setup>
-import { ElRow, ElCol, ElTabs, ElTabPane, ElButton, ElInput, ElCard } from 'element-plus'
+import { ElRow, ElCol, ElTabs, ElTabPane, ElButton, ElInput, ElCard, ElAvatar } from 'element-plus'
 import UserList from './User.vue'
 import MessagePanel from './MessagePanel.vue'
 </script>
@@ -170,6 +180,14 @@ export default {
         'https://toigingiuvedep.vn/wp-content/uploads/2021/05/avatar-hinh-anh-dai-dien-nguoi-giau-mat.jpg',
       selectedUser: null,
       isChannelId: null,
+      popUpChat: [
+        { avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png' },
+        { avatar: 'https://i.pngimg.me/thumb/f/720/m2H7K9A0Z5m2G6b1.jpg' },
+        {
+          avatar:
+            'https://cdn.imgbin.com/2/4/15/imgbin-computer-icons-portable-network-graphics-avatar-icon-design-avatar-DsZ54Du30hTrKfxBG5PbwvzgE.jpg'
+        }
+      ],
       users: [
         {
           _id: '619b472a8f0d634cb1dbc90a',
@@ -286,7 +304,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '3213',
+                content: 'Xin chào',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -303,7 +321,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '12321',
+                content: 'Hết hàng rồi bạn nhé',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -320,7 +338,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '123',
+                content: 'Hết hàng rồi bạn nhé',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -328,23 +346,6 @@ export default {
                 idContract: 0,
                 images: null,
                 createdDate: '2022-04-07T10:24:42.519Z'
-              },
-              createdDate: '2021-12-03T10:13:41.308Z',
-              newMessage: true
-            },
-            {
-              _id: '61a9edd594281cb25174f3e2',
-              channelId: '61a9c2ab94281cb25174f3d4',
-              type: 'TuVanMuaHang',
-              messages: {
-                content: '13',
-                from: 'admin',
-                to: 'vinhnt',
-                idProduct: 0,
-                idDeal: 0,
-                idContract: 0,
-                images: null,
-                createdDate: '2022-04-07T10:24:45.017Z'
               },
               createdDate: '2021-12-03T10:13:41.308Z',
               newMessage: true
@@ -2534,7 +2535,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: 'hu hu',
+                content: 'Xin chào',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -2551,7 +2552,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: 'abc',
+                content: 'Tôi có thể giúp gì cho bạn',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -2559,57 +2560,6 @@ export default {
                 idContract: 0,
                 images: null,
                 createdDate: '2022-02-25T04:07:57.867Z'
-              },
-              createdDate: '2021-12-03T10:13:41.308Z',
-              newMessage: true
-            },
-            {
-              _id: '61a9edd594281cb25174f3e2',
-              channelId: '61a9c2ab94281cb25174f3d4',
-              type: 'TuVanMuaHang',
-              messages: {
-                content: 'h i hi',
-                from: 'admin',
-                to: 'vinhnt',
-                idProduct: 0,
-                idDeal: 0,
-                idContract: 0,
-                images: null,
-                createdDate: '2022-02-25T04:08:55.171Z'
-              },
-              createdDate: '2021-12-03T10:13:41.308Z',
-              newMessage: true
-            },
-            {
-              _id: '61a9edd594281cb25174f3e2',
-              channelId: '61a9c2ab94281cb25174f3d4',
-              type: 'TuVanMuaHang',
-              messages: {
-                content: 'he he',
-                from: 'admin',
-                to: 'vinhnt',
-                idProduct: 0,
-                idDeal: 0,
-                idContract: 0,
-                images: null,
-                createdDate: '2022-02-25T04:08:58.837Z'
-              },
-              createdDate: '2021-12-03T10:13:41.308Z',
-              newMessage: true
-            },
-            {
-              _id: '61a9edd594281cb25174f3e2',
-              channelId: '61a9c2ab94281cb25174f3d4',
-              type: 'TuVanMuaHang',
-              messages: {
-                content: 'a hi hi',
-                from: 'admin',
-                to: 'vinhnt',
-                idProduct: 0,
-                idDeal: 0,
-                idContract: 0,
-                images: null,
-                createdDate: '2022-02-25T04:17:31.958Z'
               },
               createdDate: '2021-12-03T10:13:41.308Z',
               newMessage: true
@@ -2653,7 +2603,25 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: 'yessir',
+                content: {
+                  orderServiceId: 95,
+                  orderServiceDetailsId: 12,
+                  orderCode: 'DHTC4375213',
+                  orderStatus: 3,
+                  userFullName: 'LangVi',
+                  userPhone: '0987156423',
+                  userAddress: '67 Giảng Võ , Ba Đình , Hà Nội',
+                  totalMoney: 129000000,
+                  paidTotalMoney: 0,
+                  debtTotalMoney: 0,
+                  currentInterestMoney: 46956000,
+                  currentWarrantyMoney: 23478000,
+                  productId: 0,
+                  productName: 'Hand Bag',
+                  productBrand: 'Louis Vuitton',
+                  productImagePath:
+                    'https://1.bp.blogspot.com/-UwwTcoPkWl4/YVCSZaQ1xxI/AAAAAAAAIHE/aZi9kWLEs3A17oqVEdByaARpQ7iDPsm1QCLcBGAsYHQ/s680/LV2.jpg'
+                },
                 from: 'vinhnt',
                 to: 'admin',
                 idProduct: 0,
@@ -2670,7 +2638,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '3213',
+                content: 'Hết hàng rồi bạn nhé',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -2687,7 +2655,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '12321',
+                content: 'Hết hàng rồi bạn nhé',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -2704,7 +2672,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '123',
+                content: 'Xin chào',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,
@@ -2721,7 +2689,7 @@ export default {
               channelId: '61a9c2ab94281cb25174f3d4',
               type: 'TuVanMuaHang',
               messages: {
-                content: '13',
+                content: 'Tạm biệt',
                 from: 'admin',
                 to: 'vinhnt',
                 idProduct: 0,

@@ -769,6 +769,7 @@ export default {
     approveCondition: 'Điều kiện duyệt',
     approveOrNot: 'Duyệt(On)/Không duyệt(Off)',
     approvalManagement: 'Quản lý danh mục duyệt',
+    BrowseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
     //banner advertisement
     bannerCode: 'Mã banner',
     linkBanner: 'Link Banner',
@@ -813,7 +814,7 @@ export default {
     feature: 'Nổi bật',
     homepage: 'Trang chủ',
     employeeManagement: 'Quản lý nhân viên',
-    systemManagement: 'Quản lý hệ thóng',
+    systemManagement: 'Quản lý hệ thống',
     forumSetting: 'Thiết lập Forum',
     posts: 'Bài viết',
     post: 'Đăng',
@@ -944,6 +945,31 @@ export default {
     updateSuccess: 'Sửa thành công',
     deleteSuccess: 'Xóa thành công',
     deleteCancel: 'Hủy xóa',
-    deleteFail: 'Xóa thất bại'
+    deleteFail: 'Xóa thất bại',
+    // Check Validation
+    required: 'Không được để trống',
+    notSpecialCharacters: 'Không nhập ký tự đặc biệt',
+    lengthRange: 'Độ dài ký tự không phù hợp',
+    notSpace: 'Không được có khoảng trống giữa các ký tự',
+    isNotEqual: 'Không bằng nhau',
+    phoneNumberFormat: 'Không phải số điện thoại',
+    emailFormat: 'Vui lòng nhập đúng định dạng email',
+    dateTimeFormat: 'Định dạng ngày giờ không đúng',
+    dateFormat: 'Định dạng ngày không đúng',
+    monthFormat: 'Định dạng tháng không đúng',
+    yearFormat: 'Định dạng năm không đúng',
+    numberFormat: 'Vui lòng chỉ nhập số',
+    positiveNumber: 'Vui lòng chỉ nhập số dương',
+    integerNumber: 'Vui lòng chỉ nhập số nguyên',
+    checkNameLength: 'Không được nhập quá 50 ký tự',
+    checkDescriptionLength: 'Không được nhập quá 500 ký tự',
+    checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại',
+    //notification
+    exit: 'Thoát',
+    deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
+    deleteOrigin: 'Xóa xuất xứ',
+    selectRankOrigin: 'Chọn cấp xuất xứ',
+    inputOrigin: 'Nhập tên xuất xứ',
+    updateFail: 'Sửa thất bại'
   }
 }

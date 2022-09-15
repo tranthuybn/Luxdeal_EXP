@@ -47,8 +47,8 @@ export const colorCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
     type: 'index',
+    align: 'center',
     sortable: true
   },
   {
@@ -56,13 +56,17 @@ export const colorCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus,
+    align: 'center',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
     }
@@ -81,7 +85,7 @@ export const sizeCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true,
     type: 'index'
   },
@@ -90,12 +94,16 @@ export const sizeCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -115,7 +123,7 @@ export const materialCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true,
     type: 'index'
   },
@@ -124,13 +132,20 @@ export const materialCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const statusCategories = [
@@ -146,7 +161,7 @@ export const statusCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true,
     type: 'index'
   },
@@ -155,13 +170,20 @@ export const statusCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const genderCategories = [
@@ -177,7 +199,7 @@ export const genderCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true,
     type: 'index'
   },
@@ -186,13 +208,20 @@ export const genderCategories = [
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const unitCategories = [
@@ -275,7 +304,7 @@ export const brandCategories = [
 export const originCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -285,7 +314,6 @@ export const originCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    type: 'index',
     align: 'center',
     sortable: true
   },

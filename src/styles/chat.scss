@@ -1,6 +1,19 @@
 @import "./mixin-library.scss";
 @import "./variables.scss";
-
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #c8ccd4;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 .user_input :deep(.el-card__body){
     padding-top: 0 !important;
 }
@@ -446,11 +459,6 @@
         object-fit: cover;
         cursor: pointer;
     }
-
-    .media-body {
-        margin-left: .8rem;
-    }
-
     &__message {
         background: $brown;
         color: $white;

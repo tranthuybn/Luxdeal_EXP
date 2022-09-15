@@ -87,9 +87,9 @@ const loadMoreMember = () => {
   <div>
     <el-card class="p-3">
       <div class="pb-4 border-bottom">
-        <div class="fs-4 pt-3 font-bold">{{ t('reuse.people') }}</div>
+        <div class="font-bold text-18px">{{ t('reuse.people') }}</div>
         <div class="pt-3">
-          <el-select v-model="memberType" @change="memberSelectChange">
+          <el-select v-model="memberType" @change="memberSelectChange" class="backgroundInput">
             <el-option
               v-for="(item, index) in memberTypes"
               :key="index"
@@ -103,7 +103,7 @@ const loadMoreMember = () => {
             </el-option>
           </el-select>
         </div>
-        <div class="input-group mt-3">
+        <div class="input-group pt-4 backgroundInput">
           <el-input
             :placeholder="`${t('reuse.search')}...`"
             style="height: 40px"
@@ -112,7 +112,7 @@ const loadMoreMember = () => {
           />
         </div>
       </div>
-      <div class="my-3">
+      <div class="py-3 border-top-1 border-solid border-[#CECECE]">
         <div
           ><span class="font-bold dot pr-2">{{ t('reuse.member') }}</span
           ><span class="font-bold pl-2">{{ totalMember }}</span></div
@@ -123,7 +123,6 @@ const loadMoreMember = () => {
         <div
           class="menu-list-item flex justify-between align-items-stretch p-3"
           v-for="(item, index) in memberListShowUp"
-          :class="item.isPostProhibit ? 'bg-red-500 bg-opacity-10' : ''"
           :key="index + '-members'"
         >
           <div class="flex justify-content-start">
@@ -181,8 +180,18 @@ const loadMoreMember = () => {
 </template>
 <style lang="scss" scoped>
 @import '@/styles/function.scss';
+.backgroundInput :deep(.el-input__wrapper) {
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+html.dark .backgroundInput :deep(.el-input__wrapper) {
+  background: #3a3b3c;
+  border-radius: 88px;
+  padding-left: 16px;
+}
 .menu-list-item {
-  box-shadow: inset 0 11px 10px -12px #6596f3;
+  box-shadow: inset 0 11px 10px -12px #e2e2e2;
   &:hover {
     .fullName {
       text-decoration: underline;
@@ -301,8 +310,5 @@ const loadMoreMember = () => {
 
 :deep(.el-popover--plain) {
   padding: 0 !important;
-}
-.input-group :deep(.el-input__wrapper) {
-  border-radius: 50px;
 }
 </style>

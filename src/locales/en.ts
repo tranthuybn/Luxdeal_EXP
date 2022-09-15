@@ -716,6 +716,7 @@ export default {
     approveCondition: 'Approve Condition',
     approveOrNot: 'Approve(On)/Unapproved(Off)',
     approvalManagement: 'Approval Management',
+    BrowseNewlyLaunchedProducts: 'Browse newly launched products',
     //warehouse
     save: 'Save',
     addCategory: 'Add Category',
@@ -883,6 +884,31 @@ export default {
     deleteSuccess: 'Delete success',
     deleteCancel: 'Delete cancel',
     deleteFail: 'Delete fail',
-    intoMoney: 'Into money'
+    intoMoney: 'Into money',
+    // Check Validation
+    required: 'This is required',
+    notSpecialCharacters: 'Do not enter special characters',
+    lengthRange: 'Inappropriate character length',
+    notSpace: 'No spaces between characters',
+    isNotEqual: 'It is not equal',
+    phoneNumberFormat: 'It is not phone number format',
+    emailFormat: 'Please enter correct email format',
+    dateTimeFormat: 'Date and time format is incorrect',
+    dateFormat: 'Date format is incorrect',
+    monthFormat: 'Month format is incorrect',
+    yearFormat: 'Year format is incorrect',
+    numberFormat: 'Please just enter phone number',
+    positiveNumber: 'Please just enter positive number',
+    integerNumber: 'Please just enter integer number',
+    checkNameLength: 'Do not enter more than 50 character',
+    checkDescriptionLength: 'Do not enter more than 500 character',
+    checkStartDateTime: 'Date starts before current time',
+    //notification
+    exit: 'Exit',
+    deleteWarning: 'Are you sure want to delete ?',
+    deleteOrigin: 'Delete origin',
+    selectRankOrigin: 'Select rank of origin',
+    inputOrigin: 'Input name of origin',
+    updateFail: 'Update Fail'
   }
 }

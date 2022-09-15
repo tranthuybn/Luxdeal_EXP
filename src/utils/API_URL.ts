@@ -5,3 +5,4 @@ export const PRODUCTS_AND_SERVICES_API = {
   UPDATE_CATEGORY: '/api/v1/Category/updateCategory',
   DELETE_CATEGORY: '/api/v1/Categories/DeleteCategory'
 }
+export const API_URL = 'http://103.81.87.134:910'

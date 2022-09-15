@@ -873,6 +873,12 @@ export default {
     integerNumber: 'Please just enter integer number',
     checkNameLength: 'Do not enter more than 50 character',
     checkDescriptionLength: 'Do not enter more than 500 character',
-    checkStartDateTime: 'Date starts before current time'
+    checkStartDateTime: 'Date starts before current time',
+    //notification
+    exit: 'Exit',
+    deleteWarning: 'Are you sure want to delete ?',
+    deleteOrigin: 'Delete origin',
+    selectRankOrigin: 'Select rank of origin',
+    inputOrigin: 'Input name of origin'
   }
 }

@@ -75,6 +75,10 @@ const props = defineProps({
   removeHeaderFilter: {
     type: Boolean,
     default: false
+  },
+  deleteTitle: {
+    type: String,
+    default: 'Warning'
   }
 })
 
@@ -124,6 +128,7 @@ const pushAdd = () => {
       :customOperator="customOperator"
       :apiTableChild="apiTableChild"
       :delApi="delApi"
+      :deleteTitle="deleteTitle"
       :columnsTableChild="columnsTableChild"
       :paginationType="pagination"
       ref="tableBase01"

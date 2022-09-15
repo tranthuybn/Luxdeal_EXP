@@ -27,9 +27,9 @@ export const useValidator = () => {
     }
   }
 
-  const notSpace = (val: any, callback: Callback) => {
+  const notSpace = (_, val: any, callback: Callback) => {
     // Username cannot have space
-    if (val.indexOf(' ') !== -1) {
+    if (val && val.toString().indexOf(' ') !== -1) {
       callback(new Error(t('reuse.notSpace')))
     } else {
       callback()
@@ -88,7 +88,7 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkNumber: {
-      validator: (value, callback) => {
+      validator: (_rule: any, value: any, callback: any) => {
         if (value === '') callback(new Error(t('reuse.required')))
         else if (typeof value !== 'number') callback(new Error(t('reuse.numberFormat')))
         callback()
@@ -97,9 +97,8 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkPositiveNumber: {
-      validator: (value, callback) => {
-        if (value === '') callback(new Error(t('reuse.required')))
-        else if (typeof parseInt(value) !== 'number') callback(new Error(t('reuse.numberFormat')))
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
       },
@@ -108,8 +107,8 @@ export const useValidator = () => {
     },
     checkNameLength: {
       type: 'string',
-      validator: (val, callback) => {
-        if (val.length > 50) {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 50) {
           callback(new Error(t('reuse.checkNameLength')))
         }
         callback()

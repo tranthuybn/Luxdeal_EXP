@@ -935,6 +935,12 @@ export default {
     integerNumber: 'Vui lòng chỉ nhập số nguyên',
     checkNameLength: 'Không được nhập quá 50 ký tự',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
-    checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại'
+    checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại',
+    //notification
+    exit: 'Thoát',
+    deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
+    deleteOrigin: 'Xóa xuất xứ',
+    selectRankOrigin: 'Chọn cấp xuất xứ',
+    inputOrigin: 'Nhập tên xuất xứ'
   }
 }

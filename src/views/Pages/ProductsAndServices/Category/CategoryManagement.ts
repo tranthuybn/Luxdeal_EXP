@@ -304,7 +304,7 @@ export const brandCategories = [
 export const originCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -314,7 +314,6 @@ export const originCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    type: 'index',
     align: 'center',
     sortable: true
   },

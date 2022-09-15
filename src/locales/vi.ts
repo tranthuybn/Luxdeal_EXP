@@ -969,6 +969,11 @@ export default {
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
     inputOrigin: 'Nhập tên xuất xứ',
-    updateFail: 'Sửa thất bại'
+    updateFail: 'Sửa thất bại',
+    deleteUnit: 'Xóa đơn vị tính',
+    unitType: 'Loại đơn vị tính',
+    selectUnitLevel: 'Chọn cấp đơn vị tính',
+    unitName: 'Tên đơn vị tính',
+    inputUnit: 'Nhập tên đơn vị tính'
   }
 }

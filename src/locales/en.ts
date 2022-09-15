@@ -908,6 +908,11 @@ export default {
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
-    updateFail: 'Update Fail'
+    updateFail: 'Update Fail',
+    deleteUnit: 'Are you sure want to delete ?',
+    unitType: 'Unit type',
+    selectUnitLevel: 'Select unit level',
+    unitName: 'Unit name',
+    inputUnit: 'Input unit'
   }
 }

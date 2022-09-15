@@ -715,6 +715,7 @@ export default {
     approveCondition: 'Approve Condition',
     approveOrNot: 'Approve(On)/Unapproved(Off)',
     approvalManagement: 'Approval Management',
+    BrowseNewlyLaunchedProducts: 'Browse newly launched products',
     //warehouse
     save: 'Save',
     addCategory: 'Add Category',

@@ -109,7 +109,6 @@ const pushAdd = () => {
 </script>
 <template>
   <section>
-    <slot name="title"></slot>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon" @click="pushAdd">

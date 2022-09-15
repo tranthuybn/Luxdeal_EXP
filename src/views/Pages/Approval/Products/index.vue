@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ContentWrap } from '@/components/ContentWrap'
 import { getProductsApproval } from '@/api/Approval'
 import { h, reactive } from 'vue'
 import TableType01 from '../../Components/TableDataBase.vue'
@@ -10,7 +11,6 @@ const columns = reactive<TableColumn[]>([
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
-    minWidth: '150',
     align: 'center'
   },
   {
@@ -87,13 +87,17 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
 }
 </script>
 <template>
-  <TableType01
-    :columns="columns"
-    :api="getProductsApproval"
-    isOperatorColumnCustomize
-    :selection="false"
-    :removeHeaderFilter="true"
+  <ContentWrap
+    class="relative"
+    :title="t('reuse.BrowseNewlyLaunchedProducts')"
+    :message="t('reuse.BrowseNewlyLaunchedProducts')"
   >
-    <template #title>Duyệt sản phẩm mới khởi tạo</template></TableType01
-  >
+    <TableType01
+      :columns="columns"
+      :api="getProductsApproval"
+      isOperatorColumnCustomize
+      :selection="false"
+      :removeHeaderFilter="true"
+    />
+  </ContentWrap>
 </template>

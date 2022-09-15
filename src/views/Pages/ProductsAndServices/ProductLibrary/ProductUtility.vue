@@ -55,7 +55,6 @@ const collapse: Array<Collapse> = [
     columns: featuresPrice,
     api: getFeaturesPrices,
     buttonAdd: 'Thêm đặc tính và giá bán',
-    titleButtonChildren: 'Thêm giá',
     typeForm: 'table',
     typeButton: 'table',
     expand: true,
@@ -75,7 +74,6 @@ const collapse: Array<Collapse> = [
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
     buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    titleButtonChildren: 'Thêm giá',
     typeForm: 'table',
     typeButton: 'table',
     expand: true,
@@ -159,8 +157,6 @@ const collapse: Array<Collapse> = [
     removeHeaderFilter: true,
     removeDrawer: true,
     selection: false,
-    titleButtonChildren: 'false',
-    customOperatorChildren: false,
     customOperator: 2
   },
   {
@@ -180,7 +176,8 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3,
-    hasImage: false
+    hasImage: false,
+    customOperatorChilden: false
   }
 ]
 //lay du lieu tu router

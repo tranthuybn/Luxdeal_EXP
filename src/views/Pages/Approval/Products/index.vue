@@ -10,6 +10,7 @@ const columns = reactive<TableColumn[]>([
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
+    minWidth: '150',
     align: 'center'
   },
   {
@@ -86,5 +87,13 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
 }
 </script>
 <template>
-  <TableType01 :columns="columns" :api="getProductsApproval" isOperatorColumnCustomize />
+  <TableType01
+    :columns="columns"
+    :api="getProductsApproval"
+    isOperatorColumnCustomize
+    :selection="false"
+    :removeHeaderFilter="true"
+  >
+    <template #title>Duyệt sản phẩm mới khởi tạo</template></TableType01
+  >
 </template>

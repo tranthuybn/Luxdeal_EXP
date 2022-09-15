@@ -29,6 +29,8 @@ let flexibleContent = props.content
 const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 const defaultBagImage =
   'https://assets.vogue.in/photos/5e32959a05b08e00085306c2/2:3/w_2560%2Cc_limit/Sonam-Kapoor-Ahuja-Louis-Vuitton-bag.jpg'
+const tuixachTest =
+  'https://afamilycdn.com/2019/9/18/697123137334963970965278170025972654554474n-15688219875961896914352.jpg'
 const prohibitToPost = (id, obj) => {
   console.log('call api check permission', id, obj)
 }
@@ -50,10 +52,7 @@ const timeAgo = (time) => {
 <template>
   <section>
     <el-card class="bg-white mb-3">
-      <div
-        class="user-info-bar p-3"
-        :class="flexibleContent.isPostProhibit ? 'bg-red-500 bg-opacity-10' : ''"
-      >
+      <div class="user-info-bar p-3">
         <div class="flex justify-content-start align-items-center">
           <div class="user-avatar">
             <el-avatar v-if="flexibleContent.avatar" :src="circleUrl" :size="47" />
@@ -105,7 +104,7 @@ const timeAgo = (time) => {
       <el-row
         :gutter="5"
         class="pe-2 pb-3"
-        v-if="flexibleContent.imagePosts || flexibleContent.imagePosts == ''"
+        v-if="flexibleContent.imagePosts && flexibleContent.imagePosts.length < 3"
       >
         <el-col
           :span="12"
@@ -116,7 +115,16 @@ const timeAgo = (time) => {
           <el-empty v-else description="Không có ảnh" />
         </el-col>
       </el-row>
-      <div class="p-3 pt-0 border-bottom">
+      <div class="flex max-h-500px gap-2px" v-else>
+        <div class="basis-1/2"><img :src="defaultBagImage" class="h-full" /></div>
+        <div class="flex flex-col basis-1/2">
+          <div class="h-1/2"><img :src="tuixachTest" class="h-full w-full object-fill" /></div>
+          <div class="h-1/2"
+            ><img :src="tuixachTest" class="h-full w-full object-fill pt-1px"
+          /></div>
+        </div>
+      </div>
+      <div class="p-3 border-bottom">
         <div class="flex items-center self-center justify-between">
           <div class="col-6 text-start">
             <div class="flex">
@@ -132,20 +140,24 @@ const timeAgo = (time) => {
           </div>
         </div>
       </div>
-      <div class="border-top-1 border-bottom-1">
+      <div class="border-y-1 py-2">
         <div class="flex gap-10" style="height: 4vh">
           <div class="col-6">
             <el-button
               :icon="flexibleContent.isUserLiked ? likeFilledIcon : likeIcon"
               :btnName="'Like'"
               @click="updateLikeStatus"
-              class="!border-0"
+              class="!border-0 biggerIcon"
               size="large"
               >Like</el-button
             >
           </div>
           <div class="col-6">
-            <el-button :icon="commentImage" :btnName="'comment'" class="!border-0" size="large"
+            <el-button
+              :icon="commentImage"
+              :btnName="'comment'"
+              class="!border-0 biggerIcon"
+              size="large"
               >Comment</el-button
             >
           </div>
@@ -155,12 +167,12 @@ const timeAgo = (time) => {
         <i class="fa fa-thumbs-o-up"></i>
       </div>
       <div
-        class="flex pt-3 pl-4"
+        class="flex pt-5 pl-3"
         v-for="(comment, index) in flexibleContent.comments"
         :key="comment.commentId + '-comments-' + index"
       >
         <div>
-          <el-avatar icon="el-icon-user-solid" :size="47" />
+          <el-avatar icon="el-icon-user-solid" :size="40" />
         </div>
         <div class="pl-4">
           <div class="mb-1"
@@ -170,14 +182,14 @@ const timeAgo = (time) => {
           <div>{{ comment.content }} </div>
         </div>
       </div>
-      <div class="flex pt-3 pl-4">
+      <div class="flex pt-5 pl-3">
         <div>
-          <el-avatar icon="el-icon-user-solid" :size="47" />
+          <el-avatar icon="el-icon-user-solid" :size="40" />
         </div>
         <el-input
           v-model="inputComment"
           type="text"
-          class="w-full pl-4 bg-opacity-10 h-47px"
+          class="w-full pl-4 bg-opacity-10 h-40px backgroundInput"
           :placeholder="`${t('reuse.inputContent')}...`"
         />
       </div>
@@ -213,7 +225,20 @@ const timeAgo = (time) => {
     box-shadow: 0 2px 12px 0 #a2bced;
   }
 }
-.h-47px :deep(.el-input__wrapper) {
-  border-radius: 50px;
+.backgroundInput :deep(.el-input__wrapper) {
+  background: #f0f2f5;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+html.dark .backgroundInput :deep(.el-input__wrapper) {
+  background: #3a3b3c;
+  border-radius: 88px;
+  padding-left: 16px;
+}
+.biggerIcon :deep(.el-icon) span {
+  font-size: 24px !important;
+}
+.biggerIcon :deep(span) {
+  padding-left: 9px;
 }
 </style>

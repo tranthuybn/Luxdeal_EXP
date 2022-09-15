@@ -786,7 +786,7 @@ export default {
     feature: 'Nổi bật',
     homepage: 'Trang chủ',
     employeeManagement: 'Quản lý nhân viên',
-    systemManagement: 'Quản lý hệ thóng',
+    systemManagement: 'Quản lý hệ thống',
     forumSetting: 'Thiết lập Forum',
     posts: 'Bài viết',
     post: 'Đăng',

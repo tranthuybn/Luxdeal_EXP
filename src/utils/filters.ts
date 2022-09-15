@@ -80,8 +80,8 @@ export const filterProductStatus: Array<Filter> = [
   { text: t('reuse.inactive'), value: false }
 ]
 export const filterTableStatus: Array<Filter> = [
-  { text: t('reuse.active'), value: 'Đang hoạt động' },
-  { text: t('reuse.inactive'), value: 'Ngưng hoạt động' },
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false },
   { text: t('reuse.pending'), value: 'Chờ duyệt' },
   { text: t('reuse.finishPending'), value: 'Đã duyệt' }
 ]

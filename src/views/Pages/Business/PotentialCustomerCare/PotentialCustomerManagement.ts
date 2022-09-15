@@ -32,7 +32,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
       filterable: true,
       style: 'width: 100%',
       multiple: true,
-      placeholder: 'Nhập hoặc chọn tên khách hàng',
+      placeholder: t('reuse.enterOrSelectCustomerName'),
       options: [
         {
           label: 'CustomerName 1',
@@ -53,7 +53,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.phoneNumber'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập số điện thoại'
+      placeholder: t('reuse.enterPhoneNumber')
     },
     colProps: {
       span: 20
@@ -64,7 +64,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.email'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập email',
+      placeholder: t('reuse.enterEmail'),
       style: 'width: 100%'
     },
     colProps: {
@@ -76,7 +76,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.link'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Facebook/zalo...',
+      placeholder: t('reuse.socialNetwork'),
       style: 'width: 100%'
     },
     colProps: {

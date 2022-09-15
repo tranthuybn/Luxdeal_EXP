@@ -98,12 +98,19 @@ const formValue = ref()
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
     const res = await props.apiId({ ...props.params, id: props.id })
-    if (res.data.list !== undefined) {
-      formValue.value = res.data.list[0]
+    if (res) {
+      if (res.data.list !== undefined) {
+        formValue.value = res.data.list[0]
+      } else {
+        formValue.value = res.data
+      }
+      await setFormValue()
     } else {
-      formValue.value = res.data
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
     }
-    await setFormValue()
   }
 }
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -263,22 +270,19 @@ const delAction = async () => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        props
-          .delApi({ Id: props.id })
-          .then(
-            () =>
-              ElNotification({
-                message: t('reuse.deleteSuccess'),
-                type: 'success'
-              }),
+        const res = props.delApi({ Id: props.id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          }),
             go(-1)
-          )
-          .catch(() =>
-            ElNotification({
-              message: t('reuse.deleteFail'),
-              type: 'warning'
-            })
-          )
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
       })
       .catch(() => {
         ElNotification({

@@ -74,6 +74,10 @@ const props = defineProps({
   deleteTitle: {
     type: String,
     default: 'Warning'
+  },
+  tab: {
+    type: String,
+    default: ''
   }
 })
 
@@ -162,9 +166,10 @@ const Utility = appStore.getUtility
 let buttonShow = true
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
+    console.log('tab name:', props.tab)
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type }
+      params: { id: row.id, type: type, tab: props.tab }
     })
   } else {
     console.log(type)

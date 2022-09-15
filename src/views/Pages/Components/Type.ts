@@ -14,6 +14,7 @@ interface Tab {
   api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
   params?: string
+  delApi: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
 

@@ -963,12 +963,17 @@ export default {
     checkNameLength: 'Không được nhập quá 50 ký tự',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại',
+    enterOrSelectCustomerName: 'Nhập hoặc chọn tên khách hàng',
+    enterPhoneNumber: 'Vui lòng nhập số điện thoại',
+    enterEmail: 'Vui lòng nhập email',
+    socialNetwork: 'Facebook/zalo...',
     //notification
     exit: 'Thoát',
     deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
     inputOrigin: 'Nhập tên xuất xứ',
-    updateFail: 'Sửa thất bại'
+    updateFail: 'Sửa thất bại',
+    cantGetData: 'Không thể lấy dữ lỉệu'
   }
 }

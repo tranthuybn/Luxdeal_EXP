@@ -14,7 +14,6 @@ export const productCategories = [
 
   {
     field: 'index',
-    type: 'index',
     label: t('reuse.position'),
     minWidth: '150',
     align: 'right',
@@ -47,7 +46,6 @@ export const colorCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    type: 'index',
     align: 'center',
     sortable: true
   },
@@ -86,8 +84,7 @@ export const sizeCategories = [
     label: t('reuse.position'),
     minWidth: '150',
     align: 'center',
-    sortable: true,
-    type: 'index'
+    sortable: true
   },
   {
     field: 'createdAt',
@@ -124,8 +121,7 @@ export const materialCategories = [
     label: t('reuse.position'),
     minWidth: '150',
     align: 'center',
-    sortable: true,
-    type: 'index'
+    sortable: true
   },
   {
     field: 'createdAt',
@@ -162,8 +158,7 @@ export const statusCategories = [
     label: t('reuse.position'),
     minWidth: '150',
     align: 'center',
-    sortable: true,
-    type: 'index'
+    sortable: true
   },
   {
     field: 'createdAt',
@@ -200,8 +195,7 @@ export const genderCategories = [
     label: t('reuse.position'),
     minWidth: '150',
     align: 'center',
-    sortable: true,
-    type: 'index'
+    sortable: true
   },
   {
     field: 'createdAt',
@@ -236,7 +230,6 @@ export const unitCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    type: 'index',
     align: 'right',
     sortable: true
   },
@@ -272,7 +265,6 @@ export const brandCategories = [
   {
     field: 'position',
     label: t('reuse.position'),
-    type: 'index',
     minWidth: '150',
     align: 'center',
     sortable: true,

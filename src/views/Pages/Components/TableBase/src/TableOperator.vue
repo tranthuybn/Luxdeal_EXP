@@ -273,9 +273,9 @@ const delAction = async () => {
               }),
             go(-1)
           )
-          .catch((error) =>
+          .catch(() =>
             ElNotification({
-              message: error,
+              message: t('reuse.deleteFail'),
               type: 'warning'
             })
           )

@@ -967,6 +967,7 @@ export default {
     deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
-    inputOrigin: 'Nhập tên xuất xứ'
+    inputOrigin: 'Nhập tên xuất xứ',
+    updateFail: 'Sửa thất bại'
   }
 }

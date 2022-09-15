@@ -906,6 +906,7 @@ export default {
     deleteWarning: 'Are you sure want to delete ?',
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
-    inputOrigin: 'Input name of origin'
+    inputOrigin: 'Input name of origin',
+    updateFail: 'Update Fail'
   }
 }

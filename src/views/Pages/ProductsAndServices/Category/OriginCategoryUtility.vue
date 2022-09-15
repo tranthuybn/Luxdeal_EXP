@@ -268,9 +268,9 @@ const editData = async (data) => {
         type: 'success'
       })
     )
-    .catch((error) =>
+    .catch(() =>
       ElNotification({
-        message: error,
+        message: t('reuse.updateFail'),
         type: 'warning'
       })
     )

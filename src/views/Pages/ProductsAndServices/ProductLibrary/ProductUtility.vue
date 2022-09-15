@@ -176,8 +176,7 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3,
-    hasImage: false,
-    customOperatorChilden: false
+    hasImage: false
   }
 ]
 //lay du lieu tu router

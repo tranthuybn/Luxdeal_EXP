@@ -21,7 +21,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field14',
+    field: 'chooseRankCategory',
     label: t('reuse.chooseRankCategory'),
     component: 'Select',
     componentProps: {
@@ -56,7 +56,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameRank1Category'),
+    label: t('formDemo.brandName'),
     component: 'Input',
     colProps: {
       span: 13
@@ -76,7 +76,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'isActive',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -87,15 +87,15 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.active'),
-          value: '1'
+          value: 'active'
         },
         {
           label: t('reuse.stopShowAppWeb'),
-          value: '2'
+          value: 'hide'
         },
         {
           label: t('reuse.stopActive'),
-          value: '3'
+          value: 'hideApp'
         }
       ]
     }
@@ -159,6 +159,11 @@ const postData = async (data) => {
     data.isHide = true
   } else {
     data.isHide = false
+  }
+  if (data.status[2] === 'hideApp') {
+    data.isHideApp = true
+  } else {
+    data.isHideApp = false
   }
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[7].key, ...data })
     .then(() =>

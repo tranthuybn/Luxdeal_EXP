@@ -19,13 +19,12 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
-
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'generalInformation',
-    label: t('formDemo.generalInformation'),
+    field: 'orderInformation',
+    label: t('formDemo.orderInformation'),
     component: 'Divider',
     colProps: {
       span: 12
@@ -115,11 +114,12 @@ const handleDownload = (file: UploadFile) => {
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
-    name: 'orderInformation',
-    title: t('formDemo.orderInformation'),
+    name: 'generalInformation',
+    title: t('formDemo.generalInformation'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -294,7 +294,7 @@ const activeName = ref('1')
       <el-collapse-item name="1">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center">{{ collapse[0].title }}</span>
+          <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
@@ -501,7 +501,7 @@ const activeName = ref('1')
       <el-collapse-item name="2">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
-          <span class="text-center">{{ collapse[1].title }}</span>
+          <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.ListOfProductsForSale') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
@@ -556,8 +556,8 @@ const activeName = ref('1')
           <el-table-column width="90" />
           <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
-            <div class="text-blue-500">{{ t('formDemo.doesNotIncludeVAT') }} </div>
-            <div class="text-blue-500">+ {{ t('formDemo.choosePromotion') }}</div>
+            <div class="text-blue-500 cursor-pointer">{{ t('formDemo.doesNotIncludeVAT') }} </div>
+            <div class="text-blue-500 cursor-pointer">+ {{ t('formDemo.choosePromotion') }}</div>
             <div class="dark:text-[#fff]">Tổng tiền</div>
           </el-table-column>
           <el-table-column align="right" width="180">
@@ -635,7 +635,7 @@ const activeName = ref('1')
       <el-collapse-item name="3">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
-          <span class="text-center">{{ collapse[2].title }}</span>
+          <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
         <div>
           <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
@@ -733,5 +733,9 @@ const activeName = ref('1')
 
 ::v-deep(.cell) {
   color: #303133;
+}
+
+::v-deep(.el-divider__text) {
+  font-size: 16px;
 }
 </style>

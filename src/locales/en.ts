@@ -181,7 +181,8 @@ export default {
     statusAndManipulation: 'Status and manipulation',
     temporaryStorage: 'Temporary storage',
     productImportHistory: 'Product import history',
-    orderReceiptsGoods: 'Order receipts goods'
+    orderReceiptsGoods: 'Order receipts goods',
+    brandName: 'Brand name'
   },
   button: {
     add: 'Add quick'

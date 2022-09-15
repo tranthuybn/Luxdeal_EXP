@@ -181,7 +181,8 @@ export default {
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hàng',
-    orderReceiptsGoods: 'Đơn nhập hàng'
+    orderReceiptsGoods: 'Đơn nhập hàng',
+    brandName: 'Tên Thương hiệu'
   },
   button: {
     add: 'Thêm nhanh'

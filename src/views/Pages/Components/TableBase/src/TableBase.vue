@@ -22,7 +22,7 @@ import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
-const params: any = inject('parameters', {})
+const { params }: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
@@ -87,7 +87,7 @@ const { register, tableObject, methods } = useTable<TableData>({
 })
 // get api
 const getData = (data = {}) => {
-  methods.setSearchParams({ ...params.params, ...data })
+  methods.setSearchParams({ ...unref(params), ...data })
 }
 onBeforeMount(() => {
   getData()

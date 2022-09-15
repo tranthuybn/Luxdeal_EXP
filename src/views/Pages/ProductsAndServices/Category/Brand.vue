@@ -4,7 +4,7 @@ import { brandCategories } from './CategoryManagement'
 import TableType01 from '../../Components/TableDataBase.vue'
 import { provide } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-const params = { TypeName: PRODUCTS_AND_SERVICES[8].key }
+const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
 provide('parameters', {
   params
 })

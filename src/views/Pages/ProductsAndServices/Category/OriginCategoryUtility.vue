@@ -14,7 +14,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { ElNotification } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
-const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -141,7 +141,6 @@ const rules = reactive({
   name: [
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
-    { validator: notSpace },
     required()
   ],
   parentid: [required()],

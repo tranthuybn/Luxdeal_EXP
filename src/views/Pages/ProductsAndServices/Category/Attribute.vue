@@ -10,46 +10,56 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
+import { provide, reactive } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+let params = reactive({ TypeName: 'mausac' })
+provide('parameters', {
+  params
+})
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
-    name: 'colorCategories',
+    name: PRODUCTS_AND_SERVICES[1].key,
     label: t('reuse.color'),
     api: getColorCategories,
     column: colorCategories,
     params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
-    name: 'sizeCategories',
+    name: PRODUCTS_AND_SERVICES[2].key,
     label: t('reuse.size'),
     api: getSizeCategories,
     column: sizeCategories,
     params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
-    name: 'materialCategories',
+    name: PRODUCTS_AND_SERVICES[3].key,
     label: t('reuse.material'),
     api: getMaterialCategories,
     column: materialCategories,
     params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
-    name: 'statusCategories',
+    name: PRODUCTS_AND_SERVICES[4].key,
     label: t('reuse.status'),
     api: getStatusCategories,
     column: statusCategories,
     params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
-    name: 'genderCategories',
+    name: PRODUCTS_AND_SERVICES[5].key,
     label: t('reuse.gender'),
     api: getGenderCategories,
     column: genderCategories,
     params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   }
 ]
+
+const changeParam = (val = '') => {
+  if (val.length > 0) params.TypeName = val
+  provide('parameters', {
+    params
+  })
+}
 </script>
-<template>
-  <productCategoryTable :tabs="tabs" />
-</template>
+<template> <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" /></template>

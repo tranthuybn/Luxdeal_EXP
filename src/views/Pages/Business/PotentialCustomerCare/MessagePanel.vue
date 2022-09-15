@@ -3,7 +3,7 @@
   <el-card class="h-full">
     <div class="flex message-box__header items-center justify-between h-1/10 px-4">
       <div class="flex message-box__customer items-center">
-        <img :src="defaultImg" alt="..." width="45" height="45" />
+        <img :src="defaultImg" alt="..." width="50" height="50" />
         <span class="pl-2">{{ user.Name ? user.Name : user.UserName }}</span>
       </div>
       <div class="flex items-center w-1/4">
@@ -28,7 +28,9 @@
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
     <section class="h-650px">
-      <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-1">
+      <ul
+        class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent"
+      >
         <li
           class="content-message dark:bg-[var(--el-bg-color)]"
           v-for="(mess, index) in messageStreamContent"
@@ -38,135 +40,48 @@
             <div class="media">
               <div class="media-body ml-0">
                 <section v-if="typeof mess.content === 'object'">
-                  <!-- Tư vấn bán hàng -->
-                  <div class="product-link" v-if="mess.type === TYPE_OF_MESSAGE_SELECTED">
-                    <div class="product-link__header">
-                      <div class="media">
-                        <img class="product-link__img" :src="mess.content.imageUrl" alt="..." />
-                        <div class="media-body">
-                          <div class="product-link__name">{{ mess.content.name }}</div>
-                          <div class="product-link__font">{{
-                            mess.content.productPropertyAttribute
-                          }}</div>
-                          <div class="product-link__font"
-                            >{{ formatPrice(mess.content.price) }} <img :src="dIcon" alt="..."
-                          /></div>
-                        </div>
+                  <el-card class="w-1/3 h-250px m-auto">
+                    <div class="flex border-bottom-1">
+                      <div class="basis-1/2"
+                        ><img :src="mess.content.productImagePath" class="w-full" />
                       </div>
-                    </div>
-                    <div class="product-link__footer">
-                      <div class="product-link__price"
-                        >Đang trả giá: {{ formatPrice(message.content.dealPrice) }}đ</div
+                      <div class="pl-4">
+                        <div class="font-bold">{{ mess.content.productBrand }}</div>
+                        <div>{{ mess.content.productName }}</div>
+                        <div>{{ formatMoneyInput(mess.content.totalMoney) }}đ</div>
+                      </div> </div
+                    ><div class="flex flex-col"
+                      ><div class="my-2 font-bold text-center"
+                        >{{ t('reuse.negotiationPrice') }}
+                        {{ formatMoneyInput(mess.content.currentInterestMoney) }}đ</div
                       >
-                      <div
-                        class="product-link__cancel"
-                        v-if="
-                          message.content.isActive === false && message.content.isAccept !== true
-                        "
-                        >Đã huỷ !</div
-                      >
-                      <div class="product-link__done" v-if="message.content.isAccept"
-                        >Đồng ý bán !</div
-                      >
-                      <div
-                        class="flex-item"
-                        v-if="
-                          message.content.isAccept === false && message.content.isActive === true
-                        "
-                      >
-                        <el-button @click="cancelProduct(message.content.id)">Hủy</el-button>
-                        <el-button @click="agreeToSell(message.content.id)">Đồng ý bán</el-button>
+                      <div v-if="mess.content.orderStatus == 3" class="flex justify-center">
+                        <el-button class="w-full !font-bold" @click="documentAction(0)">{{
+                          t('reuse.cancel')
+                        }}</el-button>
+                        <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"
+                          ><span class="text-white">{{ t('reuse.agreeToSell') }}</span></el-button
+                        >
+                      </div>
+                      <div v-if="mess.content.orderStatus == 2" class="font-bold text-red-500">
+                        {{ t('reuse.cancelled') }}!
+                      </div>
+                      <div v-if="mess.content.orderStatus == 1" class="font-bold">
+                        {{ t('reuse.agreeToSell') }}!
                       </div>
                     </div>
-                  </div>
-                  <!-- Tư vấn thế chấp -->
-                  <div class="contract" v-else-if="message.type === TYPE_OF_MESSAGE_DEPOSIT">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ message.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Đã bán
-                        <span
-                          >{{ formatPrice(message.content.sellPrice) }} <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Phí ký gửi
-                        <span
-                          >{{ formatPrice(message.content.feeMoney) }} <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Tư ván cho thuê -->
-                  <div class="contract" v-else-if="message.type === TYPE_OF_MESSAGE_LEASE">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ message.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Đã nhận cọc
-                        <span
-                          >{{ formatPrice(message.content.depositPaidMoney) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Dư nợ phí thuê
-                        <span
-                          >{{ formatPrice(message.content.duNoPhiThueQuaHan) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Tư vấn ký gửi -->
-                  <div class="contract" v-else-if="message.type === TYPE_OF_MESSAGE_PAWN">
-                    <div class="contract__header">
-                      <div class="contract__name">
-                        Mã hợp Đồng
-                        <span>{{ message.content.orderCode }}</span>
-                      </div>
-                      <div class="contract__view">Chi tiết <i class="el-icon-arrow-right"></i></div>
-                    </div>
-                    <div class="contract__footer">
-                      <div class="contract__item">
-                        Dư nợ gốc
-                        <span
-                          >{{ formatPrice(message.content.debtTotalMoney) }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                      <div class="contract__item">
-                        Dư nợ phí thế chấp
-                        <span
-                          >{{
-                            formatPrice(
-                              message.content.currentInterestMoney,
-                              '+',
-                              message.content.currentWarrantyMoney
-                            )
-                          }}
-                          <img :src="dIcon" alt="..."
-                        /></span>
-                      </div>
-                    </div>
-                  </div>
+                  </el-card>
                 </section>
                 <section
-                  class="friend-send__message !ml-4"
+                  class="!ml-4"
                   v-else-if="typeof mess.content === 'string' && mess.content !== ''"
                 >
-                  {{ mess.content }}
+                  <div class="flex message-box__customer items-center">
+                    <img :src="defaultImg" alt="..." width="35" height="35" />
+                    <span class="pl-2 text-black">{{ user.Name ? user.Name : user.UserName }}</span>
+                  </div>
+                  <div class="friend-send__message ml-11 rounded-10px">{{ mess.content }}</div>
+                  <div class="ml-11 text-xs text-[#949494] pt-1 pb-2">20/10/2021</div>
                 </section>
                 <section class="content-message__time" v-else-if="mess.content !== ''">
                   {{ moment(mess.createdDate).format('HH:mm A') }}
@@ -175,12 +90,17 @@
             </div>
           </section>
           <section class="you-send" v-if="mess.user === 'admin'">
-            <div class="you-send__message">
+            <section v-if="typeof mess.content === 'object'" class="rounded-10px">
               {{ mess.content }}
-            </div>
-            <div class="content-message__time">
-              {{ moment(mess.createdDate).format('HH:mm A') }}
-            </div>
+            </section>
+            <section v-else>
+              <div class="you-send__message">
+                {{ mess.content }}
+              </div>
+              <div class="content-message__time text-xs text-[#949494] pb-2">
+                {{ moment(mess.createdDate).format('HH:mm A') }}
+              </div></section
+            >
           </section>
           <!-- deal here -->
         </li>
@@ -201,26 +121,30 @@
             v-model="messageInputForm.chatContent"
             @keyup.enter.native="onSubmit"
           />
-          <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-4" />
+          <el-button
+            :icon="sendIcon"
+            @click="onSubmit"
+            class="absolute right-1 !text-blue-500 biggerIcon"
+          />
         </el-form-item>
       </el-form>
       <div class="flex flex-nowrap justify-around gap-2">
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <Icon icon="carbon:face-satisfied" :size="24" />
-            {{ t('reuse.status') }}
+            <Icon icon="carbon:face-satisfied" :size="27" />
+            <small>{{ t('reuse.status') }}</small>
           </div>
         </el-upload>
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <Icon icon="ic:outline-image" :size="24" />
-            {{ t('reuse.library') }}
+            <Icon icon="ic:outline-image" :size="27" />
+            <small>{{ t('reuse.library') }}</small>
           </div>
         </el-upload>
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
           <div size="small" class="message-box__icon">
-            <Icon icon="ion:document-text" :size="24" />
-            {{ t('reuse.contract') }}
+            <Icon icon="ion:document-text-outline" :size="27" />
+            <small>{{ t('reuse.contract') }}</small>
           </div>
         </el-upload>
       </div>
@@ -246,6 +170,7 @@ import {
   PAGE_SIZE_ARRAY
 } from '@/utils/chatConstants'
 import { useIcon } from '@/hooks/web/useIcon'
+import { formatMoneyInput } from '@/utils/format.ts'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 const sendIcon = useIcon({ icon: 'mdi:send' })
@@ -481,16 +406,23 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/chat.scss';
+.biggerIcon :deep(.el-icon) span {
+  font-size: 24px !important;
+}
 .ml-0 {
   margin-left: 0 !important;
 }
 ul {
+  padding: 1rem;
   list-style: none;
-}
-.message-box__body {
-  box-shadow: inset 0px 0px 5px rgba(129, 168, 244, 0.6);
 }
 .h-680px :deep(.el-card__body) {
   height: 100%;
+}
+.h-45px :deep(.el-input__wrapper) {
+  padding-left: 1rem;
+}
+.h-250px :deep(.el-card__body) {
+  padding: 1rem !important;
 }
 </style>

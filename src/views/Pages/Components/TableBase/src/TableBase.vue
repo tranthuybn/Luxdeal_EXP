@@ -10,6 +10,8 @@ import {
   ElDrawer,
   ElCheckboxGroup,
   ElCheckboxButton,
+  ElNotification,
+  ElMessageBox,
   ElSwitch
 } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
@@ -19,14 +21,19 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
+import { API_URL } from '@/utils/API_URL'
 //provide from main component
-const params: any = inject('parameters', {})
+const { params }: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  delApi: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
@@ -63,6 +70,10 @@ const props = defineProps({
   titleButtons: {
     type: String,
     default: ''
+  },
+  deleteTitle: {
+    type: String,
+    default: 'Warning'
   }
 })
 
@@ -81,7 +92,7 @@ const { register, tableObject, methods } = useTable<TableData>({
 })
 // get api
 const getData = (data = {}) => {
-  methods.setSearchParams({ ...params.params, ...data })
+  methods.setSearchParams({ ...unref(params), ...data })
 }
 onBeforeMount(() => {
   getData()
@@ -166,7 +177,47 @@ const action = (row: TableData, type: string) => {
 }
 
 const delData = async (row: TableData | null, multiple: boolean) => {
-  console.log('row', row, 'multiple', multiple)
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
+    })
+      .then(async () => {
+        console.log('row', row, multiple)
+        if (row !== null && row.children.length == 0) {
+          const res = await props
+            .delApi({ Id: row.id })
+            .then(() =>
+              ElNotification({
+                message: t('reuse.deleteSuccess'),
+                type: 'success'
+              })
+            )
+            .catch((error) =>
+              ElNotification({
+                message: error,
+                type: 'warning'
+              })
+            )
+          if (res) {
+            getData()
+          }
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
 }
 
 //get array of headerFilter in column (if there is a headerFilter)
@@ -237,9 +288,9 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.image" />
+            <el-image style="height: 100px" :src="`${API_URL}${data.row.imageurl}`" />
           </div>
-          <div>{{ data.row.title }}</div>
+          <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">

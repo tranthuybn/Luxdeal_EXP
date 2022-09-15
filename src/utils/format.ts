@@ -14,9 +14,10 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   return ''
 }
 export const productStatusTransferToText = (val) => {
-  if (val) return `${t('reuse.show')}`
-  return `${t('reuse.notShow')}`
+  if (val) return `${t('reuse.active')}`
+  return `${t('reuse.inactive')}`
 }
+
 export const dateTimeFormat = (val) => {
   return moment(val).format('l')
 }
@@ -38,8 +39,13 @@ export const objectToQueryParams = (params) => {
   }
   return requestString
 }
-
+export const FORM_DATA = (object) => {
+  const formData = new FormData()
+  Object.keys(object).forEach((key) => formData.append(key, object[key]))
+  return formData
+}
 export default {
+  FORM_DATA,
   objectToQueryParams,
   formatMoneyInput,
   formatDateTime,

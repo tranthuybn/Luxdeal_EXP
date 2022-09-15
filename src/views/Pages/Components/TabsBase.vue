@@ -20,6 +20,7 @@ const props = defineProps({
     default: 'Base'
   }
 })
+const emit = defineEmits(['tabChangeEvent'])
 // declare
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
@@ -46,7 +47,7 @@ onBeforeMount(() => {
     currentTab.value = theFirstTab.name
   }
 })
-
+emit('tabChangeEvent', currentTab.value)
 const tabChangeEvent = (name) => {
   currentTab.value = name
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
@@ -55,6 +56,7 @@ const tabChangeEvent = (name) => {
     dynamicApi.value = tab?.api ?? undefined
     addOperatorColumn(dynamicColumns.value)
   }
+  emit('tabChangeEvent', name)
 }
 
 const { push } = useRouter()

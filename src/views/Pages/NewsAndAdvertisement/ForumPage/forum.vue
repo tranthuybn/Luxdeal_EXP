@@ -25,12 +25,12 @@ const changeStyleButton = (index) => {
 </script>
 
 <template>
-  <el-row type="flex" justify="space-between" class="forum-container dark:bg-[var(--el-bg-color)]">
+  <el-row type="flex" justify="center" class="forum-container dark:!bg-[var(--el-bg-color)]">
     <el-divider content-position="left">
       {{ t('reuse.forumManagementNewFeed') }}
     </el-divider>
-    <el-col :span="6" class="sticky">
-      <div class="h-full border-right-1 pl-8 pr-8">
+    <el-col :span="5" class="sticky">
+      <div class="h-full border-right-1 px-3">
         <div class="flex bg-primary bg-opacity-10 rounded-2 p-2">
           <div class="w-25 h-67-px">
             <img
@@ -40,51 +40,49 @@ const changeStyleButton = (index) => {
             />
           </div>
           <div class="ps-2 w-75">
-            <div class="fs-6 font-bold pt-2 font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
+            <div class="fs-6 font-bold font-bold"> Hội tín đồ hàng hiệu Việt Nam </div>
             <div class="flex">
               <img :src="social" alt="" />
               <span class="font-bold">(Authonly Luxury)</span>
             </div>
           </div>
         </div>
-        <el-button class="w-full py-3 mt-lg-5 rounded-5px !h-45px">
+        <el-button class="w-full py-3 mt-lg-5 !rounded-5px !h-45px">
           {{ t('reuse.addNew') }} +
         </el-button>
-        <div class="menu-list-item my-2">
-          <el-divider class="!mt-4 !mb-4" />
+        <div class="menu-list-item py-2 my-2 border-y-1 border-[#B1B1B1] border-solid">
           <el-button
-            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
-            :class="activeButton[0].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            class="styleButton dark:!text-white"
+            :class="activeButton[0].active ? '!bg-blue-600 !text-white' : '!text-black'"
             @click="changeStyleButton(0)"
-            ><b class="">{{ t('reuse.homepage') }}</b>
+            ><b class="styleFont">{{ t('reuse.homepage') }}</b>
           </el-button>
-          <el-divider class="!mt-4 !mb-4" />
         </div>
         <div class="menu-list-item my-2">
           <el-button
-            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
-            :class="activeButton[1].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            class="styleButton dark:!text-white"
+            :class="activeButton[1].active ? '!bg-blue-500 !text-white' : '!text-black'"
             @click="changeStyleButton(1)"
           >
-            <b class="ps-lg-5">{{ t('reuse.employeeManagement') }}</b>
+            <b class="styleFont">{{ t('reuse.employeeManagement') }}</b>
           </el-button>
         </div>
         <div class="menu-list-item my-2">
           <el-button
-            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
-            :class="activeButton[2].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            class="styleButton dark:!text-white"
+            :class="activeButton[2].active ? '!bg-blue-800 !text-white' : '!text-black'"
             @click="changeStyleButton(2)"
           >
-            <b class="ps-lg-5">{{ t('reuse.systemManagement') }}</b>
+            <b class="styleFont">{{ t('reuse.systemManagement') }}</b>
           </el-button>
         </div>
         <div class="menu-list-item my-2">
           <el-button
-            class="!justify-start w-full !pl-1em !h-45px rounded-5px"
-            :class="activeButton[3].active ? '!bg-blue-800 !text-white' : 'text-red'"
+            class="styleButton dark:!text-white"
+            :class="activeButton[3].active ? '!bg-blue-800 !text-white' : '!text-black'"
             @click="changeStyleButton(3)"
           >
-            <b class="ps-lg-5">{{ t('reuse.forumSetting') }}</b>
+            <b class="styleFont">{{ t('reuse.forumSetting') }}</b>
           </el-button>
         </div>
       </div>
@@ -99,10 +97,17 @@ const changeStyleButton = (index) => {
 </template>
 <style lang="scss" scoped>
 .menu-list-item {
+  color: black;
   text-align: left;
   vertical-align: middle;
 }
+.styleFont {
+  padding-left: 1rem;
+  font-size: 15px;
+  font-weight: 700;
+}
 .forum-container {
+  background-color: white;
   width: 100%;
   height: 100%;
   background-color: none;
@@ -110,8 +115,21 @@ const changeStyleButton = (index) => {
 }
 .main-content-column {
   height: 93%;
-  overflow-y: scroll;
-  overflow-x: auto;
+  overflow: auto;
+}
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #c8ccd4;
+  border-radius: 10px;
 }
 .h-67-px {
   height: 67px;
@@ -259,5 +277,12 @@ const changeStyleButton = (index) => {
 :deep(.el-divider__text) {
   font-size: 18px;
   font-weight: 700;
+}
+.styleButton {
+  width: 100%;
+  justify-content: flex-start;
+  height: 45px;
+  border: none;
+  background: none;
 }
 </style>

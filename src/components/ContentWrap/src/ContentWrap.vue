@@ -23,7 +23,11 @@ const props = defineProps({
     <template v-if="props.title" #header>
       <div class="flex items-center">
         <ElTooltip effect="dark" placement="right">
+<<<<<<< HEAD
           <div class="max-w-200px">{{ props.message }}</div>
+=======
+          <div class="max-w-250px font-medium">{{ props.message }}</div>
+>>>>>>> e1ea285dc9b494da7f3622b26d8e89b8dae64927
         </ElTooltip>
       </div>
     </template>

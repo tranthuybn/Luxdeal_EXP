@@ -11,20 +11,27 @@ import {
   ElDialog,
   UploadUserFile,
   UploadProps,
-  ElMessage
+  ElMessage,
+  ElMessageBox,
+  ElNotification,
+  ElImage
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { saveTableApi } from '@/api/table'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
-import { apiType, TableResponse } from '../../Type'
+import { TableResponse } from '../../Type'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
 const props = defineProps({
-  api: {
-    type: Function as PropType<apiType>,
+  apiId: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  delApi: {
+    type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
   currentRow: {
@@ -47,9 +54,9 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  nameBack: {
+  deleteTitle: {
     type: String,
-    default: ''
+    default: 'Warning'
   },
   id: {
     type: Number,
@@ -74,15 +81,29 @@ const props = defineProps({
   limitUpload: {
     type: Number,
     default: 1
+  },
+  params: {
+    type: Object,
+    default: () => {}
+  },
+  formDataCustomize: {
+    type: Object,
+    default: () => {}
   }
 })
-const emit = defineEmits(['post-data'])
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+
+//get data from table
 const getTableValue = async () => {
-  if (props.id !== NaN) {
-    const res = await props.api({ id: props.id })
-    formValue.value = res.data.list[0]
-    setFormValue()
+  if (!isNaN(props.id)) {
+    const res = await props.apiId({ ...props.params, id: props.id })
+    if (res.data.list !== undefined) {
+      formValue.value = res.data.list[0]
+    } else {
+      formValue.value = res.data
+    }
+    await setFormValue()
   }
 }
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -92,7 +113,7 @@ const { register, methods, elFormRef } = useForm({
 })
 let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
-
+const { setValues } = methods
 watch(
   () => props.currentRow,
   (currentRow) => {
@@ -100,7 +121,6 @@ watch(
       return
     }
     if (currentRow.list.length !== 0) {
-      const { setValues } = methods
       setValues(currentRow?.list[0])
       fileList.value.push({
         url: currentRow.list[0].image,
@@ -113,14 +133,33 @@ watch(
     immediate: true
   }
 )
-const setFormValue = () => {
+const customizeData = async () => {
+  await emit('customize-form-data', formValue.value)
+}
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
+const imageUrl = ref('')
+//set data for form edit and detail
+const setFormValue = async () => {
+  //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
   const { setValues } = methods
-  setValues(formValue.value)
+  if (props.formDataCustomize !== undefined) {
+    setValues(props.formDataCustomize)
+    if (!props.multipleImages) {
+      imageUrl.value = props.formDataCustomize.imageurl
+    }
+    console.log('img', imageUrl.value)
+  } else {
+    setValues(formValue.value)
+  }
   fileList.value.push({
     url: formValue.value.image,
     name: formValue.value.title
   })
 }
+//watch and call get data form detail and edit
 watch(
   () => props.type,
   () => {
@@ -146,20 +185,30 @@ defineExpose({
 
 const loading = ref(false)
 
-const save = async () => {
+//doc du lieu tu bang roi emit len goi API
+const { go } = useRouter()
+const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     if (isValid) {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
-      const formData = Object.assign(data, fileList.value)
-      const res = await saveTableApi(data)
-        .catch(() => {})
-        .finally(() => {
-          loading.value = false
-        })
-      if (res) {
-        emit('post-data', formData)
+      props.multipleImages ? (data.Image = fileList.value) : (data.Image = rawUploadFile.value?.raw)
+      console.log('image:', data.Image)
+      if (type == 'add') {
+        await emit('post-data', data)
+        loading.value = false
+        go(-1)
+      }
+      if (type == 'saveAndAdd') {
+        await emit('post-data', data)
+        unref(elFormRef)!.resetFields()
+        loading.value = false
+      }
+      if (type == 'edit') {
+        await emit('edit-data', data)
+        loading.value = false
+        go(-1)
       }
     }
   })
@@ -170,16 +219,14 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 //if schema has image then split screen
 let fullSpan = ref<number>()
+let rawUploadFile = ref<UploadFile>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-const imageUrl = ref('')
+
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
 }
@@ -199,18 +246,50 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
-
-const saveAndAdd = () => {
-  console.log('saveAndAdd')
-}
+const { push } = useRouter()
+const router = useRouter()
 const edit = () => {
-  console.log('edit')
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: { id: props.id, type: 'edit' }
+  })
 }
-const delAction = () => {
-  console.log('del')
+const delAction = async () => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
+    })
+      .then(() => {
+        props
+          .delApi({ Id: props.id })
+          .then(
+            () =>
+              ElNotification({
+                message: t('reuse.deleteSuccess'),
+                type: 'success'
+              }),
+            go(-1)
+          )
+          .catch(() =>
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'warning'
+            })
+          )
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
 }
 const cancel = () => {
-  console.log('cancel')
+  go(-1)
 }
 const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
   console.log('success', response, uploadFile)
@@ -220,6 +299,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
     const file = fileList.value.pop()
     if (file != undefined) {
+      rawUploadFile.value = uploadFile
       imageUrl.value = URL.createObjectURL(file.raw!)
     }
   }
@@ -235,7 +315,6 @@ type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
-
 <template>
   <ContentWrap :title="t(`${title}`)">
     <ElRow :gutter="20" justify="space-between">
@@ -262,7 +341,7 @@ const listType = ref<ListImages>('text')
         >
           <div v-if="!multipleImages">
             <div v-if="imageUrl" class="relative">
-              <img :src="imageUrl" class="avatar" />
+              <el-image :src="imageUrl" class="avatar" />
             </div>
             <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
           </div>
@@ -297,12 +376,12 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under>
-      <div v-if="props.type === 'add'">
+      <div v-if="props.type === 'add' || isNaN(props.id)">
         <div v-if="props.typeButton === 'form01'">
-          <ElButton type="primary" :loading="loading" @click="save">
+          <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
             {{ t('reuse.addNew') }}
           </ElButton>
         </div>
@@ -311,10 +390,10 @@ const listType = ref<ListImages>('text')
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" :loading="loading" @click="saveAndAdd">
+        <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
       </div>
@@ -327,7 +406,7 @@ const listType = ref<ListImages>('text')
         </ElButton>
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save">
+        <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton :loading="loading" @click="cancel">

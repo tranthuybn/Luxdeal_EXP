@@ -142,7 +142,7 @@ export default {
     discountVoucher: 'Giảm 50% giá trị đơn hàng',
     attachments: 'Hồ sơ đính kèm',
     addPhotosOrFiles: 'Thêm ảnh hoặc file',
-    productAndPayment: 'Sản phẩm và thanh toán',
+    productAndPayment: 'Sản phẩm & thanh toán',
     paymentAndDelivery: 'Thanh toán và giao hàng',
     choosePayment: 'Chọn thanh toán',
     chooseShipping: 'Chọn giao vận',
@@ -935,6 +935,14 @@ export default {
     nameStorage: 'Tên kho',
     //filter status product
     show: 'Hiển thị',
-    notShow: 'Ẩn'
+    notShow: 'Ẩn',
+    dateEditCreate: 'Ngày tạo/sửa',
+    nameRank2Category: 'Tên danh mục cấp 2',
+    //them sua xoa
+    addSuccess: 'Thêm thành công',
+    updateSuccess: 'Sửa thành công',
+    deleteSuccess: 'Xóa thành công',
+    deleteCancel: 'Hủy xóa',
+    deleteFail: 'Xóa thất bại'
   }
 }

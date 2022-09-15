@@ -15,10 +15,10 @@ import {
   ElInput
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-// import { useIcon } from '@/hooks/web/useIcon'
+import { useIcon } from '@/hooks/web/useIcon'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
-// import { Collapse } from '../../Components/Type'
+import { Collapse } from '../../Components/Type'
 
 const { t } = useI18n()
 
@@ -94,13 +94,6 @@ const newList = reactive<FormSchema[]>([
   }
 ])
 
-const activeName = ref('orderInformation')
-const handleChange = (val: string[]) => {
-  console.log(val)
-}
-
-const titleName = t('formDemo.productAndPayment')
-
 const { register } = useForm()
 
 const dialogImageUrl = ref('')
@@ -120,34 +113,64 @@ const handleDownload = (file: UploadFile) => {
   console.log(file)
 }
 
-// const plusIcon = useIcon({ icon: 'akar-icons:plus' })
-// const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-
-// const newSchema = reactive<FormSchema[]>([
-//   {
-//     field: 'paymenAndDelivery',
-//     label: t('formDemo.paymenAndDelivery'),
-//     component: 'Divider'
-//   },
-//   {
-//     field: 'choosePayment',
-//     component: 'Select'
-//   },
-//   {
-//     field: 'chooseShipping',
-//     component: 'Select'
-//   },
-//   {
-//     field: 'orderStatus',
-//     component: 'Input',
-//     value: []
-//   },
-//   {
-//     field: 'buttons',
-//     component: 'Input',
-//     value: []
-//   }
-// ])
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
+const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const collapse: Array<Collapse> = [
+  {
+    icon: minusIcon,
+    name: 'orderInformation',
+    title: t('formDemo.orderInformation'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  },
+  {
+    icon: plusIcon,
+    name: 'productAndPayment',
+    title: t('formDemo.productAndPayment'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  },
+  {
+    icon: plusIcon,
+    name: 'productImportHistory',
+    title: t('formDemo.productImportHistory'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  }
+]
 
 const value = ref('')
 const value2 = ref('')
@@ -251,35 +274,28 @@ const historyTable = [
   }
 ]
 
-// const props = defineProps({
-//   collapse: {
-//     type: Array<Collapse>,
-//     default: () => []
-//   },
-//   default: {
-//     type: String,
-//     default: ''
-//   }
-// })
-// let currentCollapse = ref<string>(props.collapse[0].name)
-// const collapseChangeEvent = (val) => {
-//   if (val) {
-//     props.collapse.forEach((el) => {
-//       if (val.includes(el.name)) el.icon = minusIcon
-//       else if (el.icon == minusIcon) el.icon = plusIcon
-//     })
-//   } else
-//     props.collapse.forEach((el) => {
-//       el.icon = plusIcon
-//     })
-// }
+const collapseChangeEvent = (val) => {
+  if (val) {
+    collapse.forEach((el) => {
+      if (val.includes(el.name)) el.icon = minusIcon
+      else if (el.icon == minusIcon) el.icon = plusIcon
+    })
+  } else
+    collapse.forEach((el) => {
+      el.icon = plusIcon
+    })
+}
+const activeName = ref('1')
 </script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
-    <el-collapse v-model="activeName" @change="handleChange">
-      <el-collapse-item :title="`${t('formDemo.orderInformation')}`" name="orderInformation">
-        <!-- <el-button :icon="plusIcon" /> -->
+    <el-collapse v-model="activeName" @change="collapseChangeEvent">
+      <el-collapse-item name="1">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[0].icon" link />
+          <span class="text-center">{{ collapse[0].title }}</span>
+        </template>
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
             <Form
@@ -454,7 +470,9 @@ const historyTable = [
                       t('formDemo.deliveryAddress')
                     }}</p>
                     <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
-                    <p class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</p>
+                    <p class="text-blue-500 cursor-pointer"
+                      >+ {{ t('formDemo.changeTheAddress') }}</p
+                    >
                   </div>
                 </div>
               </template>
@@ -480,7 +498,11 @@ const historyTable = [
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item :title="titleName" name="productList">
+      <el-collapse-item name="2">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[1].icon" link />
+          <span class="text-center">{{ collapse[1].title }}</span>
+        </template>
         <el-divider content-position="left">{{ t('formDemo.ListOfProductsForSale') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
@@ -513,7 +535,7 @@ const historyTable = [
           <el-table-column :label="`${t('formDemo.exportWarehouse')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">Còn hàng</div>
-              <div class="flex-1 text-right text-blue-500"
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
                 >+ {{ t('formDemo.chooseWarehouse') }}</div
               >
             </div>
@@ -610,7 +632,11 @@ const historyTable = [
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item title="Lịch sử nhập hàng" name="history">
+      <el-collapse-item name="3">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[2].icon" link />
+          <span class="text-center">{{ collapse[2].title }}</span>
+        </template>
         <div>
           <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">

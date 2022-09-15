@@ -768,6 +768,7 @@ export default {
     approveCondition: 'Điều kiện duyệt',
     approveOrNot: 'Duyệt(On)/Không duyệt(Off)',
     approvalManagement: 'Quản lý danh mục duyệt',
+    BrowseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
     //banner advertisement
     bannerCode: 'Mã banner',
     linkBanner: 'Link Banner',

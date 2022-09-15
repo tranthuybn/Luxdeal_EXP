@@ -293,6 +293,11 @@ const showingColumn =
           <div>{{ data.row.name }}</div>
         </div>
       </template>
+      <template #customerInfo="data">
+        <div>{{ data.row.name }}</div>
+        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.phonenumber }}</div>
+        <div>Email: {{ data.row.email }}</div>
+      </template>
       <template #image="data">
         <div>
           <el-image style="width: 100px; height: 100px" :src="data.row.image" />

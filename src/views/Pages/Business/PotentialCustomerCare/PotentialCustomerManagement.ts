@@ -31,7 +31,6 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
-      multiple: true,
       placeholder: 'Nhập hoặc chọn tên khách hàng',
       options: [
         {
@@ -107,7 +106,6 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     componentProps: {
       allowCreate: true,
       filterable: true,
-      multiple: true,
       placeholder: 'Offline',
       style: 'width: 100%',
       options: [

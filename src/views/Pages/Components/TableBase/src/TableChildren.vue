@@ -8,6 +8,7 @@ import { apiType, TableResponse } from '../../Type'
 import { ElButton } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { addOperatorColumn, dynamicApi, dynamicColumns } from '../../TablesReusabilityFunction'
+import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 const { t } = useI18n()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()

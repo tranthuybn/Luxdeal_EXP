@@ -5,14 +5,17 @@ import { getPotentialCustomerList } from '@/api/Business'
 import TableDatetimefilterBasic from '../../Components/TableDataBase.vue'
 import {
   filterStatus,
-  filterResultTable,
-  filterStatusTagTable,
   filterService,
   filterSource,
   filterApproaching,
   filterTransactionStatus,
   filterTransaction
 } from '@/utils/filters'
+import {
+  dateTimeFormat,
+  formatPotentialCustomerStatusIdToText,
+  formatServiceIdToText
+} from '@/utils/format'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -33,19 +36,19 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250'
   },
   {
-    field: 'transaction',
+    field: 'historyTransaction',
     label: t('reuse.transaction'),
     minWidth: '200',
     filters: filterTransaction
   },
   {
-    field: 'transactionStatus',
+    field: 'isOnline',
     label: t('reuse.transactionStatus'),
     minWidth: '100',
     filters: filterTransactionStatus
   },
   {
-    field: 'approachingChannel',
+    field: 'accessChannel',
     label: t('reuse.approachingChannel'),
     minWidth: '100',
     filters: filterApproaching
@@ -56,7 +59,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'originated',
+    field: 'source',
     label: t('reuse.originated'),
     minWidth: '100',
     filters: filterSource
@@ -65,7 +68,10 @@ const columns = reactive<TableColumn[]>([
     field: 'service',
     label: t('reuse.service'),
     minWidth: '100',
-    filters: filterService
+    filters: filterService,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatServiceIdToText(cellValue)
+    }
   },
   {
     field: 'serviceDetail',
@@ -73,16 +79,9 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'statusTag',
-    label: t('reuse.statusTag'),
-    minWidth: '150',
-    filters: filterStatusTagTable
-  },
-  {
-    field: 'result',
-    label: t('reuse.result'),
-    minWidth: '150',
-    filters: filterResultTable
+    field: 'potentialCustomerHistory',
+    label: t('reuse.potentialCustomerHistory'),
+    minWidth: '200'
   },
   {
     field: 'order',
@@ -96,23 +95,29 @@ const columns = reactive<TableColumn[]>([
     filters: filterStatus
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'statusId',
     label: t('reuse.status'),
     minWidth: '180',
-    filters: filterStatus
+    filters: filterStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatPotentialCustomerStatusIdToText(cellValue)
+    }
   }
 ])
 </script>

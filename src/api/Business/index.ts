@@ -1,10 +1,17 @@
 import { useAxios } from '@/hooks/web/useAxios'
+import { CUSTOMER_API } from '@/utils/API_URL'
+import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
-
+const fixedBaseURL = true
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/potentialCustomerCareTable/List', params })
-  return res && res.data
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMERS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
 }
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/customer/List', params })

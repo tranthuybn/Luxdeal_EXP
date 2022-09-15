@@ -908,6 +908,8 @@ export default {
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
-    updateFail: 'Update Fail'
+    updateFail: 'Update Fail',
+    //CSKH
+    potentialCustomerHistory: 'Potential customer service history'
   }
 }

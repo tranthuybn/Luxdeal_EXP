@@ -969,6 +969,8 @@ export default {
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
     inputOrigin: 'Nhập tên xuất xứ',
-    updateFail: 'Sửa thất bại'
+    updateFail: 'Sửa thất bại',
+    //CSKH
+    potentialCustomerHistory: 'Lịch sử CSKH'
   }
 }

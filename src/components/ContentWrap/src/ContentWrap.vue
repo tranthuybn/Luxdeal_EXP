@@ -1,27 +1,29 @@
 <script setup lang="ts">
 import { ElCard, ElTooltip } from 'element-plus'
-import { propTypes } from '@/utils/propTypes'
 import { useDesign } from '@/hooks/web/useDesign'
 
 const { getPrefixCls } = useDesign()
 
 const prefixCls = getPrefixCls('content-wrap')
 
-defineProps({
-  title: propTypes.string.def(''),
-  message: propTypes.string.def('')
+const props = defineProps({
+  title: {
+    type: String,
+    default: ''
+  },
+  message: {
+    type: String,
+    default: ''
+  }
 })
 </script>
 
 <template>
   <ElCard :class="[prefixCls, 'mb-20px']" shadow="never">
-    <template v-if="title" #header>
+    <template v-if="props.title" #header>
       <div class="flex items-center">
-        <ElTooltip v-if="message" effect="dark" placement="right">
-          <template #content>
-            <div class="max-w-200px">{{ message }}</div>
-          </template>
-          <Icon class="ml-5px" icon="bi:question-circle-fill" :size="14" />
+        <ElTooltip effect="dark" placement="right">
+          <div class="max-w-200px">{{ props.message }}</div>
         </ElTooltip>
       </div>
     </template>

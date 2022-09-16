@@ -34,6 +34,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       style: 'width: 100%',
       placeholder: t('reuse.selectRankOrigin'),
+      disabled: false,
       options: [
         {
           label: t('reuse.rank1Category'),
@@ -81,6 +82,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       options: [],
+      disabled: false,
       style: 'width: 100%',
       placeholder: t('reuse.selectRankOrigin')
     },
@@ -170,7 +172,7 @@ const removeFormSchema = () => {
 const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   if (timesCallAPI == 0) {
     await getRank1SelectOptions()
-    if (schema[4].componentProps?.options != undefined) {
+    if (schema[4].componentProps?.options !== undefined) {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
@@ -216,8 +218,15 @@ const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[8].key }
 
 const formDataCustomize = ref()
+//custom data before set Value to Form
 const customizeData = async (formData) => {
-  console.log('formData', formData)
+  //disable parent select
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -235,6 +244,7 @@ const customizeData = async (formData) => {
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
   formDataCustomize.value.isDelete = false
 }
+//type of post api data
 type FormDataPost = {
   Id: number
   Name: string

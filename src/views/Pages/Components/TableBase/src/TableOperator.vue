@@ -157,7 +157,6 @@ const setFormValue = async () => {
     if (!props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    console.log('img', imageUrl.value)
   } else {
     setValues(formValue.value)
   }
@@ -201,7 +200,6 @@ const save = async (type) => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages ? (data.Image = fileList.value) : (data.Image = rawUploadFile.value?.raw)
-      console.log('image:', data.Image)
       if (type == 'add') {
         await emit('post-data', data)
         loading.value = false

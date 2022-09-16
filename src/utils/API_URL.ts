@@ -7,3 +7,6 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRODUCT: '/api/v1/Product/GetProduct'
 }
 export const API_URL = 'http://103.81.87.134:910'
+export const CUSTOMER_API = {
+  GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers'
+}

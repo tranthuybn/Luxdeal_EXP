@@ -997,6 +997,8 @@ export default {
     selectUnitLevel: 'Chọn cấp đơn vị tính',
     unitName: 'Tên đơn vị tính',
     inputUnit: 'Nhập tên đơn vị tính',
-    cantGetData: 'Không thể lấy dữ lỉệu'
+    cantGetData: 'Không thể lấy dữ lỉệu',
+    //CSKH
+    potentialCustomerHistory: 'Lịch sử CSKH'
   }
 }

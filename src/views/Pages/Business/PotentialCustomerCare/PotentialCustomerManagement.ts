@@ -31,8 +31,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
-      multiple: true,
-      placeholder: t('reuse.enterOrSelectCustomerName'),
+      placeholder: 'Nhập hoặc chọn tên khách hàng',
       options: [
         {
           label: 'CustomerName 1',

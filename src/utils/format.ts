@@ -17,7 +17,38 @@ export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
 }
-
+export const formatPotentialCustomerStatusIdToText = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.newData')
+    case 2:
+      return t('reuse.takingCare')
+    case 3:
+      return t('common.doneLabel')
+    default:
+      return t('reuse.newData')
+  }
+}
+export const formatServiceIdToText = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.sell')
+    case 2:
+      return t('reuse.deposit')
+    case 3:
+      return t('reuse.rent')
+    case 4:
+      return t('workplace.mortgage')
+    case 5:
+      return t('workplace.spa')
+    default:
+      return t('reuse.sell')
+  }
+}
+export const onlineToText = (val) => {
+  if (val) return `${t('reuse.online')}`
+  return `${t('reuse.offline')}`
+}
 export const businessIventoryStatusTransferToText = (val) => {
   if (val) return `${t('reuse.stocking')}`
   return `${t('reuse.outOfStock')}`
@@ -57,6 +88,9 @@ export const FORM_DATA = (object) => {
   return formData
 }
 export default {
+  formatPotentialCustomerStatusIdToText,
+  onlineToText,
+  formatServiceIdToText,
   FORM_DATA,
   objectToQueryParams,
   formatMoneyInput,

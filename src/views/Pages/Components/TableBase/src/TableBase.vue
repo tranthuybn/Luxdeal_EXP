@@ -290,9 +290,9 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.image" />
+            <el-image style="width: 100px; height: 100px" :src="data.row.imageurl" />
           </div>
-          <div>{{ data.row.title }}</div>
+          <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">

@@ -929,6 +929,8 @@ export default {
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
     updateFail: 'Update Fail',
+    //CSKH
+    potentialCustomerHistory: 'Potential customer service history',
     deleteUnit: 'Are you sure want to delete ?',
     unitType: 'Unit type',
     selectUnitLevel: 'Select unit level',

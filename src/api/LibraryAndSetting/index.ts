@@ -68,8 +68,13 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const getSpaLibrary = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/spa', params })
+export const getSpaLibrary = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getFeaturesDepositFee = async (params: any): Promise<IResponse> => {

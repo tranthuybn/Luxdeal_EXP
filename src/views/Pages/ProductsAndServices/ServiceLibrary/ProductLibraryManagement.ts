@@ -1,5 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { filterTableStatus } from '@/utils/filters'
+import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { h } from 'vue'
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -11,12 +13,12 @@ export const businessProductLibrary = [
   },
 
   {
-    field: 'serviceCode',
+    field: 'code',
     label: t('reuse.serviceCode'),
     minWidth: '150'
   },
   {
-    field: 'serviceName',
+    field: 'name',
     label: t('reuse.serviceName'),
     minWidth: '250'
   },
@@ -26,7 +28,7 @@ export const businessProductLibrary = [
     minWidth: '250'
   },
   {
-    field: 'unitPrice',
+    field: 'cost',
     label: t('reuse.unitPrice'),
     minWidth: '150',
     align: 'right',
@@ -40,7 +42,7 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'insurance',
+    field: 'warranty',
     label: t('reuse.insuranceDate'),
     minWidth: '150',
     align: 'right',
@@ -53,22 +55,28 @@ export const businessProductLibrary = [
     align: 'center'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]

@@ -103,6 +103,7 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'initializeData',
     label: t('reuse.online') + '/' + t('reuse.offline'),
     component: 'Select',
+    title: 'àcasfa',
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -283,7 +284,8 @@ export const saleHistoryCustomerCare = reactive<TableColumn[]>([
   {
     field: 'orderSalesAssign',
     label: t('reuse.orderSalesAssign'),
-    minWidth: '100'
+    minWidth: '100',
+    align: 'right'
   },
   {
     field: 'operator',

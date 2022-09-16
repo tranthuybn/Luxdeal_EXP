@@ -98,7 +98,7 @@ const activeName = ref(props.default)
               v-if="!(item.titleButtonChildren === 'false')"
               :icon="plusIcon"
               id="bt-add"
-              class="mx-12"
+              class="mx-52"
             >
               {{ item.titleButtonChildren }}</ElButton
             >

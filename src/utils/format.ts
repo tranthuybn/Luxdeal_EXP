@@ -45,6 +45,10 @@ export const formatServiceIdToText = (val) => {
       return t('reuse.sell')
   }
 }
+export const onlineToText = (val) => {
+  if (val) return `${t('reuse.online')}`
+  return `${t('reuse.offline')}`
+}
 export const dateTimeFormat = (val) => {
   return moment(val).format('l')
 }
@@ -73,6 +77,7 @@ export const FORM_DATA = (object) => {
 }
 export default {
   formatPotentialCustomerStatusIdToText,
+  onlineToText,
   formatServiceIdToText,
   FORM_DATA,
   objectToQueryParams,

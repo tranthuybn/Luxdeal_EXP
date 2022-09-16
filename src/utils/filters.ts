@@ -5,6 +5,11 @@ interface Filter {
   text: string
   value: any
 }
+export const filterPotentialCustomerStatus: Array<Filter> = [
+  { text: t('reuse.newData'), value: 1 },
+  { text: t('reuse.takingCare'), value: 2 },
+  { text: t('common.doneLabel'), value: 3 }
+]
 export const filterIventory: Array<Filter> = [
   { text: t('reuse.outOfStock'), value: 1 },
   { text: t('reuse.stocking'), value: 2 }
@@ -128,9 +133,11 @@ export const filterStatusTagTable: Array<Filter> = [
   { text: t('reuse.pendingConsult'), value: 2 }
 ]
 export const filterService: Array<Filter> = [
-  { text: t('reuse.buying'), value: 1 },
+  { text: t('reuse.sell'), value: 1 },
   { text: t('reuse.deposit'), value: 2 },
-  { text: t('reuse.pawn'), value: 3 }
+  { text: t('reuse.rent'), value: 3 },
+  { text: t('workplace.mortgage'), value: 4 },
+  { text: t('workplace.spa'), value: 5 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },

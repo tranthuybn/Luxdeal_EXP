@@ -998,6 +998,7 @@ export default {
     unitName: 'Tên đơn vị tính',
     inputUnit: 'Nhập tên đơn vị tính',
     cantGetData: 'Không thể lấy dữ lỉệu',
+    deleteService: 'Xóa dịch vụ',
     //CSKH
     potentialCustomerHistory: 'Lịch sử CSKH'
   }

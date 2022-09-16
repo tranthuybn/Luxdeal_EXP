@@ -40,6 +40,7 @@ interface Collapse {
   rules?: Object
   customOperatorChildren?: boolean
   titleButtonChildren?: string
+  customOperatorChilden?: boolean
   value?: number
 }
 export { apiType, TableResponse, Tab, Collapse }

@@ -1000,6 +1000,8 @@ export default {
     cantGetData: 'Không thể lấy dữ lỉệu',
     deleteService: 'Xóa dịch vụ',
     //CSKH
-    potentialCustomerHistory: 'Lịch sử CSKH'
+    potentialCustomerHistory: 'Lịch sử CSKH',
+    date: 'Ngày',
+    rating: 'Xếp hạng sao'
   }
 }

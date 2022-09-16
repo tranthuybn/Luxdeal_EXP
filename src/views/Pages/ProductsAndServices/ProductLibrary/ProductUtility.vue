@@ -10,8 +10,6 @@ import {
   getPriceByQuantity,
   getImportAndExportHistory
 } from '@/api/LibraryAndSetting'
-import { TableData } from '@/api/table/types'
-import { useTable } from '@/hooks/web/useTable'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -39,12 +37,8 @@ import {
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-import { onBeforeMount } from 'vue'
 const { t } = useI18n()
 import { ref } from 'vue'
-import { inject } from 'vue'
-//provide from main component
-const params: any = inject('parameters', {})
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -287,24 +281,8 @@ const localeChange = (show: boolean) => {
 //const router = useRouter()
 //const id = String(router.currentRoute.value.params.id)
 // using table's function
-const { tableObject, methods } = useTable<TableData>({
-  getListApi: getFeaturesPrices,
-  response: {
-    list: 'list',
-    total: 'total'
-  },
-  props: {
-    columns: featuresPrice,
-    headerAlign: 'center'
-  }
-})
+const dataTable = [{}]
 // get api
-const getData = (data = {}) => {
-  methods.setSearchParams({ ...params.params, ...data })
-}
-onBeforeMount(() => {
-  getData()
-})
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
@@ -330,19 +308,13 @@ onBeforeMount(() => {
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
         />
-        <ElButton class="ml-5" type="primary">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton type="primary">
-          {{ t('reuse.addNew') }}
-        </ElButton>
       </el-collapse-item>
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center">{{ collapse[1].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -483,7 +455,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -656,7 +628,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[3].icon" link />
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -774,7 +746,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[4].icon" link />
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -915,7 +887,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[5].icon" link />
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -1014,7 +986,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[6].icon" link />
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"

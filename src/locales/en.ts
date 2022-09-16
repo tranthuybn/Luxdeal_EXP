@@ -936,6 +936,8 @@ export default {
     selectUnitLevel: 'Select unit level',
     unitName: 'Unit name',
     inputUnit: 'Input unit',
-    cantGetData: 'Cant get data'
+    cantGetData: 'Cant get data',
+    date: 'Date',
+    rating: 'Rating'
   }
 }

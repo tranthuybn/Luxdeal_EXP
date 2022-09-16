@@ -392,7 +392,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     field: 'Radio01',
     label: t('reuse.setInventoryForSale'),
     component: 'Radio',
-    value: [],
+
     colProps: {
       span: 24
     },
@@ -421,7 +421,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     field: 'Radio02',
     label: t('reuse.setInventoryForRent'),
     component: 'Radio',
-    value: [],
+
     colProps: {
       span: 24
     },
@@ -450,7 +450,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     field: 'Radio03',
     label: t('reuse.productStatus'),
     component: 'Radio',
-    value: [],
+
     colProps: {
       span: 24
     },

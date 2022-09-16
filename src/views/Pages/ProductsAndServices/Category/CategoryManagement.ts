@@ -225,8 +225,9 @@ export const genderCategories = [
   }
 ]
 export const unitCategories = [
+  { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryUnitTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -270,15 +271,11 @@ export const brandCategories = [
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    type: 'index',
     minWidth: '150',
     align: 'center',
-    sortable: true,
-    componentProps: {
-      class: 'fix'
-    }
+    sortable: true
   },
   {
     field: 'createdAt',

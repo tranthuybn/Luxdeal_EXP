@@ -39,5 +39,6 @@ interface Collapse {
   rules?: Object
   customOperatorChildren?: boolean
   titleButtonChildren?: string
+  value?: number
 }
 export { apiType, TableResponse, Tab, Collapse }

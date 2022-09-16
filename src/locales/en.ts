@@ -182,7 +182,16 @@ export default {
     temporaryStorage: 'Temporary storage',
     productImportHistory: 'Product import history',
     orderReceiptsGoods: 'Order receipts goods',
-    brandName: 'Brand name'
+    brandName: 'Brand name',
+    deleteBrand: 'Delete Brand',
+    selectRankBrand: 'Select rank brand',
+    inputBrandName: 'Enter brand name',
+    psc: 'Psc',
+    alreadyPaidForTt: 'Already paid for it',
+    total: 'Total',
+    receivableOrPayable: 'Receivable/payable',
+    invoiceForGoodsEnteringTheWarehouse: 'Invoice for goods entering the warehouse',
+    invoice: 'Invoice'
   },
   button: {
     add: 'Add quick'
@@ -909,6 +918,11 @@ export default {
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
-    updateFail: 'Update Fail'
+    updateFail: 'Update Fail',
+    deleteUnit: 'Are you sure want to delete ?',
+    unitType: 'Unit type',
+    selectUnitLevel: 'Select unit level',
+    unitName: 'Unit name',
+    inputUnit: 'Input unit'
   }
 }

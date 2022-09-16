@@ -197,6 +197,12 @@ const options2 = [
   }
 ]
 
+const dram = [
+  {
+    dramValue: 'psc',
+    label: t('formDemo.psc')
+  }
+]
 const checked1 = ref(true)
 const checked2 = ref(false)
 const checked3 = ref(false)
@@ -204,38 +210,34 @@ const checked4 = ref(false)
 const checked5 = ref(false)
 const checked6 = ref(false)
 const checked7 = ref(false)
-
+const alreadyPaidForTt = ref(true)
 const doThis = () => {
   console.log('sas')
 }
 
-const input = ref("`/${t('formDemo.selfImportAccessories')}/`")
+const input = ref('')
 
 const tableData = [
   {
     name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; không quai',
-    address: 'No. 189, Grove St, Los Angeles',
     quantity: '2',
     unitPrice: '10,000,000 đ',
     intoMoney: '20,000,000 đ'
   },
   {
     name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; có quai',
-    address: 'No. 189, Grove St, Los Angeles',
     quantity: '2',
     unitPrice: '10,000,000 đ',
     intoMoney: '20,000,000 đ'
   },
   {
     name: 'Vòng cổ ngọc trai kim cương',
-    address: 'No. 189, Grove St, Los Angeles',
     quantity: '1',
     unitPrice: '150,000,000 đ',
     intoMoney: '150,000,000 đ'
   },
   {
     name: '',
-    address: '',
     quantity: '',
     unitPrice: '',
     intoMoney: ''
@@ -245,7 +247,6 @@ const tableData = [
 const tableData2 = [
   {
     name: '',
-    address: '',
     quantity: '',
     unitPrice: '',
     intoMoney: ''
@@ -257,7 +258,6 @@ const debtTable = [
     dateOfPayment: t('formDemo.dateOfPayment'),
     col: 'Thanh toán tiền mua hàng',
     date: '02/07/2022',
-    address: '',
     quantity: '',
     unitPrice: '',
     intoMoney: ''
@@ -267,12 +267,12 @@ const debtTable = [
 const historyTable = [
   {
     name: 'Droplist & chỉ lấy sản phẩm trong danh sách sản phẩm bán của đơn này',
-    address: 'No. 189, Grove St, Los Angeles',
     quantity: '//',
     unitPrice: '//',
     intoMoney: '//'
   }
 ]
+const dramValue = ref('Chiếc')
 
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -517,15 +517,31 @@ const activeName = ref('1')
           </el-table-column>
           <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
           <el-table-column :label="`${t('reuse.accessory')}`" width="180">
-            <el-input :v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
+            <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
           </el-table-column>
-          <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="90" />
+          <el-table-column
+            prop="quantity"
+            :label="`${t('formDemo.amount')}`"
+            align="center"
+            width="90"
+          />
+          <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
+            <el-select v-model="dramValue" class="m-2" size="large">
+              <el-option
+                v-for="item in dram"
+                :key="item.dramValue"
+                :label="item.label"
+                :value="item.dramValue"
+              />
+            </el-select>
+          </el-table-column>
           <el-table-column
             prop="unitPrice"
             :label="`${t('reuse.unitPrice')}`"
             align="right"
             width="180"
           />
+
           <el-table-column
             prop="intoMoney"
             :label="`${t('formDemo.intoMoney')}`"
@@ -540,12 +556,10 @@ const activeName = ref('1')
               >
             </div>
           </el-table-column>
-          <el-table-column
-            prop="address"
-            :label="`${t('formDemo.manipulation')}`"
-            align="center"
-            width="90"
-          >
+          <el-table-column :label="`${t('formDemo.alreadyPaidForTt')}`" align="center" width="90">
+            <el-checkbox v-model="alreadyPaidForTt" size="large" />
+          </el-table-column>
+          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
             <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
           </el-table-column>
         </el-table>
@@ -554,11 +568,12 @@ const activeName = ref('1')
           <el-table-column width="680" />
           <el-table-column width="180" />
           <el-table-column width="90" />
+          <el-table-column width="100" />
           <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
             <div class="text-blue-500 cursor-pointer">{{ t('formDemo.doesNotIncludeVAT') }} </div>
             <div class="text-blue-500 cursor-pointer">+ {{ t('formDemo.choosePromotion') }}</div>
-            <div class="dark:text-[#fff]">Tổng tiền</div>
+            <div class="dark:text-[#fff]">{{ t('formDemo.total') }}</div>
           </el-table-column>
           <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">190,000,000 đ</div>
@@ -566,12 +581,21 @@ const activeName = ref('1')
             <div class="dark:text-[#fff]">-95,000,000 đ</div>
             <div class="dark:text-[#fff]">95,000,000 đ</div>
           </el-table-column>
-          <el-table-column width="200" />
+          <el-table-column width="200" align="right">
+            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
+          </el-table-column>
+          <el-table-column align="center" width="90" />
           <el-table-column width="90" />
         </el-table>
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
         <el-table :data="debtTable" border>
-          <el-table-column prop="date" :label="`${t('formDemo.dateOfPayment')}`" width="150" />
+          <el-table-column
+            prop="date"
+            :label="`${t('formDemo.dateOfPayment')}`"
+            width="150"
+            align="center"
+          />
           <el-table-column prop="col" :label="`${t('reuse.content')}`" width="240" />
           <el-table-column :label="`${t('formDemo.receiptOrPayment')}`" align="right">
             <div class="text-blue-500">+{{ t('formDemo.receiptOrPayment') }}</div>
@@ -586,8 +610,11 @@ const activeName = ref('1')
           <el-table-column :label="`${t('formDemo.unpaidDebt')}`">
             <div>0 đ</div>
           </el-table-column>
+          <el-table-column :label="`${t('formDemo.receivableOrPayable')}`" width="120">
+            <div>Phải thu</div>
+          </el-table-column>
           <el-table-column :label="`${t('formDemo.choosePayment')}`">
-            <el-select class="m-2" placeholder="Select" size="large">
+            <el-select class="m-2" v-model="value" placeholder="Select" size="large">
               <el-option
                 v-for="item in options1"
                 :key="item.value"
@@ -621,9 +648,7 @@ const activeName = ref('1')
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.printSalesSlip')
-            }}</el-button>
+            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
             <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
             <el-button type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.complete')
@@ -650,41 +675,43 @@ const activeName = ref('1')
                 />
               </el-select>
             </el-table-column>
-            <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
+            <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="720" />
             <el-table-column :label="`${t('reuse.accessory')}`" width="180">
               <el-input
                 :v-model="input"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </el-table-column>
-            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="90" />
+
+            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
+            <el-table-column :label="`${t('reuse.dram')}`" align="center" width="120">
+              <el-select v-model="dramValue" class="m-2" size="large">
+                <el-option
+                  v-for="item in dram"
+                  :key="item.dramValue"
+                  :label="item.label"
+                  :value="item.dramValue"
+                />
+              </el-select>
+            </el-table-column>
+
             <el-table-column
-              prop="unitPrice"
-              :label="`${t('reuse.unitPrice')}`"
-              align="right"
-              width="180"
-            />
-            <el-table-column
-              prop="intoMoney"
-              :label="`${t('formDemo.intoMoney')}`"
-              align="right"
-              width="180"
-            />
-            <el-table-column
-              :label="`${t('formDemo.orderReceiptsGoods')}`"
+              :label="`${t('formDemo.invoiceForGoodsEnteringTheWarehouse')}`"
               align="right"
               width="200"
               class="text-blue-500"
             >
-              +{{ t('formDemo.orderReceiptsGoods') }}
+              +{{ t('formDemo.invoice') }}
             </el-table-column>
-            <el-table-column
-              prop="address"
-              :label="`${t('formDemo.manipulation')}`"
-              align="center"
-              width="90"
-            >
-              <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
+            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
+              <div class="flex gap-4">
+                <button class="flex-1 bg-[#409EFF] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
+                  t('reuse.save')
+                }}</button>
+                <button class="flex-1 bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
+                  t('reuse.delete')
+                }}</button>
+              </div>
             </el-table-column>
           </el-table>
         </div>

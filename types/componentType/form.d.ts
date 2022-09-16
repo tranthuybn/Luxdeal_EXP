@@ -86,6 +86,8 @@ declare global {
     value?: FormValueType
     // Whether to hide
     hidden?: boolean
+    // Disabled
+    disabled?: boolean
     // Remote loading drop
     api?: <T = any>() => AxiosPromise<T>
   }

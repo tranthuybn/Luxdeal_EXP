@@ -7,32 +7,42 @@ import {
   getCategories,
   getCategoryById,
   postCategory,
-  updateCategory
+  updateCategory,
+  deleteCategory
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { ElMessage } from 'element-plus'
+import { ElNotification } from 'element-plus'
+import { API_URL } from '@/utils/API_URL'
+const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
 const { t } = useI18n()
-const { required } = useValidator()
+let rank1SelectOptions = reactive([])
+let timesCallAPI = 0
 const schema = reactive<FormSchema[]>([
   {
-    field: 'field13',
+    field: 'typeCategory',
     label: t('reuse.typeCategory'),
     component: 'Divider'
   },
   {
-    field: 'chooseRankCategory',
+    field: 'rankCategory',
     label: t('reuse.chooseRankCategory'),
     component: 'Select',
+    colProps: {
+      span: 20
+    },
     componentProps: {
+      disabled: true,
+      style: 'width: 100%',
+      placeholder: t('formDemo.selectRankBrand'),
       options: [
         {
           label: t('reuse.rank1Category'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.rank2Category'),
-          value: '2'
+          value: 2
         }
       ],
       onChange: (value) => {
@@ -44,34 +54,65 @@ const schema = reactive<FormSchema[]>([
           timesCallAPI++
         }
       }
-    },
-    colProps: {
-      span: 13
     }
   },
   {
-    field: 'field1',
+    field: 'generalInformation',
     label: t('reuse.generalInformation'),
     component: 'Divider'
   },
   {
     field: 'name',
-    label: t('formDemo.brandName'),
+    label: t('reuse.nameRank1Category'),
     component: 'Input',
     colProps: {
-      span: 13
-    }
+      span: 20
+    },
+    componentProps: {
+      placeholder: t('formDemo.brandName')
+    },
+    hidden: false
   },
   {
-    field: 'position',
+    field: 'parentid',
+    label: t('reuse.nameRank1Category'),
+    component: 'Select',
+    colProps: {
+      span: 20
+    },
+    componentProps: {
+      options: [],
+      disabled: true,
+      style: 'width: 100%',
+      placeholder: t('formDemo.selectRankBrand')
+    },
+    hidden: true
+  },
+  {
+    field: 'name',
+    label: t('reuse.nameRank2Category'),
+    component: 'Input',
+    colProps: {
+      span: 20
+    },
+    componentProps: {
+      placeholder: t('formDemo.inputBrandName')
+    },
+    hidden: true
+  },
+  {
+    field: 'index',
     label: t('reuse.displayPosition'),
     component: 'Input',
     colProps: {
-      span: 13
+      span: 20
+    },
+    componentProps: {
+      placeholder: t('reuse.displayPosition')
     }
   },
   {
-    field: 'field41',
+    field: 'statusAndFunction',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
@@ -90,28 +131,28 @@ const schema = reactive<FormSchema[]>([
           value: 'active'
         },
         {
-          label: t('reuse.stopShowAppWeb'),
-          value: 'hide'
-        },
-        {
           label: t('reuse.stopActive'),
           value: 'hideApp'
+        },
+        {
+          label: t('reuse.stopShowAppWeb'),
+          value: 'hide'
         }
       ]
     }
   }
 ])
-
 const rules = reactive({
   rankCategory: [required()],
-  name: [required()],
+  name: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator },
+    required()
+  ],
   parentid: [required()],
-  count: [required()]
+  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
-
-let rank1SelectOptions = reactive([])
-let timesCallAPI = 0
-
+//call api for select options
 const getRank1SelectOptions = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
     .then((res) => {
@@ -144,7 +185,6 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   schema[5].hidden = false
   schema[5].value = nameChildren
 }
-
 const postData = async (data) => {
   //manipulate Data
   if (data.ParentId == undefined) {
@@ -155,39 +195,32 @@ const postData = async (data) => {
   } else {
     data.isActive = false
   }
-  if (data.status[1] === 'hide') {
+  if (data.status[2] === 'hide') {
     data.isHide = true
   } else {
     data.isHide = false
   }
-  if (data.status[2] === 'hideApp') {
-    data.isHideApp = true
-  } else {
-    data.isHideApp = false
-  }
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[7].key, ...data })
     .then(() =>
-      ElMessage({
+      ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
     )
     .catch((error) =>
-      ElMessage({
+      ElNotification({
         message: error,
         type: 'warning'
       })
     )
 }
+// get data from router
 const router = useRouter()
-const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
-console.log(currentRoute)
 
-// const title = router.currentRoute.value.meta.title
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   console.log('formData', formData)
@@ -206,13 +239,16 @@ const customizeData = async (formData) => {
     formDataCustomize.value['status'].push('hide')
   }
   formDataCustomize.value.isDelete = false
-  formDataCustomize.value.index = -1
+  formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
+    ? (formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`)
+    : null
+  // formDataCustomize.value.index = 0
 }
 type FormDataPost = {
   Id: number
   Name: string
   code?: string
-  image?: string
+  Image?: any
   TypeName: string
   ParentId: number
   CreatedBy: string
@@ -226,44 +262,47 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
+  customData.Image = data.Image
+  customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
-  customData.index = 0
   return customData
 }
 const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[7].key, ...data })
     .then(() =>
-      ElMessage({
+      ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
     )
-    .catch((error) =>
-      ElMessage({
-        message: error,
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
         type: 'warning'
       })
     )
 }
+const deleteBrand = `${t('formDemo.deleteBrand')}`
 </script>
 
 <template>
   <TableOperator
     ref="formRef"
     :schema="schema"
-    :nameBack="currentRoute"
     :title="title"
+    :deleteTitle="deleteBrand"
     :type="type"
     :id="id"
     @post-data="postData"
     :multipleImages="false"
     :rules="rules"
-    :api="getCategoryById"
+    :apiId="getCategoryById"
     :params="params"
     @customize-form-data="customizeData"
     @edit-data="editData"
     :formDataCustomize="formDataCustomize"
+    :delApi="deleteCategory"
   />
 </template>

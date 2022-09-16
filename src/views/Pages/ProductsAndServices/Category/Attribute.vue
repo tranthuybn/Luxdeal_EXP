@@ -21,32 +21,37 @@ const tabs: Array<Tab> = [
   {
     name: PRODUCTS_AND_SERVICES[1].key,
     label: t('reuse.color'),
-    api: getCategories,
-    column: colorCategories
+    api: getColorCategories,
+    column: colorCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: PRODUCTS_AND_SERVICES[2].key,
     label: t('reuse.size'),
-    api: getCategories,
-    column: sizeCategories
+    api: getSizeCategories,
+    column: sizeCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: PRODUCTS_AND_SERVICES[3].key,
     label: t('reuse.material'),
-    api: getCategories,
-    column: materialCategories
+    api: getMaterialCategories,
+    column: materialCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: PRODUCTS_AND_SERVICES[4].key,
     label: t('reuse.status'),
-    api: getCategories,
-    column: statusCategories
+    api: getStatusCategories,
+    column: statusCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   },
   {
     name: PRODUCTS_AND_SERVICES[5].key,
     label: t('reuse.gender'),
-    api: getCategories,
-    column: genderCategories
+    api: getGenderCategories,
+    column: genderCategories,
+    params: { TypeName: PRODUCTS_AND_SERVICES[6].key }
   }
 ]
 

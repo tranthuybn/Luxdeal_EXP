@@ -182,7 +182,17 @@ export default {
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hàng',
     orderReceiptsGoods: 'Đơn nhập hàng',
-    brandName: 'Tên Thương hiệu'
+    brandName: 'Tên Thương hiệu',
+    deleteBrand: 'Xóa thương hiệu',
+    selectRankBrand: 'Chọn cấp thương hiệu',
+    inputBrandName: 'Nhập tên thương hiệu',
+    psc: 'Chiếc',
+    alreadyPaidForTt: 'Đã thanh toán',
+    total: 'Tổng tiền',
+    receivableOrPayable: 'Phải thu/phải chi',
+    invoiceForGoodsEnteringTheWarehouse: 'Phiếu nhập hàng vào kho',
+    productImportInvoice: 'Phiếu nhập hàng',
+    invoice: 'Phiếu nhập kho'
   },
   button: {
     add: 'Thêm nhanh'
@@ -970,6 +980,11 @@ export default {
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
     inputOrigin: 'Nhập tên xuất xứ',
-    updateFail: 'Sửa thất bại'
+    updateFail: 'Sửa thất bại',
+    deleteUnit: 'Xóa đơn vị tính',
+    unitType: 'Loại đơn vị tính',
+    selectUnitLevel: 'Chọn cấp đơn vị tính',
+    unitName: 'Tên đơn vị tính',
+    inputUnit: 'Nhập tên đơn vị tính'
   }
 }

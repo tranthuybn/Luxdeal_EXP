@@ -1,7 +1,7 @@
 export const PRODUCTS_AND_SERVICES = [
   {
     value: 0,
-    key: 'All',
+    key: 'danhmuc',
     label: 'Tất cả'
   },
   {

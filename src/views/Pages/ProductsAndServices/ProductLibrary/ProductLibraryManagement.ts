@@ -1,4 +1,6 @@
+import { getCategories } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
   filterTableStatus,
   filterTableCategory,
@@ -165,6 +167,56 @@ export const businessProductLibrary = [
     }
   }
 ]
+let brandSelect = reactive([{}])
+const getBrandSelectOptions = async () => {
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
+    .then((res) => {
+      if (res.data) {
+        brandSelect = res.data.map((index) => ({
+          label: index.name,
+          value: index.id
+        }))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}
+await getBrandSelectOptions()
+
+let unitSelect = reactive([{}])
+const getUnitSelectOptions = async () => {
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
+    .then((res) => {
+      if (res.data) {
+        unitSelect = res.data.map((index) => ({
+          label: index.name,
+          value: index.id
+        }))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}
+await getUnitSelectOptions()
+
+let originSelect = reactive([{}])
+const getOriginSelectOptions = async () => {
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
+    .then((res) => {
+      if (res.data) {
+        originSelect = res.data.map((index) => ({
+          label: index.name,
+          value: index.id
+        }))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  columnProfileProduct[4].componentProps!.options = originSelect
+}
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Divider',
@@ -172,52 +224,10 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Select01',
+    field: 'username',
     label: t('reuse.selectCategory'),
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn danh mục cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
     colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select02',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn danh mục cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
+      span: 20
     }
   },
   {
@@ -225,48 +235,25 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
       placeholder: 'Chọn thương hiệu cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      style: 'width: 100%',
+      options: brandSelect
     },
     colProps: {
-      span: 10
+      span: 20
     }
   },
   {
     field: 'Select04',
+    label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn thương hiệu cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      style: 'width: 100%',
+      placeholder: 'Chọn thương don vi tinh cap 1',
+      options: unitSelect
     },
     colProps: {
-      span: 10
+      span: 20
     }
   },
   {
@@ -274,48 +261,13 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
+      onClick: () => getOriginSelectOptions(),
       placeholder: 'Chọn xuất xứ cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      style: 'width: 100%',
+      options: []
     },
     colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select06',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn xuất xứ cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
+      span: 20
     }
   },
   {
@@ -509,7 +461,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
       filterable: true,
       multiple: true,
       placeholder: 'Tag',
-      style: 'width: 400px',
+      style: 'width: 100%',
       options: [
         {
           label: 'Túi hàng hiệu',

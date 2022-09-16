@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -14,7 +14,9 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage
+  ElImage,
+  ElFormItem,
+  ElTreeSelect
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -313,12 +315,74 @@ const removeImage = () => {
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
+const form = reactive({ username: '' })
+const treeSelectData = ref([
+  {
+    value: '1',
+    label: 'Level one 1',
+    children: [
+      {
+        value: '1-1',
+        label: 'Level two 1-1',
+        children: [
+          {
+            value: '1-1-1',
+            label: 'Level three 1-1-1'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    value: '2',
+    label: 'Level one 2',
+    children: [
+      {
+        value: '2-1',
+        label: 'Level two 2-1',
+        children: [
+          {
+            value: '2-1-1',
+            label: 'Level three 2-1-1',
+            disabled: true
+          }
+        ]
+      },
+      {
+        value: '2-2',
+        label: 'Level two 2-2',
+        children: [
+          {
+            value: '2-2-1',
+            label: 'Level three 2-2-1'
+          }
+        ]
+      }
+    ]
+  }
+])
+const logTree = () => {
+  console.log(form.username)
+}
 </script>
 <template>
   <ContentWrap :title="props.title">
+    <ElButton @click="logTree">asd</ElButton>
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register">
+          <template #username>
+            <ElFormItem prop="username">
+              <ElTreeSelect
+                v-model="form.username"
+                :data="treeSelectData"
+                multiple
+                check-strictly
+                :render-after-expand="false"
+              />
+            </ElFormItem>
+          </template>
+        </Form>
       </ElCol>
       <ElCol
         :span="hasImage ? 8 : 0"

@@ -4,6 +4,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY_BY_ID: '/api/v1/Category/GetCategoryById',
   UPDATE_CATEGORY: '/api/v1/Category/updateCategory',
   DELETE_CATEGORY: '/api/v1/Categories/DeleteCategory',
-  GET_PRODUCT: '/api/v1/Product/GetProduct'
+  GET_PRODUCT: '/api/v1/Product/GetProduct',
+  GET_SPA: '/api/v1/Product/GetSpa'
 }
 export const API_URL = 'http://103.81.87.134:910'

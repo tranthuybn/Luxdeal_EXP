@@ -18,6 +18,18 @@ export const productStatusTransferToText = (val) => {
   return `${t('reuse.inactive')}`
 }
 
+export const businessIventoryStatusTransferToText = (val) => {
+  if (val) return `${t('reuse.stocking')}`
+  return `${t('reuse.outOfStock')}`
+}
+
+export const businessStatusTransferToText = (val) => {
+  if (val == 0) return `${t('reuse.active')}`
+  else if (val == 1) return `${t('reuse.pending')}`
+  else if (val == 2) return `${t('reuse.finishPending')}`
+  return `${t('reuse.inactive')}`
+}
+
 export const dateTimeFormat = (val) => {
   return moment(val).format('l')
 }
@@ -50,6 +62,8 @@ export default {
   formatMoneyInput,
   formatDateTime,
   productStatusTransferToText,
+  businessStatusTransferToText,
+  businessIventoryStatusTransferToText,
   dateTimeFormat,
   valueDateFormat,
   dateFormType,

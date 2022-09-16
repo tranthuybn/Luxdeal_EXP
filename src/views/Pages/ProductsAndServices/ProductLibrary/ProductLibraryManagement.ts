@@ -5,7 +5,11 @@ import {
   filterIventory,
   filterDeposit
 } from '@/utils/filters'
-import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import {
+  dateTimeFormat,
+  businessIventoryStatusTransferToText,
+  businessStatusTransferToText
+} from '@/utils/format'
 import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {
@@ -93,13 +97,19 @@ export const businessProductLibrary = [
     field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
     minWidth: '150',
-    filters: filterIventory
+    filters: filterIventory,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessIventoryStatusTransferToText(cellValue))
+    }
   },
   {
     field: 'productStat.datTonKhoThue',
     label: t('reuse.setInventoryForRent'),
     minWidth: '150',
-    filters: filterIventory
+    filters: filterIventory,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessIventoryStatusTransferToText(cellValue))
+    }
   },
   {
     field: 'price',
@@ -119,7 +129,7 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'image',
+    field: 'imageList',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'
@@ -151,7 +161,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return h('div', businessStatusTransferToText(cellValue))
     }
   }
 ]

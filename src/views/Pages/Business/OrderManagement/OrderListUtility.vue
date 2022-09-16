@@ -368,38 +368,49 @@ const activeName = ref('1')
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
               <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
             </div>
-            <div class="pl-4">
-              <el-upload action="#" list-type="picture-card" :auto-upload="false" class="relative">
-                <template #file="{ file }">
-                  <div>
-                    <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                    <span class="el-upload-list__item-actions">
-                      <span
-                        class="el-upload-list__item-preview"
-                        @click="handlePictureCardPreview(file)"
-                      >
+            <div class="flex">
+              <div class="pl-5">
+                <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+                <div class="text-right text-[#FECB80]">Dưới 10 hồ sơ</div>
+              </div>
+              <div class="pl-4">
+                <el-upload
+                  action="#"
+                  list-type="picture-card"
+                  :auto-upload="false"
+                  class="relative"
+                >
+                  <template #file="{ file }">
+                    <div>
+                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                      <span class="el-upload-list__item-actions">
+                        <span
+                          class="el-upload-list__item-preview"
+                          @click="handlePictureCardPreview(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleDownload(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleRemove(file)"
+                        >
+                        </span>
                       </span>
-                      <span
-                        v-if="!disabled"
-                        class="el-upload-list__item-delete"
-                        @click="handleDownload(file)"
-                      >
-                      </span>
-                      <span
-                        v-if="!disabled"
-                        class="el-upload-list__item-delete"
-                        @click="handleRemove(file)"
-                      >
-                      </span>
-                    </span>
-                  </div>
-                </template>
-                <el-dialog v-model="dialogVisible" class="absolute">
-                  <div class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                  >
-                </el-dialog>
-              </el-upload>
+                    </div>
+                  </template>
+                  <el-dialog v-model="dialogVisible" class="absolute">
+                    <div class="text-[#303133] font-medium dark:text-[#fff]"
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                    >
+                  </el-dialog>
+                </el-upload>
+              </div>
             </div>
           </div>
         </div>
@@ -422,9 +433,11 @@ const activeName = ref('1')
                 <div class="flex gap-4">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4">
-                      <label class="w-[15%] text-right ml-2">{{
-                        t('formDemo.customerName')
-                      }}</label>
+                      <div class="w-[15%] text-right ml-2 leading-5">
+                        <label>{{ t('formDemo.customerName') }}</label>
+                        <p class="text-[#FECB80]">Đại diện</p>
+                      </div>
+
                       <input
                         class="w-[62%] border-1 outline-none pl-2"
                         type="text"

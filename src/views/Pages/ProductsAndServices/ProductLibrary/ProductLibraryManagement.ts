@@ -203,7 +203,7 @@ await getUnitSelectOptions()
 
 let originSelect = reactive([{}])
 const getOriginSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[5].key })
     .then((res) => {
       if (res.data) {
         originSelect = res.data.map((index) => ({

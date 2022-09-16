@@ -295,7 +295,7 @@ const showingColumn =
         </div>
       </template>
       <template #imageList="data">
-        <div v-if="!data">
+        <div v-if="data">
           <el-image style="width: 130px" :src="data.row.productImages[0].path" />
         </div>
         <div v-else> nothing data</div>

@@ -288,7 +288,7 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="height: 100px" :src="`${API_URL}${data.row.imageurl}`" />
+            <el-image style="width: 180px" :src="`${API_URL}${data.row.imageurl}`" />
           </div>
           <div>{{ data.row.name }}</div>
         </div>

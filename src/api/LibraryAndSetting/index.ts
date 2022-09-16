@@ -59,8 +59,13 @@ export const deleteCategory = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const getBusinessProductLibrary = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/BusinessProductLibrary/List', params })
+export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getSpaLibrary = async (params: any): Promise<IResponse> => {

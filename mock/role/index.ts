@@ -148,7 +148,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:id?/:type?/:tab?`,
                 component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
                 name: `products-services.AttributeCategory.${utility}`,
                 meta: {

@@ -68,8 +68,7 @@ const pushAdd = () => {
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: {
       type: 'add',
-      tabName: currentTab.value,
-      backRoute: String(router.currentRoute.value.name)
+      tab: currentTab.value
     }
   })
 }
@@ -109,6 +108,8 @@ const pushAdd = () => {
             :selection="false"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
+            :delApi="item.delApi"
+            :tab="item.name"
           />
         </div>
       </el-tab-pane>

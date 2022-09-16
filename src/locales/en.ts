@@ -725,7 +725,7 @@ export default {
     approveCondition: 'Approve Condition',
     approveOrNot: 'Approve(On)/Unapproved(Off)',
     approvalManagement: 'Approval Management',
-    BrowseNewlyLaunchedProducts: 'Browse newly launched products',
+    browseNewlyLaunchedProducts: 'Browse newly launched products',
     //warehouse
     save: 'Save',
     addCategory: 'Add Category',
@@ -912,6 +912,16 @@ export default {
     checkNameLength: 'Do not enter more than 50 character',
     checkDescriptionLength: 'Do not enter more than 500 character',
     checkStartDateTime: 'Date starts before current time',
+    enterOrSelectCustomerName: 'Enter or select customer name',
+    enterPhoneNumber: 'Please enter phone number',
+    enterEmail: 'Please enter email',
+    socialNetwork: 'Facebook/zalo...',
+    enterSelectOutreachChannel: 'Enter or select an outreach chanel',
+    enterSelectSource: 'Enter or select source',
+    enterNote: 'Enter note',
+    selectService: 'Select service',
+    enterDetailedRequirements: 'Enter detailed requirement',
+    selectOrder: 'Select order',
     //notification
     exit: 'Exit',
     deleteWarning: 'Are you sure want to delete ?',
@@ -923,6 +933,7 @@ export default {
     unitType: 'Unit type',
     selectUnitLevel: 'Select unit level',
     unitName: 'Unit name',
-    inputUnit: 'Input unit'
+    inputUnit: 'Input unit',
+    cantGetData: 'Cant get data'
   }
 }

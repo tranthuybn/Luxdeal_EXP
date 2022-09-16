@@ -14,6 +14,7 @@ interface Tab {
   api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
   params?: string
+  delApi: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
 
@@ -39,5 +40,7 @@ interface Collapse {
   rules?: Object
   customOperatorChildren?: boolean
   titleButtonChildren?: string
+  customOperatorChilden?: boolean
+  value?: number
 }
 export { apiType, TableResponse, Tab, Collapse }

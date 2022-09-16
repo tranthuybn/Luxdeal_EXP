@@ -768,7 +768,7 @@ export default {
     approveCondition: 'Điều kiện duyệt',
     approveOrNot: 'Duyệt(On)/Không duyệt(Off)',
     approvalManagement: 'Quản lý danh mục duyệt',
-    BrowseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
+    browseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
     //banner advertisement
     bannerCode: 'Mã banner',
     linkBanner: 'Link Banner',
@@ -963,6 +963,17 @@ export default {
     checkNameLength: 'Không được nhập quá 50 ký tự',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại',
+    enterOrSelectCustomerName: 'Nhập hoặc chọn tên khách hàng',
+    enterPhoneNumber: 'Vui lòng nhập số điện thoại',
+    enterEmail: 'Vui lòng nhập email',
+    socialNetwork: 'Facebook/zalo...',
+    enterSelectOutreachChannel: 'Nhập hoặc chọn kênh tiếp cận',
+    enterSelectSource: 'Nhập hoặc chọn nguồn',
+    enterNote: 'Nhập ghi chú',
+    selectService: 'Chọn dịch vụ',
+    enterDetailedRequirements: 'Nhập nhu cầu chi tiết',
+    selectOrder: 'Chọn đơn hàng',
+    addActions: 'Thêm hành động',
     //notification
     exit: 'Thoát',
     deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
@@ -970,6 +981,12 @@ export default {
     selectRankOrigin: 'Chọn cấp xuất xứ',
     inputOrigin: 'Nhập tên xuất xứ',
     updateFail: 'Sửa thất bại',
+    deleteUnit: 'Xóa đơn vị tính',
+    unitType: 'Loại đơn vị tính',
+    selectUnitLevel: 'Chọn cấp đơn vị tính',
+    unitName: 'Tên đơn vị tính',
+    inputUnit: 'Nhập tên đơn vị tính',
+    cantGetData: 'Không thể lấy dữ lỉệu',
     //CSKH
     potentialCustomerHistory: 'Lịch sử CSKH'
   }

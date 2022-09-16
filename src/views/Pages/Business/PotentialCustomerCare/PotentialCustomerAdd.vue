@@ -22,8 +22,8 @@ const { t } = useI18n()
 const rules = reactive({
   customerInfo: [required()],
   customerName: [required()],
-  phoneNumber: [ValidService.checkPhone],
-  email: [required()],
+  phoneNumber: [required(), ValidService.checkPhone],
+  email: [required(), ValidService.checkEmail],
   link: [required()],
   transactionHistory: [required()]
 })

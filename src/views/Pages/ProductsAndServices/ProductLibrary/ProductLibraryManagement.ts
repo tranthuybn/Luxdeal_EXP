@@ -5,7 +5,12 @@ import {
   filterIventory,
   filterDeposit
 } from '@/utils/filters'
-import { reactive } from 'vue'
+import {
+  dateTimeFormat,
+  businessIventoryStatusTransferToText,
+  businessStatusTransferToText
+} from '@/utils/format'
+import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {
 //   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
@@ -31,7 +36,7 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'productName',
+    field: 'name',
     label: t('reuse.productName'),
     minWidth: '250'
   },
@@ -41,25 +46,25 @@ export const businessProductLibrary = [
     minWidth: '250'
   },
   {
-    field: 'category',
+    field: 'categories[1].value',
     label: t('reuse.category'),
     minWidth: '150',
     filters: filterTableCategory
   },
   {
-    field: 'inventory',
+    field: 'productStat.tonKho',
     label: t('reuse.inventory'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'currentlyLeased',
+    field: 'productStat.dangThue',
     label: t('reuse.currentlyLeased'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'quantitySold',
+    field: 'productStat.daBan',
     label: t('reuse.quantitySold'),
     minWidth: '150',
     align: 'right'
@@ -71,54 +76,60 @@ export const businessProductLibrary = [
     align: 'right'
   },
   {
-    field: 'numberOfTimesDeposited',
+    field: 'productStat.kiGui',
     label: t('reuse.numberOfTimesDeposited'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'numberOfTimesPawn',
+    field: 'productStat.camDo',
     label: t('reuse.numberOfTimesPawn'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'numberOfTimesSpa',
+    field: 'productStat.spa',
     label: t('reuse.numberOfTimesSpa'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'setInventoryForSale',
+    field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
     minWidth: '150',
-    filters: filterIventory
+    filters: filterIventory,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessIventoryStatusTransferToText(cellValue))
+    }
   },
   {
-    field: 'setInventoryForRent',
+    field: 'productStat.datTonKhoThue',
     label: t('reuse.setInventoryForRent'),
     minWidth: '150',
-    filters: filterIventory
+    filters: filterIventory,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessIventoryStatusTransferToText(cellValue))
+    }
   },
   {
-    field: 'sellingPriceFrom',
+    field: 'price',
     label: t('reuse.sellingPriceFrom'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'rentalPriceFrom',
+    field: 'hirePrice',
     label: t('reuse.rentalPriceFrom'),
     minWidth: '150',
     align: 'right'
   },
   {
-    field: 'dram',
+    field: 'categories[2].value',
     label: t('reuse.dram'),
     minWidth: '150'
   },
   {
-    field: 'image',
+    field: 'imageList',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'
@@ -130,22 +141,28 @@ export const businessProductLibrary = [
     filters: filterDeposit
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessStatusTransferToText(cellValue))
+    }
   }
 ]
 export const columnProfileProduct = reactive<FormSchema[]>([
@@ -525,12 +542,6 @@ export const featuresPrice = reactive<TableColumn[]>([
     field: 'managementCode',
     label: t('reuse.managementCode'),
     component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
-    },
-    colProps: {
-      span: 20
-    },
     minWidth: '250'
   },
   {

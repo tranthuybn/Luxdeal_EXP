@@ -10,7 +10,7 @@ import {
   ElDrawer,
   ElCheckboxGroup,
   ElCheckboxButton,
-  ElNotification,
+  ElMessage,
   ElMessageBox,
   ElSwitch
 } from 'element-plus'
@@ -21,7 +21,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
-import { API_URL } from '@/utils/API_URL'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -74,6 +73,10 @@ const props = defineProps({
   deleteTitle: {
     type: String,
     default: 'Warning'
+  },
+  tab: {
+    type: String,
+    default: ''
   }
 })
 
@@ -164,7 +167,7 @@ const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type }
+      params: { id: row.id, type: type, tab: props.tab }
     })
   } else {
     console.log(type)
@@ -178,44 +181,43 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, multiple: boolean) => {
   {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('reuse.delete'),
-      cancelButtonText: t('reuse.exit'),
-      type: 'warning',
-      confirmButtonClass: 'el-button--danger'
+    ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
     })
-      .then(async () => {
+      .then(() => {
         console.log('row', row, multiple)
         if (row !== null && row.children.length == 0) {
-          const res = await props
+          props
             .delApi({ Id: row.id })
             .then(() =>
-              ElNotification({
+              ElMessage({
                 message: t('reuse.deleteSuccess'),
                 type: 'success'
               })
             )
             .catch((error) =>
-              ElNotification({
+              ElMessage({
                 message: error,
                 type: 'warning'
               })
             )
-          if (res) {
-            getData()
-          }
         } else {
-          ElNotification({
+          ElMessage({
             message: t('reuse.deleteFail'),
             type: 'warning'
           })
         }
       })
       .catch(() => {
-        ElNotification({
+        ElMessage({
           type: 'info',
           message: t('reuse.deleteCancel')
         })
+      })
+      .finally(() => {
+        getData()
       })
   }
 }
@@ -288,19 +290,19 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 180px" :src="`${API_URL}${data.row.imageurl}`" />
+            <el-image style="width: 100px; height: 100px" :src="data.row.imageurl" />
           </div>
           <div>{{ data.row.name }}</div>
         </div>
       </template>
-      <template #customerInfo="data">
-        <div>{{ data.row.name }}</div>
-        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.phonenumber }}</div>
-        <div>Email: {{ data.row.email }}</div>
-      </template>
       <template #image="data">
         <div>
-          <el-image style="width: 100px; height: 100px" :src="data.row.image" />
+          <el-image style="width: 180px" :src="data.row.image" />
+        </div>
+      </template>
+      <template #imageList="data">
+        <div>
+          <el-image style="width: 130px" :src="data.row.productImages[0].path" />
         </div>
       </template>
       <template

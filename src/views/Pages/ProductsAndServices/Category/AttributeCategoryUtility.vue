@@ -32,6 +32,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       style: 'width: 100%',
+      disabled: true,
       placeholder: t('reuse.selectRankOrigin'),
       options: [
         {
@@ -80,6 +81,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       options: [],
+      disabled: true,
       style: 'width: 100%',
       placeholder: t('reuse.selectRankOrigin')
     },

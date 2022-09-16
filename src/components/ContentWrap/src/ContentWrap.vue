@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ElCard, ElTooltip } from 'element-plus'
 import { useDesign } from '@/hooks/web/useDesign'
+import { useI18n } from '@/hooks/web/useI18n'
 
+const { t } = useI18n()
 const { getPrefixCls } = useDesign()
 
 const prefixCls = getPrefixCls('content-wrap')
@@ -22,8 +24,13 @@ const props = defineProps({
   <ElCard :class="[prefixCls, 'mb-20px']" shadow="never">
     <template v-if="props.title" #header>
       <div class="flex items-center">
-        <ElTooltip effect="dark" placement="right">
-          <div class="max-w-250px font-medium">{{ props.message }}</div>
+        <ElTooltip
+          :disabled="props.message === ''"
+          effect="dark"
+          placement="right"
+          :content="props.message"
+        >
+          <div class="max-w-250px font-medium">{{ t(`${props.title}`) }}</div>
         </ElTooltip>
       </div>
     </template>

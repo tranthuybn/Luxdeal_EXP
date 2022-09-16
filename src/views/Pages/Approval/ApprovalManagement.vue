@@ -47,7 +47,7 @@ const unitCategories = [
 ]
 </script>
 <template>
-  <ContentWrap :title="t('reuse.approvalManagement')">
+  <ContentWrap :title="t('reuse.approvalManagement')" :message="t('reuse.approvalManagement')">
     <TableBase
       ref="tableBase01"
       :fullColumns="unitCategories"

@@ -301,11 +301,8 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => 
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   console.log('success', uploadFile, uploadFiles)
   if (!props.multipleImages) {
-    const file = fileList.value.pop()
-    if (file != undefined) {
-      rawUploadFile.value = uploadFile
-      imageUrl.value = URL.createObjectURL(file.raw!)
-    }
+    rawUploadFile.value = uploadFile
+    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   }
 }
 const previewImage = () => {
@@ -320,7 +317,7 @@ const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
 <template>
-  <ContentWrap :title="t(`${title}`)">
+  <ContentWrap :title="props.title">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
@@ -381,7 +378,7 @@ const listType = ref<ListImages>('text')
     </ElRow>
     <template #under>
       <div v-if="props.type === 'add' || isNaN(props.id)">
-        <div v-if="props.typeButton === 'form01'">
+        <!-- <div v-if="props.typeButton === 'form01'">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -393,7 +390,7 @@ const listType = ref<ListImages>('text')
           <ElButton type="primary" :loading="loading" @click="save">
             {{ t('reuse.fix') }}
           </ElButton>
-        </div>
+        </div> -->
         <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>

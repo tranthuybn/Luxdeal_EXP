@@ -525,12 +525,6 @@ export const featuresPrice = reactive<TableColumn[]>([
     field: 'managementCode',
     label: t('reuse.managementCode'),
     component: 'Input',
-    componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
-    },
-    colProps: {
-      span: 20
-    },
     minWidth: '250'
   },
   {

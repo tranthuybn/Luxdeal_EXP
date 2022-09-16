@@ -906,6 +906,12 @@ export default {
     enterPhoneNumber: 'Please enter phone number',
     enterEmail: 'Please enter email',
     socialNetwork: 'Facebook/zalo...',
+    enterSelectOutreachChannel: 'Enter or select an outreach chanel',
+    enterSelectSource: 'Enter or select source',
+    enterNote: 'Enter note',
+    selectService: 'Select service',
+    enterDetailedRequirements: 'Enter detailed requirement',
+    selectOrder: 'Select order',
     //notification
     exit: 'Exit',
     deleteWarning: 'Are you sure want to delete ?',
@@ -913,6 +919,11 @@ export default {
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
     updateFail: 'Update Fail',
+    deleteUnit: 'Are you sure want to delete ?',
+    unitType: 'Unit type',
+    selectUnitLevel: 'Select unit level',
+    unitName: 'Unit name',
+    inputUnit: 'Input unit',
     cantGetData: 'Cant get data'
   }
 }

@@ -68,8 +68,47 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const getSpaLibrary = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/spa', params })
+export const getSpaLibrary = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteSpa = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postSpa = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateSpa = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getSpaById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPASERVICE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getFeaturesDepositFee = async (params: any): Promise<IResponse> => {

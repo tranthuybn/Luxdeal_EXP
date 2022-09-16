@@ -69,14 +69,6 @@ const props = defineProps({
   titleButtons: {
     type: String,
     default: ''
-  },
-  deleteTitle: {
-    type: String,
-    default: 'Warning'
-  },
-  tab: {
-    type: String,
-    default: ''
   }
 })
 
@@ -167,7 +159,7 @@ const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tab }
+      params: { id: row.id, type: type }
     })
   } else {
     console.log(type)
@@ -290,9 +282,9 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.imageurl" />
+            <el-image style="width: 100px; height: 100px" :src="data.row.image" />
           </div>
-          <div>{{ data.row.name }}</div>
+          <div>{{ data.row.title }}</div>
         </div>
       </template>
       <template #image="data">
@@ -301,10 +293,12 @@ const showingColumn =
         </div>
       </template>
       <template #imageList="data">
-        <div>
+        <div v-if="!data">
           <el-image style="width: 130px" :src="data.row.productImages[0].path" />
         </div>
+        <div v-else> nothing data</div>
       </template>
+
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]

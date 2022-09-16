@@ -186,10 +186,10 @@ const delData = async (row: TableData | null, multiple: boolean) => {
       cancelButtonText: 'Cancel',
       type: 'warning'
     })
-      .then(() => {
+      .then(async () => {
         console.log('row', row, multiple)
         if (row !== null && row.children.length == 0) {
-          props
+          await props
             .delApi({ Id: row.id })
             .then(() =>
               ElMessage({

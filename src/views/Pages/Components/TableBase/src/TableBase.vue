@@ -10,9 +10,9 @@ import {
   ElDrawer,
   ElCheckboxGroup,
   ElCheckboxButton,
-  ElMessage,
   ElMessageBox,
-  ElSwitch
+  ElSwitch,
+  ElNotification
 } from 'element-plus'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -181,43 +181,45 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, multiple: boolean) => {
   {
-    ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
     })
       .then(async () => {
         console.log('row', row, multiple)
         if (row !== null && row.children.length == 0) {
-          await props
+          // change this to delApi
+          const res = await props
             .delApi({ Id: row.id })
             .then(() =>
-              ElMessage({
+              ElNotification({
                 message: t('reuse.deleteSuccess'),
                 type: 'success'
               })
             )
-            .catch((error) =>
-              ElMessage({
-                message: error,
+            .catch(() =>
+              ElNotification({
+                message: t('reuse.deleteFail'),
                 type: 'warning'
               })
             )
+          if (res) {
+            getData()
+          }
         } else {
-          ElMessage({
+          ElNotification({
             message: t('reuse.deleteFail'),
             type: 'warning'
           })
         }
       })
       .catch(() => {
-        ElMessage({
+        ElNotification({
           type: 'info',
           message: t('reuse.deleteCancel')
         })
-      })
-      .finally(() => {
-        getData()
       })
   }
 }

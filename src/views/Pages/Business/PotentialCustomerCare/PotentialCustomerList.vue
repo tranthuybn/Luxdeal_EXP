@@ -125,7 +125,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'feedBack',
+    field: 'feedback',
     label: t('reuse.feedBack'),
     minWidth: '180',
     filters: filterStatus
@@ -199,7 +199,6 @@ const showingColumn =
   columns.length > 0
     ? columns.map((el) => ({ value: el.field, label: el.label }))?.filter((el) => el.value)
     : []
-console.log('column', showingColumn)
 // operation colum toggle
 const { setColumn } = methods
 function operatorColumnToggle(param) {
@@ -365,6 +364,14 @@ const filterSelect = (value) => {
         <div>{{ t('reuse.phoneNumber') }}: {{ data.row.phonenumber }}</div>
         <div>Email: {{ data.row.email }}</div>
         <div>Link: {{ data.row.link }}</div>
+      </template>
+      <template #feedback="data">
+        <div>{{ t('reuse.date') }}: {{ dateTimeFormat(data.row.feedbackDate) }}</div>
+        <div>{{ t('reuse.rating') }}: {{ data.row.feedbackStar }}</div>
+        <div>{{ t('reuse.content') }}: {{ data.row.feedbackContent }}</div>
+      </template>
+      <template #order="data">
+        <div>{{ t('reuse.orderCode') }}: {{ data.row.orderCode }}</div>
       </template>
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />

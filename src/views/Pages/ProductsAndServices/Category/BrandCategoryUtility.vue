@@ -32,7 +32,6 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      disabled: true,
       style: 'width: 100%',
       placeholder: t('formDemo.selectRankBrand'),
       options: [
@@ -223,7 +222,13 @@ const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
+  //disable parent select
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {

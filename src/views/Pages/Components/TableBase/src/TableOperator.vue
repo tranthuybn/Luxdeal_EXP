@@ -334,6 +334,7 @@ const listType = ref<ListImages>('text')
           :show-file-list="multipleImages"
           v-model:file-list="fileList"
           :list-type="listType"
+          :limit="10"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
           :on-change="handleChange"

@@ -999,6 +999,8 @@ export default {
     inputUnit: 'Nhập tên đơn vị tính',
     cantGetData: 'Không thể lấy dữ lỉệu',
     //CSKH
-    potentialCustomerHistory: 'Lịch sử CSKH'
+    potentialCustomerHistory: 'Lịch sử CSKH',
+    date: 'Ngày',
+    rating: 'Xếp hạng sao'
   }
 }

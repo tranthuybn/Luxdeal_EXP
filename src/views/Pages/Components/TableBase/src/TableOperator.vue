@@ -194,12 +194,15 @@ const loading = ref(false)
 //doc du lieu tu bang roi emit len goi API
 const { go } = useRouter()
 const save = async (type) => {
+  const validateFile = await beforeAvatarUpload(rawUploadFile.value)
   await unref(elFormRef)!.validate(async (isValid) => {
-    if (isValid) {
+    if (isValid && validateFile) {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
-      props.multipleImages ? (data.Image = fileList.value) : (data.Image = rawUploadFile.value?.raw)
+      props.multipleImages
+        ? (data.Image = ListRawUploadFiles.value)
+        : (data.Image = rawUploadFile.value)
       if (type == 'add') {
         await emit('post-data', data)
         loading.value = false
@@ -225,6 +228,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 let rawUploadFile = ref<UploadFile>()
+let ListRawUploadFiles = ref<UploadFile[]>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
@@ -241,7 +245,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
-const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+const beforeAvatarUpload = (rawFile) => {
   if (rawFile.type !== 'image/jpeg') {
     ElMessage.error('Avatar picture must be JPG format!')
     return false
@@ -293,14 +297,13 @@ const delAction = async () => {
 const cancel = () => {
   go(-1)
 }
-const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-  console.log('success', response, uploadFile)
-}
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   console.log('success', uploadFile, uploadFiles)
   if (!props.multipleImages) {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+  } else {
+    ListRawUploadFiles.value = uploadFiles
   }
 }
 const previewImage = () => {
@@ -335,8 +338,6 @@ const listType = ref<ListImages>('text')
           v-model:file-list="fileList"
           :list-type="listType"
           :limit="10"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload"
           :on-change="handleChange"
         >
           <div v-if="!multipleImages">

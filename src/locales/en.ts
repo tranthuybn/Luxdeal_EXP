@@ -938,6 +938,10 @@ export default {
     inputUnit: 'Input unit',
     cantGetData: 'Cant get data',
     date: 'Date',
-    rating: 'Rating'
+    rating: 'Rating',
+    //Form operator
+    notImageFile: 'Not an image file',
+    imageOver4MB: 'Image file cant be over 4 MB',
+    notHaveImage: 'Dont have image'
   }
 }

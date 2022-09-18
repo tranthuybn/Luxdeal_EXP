@@ -21,7 +21,7 @@ import {
   ElSelectV2,
   ElSwitch
 } from 'element-plus'
-import { TableOperator } from '../../Components/TableBase'
+import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
   columnProfileProduct,
@@ -37,6 +37,7 @@ import {
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useRouter } from 'vue-router'
 const { t } = useI18n()
 import { ref } from 'vue'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -277,10 +278,9 @@ const handleSaveRow = (data) => {
 const localeChange = (show: boolean) => {
   console.log(show)
 }
-//lay du lieu tu router
-//const router = useRouter()
-//const id = String(router.currentRoute.value.params.id)
-// using table's function
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 const dataTable = [{}]
 // get api
 </script>
@@ -299,9 +299,11 @@ const dataTable = [{}]
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center">{{ collapse[0].title }}</span>
         </template>
-        <TableOperator
+        <TableOperatorTreeSelect
           class="infinite-list"
           style="overflow: auto"
+          :type="type"
+          :id="id"
           :schema="collapse[0].columns"
           :typeButton="collapse[0].typeButton"
           :class="[
@@ -1126,7 +1128,7 @@ const dataTable = [{}]
           <el-button class="header-icon" :icon="collapse[7].icon" link />
           <span class="text-center">{{ collapse[7].title }}</span>
         </template>
-        <TableOperator
+        <TableOperatorTreeSelect
           class="infinite-list"
           :hasImage="collapse[7].hasImage"
           style="overflow: auto"

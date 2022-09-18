@@ -1002,6 +1002,10 @@ export default {
     //CSKH
     potentialCustomerHistory: 'Lịch sử CSKH',
     date: 'Ngày',
-    rating: 'Xếp hạng sao'
+    rating: 'Xếp hạng sao',
+    //Form operator
+    notImageFile: 'Khổng gửi đúng định dạng ảnh',
+    imageOver4MB: 'Ảnh không thể lớn hơn 4 MB',
+    notHaveImage: 'Chưa có ảnh'
   }
 }

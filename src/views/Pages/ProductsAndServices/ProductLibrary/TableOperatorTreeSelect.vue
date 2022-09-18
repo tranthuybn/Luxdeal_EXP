@@ -1,7 +1,8 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, reactive } from 'vue'
+import { PropType, watch, ref, unref } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -14,7 +15,10 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage
+  ElImage,
+  ElTreeSelect,
+  ElRadioGroup,
+  ElRadio
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -22,6 +26,8 @@ import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
+import { getCategories } from '@/api/LibraryAndSetting'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 
@@ -344,72 +350,75 @@ const removeImage = () => {
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
-const form = reactive({ username: '' })
-const treeSelectData = ref([
-  {
-    value: '1',
-    label: 'Level one 1',
-    children: [
-      {
-        value: '1-1',
-        label: 'Level two 1-1',
-        children: [
-          {
-            value: '1-1-1',
-            label: 'Level three 1-1-1'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    value: '2',
-    label: 'Level one 2',
-    children: [
-      {
-        value: '2-1',
-        label: 'Level two 2-1',
-        children: [
-          {
-            value: '2-1-1',
-            label: 'Level three 2-1-1',
-            disabled: true
-          }
-        ]
-      },
-      {
-        value: '2-2',
-        label: 'Level two 2-2',
-        children: [
-          {
-            value: '2-2-1',
-            label: 'Level three 2-2-1'
-          }
-        ]
-      }
-    ]
+let treeSelectData = ref()
+let timeCallAPI = 0
+const apiTreeSelect = async () => {
+  if (timeCallAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key })
+      .then((res) => {
+        if (res.data) {
+          treeSelectData.value = res.data.map((index) => ({
+            label: index.name,
+            value: index.id,
+            children: index.children.map((child) => ({
+              value: child.id,
+              label: child.name
+            }))
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => timeCallAPI++)
   }
-])
-const logTree = () => {
-  console.log(form.username)
 }
 </script>
 <template>
   <ContentWrap :title="props.title">
-    <ElButton @click="logTree">asd</ElButton>
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
-          <template #username>
-            <ElFormItem prop="username">
-              <ElTreeSelect
-                v-model="form.username"
-                :data="treeSelectData"
-                multiple
-                check-strictly
-                :render-after-expand="false"
-              />
-            </ElFormItem>
+          <template #category="form">
+            <ElTreeSelect
+              v-model="form['category']"
+              :data="treeSelectData"
+              clearable
+              @focus="apiTreeSelect"
+              style="width: 100%"
+            />
+          </template>
+          <template #Radio01-label>
+            <div class="text-right ml-2 leading-5">
+              <label>{{ t('reuse.setInventoryForSale') }}</label>
+              <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
+            </div>
+          </template>
+          <template #Radio02-label>
+            <div class="text-right ml-2 leading-5">
+              <label>{{ t('reuse.setInventoryForSale') }}</label>
+              <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
+            </div>
+          </template>
+          <template #Radio03-label>
+            <div class="w-full text-right ml-2 leading-5">
+              <label>{{ t('reuse.productStatus') }}</label>
+              <p class="text-[#FECB80]">{{ t('reuse.forAllAttribute') }}</p>
+            </div>
+          </template>
+          <template #Radio03="form">
+            <div>
+              <el-radio-group v-model="form['Radio03']">
+                <el-radio :label="3">{{ t('reuse.pending') }}</el-radio>
+                <el-radio :label="6">{{ t('reuse.active') }}</el-radio>
+                <el-radio :label="9"
+                  >{{ t('reuse.stopActive')
+                  }}<span class="text-[#FECB80]">
+                    ({{ t('reuse.allBusinessRelatedActivities') }})</span
+                  ></el-radio
+                >
+              </el-radio-group>
+            </div>
           </template>
         </Form>
       </ElCol>

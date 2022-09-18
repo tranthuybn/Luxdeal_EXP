@@ -167,55 +167,65 @@ export const businessProductLibrary = [
     }
   }
 ]
-let brandSelect = reactive([{}])
+let brandSelect = reactive([])
+let callBrandAPI = 0
 const getBrandSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
-    .then((res) => {
-      if (res.data) {
-        brandSelect = res.data.map((index) => ({
-          label: index.name,
-          value: index.id
-        }))
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
+  if (callBrandAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
+      .then((res) => {
+        if (res.data) {
+          brandSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callBrandAPI++)
+    columnProfileProduct[2].componentProps!.options = brandSelect
+  }
 }
-await getBrandSelectOptions()
-
-let unitSelect = reactive([{}])
+let unitSelect = reactive([])
+let callUnitAPI = 0
 const getUnitSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
-    .then((res) => {
-      if (res.data) {
-        unitSelect = res.data.map((index) => ({
-          label: index.name,
-          value: index.id
-        }))
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
+  if (callUnitAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
+      .then((res) => {
+        if (res.data) {
+          unitSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callUnitAPI++)
+    columnProfileProduct[3].componentProps!.options = unitSelect
+  }
 }
-await getUnitSelectOptions()
-
-let originSelect = reactive([{}])
+let originSelect = reactive([])
+let callOriginAPI = 0
 const getOriginSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[5].key })
-    .then((res) => {
-      if (res.data) {
-        originSelect = res.data.map((index) => ({
-          label: index.name,
-          value: index.id
-        }))
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-  columnProfileProduct[4].componentProps!.options = originSelect
+  if (callOriginAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[5].key })
+      .then((res) => {
+        if (res.data) {
+          originSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callOriginAPI++)
+    columnProfileProduct[4].componentProps!.options = originSelect
+  }
 }
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
@@ -224,20 +234,21 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'username',
+    field: 'category',
     label: t('reuse.selectCategory'),
     colProps: {
       span: 20
     }
   },
   {
-    field: 'Select03',
+    field: 'brand',
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
+      onClick: () => getBrandSelectOptions(),
       placeholder: 'Chọn thương hiệu cấp 1',
       style: 'width: 100%',
-      options: brandSelect
+      options: []
     },
     colProps: {
       span: 20
@@ -248,9 +259,10 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
+      onClick: () => getUnitSelectOptions(),
       style: 'width: 100%',
       placeholder: 'Chọn thương don vi tinh cap 1',
-      options: unitSelect
+      options: []
     },
     colProps: {
       span: 20
@@ -400,27 +412,8 @@ export const columnProfileProduct = reactive<FormSchema[]>([
   },
   {
     field: 'Radio03',
-    label: t('reuse.productStatus'),
-    component: 'Radio',
-
     colProps: {
       span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.pending'),
-          value: '1'
-        },
-        {
-          label: t('reuse.active'),
-          value: '2'
-        },
-        {
-          label: t('reuse.pauseOperation'),
-          value: '3'
-        }
-      ]
     }
   }
 ])

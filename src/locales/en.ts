@@ -942,6 +942,10 @@ export default {
     //Form operator
     notImageFile: 'Not an image file',
     imageOver4MB: 'Image file cant be over 4 MB',
-    notHaveImage: 'Dont have image'
+    notHaveImage: 'Dont have image',
+    //add product
+    showOnAppWebUser: 'Show on App/web user',
+    forAllAttribute: 'For all attribute',
+    allBusinessRelatedActivities: 'All business related activities'
   }
 }

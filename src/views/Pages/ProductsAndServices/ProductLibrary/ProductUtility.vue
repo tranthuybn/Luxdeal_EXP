@@ -38,6 +38,8 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
+import { reactive } from 'vue'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 import { ref } from 'vue'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -282,6 +284,13 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const dataTable = [{}]
+
+const { required } = useValidator()
+const rules = reactive({
+  category: [required()],
+  brand: [required()],
+  Radio03: [required()]
+})
 // get api
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
@@ -302,6 +311,7 @@ const dataTable = [{}]
         <TableOperatorTreeSelect
           class="infinite-list"
           style="overflow: auto"
+          :rules="rules"
           :type="type"
           :id="id"
           :schema="collapse[0].columns"

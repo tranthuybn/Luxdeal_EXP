@@ -1006,6 +1006,10 @@ export default {
     //Form operator
     notImageFile: 'Khổng gửi đúng định dạng ảnh',
     imageOver4MB: 'Ảnh không thể lớn hơn 4 MB',
-    notHaveImage: 'Chưa có ảnh'
+    notHaveImage: 'Chưa có ảnh',
+    //add product
+    showOnAppWebUser: 'Hiển thị lên App/web user',
+    forAllAttribute: 'Cho toàn bộ đặc tính',
+    allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm'
   }
 }

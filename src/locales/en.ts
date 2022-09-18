@@ -946,6 +946,7 @@ export default {
     //add product
     showOnAppWebUser: 'Show on App/web user',
     forAllAttribute: 'For all attribute',
-    allBusinessRelatedActivities: 'All business related activities'
+    allBusinessRelatedActivities: 'All business related activities',
+    notFillAllInformation: 'Not fill in all the information'
   }
 }

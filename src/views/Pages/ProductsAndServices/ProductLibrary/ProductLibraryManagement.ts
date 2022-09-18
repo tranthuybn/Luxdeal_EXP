@@ -211,7 +211,7 @@ let originSelect = reactive([])
 let callOriginAPI = 0
 const getOriginSelectOptions = async () => {
   if (callOriginAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[5].key })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key })
       .then((res) => {
         if (res.data) {
           originSelect = res.data.map((index) => ({

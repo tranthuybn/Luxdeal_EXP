@@ -18,7 +18,6 @@ import {
   ElTableColumn,
   ElTreeSelect,
   ElInput,
-  ElSelectV2,
   ElSwitch
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
@@ -38,8 +37,10 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { reactive } from 'vue'
+import { onBeforeMount, reactive } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
+import { useTable } from '@/hooks/web/useTable'
+import { TableData } from '@/api/table/types'
 const { t } = useI18n()
 import { ref } from 'vue'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -251,11 +252,6 @@ const collapse: Array<Collapse> = [
     value: 8
   }
 ]
-const initials = ['Chiếc', 'Cái']
-const options = Array.from({ length: 1000 }).map((_, idx) => ({
-  value: `Option ${idx + 1}`,
-  label: `${initials[idx % 10]}${idx}`
-}))
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -271,11 +267,11 @@ const collapseChangeEvent = (val) => {
 const activeName = ref(collapse[0].name)
 const handleEditRow = (data) => {
   data.edited = true
-  console.log(data.edited)
+  console.log('data', data)
 }
 const handleSaveRow = (data) => {
   data.edited = false
-  console.log(data.edited)
+  console.log('data', data)
 }
 const localeChange = (show: boolean) => {
   console.log(show)
@@ -283,7 +279,6 @@ const localeChange = (show: boolean) => {
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const dataTable = [{}]
 
 const { required } = useValidator()
 const rules = reactive({
@@ -292,6 +287,23 @@ const rules = reactive({
   Radio03: [required()]
 })
 // get api
+const { tableObject, methods } = useTable<TableData>({
+  getListApi: getFeaturesPrices,
+  response: {
+    list: 'list',
+    total: 'total'
+  },
+  props: {
+    columns: featuresPrice,
+    headerAlign: 'center'
+  }
+})
+const getData = (data = {}) => {
+  methods.setSearchParams({ ...data })
+}
+onBeforeMount(() => {
+  getData()
+})
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
@@ -326,7 +338,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center">{{ collapse[1].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -341,7 +353,7 @@ const rules = reactive({
           >
             <template #default="scope">
               <ElTreeSelect
-                v-model="scope.row.index"
+                v-model="scope.row.featureGroup"
                 :data="treeSelectData"
                 multiple
                 check-strictly
@@ -360,30 +372,14 @@ const rules = reactive({
           >
             <template #default="scope">
               <ElInput
-                v-model="scope.row.index"
+                v-model="scope.row.quantityTo"
                 v-if="scope.row.edited"
                 placeholder="Please input"
               />
               <span v-else>{{ scope.row.quantityTo }}</span>
             </template>
           </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="130"
-            prop="productCategoryUnit"
-            :label="t('router.productCategoryUnit')"
-          >
-            <template #default="scope">
-              <ElSelectV2
-                v-model="scope.row.index"
-                v-if="scope.row.edited"
-                :options="options"
-                :placeholder="scope.row.date"
-              />
-              <span v-else>{{ scope.row.productCategoryUnit }}</span>
-            </template>
-          </ElTableColumn>
+
           <ElTableColumn
             header-align="center"
             align="right"
@@ -393,7 +389,7 @@ const rules = reactive({
           >
             <template #default="scope">
               <ElInput
-                v-model="scope.row.index"
+                v-model="scope.row.unitPrices"
                 v-if="scope.row.edited"
                 placeholder="Please input"
               />
@@ -409,7 +405,7 @@ const rules = reactive({
           >
             <template #default="scope">
               <ElInput
-                v-model="scope.row.index"
+                v-model="scope.row.promotionPrice"
                 v-if="scope.row.edited"
                 placeholder="Please input"
               />
@@ -467,7 +463,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -508,23 +504,7 @@ const rules = reactive({
               <span v-else>{{ scope.row.quantityTo }}</span>
             </template>
           </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="130"
-            prop="productCategoryUnit"
-            :label="t('router.productCategoryUnit')"
-          >
-            <template #default="scope">
-              <ElSelectV2
-                v-model="scope.row.index"
-                v-if="scope.row.edited"
-                :options="options"
-                :placeholder="scope.row.date"
-              />
-              <span v-else>{{ scope.row.productCategoryUnit }}</span>
-            </template>
-          </ElTableColumn>
+
           <ElTableColumn
             header-align="center"
             align="right"
@@ -640,7 +620,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[3].icon" link />
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -681,23 +661,7 @@ const rules = reactive({
               <span v-else>{{ scope.row.quantityTo }}</span>
             </template>
           </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="130"
-            prop="productCategoryUnit"
-            :label="t('router.productCategoryUnit')"
-          >
-            <template #default="scope">
-              <ElSelectV2
-                v-model="scope.row.index"
-                v-if="scope.row.edited"
-                :options="options"
-                :placeholder="scope.row.date"
-              />
-              <span v-else>{{ scope.row.productCategoryUnit }}</span>
-            </template>
-          </ElTableColumn>
+
           <ElTableColumn
             header-align="center"
             align="center"
@@ -758,7 +722,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[4].icon" link />
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -799,23 +763,7 @@ const rules = reactive({
               <span v-else>{{ scope.row.quantityTo }}</span>
             </template>
           </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="130"
-            prop="productCategoryUnit"
-            :label="t('router.productCategoryUnit')"
-          >
-            <template #default="scope">
-              <ElSelectV2
-                v-model="scope.row.index"
-                v-if="scope.row.edited"
-                :options="options"
-                :placeholder="scope.row.date"
-              />
-              <span v-else>{{ scope.row.productCategoryUnit }}</span>
-            </template>
-          </ElTableColumn>
+
           <ElTableColumn
             header-align="center"
             align="right"
@@ -899,7 +847,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[5].icon" link />
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -998,7 +946,7 @@ const rules = reactive({
           <el-button class="header-icon" :icon="collapse[6].icon" link />
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="dataTable" :border="true" stripe>
+        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"

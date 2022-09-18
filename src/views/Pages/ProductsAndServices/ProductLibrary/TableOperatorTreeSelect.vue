@@ -233,6 +233,9 @@ const save = async (type) => {
         go(-1)
       }
     }
+    if (!isValid) {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+    }
   })
 }
 const addIcon = useIcon({ icon: 'uil:plus' })
@@ -373,6 +376,7 @@ const apiTreeSelect = async () => {
       .finally(() => timeCallAPI++)
   }
 }
+const treeValue = ref()
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -381,11 +385,11 @@ const apiTreeSelect = async () => {
         <Form :rules="rules" @register="register">
           <template #category="form">
             <ElTreeSelect
-              v-model="form['category']"
+              v-model="treeValue"
               :data="treeSelectData"
-              clearable
               @focus="apiTreeSelect"
               style="width: 100%"
+              @change="(data) => (form['category'] = data)"
             />
           </template>
           <template #Radio01-label>

@@ -227,6 +227,9 @@ const save = async (type) => {
         go(-1)
       }
     }
+    if (!isValid) {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+    }
   })
 }
 const addIcon = useIcon({ icon: 'uil:plus' })

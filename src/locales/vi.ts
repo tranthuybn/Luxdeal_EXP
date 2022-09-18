@@ -1010,6 +1010,7 @@ export default {
     //add product
     showOnAppWebUser: 'Hiển thị lên App/web user',
     forAllAttribute: 'Cho toàn bộ đặc tính',
-    allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm'
+    allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm',
+    notFillAllInformation: 'Chưa điền đủ thông tin'
   }
 }

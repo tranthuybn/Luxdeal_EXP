@@ -90,6 +90,7 @@ declare global {
     disabled?: boolean
     // Remote loading drop
     api?: <T = any>() => AxiosPromise<T>
+    title?: string
   }
 
   declare type FormSetPropsType = {

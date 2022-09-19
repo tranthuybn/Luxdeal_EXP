@@ -36,7 +36,7 @@ export const productCategories = [
 export const colorCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
     headerFilter: 'Name'

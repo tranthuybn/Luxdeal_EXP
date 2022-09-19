@@ -12,7 +12,6 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
-import { height } from 'dom7'
 import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {

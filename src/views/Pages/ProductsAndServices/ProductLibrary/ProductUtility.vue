@@ -362,7 +362,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[1].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[1].tableList"
           :border="true"
           stripe
@@ -468,7 +467,7 @@ const postData = async (data) => {
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="160"
+            min-width="200"
             fixed="right"
             :label="t('reuse.operator')"
           >
@@ -493,7 +492,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[2].tableList"
           :border="true"
           stripe
@@ -665,7 +663,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[3].tableList"
           :border="true"
           stripe
@@ -773,7 +770,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[4].tableList"
           :border="true"
           stripe
@@ -904,7 +900,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[5].tableList"
           :border="true"
           stripe
@@ -1009,7 +1004,6 @@ const postData = async (data) => {
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
         <ElTable
-          class="ml-5"
           :data="collapse[6].tableList"
           :border="true"
           stripe
@@ -1173,7 +1167,7 @@ const postData = async (data) => {
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
         />
-        <ElButton class="ml-5" type="primary">
+        <ElButton type="primary">
           {{ t('reuse.save') }}
         </ElButton>
         <ElButton type="primary">
@@ -1189,5 +1183,8 @@ const postData = async (data) => {
 }
 .el-table .cell {
   word-break: break-word;
+}
+:deep(.el-collapse-item__wrap) {
+  margin: 2rem;
 }
 </style>

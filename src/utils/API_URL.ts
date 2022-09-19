@@ -13,7 +13,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   PUT_SPA: '/api/v1/Spa/UpdateSpaService',
   DELETE_SPA: '/api/v1/Spa/DeleteSpaService',
   GET_SPASERVICE: '/api/v1/Spa/GetSpaService',
-  POST_PRODUCT: '/api/v1/Product/CreateProduct'
+  POST_PRODUCT: '/api/v1/Product/CreateProduct',
+  DELETE_PRODUCT: '/api/v1/Product/DeleteProduct'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers'

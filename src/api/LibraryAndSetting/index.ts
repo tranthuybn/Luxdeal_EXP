@@ -84,6 +84,15 @@ export const postProductLibrary = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const deleteProduct = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const getSpaLibrary = async (params): Promise<IResponse> => {
   const res = await request.get(
     {

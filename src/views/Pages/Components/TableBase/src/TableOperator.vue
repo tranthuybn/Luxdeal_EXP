@@ -209,7 +209,7 @@ const save = async (type) => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages
-        ? (data.Image = ListRawUploadFiles.value!.map((file) => file.raw))
+        ? (data.Images = ListRawUploadFiles.value!.map((file) => file.raw))
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         await emit('post-data', data)

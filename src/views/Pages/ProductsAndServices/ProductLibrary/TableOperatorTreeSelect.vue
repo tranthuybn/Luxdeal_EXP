@@ -386,12 +386,14 @@ const getCodeAndNameSelect = async () => {
   if (callGetCodeAndNameAPI == 0) {
     const res = await getCodeAndNameProductLibrary()
     CodeAndNameSelect.value = res.data.map((val) => ({
-      label: val.name,
-      value: val.productCode
+      label: val.productCode,
+      value: val.productCode,
+      name: val.name
     }))
     NameAndCodeSelect.value = res.data.map((val) => ({
-      label: val.productCode,
-      value: val.name
+      label: val.name,
+      value: val.name,
+      productCode: val.productCode
     }))
     callGetCodeAndNameAPI++
   }
@@ -454,7 +456,7 @@ const getCodeAndNameSelect = async () => {
               >
                 <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
                 <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productName') }}: {{ item.value }}</span
+                  >{{ t('reuse.productName') }}: {{ item.productCode }}</span
                 >
               </el-option>
             </el-select>
@@ -478,7 +480,7 @@ const getCodeAndNameSelect = async () => {
               >
                 <span style="float: left">{{ t('reuse.productName') }}: {{ item.label }}</span>
                 <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productCode') }}: {{ item.value }}</span
+                  >{{ t('reuse.productCode') }}: {{ item.name }}</span
                 >
               </el-option>
             </el-select>

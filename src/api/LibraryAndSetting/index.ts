@@ -119,7 +119,7 @@ export const getFeaturesPawnFee = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/features-pawn', params })
   return res && res.data
 }
-export const getFeaturesPrices = async (params: any): Promise<IResponse> => {
+export const getFeaturesPrices = async (params?: any): Promise<IResponse> => {
   const res = await request.get({ url: '/features-prices', params })
   return res && res.data
 }

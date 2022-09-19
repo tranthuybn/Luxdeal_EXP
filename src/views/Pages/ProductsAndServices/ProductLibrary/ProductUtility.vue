@@ -37,10 +37,8 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { onBeforeMount, reactive } from 'vue'
+import { reactive } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
-import { useTable } from '@/hooks/web/useTable'
-import { TableData } from '@/api/table/types'
 const { t } = useI18n()
 import { ref } from 'vue'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -90,7 +88,7 @@ const treeSelectData = ref([
     ]
   }
 ])
-const collapse: Array<Collapse> = [
+const collapse: Array<Collapse> = reactive([
   {
     icon: minusIcon,
     name: 'information',
@@ -129,7 +127,9 @@ const collapse: Array<Collapse> = [
     selection: false,
     customOperator: 2,
     titleChilden: 'reuse.rentalPriceTableByQuantity',
-    value: 2
+    value: 2,
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -150,7 +150,8 @@ const collapse: Array<Collapse> = [
     selection: false,
     customOperator: 2,
     titleChilden: 'reuse.rentalPriceTableByQuantity',
-    value: 3
+    value: 3,
+    tableList: []
   },
   {
     icon: plusIcon,
@@ -169,7 +170,8 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 2,
-    value: 4
+    value: 4,
+    tableList: []
   },
   {
     icon: plusIcon,
@@ -188,7 +190,8 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 2,
-    value: 5
+    value: 5,
+    tableList: []
   },
   {
     icon: plusIcon,
@@ -207,7 +210,8 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 2,
-    value: 6
+    value: 6,
+    tableList: []
   },
   {
     icon: plusIcon,
@@ -229,7 +233,8 @@ const collapse: Array<Collapse> = [
     titleButtonChildren: 'false',
     customOperatorChildren: false,
     customOperator: 2,
-    value: 7
+    value: 7,
+    tableList: []
   },
   {
     icon: plusIcon,
@@ -251,9 +256,16 @@ const collapse: Array<Collapse> = [
     hasImage: false,
     value: 8
   }
-]
-const collapseChangeEvent = (val) => {
-  if (val) {
+])
+let nameCollapse = ''
+const collapseChangeEvent = async (val) => {
+  if (val && val.length > 0) {
+    const collapseItem = collapse.find(
+      (element) => ((nameCollapse = val.slice(-1)), element.name == nameCollapse)
+    )
+    if (collapseItem !== undefined) {
+      await callTableApi(collapseItem)
+    }
     collapse.forEach((el) => {
       if (val.includes(el.name)) el.icon = minusIcon
       else if (el.icon == minusIcon) el.icon = plusIcon
@@ -286,24 +298,11 @@ const rules = reactive({
   brand: [required()],
   Radio03: [required()]
 })
-// get api
-const { tableObject, methods } = useTable<TableData>({
-  getListApi: getFeaturesPrices,
-  response: {
-    list: 'list',
-    total: 'total'
-  },
-  props: {
-    columns: featuresPrice,
-    headerAlign: 'center'
-  }
-})
-const getData = (data = {}) => {
-  methods.setSearchParams({ ...data })
+const callTableApi = async (collapseItem) => {
+  const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
+  collapseItem.tableList = res.data.list
+  collapseItem.loading = false
 }
-onBeforeMount(() => {
-  getData()
-})
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
@@ -338,7 +337,22 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center">{{ collapse[1].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[1].tableList"
+          :border="true"
+          stripe
+          :loading="collapse[1].loading"
+        >
+          <ElTableColumn type="expand">
+            <template #default="props">
+              <ElTable :data="props.row.childrenTable">
+                <ElTableColumn :label="t('reuse.quantityTo')" prop="quantityTo" />
+                <ElTableColumn :label="t('reuse.unitPrices')" prop="unitPrices" />
+                <ElTableColumn :label="t('reuse.promotionPrice')" prop="promotionPrice" />
+              </ElTable>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -463,7 +477,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="collapse[2].tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -620,7 +634,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[3].icon" link />
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="collapse[3].tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -722,7 +736,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[4].icon" link />
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="collapse[4].tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -847,7 +861,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[5].icon" link />
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="collapse[5].tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -946,7 +960,7 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[6].icon" link />
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="tableObject.tableList" :border="true" stripe>
+        <ElTable class="ml-5" :data="collapse[6].tableList" :border="true" stripe>
           <ElTableColumn
             header-align="center"
             min-width="250"

@@ -185,6 +185,7 @@ const getBrandSelectOptions = async () => {
       })
       .finally(() => callBrandAPI++)
     columnProfileProduct[2].componentProps!.options = brandSelect
+    columnProfileProduct[2].componentProps!.loading = false
   }
 }
 let unitSelect = reactive([])
@@ -205,6 +206,7 @@ const getUnitSelectOptions = async () => {
       })
       .finally(() => callUnitAPI++)
     columnProfileProduct[3].componentProps!.options = unitSelect
+    columnProfileProduct[3].componentProps!.loading = false
   }
 }
 let originSelect = reactive([])
@@ -225,7 +227,11 @@ const getOriginSelectOptions = async () => {
       })
       .finally(() => callOriginAPI++)
     columnProfileProduct[4].componentProps!.options = originSelect
+    columnProfileProduct[4].componentProps!.loading = false
   }
+}
+const callProductApi = async () => {
+  //call api 1 time and map name + disable=true && map productCode
 }
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
@@ -248,6 +254,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       onClick: () => getBrandSelectOptions(),
       placeholder: 'Chọn thương hiệu cấp 1',
       style: 'width: 100%',
+      loading: true,
       options: []
     },
     colProps: {
@@ -262,6 +269,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       onClick: () => getUnitSelectOptions(),
       style: 'width: 100%',
       placeholder: 'Chọn thương don vi tinh cap 1',
+      loading: true,
       options: []
     },
     colProps: {
@@ -276,6 +284,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       onClick: () => getOriginSelectOptions(),
       placeholder: 'Chọn xuất xứ cấp 1',
       style: 'width: 100%',
+      loading: true,
       options: []
     },
     colProps: {
@@ -290,9 +299,13 @@ export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Input01',
     label: t('reuse.productCode'),
-    component: 'Input',
+    component: 'Select',
     componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
+      placeholder: 'Nhập mã sản phẩm',
+      onClick: () => callProductApi(),
+      style: 'width: 100%',
+      loading: true,
+      options: []
     },
     colProps: {
       span: 20
@@ -301,9 +314,13 @@ export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Input02',
     label: t('reuse.productName'),
-    component: 'Input',
+    component: 'Select',
     componentProps: {
-      placeholder: 'Nhập tên sản phẩm'
+      placeholder: 'Nhập tên sản phẩm',
+      onClick: () => callProductApi(),
+      style: 'width: 100%',
+      loading: true,
+      options: []
     },
     colProps: {
       span: 20

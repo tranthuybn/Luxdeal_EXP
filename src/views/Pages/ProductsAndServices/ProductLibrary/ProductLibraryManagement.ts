@@ -12,6 +12,7 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
+import { height } from 'dom7'
 import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {
@@ -240,19 +241,19 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'category',
+    field: 'ProductTypeId',
     label: t('reuse.selectCategory'),
     colProps: {
       span: 20
     }
   },
   {
-    field: 'brand',
+    field: 'BrandId',
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
       onClick: () => getBrandSelectOptions(),
-      placeholder: 'Chọn thương hiệu cấp 1',
+      placeholder: t('reuse.chooseBrand'),
       style: 'width: 100%',
       loading: true,
       options: []
@@ -262,13 +263,13 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'Select04',
+    field: 'UnitId',
     label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
       onClick: () => getUnitSelectOptions(),
       style: 'width: 100%',
-      placeholder: 'Chọn thương don vi tinh cap 1',
+      placeholder: t('reuse.chooseUnit'),
       loading: true,
       options: []
     },
@@ -277,12 +278,12 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'Select05',
+    field: 'OriginId',
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
       onClick: () => getOriginSelectOptions(),
-      placeholder: 'Chọn xuất xứ cấp 1',
+      placeholder: t('reuse.chooseOrigin'),
       style: 'width: 100%',
       loading: true,
       options: []
@@ -297,29 +298,36 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Input01',
+    field: 'ProductCode',
     label: t('reuse.productCode'),
     component: 'Select',
     componentProps: {
-      placeholder: 'Nhập mã sản phẩm',
+      placeholder: t('reuse.enterProductCode'),
       onClick: () => callProductApi(),
       style: 'width: 100%',
       loading: true,
+      allowCreate: true,
+      filterable: true,
       options: []
     },
     colProps: {
       span: 20
+    },
+    formItemProps: {
+      style: { height: '55px' }
     }
   },
   {
-    field: 'Input02',
+    field: 'Name',
     label: t('reuse.productName'),
     component: 'Select',
     componentProps: {
-      placeholder: 'Nhập tên sản phẩm',
+      placeholder: t('reuse.enterProductName'),
       onClick: () => callProductApi(),
       style: 'width: 100%',
       loading: true,
+      allowCreate: true,
+      filterable: true,
       options: []
     },
     colProps: {
@@ -327,22 +335,22 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'Input03',
+    field: 'ShortDescription',
     label: t('reuse.shortDescription'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập mô tả'
+      placeholder: t('formDemo.enterDescription')
     },
     colProps: {
       span: 20
     }
   },
   {
-    field: 'Input04',
+    field: 'VerificationInfo',
     label: t('reuse.inspectionInformation'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Thêm Link ...'
+      placeholder: t('reuse.addLink')
     },
     colProps: {
       span: 20
@@ -354,7 +362,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Editor',
+    field: 'Description',
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
@@ -370,10 +378,9 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Radio01',
+    field: 'HireInventoryStatus',
     label: t('reuse.setInventoryForSale'),
     component: 'Radio',
-
     colProps: {
       span: 24
     },
@@ -381,25 +388,25 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.stocking'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.orders'),
-          value: '2'
+          value: 2
         },
         {
           label: t('reuse.outOfStock'),
-          value: '3'
+          value: 3
         },
         {
-          label: t('reuse.displayed'),
-          value: '4'
+          label: t('reuse.notDisplay'),
+          value: 4
         }
       ]
     }
   },
   {
-    field: 'Radio02',
+    field: 'SellInventoryStatus',
     label: t('reuse.setInventoryForRent'),
     component: 'Radio',
 
@@ -410,25 +417,25 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.stocking'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.orders'),
-          value: '2'
+          value: 2
         },
         {
           label: t('reuse.outOfStock'),
-          value: '3'
+          value: 3
         },
         {
-          label: t('reuse.displayed'),
-          value: '4'
+          label: t('reuse.notDisplay'),
+          value: 4
         }
       ]
     }
   },
   {
-    field: 'Radio03',
+    field: 'ProductStatus',
     colProps: {
       span: 24
     }

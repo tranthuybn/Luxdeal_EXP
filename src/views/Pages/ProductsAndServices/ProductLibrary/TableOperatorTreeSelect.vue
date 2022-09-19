@@ -18,7 +18,9 @@ import {
   ElImage,
   ElTreeSelect,
   ElRadioGroup,
-  ElRadio
+  ElRadio,
+  ElSelect,
+  ElOption
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -28,7 +30,7 @@ import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-
+import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -215,7 +217,7 @@ const save = async (type) => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages
-        ? (data.Image = ListRawUploadFiles.value!.map((file) => file.raw))
+        ? (data.Images = ListRawUploadFiles.value!.map((file) => file.raw))
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         await emit('post-data', data)
@@ -288,8 +290,8 @@ const beforeAvatarUpload = (rawFile, type: string) => {
     }
     return true
   } else {
-    ElMessage.info(t('reuse.notHaveImage'))
-    return true
+    ElMessage.warning(t('reuse.notHaveImage'))
+    return false
   }
 }
 const { push } = useRouter()
@@ -377,45 +379,128 @@ const apiTreeSelect = async () => {
   }
 }
 const treeValue = ref()
+let CodeAndNameSelect = ref()
+let NameAndCodeSelect = ref()
+let callGetCodeAndNameAPI = 0
+const getCodeAndNameSelect = async () => {
+  if (callGetCodeAndNameAPI == 0) {
+    const res = await getCodeAndNameProductLibrary()
+    CodeAndNameSelect.value = res.data.map((val) => ({
+      label: val.name,
+      value: val.productCode
+    }))
+    NameAndCodeSelect.value = res.data.map((val) => ({
+      label: val.productCode,
+      value: val.name
+    }))
+    callGetCodeAndNameAPI++
+  }
+}
 </script>
 <template>
   <ContentWrap :title="props.title">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
-          <template #category="form">
+          <template #ProductTypeId="form">
             <ElTreeSelect
               v-model="treeValue"
               :data="treeSelectData"
               @focus="apiTreeSelect"
               style="width: 100%"
-              @change="(data) => (form['category'] = data)"
+              @change="(data) => (form['ProductTypeId'] = data)"
             />
           </template>
-          <template #Radio01-label>
+          <template #HireInventoryStatus-label>
             <div class="text-right ml-2 leading-5">
               <label>{{ t('reuse.setInventoryForSale') }}</label>
               <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
             </div>
           </template>
-          <template #Radio02-label>
+          <template #SellInventoryStatus-label>
             <div class="text-right ml-2 leading-5">
               <label>{{ t('reuse.setInventoryForSale') }}</label>
               <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
             </div>
           </template>
-          <template #Radio03-label>
+          <template #ProductStatus-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productStatus') }}</label>
               <p class="text-[#FECB80]">{{ t('reuse.forAllAttribute') }}</p>
             </div>
           </template>
-          <template #Radio03="form">
+          <template #ProductCode-label>
+            <div class="w-2/3 text-right ml-2 leading-5">
+              <label>{{ t('reuse.productCode') }}</label>
+              <p class="text-[#a1a1a1]">{{ t('reuse.productCodeDescription') }}</p>
+            </div>
+          </template>
+          <template #ProductCode="form">
+            <el-select
+              v-model="form['ProductCode']"
+              :placeholder="`${t('reuse.enterProductCode')}`"
+              @focus="getCodeAndNameSelect"
+              style="width: 100%"
+              allow-create
+              filterable
+              clearable
+            >
+              <el-option
+                v-for="item in NameAndCodeSelect"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :disabled="true"
+              >
+                <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
+                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                  >{{ t('reuse.productName') }}: {{ item.value }}</span
+                >
+              </el-option>
+            </el-select>
+          </template>
+          <template #Name="form">
+            <el-select
+              v-model="form['Name']"
+              :placeholder="`${t('reuse.enterProductName')}`"
+              @focus="getCodeAndNameSelect"
+              style="width: 100%"
+              allow-create
+              filterable
+              clearable
+            >
+              <el-option
+                v-for="item in CodeAndNameSelect"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :disabled="true"
+              >
+                <span style="float: left">{{ t('reuse.productName') }}: {{ item.label }}</span>
+                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                  >{{ t('reuse.productCode') }}: {{ item.value }}</span
+                >
+              </el-option>
+            </el-select>
+          </template>
+          <template #Name-label>
+            <div class="w-full text-right ml-2 leading-5">
+              <label>{{ t('reuse.productName') }}</label>
+              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+            </div>
+          </template>
+          <template #ShortDescription-label>
+            <div class="w-full text-right ml-2 leading-5">
+              <label>{{ t('reuse.shortDescription') }}</label>
+              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+            </div>
+          </template>
+          <template #ProductStatus="form">
             <div>
-              <el-radio-group v-model="form['Radio03']">
-                <el-radio :label="3">{{ t('reuse.pending') }}</el-radio>
-                <el-radio :label="6">{{ t('reuse.active') }}</el-radio>
-                <el-radio :label="9"
+              <el-radio-group v-model="form['ProductStatus']">
+                <el-radio :label="1">{{ t('reuse.pending') }}</el-radio>
+                <el-radio :label="2">{{ t('reuse.active') }}</el-radio>
+                <el-radio :label="3"
                   >{{ t('reuse.stopActive')
                   }}<span class="text-[#FECB80]">
                     ({{ t('reuse.allBusinessRelatedActivities') }})</span

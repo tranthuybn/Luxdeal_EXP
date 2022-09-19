@@ -1011,6 +1011,15 @@ export default {
     showOnAppWebUser: 'Hiển thị lên App/web user',
     forAllAttribute: 'Cho toàn bộ đặc tính',
     allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm',
-    notFillAllInformation: 'Chưa điền đủ thông tin'
+    notFillAllInformation: 'Chưa điền đủ thông tin',
+    productCodeDescription: 'Là mã từ nhà sản xuất/ mã quản lý chung sản phẩm',
+    under50Characters: 'Dưới 50 ký tự',
+    chooseBrand: 'Chọn thương hiệu',
+    chooseUnit: 'Chọn đơn vị tính',
+    chooseOrigin: 'Chọn xuất xứ',
+    enterProductCode: 'Nhập mã sản phẩm',
+    enterProductName: 'Nhập tên sản phẩm',
+    addLink: 'Thêm Link',
+    notDisplay: 'Không hiển thị'
   }
 }

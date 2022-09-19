@@ -68,6 +68,22 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getCodeAndNameProductLibrary = async (params?): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.CHECK_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postProductLibrary = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const getSpaLibrary = async (params): Promise<IResponse> => {
   const res = await request.get(
     {

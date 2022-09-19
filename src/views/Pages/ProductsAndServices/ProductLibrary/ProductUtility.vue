@@ -8,7 +8,8 @@ import {
   getSpaLPrice,
   getInventoryTrading,
   getPriceByQuantity,
-  getImportAndExportHistory
+  getImportAndExportHistory,
+  postProductLibrary
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -18,7 +19,8 @@ import {
   ElTableColumn,
   ElTreeSelect,
   ElInput,
-  ElSwitch
+  ElSwitch,
+  ElNotification
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -39,6 +41,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 import { ref } from 'vue'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -151,7 +154,8 @@ const collapse: Array<Collapse> = reactive([
     customOperator: 2,
     titleChilden: 'reuse.rentalPriceTableByQuantity',
     value: 3,
-    tableList: []
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -171,7 +175,8 @@ const collapse: Array<Collapse> = reactive([
     selection: false,
     customOperator: 2,
     value: 4,
-    tableList: []
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -191,7 +196,8 @@ const collapse: Array<Collapse> = reactive([
     selection: false,
     customOperator: 2,
     value: 5,
-    tableList: []
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -211,7 +217,8 @@ const collapse: Array<Collapse> = reactive([
     selection: false,
     customOperator: 2,
     value: 6,
-    tableList: []
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -234,7 +241,8 @@ const collapse: Array<Collapse> = reactive([
     customOperatorChildren: false,
     customOperator: 2,
     value: 7,
-    tableList: []
+    tableList: [],
+    loading: true
   },
   {
     icon: plusIcon,
@@ -303,6 +311,21 @@ const callTableApi = async (collapseItem) => {
   collapseItem.tableList = res.data.list
   collapseItem.loading = false
 }
+const postData = async (data) => {
+  await postProductLibrary(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
+}
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
@@ -327,6 +350,7 @@ const callTableApi = async (collapseItem) => {
           :id="id"
           :schema="collapse[0].columns"
           :typeButton="collapse[0].typeButton"
+          @post-data="postData"
           :class="[
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
@@ -342,17 +366,8 @@ const callTableApi = async (collapseItem) => {
           :data="collapse[1].tableList"
           :border="true"
           stripe
-          :loading="collapse[1].loading"
+          v-loading="collapse[1].loading"
         >
-          <ElTableColumn type="expand">
-            <template #default="props">
-              <ElTable :data="props.row.childrenTable">
-                <ElTableColumn :label="t('reuse.quantityTo')" prop="quantityTo" />
-                <ElTableColumn :label="t('reuse.unitPrices')" prop="unitPrices" />
-                <ElTableColumn :label="t('reuse.promotionPrice')" prop="promotionPrice" />
-              </ElTable>
-            </template>
-          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -367,7 +382,7 @@ const callTableApi = async (collapseItem) => {
           >
             <template #default="scope">
               <ElTreeSelect
-                v-model="scope.row.featureGroup"
+                v-model="scope.row.featureGroupTree"
                 :data="treeSelectData"
                 multiple
                 check-strictly
@@ -462,7 +477,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -477,7 +492,22 @@ const callTableApi = async (collapseItem) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="collapse[2].tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[2].tableList"
+          :border="true"
+          stripe
+          v-loading="collapse[2].loading"
+        >
+          <ElTableColumn type="expand">
+            <template #default="props">
+              <ElTable :data="props.row.childrenTable">
+                <ElTableColumn :label="t('reuse.quantityTo')" prop="quantityTo" />
+                <ElTableColumn :label="t('reuse.unitPrices')" prop="unitPrices" />
+                <ElTableColumn :label="t('reuse.promotionPrice')" prop="promotionPrice" />
+              </ElTable>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -619,7 +649,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -634,7 +664,13 @@ const callTableApi = async (collapseItem) => {
           <el-button class="header-icon" :icon="collapse[3].icon" link />
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="collapse[3].tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[3].tableList"
+          :border="true"
+          stripe
+          v-loading="collapse[3].loading"
+        >
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -721,7 +757,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -736,7 +772,13 @@ const callTableApi = async (collapseItem) => {
           <el-button class="header-icon" :icon="collapse[4].icon" link />
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="collapse[4].tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[4].tableList"
+          :border="true"
+          stripe
+          v-loading="collapse[4].loading"
+        >
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -846,7 +888,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -861,7 +903,13 @@ const callTableApi = async (collapseItem) => {
           <el-button class="header-icon" :icon="collapse[5].icon" link />
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="collapse[5].tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[5].tableList"
+          :border="true"
+          stripe
+          v-loading="collapse[5].loading"
+        >
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -945,7 +993,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -960,7 +1008,22 @@ const callTableApi = async (collapseItem) => {
           <el-button class="header-icon" :icon="collapse[6].icon" link />
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
-        <ElTable class="ml-5" :data="collapse[6].tableList" :border="true" stripe>
+        <ElTable
+          class="ml-5"
+          :data="collapse[6].tableList"
+          :border="true"
+          stripe
+          v-loading="collapse[6].loading"
+        >
+          <ElTableColumn type="expand">
+            <template #default="props">
+              <ElTable :data="props.row.childrenTable">
+                <ElTableColumn :label="t('reuse.quantityTo')" prop="quantityTo" />
+                <ElTableColumn :label="t('reuse.unitPrices')" prop="unitPrices" />
+                <ElTableColumn :label="t('reuse.promotionPrice')" prop="promotionPrice" />
+              </ElTable>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -1085,7 +1148,7 @@ const callTableApi = async (collapseItem) => {
                 t('reuse.save')
               }}</el-button>
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.fix')
+                t('reuse.edit')
               }}</el-button>
               <el-button type="danger" @click="handleEditRow(scope.row)">{{
                 t('reuse.delete')
@@ -1123,5 +1186,8 @@ const callTableApi = async (collapseItem) => {
 <style scoped>
 .text-center {
   font-size: 20px;
+}
+.el-table .cell {
+  word-break: break-word;
 }
 </style>

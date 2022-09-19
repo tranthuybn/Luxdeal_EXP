@@ -51,6 +51,7 @@ const collapse: Array<Collapse> = [
     customOperator: 2,
     apiTableChild: getImportAndExportHistory,
     columnsTableChild: columnsImportExportHistory,
+    titleButtonChildren: t('reuse.addActions'),
     pagination: false,
     removeHeaderFilter: true,
     removeDrawer: false,

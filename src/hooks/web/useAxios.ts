@@ -3,13 +3,14 @@ import { service } from '@/config/axios'
 import { AxiosPromise } from 'axios'
 
 import { config } from '@/config/axios/config'
+import { API_URL } from '@/utils/API_URL'
 
 const { default_headers } = config
 
 const request = (option: AxiosConfig, fixedBaseURL: boolean) => {
   const { url, method, params, data, headersType, responseType } = option
   let baseURL = ''
-  fixedBaseURL ? (baseURL = 'http://103.81.87.134:910') : (baseURL = '')
+  fixedBaseURL ? (baseURL = API_URL) : (baseURL = '')
   return service({
     baseURL: baseURL,
     url: url,

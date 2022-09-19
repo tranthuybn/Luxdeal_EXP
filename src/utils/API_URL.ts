@@ -1,3 +1,4 @@
+import { ERP_DOMAIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',

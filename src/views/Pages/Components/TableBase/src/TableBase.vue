@@ -21,6 +21,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
+import { API_URL } from '@/utils/API_URL'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -292,19 +293,19 @@ const showingColumn =
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="data.row.imageurl" />
+            <el-image style="width: 100px; height: 100px" :src="API_URL + data.row.imageurl" />
           </div>
           <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">
         <div>
-          <el-image style="width: 180px" :src="data.row.image" />
+          <el-image style="width: 180px" :src="API_URL + data.row.image" />
         </div>
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px" :src="data.row.productImages[0].path" />
+          <el-image style="width: 130px" :src="API_URL + data.row.productImages[0].path" />
         </div>
       </template>
       <template

@@ -36,7 +36,7 @@ export const productCategories = [
 export const colorCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -73,7 +73,7 @@ export const colorCategories = [
 export const sizeCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categorySizeTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -110,7 +110,7 @@ export const sizeCategories = [
 export const materialCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryMaterialTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -147,7 +147,7 @@ export const materialCategories = [
 export const statusCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryStatusTitle'),
     minWidth: '650',
     headerFilter: 'Name'
@@ -184,7 +184,7 @@ export const statusCategories = [
 export const genderCategories = [
   { field: '', width: '50' },
   {
-    field: 'name',
+    field: 'imgTitle',
     label: t('reuse.categoryGenderTitle'),
     minWidth: '650',
     headerFilter: 'Name'

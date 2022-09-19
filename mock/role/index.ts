@@ -307,7 +307,7 @@ const adminList = [
           {
             path: 'create-new-order',
             name: 'business.order-management.create-new-order',
-            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+            component: 'views/Pages/Business/OrderManagement/index',
             meta: {
               title: 'router.createANewOrder'
             }

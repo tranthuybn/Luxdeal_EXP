@@ -181,6 +181,7 @@ export default {
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hàng',
+    consignmentReturnHistoryForCustomers: 'Lịch sử hoàn trả lại hàng ký gửi cho khách hàng',
     orderReceiptsGoods: 'Đơn nhập hàng',
     brandName: 'Tên Thương hiệu',
     deleteBrand: 'Xóa thương hiệu',
@@ -192,7 +193,12 @@ export default {
     receivableOrPayable: 'Phải thu/phải chi',
     invoiceForGoodsEnteringTheWarehouse: 'Phiếu nhập hàng vào kho',
     productImportInvoice: 'Phiếu nhập hàng',
-    invoice: 'Phiếu nhập kho'
+    invoice: 'Phiếu nhập kho',
+    addNewSalesOrders: 'Thêm đơn hàng bán',
+    addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
+    addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
+    addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
+    addNewSpaOrders: 'Thêm mới đơn hàng Spa'
   },
   button: {
     add: 'Thêm nhanh'

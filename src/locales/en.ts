@@ -181,6 +181,7 @@ export default {
     statusAndManipulation: 'Status and manipulation',
     temporaryStorage: 'Temporary storage',
     productImportHistory: 'Product import history',
+    consignmentReturnHistoryForCustomers: 'Consignment return history for customers',
     orderReceiptsGoods: 'Order receipts goods',
     brandName: 'Brand name',
     deleteBrand: 'Delete Brand',
@@ -191,7 +192,12 @@ export default {
     total: 'Total',
     receivableOrPayable: 'Receivable/payable',
     invoiceForGoodsEnteringTheWarehouse: 'Invoice for goods entering the warehouse',
-    invoice: 'Invoice'
+    invoice: 'Invoice',
+    addNewSalesOrders: 'Add new sales orders',
+    addnewRentalOrders: 'Add new rental orders',
+    addNewConsignmentOrders: 'Add new consignment orders',
+    addNewPawnOrders: 'Add new pawn orders',
+    addNewSpaOrders: 'Add new Spa Orders'
   },
   button: {
     add: 'Add quick'

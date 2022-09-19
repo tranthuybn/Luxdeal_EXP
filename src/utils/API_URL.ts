@@ -1,3 +1,4 @@
+export const API_URL = ERP_DOMAIN
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -11,7 +12,6 @@ export const PRODUCTS_AND_SERVICES_API = {
   DELETE_SPA: '/api/v1/Spa/DeleteSpaService',
   GET_SPASERVICE: '/api/v1/Spa/GetSpaService'
 }
-export const API_URL = 'http://103.81.87.134:910'
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers'
 }

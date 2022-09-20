@@ -47,7 +47,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      placehoder: 'nhập ngày'
+      placehoder: t('formDemo.enterDates')
     }
   },
   {
@@ -315,20 +315,20 @@ const activeName = ref('1')
               <template #depositTerm>
                 <div class="flex items-center w-[100%] gap-4">
                   <div class="w-[15%] ml-2 text-right leading-5">
-                    <label class="w-[15%] leading-5" for="">Thời hạn ký gửi</label>
-                    <p class="text-[#FECB80]">Ít nhất 14 ngày</p>
+                    <label class="w-[15%] leading-5" for="">{{ t('formDemo.depositTerm') }}</label>
+                    <p class="text-[#FECB80]">{{ t('formDemo.atLeast14Days') }}</p>
                   </div>
 
                   <div class="flex w-[80%] gap-2">
                     <input
                       class="w-[50%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="`Ngày bắt đầu`"
+                      :placeholder="`${t('formDemo.startDate')}`"
                     />
                     <input
                       class="w-[50%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="`Ngày kết thúc`"
+                      :placeholder="`${t('formDemo.endDate')}`"
                     />
                   </div>
                 </div>
@@ -390,7 +390,7 @@ const activeName = ref('1')
             <div class="flex">
               <div class="pl-5">
                 <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                <div class="text-right text-[#FECB80]">Dưới 10 hồ sơ</div>
+                <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThan10Records') }}</div>
               </div>
               <div class="pl-4">
                 <el-upload
@@ -453,8 +453,8 @@ const activeName = ref('1')
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4">
                       <div class="w-[15%] text-right ml-2 leading-5">
-                        <label>Thông tin khách hàng</label>
-                        <p class="text-[#FECB80]">Đại diện</p>
+                        <label>{{ t('reusu.customerInfo') }}</label>
+                        <p class="text-[#FECB80]">{{ t('reuse.representative') }}</p>
                       </div>
 
                       <input
@@ -476,7 +476,7 @@ const activeName = ref('1')
                       }}</label>
                       <el-select
                         v-model="value2"
-                        :placeholder="`Nhận hàng ký gửi tại quầy(Chỉ có phương án này)`"
+                        :placeholder="`Nhận hàng ký gửi tại quầy`"
                         size="large"
                       >
                         <el-option
@@ -526,7 +526,9 @@ const activeName = ref('1')
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-divider content-position="left">Danh sách sản phẩm ký gửi</el-divider>
+        <el-divider content-position="left">{{
+          t('formDemo.listOfConsignmentProducts')
+        }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
             <el-select v-model="value" class="m-2" size="large">
@@ -595,7 +597,12 @@ const activeName = ref('1')
           <el-table-column :label="`${t('reuse.accessory')}`" width="180">
             <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
           </el-table-column>
-          <el-table-column prop="quantity" :label="`Số lượng`" align="center" width="90" />
+          <el-table-column
+            prop="quantity"
+            :label="`{{ t('reuse.quantity')}}`"
+            align="center"
+            width="90"
+          />
           <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
             <el-select v-model="dramValue" class="m-2" size="large">
               <el-option
@@ -606,17 +613,26 @@ const activeName = ref('1')
               />
             </el-select>
           </el-table-column>
-          <el-table-column prop="unitPrice" :label="`Giá trị đơn hàng`" align="center" width="90" />
-          <el-table-column :label="`Giá đàm phán`" align="center" width="100" />
-          <el-table-column :label="`Phí ký gửi`" width="200">
+          <el-table-column
+            prop="unitPrice"
+            :label="`${t('formDemo.orderValue')}`"
+            align="center"
+            width="90"
+          />
+          <el-table-column
+            :label="`{{t('formDemo.negotiablePrice')}}`"
+            align="center"
+            width="100"
+          />
+          <el-table-column :label="`${t('formDemo.depositFee')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">20%</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Sửa</div>
             </div>
           </el-table-column>
-          <el-table-column :label="`Thành tiền phí phải thu`" align="center" width="100" />
-          <el-table-column :label="`Loại đơn`" align="center" width="100" />
-          <el-table-column :label="`Mã đơn hàng`" width="100" />
+          <el-table-column :label="`${t('formDemo.payableFees')}`" align="center" width="100" />
+          <el-table-column :label="`${t('reuse.singleType')}`" align="center" width="100" />
+          <el-table-column :label="`${t('reusu.orderCode')}`" width="100" />
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
             <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>

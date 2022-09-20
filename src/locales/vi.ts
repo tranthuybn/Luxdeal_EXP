@@ -198,7 +198,16 @@ export default {
     addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
     addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
-    addNewSpaOrders: 'Thêm mới đơn hàng Spa'
+    addNewSpaOrders: 'Thêm mới đơn hàng Spa',
+    enterDates: 'Nhập ngày',
+    depositTerm: 'Thời hạn ký gửi',
+    atLeast14Days: 'Ít nhất 14 ngày',
+    lessThan10Records: 'Dưới 10 hồ sơ',
+    listOfConsignmentProducts: 'Danh sách sản phẩm ký gửi',
+    negotiablePrice: 'Giá đàm phán',
+    orderValue: 'Giá trị đơn hàng',
+    depositFee: 'Phí ký gửi',
+    payableFees: 'Thành tiền phí phải thu'
   },
   button: {
     add: 'Thêm nhanh'
@@ -885,6 +894,7 @@ export default {
     pauseOperation: 'Tạm dừng hoạt động',
     informationSeo: 'Thông tin SEO',
     path: 'Đường dẫn',
+    quantity: 'Số lượng',
     quantityTo: 'Số lượng đến',
     unitPrices: 'Đơn giá bán',
     promotionPrice: 'Giá khuyến mại',
@@ -1000,6 +1010,7 @@ export default {
     updateFail: 'Sửa thất bại',
     deleteUnit: 'Xóa đơn vị tính',
     unitType: 'Loại đơn vị tính',
+    singleType: 'Loại đơn',
     selectUnitLevel: 'Chọn cấp đơn vị tính',
     unitName: 'Tên đơn vị tính',
     inputUnit: 'Nhập tên đơn vị tính',

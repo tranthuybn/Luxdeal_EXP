@@ -767,6 +767,7 @@ export default {
     addNewBranch: 'Add New Branch',
     numberOfEmployees: 'Number of employees',
     DepartmentName: 'Department of name',
+    informationServices: 'Information services',
     //Quan ly san pham
     currentlyLeased: 'Currently leased',
     quantitySold: 'Quantity Sold',

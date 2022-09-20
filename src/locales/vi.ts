@@ -819,6 +819,7 @@ export default {
     hiding: 'Đang ẩn',
     home: 'Trang chủ',
     trending: 'Nổi bật',
+    informationServices: 'Thông tin dịch vụ',
     //forum
     recently: 'Gần đây',
     feature: 'Nổi bật',

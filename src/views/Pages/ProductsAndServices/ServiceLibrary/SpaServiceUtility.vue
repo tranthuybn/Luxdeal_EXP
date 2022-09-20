@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, RendererElement, RendererNode, VNode } from 'vue'
+import { h, reactive, ref, RendererElement, RendererNode, VNode } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -76,7 +76,8 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterPrice')
+      placeholder: t('formDemo.enterPrice'),
+      suffixIcon: h('div', 'đ')
     }
   },
   {
@@ -87,7 +88,8 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterPrice')
+      placeholder: t('formDemo.enterPrice'),
+      suffixIcon: h('div', 'đ')
     }
   },
   {
@@ -98,7 +100,8 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterNumberHours')
+      placeholder: t('formDemo.enterNumberHours'),
+      suffixIcon: h('div', 'giờ')
     }
   },
   {
@@ -109,7 +112,8 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterNumberDays')
+      placeholder: t('formDemo.enterNumberDays'),
+      suffixIcon: h('div', 'ngày')
     }
   },
   {
@@ -292,7 +296,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: t('formDemo.productInfomation'),
+    title: t('reuse.informationServices'),
     columns: schema,
     api: undefined,
     buttonAdd: '',
@@ -337,7 +341,6 @@ const activeName = ref('information')
           :type="type"
           :id="id"
           @post-data="postData"
-          :multipleImages="false"
           :rules="!(type === 'detail') ? rules : {}"
           @customize-form-data="customizeData"
           @edit-data="editData"

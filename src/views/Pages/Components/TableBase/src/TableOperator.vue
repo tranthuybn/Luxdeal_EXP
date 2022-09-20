@@ -341,7 +341,7 @@ const listType = ref<ListImages>('text')
         >
           <div v-if="!multipleImages">
             <div v-if="imageUrl" class="relative">
-              <el-image :src="imageUrl" class="avatar" />
+              <ElImage style="width: 160px; height: 160px" :src="imageUrl" class="avatar" />
             </div>
             <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
           </div>

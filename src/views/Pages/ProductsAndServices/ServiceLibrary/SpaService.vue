@@ -11,7 +11,7 @@ const deleteOrigin = t('reuse.deleteService')
     :columns="businessProductLibrary"
     :delApi="deleteSpa"
     :deleteTitle="deleteOrigin"
-    :selection="false"
+    :selection="true"
     :api="getSpaLibrary"
   />
 </template>

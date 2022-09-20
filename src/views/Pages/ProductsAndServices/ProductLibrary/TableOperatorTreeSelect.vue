@@ -31,6 +31,7 @@ import { useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -41,10 +42,6 @@ const props = defineProps({
   delApi: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
-  },
-  currentRow: {
-    type: Object as PropType<Nullable<TableData>>,
-    default: () => null
   },
   schema: {
     type: Array as PropType<FormSchema[]>,
@@ -107,12 +104,12 @@ const getTableValue = async () => {
   if (!isNaN(props.id)) {
     const res = await props.apiId({ ...props.params, id: props.id })
     if (res) {
-      if (res.data.list !== undefined) {
+      if (res.data?.list !== undefined) {
         formValue.value = res.data.list[0]
       } else {
-        formValue.value = res.data
+        formValue.value = res.data[0]
       }
-      await setFormValue()
+      await customizeData()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -128,28 +125,8 @@ const { register, methods, elFormRef } = useForm({
 })
 let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
-const { setValues } = methods
-watch(
-  () => props.currentRow,
-  (currentRow) => {
-    if (!currentRow) {
-      return
-    }
-    if (currentRow.list.length !== 0) {
-      setValues(currentRow?.list[0])
-      fileList.value.push({
-        url: currentRow.list[0].image,
-        name: currentRow.list[0].title
-      })
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 const customizeData = async () => {
-  await emit('customize-form-data', formValue.value)
+  emit('customize-form-data', formValue.value, () => setFormValue())
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -158,7 +135,6 @@ const imageUrl = ref('')
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
-  await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
@@ -168,10 +144,11 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
-  fileList.value.push({
-    url: formValue.value.image,
-    name: formValue.value.title
-  })
+  if (props.multipleImages) {
+    formValue.value.productImages.map((image) =>
+      fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
+    )
+  }
 }
 //watch and call get data form detail and edit
 watch(
@@ -198,6 +175,7 @@ defineExpose({
 })
 
 const loading = ref(false)
+let treeSelectData = ref()
 
 //doc du lieu tu bang roi emit len goi API
 const { go } = useRouter()
@@ -207,7 +185,7 @@ const save = async (type) => {
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
-        validateFile = await beforeAvatarUpload(ListRawUploadFiles.value, 'list')
+        validateFile = await beforeAvatarUpload(fileList.value, 'list')
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
@@ -216,21 +194,30 @@ const save = async (type) => {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
+      if (treeSelectData.value == undefined) {
+        await apiTreeSelect()
+      }
+      let ProductTypeId = treeSelectData.value.find((tree) =>
+        tree.children.find((child) => child.label == data.ProductTypeId)
+      )
+      ProductTypeId = ProductTypeId.children.find((options) => options.label === data.ProductTypeId)
+      data.ProductTypeId = ProductTypeId.id
       props.multipleImages
-        ? (data.Images = ListRawUploadFiles.value!.map((file) => file.raw))
+        ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        await emit('post-data', data)
+        emit('post-data', data, () => go(-1))
         loading.value = false
         go(-1)
       }
       if (type == 'saveAndAdd') {
-        await emit('post-data', data)
+        emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
       if (type == 'edit') {
-        await emit('edit-data', data)
+        data.Id = props.id
+        emit('edit-data', data, () => go(-1))
         loading.value = false
         go(-1)
       }
@@ -247,14 +234,12 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 let rawUploadFile = ref<UploadFile>()
-let ListRawUploadFiles = ref<UploadFile[]>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
-
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
 }
@@ -264,7 +249,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
-const beforeAvatarUpload = (rawFile, type: string) => {
+const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
@@ -341,7 +326,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
-    ListRawUploadFiles.value = uploadFiles
+    fileList.value = uploadFiles
   }
 }
 const previewImage = () => {
@@ -355,7 +340,6 @@ const removeImage = () => {
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
-let treeSelectData = ref()
 let timeCallAPI = 0
 const apiTreeSelect = async () => {
   if (timeCallAPI == 0) {
@@ -364,10 +348,12 @@ const apiTreeSelect = async () => {
         if (res.data) {
           treeSelectData.value = res.data.map((index) => ({
             label: index.name,
-            value: index.id,
+            value: index.name,
+            id: index.id,
             children: index.children.map((child) => ({
-              value: child.id,
-              label: child.name
+              value: child.name,
+              label: child.name,
+              id: child.id
             }))
           }))
         }
@@ -378,7 +364,6 @@ const apiTreeSelect = async () => {
       .finally(() => timeCallAPI++)
   }
 }
-const treeValue = ref()
 let CodeAndNameSelect = ref()
 let NameAndCodeSelect = ref()
 let callGetCodeAndNameAPI = 0
@@ -406,11 +391,10 @@ const getCodeAndNameSelect = async () => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
-              v-model="treeValue"
+              v-model="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
               style="width: 100%"
-              @change="(data) => (form['ProductTypeId'] = data)"
             />
           </template>
           <template #HireInventoryStatus-label>
@@ -421,7 +405,7 @@ const getCodeAndNameSelect = async () => {
           </template>
           <template #SellInventoryStatus-label>
             <div class="text-right ml-2 leading-5">
-              <label>{{ t('reuse.setInventoryForSale') }}</label>
+              <label>{{ t('reuse.setInventoryForRent') }}</label>
               <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
             </div>
           </template>

@@ -84,6 +84,13 @@ export const postProductLibrary = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const updateProductLibrary = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const deleteProduct = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {

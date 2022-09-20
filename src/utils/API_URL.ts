@@ -14,6 +14,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   DELETE_SPA: '/api/v1/Spa/DeleteSpaService',
   GET_SPASERVICE: '/api/v1/Spa/GetSpaService',
   POST_PRODUCT: '/api/v1/Product/CreateProduct',
+  UPDATE_PRODUCT: '/api/v1/Product/UpdateProductInfo',
   DELETE_PRODUCT: '/api/v1/Product/DeleteProduct'
 }
 export const CUSTOMER_API = {

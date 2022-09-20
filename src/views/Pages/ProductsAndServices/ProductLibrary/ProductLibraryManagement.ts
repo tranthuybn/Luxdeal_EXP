@@ -169,14 +169,15 @@ export const businessProductLibrary = [
 ]
 let brandSelect = reactive([])
 let callBrandAPI = 0
-const getBrandSelectOptions = async () => {
+export const getBrandSelectOptions = async () => {
   if (callBrandAPI == 0) {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
       .then((res) => {
         if (res.data) {
           brandSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.id
+            value: index.name,
+            id: index.id
           }))
         }
       })
@@ -190,14 +191,15 @@ const getBrandSelectOptions = async () => {
 }
 let unitSelect = reactive([])
 let callUnitAPI = 0
-const getUnitSelectOptions = async () => {
+export const getUnitSelectOptions = async () => {
   if (callUnitAPI == 0) {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
       .then((res) => {
         if (res.data) {
           unitSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.id
+            value: index.name,
+            id: index.id
           }))
         }
       })
@@ -211,14 +213,15 @@ const getUnitSelectOptions = async () => {
 }
 let originSelect = reactive([])
 let callOriginAPI = 0
-const getOriginSelectOptions = async () => {
+export const getOriginSelectOptions = async () => {
   if (callOriginAPI == 0) {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key })
       .then((res) => {
         if (res.data) {
           originSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.id
+            value: index.name,
+            id: index.id
           }))
         }
       })
@@ -233,6 +236,7 @@ const getOriginSelectOptions = async () => {
 const callProductApi = async () => {
   //call api 1 time and map name + disable=true && map productCode
 }
+export { originSelect, unitSelect, brandSelect }
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Divider',

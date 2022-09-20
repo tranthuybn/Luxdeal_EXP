@@ -22,6 +22,7 @@ import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Type'
 import { useRouter } from 'vue-router'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -99,12 +100,12 @@ const getTableValue = async () => {
   if (!isNaN(props.id)) {
     const res = await props.apiId({ ...props.params, id: props.id })
     if (res) {
-      if (res.data.list !== undefined) {
+      if (res.data?.list !== undefined) {
         formValue.value = res.data.list[0]
       } else {
         formValue.value = res.data
       }
-      await setFormValue()
+      await customizeData()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -141,7 +142,7 @@ watch(
   }
 )
 const customizeData = async () => {
-  await emit('customize-form-data', formValue.value)
+  emit('customize-form-data', formValue.value, () => setFormValue())
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -150,7 +151,6 @@ const imageUrl = ref('')
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
-  await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
@@ -160,12 +160,14 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
-  fileList.value.push({
-    url: formValue.value.image,
-    name: formValue.value.title
-  })
+  //productImages là fix cứng nên dùng formDataCustomize
+  if (props.multipleImages) {
+    formValue.value.productImages.map((image) =>
+      fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
+    )
+  }
 }
-//watch and call get data form detail and edit
+//Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
   () => {
@@ -199,7 +201,7 @@ const save = async (type) => {
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
-        validateFile = await beforeAvatarUpload(ListRawUploadFiles.value, 'list')
+        validateFile = await beforeAvatarUpload(fileList.value, 'list')
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
@@ -209,20 +211,22 @@ const save = async (type) => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages
-        ? (data.Images = ListRawUploadFiles.value!.map((file) => file.raw))
+        ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
         : (data.Image = rawUploadFile.value?.raw)
+      //callback cho hàm emit
       if (type == 'add') {
-        await emit('post-data', data)
+        emit('post-data', data, () => go(-1))
         loading.value = false
         go(-1)
       }
       if (type == 'saveAndAdd') {
-        await emit('post-data', data)
+        emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
       if (type == 'edit') {
-        await emit('edit-data', data)
+        data.Id = props.id
+        emit('edit-data', data, () => go(-1))
         loading.value = false
         go(-1)
       }
@@ -239,7 +243,6 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 let rawUploadFile = ref<UploadFile>()
-let ListRawUploadFiles = ref<UploadFile[]>()
 props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
@@ -255,9 +258,10 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-
-const beforeAvatarUpload = (rawFile, type: string) => {
+//validate Ảnh
+const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
+    //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
@@ -267,6 +271,7 @@ const beforeAvatarUpload = (rawFile, type: string) => {
         return false
       }
     }
+    //nếu là 1 list ảnh
     if (type === 'list') {
       let inValid = true
       rawFile.map((file) => {
@@ -333,7 +338,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
-    ListRawUploadFiles.value = uploadFiles
+    fileList.value = uploadFiles
   }
 }
 const previewImage = () => {

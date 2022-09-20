@@ -966,6 +966,8 @@ export default {
     dateEditCreate: 'Date Create/Edit',
     notDisplay: 'Not Display',
     selectCategory: 'Select category',
-    orders: 'Orders'
+    orders: 'Orders',
+    informationSeo: 'Information SEO',
+    path: 'Path'
   }
 }

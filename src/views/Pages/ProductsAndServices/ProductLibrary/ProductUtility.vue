@@ -9,7 +9,9 @@ import {
   getInventoryTrading,
   getPriceByQuantity,
   getImportAndExportHistory,
-  postProductLibrary
+  postProductLibrary,
+  getBusinessProductLibrary,
+  updateProductLibrary
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -34,7 +36,13 @@ import {
   inventoryTrading,
   columnManagementSeo,
   columnsPriceByQuantity,
-  columnsImportAndExportHistory
+  columnsImportAndExportHistory,
+  originSelect,
+  unitSelect,
+  brandSelect,
+  getBrandSelectOptions,
+  getOriginSelectOptions,
+  getUnitSelectOptions
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -302,16 +310,38 @@ const type = String(router.currentRoute.value.params.type)
 
 const { required } = useValidator()
 const rules = reactive({
-  category: [required()],
-  brand: [required()],
-  Radio03: [required()]
+  ProductTypeId: [required()]
 })
 const callTableApi = async (collapseItem) => {
-  const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
-  collapseItem.tableList = res.data.list
+  if (collapseItem.api !== undefined) {
+    const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
+    collapseItem.tableList = res.data.list
+  }
   collapseItem.loading = false
 }
+const customPostData = async (data) => {
+  let customData = data
+  if (originSelect.length == 0) {
+    await getOriginSelectOptions()
+  }
+  if (unitSelect.length == 0) {
+    await getUnitSelectOptions()
+  }
+  if (brandSelect.length == 0) {
+    await getBrandSelectOptions()
+  }
+  const OriginId: any = originSelect.find((option) => option['label'] === data.OriginId)
+  const UnitId: any = unitSelect.find((option) => option['label'] === data.UnitId)
+  const BrandId: any = brandSelect.find((option) => option['label'] === data.BrandId)
+  if (OriginId !== undefined || UnitId !== undefined || BrandId !== undefined) {
+    customData.OriginId = OriginId!.id
+    customData.UnitId = UnitId!.id
+    customData.BrandId = BrandId!.id
+  }
+  return customData
+}
 const postData = async (data) => {
+  data = await customPostData(data)
   await postProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -322,6 +352,48 @@ const postData = async (data) => {
     .catch((error) =>
       ElNotification({
         message: error,
+        type: 'warning'
+      })
+    )
+}
+type CustomFormData = {
+  ProductTypeId: string
+  BrandId: string
+  UnitId: string
+  OriginId: string
+  ProductCode: string
+  Name: string
+  ShortDescription?: string
+  VerificationInfo: string
+  Description: string
+  HireInventoryStatus?: number
+  SellInventoryStatus?: number
+  ProductStatus?: number
+}
+const emptyFormObj = {} as CustomFormData
+const setFormData = reactive(emptyFormObj)
+const customizeData = async (formData) => {
+  setFormData.BrandId = formData.categories[0].value
+  setFormData.ProductTypeId = formData.categories[1].value
+  setFormData.UnitId = formData.categories[2].value
+  setFormData.OriginId = formData.categories[3].value
+  setFormData.ProductCode = formData.productCode
+  setFormData.Name = formData.name
+  setFormData.Description = formData.description
+}
+const editData = async (data) => {
+  data = await customPostData(data)
+  console.log('data', data)
+  await updateProductLibrary(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
         type: 'warning'
       })
     )
@@ -348,9 +420,13 @@ const postData = async (data) => {
           :rules="rules"
           :type="type"
           :id="id"
+          :apiId="getBusinessProductLibrary"
           :schema="collapse[0].columns"
           :typeButton="collapse[0].typeButton"
           @post-data="postData"
+          @customize-form-data="customizeData"
+          @edit-data="editData"
+          :formDataCustomize="setFormData"
           :class="[
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"

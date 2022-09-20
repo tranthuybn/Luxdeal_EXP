@@ -49,7 +49,7 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'image',
+    field: 'imageList',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'

@@ -55,43 +55,50 @@ export const businessProductLibrary = [
     field: 'productStat.tonKho',
     label: t('reuse.inventory'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.dangThue',
     label: t('reuse.currentlyLeased'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.daBan',
     label: t('reuse.quantitySold'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesRented',
     label: t('reuse.numberOfTimesRented'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.kiGui',
     label: t('reuse.numberOfTimesDeposited'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.camDo',
     label: t('reuse.numberOfTimesPawn'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.spa',
     label: t('reuse.numberOfTimesSpa'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.datTonKhoBan',

@@ -161,14 +161,7 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
     required()
-  ],
-  description: [
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkDescriptionLength.validator },
-    required()
-  ],
-  cost: [{ validator: ValidService.checkMoney.validator }, required()],
-  promotionalPrice: [{ validator: ValidService.checkMoney.validator }, required()]
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {

@@ -190,7 +190,7 @@ const delData = async (row: TableData | null, multiple: boolean) => {
     })
       .then(async () => {
         console.log('row', row, multiple)
-        if (row !== null && row.children.length == 0) {
+        if (row !== null) {
           // change this to delApi
           const res = await props
             .delApi({ Id: row.id })
@@ -256,7 +256,7 @@ const showingColumn =
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="10%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>

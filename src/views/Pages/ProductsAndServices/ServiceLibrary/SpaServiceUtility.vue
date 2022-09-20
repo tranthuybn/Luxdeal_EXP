@@ -5,15 +5,13 @@ import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
 import { getSpaById, getSpaLibrary, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { ElNotification } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
-const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
-const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const schema = reactive<FormSchema[]>([
   {
@@ -124,19 +122,38 @@ const schema = reactive<FormSchema[]>([
     label: t('formDemo.status'),
     component: 'Checkbox',
     value: [],
+    colProps: {
+      span: 18
+    },
     componentProps: {
       options: [
         {
           label: t('formDemo.isActive'),
           value: 'active'
-        },
-        {
-          label: t('formDemo.pauseActivity'),
-          value: 'hide'
         }
       ]
     }
   }
+  //,
+  // {
+  //   field: 'isActive',
+  //   component: 'Tag',
+  //   modelValue: 'Đang chờ duyệt',
+  //   componentProps: {
+  //     plain: true,
+  //     style: {
+  //       size: 'small'
+  //     },
+  //     options: [
+  //       {
+  //         label: 'Đang chờ duyệt',
+  //         value: 'isHide',
+  //         type: 'warning',
+  //         key: '123'
+  //       }
+  //     ]
+  //   }
+  // }
 ])
 const rules = reactive({
   rankCategory: [required()],
@@ -145,8 +162,13 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  parentid: [required()],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  description: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkDescriptionLength.validator },
+    required()
+  ],
+  cost: [{ validator: ValidService.checkMoney.validator }, required()],
+  promotionalPrice: [{ validator: ValidService.checkMoney.validator }, required()]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -172,41 +194,11 @@ const addFormSchema = async (timesCallAPI) => {
     }
   }
 }
-const postData = async (data) => {
-  //manipulate Data
-  if (data.ParentId == undefined) {
-    data.ParentId = 0
-  }
-  if (data.status[0] === 'active') {
-    data.isActive = true
-  } else {
-    data.isActive = false
-  }
-  if (data.status[1] === 'hide') {
-    data.isHide = true
-  } else {
-    data.isHide = false
-  }
-  await postSpa({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-    )
-    .catch((error) =>
-      ElNotification({
-        message: error,
-        type: 'warning'
-      })
-    )
-}
+
 // get data from router
 const router = useRouter()
-const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
@@ -222,39 +214,48 @@ const customizeData = async (formData) => {
   if (formData.isActive == true) {
     formDataCustomize.value['status'].push('active')
   }
-  if (formData.isHide == true) {
-    formDataCustomize.value['status'].push('hide')
-  }
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
   formDataCustomize.value.isDelete = false
 }
 type FormDataPost = {
   Id: number
   Name: string
-  code?: string
-  Image?: any
-  TypeName: string
-  ParentId: number
+  Code: string
+  Photo?: any
+  UpdatedBy: string
   CreatedBy: string
-  isHide: boolean
-  isActive: boolean
-  index: number
+  IsActive: boolean
+  IsApproved: boolean
+  UpdatedAt: string
+  CreatedAt: string
+  Cost: number
+  Time: number
+  Warranty: number
+  Description: string
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
-  customData.Id = data.id
-  customData.Name = data.name
-  customData.TypeName = data.typeName
-  customData.ParentId = data.parentid
-  customData.Image = data.Image
-  customData.index = data.index
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
-  data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
+  var curDate = new Date()
+  customData.Photo = data.Image != undefined ? data.Image : 'incomplete'
+  customData.Cost = data.cost != undefined ? data.cost : 'incomplete'
+  customData.Time = data.time != undefined ? data.time : 'incomplete'
+  customData.Warranty = data.warranty != undefined ? data.warranty : 'incomplete'
+  customData.Description = data.description != undefined ? data.description : 'incomplete'
+  customData.Name = data.name != undefined ? data.name : 'incomplete'
+  customData.Code = data.code != undefined ? data.code : 'incomplete'
+  customData.UpdatedBy = 'anle'
+  customData.CreatedBy = 'anle'
+  customData.UpdatedAt =
+    curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDate()
+  customData.CreatedAt =
+    curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDate()
+  data.status.includes('active') ? (customData.IsActive = true) : (customData.IsActive = false)
+  customData.IsApproved = true
   return customData
 }
 const editData = async (data) => {
   data = customPostData(data)
-  await updateSpa({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
+  await updateSpa({ ...data })
     .then(() =>
       ElNotification({
         message: t('reuse.updateSuccess'),
@@ -264,6 +265,22 @@ const editData = async (data) => {
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
+const postData = async (data) => {
+  data = customPostData(data)
+  await postSpa(data)
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
         type: 'warning'
       })
     )
@@ -290,24 +307,24 @@ const collapse: Array<Collapse> = [
   }
 ]
 let currentCollapse = ref<string>(collapse[0].name)
-const collapseChangeEvent = (val) => {
-  if (val) {
-    collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
-      else if (el.icon == minusIcon) el.icon = plusIcon
-    })
-  } else
-    collapse.forEach((el) => {
-      el.icon = plusIcon
-    })
-}
+// const collapseChangeEvent = (val) => {
+//   if (val) {
+//     collapse.forEach((el) => {
+//       if (val.includes(el.name)) el.icon = minusIcon
+//       else if (el.icon == minusIcon) el.icon = plusIcon
+//     })
+//   } else
+//     collapse.forEach((el) => {
+//       el.icon = plusIcon
+//     })
+// }
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 const activeName = ref('information')
 </script>
 
 <template>
   <div class="demo-collapse">
-    <el-collapse v-model="activeName" :collapse="collapse" @change="collapseChangeEvent">
+    <el-collapse v-model="activeName" :collapse="collapse">
       <el-collapse-item
         v-for="(item, index) in collapse"
         :key="index"
@@ -322,14 +339,13 @@ const activeName = ref('information')
           ref="formRef"
           :apiId="getSpaById"
           :schema="schema"
-          :title="title"
+          :title="item.title"
           :deleteTitle="deleteOrigin"
           :type="type"
           :id="id"
           @post-data="postData"
           :multipleImages="false"
-          :rules="rules"
-          :params="params"
+          :rules="!(type === 'detail') ? rules : {}"
           @customize-form-data="customizeData"
           @edit-data="editData"
           :formDataCustomize="formDataCustomize"

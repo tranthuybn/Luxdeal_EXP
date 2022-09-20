@@ -105,7 +105,7 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
-      await customizeData()
+      await setFormValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -142,27 +142,36 @@ watch(
   }
 )
 const customizeData = async () => {
-  emit('customize-form-data', formValue.value, () => setFormValue())
+  emit('customize-form-data', formValue.value)
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref('')
+const fileImage = ref<File>()
+const urlToObject = async (image) => {
+  const response = await fetch(image)
+  // here image is url/location of image
+  const blob = await response.blob()
+  fileImage.value = new File([blob], 'image.jpg', { type: blob.type })
+}
 //set data for form edit and detail
 const setFormValue = async () => {
+  await customizeData()
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     if (!props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
+      urlToObject(props.formDataCustomize.imageurl)
     }
   } else {
     setValues(formValue.value)
   }
   //productImages là fix cứng nên dùng formDataCustomize
   if (props.multipleImages) {
-    formValue.value.productImages.map((image) =>
+    formValue.value?.productImages.map((image) =>
       fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
     )
   }
@@ -212,8 +221,9 @@ const save = async (type) => {
       let data = (await getFormData()) as TableData
       props.multipleImages
         ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
-        : (data.Image = rawUploadFile.value?.raw)
+        : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : fileImage.value)
       //callback cho hàm emit
+      console.log(data.Image)
       if (type == 'add') {
         emit('post-data', data, () => go(-1))
         loading.value = false
@@ -266,7 +276,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (rawFile.raw.size / 1024 / 1024 > 4) {
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
       }

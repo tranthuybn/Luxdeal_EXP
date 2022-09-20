@@ -109,7 +109,7 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data[0]
       }
-      await customizeData()
+      await setFormValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -126,7 +126,7 @@ const { register, methods, elFormRef } = useForm({
 let fileList = ref<UploadUserFile[]>([])
 // luu du lieu vao form
 const customizeData = async () => {
-  emit('customize-form-data', formValue.value, () => setFormValue())
+  emit('customize-form-data', formValue.value)
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -135,10 +135,13 @@ const imageUrl = ref('')
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
+  console.log('list1', fileList.value)
+
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-    if (!props.multipleImages) {
+    if (props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
   } else {
@@ -148,6 +151,7 @@ const setFormValue = async () => {
     formValue.value.productImages.map((image) =>
       fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
     )
+    console.log('list2', fileList.value)
   }
 }
 //watch and call get data form detail and edit
@@ -326,6 +330,7 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
+    alert('runhere')
     fileList.value = uploadFiles
   }
 }

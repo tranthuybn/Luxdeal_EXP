@@ -11,7 +11,8 @@ import {
   getImportAndExportHistory,
   postProductLibrary,
   getBusinessProductLibrary,
-  updateProductLibrary
+  updateProductLibrary,
+  updateProductSeo
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -50,8 +51,10 @@ import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
-const { t } = useI18n()
 import { ref } from 'vue'
+import { TableOperator } from '../../Components/TableBase'
+
+const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -383,8 +386,22 @@ const customizeData = async (formData) => {
 }
 const editData = async (data) => {
   data = await customPostData(data)
-  console.log('data', data)
   await updateProductLibrary(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
+const editDataSeo = async (data) => {
+  await updateProductSeo(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
         message: t('reuse.updateSuccess'),
@@ -1233,7 +1250,10 @@ const editData = async (data) => {
           <el-button class="header-icon" :icon="collapse[7].icon" link />
           <span class="text-center">{{ collapse[7].title }}</span>
         </template>
-        <TableOperatorTreeSelect
+        <TableOperator
+          :type="type"
+          :id="id"
+          @edit-data="editDataSeo"
           class="infinite-list"
           :hasImage="collapse[7].hasImage"
           style="overflow: auto"

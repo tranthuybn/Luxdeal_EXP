@@ -451,7 +451,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field5',
+    field: 'SeoTitle',
     label: t('reuse.title'),
     component: 'Input',
     componentProps: {
@@ -462,7 +462,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field5',
+    field: 'SeoUrl',
     label: t('reuse.path'),
     component: 'Input',
     componentProps: {
@@ -473,7 +473,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field2',
+    field: 'SeoTags',
     label: 'Tag',
     component: 'Select',
     componentProps: {
@@ -498,7 +498,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field43',
+    field: 'SeoDescription',
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {

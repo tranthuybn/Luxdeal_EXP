@@ -41,7 +41,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'depositTerm',
+    field: 'pawnTerm',
     component: 'Input',
     colProps: {
       span: 24
@@ -58,6 +58,13 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
+    }
+  },
+  {
+    field: 'pawnPaymentTerm',
+    component: 'Input',
+    colProps: {
+      span: 24
     }
   },
   {
@@ -165,7 +172,7 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'consignmentReturnHistoryForCustomers',
-    title: t('formDemo.consignmentReturnHistoryForCustomers'),
+    title: 'Lịch sử trả lại/nhập kho nội bộ hàng cầm đồ cho khách hàng',
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -183,7 +190,7 @@ const collapse: Array<Collapse> = [
 ]
 
 const value = ref('')
-const value2 = ref('')
+const valuePawnTerm = ref('')
 
 const options1 = [
   {
@@ -196,6 +203,30 @@ const options1 = [
   }
 ]
 
+const optionsPawnTerm = [
+  {
+    value: 'payBeforeOneTime',
+    label: 'Trả trước một lần'
+  },
+  {
+    value: 'payLaterOneTime',
+    label: 'Trả sau một lần'
+  },
+  {
+    value: 'byDate',
+    label: 'Theo ngày'
+  },
+  {
+    value: 'byWeek',
+    label: 'Theo tuần'
+  },
+  {
+    value: 'Monthly',
+    label: 'Theo tháng'
+  }
+]
+
+const value2 = ref('')
 const options2 = [
   {
     value: 'deliveryAtTheCounter',
@@ -209,12 +240,39 @@ const dram = [
     label: t('formDemo.psc')
   }
 ]
+const loaiHinhValue = ref('')
+
+const moneyVal = [
+  {
+    value: 'MoneyFee',
+    label: 'Tiền gốc cầm đồ'
+  },
+  {
+    value: 'pawnFee',
+    label: 'Tiền phí cầm đồ'
+  },
+  {
+    value: 'depositFee',
+    label: 'Tiền phí ký gửi'
+  }
+]
+
+const loaiHinh = [
+  {
+    value: 'xuatKho',
+    label: 'Xuất trả'
+  },
+  {
+    value: 'nhapKho',
+    label: 'Nhập kho nội bộ'
+  }
+]
+
 const checked1 = ref(true)
 const checked2 = ref(false)
 const checked3 = ref(false)
 const checked4 = ref(false)
-const checked5 = ref(false)
-const checked6 = ref(false)
+
 const checked7 = ref(false)
 const doThis = () => {
   console.log('sas')
@@ -269,7 +327,7 @@ const historyTable = [
   }
 ]
 const dramValue = ref('Chiếc')
-
+const moneyValue = ref('Tiền gốc')
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -312,11 +370,11 @@ const activeName = ref('1')
                   />
                 </div>
               </template>
-              <template #depositTerm>
+              <template #pawnTerm>
                 <div class="flex items-center w-[100%] gap-4">
                   <div class="w-[15%] ml-2 text-right leading-5">
-                    <label class="w-[15%] leading-5" for="">Thời hạn ký gửi</label>
-                    <p class="text-[#FECB80]">Ít nhất 14 ngày</p>
+                    <label class="w-[15%] leading-5" for="">Thời hạn cầm đồ</label>
+                    <p class="text-[#FECB80]">Ít nhất 10 ngày</p>
                   </div>
 
                   <div class="flex w-[80%] gap-2">
@@ -330,6 +388,21 @@ const activeName = ref('1')
                       type="text"
                       :placeholder="`Ngày kết thúc`"
                     />
+                  </div>
+                </div>
+              </template>
+              <template #pawnPaymentTerm>
+                <div class="flex w-[100%] gap-4">
+                  <label class="w-[15%] text-right ml-2">Kỳ thanh toán phí cầm đồ</label>
+                  <div class="w-[80%]">
+                    <el-select v-model="valuePawnTerm" :placeholder="`Theo ngày`" size="large">
+                      <el-option
+                        v-for="i in optionsPawnTerm"
+                        :key="i.value"
+                        :label="i.label"
+                        :value="i.value"
+                      />
+                    </el-select>
                   </div>
                 </div>
               </template>
@@ -558,9 +631,17 @@ const activeName = ref('1')
               />
             </el-select>
           </el-table-column>
+          <el-table-column :label="`Tiền gốc cầm đồ`" align="center" width="100" />
+          <el-table-column :label="`Phí cầm đồ`" width="200">
+            <div class="flex w-[100%]">
+              <div class="flex-1">200,000đ/1n</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Sửa</div>
+            </div>
+          </el-table-column>
+          <el-table-column :label="`Thành tiền phí cầm đò`" align="center" width="100" />
           <el-table-column :label="`Quản lý kinh doanh`" width="200">
             <div class="flex w-[100%]">
-              <div class="flex-1">Bán Cho thuê</div>
+              <div class="flex-1">...</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Kinh doanh</div>
             </div>
           </el-table-column>
@@ -638,12 +719,25 @@ const activeName = ref('1')
           <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="right">
             <div class="text-blue-500">+{{ t('formDemo.paymentOrder') }}</div>
           </el-table-column>
+          <el-table-column :label="`Loại tiền`" align="center" width="100">
+            <el-select v-model="moneyValue" class="m-2" size="large">
+              <el-option
+                v-for="item in moneyVal"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-table-column>
           <el-table-column :label="`${t('formDemo.collected')}`" align="right">
             <div>+ 95,000,000 đ</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.spent')}`" />
           <el-table-column :label="`${t('formDemo.unpaidDebt')}`">
             <div>0 đ</div>
+          </el-table-column>
+          <el-table-column :label="`Công nợ phí cầm đồ`" align="right">
+            <div>+ 295,000,000 đ</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.receivableOrPayable')}`" width="120">
             <div>Phải thu</div>
@@ -672,16 +766,10 @@ const activeName = ref('1')
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox v-model="checked1" :label="`${t('reuse.pending')}`" size="large" />
             <el-checkbox v-model="checked2" :label="`${t('reuse.closedTheOrder')}`" size="large" />
-            <el-checkbox v-model="checked3" :label="`${t('reuse.delivery')}`" size="large" />
-            <el-checkbox
-              v-model="checked4"
-              :label="`${t('reuse.successfulDelivery')}`"
-              size="large"
-            />
-            <el-checkbox v-model="checked5" :label="`${t('reuse.deliveryFailed')}`" size="large" />
-            <el-checkbox v-model="checked6" :label="`${t('reuse.paying')}`" size="large" />
+            <el-checkbox v-model="checked3" :label="`Đang cầm đồ`" size="large" />
+            <el-checkbox v-model="checked4" :label="`Đang gia hạn cầm đồ`" size="large" />
+
             <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
           </div>
         </div>
@@ -721,18 +809,27 @@ const activeName = ref('1')
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </el-table-column>
+            <el-select v-model="loaiHinhValue" class="m-2" size="large">
+              <el-option
+                v-for="item in loaiHinh"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
 
-            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
-            <el-table-column :label="`${t('reuse.dram')}`" align="center" width="120">
-              <el-select v-model="dramValue" class="m-2" size="large">
+            <el-table-column :label="`Loại hình`" align="center" width="120">
+              <el-select v-model="loaiHinhValue" class="m-2" size="large">
                 <el-option
-                  v-for="item in dram"
-                  :key="item.dramValue"
+                  v-for="item in loaiHinh"
+                  :key="item.value"
                   :label="item.label"
-                  :value="item.dramValue"
+                  :value="item.value"
                 />
               </el-select>
             </el-table-column>
+            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
+            <el-table-column prop="quantity" :label="`${t('reuse.dram')}`" width="120" />
 
             <el-table-column
               :label="`${t('formDemo.invoiceForGoodsEnteringTheWarehouse')}`"

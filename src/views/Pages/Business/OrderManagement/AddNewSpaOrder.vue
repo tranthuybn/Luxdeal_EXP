@@ -41,7 +41,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'depositTerm',
+    field: 'deliveryDate',
     component: 'Input',
     colProps: {
       span: 24
@@ -165,7 +165,7 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'consignmentReturnHistoryForCustomers',
-    title: t('formDemo.consignmentReturnHistoryForCustomers'),
+    title: 'Lịch sử xuất trả hàng Spa',
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -199,7 +199,11 @@ const options1 = [
 const options2 = [
   {
     value: 'deliveryAtTheCounter',
-    label: 'Nhận hàng ký tại quầy'
+    label: 'Nhận hàng  tại quầy'
+  },
+  {
+    value: 'deliveryAtCustomerAddress',
+    label: 'Nhận hàng ký tại địa chỉ khách hàng'
   }
 ]
 
@@ -214,8 +218,7 @@ const checked2 = ref(false)
 const checked3 = ref(false)
 const checked4 = ref(false)
 const checked5 = ref(false)
-const checked6 = ref(false)
-const checked7 = ref(false)
+
 const doThis = () => {
   console.log('sas')
 }
@@ -312,25 +315,15 @@ const activeName = ref('1')
                   />
                 </div>
               </template>
-              <template #depositTerm>
+              <template #deliveryDate>
                 <div class="flex items-center w-[100%] gap-4">
-                  <div class="w-[15%] ml-2 text-right leading-5">
-                    <label class="w-[15%] leading-5" for="">Thời hạn ký gửi</label>
-                    <p class="text-[#FECB80]">Ít nhất 14 ngày</p>
-                  </div>
+                  <label class="w-[16%] leading-5 text-right" for="">Hạn trả hàng</label>
 
-                  <div class="flex w-[80%] gap-2">
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`Ngày bắt đầu`"
-                    />
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`Ngày kết thúc`"
-                    />
-                  </div>
+                  <input
+                    class="w-[80%] border-1 outline-none pl-2"
+                    type="text"
+                    :placeholder="`Ngày trả hàng`"
+                  />
                 </div>
               </template>
               <template #collaborators>
@@ -370,14 +363,6 @@ const activeName = ref('1')
                     <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
                     >
-                  </div>
-                </div>
-              </template>
-
-              <template #debt>
-                <div class="flex items-center w-[100%]">
-                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
-                    <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
                   </div>
                 </div>
               </template>
@@ -445,7 +430,7 @@ const activeName = ref('1')
               <template #customer>
                 <div class="flex w-[100%] gap-8">
                   <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                  <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
+                  <el-divider content-position="left">nhận hàng spa</el-divider>
                 </div>
               </template>
               <template #customerName>
@@ -476,7 +461,7 @@ const activeName = ref('1')
                       }}</label>
                       <el-select
                         v-model="value2"
-                        :placeholder="`Nhận hàng ký gửi tại quầy(Chỉ có phương án này)`"
+                        :placeholder="`Nhận hàng ký gửi tại địa chỉ khách`"
                         size="large"
                       >
                         <el-option
@@ -490,12 +475,22 @@ const activeName = ref('1')
                   </div>
                 </div>
               </template>
+
               <template #debtAndAddress>
                 <div class="flex w-[100%] gap-6">
                   <div class="w-[50%] pl-[8%]">
                     <p class="max-w-[94%] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]">{{
                       t('formDemo.noDebt')
                     }}</p>
+                  </div>
+                  <div class="flex w-[50%] gap-4">
+                    <p class="w-[16%] ml-2 text-[#828387] text-right">{{
+                      t('formDemo.deliveryAddress')
+                    }}</p>
+                    <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
+                    <p class="text-blue-500 cursor-pointer"
+                      >+ {{ t('formDemo.changeTheAddress') }}</p
+                    >
                   </div>
                 </div>
               </template>
@@ -526,7 +521,7 @@ const activeName = ref('1')
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-divider content-position="left">Danh sách sản phẩm ký gửi</el-divider>
+        <el-divider content-position="left">Danh sách sản phẩm Spa</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
             <el-select v-model="value" class="m-2" size="large">
@@ -538,16 +533,21 @@ const activeName = ref('1')
               />
             </el-select>
           </el-table-column>
-          <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
+          <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="650" />
           <el-table-column :label="`${t('reuse.accessory')}`" width="180">
             <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
           </el-table-column>
-          <el-table-column prop="quantity" :label="`Số lượng ký gửi`" align="center" width="90" />
-          <el-table-column :label="`Đã bán`" align="center" width="90" />
-          <el-table-column :label="`Số lần đã cho thuê`" align="center" width="100" />
-          <el-table-column :label="`Số lần đã spa`" align="center" width="100" />
-          <el-table-column :label="`Đang cho thuê`" align="center" width="100" />
+          <el-table-column :label="`Dịch vụ Spa`" width="230">
+            <div class="flex w-[100%]">
+              <div class="flex-1">Kiểm tra</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Chọn dịch vụ</div>
+            </div>
+          </el-table-column>
+
+          <el-table-column prop="quantity" :label="`Số lượng Spa`" align="center" width="90" />
+          <el-table-column :label="`Đã spa/kiểm tra`" align="center" width="90" />
           <el-table-column :label="`Đã trả lại`" align="center" width="100" />
+
           <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
             <el-select v-model="dramValue" class="m-2" size="large">
               <el-option
@@ -558,12 +558,8 @@ const activeName = ref('1')
               />
             </el-select>
           </el-table-column>
-          <el-table-column :label="`Quản lý kinh doanh`" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">Bán Cho thuê</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Kinh doanh</div>
-            </div>
-          </el-table-column>
+
+          <el-table-column :label="`Thành tiền phí Spa`" align="center" width="150" />
 
           <el-table-column :label="`Kho nhập`" width="200">
             <div class="flex w-[100%]">
@@ -573,50 +569,6 @@ const activeName = ref('1')
               >
             </div>
           </el-table-column>
-
-          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
-            <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
-          </el-table-column>
-        </el-table>
-        <!-- s -->
-        <el-divider content-position="left">Bảng theo dõi dịch vụ phát sinh</el-divider>
-        <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
-          <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value" class="m-2" size="large">
-              <el-option
-                v-for="item in options1"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
-          <el-table-column :label="`${t('reuse.accessory')}`" width="180">
-            <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
-          </el-table-column>
-          <el-table-column prop="quantity" :label="`Số lượng`" align="center" width="90" />
-          <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
-            <el-select v-model="dramValue" class="m-2" size="large">
-              <el-option
-                v-for="item in dram"
-                :key="item.dramValue"
-                :label="item.label"
-                :value="item.dramValue"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column prop="unitPrice" :label="`Giá trị đơn hàng`" align="center" width="90" />
-          <el-table-column :label="`Giá đàm phán`" align="center" width="100" />
-          <el-table-column :label="`Phí ký gửi`" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">20%</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Sửa</div>
-            </div>
-          </el-table-column>
-          <el-table-column :label="`Thành tiền phí phải thu`" align="center" width="100" />
-          <el-table-column :label="`Loại đơn`" align="center" width="100" />
-          <el-table-column :label="`Mã đơn hàng`" width="100" />
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
             <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
@@ -642,7 +594,7 @@ const activeName = ref('1')
             <div>+ 95,000,000 đ</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.spent')}`" />
-          <el-table-column :label="`${t('formDemo.unpaidDebt')}`">
+          <el-table-column :label="`Công nợ phí Spa`">
             <div>0 đ</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.receivableOrPayable')}`" width="120">
@@ -672,17 +624,10 @@ const activeName = ref('1')
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox v-model="checked1" :label="`${t('reuse.pending')}`" size="large" />
             <el-checkbox v-model="checked2" :label="`${t('reuse.closedTheOrder')}`" size="large" />
-            <el-checkbox v-model="checked3" :label="`${t('reuse.delivery')}`" size="large" />
-            <el-checkbox
-              v-model="checked4"
-              :label="`${t('reuse.successfulDelivery')}`"
-              size="large"
-            />
-            <el-checkbox v-model="checked5" :label="`${t('reuse.deliveryFailed')}`" size="large" />
-            <el-checkbox v-model="checked6" :label="`${t('reuse.paying')}`" size="large" />
-            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
+            <el-checkbox v-model="checked3" :label="`Đang Spa`" size="large" />
+            <el-checkbox v-model="checked4" :label="`Đang gia hạn Spa`" size="large" />
+            <el-checkbox v-model="checked5" :label="`${t('common.doneLabel')}`" size="large" />
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
@@ -702,7 +647,7 @@ const activeName = ref('1')
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
+          <el-divider content-position="left">Bảng theo dõi xuất trả hàng Spa</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
               <el-select v-model="value" class="m-2" size="large">
@@ -735,18 +680,15 @@ const activeName = ref('1')
             </el-table-column>
 
             <el-table-column
-              :label="`${t('formDemo.invoiceForGoodsEnteringTheWarehouse')}`"
+              :label="`Phiếu xuất trả hàng`"
               align="right"
               width="200"
               class="text-blue-500"
             >
-              +{{ t('formDemo.invoice') }}
+              + Sửa
             </el-table-column>
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
               <div class="flex gap-4">
-                <button class="flex-1 bg-[#409EFF] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
-                  t('reuse.save')
-                }}</button>
                 <button class="flex-1 bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
                   t('reuse.delete')
                 }}</button>

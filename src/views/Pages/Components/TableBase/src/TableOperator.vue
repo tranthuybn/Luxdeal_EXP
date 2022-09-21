@@ -214,6 +214,8 @@ const save = async (type) => {
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
+    } else {
+      validateFile = true
     }
     if (isValid && validateFile) {
       loading.value = true
@@ -223,7 +225,6 @@ const save = async (type) => {
         ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : fileImage.value)
       //callback cho hàm emit
-      console.log(data.Image)
       if (type == 'add') {
         emit('post-data', data, () => go(-1))
         loading.value = false

@@ -171,7 +171,6 @@ const action = (row: TableData, type: string) => {
       params: { id: row.id, type: type, tab: props.tab }
     })
   } else {
-    console.log(type)
     if (buttonShow === true) {
       buttonShow = false
     } else {

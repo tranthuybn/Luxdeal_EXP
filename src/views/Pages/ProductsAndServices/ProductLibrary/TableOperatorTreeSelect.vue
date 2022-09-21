@@ -136,7 +136,6 @@ const imageUrl = ref('')
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
-  console.log('list1', fileList.value)
 
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
@@ -151,7 +150,6 @@ const setFormValue = async () => {
     formValue.value.productImages.map((image) =>
       fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
     )
-    console.log('list2', fileList.value)
   }
 }
 //watch and call get data form detail and edit
@@ -193,6 +191,8 @@ const save = async (type) => {
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
+    } else {
+      validateFile = true
     }
     if (isValid && validateFile) {
       loading.value = true
@@ -330,7 +330,6 @@ const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
-    alert('runhere')
     fileList.value = uploadFiles
   }
 }

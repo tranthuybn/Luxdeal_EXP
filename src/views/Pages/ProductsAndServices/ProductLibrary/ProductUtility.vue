@@ -298,11 +298,9 @@ const collapseChangeEvent = async (val) => {
 const activeName = ref(collapse[0].name)
 const handleEditRow = (data) => {
   data.edited = true
-  console.log('data', data)
 }
 const handleSaveRow = (data) => {
   data.edited = false
-  console.log('data', data)
 }
 const localeChange = (show: boolean) => {
   console.log(show)
@@ -311,9 +309,31 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const { required } = useValidator()
+const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
 const rules = reactive({
-  ProductTypeId: [required()]
+  ProductTypeId: [required()],
+  BrandId: [required()],
+  UnitId: [required()],
+  OriginId: [required()],
+  ProductCode: [
+    { validator: notSpace },
+    { validator: ValidService.checkNameLength.validator },
+    required()
+  ],
+  Name: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator },
+    required()
+  ],
+  ShortDescription: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator },
+    required()
+  ],
+  Description: [{ validator: notSpecialCharacters }, required()],
+  HireInventoryStatus: [required()],
+  SellInventoryStatus: [required()],
+  ProductStatus: [required()]
 })
 const callTableApi = async (collapseItem) => {
   if (collapseItem.api !== undefined) {
@@ -1263,12 +1283,6 @@ const editDataSeo = async (data) => {
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
         />
-        <ElButton type="primary">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton type="primary">
-          {{ t('reuse.addNew') }}
-        </ElButton>
       </el-collapse-item>
     </el-collapse>
   </div>

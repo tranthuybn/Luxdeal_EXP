@@ -1003,6 +1003,28 @@ export default {
     //CSKH
     potentialCustomerHistory: 'Lịch sử CSKH',
     date: 'Ngày',
-    rating: 'Xếp hạng sao'
+    rating: 'Xếp hạng sao',
+    //Form operator
+    notImageFile: 'Khổng gửi đúng định dạng ảnh',
+    imageOver4MB: 'Ảnh không thể lớn hơn 4 MB',
+    notHaveImage: 'Chưa có ảnh',
+    //add product
+    showOnAppWebUser: 'Hiển thị lên App/web user',
+    forAllAttribute: 'Cho toàn bộ đặc tính',
+    allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm',
+    notFillAllInformation: 'Chưa điền đủ thông tin',
+    productCodeDescription: 'Là mã từ nhà sản xuất/ mã quản lý chung sản phẩm',
+    under50Characters: 'Dưới 50 ký tự',
+    chooseBrand: 'Chọn thương hiệu',
+    chooseUnit: 'Chọn đơn vị tính',
+    chooseOrigin: 'Chọn xuất xứ',
+    enterProductCode: 'Nhập mã sản phẩm',
+    enterProductName: 'Nhập tên sản phẩm',
+    addLink: 'Thêm Link',
+    notDisplay: 'Không hiển thị',
+    cantFindBrandData: 'Không tìm thấy dữ liệu thương hiệu',
+    cantFindUnitData: 'Không tìm thấy dữ liệu đơn vị tính',
+    cantFindOriginData: 'Không tìm thấy dữ liệu xuất xứ',
+    cantFindProductData: 'Không tìm thấy dữ liệu danh mục sản phẩm'
   }
 }

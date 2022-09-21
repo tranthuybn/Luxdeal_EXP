@@ -199,7 +199,6 @@ const type = String(router.currentRoute.value.params.type)
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {

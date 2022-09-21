@@ -87,11 +87,24 @@ export const FORM_DATA = (object) => {
   Object.keys(object).forEach((key) => formData.append(key, object[key]))
   return formData
 }
+export const FORM_IMAGES = (data) => {
+  return Object.keys(data).reduce((form, key) => {
+    if (data[key]) {
+      form.append(key, data[key])
+      if (Array.isArray(data[key]) && data[key].length > 0)
+        data[key].forEach((el) => {
+          form.append(key, el)
+        })
+    }
+    return form
+  }, new FormData())
+}
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
   formatServiceIdToText,
   FORM_DATA,
+  FORM_IMAGES,
   objectToQueryParams,
   formatMoneyInput,
   formatDateTime,

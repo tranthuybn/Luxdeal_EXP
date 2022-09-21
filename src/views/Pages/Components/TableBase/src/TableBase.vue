@@ -171,7 +171,6 @@ const action = (row: TableData, type: string) => {
       params: { id: row.id, type: type, tab: props.tab }
     })
   } else {
-    console.log(type)
     if (buttonShow === true) {
       buttonShow = false
     } else {
@@ -192,7 +191,7 @@ const delData = async (row: TableData | null, multiple: boolean) => {
         console.log('row', row, multiple)
         if (row !== null) {
           // change this to delApi
-          const res = await props
+          await props
             .delApi({ Id: row.id })
             .then(() =>
               ElNotification({
@@ -206,21 +205,21 @@ const delData = async (row: TableData | null, multiple: boolean) => {
                 type: 'warning'
               })
             )
-          if (res) {
-            getData()
-          }
+            .finally(() => getData())
+        }
+      })
+      .catch((error) => {
+        if (error == 'cancel') {
+          ElNotification({
+            type: 'info',
+            message: t('reuse.deleteCancel')
+          })
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
             type: 'warning'
           })
         }
-      })
-      .catch(() => {
-        ElNotification({
-          type: 'info',
-          message: t('reuse.deleteCancel')
-        })
       })
   }
 }

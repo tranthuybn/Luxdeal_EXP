@@ -233,7 +233,7 @@ type FormDataPost = {
 const customPostData = (data) => {
   const customData = {} as FormDataPost
   var curDate = new Date()
-  customData.Photo = data.Image != undefined ? data.Image : 'incomplete'
+  customData.Photo = data.Image
   customData.Cost = data.cost != undefined ? data.cost : 'incomplete'
   customData.Time = data.time != undefined ? data.time : 'incomplete'
   customData.Warranty = data.warranty != undefined ? data.warranty : 'incomplete'
@@ -346,6 +346,7 @@ const activeName = ref('information')
           @edit-data="editData"
           :formDataCustomize="formDataCustomize"
           :delApi="deleteSpa"
+          :multipleImages="false"
         />
       </el-collapse-item>
     </el-collapse>

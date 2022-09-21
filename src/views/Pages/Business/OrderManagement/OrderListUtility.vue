@@ -348,9 +348,9 @@ const activeName = ref('1')
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
                   <div class="flex w-[84%] gap-2">
                     <input class="w-[80%] border-1 outline-none pl-2" type="text" />
-                    <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
+                    <!-- <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
-                    >
+                    > -->
                   </div>
                 </div>
               </template>

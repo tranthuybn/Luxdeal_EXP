@@ -1024,6 +1024,14 @@ export default {
     cantFindBrandData: 'Không tìm thấy dữ liệu thương hiệu',
     cantFindUnitData: 'Không tìm thấy dữ liệu đơn vị tính',
     cantFindOriginData: 'Không tìm thấy dữ liệu xuất xứ',
-    cantFindProductData: 'Không tìm thấy dữ liệu danh mục sản phẩm'
+    cantFindProductData: 'Không tìm thấy dữ liệu danh mục sản phẩm',
+    detail: 'Chi tiết',
+    addPrice: 'Thêm giá',
+    settingSale: 'Cài đặt bán',
+    settingRent: 'Cài đặt cho thuê',
+    settingDeposit: 'Cài đặt ký gửi',
+    settingPawn: 'Cài đặt cầm đồ',
+    settingSpa: 'Cài đặt Spa',
+    update: 'Cập nhật'
   }
 }

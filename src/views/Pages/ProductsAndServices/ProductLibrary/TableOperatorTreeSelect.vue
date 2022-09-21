@@ -119,6 +119,7 @@ const getTableValue = async () => {
     }
   }
 }
+
 // eslint-disable-next-line vue/no-setup-props-destructure
 const schema = props.schema
 const { register, methods, elFormRef } = useForm({
@@ -217,9 +218,8 @@ const save = async (type) => {
         ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        emit('post-data', data, () => go(-1))
+        emit('post-data', data, go(-1))
         loading.value = false
-        go(-1)
       }
       if (type == 'saveAndAdd') {
         emit('post-data', data)
@@ -229,9 +229,8 @@ const save = async (type) => {
       if (type == 'edit') {
         data.Id = props.id
         data.DeleteFileIds = DeleteFileIds.toString()
-        emit('edit-data', data, () => go(-1))
+        emit('edit-data', data, go(-1))
         loading.value = false
-        go(-1)
       }
     }
     if (!isValid) {
@@ -505,10 +504,8 @@ const getCodeAndNameSelect = async () => {
           <template #ProductStatus="form">
             <div>
               <el-radio-group v-model="form['ProductStatus']">
-                <el-radio :label="1">{{ t('reuse.pending') }}</el-radio>
-                <el-radio :label="2">{{ t('reuse.active') }}</el-radio>
-                <el-radio :label="3"
-                  >{{ t('reuse.stopActive')
+                <el-radio :label="1"
+                  >{{ t('reuse.active')
                   }}<span class="text-[#FECB80]">
                     ({{ t('reuse.allBusinessRelatedActivities') }})</span
                   ></el-radio

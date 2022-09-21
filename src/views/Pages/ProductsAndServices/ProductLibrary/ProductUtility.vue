@@ -324,7 +324,6 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  Description: [required()],
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()],
   ProductStatus: [required()]
@@ -338,6 +337,9 @@ const callTableApi = async (collapseItem) => {
 }
 
 const postData = async (data) => {
+  data.Description
+    ? (data.Description = data.Description.replace(/<[^>]+>/g, ''))
+    : data.Description
   await postProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -374,10 +376,14 @@ const customizeData = async (formData) => {
   setFormData.UnitId = formData.categories[2].id
   setFormData.OriginId = formData.categories[3].id
   setFormData.ProductCode = formData.productCode
+  setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
 }
 const editData = async (data) => {
+  data.Description
+    ? (data.Description = data.Description.replace(/<[^>]+>/g, ''))
+    : data.Description
   await updateProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -406,6 +412,9 @@ const editDataSeo = async (data) => {
         type: 'warning'
       })
     )
+}
+const rowValue = (scope) => {
+  console.log(scope)
 }
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
@@ -449,18 +458,18 @@ const editDataSeo = async (data) => {
         <ElTable
           :data="collapse[1].tableList"
           :border="true"
-          stripe
           v-loading="collapse[1].loading"
+          show-summary
         >
           <ElTableColumn
             header-align="center"
-            min-width="250"
+            min-width="100"
             prop="managementCode"
             :label="t('reuse.managementCode')"
           />
           <ElTableColumn
             header-align="center"
-            min-width="200"
+            min-width="250"
             prop="featureGroup"
             :label="t('reuse.featureGroup')"
           >
@@ -479,76 +488,104 @@ const editDataSeo = async (data) => {
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="130"
-            prop="quantityTo"
-            :label="t('reuse.quantityTo')"
+            min-width="150"
+            prop="settingSale"
+            :label="t('reuse.settingSale')"
           >
             <template #default="scope">
-              <ElInput
-                v-model="scope.row.quantityTo"
-                v-if="scope.row.edited"
-                placeholder="Please input"
-              />
-              <span v-else>{{ scope.row.quantityTo }}</span>
+              <div class="flex gap-2">
+                <el-button :icon="plusIcon" link @click="rowValue(scope)">{{
+                  t('reuse.addPrice')
+                }}</el-button>
+                <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
+              </div>
             </template>
           </ElTableColumn>
 
           <ElTableColumn
             header-align="center"
-            align="right"
-            min-width="130"
-            prop="unitPrices"
-            :label="t('reuse.unitPrices')"
+            align="center"
+            min-width="150"
+            prop="settingRent"
+            :label="t('reuse.settingRent')"
           >
             <template #default="scope">
-              <ElInput
-                v-model="scope.row.unitPrices"
-                v-if="scope.row.edited"
-                placeholder="Please input"
-              />
-              <span v-else>{{ scope.row.unitPrices }}</span>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="right"
-            min-width="130"
-            prop="promotionPrice"
-            :label="t('reuse.promotionPrice')"
-          >
-            <template #default="scope">
-              <ElInput
-                v-model="scope.row.promotionPrice"
-                v-if="scope.row.edited"
-                placeholder="Please input"
-              />
-              <span v-else>{{ scope.row.promotionPrice }}</span>
+              <div class="flex gap-2">
+                <el-button :icon="plusIcon" link>{{ t('reuse.addPrice') }}</el-button>
+                <ElSwitch v-model="scope.row.settingRent" @change="localeChange" />
+              </div>
             </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="130"
-            prop="createDate"
-            :label="t('reuse.dateEditCreate')"
+            min-width="150"
+            prop="settingDeposit"
+            :label="t('reuse.settingDeposit')"
+          >
+            <template #default="scope">
+              <div class="flex gap-2">
+                <el-button :icon="plusIcon" link>{{ t('reuse.addPrice') }}</el-button>
+                <ElSwitch v-model="scope.row.settingDeposit" @change="localeChange" />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="150"
+            prop="settingPawn"
+            :label="t('reuse.settingPawn')"
+          >
+            <template #default="scope">
+              <div class="flex gap-2">
+                <el-button :icon="plusIcon" link>{{ t('reuse.addPrice') }}</el-button>
+                <ElSwitch v-model="scope.row.settingPawn" @change="localeChange" />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="150"
+            prop="settingSpa"
+            :label="t('reuse.settingSpa')"
+          >
+            <template #default="scope">
+              <div class="flex gap-2">
+                <el-button :icon="plusIcon" link>{{ t('reuse.addPrice') }}</el-button>
+                <ElSwitch v-model="scope.row.settingSpa" @change="localeChange" />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="150"
+            prop="inventory"
+            :label="t('reuse.inventory')"
+          >
+            <template #default="scope">
+              <div class="flex gap-2">
+                {{ scope.row.inventory }}
+                <el-button :icon="plusIcon" link>{{ t('reuse.detail') }}</el-button>
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            width="150"
+            prop="update"
+            :label="t('reuse.update')"
           />
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="130"
+            width="150"
             prop="status"
             :label="t('reuse.status')"
           />
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="120"
-            :label="t('reuse.depositManagement')"
-          >
-            <template #default="scope">
-              <ElSwitch v-model="scope.row.switch" @change="localeChange" />
-            </template>
-          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
@@ -576,21 +613,7 @@ const editDataSeo = async (data) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center">{{ collapse[2].title }}</span>
         </template>
-        <ElTable
-          :data="collapse[2].tableList"
-          :border="true"
-          stripe
-          v-loading="collapse[2].loading"
-        >
-          <ElTableColumn type="expand">
-            <template #default="props">
-              <ElTable :data="props.row.childrenTable">
-                <ElTableColumn :label="t('reuse.quantityTo')" prop="quantityTo" />
-                <ElTableColumn :label="t('reuse.unitPrices')" prop="unitPrices" />
-                <ElTableColumn :label="t('reuse.promotionPrice')" prop="promotionPrice" />
-              </ElTable>
-            </template>
-          </ElTableColumn>
+        <ElTable :data="collapse[2].tableList" :border="true" v-loading="collapse[2].loading">
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -619,16 +642,12 @@ const editDataSeo = async (data) => {
             header-align="center"
             align="center"
             min-width="130"
-            prop="quantityTo"
-            :label="t('reuse.quantityTo')"
+            prop="settingSale"
+            :label="t('reuse.settingSale')"
           >
             <template #default="scope">
-              <ElInput
-                v-model="scope.row.index"
-                v-if="scope.row.edited"
-                placeholder="Please input"
-              />
-              <span v-else>{{ scope.row.quantityTo }}</span>
+              <el-button :icon="plusIcon" link>{{ t('reuse.addPrice') }}</el-button>
+              <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
             </template>
           </ElTableColumn>
 
@@ -717,7 +736,7 @@ const editDataSeo = async (data) => {
             :label="t('reuse.depositManagement')"
           >
             <template #default="scope">
-              <ElSwitch v-model="scope.row.switch" @change="localeChange" />
+              <ElSwitch v-model="scope.row.depositManagement" @change="localeChange" />
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -747,12 +766,7 @@ const editDataSeo = async (data) => {
           <el-button class="header-icon" :icon="collapse[3].icon" link />
           <span class="text-center">{{ collapse[3].title }}</span>
         </template>
-        <ElTable
-          :data="collapse[3].tableList"
-          :border="true"
-          stripe
-          v-loading="collapse[3].loading"
-        >
+        <ElTable :data="collapse[3].tableList" :border="true" v-loading="collapse[3].loading">
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -854,12 +868,7 @@ const editDataSeo = async (data) => {
           <el-button class="header-icon" :icon="collapse[4].icon" link />
           <span class="text-center">{{ collapse[4].title }}</span>
         </template>
-        <ElTable
-          :data="collapse[4].tableList"
-          :border="true"
-          stripe
-          v-loading="collapse[4].loading"
-        >
+        <ElTable :data="collapse[4].tableList" :border="true" v-loading="collapse[4].loading">
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -984,12 +993,7 @@ const editDataSeo = async (data) => {
           <el-button class="header-icon" :icon="collapse[5].icon" link />
           <span class="text-center">{{ collapse[5].title }}</span>
         </template>
-        <ElTable
-          :data="collapse[5].tableList"
-          :border="true"
-          stripe
-          v-loading="collapse[5].loading"
-        >
+        <ElTable :data="collapse[5].tableList" :border="true" v-loading="collapse[5].loading">
           <ElTableColumn
             header-align="center"
             min-width="250"
@@ -1088,12 +1092,7 @@ const editDataSeo = async (data) => {
           <el-button class="header-icon" :icon="collapse[6].icon" link />
           <span class="text-center">{{ collapse[6].title }}</span>
         </template>
-        <ElTable
-          :data="collapse[6].tableList"
-          :border="true"
-          stripe
-          v-loading="collapse[6].loading"
-        >
+        <ElTable :data="collapse[6].tableList" :border="true" v-loading="collapse[6].loading">
           <ElTableColumn type="expand">
             <template #default="props">
               <ElTable :data="props.row.childrenTable">

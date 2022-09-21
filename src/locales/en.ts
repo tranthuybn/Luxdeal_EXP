@@ -968,6 +968,10 @@ export default {
     selectCategory: 'Select category',
     orders: 'Orders',
     informationSeo: 'Information SEO',
-    path: 'Path'
+    path: 'Path',
+    cantFindBrandData: 'Cant find brand data',
+    cantFindUnitData: 'Cant find brand data',
+    cantFindOriginData: 'Cant find brand data',
+    cantFindProductData: 'Cant find brand data'
   }
 }

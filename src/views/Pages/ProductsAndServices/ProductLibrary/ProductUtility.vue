@@ -37,13 +37,7 @@ import {
   inventoryTrading,
   columnManagementSeo,
   columnsPriceByQuantity,
-  columnsImportAndExportHistory,
-  originSelect,
-  unitSelect,
-  brandSelect,
-  getBrandSelectOptions,
-  getOriginSelectOptions,
-  getUnitSelectOptions
+  columnsImportAndExportHistory
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -330,7 +324,7 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  Description: [{ validator: notSpecialCharacters }, required()],
+  Description: [required()],
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()],
   ProductStatus: [required()]
@@ -342,29 +336,8 @@ const callTableApi = async (collapseItem) => {
   }
   collapseItem.loading = false
 }
-const customPostData = async (data) => {
-  let customData = data
-  if (originSelect.length == 0) {
-    await getOriginSelectOptions()
-  }
-  if (unitSelect.length == 0) {
-    await getUnitSelectOptions()
-  }
-  if (brandSelect.length == 0) {
-    await getBrandSelectOptions()
-  }
-  const OriginId: any = originSelect.find((option) => option['label'] === data.OriginId)
-  const UnitId: any = unitSelect.find((option) => option['label'] === data.UnitId)
-  const BrandId: any = brandSelect.find((option) => option['label'] === data.BrandId)
-  if (OriginId !== undefined || UnitId !== undefined || BrandId !== undefined) {
-    customData.OriginId = OriginId!.id
-    customData.UnitId = UnitId!.id
-    customData.BrandId = BrandId!.id
-  }
-  return customData
-}
+
 const postData = async (data) => {
-  data = await customPostData(data)
   await postProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -396,16 +369,15 @@ type CustomFormData = {
 const emptyFormObj = {} as CustomFormData
 const setFormData = reactive(emptyFormObj)
 const customizeData = async (formData) => {
-  setFormData.BrandId = formData.categories[0].value
+  setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
-  setFormData.UnitId = formData.categories[2].value
-  setFormData.OriginId = formData.categories[3].value
+  setFormData.UnitId = formData.categories[2].id
+  setFormData.OriginId = formData.categories[3].id
   setFormData.ProductCode = formData.productCode
   setFormData.Name = formData.name
   setFormData.Description = formData.description
 }
 const editData = async (data) => {
-  data = await customPostData(data)
   await updateProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({

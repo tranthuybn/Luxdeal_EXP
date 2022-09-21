@@ -12,6 +12,7 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
+import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {
@@ -176,8 +177,7 @@ export const getBrandSelectOptions = async () => {
         if (res.data) {
           brandSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.name,
-            id: index.id
+            value: index.id
           }))
         }
       })
@@ -198,8 +198,7 @@ export const getUnitSelectOptions = async () => {
         if (res.data) {
           unitSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.name,
-            id: index.id
+            value: index.id
           }))
         }
       })
@@ -220,8 +219,7 @@ export const getOriginSelectOptions = async () => {
         if (res.data) {
           originSelect = res.data.map((index) => ({
             label: index.name,
-            value: index.name,
-            id: index.id
+            value: index.id
           }))
         }
       })
@@ -233,8 +231,39 @@ export const getOriginSelectOptions = async () => {
     columnProfileProduct[4].componentProps!.loading = false
   }
 }
-const callProductApi = async () => {
-  //call api 1 time and map name + disable=true && map productCode
+export const customPostData = async (data) => {
+  if (originSelect.length == 0) {
+    await getOriginSelectOptions()
+  }
+  if (unitSelect.length == 0) {
+    await getUnitSelectOptions()
+  }
+  if (brandSelect.length == 0) {
+    await getBrandSelectOptions()
+  }
+  console.log(data)
+  const findBrand = brandSelect.find((brand) => brand['value'] == data.BrandId)
+  const findUnit = unitSelect.find((unit) => unit['value'] == data.UnitId)
+  const findOrigin = originSelect.find((origin) => origin['value'] == data.OriginId)
+  console.log(findBrand, findUnit, findOrigin)
+  if (findBrand == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindBrandData'),
+      type: 'warning'
+    })
+  }
+  if (findUnit == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindUnitData'),
+      type: 'warning'
+    })
+  }
+  if (findOrigin == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindOriginData'),
+      type: 'warning'
+    })
+  }
 }
 export { originSelect, unitSelect, brandSelect }
 export const columnProfileProduct = reactive<FormSchema[]>([
@@ -306,7 +335,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Select',
     componentProps: {
       placeholder: t('reuse.enterProductCode'),
-      onClick: () => callProductApi(),
       style: 'width: 100%',
       loading: true,
       allowCreate: true,
@@ -326,7 +354,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Select',
     componentProps: {
       placeholder: t('reuse.enterProductName'),
-      onClick: () => callProductApi(),
       style: 'width: 100%',
       loading: true,
       allowCreate: true,

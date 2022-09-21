@@ -32,6 +32,7 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 import { API_URL } from '@/utils/API_URL'
+import { customPostData } from './ProductLibraryManagement'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -139,6 +140,7 @@ const setFormValue = async () => {
 
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
+    await customPostData(props.formDataCustomize)
     setValues(props.formDataCustomize)
     if (props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
@@ -205,7 +207,12 @@ const save = async (type) => {
         tree.children.find((child) => child.label == data.ProductTypeId)
       )
       ProductTypeId = ProductTypeId.children.find((options) => options.label === data.ProductTypeId)
-      data.ProductTypeId = ProductTypeId.id
+      ProductTypeId
+        ? (data.ProductTypeId = ProductTypeId.id)
+        : ElNotification({
+            message: t('reuse.cantFindProductData'),
+            type: 'warning'
+          })
       props.multipleImages
         ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
         : (data.Image = rawUploadFile.value?.raw)
@@ -221,6 +228,7 @@ const save = async (type) => {
       }
       if (type == 'edit') {
         data.Id = props.id
+        data.DeleteFileIds = DeleteFileIds.toString()
         emit('edit-data', data, () => go(-1))
         loading.value = false
         go(-1)
@@ -244,8 +252,17 @@ let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
+let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
+  if (formValue.value.productImages) {
+    let imageRemove = formValue.value.productImages.find(
+      (image) => `${API_URL}${image.path}` === file.url
+    )
+    if (imageRemove) {
+      DeleteFileIds.push(imageRemove?.fileId)
+    }
+  }
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -436,7 +453,7 @@ const getCodeAndNameSelect = async () => {
               clearable
             >
               <el-option
-                v-for="item in NameAndCodeSelect"
+                v-for="item in CodeAndNameSelect"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -444,7 +461,7 @@ const getCodeAndNameSelect = async () => {
               >
                 <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
                 <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productName') }}: {{ item.productCode }}</span
+                  >{{ t('reuse.productName') }}: {{ item.name }}</span
                 >
               </el-option>
             </el-select>
@@ -460,7 +477,7 @@ const getCodeAndNameSelect = async () => {
               clearable
             >
               <el-option
-                v-for="item in CodeAndNameSelect"
+                v-for="item in NameAndCodeSelect"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -468,7 +485,7 @@ const getCodeAndNameSelect = async () => {
               >
                 <span style="float: left">{{ t('reuse.productName') }}: {{ item.label }}</span>
                 <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productCode') }}: {{ item.name }}</span
+                  >{{ t('reuse.productCode') }}: {{ item.productCode }}</span
                 >
               </el-option>
             </el-select>

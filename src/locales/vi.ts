@@ -1020,6 +1020,10 @@ export default {
     enterProductCode: 'Nhập mã sản phẩm',
     enterProductName: 'Nhập tên sản phẩm',
     addLink: 'Thêm Link',
-    notDisplay: 'Không hiển thị'
+    notDisplay: 'Không hiển thị',
+    cantFindBrandData: 'Không tìm thấy dữ liệu thương hiệu',
+    cantFindUnitData: 'Không tìm thấy dữ liệu đơn vị tính',
+    cantFindOriginData: 'Không tìm thấy dữ liệu xuất xứ',
+    cantFindProductData: 'Không tìm thấy dữ liệu danh mục sản phẩm'
   }
 }

@@ -222,7 +222,9 @@ export default {
     spaDeliveryHistory: 'Spa Delivery history',
     listProductSpa: 'List product Spa',
     methodOfDeliverySpa: 'Method of delivery Spa',
-    spaOrChecked: 'Spa or Checked'
+    spaOrChecked: 'Spa or Checked',
+    quicklyAddCustomers: 'Add Customer Quiclky',
+    spaFeePayment: 'Spa fee Payment'
   },
   button: {
     add: 'Add quick'

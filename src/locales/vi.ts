@@ -223,7 +223,9 @@ export default {
     listProductSpa: 'Danh sách sản phẩm Spa',
     deliveryDate: 'Hạn trả hàng',
     methodOfDeliverySpa: 'Nhận hàng Spa',
-    spaOrChecked: 'Đã Spa/Kiểm tra'
+    spaOrChecked: 'Đã Spa/Kiểm tra',
+    quicklyAddCustomers: 'Thêm nhanh khách hàng',
+    spaFeePayment: 'Thành tiền phí Spa'
   },
   button: {
     add: 'Thêm nhanh'

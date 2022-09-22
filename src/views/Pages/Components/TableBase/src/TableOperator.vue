@@ -229,9 +229,8 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : fileImage.value)
       //callback cho hàm emit
       if (type == 'add') {
-        emit('post-data', data, () => go(-1))
+        emit('post-data', data, go(-1))
         loading.value = false
-        go(-1)
       }
       if (type == 'saveAndAdd') {
         emit('post-data', data)
@@ -240,9 +239,8 @@ const save = async (type) => {
       }
       if (type == 'edit') {
         data.Id = props.id
-        emit('edit-data', data, () => go(-1))
+        emit('edit-data', data, go(-1))
         loading.value = false
-        go(-1)
       }
     }
     if (!isValid) {

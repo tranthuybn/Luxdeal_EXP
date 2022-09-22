@@ -973,6 +973,14 @@ export default {
     cantFindBrandData: 'Cant find brand data',
     cantFindUnitData: 'Cant find brand data',
     cantFindOriginData: 'Cant find brand data',
-    cantFindProductData: 'Cant find brand data'
+    cantFindProductData: 'Cant find brand data',
+    detail: 'Detail',
+    addPrice: 'Add price',
+    settingSale: 'Setting sale',
+    settingRent: 'Setting rent',
+    settingDeposit: 'Setting deposit',
+    settingPawn: 'Setting pawn',
+    settingSpa: 'Setting spa',
+    update: 'Update'
   }
 }

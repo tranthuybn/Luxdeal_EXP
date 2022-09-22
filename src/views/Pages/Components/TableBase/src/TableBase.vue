@@ -150,6 +150,22 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
+const sortChange = () => {
+  //empty function but dont remove
+}
+//watch sort change function
+const headerClick = (column) => {
+  const sorting = {} as any
+  let valueSort: any = null
+  if (column.order == 'ascending') {
+    valueSort = true
+  }
+  if (column.order == 'descending') {
+    valueSort = false
+  }
+  sorting[`${column.property}Sort`] = valueSort
+  setSearchParams(sorting)
+}
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
   setSearchParams(value)
@@ -180,7 +196,7 @@ const action = (row: TableData, type: string) => {
   }
 }
 
-const delData = async (row: TableData | null, multiple: boolean) => {
+const delData = async (row: TableData | null, _multiple: boolean) => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
@@ -189,7 +205,6 @@ const delData = async (row: TableData | null, multiple: boolean) => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(async () => {
-        console.log('row', row, multiple)
         if (row !== null) {
           // change this to delApi
           await props
@@ -236,8 +251,8 @@ const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
 )
 
-const localeChange = (show: boolean) => {
-  console.log(show)
+const localeChange = (_show: boolean) => {
+  //console.log(show)
 }
 const showingColumn =
   props.fullColumns.length > 0
@@ -288,6 +303,8 @@ const showingColumn =
       @select-all="getTableSelected"
       @register="register"
       @filter-change="filterChange"
+      @sort-change="sortChange"
+      @header-click="headerClick"
       :selection="selection"
     >
       <template #imgTitle="data">

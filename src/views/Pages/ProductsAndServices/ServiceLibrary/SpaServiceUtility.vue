@@ -5,9 +5,10 @@ import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
 import { getSpaById, getSpaLibrary, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElNotification } from 'element-plus'
+import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
+import moment from 'moment'
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
@@ -81,7 +82,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'promotionalPrice',
+    field: 'promotePrice',
     label: t('formDemo.promotionalPrice'),
     component: 'Input',
     colProps: {
@@ -138,26 +139,6 @@ const schema = reactive<FormSchema[]>([
       ]
     }
   }
-  //,
-  // {
-  //   field: 'isActive',
-  //   component: 'Tag',
-  //   modelValue: 'Đang chờ duyệt',
-  //   componentProps: {
-  //     plain: true,
-  //     style: {
-  //       size: 'small'
-  //     },
-  //     options: [
-  //       {
-  //         label: 'Đang chờ duyệt',
-  //         value: 'isHide',
-  //         type: 'warning',
-  //         key: '123'
-  //       }
-  //     ]
-  //   }
-  // }
 ])
 const rules = reactive({
   rankCategory: [required()],
@@ -200,6 +181,9 @@ const type = String(router.currentRoute.value.params.type)
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
+  console.log('formData', formData)
+
+  formDataCustomize.value.Images = formData.photos
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
     formDataCustomize.value.rankCategory = 1
@@ -217,6 +201,7 @@ type FormDataPost = {
   Id: number
   Name: string
   Code: string
+  PromotePrice: number
   Photo?: any
   UpdatedBy: string
   CreatedBy: string
@@ -228,29 +213,35 @@ type FormDataPost = {
   Time: number
   Warranty: number
   Description: string
+  ShortDescription: string
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
-  var curDate = new Date()
-  customData.Photo = data.Image
+  var curDate = moment().format()
+  customData.Id = id
+  customData.Photo = data.Images
   customData.Cost = data.cost != undefined ? data.cost : 'incomplete'
+  customData.PromotePrice =
+    data.promotionalPrice != undefined ? data.promotionalPrice : 'incomplete'
   customData.Time = data.time != undefined ? data.time : 'incomplete'
   customData.Warranty = data.warranty != undefined ? data.warranty : 'incomplete'
   customData.Description = data.description != undefined ? data.description : 'incomplete'
+  customData.ShortDescription =
+    data.shortDescription != undefined ? data.shortDescription : 'incomplete'
   customData.Name = data.name != undefined ? data.name : 'incomplete'
   customData.Code = data.code != undefined ? data.code : 'incomplete'
   customData.UpdatedBy = 'anle'
   customData.CreatedBy = 'anle'
-  customData.UpdatedAt =
-    curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDate()
-  customData.CreatedAt =
-    curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDate()
+  customData.UpdatedAt = curDate.toString()
+  customData.CreatedAt = curDate.toString()
   data.status.includes('active') ? (customData.IsActive = true) : (customData.IsActive = false)
   customData.IsApproved = true
   return customData
 }
 const editData = async (data) => {
   data = customPostData(data)
+  console.log('data', data)
+
   await updateSpa({ ...data })
     .then(() =>
       ElNotification({
@@ -345,7 +336,6 @@ const activeName = ref('information')
           @edit-data="editData"
           :formDataCustomize="formDataCustomize"
           :delApi="deleteSpa"
-          :multipleImages="false"
         />
       </el-collapse-item>
     </el-collapse>

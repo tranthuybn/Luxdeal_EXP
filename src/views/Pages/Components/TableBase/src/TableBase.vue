@@ -95,6 +95,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
+
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
@@ -304,7 +305,7 @@ const showingColumn =
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0].path" />
+          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
       <template

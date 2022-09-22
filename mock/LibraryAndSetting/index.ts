@@ -16,7 +16,6 @@ import { featuresPawnFee } from './productLibrary/featuresPawnFee'
 import { featuresPrices } from './productLibrary/featuresPrice'
 import { featuresRentalPrice } from './productLibrary/featuresRentalPrice'
 import { spaPrice } from './productLibrary/spaPrice'
-import { SpaLibrary } from './ServiceLibrary/spa'
 import { inventoryTrading } from './productLibrary/inventoryTrading'
 import { priceByQuantity } from './productLibrary/priceByQuantity'
 import { importAndExportHistory } from './productLibrary/importAndExportHistory'
@@ -204,28 +203,6 @@ export default [
         code: result_code,
         data: {
           total: BusinessProductLibrary.length,
-          list: pageList
-        }
-      }
-    }
-  },
-  {
-    url: '/spa',
-    method: 'get',
-    timeout,
-    response: ({ query }) => {
-      const { status, pageIndex, pageSize } = query
-      const mockList = SpaLibrary.filter((item) => {
-        if (status && item.status.indexOf(status) < 0) return false
-        return true
-      })
-      const pageList = mockList.filter(
-        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
-      )
-      return {
-        code: result_code,
-        data: {
-          total: SpaLibrary.length,
           list: pageList
         }
       }

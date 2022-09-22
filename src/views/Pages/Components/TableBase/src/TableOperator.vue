@@ -105,6 +105,7 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
+      console.log('ressdata', formValue.value)
       await setFormValue()
     } else {
       ElNotification({
@@ -141,6 +142,7 @@ watch(
     immediate: true
   }
 )
+//formValue lay tu api
 const customizeData = async () => {
   emit('customize-form-data', formValue.value)
 }
@@ -161,19 +163,20 @@ const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
+    console.log('custom', props.formDataCustomize)
     setValues(props.formDataCustomize)
     if (!props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
       urlToObject(props.formDataCustomize.imageurl)
     }
+    if (props.multipleImages) {
+      // Images tao tu formDataCustomize
+      props.formDataCustomize?.Images.map((image) =>
+        fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
+      )
+    }
   } else {
     setValues(formValue.value)
-  }
-  //productImages là fix cứng nên dùng formDataCustomize
-  if (props.multipleImages) {
-    formValue.value?.productImages.map((image) =>
-      fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
-    )
   }
 }
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
@@ -261,8 +264,18 @@ if (props.title == 'undefined') {
   title.value = 'Category'
 }
 
+let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
+  if (props.formDataCustomize.Images) {
+    let imageRemove = props.formDataCustomize?.Images.find(
+      (image) => `${API_URL}${image.path}` === file.url
+    )
+    if (imageRemove) {
+      DeleteFileIds.push(imageRemove?.id)
+    }
+  }
+  console.log('deleteID', DeleteFileIds)
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -316,7 +329,7 @@ const delAction = async () => {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
-      confirmButtonClass: 'el-button--danger'
+      confirmButtonClass: 'ElButton--danger'
     })
       .then(() => {
         const res = props.delApi({ Id: props.id })
@@ -391,32 +404,32 @@ const listType = ref<ListImages>('text')
             <div v-if="imageUrl" class="relative">
               <ElImage style="width: 160px; height: 160px" :src="imageUrl" class="avatar" />
             </div>
-            <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
+            <ElButton v-else :icon="addIcon" class="avatar-uploader-icon" />
           </div>
           <div v-else>
-            <el-button :icon="addIcon" />
+            <ElButton :icon="addIcon" />
           </div>
           <template #file="{ file }">
             <div>
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                  <el-button :icon="viewIcon" />
+                  <ElButton :icon="viewIcon" />
                 </span>
                 <span
                   v-if="!disabled"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
-                  <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" />
+                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" />
                 </span>
               </span>
             </div>
           </template>
         </el-upload>
         <div class="w-250px flex justify-center" v-if="imageUrl">
-          <el-button :icon="viewIcon" @click="previewImage" />
-          <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+          <ElButton :icon="viewIcon" @click="previewImage" />
+          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
         <el-dialog v-model="dialogVisible">
           <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />

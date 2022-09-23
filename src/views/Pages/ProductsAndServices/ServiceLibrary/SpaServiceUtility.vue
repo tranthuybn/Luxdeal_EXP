@@ -146,7 +146,10 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
     required()
-  ]
+  ],
+  code: [required()],
+  shortDescription: [required()],
+  description: [required()]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -238,15 +241,11 @@ const customPostData = (data) => {
 }
 const editData = async (data) => {
   //  customPostData(data)
-
   const payload = {
     Id: id,
     DeletedImages: data.DeleteFileIds.toString(),
-    NewPhotos: data.NewPhotos
+    NewPhotos: data.Images
   }
-  console.log('1', payload)
-  console.log('2', data)
-
   await updateSpa({ ...payload, ...customPostData(data) })
     .then(() =>
       ElNotification({

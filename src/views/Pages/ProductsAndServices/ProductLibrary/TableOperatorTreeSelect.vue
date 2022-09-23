@@ -190,7 +190,7 @@ const save = async (type) => {
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
-        validateFile = await beforeAvatarUpload(fileList.value, 'list')
+        validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
@@ -215,7 +215,9 @@ const save = async (type) => {
             type: 'warning'
           })
       props.multipleImages
-        ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
+        ? (data.Images = ListFileUpload.value
+            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+            : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -295,8 +297,12 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    ElMessage.warning(t('reuse.notHaveImage'))
-    return false
+    if (fileList.value) {
+      return true
+    } else {
+      ElMessage.warning(t('reuse.notHaveImage'))
+      return false
+    }
   }
 }
 const { push } = useRouter()
@@ -341,12 +347,13 @@ const delAction = async () => {
 const cancel = () => {
   go(-1)
 }
+const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
-    fileList.value = uploadFiles
+    ListFileUpload.value = uploadFiles
   }
 }
 const previewImage = () => {

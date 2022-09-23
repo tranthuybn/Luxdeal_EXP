@@ -134,7 +134,7 @@ export const postSpa = async (data): Promise<IResponse> => {
   return res && res.data
 }
 export const updateSpa = async (data): Promise<IResponse> => {
-  data = FORM_DATA(data)
+  data = FORM_IMAGES(data)
   const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data }, fixedBaseURL)
   return res && res.data
 }

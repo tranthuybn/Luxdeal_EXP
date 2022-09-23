@@ -41,14 +41,14 @@ export const businessProductLibrary = [
     field: 'time',
     label: t('reuse.timeMinute'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true
   },
   {
     field: 'warranty',
     label: t('reuse.insuranceDate'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true
   },
   {
@@ -71,6 +71,7 @@ export const businessProductLibrary = [
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
+    align: 'center',
     headerFilter: 'Name'
   },
   {

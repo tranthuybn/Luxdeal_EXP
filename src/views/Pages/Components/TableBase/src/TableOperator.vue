@@ -239,6 +239,8 @@ const save = async (type) => {
       }
       if (type == 'edit') {
         data.Id = props.id
+        data.NewPhotos = fileList.value
+        data.DeleteFileIds = DeleteFileIds
         emit('edit-data', data, go(-1))
         loading.value = false
       }

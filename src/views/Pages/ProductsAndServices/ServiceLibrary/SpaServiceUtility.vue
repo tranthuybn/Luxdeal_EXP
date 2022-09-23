@@ -220,16 +220,14 @@ const customPostData = (data) => {
   var curDate = moment().format()
   customData.Id = id
   customData.Photo = data.Images
-  customData.Cost = data.cost != undefined ? data.cost : 'incomplete'
-  customData.PromotePrice =
-    data.promotionalPrice != undefined ? data.promotionalPrice : 'incomplete'
-  customData.Time = data.time != undefined ? data.time : 'incomplete'
-  customData.Warranty = data.warranty != undefined ? data.warranty : 'incomplete'
-  customData.Description = data.description != undefined ? data.description : 'incomplete'
-  customData.ShortDescription =
-    data.shortDescription != undefined ? data.shortDescription : 'incomplete'
-  customData.Name = data.name != undefined ? data.name : 'incomplete'
-  customData.Code = data.code != undefined ? data.code : 'incomplete'
+  customData.Cost = data.cost ?? 0
+  customData.PromotePrice = data.promotePrice ?? 0
+  customData.Time = data.time ?? 0
+  customData.Warranty = data.warranty ?? 0
+  customData.Description = data.description
+  customData.ShortDescription = data.shortDescription
+  customData.Name = data.name
+  customData.Code = data.code
   customData.UpdatedBy = 'anle'
   customData.CreatedBy = 'anle'
   customData.UpdatedAt = curDate.toString()
@@ -239,10 +237,17 @@ const customPostData = (data) => {
   return customData
 }
 const editData = async (data) => {
-  data = customPostData(data)
-  console.log('data', data)
+  //  customPostData(data)
 
-  await updateSpa({ ...data })
+  const payload = {
+    Id: id,
+    DeletedImages: data.DeleteFileIds.toString(),
+    NewPhotos: data.NewPhotos
+  }
+  console.log('1', payload)
+  console.log('2', data)
+
+  await updateSpa({ ...payload, ...customPostData(data) })
     .then(() =>
       ElNotification({
         message: t('reuse.updateSuccess'),
@@ -258,6 +263,8 @@ const editData = async (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
+  console.log('data', data)
+
   await postSpa(data)
     .then(() =>
       ElNotification({

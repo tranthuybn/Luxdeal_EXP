@@ -1,1 +1,1 @@
-export const  ERP_DOMAIN = 'http://103.81.87.134:910'
+export const  ERP_DOMAIN = 'https://luxdeal-api.cftsoft.com'

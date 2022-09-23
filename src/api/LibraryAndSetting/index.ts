@@ -68,6 +68,45 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getCodeAndNameProductLibrary = async (params?): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.CHECK_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postProductLibrary = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateProductLibrary = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateProductSeo = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_SEO_PRODUCT}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteProduct = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const getSpaLibrary = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -119,7 +158,7 @@ export const getFeaturesPawnFee = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/features-pawn', params })
   return res && res.data
 }
-export const getFeaturesPrices = async (params: any): Promise<IResponse> => {
+export const getFeaturesPrices = async (params?: any): Promise<IResponse> => {
   const res = await request.get({ url: '/features-prices', params })
   return res && res.data
 }

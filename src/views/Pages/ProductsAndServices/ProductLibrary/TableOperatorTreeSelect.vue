@@ -370,7 +370,7 @@ const listType = ref<ListImages>('text')
 let timeCallAPI = 0
 const apiTreeSelect = async () => {
   if (timeCallAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 100, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           treeSelectData.value = res.data.map((index) => ({
@@ -534,6 +534,7 @@ const getCodeAndNameSelect = async () => {
           :disabled="props.type === 'detail'"
           :auto-upload="false"
           :show-file-list="multipleImages"
+          :multiple="multipleImages"
           v-model:file-list="fileList"
           :list-type="listType"
           :limit="10"

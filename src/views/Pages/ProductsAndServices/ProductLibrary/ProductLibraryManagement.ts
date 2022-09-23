@@ -175,7 +175,7 @@ let brandSelect = reactive([])
 let callBrandAPI = 0
 export const getBrandSelectOptions = async () => {
   if (callBrandAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 100, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           brandSelect = res.data.map((index) => ({
@@ -196,7 +196,7 @@ let unitSelect = reactive([])
 let callUnitAPI = 0
 export const getUnitSelectOptions = async () => {
   if (callUnitAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           unitSelect = res.data.map((index) => ({
@@ -217,7 +217,7 @@ let originSelect = reactive([])
 let callOriginAPI = 0
 export const getOriginSelectOptions = async () => {
   if (callOriginAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 100, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           originSelect = res.data.map((index) => ({
@@ -244,11 +244,9 @@ export const customPostData = async (data) => {
   if (brandSelect.length == 0) {
     await getBrandSelectOptions()
   }
-  console.log(data)
   const findBrand = brandSelect.find((brand) => brand['value'] == data.BrandId)
   const findUnit = unitSelect.find((unit) => unit['value'] == data.UnitId)
   const findOrigin = originSelect.find((origin) => origin['value'] == data.OriginId)
-  console.log(findBrand, findUnit, findOrigin)
   if (findBrand == undefined) {
     ElNotification({
       message: t('reuse.cantFindBrandData'),

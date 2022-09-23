@@ -153,10 +153,10 @@ async function getDataEvent() {
     if (valid) {
       getFormData()
         .then((res) => {
-          emit('getData', { ...res, searchingKey: searchingKey.value })
+          emit('getData', { ...res, Search: searchingKey.value })
         })
-        .catch(() => {
-          console.error('have some issues while emitting')
+        .catch((error) => {
+          console.error(error)
         })
     }
   })

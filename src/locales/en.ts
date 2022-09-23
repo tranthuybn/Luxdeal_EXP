@@ -224,7 +224,8 @@ export default {
     methodOfDeliverySpa: 'Method of delivery Spa',
     spaOrChecked: 'Spa or Checked',
     quicklyAddCustomers: 'Add Customer Quiclky',
-    spaFeePayment: 'Spa fee Payment'
+    spaFeePayment: 'Spa fee Payment',
+    VATNotIncluded: 'VAT not Included'
   },
   button: {
     add: 'Add quick'

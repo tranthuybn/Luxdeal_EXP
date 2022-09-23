@@ -225,7 +225,8 @@ export default {
     methodOfDeliverySpa: 'Nhận hàng Spa',
     spaOrChecked: 'Đã Spa/Kiểm tra',
     quicklyAddCustomers: 'Thêm nhanh khách hàng',
-    spaFeePayment: 'Thành tiền phí Spa'
+    spaFeePayment: 'Thành tiền phí Spa',
+    VATNotIncluded: 'Không bao gồm VAT'
   },
   button: {
     add: 'Thêm nhanh'

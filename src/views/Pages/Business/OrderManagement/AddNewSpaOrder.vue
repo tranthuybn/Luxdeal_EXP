@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import { getSpaList } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -15,7 +16,12 @@ import {
   ElInput,
   ElDialog,
   ElFormItem,
-  ElIcon
+  ElIcon,
+  ElDatePicker,
+  ElDropdown,
+  ElDropdownItem,
+  ElRadio,
+  ElRadioGroup
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -89,32 +95,33 @@ const schema = reactive<FormSchema[]>([
 
 const tableDataSettingSpa = [
   {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
+    name: 'Kiểm tra',
+    service: '00'
   },
   {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
+    name: 'Vệ sinh',
+    service: '50,000'
   },
   {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
+    name: 'Sơn',
+    service: '500,000'
   },
   {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
+    name: 'Đánh bóng',
+    service: '500,000'
+  }
+]
+
+const tableFormSelectWarehouse = [
+  {
+    name: 'Kho Hà Nội',
+    inventory: 20,
+    unit: 'Chiếc'
   },
   {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  },
-  {
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
+    name: 'Kho Hồ Chí Minh',
+    inventory: 10,
+    unit: 'Cái'
   }
 ]
 
@@ -148,6 +155,26 @@ const newList = reactive<FormSchema[]>([
     }
   }
 ])
+
+const listProducts = ref()
+const optionsApi = ref()
+let optionCallAPi = 0
+const callApi = async () => {
+  if (optionCallAPi == 0) {
+    const res = await getSpaList('')
+    listProducts.value = res.data
+    optionsApi.value = listProducts.value.map((product) => ({
+      label: product.id,
+      value: product.id,
+      name: product.name,
+      price: product.price ?? 11500
+    }))
+    optionCallAPi++
+  }
+}
+const selectItem = () => {
+  console.log(name)
+}
 
 const { register } = useForm()
 
@@ -230,7 +257,10 @@ const collapse: Array<Collapse> = [
 
 const dialogFormVisible = ref(false)
 const dialogFormSettingServiceSpa = ref(false)
+const dialogFormSelectWarehouse = ref(false)
+
 const formLabelWidth = '165px'
+
 const form = reactive({
   name: '',
   typea: '',
@@ -274,29 +304,34 @@ const checked2 = ref(false)
 const checked3 = ref(false)
 const checked4 = ref(false)
 const checked5 = ref(false)
-
-const input = ref('')
+const value1 = ref('')
+const inputPhuKien = ref('')
+const radioVAT = ref(3)
 
 const tableData = [
   {
+    id: '',
     name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; không quai',
     quantity: '2',
     unitPrice: '10,000,000 đ',
     intoMoney: '20,000,000 đ'
   },
   {
+    id: '',
     name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; có quai',
     quantity: '2',
     unitPrice: '10,000,000 đ',
     intoMoney: '20,000,000 đ'
   },
   {
+    id: '',
     name: 'Vòng cổ ngọc trai kim cương',
     quantity: '1',
     unitPrice: '150,000,000 đ',
     intoMoney: '150,000,000 đ'
   },
   {
+    id: '',
     name: '',
     quantity: '',
     unitPrice: '',
@@ -594,15 +629,33 @@ const activeName = ref(collapse[0].name)
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
-          <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select filterable v-model="value" class="m-2" size="large">
+          <el-table-column prop="id" :label="`${t('formDemo.productManagementCode')}`" width="170">
+            <!-- <el-select filterable v-model="value" class="m-2" size="large">
               <el-option
                 v-for="item in options1"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
+                @focus="callApi"
               />
-            </el-select>
+            </el-select> -->
+            <template #default="props">
+              <el-select
+                v-model="props.row.id"
+                filterable
+                class="m-2"
+                size="large"
+                @focus="callApi()"
+                @change="selectItem()"
+              >
+                <el-option
+                  v-for="(item, index) in optionsApi"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </template>
           </el-table-column>
           <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="650">
             <template #default="scope">
@@ -613,7 +666,10 @@ const activeName = ref(collapse[0].name)
             </template>
           </el-table-column>
           <el-table-column :label="`${t('reuse.accessory')}`" width="180">
-            <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
+            <el-input
+              v-model="inputPhuKien"
+              :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
+            />
           </el-table-column>
           <el-table-column :label="t('router.ServiceLibrarySpaService')" width="230">
             <div class="flex w-[100%]">
@@ -651,9 +707,11 @@ const activeName = ref(collapse[0].name)
           <el-table-column :label="`Kho nhập`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">{{ t('reuse.stocking') }}</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
+              <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                <el-button text border @click="dialogFormSelectWarehouse = true"
+                  >+ {{ t('formDemo.chooseWarehouse') }}</el-button
+                >
+              </div>
             </div>
           </el-table-column>
 
@@ -673,7 +731,50 @@ const activeName = ref(collapse[0].name)
           <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">{{ t('formDemo.spaFeePayment') }}</div>
             <div class="text-blue-500 cursor-pointer">+ {{ t('formDemo.choosePromotion') }}</div>
-            <div class="text-blue-500 cursor-pointer">{{ t('formDemo.doesNotIncludeVAT') }} </div>
+            <div class="text-blue-500 cursor-pointer">
+              <el-dropdown trigger="click">
+                <span class="demonstration"
+                  >{{ t('formDemo.doesNotIncludeVAT') }}
+                  <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item
+                      ><el-radio-group v-model="radioVAT" class="flex-col">
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="1" size="large">{{
+                            t('formDemo.VATNotIncluded')
+                          }}</el-radio>
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="2" size="large"
+                            >VAT 10%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="3" size="large"
+                            >VAT 8%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="4" size="large"
+                            >VAT 5%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="5" size="large"
+                            >VAT 0%</el-radio
+                          >
+                        </div>
+                      </el-radio-group>
+                    </el-dropdown-item>
+                    <el-dropdown-item divided>
+                      <div style="width: 100%; text-align: center"> Confirm </div>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
             <div class="dark:text-[#fff]">{{ t('formDemo.total') }}</div>
           </el-table-column>
           <el-table-column align="right" width="180">
@@ -692,12 +793,11 @@ const activeName = ref(collapse[0].name)
 
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
         <el-table :data="debtTable" border>
-          <el-table-column
-            prop="date"
-            :label="`${t('formDemo.dateOfPayment')}`"
-            width="150"
-            align="center"
-          />
+          <el-table-column :label="t('formDemo.dateOfPayment')" width="150" align="center">
+            <div class="block">
+              <el-date-picker v-model="value1" type="date" placeholder="Pick a day" />
+            </div>
+          </el-table-column>
           <el-table-column prop="col" :label="`${t('reuse.content')}`" width="240" />
           <el-table-column :label="`${t('formDemo.receiptOrPayment')}`" align="right">
             <div class="text-blue-500">+{{ t('formDemo.receiptOrPayment') }}</div>
@@ -779,7 +879,7 @@ const activeName = ref(collapse[0].name)
             <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="720" />
             <el-table-column :label="`${t('reuse.accessory')}`" width="180">
               <el-input
-                :v-model="input"
+                :v-model="inputPhuKien"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </el-table-column>
@@ -865,26 +965,71 @@ const activeName = ref(collapse[0].name)
     <el-form :model="form">
       <el-table
         ref="multipleTableRef"
+        border
         :data="tableDataSettingSpa"
         style="width: 100%"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column property="name" label="Name" width="120" />
-        <el-table-column property="address" label="Address" show-overflow-tooltip />
+        <el-table-column property="name" label="Thông tin dịch vụ Spa" width="320" />
+        <el-table-column property="service" label="Bảng giá" width="auto" show-overflow-tooltip />
       </el-table>
     </el-form>
+    <div class="flex justify-around">
+      <strong>Thành tiền phí dịch vụ Spa</strong>
+      <p class="price font-medium">50000</p>
+    </div>
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogFormSettingServiceSpa = false">{{ t('common.cancel') }}</el-button>
         <el-button type="primary" @click="dialogFormSettingServiceSpa = false">{{
           t('reuse.save')
         }}</el-button>
+        <el-button @click="dialogFormSettingServiceSpa = false">{{ t('reuse.exit') }}</el-button>
       </span>
     </template>
   </el-dialog>
   <!-- end dialog 2 -->
+
+  <!-- dialog3 -->
+  <el-dialog
+    v-model="dialogFormSelectWarehouse"
+    title="Cài đặt phí dịch vụ Spa"
+    width="30%"
+    align-center
+  >
+    <el-form :model="form">
+      <el-table
+        ref="multipleTableRef"
+        border
+        :data="tableFormSelectWarehouse"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
+        <el-table-column property="name" label="Thông tin kho" width="320" />
+        <el-table-column label="Tồn kho" width="auto" show-overflow-tooltip>
+          <div class="flex justify-between">
+            <el-table-column property="inventory" />
+            <el-table-column property="unit" />
+          </div>
+        </el-table-column>
+      </el-table>
+    </el-form>
+    <div class="text-right mr-2">
+      <p class="price font-medium">50000</p>
+    </div>
+
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="dialogFormSelectWarehouse = false">{{
+          t('reuse.save')
+        }}</el-button>
+        <el-button @click="dialogFormSelectWarehouse = false">{{ t('reuse.exit') }}</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <!-- end dialog 3 -->
 </template>
 <style scoped>
 ::v-deep(.el-select) {
@@ -932,15 +1077,19 @@ const activeName = ref(collapse[0].name)
 ::v-deep(.el-divider__text) {
   font-size: 16px;
 }
+
+::v-deep(.el-table .cell) {
+  word-break: break-word;
+}
+
+::v-deep(.el-table td.el-table__cell div) {
+  width: 100%;
+}
+
 .el-button--text {
   margin-right: 15px;
 }
-.el-select {
-  width: 300px;
-}
-.el-input {
-  width: 300px;
-}
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }

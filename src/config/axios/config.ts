@@ -1,3 +1,5 @@
+import { API_URL } from '@/utils/API_URL'
+
 const config: {
   base_url: {
     base: string
@@ -14,16 +16,16 @@ const config: {
    */
   base_url: {
     // Development environment interface prefix
-    base: '',
+    base: API_URL,
 
     // Packing and development environment interface prefix
-    dev: '',
+    dev: API_URL,
 
     // Packing the production environment interface prefix
-    pro: '',
+    pro: API_URL,
 
     // Package test environment interface prefix
-    test: ''
+    test: API_URL
   },
 
   /**

@@ -270,6 +270,12 @@ type CustomFormData = {
 }
 const emptyFormObj = {} as CustomFormData
 const setFormData = reactive(emptyFormObj)
+const SEOdata = reactive({
+  SeoTitle: '2222222222',
+  SeoUrl: '223333333333',
+  SeoTags: '4444444,2,1',
+  SeoDescription: '<p>555555555555</p>'
+})
 const customizeData = async (formData) => {
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
@@ -279,6 +285,10 @@ const customizeData = async (formData) => {
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
+  SEOdata.SeoTitle = formData.seoTitle
+  SEOdata.SeoUrl = formData.seoUrl
+  SEOdata.SeoTags = formData.seoTags
+  SEOdata.SeoDescription = formData.seoDescription
 }
 const editData = async (data) => {
   await updateProductLibrary(FORM_IMAGES(data))
@@ -1532,6 +1542,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         :id="id"
         :rules="ruleSEO"
         @edit-data="editDataSeo"
+        :formDataCustomize="SEOdata"
         class="infinite-list"
         :hasImage="collapse[7].hasImage"
         style="overflow: auto"

@@ -70,14 +70,6 @@ const props = defineProps({
   titleButtons: {
     type: String,
     default: ''
-  },
-  deleteTitle: {
-    type: String,
-    default: 'Warning'
-  },
-  tab: {
-    type: String,
-    default: ''
   }
 })
 
@@ -95,6 +87,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
+
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
@@ -149,6 +142,22 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
+const sortChange = () => {
+  //empty function but dont remove
+}
+//watch sort change function
+const headerClick = (column) => {
+  const sorting = {} as any
+  let valueSort: any = null
+  if (column.order == 'ascending') {
+    valueSort = true
+  }
+  if (column.order == 'descending') {
+    valueSort = false
+  }
+  sorting[`${column.property}Sort`] = valueSort
+  setSearchParams(sorting)
+}
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
   setSearchParams(value)
@@ -168,10 +177,9 @@ const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tab }
+      params: { id: row.id, type: type }
     })
   } else {
-    console.log(type)
     if (buttonShow === true) {
       buttonShow = false
     } else {
@@ -180,7 +188,7 @@ const action = (row: TableData, type: string) => {
   }
 }
 
-const delData = async (row: TableData | null, multiple: boolean) => {
+const delData = async (row: TableData | null, _multiple: boolean) => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
@@ -189,10 +197,9 @@ const delData = async (row: TableData | null, multiple: boolean) => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(async () => {
-        console.log('row', row, multiple)
-        if (row !== null && row.children.length == 0) {
+        if (row !== null) {
           // change this to delApi
-          const res = await props
+          await props
             .delApi({ Id: row.id })
             .then(() =>
               ElNotification({
@@ -206,21 +213,21 @@ const delData = async (row: TableData | null, multiple: boolean) => {
                 type: 'warning'
               })
             )
-          if (res) {
-            getData()
-          }
+            .finally(() => getData())
+        }
+      })
+      .catch((error) => {
+        if (error == 'cancel') {
+          ElNotification({
+            type: 'info',
+            message: t('reuse.deleteCancel')
+          })
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
             type: 'warning'
           })
         }
-      })
-      .catch(() => {
-        ElNotification({
-          type: 'info',
-          message: t('reuse.deleteCancel')
-        })
       })
   }
 }
@@ -236,8 +243,8 @@ const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
 )
 
-const localeChange = (show: boolean) => {
-  console.log(show)
+const localeChange = (_show: boolean) => {
+  //console.log(show)
 }
 const showingColumn =
   props.fullColumns.length > 0
@@ -256,7 +263,7 @@ const showingColumn =
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="10%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
@@ -288,6 +295,8 @@ const showingColumn =
       @select-all="getTableSelected"
       @register="register"
       @filter-change="filterChange"
+      @sort-change="sortChange"
+      @header-click="headerClick"
       :selection="selection"
     >
       <template #imgTitle="data">
@@ -295,7 +304,7 @@ const showingColumn =
           <div style="padding-right: 20px">
             <el-image style="width: 100px; height: 100px" :src="API_URL + data.row.imageurl" />
           </div>
-          <div>{{ data.row.name }}</div>
+          <div>{{ data.row.title }}</div>
         </div>
       </template>
       <template #image="data">
@@ -305,9 +314,10 @@ const showingColumn =
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px" :src="API_URL + data.row.productImages[0].path" />
+          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
+
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]

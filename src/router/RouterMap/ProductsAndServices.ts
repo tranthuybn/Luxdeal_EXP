@@ -26,16 +26,16 @@ export default {
         {
           path: 'products',
           component: () => import('@/views/Pages/ProductsAndServices/ProductLibrary/Products.vue'),
-          name: 'products-services.productLibraryProducts',
+          name: 'products-services.productLibrary.Products',
           meta: {
             title: t('router.productLibraryProducts')
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
-              name: `products-services.productLibraryProducts.${utility}`,
+              name: `products-services.productLibrary.Products.${utility}`,
               meta: {
                 title: t('reuse.addNewProductCategory'),
                 noTagsView: true,

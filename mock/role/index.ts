@@ -52,6 +52,7 @@ const adminList = [
       {
         path: 'product-library',
         name: 'products-services.ProductLibrary',
+        redirect: { name: 'products-services.productLibrary.Products' },
         meta: {
           title: 'router.productManagement',
           alwaysShow: true
@@ -60,7 +61,7 @@ const adminList = [
           {
             path: 'products',
             component: 'views/Pages/ProductsAndServices/ProductLibrary/Products',
-            name: 'products-services.productLibraryProducts',
+            name: 'products-services.productLibrary.Products',
             meta: {
               title: 'router.productLibraryProducts'
             },
@@ -68,7 +69,7 @@ const adminList = [
               {
                 path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
-                name: `products-services.productLibraryProducts.${utility}`,
+                name: `products-services.productLibrary.Products.${utility}`,
                 meta: {
                   title: 'reuse.addNewProductCategory',
                   noTagsView: true,

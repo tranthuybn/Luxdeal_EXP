@@ -656,8 +656,8 @@ const optionsCustomer = [
                   </template>
                   <el-dialog v-model="dialogVisible" class="absolute">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}
+                    </div>
                   </el-dialog>
                 </el-upload>
               </div>
@@ -743,6 +743,25 @@ const optionsCustomer = [
                           </div>
 
                           <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('formDemo.classify') }}</label>
+                            <div>
+                              <el-select
+                                v-model="valueClassify"
+                                class="m-2"
+                                placeholder="Select"
+                                size="large"
+                              >
+                                <el-option
+                                  v-for="item in optionsClassify"
+                                  :key="item.value"
+                                  :label="item.label"
+                                  :value="item.value"
+                                />
+                              </el-select>
+                            </div>
+                          </div>
+
+                          <div class="flex gap-4 pt-4 pb-4">
                             <label class="w-[30%] text-right">{{
                               t('formDemo.companyName')
                             }}</label>
@@ -768,17 +787,19 @@ const optionsCustomer = [
                             />
                           </div>
                           <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
                             <el-input
                               style="width: 100%"
-                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                              :placeholder="`${t('formDemo.enterTaxCode')}`"
                             />
                           </div>
                           <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.representative')
+                            }}</label>
                             <el-input
                               style="width: 100%"
-                              :placeholder="`${t('formDemo.enterEmail')}`"
+                              :placeholder="`${t('formDemo.enterRepresentative')}`"
                             />
                           </div>
                         </div>
@@ -844,12 +865,10 @@ const optionsCustomer = [
                           </div>
 
                           <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{
-                              t('formDemo.companyName')
-                            }}</label>
+                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
                             <el-input
                               style="width: 100%"
-                              :placeholder="`${t('formDemo.enterCompanyName')}`"
+                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
                             />
                           </div>
 
@@ -1060,12 +1079,9 @@ const optionsCustomer = [
         </el-table>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              class="w-[150px]"
-              type="primary"
-              @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -1122,12 +1138,9 @@ const optionsCustomer = [
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              class="w-[150px]"
-              type="primary"
-              @click="openDialogChoosePromotion = false"
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button class="w-[150px]" type="primary" @click="openDialogChoosePromotion = false"
+              >{{ t('reuse.save') }}
+            </el-button>
             <el-button class="w-[150px]" @click="openDialogChoosePromotion = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -1266,8 +1279,8 @@ const optionsCustomer = [
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item
-                    ><el-radio-group v-model="radioVAT" class="flex-col">
+                  <el-dropdown-item>
+                    <el-radio-group v-model="radioVAT" class="flex-col">
                       <div style="width: 100%">
                         <el-radio class="text-left" style="color: blue" label="1" size="large">{{
                           t('formDemo.VATNotIncluded')
@@ -1293,8 +1306,8 @@ const optionsCustomer = [
                           >VAT 0%</el-radio
                         >
                       </div>
-                    </el-radio-group></el-dropdown-item
-                  >
+                    </el-radio-group>
+                  </el-dropdown-item>
                   <el-dropdown-item divided>
                     <div style="width: 100%; text-align: center"> Confirm </div>
                   </el-dropdown-item>
@@ -1552,6 +1565,7 @@ const optionsCustomer = [
 ::v-deep(.el-divider__text) {
   font-size: 16px;
 }
+
 .el-button--text {
   margin-right: 15px;
 }
@@ -1559,6 +1573,7 @@ const optionsCustomer = [
 ::v-deep(.el-input) {
   width: auto;
 }
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
@@ -1566,21 +1581,26 @@ const optionsCustomer = [
 ::v-deep(.el-dialog__body) {
   padding-top: 0;
 }
+
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
+
 ::v-deep(.el-input) {
   width: fit-content;
 }
+
 .example-showcase .el-dropdown-link {
   cursor: pointer;
   color: var(--el-color-primary);
   display: flex;
   align-items: center;
 }
+
 ::v-deep(.el-dropdown-menu__item) {
   padding: 5px 30px;
 }

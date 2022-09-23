@@ -131,7 +131,7 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
         } else {
           tableObject.tableList = res.data
         }
-        tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
+        tableObject.total = get(res.pagination.count, config?.response?.total as string) || 0
       }
     },
     setProps: async (props: TableProps = {}) => {

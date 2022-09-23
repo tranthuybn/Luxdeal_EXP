@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import AddNewConsignment from './AddNewConsignmentOrder.vue'
+import AddNewPawn from './AddNewPawnOrder.vue'
+import AddNewSpa from './AddNewSpaOrder.vue'
 import { ref } from 'vue'
 import { TabsPaneContext, ElTabs, ElTabPane } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
-import OrderListUtility from './OrderListUtility.vue'
-import addNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
 const { t } = useI18n()
 
 const activeName = ref('first-page')
@@ -14,14 +15,16 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 </script>
 <template>
   <ElTabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-    <ElTabPane :label="`${t('formDemo.addNewSalesOrders')}`" name="first-page"
-      ><OrderListUtility />
+    <ElTabPane :label="`${t('formDemo.addNewSalesOrders')}`" name="first-page">trang 1 </ElTabPane>
+    <ElTabPane :label="`${t('formDemo.addNewRentalOrders')}`" name="second">Config</ElTabPane>
+    <ElTabPane :label="`${t('formDemo.addNewConsignmentOrders')}`" name="ConsignmentOrders">
+      <AddNewConsignment />
     </ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewRentalOrder')}`" name="second"
-      ><addNewRentalOrdersUtility
-    /></ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewConsignmentOrders')}`" name="third">Role</ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewPawnOrders')}`" name="fourth">dasds</ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewSpaOrders')}`" name="five">Task</ElTabPane>
+    <ElTabPane :label="`${t('formDemo.addNewPawnOrders')}`" name="PawnOrders">
+      <AddNewPawn />
+    </ElTabPane>
+    <ElTabPane :label="`${t('formDemo.addNewSpaOrders')}`" name="SpaOrders">
+      <AddNewSpa />
+    </ElTabPane>
   </ElTabs>
 </template>

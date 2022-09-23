@@ -7,8 +7,6 @@ import {
   getFeaturesRentalPrice,
   getSpaLPrice,
   getInventoryTrading,
-  getPriceByQuantity,
-  getImportAndExportHistory,
   postProductLibrary,
   getBusinessProductLibrary,
   updateProductLibrary,
@@ -35,15 +33,8 @@ import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
   columnProfileProduct,
-  featuresPrice,
   featuresRentalPrice,
-  featuresDepositFee,
-  featuresPawnFee,
-  spaPrice,
-  inventoryTrading,
-  columnManagementSeo,
-  columnsPriceByQuantity,
-  columnsImportAndExportHistory
+  columnManagementSeo
 } from './ProductLibraryManagement'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -106,174 +97,60 @@ const collapse: Array<Collapse> = reactive([
   {
     icon: minusIcon,
     name: 'information',
-    title: 'Thông tin sản phẩm',
-    columns: columnProfileProduct,
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3,
-    value: 1
+    title: t('reuse.productInformation'),
+    columns: columnProfileProduct
   },
   {
     icon: plusIcon,
     name: 'priceCharacteristics',
     title: t('reuse.productAttributeTable'),
-    columns: featuresPrice,
     api: getFeaturesPrices,
-    buttonAdd: 'Thêm đặc tính và giá bán',
-    titleButtonChildren: 'Thêm giá',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: true,
-    apiTableChild: getPriceByQuantity,
-    columnsTableChild: columnsPriceByQuantity,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 2,
-    titleChilden: 'reuse.rentalPriceTableByQuantity',
-    value: 2,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'rentalPriceCharacteristics ',
-    title: 'Bảng đặc tính và giá cho thuê',
     columns: featuresRentalPrice,
     api: getFeaturesRentalPrice,
-    buttonAdd: 'Thêm đặc tính và giá cho thuê',
-    titleButtonChildren: 'Thêm giá',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: true,
-    apiTableChild: getPriceByQuantity,
-    columnsTableChild: columnsPriceByQuantity,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 2,
-    titleChilden: 'reuse.rentalPriceTableByQuantity',
-    value: 3,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'depositFee',
-    title: 'Bảng đặc tính và phí kí gửi',
-    columns: featuresDepositFee,
     api: getFeaturesDepositFee,
-    buttonAdd: 'Thêm đặc tính và phí kí gửi',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 2,
-    value: 4,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'pawnFee',
-    title: 'Bảng đặc tính và phí cầm đồ',
-    columns: featuresPawnFee,
     api: getFeaturesPawnFee,
-    buttonAdd: 'Thêm đặc tính và phí cầm đồ',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 2,
-    value: 5,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'SpaPrice',
-    title: 'Bảng giá dịch vụ spa',
-    columns: spaPrice,
     api: getSpaLPrice,
-    buttonAdd: 'Thêm dịch vụ và phí spa',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 2,
-    value: 6,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'inventoryTrading',
-    title: 'Tổng hợp tồn kho & kinh doanh',
-    columns: inventoryTrading,
     api: getInventoryTrading,
-    buttonAdd: 'Thêm đặc tính',
-    typeForm: 'table',
-    typeButton: 'table',
-    expand: true,
-    apiTableChild: getImportAndExportHistory,
-    columnsTableChild: columnsImportAndExportHistory,
-    titleChilden: 'reuse.importAndExportHistoryByProductLine',
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    titleButtonChildren: 'false',
-    customOperatorChildren: false,
-    customOperator: 2,
-    value: 7,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'managementSeo',
-    title: 'Quản lý SEO',
+    title: t('reuse.seoManagement'),
     columns: columnManagementSeo,
     api: getTypePersonnelList,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form02',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3,
-    hasImage: false,
-    value: 8
+    hasImage: false
   }
 ])
 let nameCollapse = ''
@@ -331,8 +208,13 @@ const rules = reactive({
     required()
   ],
   HireInventoryStatus: [required()],
-  SellInventoryStatus: [required()],
-  ProductStatus: [required()]
+  SellInventoryStatus: [required()]
+})
+const ruleSEO = reactive({
+  SeoTitle: [required()],
+  SeoUrl: [required()],
+  SeoTags: [{ required: true, trigger: 'blur' }],
+  SeoDescription: [required()]
 })
 const callTableApi = async (collapseItem) => {
   if (collapseItem.api !== undefined) {
@@ -762,8 +644,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.quantityTo`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
@@ -792,8 +674,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.unitPrices`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.unitPrices" type="text" autocomplete="off"
@@ -806,14 +688,14 @@ const SellTableDialogClose = () => {
               header-align="center"
               align="right"
               min-width="130"
-              :label="t('formDemo.promotionPrice')"
+              :label="t('formDemo.promotionalPrice')"
             >
               <template #default="scope">
                 <el-form-item
                   :prop="`${scope.$index}.promotionPrice`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.promotionPrice" type="text" autocomplete="off"
@@ -832,7 +714,7 @@ const SellTableDialogClose = () => {
             <ElTableColumn
               header-align="center"
               align="center"
-              min-width="160"
+              min-width="100"
               fixed="right"
               :label="t('reuse.operator')"
             >
@@ -998,7 +880,7 @@ const SellTableDialogClose = () => {
           >
             <template #default="scope">
               <div class="flex justify-between">
-                <div>{{ scope.row.inventory }}</div>
+                <div>{{ scope.row.inventory }} 10</div>
                 <el-button
                   :icon="plusIcon"
                   link
@@ -1037,13 +919,13 @@ const SellTableDialogClose = () => {
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
                 t('reuse.edit')
               }}</el-button>
-              <el-button type="danger" @click="handleEditRow(scope.row)">{{
-                t('reuse.delete')
-              }}</el-button>
+              <el-button type="danger">{{ t('reuse.delete') }}</el-button>
             </template>
           </ElTableColumn>
         </ElTable>
-        <el-button class="ml-5 mt-5" :icon="plusIcon">{{ collapse[1].buttonAdd }}</el-button>
+        <el-button class="ml-5 mt-5" :icon="plusIcon">{{
+          t('reuse.addAttributeAndPrice')
+        }}</el-button>
       </el-collapse-item>
       <el-dialog
         v-model="rentTableVisible"
@@ -1064,8 +946,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.quantityTo`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
@@ -1093,8 +975,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.dayRentalUnitPrice`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input
@@ -1116,8 +998,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.weeklyRent`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.weeklyRent" type="text" autocomplete="off"
@@ -1136,8 +1018,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.monthlyRent`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.monthlyRent" type="text" autocomplete="off"
@@ -1156,8 +1038,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.rentDeposit`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.rentDeposit" type="text" autocomplete="off"
@@ -1176,7 +1058,7 @@ const SellTableDialogClose = () => {
             <ElTableColumn
               header-align="center"
               align="center"
-              min-width="160"
+              min-width="100"
               fixed="right"
               :label="t('reuse.operator')"
             >
@@ -1214,8 +1096,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.quantityTo`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
@@ -1243,8 +1125,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.depositFee`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
@@ -1257,14 +1139,14 @@ const SellTableDialogClose = () => {
               header-align="center"
               align="right"
               min-width="130"
-              :label="t('reuse.depositFee')"
+              :label="t('reuse.depositFeeByMoney')"
             >
               <template #default="scope">
                 <el-form-item
                   :prop="`${scope.$index}.depositFee`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
@@ -1283,7 +1165,7 @@ const SellTableDialogClose = () => {
             <ElTableColumn
               header-align="center"
               align="center"
-              min-width="100"
+              min-width="50"
               fixed="right"
               :label="t('reuse.operator')"
             />
@@ -1315,8 +1197,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.quantity`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
@@ -1344,8 +1226,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.interestMoneyFor1trPerDay`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input
@@ -1367,8 +1249,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.depositFee`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
@@ -1404,7 +1286,7 @@ const SellTableDialogClose = () => {
             <ElTableColumn
               header-align="center"
               align="center"
-              min-width="100"
+              min-width="50"
               fixed="right"
               :label="t('reuse.operator')"
             />
@@ -1437,7 +1319,7 @@ const SellTableDialogClose = () => {
               <template #default="scope">
                 <el-form-item
                   :prop="`${scope.$index}.service`"
-                  :rules="[{ required: true, message: 'age is required', trigger: 'blur' }]"
+                  :rules="[{ required: true, trigger: 'blur' }]"
                 >
                   <el-select
                     v-model="scope.row.service"
@@ -1463,7 +1345,7 @@ const SellTableDialogClose = () => {
               :label="t('reuse.standardTime')"
             >
               <template #default="scope">
-                <div>{{ scope.row.standardTime }}{{ t('reuse.minute') }}</div>
+                <div>{{ scope.row.standardTime }} 20 {{ t('reuse.minute') }}</div>
               </template>
             </ElTableColumn>
             <ElTableColumn
@@ -1498,8 +1380,8 @@ const SellTableDialogClose = () => {
                 <el-form-item
                   :prop="`${scope.$index}.spaPrices`"
                   :rules="[
-                    { required: true, message: 'age is required' },
-                    { type: 'number', message: 'age must be a number' }
+                    { required: true },
+                    { type: 'number', message: t('reuse.validateEnterNumber') }
                   ]"
                 >
                   <el-input v-model.number="scope.row.spaPrices" type="text" autocomplete="off"
@@ -1605,14 +1487,14 @@ const SellTableDialogClose = () => {
             align="right"
             min-width="130"
             prop="spa"
-            :label="t('reuse.spa')"
+            label="Spa"
           />
           <ElTableColumn
             header-align="center"
             align="right"
             min-width="130"
-            prop="totalInvetory"
-            :label="t('reuse.totalInvetory')"
+            prop="totalInventory"
+            :label="t('reuse.totalInventory')"
           />
         </ElTable>
         <div class="mt-4 flex flex-row-reverse gap-4">
@@ -1632,6 +1514,7 @@ const SellTableDialogClose = () => {
         <TableOperator
           :type="type"
           :id="id"
+          :rules="ruleSEO"
           @edit-data="editDataSeo"
           class="infinite-list"
           :hasImage="collapse[7].hasImage"

@@ -740,26 +740,6 @@ const optionsCustomer = [
                               </div>
                             </div>
                           </div>
-
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('formDemo.classify') }}</label>
-                            <div>
-                              <el-select
-                                v-model="valueClassify"
-                                class="m-2"
-                                placeholder="Select"
-                                size="large"
-                              >
-                                <el-option
-                                  v-for="item in optionsClassify"
-                                  :key="item.value"
-                                  :label="item.label"
-                                  :value="item.value"
-                                />
-                              </el-select>
-                            </div>
-                          </div>
-
                           <div class="flex gap-4 pt-4 pb-4">
                             <label class="w-[30%] text-right">{{
                               t('formDemo.companyName')

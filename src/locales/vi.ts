@@ -1109,7 +1109,6 @@ export default {
     settingPawnPrice: 'Cài đặt giá cầm đồ',
     settingSpaPrice: 'Cài đặt giá spa',
     depositFeeByMoney: 'Phí ký gửi theo số tiền',
-    quantity: ' Số lượng',
     interestMoneyFor1trPerDay: 'Tiền lãi/1tr/ngày',
     insuranceMoneyFor1trPerDay: 'Tiền bảo hiểm/1tr/ngày',
     moneyFee: ' Thành tiền phí',
@@ -1127,6 +1126,8 @@ export default {
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
     saveFail: 'Lưu thất bại',
-    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
+    cantFindData: 'Không thể tìm thấy dữ liệu',
+    getDataSuccess: 'Lấy dữ liệu thành công'
   }
 }

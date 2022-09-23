@@ -50,7 +50,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.startDate'),
       format: dateTimeFormat,
-      valueDateFormat: valueDateFormat,
+      valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }
@@ -63,7 +63,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.endDate'),
       format: dateTimeFormat,
-      valueDateFormat: valueDateFormat,
+      valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }
@@ -145,7 +145,7 @@ function reLoadEvent() {
   searchingKey.value = ''
   periodSelected.value = ''
   verifyReset()
-  emit('refreshData')
+  emit('refreshData', { Search: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()

@@ -87,6 +87,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
+
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
@@ -262,7 +263,7 @@ const showingColumn =
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="10%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
@@ -313,7 +314,7 @@ const showingColumn =
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px" :src="API_URL + data.row.productImages[0].path" />
+          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
 

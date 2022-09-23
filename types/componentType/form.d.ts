@@ -24,6 +24,8 @@ declare global {
     | 'SelectV2'
     | 'InputPassword'
     | 'Editor'
+    | 'Descriptions'
+    | 'Tag'
 
   declare type ColProps = {
     span?: number
@@ -91,6 +93,7 @@ declare global {
     // Remote loading drop
     api?: <T = any>() => AxiosPromise<T>
     title?: string
+    modelValue?: string
   }
 
   declare type FormSetPropsType = {

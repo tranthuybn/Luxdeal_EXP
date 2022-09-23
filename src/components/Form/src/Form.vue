@@ -14,7 +14,7 @@ import {
 } from './helper'
 import { useRenderSelect } from './components/useRenderSelect'
 import { useRenderRadio } from './components/useRenderRadio'
-import { useRenderCheckbox } from './components/useRenderCheckbox'
+import { useRenderCheckboxButton } from './components/useRenderCheckbox'
 import { useDesign } from '@/hooks/web/useDesign'
 import { findIndex } from '@/utils'
 import { set } from 'lodash-es'
@@ -250,8 +250,8 @@ export default defineComponent({
           return renderRadioOptions(item)
         case 'Checkbox':
         case 'CheckboxButton':
-          const { renderChcekboxOptions } = useRenderCheckbox()
-          return renderChcekboxOptions(item)
+          const { renderCheckboxOptions } = useRenderCheckboxButton()
+          return renderCheckboxOptions(item)
         default:
           break
       }

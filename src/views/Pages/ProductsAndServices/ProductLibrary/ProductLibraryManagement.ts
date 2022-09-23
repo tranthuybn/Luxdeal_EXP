@@ -1,4 +1,6 @@
+import { getCategories } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
   filterTableStatus,
   filterTableCategory,
@@ -10,6 +12,7 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
+import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
 //const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 // const seeDetail = (...param) => {
@@ -43,7 +46,10 @@ export const businessProductLibrary = [
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
+      return h('span', { innerHTML: cellValue })
+    }
   },
   {
     field: 'categories[1].value',
@@ -55,43 +61,50 @@ export const businessProductLibrary = [
     field: 'productStat.tonKho',
     label: t('reuse.inventory'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.dangThue',
     label: t('reuse.currentlyLeased'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.daBan',
     label: t('reuse.quantitySold'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'numberOfTimesRented',
     label: t('reuse.numberOfTimesRented'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.kiGui',
     label: t('reuse.numberOfTimesDeposited'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.camDo',
     label: t('reuse.numberOfTimesPawn'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.spa',
     label: t('reuse.numberOfTimesSpa'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'productStat.datTonKhoBan',
@@ -129,7 +142,7 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'imageList',
+    field: 'image',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'
@@ -165,6 +178,102 @@ export const businessProductLibrary = [
     }
   }
 ]
+let brandSelect = reactive([])
+let callBrandAPI = 0
+export const getBrandSelectOptions = async () => {
+  if (callBrandAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 100, pageIndex: 1 })
+      .then((res) => {
+        if (res.data) {
+          brandSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callBrandAPI++)
+    columnProfileProduct[2].componentProps!.options = brandSelect
+    columnProfileProduct[2].componentProps!.loading = false
+  }
+}
+let unitSelect = reactive([])
+let callUnitAPI = 0
+export const getUnitSelectOptions = async () => {
+  if (callUnitAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
+      .then((res) => {
+        if (res.data) {
+          unitSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callUnitAPI++)
+    columnProfileProduct[3].componentProps!.options = unitSelect
+    columnProfileProduct[3].componentProps!.loading = false
+  }
+}
+let originSelect = reactive([])
+let callOriginAPI = 0
+export const getOriginSelectOptions = async () => {
+  if (callOriginAPI == 0) {
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 100, pageIndex: 1 })
+      .then((res) => {
+        if (res.data) {
+          originSelect = res.data.map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callOriginAPI++)
+    columnProfileProduct[4].componentProps!.options = originSelect
+    columnProfileProduct[4].componentProps!.loading = false
+  }
+}
+export const customPostData = async (data) => {
+  if (originSelect.length == 0) {
+    await getOriginSelectOptions()
+  }
+  if (unitSelect.length == 0) {
+    await getUnitSelectOptions()
+  }
+  if (brandSelect.length == 0) {
+    await getBrandSelectOptions()
+  }
+  const findBrand = brandSelect.find((brand) => brand['value'] == data.BrandId)
+  const findUnit = unitSelect.find((unit) => unit['value'] == data.UnitId)
+  const findOrigin = originSelect.find((origin) => origin['value'] == data.OriginId)
+  if (findBrand == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindBrandData'),
+      type: 'warning'
+    })
+  }
+  if (findUnit == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindUnitData'),
+      type: 'warning'
+    })
+  }
+  if (findOrigin == undefined) {
+    ElNotification({
+      message: t('reuse.cantFindOriginData'),
+      type: 'warning'
+    })
+  }
+}
+export { originSelect, unitSelect, brandSelect }
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Divider',
@@ -172,150 +281,55 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Select01',
+    field: 'ProductTypeId',
     label: t('reuse.selectCategory'),
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn danh mục cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
     colProps: {
-      span: 10
+      span: 20
     }
   },
   {
-    field: 'Select02',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn danh mục cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select03',
+    field: 'BrandId',
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn thương hiệu cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      onClick: () => getBrandSelectOptions(),
+      placeholder: t('reuse.chooseBrand'),
+      style: 'width: 100%',
+      loading: true,
+      options: []
     },
     colProps: {
-      span: 10
+      span: 20
     }
   },
   {
-    field: 'Select04',
+    field: 'UnitId',
+    label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn thương hiệu cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      onClick: () => getUnitSelectOptions(),
+      style: 'width: 100%',
+      placeholder: t('reuse.chooseUnit'),
+      loading: true,
+      options: []
     },
     colProps: {
-      span: 10
+      span: 20
     }
   },
   {
-    field: 'Select05',
+    field: 'OriginId',
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      placeholder: 'Chọn xuất xứ cấp 1',
-      style: 'width: 400px',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
+      onClick: () => getOriginSelectOptions(),
+      placeholder: t('reuse.chooseOrigin'),
+      style: 'width: 100%',
+      loading: true,
+      options: []
     },
     colProps: {
-      span: 10
-    }
-  },
-  {
-    field: 'Select06',
-    component: 'Select',
-    componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
-      style: 'width: 400px',
-      placeholder: 'Chọn xuất xứ cấp 2',
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    },
-    colProps: {
-      span: 10
+      span: 20
     }
   },
   {
@@ -324,44 +338,57 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Input01',
+    field: 'ProductCode',
     label: t('reuse.productCode'),
-    component: 'Input',
+    component: 'Select',
     componentProps: {
-      placeholder: 'Nhập mã sản phẩm'
+      placeholder: t('reuse.enterProductCode'),
+      style: 'width: 100%',
+      loading: true,
+      allowCreate: true,
+      filterable: true,
+      options: []
     },
     colProps: {
       span: 20
+    },
+    formItemProps: {
+      style: { height: '55px' }
     }
   },
   {
-    field: 'Input02',
+    field: 'Name',
     label: t('reuse.productName'),
-    component: 'Input',
+    component: 'Select',
     componentProps: {
-      placeholder: 'Nhập tên sản phẩm'
+      placeholder: t('reuse.enterProductName'),
+      style: 'width: 100%',
+      loading: true,
+      allowCreate: true,
+      filterable: true,
+      options: []
     },
     colProps: {
       span: 20
     }
   },
   {
-    field: 'Input03',
+    field: 'ShortDescription',
     label: t('reuse.shortDescription'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập mô tả'
+      placeholder: t('formDemo.enterDescription')
     },
     colProps: {
       span: 20
     }
   },
   {
-    field: 'Input04',
+    field: 'VerificationInfo',
     label: t('reuse.inspectionInformation'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Thêm Link ...'
+      placeholder: t('reuse.addLink')
     },
     colProps: {
       span: 20
@@ -373,7 +400,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Editor',
+    field: 'Description',
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
@@ -389,10 +416,9 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Radio01',
+    field: 'HireInventoryStatus',
     label: t('reuse.setInventoryForSale'),
     component: 'Radio',
-
     colProps: {
       span: 24
     },
@@ -400,25 +426,25 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.stocking'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.orders'),
-          value: '2'
+          value: 2
         },
         {
           label: t('reuse.outOfStock'),
-          value: '3'
+          value: 3
         },
         {
-          label: t('reuse.displayed'),
-          value: '4'
+          label: t('reuse.notDisplay'),
+          value: 4
         }
       ]
     }
   },
   {
-    field: 'Radio02',
+    field: 'SellInventoryStatus',
     label: t('reuse.setInventoryForRent'),
     component: 'Radio',
 
@@ -429,46 +455,27 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.stocking'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.orders'),
-          value: '2'
+          value: 2
         },
         {
           label: t('reuse.outOfStock'),
-          value: '3'
+          value: 3
         },
         {
-          label: t('reuse.displayed'),
-          value: '4'
+          label: t('reuse.notDisplay'),
+          value: 4
         }
       ]
     }
   },
   {
-    field: 'Radio03',
-    label: t('reuse.productStatus'),
-    component: 'Radio',
-
+    field: 'ProductStatus',
     colProps: {
       span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.pending'),
-          value: '1'
-        },
-        {
-          label: t('reuse.active'),
-          value: '2'
-        },
-        {
-          label: t('reuse.pauseOperation'),
-          value: '3'
-        }
-      ]
     }
   }
 ])
@@ -479,7 +486,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field5',
+    field: 'SeoTitle',
     label: t('reuse.title'),
     component: 'Input',
     componentProps: {
@@ -490,7 +497,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field5',
+    field: 'SeoUrl',
     label: t('reuse.path'),
     component: 'Input',
     componentProps: {
@@ -501,7 +508,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field2',
+    field: 'SeoTags',
     label: 'Tag',
     component: 'Select',
     componentProps: {
@@ -509,7 +516,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
       filterable: true,
       multiple: true,
       placeholder: 'Tag',
-      style: 'width: 400px',
+      style: 'width: 100%',
       options: [
         {
           label: 'Túi hàng hiệu',
@@ -526,7 +533,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field43',
+    field: 'SeoDescription',
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {

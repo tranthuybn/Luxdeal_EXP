@@ -19,12 +19,13 @@ interface Tab {
 import { RendererElement, RendererNode, VNode } from 'vue'
 
 interface Collapse {
+  [key: string]: any
   icon: VNode<RendererNode, RendererElement, { [key: string]: any }>
   name: string
-  title: string
-  columns: TableColumn[]
-  api: apiType | undefined
-  buttonAdd: string
+  title?: string
+  columns?: TableColumn[]
+  api?: apiType | undefined
+  buttonAdd?: string
   typeForm?: string
   typeButton?: string
   expand?: boolean

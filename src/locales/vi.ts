@@ -1056,6 +1056,8 @@ export default {
     addAttributeAndPrice: 'Thêm đặc tính và giá bán',
     seoManagement: 'Quản lý SEO',
     validateEnterNumber: 'Phải điền số',
-    minute: 'Phút'
+    minute: 'Phút',
+    saveSuccess: 'Lưu thành công',
+    saveFail: 'Lưu thất bại'
   }
 }

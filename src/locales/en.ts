@@ -1010,6 +1010,8 @@ export default {
     totalInventory: 'Total inventory',
     seoManagement: 'SEO Management',
     validateEnterNumber: 'Enter a number',
-    minute: 'minute'
+    minute: 'minute',
+    saveSuccess: 'Save success',
+    saveFail: 'Save fail'
   }
 }

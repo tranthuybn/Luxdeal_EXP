@@ -508,14 +508,14 @@ const saveDataWarehouseTable = async () => {
 const saveDataPawnTable = async () => {
   await unref(pawnForm)!.validate((valid) => {
     if (valid) {
-      depositTableVisible.value = false
+      pawnTableVisible.value = false
       ElNotification({
-        message: t('reuse.addSuccess'),
+        message: t('reuse.saveSuccess'),
         type: 'success'
       })
     } else {
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.saveFail'),
         type: 'warning'
       })
     }
@@ -556,12 +556,13 @@ const saveDataSellTable = async () => {
 }
 const removeLastRowSell = () => {
   if (
+    //check if all field of last row are empty
     collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo == undefined &&
     collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices == undefined &&
     collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice == undefined
   ) {
+    //force remove so watch cannot add new row at the last index
     forceRemove.value = true
-
     collapse[1].tableList.splice(-1)
   }
 }
@@ -586,6 +587,9 @@ const removeLastRowSpa = () => {
     collapse[5].tableList.splice(-1)
   }
 }
+const SpaTableDialogClose = () => {
+  forceRemove.value = false
+}
 const RentTableDialogClose = () => {
   forceRemove.value = false
 }
@@ -595,939 +599,930 @@ const SellTableDialogClose = () => {
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
-  <div>
-    <el-collapse
-      v-model="activeName"
-      @change="collapseChangeEvent"
-      :class="[
-        'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-      ]"
+  <el-collapse
+    v-model="activeName"
+    @change="collapseChangeEvent"
+    :class="[
+      'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+    ]"
+  >
+    <el-collapse-item :name="collapse[0].name">
+      <template #title>
+        <el-button class="header-icon" :icon="collapse[0].icon" link />
+        <span class="text-center">{{ collapse[0].title }}</span>
+      </template>
+      <TableOperatorTreeSelect
+        class="infinite-list"
+        style="overflow: auto"
+        :rules="rules"
+        :type="type"
+        :id="id"
+        :apiId="getBusinessProductLibrary"
+        :schema="collapse[0].columns"
+        :typeButton="collapse[0].typeButton"
+        @post-data="postData"
+        @customize-form-data="customizeData"
+        @edit-data="editData"
+        :formDataCustomize="setFormData"
+        :class="[
+          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+        ]"
+      />
+    </el-collapse-item>
+    <el-dialog
+      v-model="sellTableVisible"
+      :title="`${t('reuse.settingSalePrice')}/ ${sellDialogTitle}`"
+      width="70%"
+      @close="SellTableDialogClose"
     >
-      <el-collapse-item :name="collapse[0].name">
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center">{{ collapse[0].title }}</span>
-        </template>
-        <TableOperatorTreeSelect
-          class="infinite-list"
-          style="overflow: auto"
-          :rules="rules"
-          :type="type"
-          :id="id"
-          :apiId="getBusinessProductLibrary"
-          :schema="collapse[0].columns"
-          :typeButton="collapse[0].typeButton"
-          @post-data="postData"
-          @customize-form-data="customizeData"
-          @edit-data="editData"
-          :formDataCustomize="setFormData"
-          :class="[
-            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-          ]"
-        />
-      </el-collapse-item>
-      <el-dialog
-        v-model="sellTableVisible"
-        :title="`${t('reuse.settingSalePrice')}/ ${sellDialogTitle}`"
-        width="70%"
-        @close="SellTableDialogClose"
-      >
-        <el-form :model="collapse[1].tableList" ref="sellForm">
-          <ElTable :data="collapse[1].tableList" :border="true" v-loading="collapse[1].loading">
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              :label="t('reuse.quantityTo')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.quantityTo`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="unit"
-              :label="t('reuse.unit')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.unit }}Chiếc</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              prop="unitPrices"
-              :label="t('reuse.unitPrices')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.unitPrices`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.unitPrices" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('formDemo.promotionalPrice')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.promotionPrice`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.promotionPrice" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="createDate"
-              :label="t('reuse.modifyDate')"
-            />
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="100"
-              fixed="right"
-              :label="t('reuse.operator')"
-            >
-              <template #default="scope">
-                <el-button type="danger" @click="handleDeleteRowSell(scope)">{{
-                  t('reuse.delete')
-                }}</el-button>
-              </template>
-            </ElTableColumn>
-          </ElTable>
-        </el-form>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="sellTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataSellTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-collapse-item :name="collapse[1].name">
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[1].icon" link />
-          <span class="text-center">{{ collapse[1].title }}</span>
-        </template>
-        <ElTable
-          :data="collapse[1].tableList"
-          :border="true"
-          v-loading="collapse[1].loading"
-          show-summary
-        >
+      <el-form :model="collapse[1].tableList" ref="sellForm">
+        <ElTable :data="collapse[1].tableList" :border="true" v-loading="collapse[1].loading">
           <ElTableColumn
             header-align="center"
+            align="center"
+            min-width="130"
+            :label="t('reuse.quantityTo')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.quantityTo`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="unit"
+            :label="t('reuse.unit')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.unit }}Chiếc</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            prop="unitPrices"
+            :label="t('reuse.unitPrices')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.unitPrices`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.unitPrices" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('formDemo.promotionalPrice')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.promotionPrice`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.promotionPrice" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="createDate"
+            :label="t('reuse.modifyDate')"
+          />
+          <ElTableColumn
+            header-align="center"
+            align="center"
             min-width="100"
-            prop="managementCode"
-            :label="t('reuse.managementCode')"
-          />
-          <ElTableColumn
-            header-align="center"
-            min-width="250"
-            prop="featureGroup"
-            :label="t('reuse.featureGroup')"
-          >
-            <template #default="scope">
-              <ElTreeSelect
-                v-model="scope.row.featureGroupTree"
-                :data="treeSelectData"
-                multiple
-                check-strictly
-                :render-after-expand="false"
-                v-if="scope.row.edited"
-              />
-              <span v-else>{{ scope.row.featureGroup }}</span>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="settingSale"
-            :label="t('reuse.settingSale')"
-          >
-            <template #default="scope">
-              <div class="flex gap-4">
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openSellTable(scope.row.featureGroup)"
-                  >{{ t('reuse.addPrice') }}</el-button
-                >
-                <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
-              </div>
-            </template>
-          </ElTableColumn>
-
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="settingRent"
-            :label="t('reuse.settingRent')"
-          >
-            <template #default="scope">
-              <div class="flex justify-between">
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openRentTable(scope.row.featureGroup)"
-                  >{{ t('reuse.addPrice') }}</el-button
-                >
-                <ElSwitch v-model="scope.row.settingRent" @change="localeChange" />
-              </div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="settingDeposit"
-            :label="t('reuse.settingDeposit')"
-          >
-            <template #default="scope">
-              <div class="flex justify-between">
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openDepositTable(scope.row.featureGroup)"
-                  >{{ t('reuse.addPrice') }}</el-button
-                >
-                <ElSwitch v-model="scope.row.settingDeposit" @change="localeChange" />
-              </div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="settingPawn"
-            :label="t('reuse.settingPawn')"
-          >
-            <template #default="scope">
-              <div class="flex justify-between">
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openPawnTable(scope.row.featureGroup)"
-                  >{{ t('reuse.addPrice') }}</el-button
-                >
-                <ElSwitch v-model="scope.row.settingPawn" @change="localeChange" />
-              </div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="settingSpa"
-            :label="t('reuse.settingSpa')"
-          >
-            <template #default="scope">
-              <div class="flex justify-between">
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openSpaTable(scope.row.featureGroup)"
-                  >{{ t('reuse.addPrice') }}</el-button
-                >
-                <ElSwitch v-model="scope.row.settingSpa" @change="localeChange" />
-              </div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
-            prop="inventory"
-            :label="t('reuse.inventory')"
-          >
-            <template #default="scope">
-              <div class="flex justify-between">
-                <div>{{ scope.row.inventory }} 10</div>
-                <el-button
-                  :icon="plusIcon"
-                  link
-                  type="primary"
-                  @click="openWarehouseTable(scope.row.featureGroup)"
-                  >{{ t('reuse.detail') }}</el-button
-                >
-              </div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            width="150"
-            prop="update"
-            :label="t('reuse.update')"
-          />
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            width="150"
-            prop="status"
-            :label="t('reuse.status')"
-          />
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="200"
             fixed="right"
             :label="t('reuse.operator')"
           >
             <template #default="scope">
-              <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
-                t('reuse.save')
+              <el-button type="danger" @click="handleDeleteRowSell(scope)">{{
+                t('reuse.delete')
               }}</el-button>
-              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.edit')
-              }}</el-button>
-              <el-button type="danger">{{ t('reuse.delete') }}</el-button>
             </template>
           </ElTableColumn>
         </ElTable>
-        <el-button class="ml-5 mt-5" :icon="plusIcon">{{
-          t('reuse.addAttributeAndPrice')
+      </el-form>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="sellTableVisible = false">{{
+          t('reuse.exit')
         }}</el-button>
-      </el-collapse-item>
-      <el-dialog
-        v-model="rentTableVisible"
-        :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
-        width="70%"
-        @close="RentTableDialogClose"
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataSellTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-collapse-item :name="collapse[1].name">
+      <template #title>
+        <el-button class="header-icon" :icon="collapse[1].icon" link />
+        <span class="text-center">{{ collapse[1].title }}</span>
+      </template>
+      <ElTable
+        :data="collapse[1].tableList"
+        :border="true"
+        v-loading="collapse[1].loading"
+        show-summary
       >
-        <el-form :model="collapse[2].tableList" ref="rentForm">
-          <ElTable :data="collapse[2].tableList" :border="true" v-loading="collapse[2].loading">
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="quantityTo"
-              :label="t('reuse.quantityTo')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.quantityTo`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="unit"
-              :label="t('reuse.unit')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.unit }}Chiếc</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.dayRentalUnitPrice')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.dayRentalUnitPrice`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input
-                    v-model.number="scope.row.dayRentalUnitPrice"
-                    type="text"
-                    autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.weeklyRent')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.weeklyRent`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.weeklyRent" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.monthlyRent')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.monthlyRent`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.monthlyRent" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.rentDeposit')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.rentDeposit`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.rentDeposit" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="createDate"
-              :label="t('reuse.modifyDate')"
-            />
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="100"
-              fixed="right"
-              :label="t('reuse.operator')"
-            >
-              <template #default="scope">
-                <el-button type="danger" @click="handleDeleteRowRent(scope)">{{
-                  t('reuse.delete')
-                }}</el-button>
-              </template>
-            </ElTableColumn>
-          </ElTable>
-        </el-form>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="rentTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataRentTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-dialog
-        v-model="depositTableVisible"
-        :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
-        width="70%"
-      >
-        <el-form :model="collapse[3].tableList" ref="depositForm">
-          <ElTable :data="collapse[3].tableList" :border="true" v-loading="collapse[3].loading">
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              :label="t('reuse.quantityTo')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.quantityTo`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="unit"
-              :label="t('reuse.unit')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.unit }}Chiếc</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.depositFee')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.depositFee`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
-                    ><template #append>%</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.depositFeeByMoney')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.depositFee`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
-                    ><template #append>%</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="createDate"
-              :label="t('reuse.modifyDate')"
-            />
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="50"
-              fixed="right"
-              :label="t('reuse.operator')"
-            />
-          </ElTable>
-        </el-form>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="depositTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataDepositTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-dialog
-        v-model="pawnTableVisible"
-        :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
-        width="70%"
-      >
-        <el-form :model="collapse[4].tableList" ref="pawnForm">
-          <ElTable :data="collapse[4].tableList" :border="true" v-loading="collapse[4].loading">
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              :label="t('reuse.quantity')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.quantity`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="unit"
-              :label="t('reuse.unit')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.unit }}Chiếc</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.interestMoneyFor1trPerDay')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.interestMoneyFor1trPerDay`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input
-                    v-model.number="scope.row.interestMoneyFor1trPerDay"
-                    type="text"
-                    autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.insuranceMoneyFor1trPerDay')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.depositFee`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.moneyFee')"
-            >
-              <template #default="scope">
-                <el-form-item>
-                  <el-input
-                    :value="scope.row.interestMoneyFor1trPerDay * scope.row.depositFee"
-                    type="text"
-                    autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="createDate"
-              :label="t('reuse.modifyDate')"
-            />
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="50"
-              fixed="right"
-              :label="t('reuse.operator')"
-            />
-          </ElTable>
-        </el-form>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="pawnTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataPawnTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-dialog
-        v-model="spaTableVisible"
-        :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
-        width="70%"
-        @close="RentTableDialogClose"
-      >
-        <el-form :model="collapse[5].tableList" ref="spaForm">
-          <ElTable :data="collapse[5].tableList" :border="true" v-loading="collapse[5].loading">
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="service"
-              :label="t('reuse.chooseService')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.service`"
-                  :rules="[{ required: true, trigger: 'blur' }]"
-                >
-                  <el-select
-                    v-model="scope.row.service"
-                    multiple
-                    placeholder="Select"
-                    style="width: 240px"
-                  >
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="standardTime"
-              :label="t('reuse.standardTime')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.standardTime }} 20 {{ t('reuse.minute') }}</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="quantityTo"
-              :label="t('reuse.quantityTo')"
-            >
-              <template #default>
-                <div>1</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="unit"
-              :label="t('reuse.unit')"
-            >
-              <template #default="scope">
-                <div>{{ scope.row.unit }}Chiếc</div>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="right"
-              min-width="130"
-              :label="t('reuse.spaPrices')"
-            >
-              <template #default="scope">
-                <el-form-item
-                  :prop="`${scope.$index}.spaPrices`"
-                  :rules="[
-                    { required: true },
-                    { type: 'number', message: t('reuse.validateEnterNumber') }
-                  ]"
-                >
-                  <el-input v-model.number="scope.row.spaPrices" type="text" autocomplete="off"
-                    ><template #append>đ</template></el-input
-                  >
-                </el-form-item>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="130"
-              prop="createDate"
-              :label="t('reuse.modifyDate')"
-            />
-            <ElTableColumn
-              header-align="center"
-              align="center"
-              min-width="160"
-              fixed="right"
-              :label="t('reuse.operator')"
-            >
-              <template #default="scope">
-                <el-button type="danger" @click="handleDeleteRowSpa(scope)">{{
-                  t('reuse.delete')
-                }}</el-button>
-              </template>
-            </ElTableColumn>
-          </ElTable>
-        </el-form>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="spaTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataSpaTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-dialog
-        v-model="warehouseTableVisible"
-        :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
-        width="70%"
-        @close="RentTableDialogClose"
-      >
-        <ElTable
-          :data="collapse[6].tableList"
-          :border="true"
-          v-loading="collapse[6].loading"
-          show-summary
+        <ElTableColumn
+          header-align="center"
+          min-width="100"
+          prop="managementCode"
+          :label="t('reuse.managementCode')"
+        />
+        <ElTableColumn
+          header-align="center"
+          min-width="250"
+          prop="featureGroup"
+          :label="t('reuse.featureGroup')"
         >
+          <template #default="scope">
+            <ElTreeSelect
+              v-model="scope.row.featureGroupTree"
+              :data="treeSelectData"
+              multiple
+              check-strictly
+              :render-after-expand="false"
+              v-if="scope.row.edited"
+            />
+            <span v-else>{{ scope.row.featureGroup }}</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="settingSale"
+          :label="t('reuse.settingSale')"
+        >
+          <template #default="scope">
+            <div class="flex gap-4">
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openSellTable(scope.row.featureGroup)"
+                >{{ t('reuse.addPrice') }}</el-button
+              >
+              <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
+            </div>
+          </template>
+        </ElTableColumn>
+
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="settingRent"
+          :label="t('reuse.settingRent')"
+        >
+          <template #default="scope">
+            <div class="flex justify-between">
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openRentTable(scope.row.featureGroup)"
+                >{{ t('reuse.addPrice') }}</el-button
+              >
+              <ElSwitch v-model="scope.row.settingRent" @change="localeChange" />
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="settingDeposit"
+          :label="t('reuse.settingDeposit')"
+        >
+          <template #default="scope">
+            <div class="flex justify-between">
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openDepositTable(scope.row.featureGroup)"
+                >{{ t('reuse.addPrice') }}</el-button
+              >
+              <ElSwitch v-model="scope.row.settingDeposit" @change="localeChange" />
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="settingPawn"
+          :label="t('reuse.settingPawn')"
+        >
+          <template #default="scope">
+            <div class="flex justify-between">
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openPawnTable(scope.row.featureGroup)"
+                >{{ t('reuse.addPrice') }}</el-button
+              >
+              <ElSwitch v-model="scope.row.settingPawn" @change="localeChange" />
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="settingSpa"
+          :label="t('reuse.settingSpa')"
+        >
+          <template #default="scope">
+            <div class="flex justify-between">
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openSpaTable(scope.row.featureGroup)"
+                >{{ t('reuse.addPrice') }}</el-button
+              >
+              <ElSwitch v-model="scope.row.settingSpa" @change="localeChange" />
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          prop="inventory"
+          :label="t('reuse.inventory')"
+        >
+          <template #default="scope">
+            <div class="flex justify-between">
+              <div>{{ scope.row.inventory }} 10</div>
+              <el-button
+                :icon="plusIcon"
+                link
+                type="primary"
+                @click="openWarehouseTable(scope.row.featureGroup)"
+                >{{ t('reuse.detail') }}</el-button
+              >
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          width="150"
+          prop="update"
+          :label="t('reuse.update')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          width="150"
+          prop="status"
+          :label="t('reuse.status')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="200"
+          fixed="right"
+          :label="t('reuse.operator')"
+        >
+          <template #default="scope">
+            <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
+              t('reuse.save')
+            }}</el-button>
+            <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+              t('reuse.edit')
+            }}</el-button>
+            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
+          </template>
+        </ElTableColumn>
+      </ElTable>
+      <el-button class="ml-5 mt-5" :icon="plusIcon">{{
+        t('reuse.addAttributeAndPrice')
+      }}</el-button>
+    </el-collapse-item>
+    <el-dialog
+      v-model="rentTableVisible"
+      :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
+      width="70%"
+      @close="RentTableDialogClose"
+    >
+      <el-form :model="collapse[2].tableList" ref="rentForm">
+        <ElTable :data="collapse[2].tableList" :border="true" v-loading="collapse[2].loading">
           <ElTableColumn
             header-align="center"
             align="center"
             min-width="130"
-            prop="date"
-            :label="t('reuse.date')"
-          />
+            prop="quantityTo"
+            :label="t('reuse.quantityTo')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.quantityTo`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
+              </el-form-item>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
             min-width="130"
-            prop="orderCode"
-            :label="t('reuse.orderCode')"
-          />
+            prop="unit"
+            :label="t('reuse.unit')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.unit }}Chiếc</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.dayRentalUnitPrice')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.dayRentalUnitPrice`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input
+                  v-model.number="scope.row.dayRentalUnitPrice"
+                  type="text"
+                  autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.weeklyRent')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.weeklyRent`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.weeklyRent" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.monthlyRent')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.monthlyRent`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.monthlyRent" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.rentDeposit')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.rentDeposit`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.rentDeposit" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
             min-width="130"
-            prop="importExportBillCode"
-            :label="t('reuse.importExportBillCode')"
+            prop="createDate"
+            :label="t('reuse.modifyDate')"
           />
           <ElTableColumn
             header-align="center"
             align="center"
+            min-width="100"
+            fixed="right"
+            :label="t('reuse.operator')"
+          >
+            <template #default="scope">
+              <el-button type="danger" @click="handleDeleteRowRent(scope)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </el-form>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="rentTableVisible = false">{{
+          t('reuse.exit')
+        }}</el-button>
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataRentTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      v-model="depositTableVisible"
+      :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
+      width="70%"
+    >
+      <el-form :model="collapse[3].tableList" ref="depositForm">
+        <ElTable :data="collapse[3].tableList" :border="true" v-loading="collapse[3].loading">
+          <ElTableColumn
+            header-align="center"
+            align="center"
             min-width="130"
-            prop="warehouseInformation"
-            :label="t('reuse.warehouseInformation')"
-          />
+            :label="t('reuse.quantityTo')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.quantityTo`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="unit"
+            :label="t('reuse.unit')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.unit }}Chiếc</div>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="right"
             min-width="130"
-            prop="internal"
-            :label="t('reuse.internal')"
-          />
+            :label="t('reuse.depositFee')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.depositFee`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                  ><template #append>%</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="right"
             min-width="130"
-            prop="deposit"
-            :label="t('reuse.deposit')"
+            :label="t('reuse.depositFeeByMoney')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.depositFee`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                  ><template #append>%</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="createDate"
+            :label="t('reuse.modifyDate')"
           />
           <ElTableColumn
             header-align="center"
-            align="right"
-            min-width="130"
-            prop="pawn"
-            :label="t('reuse.pawn')"
-          />
-          <ElTableColumn
-            header-align="center"
-            align="right"
-            min-width="130"
-            prop="spa"
-            label="Spa"
-          />
-          <ElTableColumn
-            header-align="center"
-            align="right"
-            min-width="130"
-            prop="totalInventory"
-            :label="t('reuse.totalInventory')"
+            align="center"
+            min-width="50"
+            fixed="right"
+            :label="t('reuse.operator')"
           />
         </ElTable>
-        <div class="mt-4 flex flex-row-reverse gap-4">
-          <el-button size="large" class="w-150px" @click="warehouseTableVisible = false">{{
-            t('reuse.exit')
-          }}</el-button>
-          <el-button type="primary" size="large" class="w-150px" @click="saveDataWarehouseTable">{{
-            t('reuse.save')
-          }}</el-button>
-        </div>
-      </el-dialog>
-      <el-collapse-item :name="collapse[7].name">
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[7].icon" link />
-          <span class="text-center">{{ collapse[7].title }}</span>
-        </template>
-        <TableOperator
-          :type="type"
-          :id="id"
-          :rules="ruleSEO"
-          @edit-data="editDataSeo"
-          class="infinite-list"
-          :hasImage="collapse[7].hasImage"
-          style="overflow: auto"
-          :schema="collapse[7].columns"
-          :typeButton="collapse[7].typeButton"
-          :class="[
-            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-          ]"
+      </el-form>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="depositTableVisible = false">{{
+          t('reuse.exit')
+        }}</el-button>
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataDepositTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      v-model="pawnTableVisible"
+      :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
+      width="70%"
+    >
+      <el-form :model="collapse[4].tableList" ref="pawnForm">
+        <ElTable :data="collapse[4].tableList" :border="true" v-loading="collapse[4].loading">
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            :label="t('reuse.quantity')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.quantity`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="unit"
+            :label="t('reuse.unit')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.unit }}Chiếc</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.interestMoneyFor1trPerDay')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.interestMoneyFor1trPerDay`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input
+                  v-model.number="scope.row.interestMoneyFor1trPerDay"
+                  type="text"
+                  autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.insuranceMoneyFor1trPerDay')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.depositFee`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.moneyFee')"
+          >
+            <template #default="scope">
+              <el-form-item>
+                <el-input
+                  :value="scope.row.interestMoneyFor1trPerDay * scope.row.depositFee"
+                  type="text"
+                  autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="createDate"
+            :label="t('reuse.modifyDate')"
+          />
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="50"
+            fixed="right"
+            :label="t('reuse.operator')"
+          />
+        </ElTable>
+      </el-form>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="pawnTableVisible = false">{{
+          t('reuse.exit')
+        }}</el-button>
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataPawnTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      v-model="spaTableVisible"
+      :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
+      width="70%"
+      @close="SpaTableDialogClose"
+    >
+      <el-form :model="collapse[5].tableList" ref="spaForm">
+        <ElTable :data="collapse[5].tableList" :border="true" v-loading="collapse[5].loading">
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="service"
+            :label="t('reuse.chooseService')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.service`"
+                :rules="[{ required: true, trigger: 'blur' }]"
+              >
+                <el-select
+                  v-model="scope.row.service"
+                  multiple
+                  placeholder="Select"
+                  style="width: 240px"
+                >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="standardTime"
+            :label="t('reuse.standardTime')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.standardTime }} 20 {{ t('reuse.minute') }}</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="quantityTo"
+            :label="t('reuse.quantityTo')"
+          >
+            <template #default>
+              <div>1</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="unit"
+            :label="t('reuse.unit')"
+          >
+            <template #default="scope">
+              <div>{{ scope.row.unit }}Chiếc</div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="right"
+            min-width="130"
+            :label="t('reuse.spaPrices')"
+          >
+            <template #default="scope">
+              <el-form-item
+                :prop="`${scope.$index}.spaPrices`"
+                :rules="[
+                  { required: true },
+                  { type: 'number', message: t('reuse.validateEnterNumber') }
+                ]"
+              >
+                <el-input v-model.number="scope.row.spaPrices" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
+                >
+              </el-form-item>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="130"
+            prop="createDate"
+            :label="t('reuse.modifyDate')"
+          />
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="160"
+            fixed="right"
+            :label="t('reuse.operator')"
+          >
+            <template #default="scope">
+              <el-button type="danger" @click="handleDeleteRowSpa(scope)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </el-form>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="spaTableVisible = false">{{
+          t('reuse.exit')
+        }}</el-button>
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataSpaTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      v-model="warehouseTableVisible"
+      :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
+      width="70%"
+    >
+      <ElTable
+        :data="collapse[6].tableList"
+        :border="true"
+        v-loading="collapse[6].loading"
+        show-summary
+      >
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="130"
+          prop="date"
+          :label="t('reuse.date')"
         />
-      </el-collapse-item>
-    </el-collapse>
-  </div>
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="130"
+          prop="orderCode"
+          :label="t('reuse.orderCode')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="130"
+          prop="importExportBillCode"
+          :label="t('reuse.importExportBillCode')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="center"
+          min-width="130"
+          prop="warehouseInformation"
+          :label="t('reuse.warehouseInformation')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="right"
+          min-width="130"
+          prop="internal"
+          :label="t('reuse.internal')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="right"
+          min-width="130"
+          prop="deposit"
+          :label="t('reuse.deposit')"
+        />
+        <ElTableColumn
+          header-align="center"
+          align="right"
+          min-width="130"
+          prop="pawn"
+          :label="t('reuse.pawn')"
+        />
+        <ElTableColumn header-align="center" align="right" min-width="130" prop="spa" label="Spa" />
+        <ElTableColumn
+          header-align="center"
+          align="right"
+          min-width="130"
+          prop="totalInventory"
+          :label="t('reuse.totalInventory')"
+        />
+      </ElTable>
+      <div class="mt-4 flex flex-row-reverse gap-4">
+        <el-button size="large" class="w-150px" @click="warehouseTableVisible = false">{{
+          t('reuse.exit')
+        }}</el-button>
+        <el-button type="primary" size="large" class="w-150px" @click="saveDataWarehouseTable">{{
+          t('reuse.save')
+        }}</el-button>
+      </div>
+    </el-dialog>
+    <el-collapse-item :name="collapse[7].name">
+      <template #title>
+        <el-button class="header-icon" :icon="collapse[7].icon" link />
+        <span class="text-center">{{ collapse[7].title }}</span>
+      </template>
+      <TableOperator
+        :type="type"
+        :id="id"
+        :rules="ruleSEO"
+        @edit-data="editDataSeo"
+        class="infinite-list"
+        :hasImage="collapse[7].hasImage"
+        style="overflow: auto"
+        :schema="collapse[7].columns"
+        :typeButton="collapse[7].typeButton"
+        :class="[
+          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+        ]"
+      />
+    </el-collapse-item>
+  </el-collapse>
 </template>
 <style scoped>
 .text-center {

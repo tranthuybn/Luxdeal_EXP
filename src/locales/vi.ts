@@ -1104,7 +1104,6 @@ export default {
     settingPawnPrice: 'Cài đặt giá cầm đồ',
     settingSpaPrice: 'Cài đặt giá spa',
     depositFeeByMoney: 'Phí ký gửi theo số tiền',
-    quantity: ' Số lượng',
     interestMoneyFor1trPerDay: 'Tiền lãi/1tr/ngày',
     insuranceMoneyFor1trPerDay: 'Tiền bảo hiểm/1tr/ngày',
     moneyFee: ' Thành tiền phí',

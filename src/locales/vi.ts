@@ -1126,6 +1126,8 @@ export default {
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
     saveFail: 'Lưu thất bại',
-    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
+    cantFindData: 'Không thể tìm thấy dữ liệu',
+    getDataSuccess: 'Lấy dữ liệu thành công'
   }
 }

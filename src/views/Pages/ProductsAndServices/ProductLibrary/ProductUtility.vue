@@ -172,6 +172,14 @@ const collapseChangeEvent = async (val) => {
     })
   }
 }
+const OpenCollapse = () => {
+  if (disabledTabOpen.value == true) {
+    ElNotification({
+      message: t('reuse.cannotOpenBecauseNotCreateProduct'),
+      type: 'error'
+    })
+  }
+}
 const activeName = ref(collapse[0].name)
 const handleEditRow = (data) => {
   data.edited = true
@@ -183,7 +191,7 @@ const localeChange = (show: boolean) => {
   console.log(show)
 }
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
+let id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
@@ -216,22 +224,29 @@ const ruleSEO = reactive({
   SeoTags: [{ required: true, trigger: 'blur' }],
   SeoDescription: [required()]
 })
+let callTableApiTime = 0
 const callTableApi = async (collapseItem) => {
+  //fix cung
   if (collapseItem.api !== undefined) {
-    const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
-    collapseItem.tableList = res.data.list
+    if (callTableApiTime == 0) {
+      const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
+      collapseItem.tableList = res.data.list
+      callTableApiTime++
+    }
   }
   collapseItem.loading = false
 }
 
 const postData = async (data) => {
   await postProductLibrary(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
+      disabledTabOpen.value = false
+      id = data.id
+    })
     .catch((error) =>
       ElNotification({
         message: error,
@@ -376,7 +391,6 @@ const openRentTable = async (dialogTitle) => {
 let sellDialogTitle = ref('')
 const openSellTable = async (dialogTitle) => {
   sellDialogTitle.value = dialogTitle
-  console.log(sellDialogTitle)
   sellTableVisible.value = true
   if (callApiSellTable == 0) {
     const res = await getFeaturesPrices({ pageSize: 10, pageIndex: 1 })
@@ -596,6 +610,12 @@ const RentTableDialogClose = () => {
 const SellTableDialogClose = () => {
   forceRemove.value = false
 }
+
+//handle opentab
+const disabledTabOpen = ref(false)
+if ((type == '' && isNaN(id)) || type == 'add') {
+  disabledTabOpen.value = true
+}
 </script>
 <!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
@@ -738,9 +758,9 @@ const SellTableDialogClose = () => {
         }}</el-button>
       </div>
     </el-dialog>
-    <el-collapse-item :name="collapse[1].name">
+    <el-collapse-item :name="collapse[1].name" @click="OpenCollapse" :disabled="disabledTabOpen">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[1].icon" link />
+        <el-button class="header-icon" :icon="collapse[1].icon" link :disabled="disabledTabOpen" />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
       <ElTable
@@ -1502,9 +1522,9 @@ const SellTableDialogClose = () => {
         }}</el-button>
       </div>
     </el-dialog>
-    <el-collapse-item :name="collapse[7].name">
+    <el-collapse-item :name="collapse[7].name" @click="OpenCollapse" :disabled="disabledTabOpen">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[7].icon" link />
+        <el-button class="header-icon" :icon="collapse[7].icon" link :disabled="disabledTabOpen" />
         <span class="text-center">{{ collapse[7].title }}</span>
       </template>
       <TableOperator

@@ -1071,6 +1071,7 @@ export default {
     validateEnterNumber: 'Enter a number',
     minute: 'minute',
     saveSuccess: 'Save success',
-    saveFail: 'Save fail'
+    saveFail: 'Save fail',
+    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet'
   }
 }

@@ -1121,6 +1121,7 @@ export default {
     validateEnterNumber: 'Phải điền số',
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
-    saveFail: 'Lưu thất bại'
+    saveFail: 'Lưu thất bại',
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
   }
 }

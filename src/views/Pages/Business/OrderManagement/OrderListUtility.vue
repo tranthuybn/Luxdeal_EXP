@@ -487,6 +487,18 @@ const handleTotal = (scope) => {
 }
 
 const collaboratorsValue = ref('')
+// phân loại khách hàng: 1: công ty, 2: cá nhân
+const valueClassify = ref('')
+const optionsClassify = [
+  {
+    value: 'Option1',
+    label: 'option1'
+  },
+  {
+    value: 'Option2',
+    label: 'Option2'
+  }
+]
 </script>
 
 <template>
@@ -576,7 +588,7 @@ const collaboratorsValue = ref('')
                         :value="item.value"
                       />
                     </el-select>
-                    <button @click.stop.prevent="doThis" class="border-1 pl-4 pr-4 border-[#2C6DDA]"
+                    <button @click.stop.prevent="doThis" class="border-1 pl-3 pr-3 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
                     >
                   </div>
@@ -636,8 +648,8 @@ const collaboratorsValue = ref('')
                   </template>
                   <el-dialog v-model="dialogVisible" class="absolute">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}
+                    </div>
                   </el-dialog>
                 </el-upload>
               </div>
@@ -672,7 +684,7 @@ const collaboratorsValue = ref('')
                         type="text"
                         :placeholder="`${t('formDemo.chooseACustomer')}`"
                       />
-                      <div class="border-1 border-blue-500 pl-1 pr-1">
+                      <div class="border-1 border-blue-500">
                         <el-button text @click="dialogAddQuick = true"
                           >+ {{ t('button.add') }}</el-button
                         >
@@ -686,28 +698,24 @@ const collaboratorsValue = ref('')
                         <el-divider />
                         <div>
                           <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{
-                              t('formDemo.customerName')
-                            }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterCustomerName')}`"
-                            />
+                            <label class="w-[30%] text-right">{{ t('formDemo.classify') }}</label>
+                            <div>
+                              <el-select
+                                v-model="valueClassify"
+                                class="m-2"
+                                placeholder="Select"
+                                size="large"
+                              >
+                                <el-option
+                                  v-for="item in optionsClassify"
+                                  :key="item.value"
+                                  :label="item.label"
+                                  :value="item.value"
+                                />
+                              </el-select>
+                            </div>
                           </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterEmail')}`"
-                            />
-                          </div>
+
                           <div class="flex gap-4 pt-4 pb-4">
                             <label class="w-[30%] text-right">{{
                               t('formDemo.companyName')
@@ -722,6 +730,29 @@ const collaboratorsValue = ref('')
                             <el-input
                               style="width: 100%"
                               :placeholder="`${t('formDemo.enterTaxCode')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.representative')
+                            }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterRepresentative')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterEmail')}`"
                             />
                           </div>
                         </div>
@@ -917,12 +948,9 @@ const collaboratorsValue = ref('')
         </el-table>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              class="w-[150px]"
-              type="primary"
-              @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -979,12 +1007,9 @@ const collaboratorsValue = ref('')
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              class="w-[150px]"
-              type="primary"
-              @click="openDialogChoosePromotion = false"
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button class="w-[150px]" type="primary" @click="openDialogChoosePromotion = false"
+              >{{ t('reuse.save') }}
+            </el-button>
             <el-button class="w-[150px]" @click="openDialogChoosePromotion = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -1123,8 +1148,8 @@ const collaboratorsValue = ref('')
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item
-                    ><el-radio-group v-model="radioVAT" class="flex-col">
+                  <el-dropdown-item>
+                    <el-radio-group v-model="radioVAT" class="flex-col">
                       <div style="width: 100%">
                         <el-radio class="text-left" style="color: blue" label="1" size="large">{{
                           t('formDemo.VATNotIncluded')
@@ -1150,8 +1175,8 @@ const collaboratorsValue = ref('')
                           >VAT 0%</el-radio
                         >
                       </div>
-                    </el-radio-group></el-dropdown-item
-                  >
+                    </el-radio-group>
+                  </el-dropdown-item>
                   <el-dropdown-item divided>
                     <div style="width: 100%; text-align: center"> Confirm </div>
                   </el-dropdown-item>
@@ -1409,6 +1434,7 @@ const collaboratorsValue = ref('')
 ::v-deep(.el-divider__text) {
   font-size: 16px;
 }
+
 .el-button--text {
   margin-right: 15px;
 }
@@ -1416,6 +1442,7 @@ const collaboratorsValue = ref('')
 ::v-deep(.el-input) {
   width: auto;
 }
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
@@ -1423,21 +1450,26 @@ const collaboratorsValue = ref('')
 ::v-deep(.el-dialog__body) {
   padding-top: 0;
 }
+
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
+
 ::v-deep(.el-input) {
   width: fit-content;
 }
+
 .example-showcase .el-dropdown-link {
   cursor: pointer;
   color: var(--el-color-primary);
   display: flex;
   align-items: center;
 }
+
 ::v-deep(.el-dropdown-menu__item) {
   padding: 5px 30px;
 }

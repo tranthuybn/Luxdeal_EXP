@@ -13,6 +13,7 @@ export const getPotentialCustomerList = async (params: any): Promise<IResponse> 
   )
   return res.data && res.data.data
 }
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/customer/List', params })
   return res && res.data

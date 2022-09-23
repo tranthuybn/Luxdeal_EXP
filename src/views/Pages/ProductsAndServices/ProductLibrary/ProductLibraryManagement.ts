@@ -46,7 +46,10 @@ export const businessProductLibrary = [
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
+      return h('span', { innerHTML: cellValue })
+    }
   },
   {
     field: 'categories[1].value',

@@ -27,18 +27,17 @@ import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 
 const props = defineProps({
+  // api lấy dữ liệu sản phẩm
   apiId: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
+  // api xpas dữ liệu sản phẩm
   delApi: {
     type: Function as PropType<any>,
     default: () => Promise<IResponse<TableResponse<TableData>>>
   },
-  currentRow: {
-    type: Object as PropType<Nullable<TableData>>,
-    default: () => null
-  },
+  //schema cho form
   schema: {
     type: Array as PropType<FormSchema[]>,
     default: () => []
@@ -51,42 +50,43 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  // tiêu đề hiện trên đầu của bảng
   title: {
     type: String,
     default: ''
   },
+  //tiêu đề khi hỏi xóa
   deleteTitle: {
     type: String,
     default: 'Warning'
   },
+  //id của sản phẩm
   id: {
     type: Number,
     default: NaN
   },
+  //type = 'add' || 'detail' || 'edit'
+  //có sự kiện watch để bắt xem đang ở type nào
   type: {
     type: String,
     default: ''
   },
-  typeForm: {
-    type: String,
-    default: ''
-  },
-  typeButton: {
-    type: String,
-    default: ''
-  },
+  //rules để validate
   rules: {
     type: Object,
     default: () => {}
   },
+  //limitUpload ảnh
   limitUpload: {
     type: Number,
-    default: 1
+    default: 10
   },
+  //truyền params cho api nếu cần
   params: {
     type: Object,
     default: () => {}
   },
+  //dữ liệu đã được xử lí được gửi sau khi emit lên component cha
   formDataCustomize: {
     type: Object,
     default: () => {}
@@ -120,27 +120,7 @@ const { register, methods, elFormRef } = useForm({
   schema
 })
 let fileList = ref<UploadUserFile[]>([])
-// luu du lieu vao form
-const { setValues } = methods
-watch(
-  () => props.currentRow,
-  (currentRow) => {
-    if (!currentRow) {
-      return
-    }
-    if (currentRow.list.length !== 0) {
-      setValues(currentRow?.list[0])
-      fileList.value.push({
-        url: currentRow.list[0].image,
-        name: currentRow.list[0].title
-      })
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
 const customizeData = async () => {
   emit('customize-form-data', formValue.value)
 }
@@ -148,23 +128,15 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref('')
-const fileImage = ref<File>()
-const urlToObject = async (image) => {
-  const response = await fetch(image)
-  // here image is url/location of image
-  const blob = await response.blob()
-  fileImage.value = new File([blob], 'image.jpg', { type: blob.type })
-}
 //set data for form edit and detail
 const setFormValue = async () => {
-  await customizeData()
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     if (!props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
-      urlToObject(props.formDataCustomize.imageurl)
     }
   } else {
     setValues(formValue.value)
@@ -210,7 +182,7 @@ const save = async (type) => {
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
-        validateFile = await beforeAvatarUpload(fileList.value, 'list')
+        validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
       } else {
         validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
       }
@@ -222,8 +194,10 @@ const save = async (type) => {
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages
-        ? (data.Images = fileList.value!.map((file) => (file.raw ? file.raw : file)))
-        : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : fileImage.value)
+        ? (data.Images = ListFileUpload.value
+            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+            : null)
+        : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -296,10 +270,15 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    ElMessage.info(t('reuse.notHaveImage'))
-    return true
+    if (fileList.value) {
+      return true
+    } else {
+      ElMessage.warning(t('reuse.notHaveImage'))
+      return false
+    }
   }
 }
+//chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
 const router = useRouter()
 const edit = () => {
@@ -308,6 +287,7 @@ const edit = () => {
     params: { id: props.id, type: 'edit' }
   })
 }
+//xóa dữ liệu sản phẩm
 const delAction = async () => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
@@ -342,12 +322,14 @@ const delAction = async () => {
 const cancel = () => {
   go(-1)
 }
+//xử lí ảnh
+const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
     rawUploadFile.value = uploadFile
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   } else {
-    fileList.value = uploadFiles
+    ListFileUpload.value = uploadFiles
   }
 }
 const previewImage = () => {
@@ -382,7 +364,7 @@ const listType = ref<ListImages>('text')
           :show-file-list="multipleImages"
           v-model:file-list="fileList"
           :list-type="listType"
-          :limit="10"
+          :limit="limitUpload"
           :on-change="handleChange"
         >
           <div v-if="!multipleImages">
@@ -423,19 +405,6 @@ const listType = ref<ListImages>('text')
     </ElRow>
     <template #under>
       <div v-if="props.type === 'add' || isNaN(props.id)">
-        <!-- <div v-if="props.typeButton === 'form01'">
-            <ElButton type="primary" :loading="loading" @click="save('add')">
-              {{ t('reuse.save') }}
-            </ElButton>
-            <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-              {{ t('reuse.addNew') }}
-            </ElButton>
-          </div>
-          <div v-if="props.typeButton === 'form02'">
-            <ElButton type="primary" :loading="loading" @click="save">
-              {{ t('reuse.fix') }}
-            </ElButton>
-          </div> -->
         <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>

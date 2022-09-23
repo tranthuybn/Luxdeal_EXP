@@ -374,7 +374,6 @@ const tableWarehouse = [
     address: ''
   }
 ]
-// const test = ref(false)
 
 // promo table
 const promoTable = [

@@ -487,6 +487,26 @@ const handleTotal = (scope) => {
 }
 
 const collaboratorsValue = ref('')
+// phân loại khách hàng: 1: công ty, 2: cá nhân
+const valueClassify = ref('company')
+const optionsClassify = [
+  {
+    value: 'company',
+    label: t('formDemo.company')
+  },
+  {
+    value: 'individual',
+    label: t('formDemo.individual')
+  }
+]
+// select khách hàng
+const valueSelectCustomer = ref(t('formDemo.customer'))
+const optionsCustomer = [
+  {
+    value: 'customer',
+    label: t('formDemo.customer')
+  }
+]
 </script>
 
 <template>
@@ -576,7 +596,7 @@ const collaboratorsValue = ref('')
                         :value="item.value"
                       />
                     </el-select>
-                    <button @click.stop.prevent="doThis" class="border-1 pl-4 pr-4 border-[#2C6DDA]"
+                    <button @click.stop.prevent="doThis" class="border-1 pl-3 pr-3 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
                     >
                   </div>
@@ -672,7 +692,7 @@ const collaboratorsValue = ref('')
                         type="text"
                         :placeholder="`${t('formDemo.chooseACustomer')}`"
                       />
-                      <div class="border-1 border-blue-500 pl-1 pr-1">
+                      <div class="border-1 border-blue-500">
                         <el-button text @click="dialogAddQuick = true"
                           >+ {{ t('button.add') }}</el-button
                         >
@@ -682,16 +702,69 @@ const collaboratorsValue = ref('')
                         width="40%"
                         align-center
                         :title="`${t('formDemo.QuicklyAddCustomers')}`"
+                        v-if="valueClassify == 'company'"
                       >
                         <el-divider />
                         <div>
+                          <div class="flex gap-4 pt-4 pb-4 items-center">
+                            <label class="w-[30%] text-right max-w-[162.73px]">{{
+                              t('formDemo.classify')
+                            }}</label>
+                            <div class="w-[80%] flex gap-2">
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueClassify"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsClassify"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueSelectCustomer"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsCustomer"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                            </div>
+                          </div>
+
                           <div class="flex gap-4 pt-4 pb-4">
                             <label class="w-[30%] text-right">{{
-                              t('formDemo.customerName')
+                              t('formDemo.companyName')
                             }}</label>
                             <el-input
                               style="width: 100%"
-                              :placeholder="`${t('formDemo.enterCustomerName')}`"
+                              :placeholder="`${t('formDemo.enterCompanyName')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterTaxCode')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.representative')
+                            }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterRepresentative')}`"
                             />
                           </div>
                           <div class="flex gap-4 pt-4 pb-4">
@@ -708,6 +781,68 @@ const collaboratorsValue = ref('')
                               :placeholder="`${t('formDemo.enterEmail')}`"
                             />
                           </div>
+                        </div>
+                        <template #footer>
+                          <span class="dialog-footer">
+                            <el-button
+                              type="primary"
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.save') }}</el-button
+                            >
+                            <el-button
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.exit') }}</el-button
+                            >
+                          </span>
+                        </template>
+                      </el-dialog>
+                      <el-dialog
+                        v-model="dialogAddQuick"
+                        v-else
+                        width="40%"
+                        align-center
+                        :title="`${t('formDemo.QuicklyAddCustomers')}`"
+                      >
+                        <el-divider />
+                        <div>
+                          <div class="flex gap-4 pt-4 pb-4 items-center">
+                            <label class="w-[30%] text-right max-w-[162.73px]">{{
+                              t('formDemo.classify')
+                            }}</label>
+                            <div class="w-[80%] flex gap-2">
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueClassify"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsClassify"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueSelectCustomer"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsCustomer"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                            </div>
+                          </div>
+
                           <div class="flex gap-4 pt-4 pb-4">
                             <label class="w-[30%] text-right">{{
                               t('formDemo.companyName')
@@ -717,11 +852,19 @@ const collaboratorsValue = ref('')
                               :placeholder="`${t('formDemo.enterCompanyName')}`"
                             />
                           </div>
+
                           <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
                             <el-input
                               style="width: 100%"
-                              :placeholder="`${t('formDemo.enterTaxCode')}`"
+                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterEmail')}`"
                             />
                           </div>
                         </div>
@@ -1452,5 +1595,9 @@ const collaboratorsValue = ref('')
 
 ::v-deep(.fix-full-width > .el-input) {
   width: 100%;
+}
+
+::v-deep(.fix-full-width > .el-select .el-input) {
+  width: 100% !important;
 }
 </style>

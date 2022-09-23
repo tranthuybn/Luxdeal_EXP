@@ -243,7 +243,12 @@ export default {
     totalAmountReceivable: 'Tổng tiền phải thu',
     VATNotIncluded: 'Không tính VAT',
     inventoryInformation: 'Thông tin tồn kho',
-    warehouseInformation: 'Thông tin kho'
+    warehouseInformation: 'Thông tin kho',
+    representative: 'Người đại diện',
+    enterRepresentative: 'Nhập người đại diện',
+    classify: 'Phân loại',
+    company: 'Công ty',
+    individual: 'Cá nhân'
   },
   button: {
     add: 'Thêm nhanh'

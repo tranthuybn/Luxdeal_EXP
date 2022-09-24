@@ -295,7 +295,7 @@ const adminList = [
           },
           {
             path: `${utility}`,
-            component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+            component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
               title: 'reuse.createANewOrder',

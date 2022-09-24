@@ -230,7 +230,7 @@ const callTableApi = async (collapseItem) => {
   if (collapseItem.api !== undefined) {
     if (callTableApiTime == 0) {
       const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
-      collapseItem.tableList = res.data.list
+      collapseItem.tableList = res.data
       callTableApiTime++
     }
   }
@@ -349,7 +349,7 @@ const openSpaTable = async (dialogTitle) => {
   spaTableVisible.value = true
   if (callApiSpaTable == 0) {
     const res = await getFeaturesRentalPrice({ pageSize: 10, pageIndex: 1 })
-    collapse[5].tableList = res.data.list
+    collapse[5].tableList = res.data
     collapse[5].loading = false
     callApiSpaTable++
   }
@@ -359,8 +359,8 @@ const openWarehouseTable = async (dialogTitle) => {
   warehouseDialogTitle.value = dialogTitle
   warehouseTableVisible.value = true
   if (callApiWarehouseTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 10, pageIndex: 1 })
-    collapse[6].tableList = res.data.list
+    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
+    collapse[6].tableList = res.data
     collapse[6].loading = false
     callApiWarehouseTable++
   }
@@ -370,8 +370,8 @@ const openPawnTable = async (dialogTitle) => {
   pawnDialogTitle.value = dialogTitle
   pawnTableVisible.value = true
   if (callApiPawnTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 10, pageIndex: 1 })
-    collapse[4].tableList = res.data.list
+    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
+    collapse[4].tableList = res.data
     collapse[4].loading = false
     callApiPawnTable++
   }
@@ -381,8 +381,8 @@ const openDepositTable = async (dialogTitle) => {
   depositDialogTitle.value = dialogTitle
   depositTableVisible.value = true
   if (callApiDepositTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 10, pageIndex: 1 })
-    collapse[3].tableList = res.data.list
+    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
+    collapse[3].tableList = res.data
     collapse[3].loading = false
     callApiDepositTable++
   }
@@ -392,8 +392,8 @@ const openRentTable = async (dialogTitle) => {
   rentDialogTitle.value = dialogTitle
   rentTableVisible.value = true
   if (callApiRentTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 10, pageIndex: 1 })
-    collapse[2].tableList = res.data.list
+    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
+    collapse[2].tableList = res.data
     collapse[2].loading = false
     callApiRentTable++
   }
@@ -403,8 +403,8 @@ const openSellTable = async (dialogTitle) => {
   sellDialogTitle.value = dialogTitle
   sellTableVisible.value = true
   if (callApiSellTable == 0) {
-    const res = await getFeaturesPrices({ pageSize: 10, pageIndex: 1 })
-    collapse[1].tableList = res.data.list
+    const res = await getFeaturesPrices({ pageSize: 100, pageIndex: 1 })
+    collapse[1].tableList = res.data
     collapse[1].loading = false
     callApiSellTable++
   }

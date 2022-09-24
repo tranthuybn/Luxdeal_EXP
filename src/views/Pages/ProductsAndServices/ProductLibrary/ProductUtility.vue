@@ -3,14 +3,15 @@ import { getTypePersonnelList } from '@/api/HumanResourceManagement'
 import {
   getFeaturesDepositFee,
   getFeaturesPawnFee,
-  getFeaturesPrices,
   getFeaturesRentalPrice,
   getSpaLPrice,
   getInventoryTrading,
   postProductLibrary,
   getBusinessProductLibrary,
   updateProductLibrary,
-  updateProductSeo
+  updateProductSeo,
+  getProductProperty,
+  getCategories
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -39,58 +40,56 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { reactive, unref, watch } from 'vue'
+import { onBeforeMount, reactive, unref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
 import { TableOperator } from '../../Components/TableBase'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
+let colorData = reactive([])
+let sizeData = reactive([])
+let materialData = reactive([])
+onBeforeMount(async () => {
+  await getAttributeData()
+})
+const getAttributeData = async () => {
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 100, pageIndex: 1 }).then(
+    (res) => (colorData = res.data.map((color) => ({ label: color.name, value: color.id })))
+  )
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[2].key, pageSize: 100, pageIndex: 1 }).then(
+    (res) => (sizeData = res.data.map((size) => ({ label: size.name, value: size.id })))
+  )
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[3].key, pageSize: 100, pageIndex: 1 }).then(
+    (res) =>
+      (materialData = res.data.map((material) => ({ label: material.name, value: material.id })))
+  )
+  treeSelectData.value[0].children = colorData
+  treeSelectData.value[1].children = sizeData
+  treeSelectData.value[2].children = materialData
+}
+const attributeTreeValue = (data) => {
+  console.log('treeData', data)
+}
 const treeSelectData = ref([
   {
-    value: '1',
-    label: 'Level one 1',
-    children: [
-      {
-        value: '1-1',
-        label: 'Level two 1-1',
-        children: [
-          {
-            value: '1-1-1',
-            label: 'Level three 1-1-1'
-          }
-        ]
-      }
-    ]
+    value: 1,
+    label: t('reuse.color'),
+    children: []
   },
   {
-    value: '2',
-    label: 'Level one 2',
-    children: [
-      {
-        value: '2-1',
-        label: 'Level two 2-1',
-        children: [
-          {
-            value: '2-1-1',
-            label: 'Level three 2-1-1'
-          }
-        ]
-      },
-      {
-        value: '2-2',
-        label: 'Level two 2-2',
-        children: [
-          {
-            value: '2-2-1',
-            label: 'Level three 2-2-1'
-          }
-        ]
-      }
-    ]
+    value: 2,
+    label: t('reuse.size'),
+    children: []
+  },
+  {
+    value: 3,
+    label: t('reuse.material'),
+    children: []
   }
 ])
 const collapse: Array<Collapse> = reactive([
@@ -104,7 +103,7 @@ const collapse: Array<Collapse> = reactive([
     icon: plusIcon,
     name: 'priceCharacteristics',
     title: t('reuse.productAttributeTable'),
-    api: getFeaturesPrices,
+    api: getProductProperty,
     tableList: [],
     loading: true
   },
@@ -185,6 +184,7 @@ const handleEditRow = (data) => {
   data.edited = true
 }
 const handleSaveRow = (data) => {
+  console.log('tree', treeSelectData, colorData)
   data.edited = false
 }
 const localeChange = (show: boolean) => {
@@ -403,7 +403,7 @@ const openSellTable = async (dialogTitle) => {
   sellDialogTitle.value = dialogTitle
   sellTableVisible.value = true
   if (callApiSellTable == 0) {
-    const res = await getFeaturesPrices({ pageSize: 100, pageIndex: 1 })
+    const res = await getProductProperty({ ProductId: id })
     collapse[1].tableList = res.data
     collapse[1].loading = false
     callApiSellTable++
@@ -782,7 +782,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         <ElTableColumn
           header-align="center"
           min-width="100"
-          prop="managementCode"
+          prop="productCode"
           :label="t('reuse.managementCode')"
         />
         <ElTableColumn
@@ -793,14 +793,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         >
           <template #default="scope">
             <ElTreeSelect
-              v-model="scope.row.featureGroupTree"
+              :value="scope.row.categories[2].value"
               :data="treeSelectData"
               multiple
-              check-strictly
               :render-after-expand="false"
               v-if="scope.row.edited"
+              @change="(value) => attributeTreeValue(value)"
             />
-            <span v-else>{{ scope.row.featureGroup }}</span>
+            <span v-else>{{ scope.row.categories[2].value }}</span>
           </template>
         </ElTableColumn>
         <ElTableColumn
@@ -928,14 +928,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           header-align="center"
           align="center"
           width="150"
-          prop="update"
+          prop="updatedAt"
           :label="t('reuse.update')"
         />
         <ElTableColumn
           header-align="center"
           align="center"
           width="150"
-          prop="status"
+          prop="approveStatus"
           :label="t('reuse.status')"
         />
         <ElTableColumn

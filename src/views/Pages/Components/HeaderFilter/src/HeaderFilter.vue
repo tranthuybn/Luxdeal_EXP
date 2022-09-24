@@ -145,7 +145,7 @@ function reLoadEvent() {
   searchingKey.value = ''
   periodSelected.value = ''
   verifyReset()
-  emit('refreshData', { Search: null, startDate: null, endDate: null })
+  emit('refreshData', { Keyword: null, Search: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
@@ -153,7 +153,7 @@ async function getDataEvent() {
     if (valid) {
       getFormData()
         .then((res) => {
-          emit('getData', { ...res, Search: searchingKey.value })
+          emit('getData', { ...res, Keyword: searchingKey.value, Search: searchingKey.value })
         })
         .catch((error) => {
           console.error(error)

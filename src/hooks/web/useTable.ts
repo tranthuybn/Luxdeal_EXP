@@ -13,7 +13,11 @@ interface TableResponse<T = any> {
   pageNumber: number
   pageSize: number
 }
-
+interface IPagination {
+  pageSize: Number
+  pageIndex: Number
+  count: Number
+}
 interface UseTableConfig<T = any> {
   getListApi: (option: any) => Promise<IResponse<TableResponse<T>>>
   delListApi?: (option: any) => Promise<IResponse>
@@ -26,6 +30,12 @@ interface UseTableConfig<T = any> {
 }
 
 interface TableObject<T = any> {
+  data: any
+  StatusCode: Number
+  Succeeded: boolean
+  Code: Number | String
+  Message: String
+  pagination: IPagination
   pageSize: number
   currentPage: number
   total: number
@@ -37,6 +47,16 @@ interface TableObject<T = any> {
 
 export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const tableObject = reactive<TableObject<T>>({
+    data: [],
+    StatusCode: 200,
+    Succeeded: true,
+    Code: '0000',
+    Message: 'success',
+    pagination: {
+      pageSize: 10,
+      pageIndex: 1,
+      count: 100
+    },
     // Number of pages
     pageSize: 10,
     // current page
@@ -122,8 +142,16 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const methods = {
     getList: async () => {
       tableObject.loading = true
-      const res = await config
+      await config
         ?.getListApi(unref(paramsObj))
+        .then((res) => {
+          ElNotification({
+            message: t('reuse.getDataSuccess'),
+            type: 'success'
+          })
+          tableObject.tableList = res.data
+          tableObject.total = get(res.pagination || {}, config?.response?.total as string) || 0
+        })
         .catch(() => {
           tableObject.tableList = []
           ElNotification({
@@ -134,18 +162,6 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
         .finally(() => {
           tableObject.loading = false
         })
-      if (res) {
-        ElNotification({
-          message: t('reuse.getDataSuccess'),
-          type: 'success'
-        })
-        if (res.data.list !== undefined) {
-          tableObject.tableList = res.data.list
-        } else {
-          tableObject.tableList = res.data
-        }
-        tableObject.total = get(res.pagination.count, config?.response?.total as string) || 0
-      }
     },
     setProps: async (props: TableProps = {}) => {
       const table = await getTable()

@@ -1,5 +1,6 @@
 import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
+import { serviceResponse } from 'mock/_reponseStructure'
 
 interface accountBallance {
   id: Number
@@ -68,12 +69,13 @@ export default [
       const pageList = accountBallance.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: accountBallance.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: accountBallance.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

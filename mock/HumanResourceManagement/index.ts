@@ -1,4 +1,5 @@
 import { config } from '@/config/axios/config'
+import { serviceResponse } from 'mock/_reponseStructure'
 import { productBranchList } from './branch'
 import { productDepartmentList } from './department'
 import { productRankList } from './rank'
@@ -17,12 +18,13 @@ export default [
       const pageList = productBranchList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productBranchList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productBranchList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -35,12 +37,13 @@ export default [
       const pageList = productDepartmentList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productDepartmentList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productDepartmentList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -53,12 +56,13 @@ export default [
       const pageList = productRankList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productRankList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productRankList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -71,12 +75,13 @@ export default [
       const pageList = productTypePersonnelList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productTypePersonnelList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productTypePersonnelList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

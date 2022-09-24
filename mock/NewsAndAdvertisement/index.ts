@@ -6,6 +6,7 @@ import { NewsList } from './newslist'
 import { bannerAdvertisementList, bannerAdvertisementListMock } from './bannerAdvertisement'
 import { members, MemberListMock } from './Forum/member'
 import Mock from 'mockjs'
+import { serviceResponse } from 'mock/_reponseStructure'
 const { result_code } = config
 const count = 77
 const timeout = 1000
@@ -24,12 +25,13 @@ export default [
       const pageList = NotificationList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: NotificationList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: NotificationList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -42,12 +44,13 @@ export default [
       const pageList = bannerAdvertisementList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: bannerAdvertisementList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: bannerAdvertisementList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -60,12 +63,13 @@ export default [
       const pageList = manageNews.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: manageNews.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: manageNews.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -78,12 +82,13 @@ export default [
       const pageList = PoliciesGuidelinesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: PoliciesGuidelinesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: PoliciesGuidelinesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -96,12 +101,13 @@ export default [
       const pageList = NewsList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: NewsList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: NewsList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },

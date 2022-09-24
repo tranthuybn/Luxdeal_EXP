@@ -181,6 +181,7 @@ export default {
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hàng',
+    consignmentReturnHistoryForCustomers: 'Lịch sử hoàn trả lại hàng ký gửi cho khách hàng',
     orderReceiptsGoods: 'Đơn nhập hàng',
     brandName: 'Tên Thương hiệu',
     deleteBrand: 'Xóa thương hiệu',
@@ -243,7 +244,12 @@ export default {
     totalAmountReceivable: 'Tổng tiền phải thu',
     VATNotIncluded: 'Không tính VAT',
     inventoryInformation: 'Thông tin tồn kho',
-    warehouseInformation: 'Thông tin kho'
+    warehouseInformation: 'Thông tin kho',
+    representative: 'Người đại diện',
+    enterRepresentative: 'Nhập người đại diện',
+    classify: 'Phân loại',
+    company: 'Công ty',
+    individual: 'Cá nhân'
   },
   button: {
     add: 'Thêm nhanh'
@@ -556,6 +562,7 @@ export default {
     companyInfo: 'Thông tin công ty',
     type: 'Loại hình',
     accountType: 'Loại tài khoản',
+    typeMoney: 'Loại tiền',
     fromDate: 'Từ ngày',
     toDate: 'Đến ngày',
     startDate: 'Ngày bắt đầu',
@@ -801,6 +808,9 @@ export default {
     byWeek: 'Theo tuần',
     byMonth: 'Theo tháng',
     byYear: 'Theo năm',
+    receiveConsignmentGoodsAtCounter: 'Nhận hàng ký gửi gửi tại quầy',
+    pawnMoney: 'Tiền gốc cầm đồ',
+    pawnfeeMoney: 'Tiền phí cầm đồ',
     //warehouse
     save: 'Lưu',
     addCategory: 'Thêm mới danh mục',
@@ -870,6 +880,7 @@ export default {
     hiding: 'Đang ẩn',
     home: 'Trang chủ',
     trending: 'Nổi bật',
+    informationServices: 'Thông tin dịch vụ',
     //forum
     recently: 'Gần đây',
     feature: 'Nổi bật',
@@ -930,6 +941,7 @@ export default {
     pauseOperation: 'Tạm dừng hoạt động',
     informationSeo: 'Thông tin SEO',
     path: 'Đường dẫn',
+    quantity: 'Số lượng',
     quantityTo: 'Số lượng đến',
     unitPrices: 'Đơn giá bán',
     promotionPrice: 'Giá khuyến mại',
@@ -958,12 +970,16 @@ export default {
     importExportCode: 'Mã đơn nhập/xuất',
     importExportForm: 'Hình thức nhập/xuất',
     importExportWarehouse: 'Kho nhập/xuất',
+    importWarehouse: 'Kho nhập',
     internalWarehouse: 'Kho nội bộ',
     consignmentWarehouse: 'Kho ký gửi',
     pawnStore: 'Kho cầm đồ',
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
     importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
+    internalPawnReturnAndRetentionHistoryForCustomers:
+      'Lịch sử trả lại/nhập kho nội bộ hàng cầm đồ cho khách hàng',
+
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
     rentalConsult: 'Tư vấn cho thuê',
@@ -1045,6 +1061,7 @@ export default {
     updateFail: 'Sửa thất bại',
     deleteUnit: 'Xóa đơn vị tính',
     unitType: 'Loại đơn vị tính',
+    singleType: 'Loại đơn',
     selectUnitLevel: 'Chọn cấp đơn vị tính',
     unitName: 'Tên đơn vị tính',
     inputUnit: 'Nhập tên đơn vị tính',
@@ -1092,7 +1109,6 @@ export default {
     settingPawnPrice: 'Cài đặt giá cầm đồ',
     settingSpaPrice: 'Cài đặt giá spa',
     depositFeeByMoney: 'Phí ký gửi theo số tiền',
-    quantity: ' Số lượng',
     interestMoneyFor1trPerDay: 'Tiền lãi/1tr/ngày',
     insuranceMoneyFor1trPerDay: 'Tiền bảo hiểm/1tr/ngày',
     moneyFee: ' Thành tiền phí',
@@ -1110,6 +1126,8 @@ export default {
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
     saveFail: 'Lưu thất bại',
-    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
+    cantFindData: 'Không thể tìm thấy dữ liệu',
+    getDataSuccess: 'Lấy dữ liệu thành công'
   }
 }

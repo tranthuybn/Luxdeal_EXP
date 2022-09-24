@@ -1,5 +1,5 @@
 import { Table, TableExpose } from '@/components/Table'
-import { ElTable, ElMessageBox, ElMessage } from 'element-plus'
+import { ElTable, ElMessageBox, ElMessage, ElNotification } from 'element-plus'
 import { ref, reactive, watch, computed, unref, nextTick } from 'vue'
 import { get } from 'lodash-es'
 import type { TableProps } from '@/components/Table/src/types'
@@ -122,16 +122,29 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const methods = {
     getList: async () => {
       tableObject.loading = true
-      const res = await config?.getListApi(unref(paramsObj)).finally(() => {
-        tableObject.loading = false
-      })
+      const res = await config
+        ?.getListApi(unref(paramsObj))
+        .catch(() => {
+          tableObject.tableList = []
+          ElNotification({
+            message: t('reuse.cantFindData'),
+            type: 'error'
+          })
+        })
+        .finally(() => {
+          tableObject.loading = false
+        })
       if (res) {
+        ElNotification({
+          message: t('reuse.getDataSuccess'),
+          type: 'success'
+        })
         if (res.data.list !== undefined) {
           tableObject.tableList = res.data.list
         } else {
           tableObject.tableList = res.data
         }
-        tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
+        tableObject.total = get(res.pagination.count, config?.response?.total as string) || 0
       }
     },
     setProps: async (props: TableProps = {}) => {

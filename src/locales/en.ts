@@ -181,6 +181,7 @@ export default {
     statusAndManipulation: 'Status and manipulation',
     temporaryStorage: 'Temporary storage',
     productImportHistory: 'Product import history',
+    consignmentReturnHistoryForCustomers: 'Consignment return history for customers',
     orderReceiptsGoods: 'Order receipts goods',
     brandName: 'Brand name',
     deleteBrand: 'Delete Brand',
@@ -242,7 +243,12 @@ export default {
     totalAmountReceivable: 'Total amount rêcivable',
     VATNotIncluded: 'VAT not included',
     inventoryInformation: 'Inventory information',
-    warehouseInformation: 'Warehouse information'
+    warehouseInformation: 'Warehouse information',
+    representative: 'Representative',
+    enterRepresentative: 'Enter representative',
+    classify: 'Classify',
+    company: 'Company',
+    individual: 'Individual'
   },
   button: {
     add: 'Add quick'
@@ -440,6 +446,7 @@ export default {
     videoAdvertising: 'Video advertising',
     searchEngines: 'Search engines',
     weeklyUserActivity: 'Weekly user activity',
+    quantity: 'Quantity',
     activeQuantity: 'Active quantity',
     monday: 'Monday',
     tuesday: 'Tuesday',
@@ -539,6 +546,7 @@ export default {
     contact: 'Contact',
     companyInfo: 'CompanyInformation',
     type: 'Type',
+    typeMoney: 'Type Money',
     accountType: 'Account type',
     fromDate: 'From date',
     toDate: 'To date',
@@ -771,6 +779,9 @@ export default {
     arisingInTheEndOfPeriod: 'Arising in the end of period',
     owed: 'owed',
     cash: 'cash',
+    PawnMoney: 'Pawn money',
+    pawnfeeMoney: 'Pawn fee money',
+    importWarehouse: 'Import wree',
     //approve management
     categoriesInfo: 'Categories Info',
     approveCondition: 'Approve Condition',
@@ -818,6 +829,7 @@ export default {
     addNewBranch: 'Add New Branch',
     numberOfEmployees: 'Number of employees',
     DepartmentName: 'Department of name',
+    informationServices: 'Information services',
     //Quan ly san pham
     currentlyLeased: 'Currently leased',
     quantitySold: 'Quantity Sold',
@@ -983,6 +995,7 @@ export default {
     //CSKH
     potentialCustomerHistory: 'Potential customer service history',
     deleteUnit: 'Are you sure want to delete ?',
+    singleType: 'Single type',
     unitType: 'Unit type',
     selectUnitLevel: 'Select unit level',
     unitName: 'Unit name',
@@ -1064,6 +1077,8 @@ export default {
     minute: 'minute',
     saveSuccess: 'Save success',
     saveFail: 'Save fail',
-    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet'
+    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet',
+    cantFindData: 'Cant Find Data',
+    getDataSuccess: 'Get data success'
   }
 }

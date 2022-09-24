@@ -1,16 +1,16 @@
 import Mock from 'mockjs'
 const SpaLibrary: {
   id: string
-  serviceCode: string
-  serviceName: string
+  code: string
+  name: string
   description: string
-  unitPrice: number
+  cost: number
   time: Date
-  insurance: string
-  image: string
-  createDate: Date
+  warranty: string
+  imageList: string
+  createdAt: Date
   creator: string
-  status: string
+  isActive: string
 }[] = []
 const status = ['Đang hoạt động', 'Chờ duyệt', 'Ngưng hoạt động']
 for (let i = 0; i < 100; i++) {
@@ -18,16 +18,16 @@ for (let i = 0; i < 100; i++) {
   SpaLibrary.push(
     Mock.mock({
       id: i,
-      createDate: '@date("dd/MM/yyyy")',
-      serviceCode: '@sentence(3, 5)',
-      serviceName: '@sentence(3, 5)',
+      createdAt: '@date("dd/MM/yyyy")',
+      code: '@sentence(3, 5)',
+      name: '@sentence(3, 5)',
       description: '@sentence(3, 5)',
-      unitPrice: '@natural(0,10000) đ',
+      cost: '@natural(0,10000) đ',
       time: '@natural(0,20)',
-      insurance: '@natural(0,20)',
-      image: '@image',
+      warranty: '@natural(0,20)',
+      imageList: '@image',
       creator: '@first',
-      status: status[random]
+      isActive: status[random]
     })
   )
 }

@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { FORM_DATA, objectToQueryParams } from '@/utils/format'
+import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
 const fixedBaseURL = true
 const request = useAxios()
@@ -13,6 +13,16 @@ export const getSpaProductCategories = async (params: any): Promise<IResponse> =
 }
 export const getPropertyProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/PropertyProduct/List', params })
+  return res && res.data
+}
+
+export const getSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 
@@ -126,7 +136,7 @@ export const deleteSpa = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const postSpa = async (data): Promise<IResponse> => {
-  data = FORM_DATA(data)
+  data = FORM_IMAGES(data)
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data },
     fixedBaseURL
@@ -134,17 +144,23 @@ export const postSpa = async (data): Promise<IResponse> => {
   return res && res.data
 }
 export const updateSpa = async (data): Promise<IResponse> => {
-  data = FORM_DATA(data)
-  const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data },
-    fixedBaseURL
-  )
+  data = FORM_IMAGES(data)
+  const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data }, fixedBaseURL)
   return res && res.data
 }
 export const getSpaById = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_SPASERVICE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data.data
+}
+export const deleteSpaImage = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_SPA_IMAGE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

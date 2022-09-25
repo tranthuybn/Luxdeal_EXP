@@ -28,25 +28,7 @@ import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { getProductsList } from '@/api/Business'
-// import MultipleOptionsBox from './MultipleOptionsBox.vue'
-// import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-// import { getCategories } from '@/api/LibraryAndSetting'
-// let rank1SelectOptions = reactive([])
-// const getProductList = async () => {
-//   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key })
-//     .then((res) => {
-//       if (res.data) {
-//         rank1SelectOptions = res.data.map((index) => ({
-//           label: index.name,
-//           value: index.id
-//         }))
-//       }
-//     })
-//     .catch((err) => {
-//       console.error(err)
-//     })
-// }
-// console.log('rank1', rank1SelectOptions)
+
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
@@ -927,7 +909,7 @@ const optionsCustomer = [
                       </el-button>
                       <el-dialog
                         v-model="dialogFormVisible"
-                        width="35%"
+                        width="40%"
                         align-center
                         title="Địa chỉ nhận hàng"
                       >
@@ -940,7 +922,7 @@ const optionsCustomer = [
                             <el-select
                               v-model="valueProvince"
                               style="width: 96%"
-                              class="m-2"
+                              class="m-2 fix-full-width"
                               placeholder="Select"
                             >
                               <el-option
@@ -958,7 +940,7 @@ const optionsCustomer = [
                             <el-select
                               v-model="valueDistrict"
                               style="width: 96%"
-                              class="m-2"
+                              class="m-2 fix-full-width"
                               placeholder="Select"
                             >
                               <el-option
@@ -976,7 +958,7 @@ const optionsCustomer = [
                             <el-select
                               v-model="valueCommune"
                               style="width: 96%"
-                              class="m-2"
+                              class="m-2 fix-full-width"
                               placeholder="Select"
                             >
                               <el-option
@@ -993,7 +975,7 @@ const optionsCustomer = [
                             }}</label>
                             <el-input
                               v-model="enterdetailAddress"
-                              class="m-2"
+                              class="m-2 fix-full-width"
                               style="width: 96%"
                               placeholder="Please input"
                             />
@@ -1162,18 +1144,6 @@ const optionsCustomer = [
                 />
               </el-select>
             </template>
-            <!-- <MultipleOptionsBox
-              :fields="warehouseFields"
-              :items="wareHouseList"
-              :valueKey="'id'"
-              :labelKey="'name'"
-              :hiddenKey="['id', 'isSpa']"
-              :placeHolder="'Chọn kho hàng'"
-              @updateValue="emitWareHouseEvent"
-              :defaultValue="warehouseSelected"
-              :disabled="actionsType === 1"
-              :clearable="false"
-            /> -->
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="680" />
           <el-table-column :label="t('reuse.accessory')" width="180">
@@ -1250,7 +1220,6 @@ const optionsCustomer = [
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
-            <!-- <div class="text-blue-500 cursor-pointer"> -->
             <el-dropdown trigger="click">
               <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                 {{ t('formDemo.doesNotIncludeVAT') }}
@@ -1293,7 +1262,6 @@ const optionsCustomer = [
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <!-- </div> -->
 
             <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
           </el-table-column>
@@ -1588,15 +1556,7 @@ const optionsCustomer = [
   word-break: break-word;
 }
 
-::v-deep(.input-width > .el-select .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-select .el-input) {
+::v-deep(.el-select .el-input) {
   width: 100% !important;
 }
 </style>

@@ -14,7 +14,12 @@ import {
   ElInput,
   ElRadioGroup,
   ElRadio,
-  ElCheckbox
+  ElCheckbox,
+  ElDialog,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElDatePicker
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -335,56 +340,6 @@ const activeName = ref(collapse[0].name)
 // Select kỳ hạn thuê
 const leaseTerm = ref('')
 const alreadyPaidForTt = ref(true)
-const optionsLeaseTerm = [
-  {
-    value: '1',
-    label: '1'
-  },
-  {
-    value: '2',
-    label: '2'
-  },
-  {
-    value: '3',
-    label: '3'
-  },
-  {
-    value: '4',
-    label: '4'
-  },
-  {
-    value: '5',
-    label: '5'
-  },
-  {
-    value: '6',
-    label: '6'
-  },
-  {
-    value: '7',
-    label: '7'
-  },
-  {
-    value: '8',
-    label: '8'
-  },
-  {
-    value: '9',
-    label: '9'
-  },
-  {
-    value: '10',
-    label: '10'
-  },
-  {
-    value: '11',
-    label: '11'
-  },
-  {
-    value: '12',
-    label: '12'
-  }
-]
 
 // Select loại tiền
 const kindOfMoney = [
@@ -397,6 +352,117 @@ const kindOfMoney = [
     label: t('formDemo.fee')
   }
 ]
+
+const dialogAddQuick = ref(false)
+// phân loại khách hàng: 1: công ty, 2: cá nhân
+const valueClassify = ref('company')
+const optionsClassify = [
+  {
+    value: 'company',
+    label: t('formDemo.company')
+  },
+  {
+    value: 'individual',
+    label: t('formDemo.individual')
+  }
+]
+// select khách hàng
+const valueSelectCustomer = ref(t('formDemo.customer'))
+const optionsCustomer = [
+  {
+    value: 'customer',
+    label: t('formDemo.customer')
+  }
+]
+// start date and end date
+const dateTime = ref('')
+
+// const openDialogChoosePromotion = ref(false)
+const radioVAT = ref(false)
+const dialogFormVisible = ref(false)
+const valueProvince = ref('')
+const valueDistrict = ref('')
+const valueCommune = ref('')
+
+const province = [
+  {
+    value: 'HN',
+    label: 'HN'
+  },
+  {
+    value: 'TP.HCM',
+    label: 'TP.HCM'
+  },
+  {
+    value: 'ĐN',
+    label: 'ĐN'
+  },
+  {
+    value: 'Vinh',
+    label: 'Vinh'
+  },
+  {
+    value: 'Nha Trang',
+    label: 'Nha Trang'
+  }
+]
+const district = [
+  {
+    value: 'Thanh Xuan',
+    label: 'Thanh Xuan'
+  },
+  {
+    value: 'Hai Ba Trung',
+    label: 'Hai Ba Trung'
+  },
+  {
+    value: 'Dong Da',
+    label: 'Dong Da'
+  },
+  {
+    value: 'Vinh',
+    label: 'Vinh'
+  },
+  {
+    value: 'Nha Trang',
+    label: 'Nha Trang'
+  }
+]
+const enterdetailAddress = ref('')
+const openDialogChoosePromotion = ref(false)
+// promo table
+const promoTable = [
+  {
+    radioSelect: '',
+    name: `FGD3443D
+    Giảm giá 60% đơn hàng...
+    Áp dụng cho đơn hàng từ 300`,
+    discount: '50%'
+  },
+  {
+    radioSelect: '',
+    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
+    discount: '50%'
+  },
+  {
+    radioSelect: '',
+    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
+    discount: '50%'
+  },
+  {
+    radioSelect: '',
+    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
+    discount: '50%'
+  },
+  {
+    radioSelect: '',
+    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
+    discount: '50%'
+  }
+]
+const checkDiscount = ref(false)
+// Chọn kỳ thanh toán phí thuê
+const chooseRentalPaymentPeriod = ref('')
 </script>
 
 <template>
@@ -428,38 +494,66 @@ const kindOfMoney = [
                 </div>
               </template>
               <template #leaseTerm>
-                <div class="flex items-center w-[98%] gap-4">
-                  <label class="w-[18%] text-right ml-3" for="">{{
-                    t('formDemo.leaseTerm')
-                  }}</label>
-                  <el-select
-                    v-model="leaseTerm"
-                    class="w-[80%] outline-none"
-                    placeholder="Theo tháng"
-                    size="large"
-                  >
-                    <el-option
-                      v-for="item in optionsLeaseTerm"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                <div class="flex items-center w-[100%] gap-4">
+                  <label class="w-[16%] text-right">{{ t('formDemo.leaseTerm') }}</label>
+                  <el-dropdown trigger="click" class="border-1 rounded min-h-[40px] w-[80%]">
+                    <span
+                      class="el-dropdown-link cursor-pointer flex items-center pl-2 w-[100%] justify-between"
+                    >
+                      {{ t('reuse.byDay') }}
+                      <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                    </span>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item>
+                          <el-radio-group v-model="leaseTerm" class="flex-col">
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: #3b82f6"
+                                label="1"
+                                size="large"
+                                >{{ t('reuse.byDay') }}</el-radio
+                              >
+                            </div>
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: #3b82f6"
+                                label="2"
+                                size="large"
+                                >{{ t('reuse.byWeek') }}</el-radio
+                              >
+                            </div>
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: #3b82f6"
+                                label="3"
+                                size="large"
+                                >{{ t('reuse.byMonth') }}</el-radio
+                              >
+                            </div>
+                          </el-radio-group>
+                        </el-dropdown-item>
+                        <el-dropdown-item divided>
+                          <div style="width: 100%; text-align: center"> Confirm </div>
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
                 </div>
               </template>
               <template #rentalPeriod>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.rentalPeriod') }}</label>
                   <div class="flex w-[80%] gap-2">
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('formDemo.startDay')}`"
-                    />
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('formDemo.endDay')}`"
+                    <el-date-picker
+                      v-model="dateTime"
+                      type="daterange"
+                      :start-placeholder="t('formDemo.startDay')"
+                      :end-placeholder="t('formDemo.endDay')"
+                      format="DD/MM/YYYY"
                     />
                   </div>
                 </div>
@@ -470,11 +564,70 @@ const kindOfMoney = [
                     t('formDemo.rentalPaymentPeriod')
                   }}</label>
                   <div class="flex w-[80%] gap-2">
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('formDemo.byMonth')}`"
-                    />
+                    <el-dropdown trigger="click" class="w-[50%]">
+                      <span
+                        class="el-dropdown-link pl-2 cursor-pointer flex items-center border-1 w-[100%] justify-between"
+                      >
+                        {{ t('formDemo.onetimePaymentInAdvance') }}
+                        <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                      </span>
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item>
+                            <el-radio-group v-model="chooseRentalPaymentPeriod" class="flex-col">
+                              <div style="width: 100%">
+                                <el-radio
+                                  class="text-left"
+                                  style="color: #3b82f6"
+                                  label="1"
+                                  size="large"
+                                  >{{ t('formDemo.onetimePaymentInAdvance') }}</el-radio
+                                >
+                              </div>
+                              <div style="width: 100%">
+                                <el-radio
+                                  class="text-left"
+                                  style="color: #3b82f6"
+                                  label="2"
+                                  size="large"
+                                  >{{ t('formDemo.payAfterOneTime') }}</el-radio
+                                >
+                              </div>
+                              <div style="width: 100%">
+                                <el-radio
+                                  class="text-left"
+                                  style="color: #3b82f6"
+                                  label="3"
+                                  size="large"
+                                  >{{ t('reuse.byDay') }}</el-radio
+                                >
+                              </div>
+                              <div style="width: 100%">
+                                <el-radio
+                                  class="text-left"
+                                  style="color: #3b82f6"
+                                  label="4"
+                                  size="large"
+                                  >{{ t('reuse.byWeek') }}</el-radio
+                                >
+                              </div>
+                              <div style="width: 100%">
+                                <el-radio
+                                  class="text-left"
+                                  style="color: #3b82f6"
+                                  label="5"
+                                  size="large"
+                                  >{{ t('reuse.byMonth') }}</el-radio
+                                >
+                              </div>
+                            </el-radio-group>
+                          </el-dropdown-item>
+                          <el-dropdown-item divided>
+                            <div style="width: 100%; text-align: center"> Confirm </div>
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </template>
+                    </el-dropdown>
                     <input
                       class="w-[50%] border-1 outline-none pl-2"
                       type="text"
@@ -492,11 +645,14 @@ const kindOfMoney = [
                       type="text"
                       :placeholder="`${t('formDemo.selectOrEnterTheCollaboratorCode')}`"
                     />
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('formDemo.enterDiscount')}`"
-                    />
+                    <div class="flex items-center w-[50%] border-1 rounded">
+                      <input
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        type="text"
+                        :placeholder="`${t('formDemo.enterDiscount')}`"
+                      />
+                      <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
+                    </div>
                   </div>
                 </div>
               </template>
@@ -610,11 +766,197 @@ const kindOfMoney = [
                         type="text"
                         :placeholder="`${t('formDemo.chooseACustomer')}`"
                       />
-                      <button
-                        @click.stop.prevent="doThis"
-                        class="border-1 pl-4 pr-4 font-bold border-blue-500"
-                        >+ {{ t('button.add') }}</button
+                      <div class="border-1 border-blue-500">
+                        <el-button text @click="dialogAddQuick = true"
+                          >+ {{ t('button.add') }}</el-button
+                        >
+                      </div>
+                      <el-dialog
+                        v-model="dialogAddQuick"
+                        width="40%"
+                        align-center
+                        :title="`${t('formDemo.QuicklyAddCustomers')}`"
+                        v-if="valueClassify == 'company'"
                       >
+                        <el-divider />
+                        <div>
+                          <div class="flex gap-4 pt-4 pb-4 items-center">
+                            <label class="w-[30%] text-right max-w-[162.73px]">{{
+                              t('formDemo.classify')
+                            }}</label>
+                            <div class="w-[80%] flex gap-2">
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueClassify"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsClassify"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueSelectCustomer"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsCustomer"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.companyName')
+                            }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterCompanyName')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterTaxCode')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.representative')
+                            }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterRepresentative')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterTaxCode')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{
+                              t('formDemo.representative')
+                            }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterRepresentative')}`"
+                            />
+                          </div>
+                        </div>
+                        <template #footer>
+                          <span class="dialog-footer">
+                            <el-button
+                              type="primary"
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.save') }}</el-button
+                            >
+                            <el-button
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.exit') }}</el-button
+                            >
+                          </span>
+                        </template>
+                      </el-dialog>
+                      <el-dialog
+                        v-model="dialogAddQuick"
+                        v-else
+                        width="40%"
+                        align-center
+                        :title="`${t('formDemo.QuicklyAddCustomers')}`"
+                      >
+                        <el-divider />
+                        <div>
+                          <div class="flex gap-4 pt-4 pb-4 items-center">
+                            <label class="w-[30%] text-right max-w-[162.73px]">{{
+                              t('formDemo.classify')
+                            }}</label>
+                            <div class="w-[80%] flex gap-2">
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueClassify"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsClassify"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                              <div class="w-[50%] fix-full-width">
+                                <el-select
+                                  v-model="valueSelectCustomer"
+                                  placeholder="Select"
+                                  size="large"
+                                >
+                                  <el-option
+                                    v-for="item in optionsCustomer"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                  />
+                                </el-select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                            />
+                          </div>
+
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                            />
+                          </div>
+                          <div class="flex gap-4 pt-4 pb-4">
+                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                            <el-input
+                              style="width: 100%"
+                              :placeholder="`${t('formDemo.enterEmail')}`"
+                            />
+                          </div>
+                        </div>
+                        <template #footer>
+                          <span class="dialog-footer">
+                            <el-button
+                              type="primary"
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.save') }}</el-button
+                            >
+                            <el-button
+                              class="w-[150px]"
+                              @click.stop.prevent="dialogAddQuick = false"
+                              >{{ t('reuse.exit') }}</el-button
+                            >
+                          </span>
+                        </template>
+                      </el-dialog>
                     </div>
                   </div>
                   <div class="flex w-[50%] max-h-[42px]">
@@ -650,9 +992,102 @@ const kindOfMoney = [
                       t('formDemo.deliveryAddress')
                     }}</p>
                     <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
-                    <p class="text-blue-500 cursor-pointer"
-                      >+ {{ t('formDemo.changeTheAddress') }}</p
-                    >
+                    <p>
+                      <el-button
+                        class="hover:bg-transparent; focus:bg-transparent"
+                        text
+                        @click="dialogFormVisible = true"
+                        ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
+                      </el-button>
+                      <el-dialog
+                        v-model="dialogFormVisible"
+                        width="40%"
+                        align-center
+                        title="Địa chỉ nhận hàng"
+                      >
+                        <el-divider />
+                        <div>
+                          <div class="flex w-[100%] gap-4 items-center">
+                            <label class="w-[25%] text-right">{{
+                              t('formDemo.provinceOrCity')
+                            }}</label>
+                            <el-select
+                              v-model="valueProvince"
+                              style="width: 96%"
+                              class="m-2 fix-full-width"
+                              placeholder="Select"
+                            >
+                              <el-option
+                                v-for="item in province"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </div>
+                          <div class="flex w-[100%] gap-4 items-center">
+                            <label class="w-[25%] text-right">{{
+                              t('formDemo.countyOrDistrict')
+                            }}</label>
+                            <el-select
+                              v-model="valueDistrict"
+                              style="width: 96%"
+                              class="m-2 fix-full-width"
+                              placeholder="Select"
+                            >
+                              <el-option
+                                v-for="item in district"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </div>
+                          <div class="flex w-[100%] gap-4 items-center">
+                            <label class="w-[25%] text-right">{{
+                              t('formDemo.wardOrCommune')
+                            }}</label>
+                            <el-select
+                              v-model="valueCommune"
+                              style="width: 96%"
+                              class="m-2 fix-full-width"
+                              placeholder="Select"
+                            >
+                              <el-option
+                                v-for="item in choosePayment"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </div>
+                          <div class="flex w-[100%] gap-4 items-center">
+                            <label class="w-[25%] text-right">{{
+                              t('formDemo.detailedAddress')
+                            }}</label>
+                            <el-input
+                              v-model="enterdetailAddress"
+                              class="m-2 fix-full-width"
+                              style="width: 96%"
+                              placeholder="Please input"
+                            />
+                          </div>
+                        </div>
+                        <template #footer>
+                          <span class="dialog-footer">
+                            <el-button
+                              class="w-[150px]"
+                              type="primary"
+                              @click="dialogFormVisible = false"
+                              >{{ t('reuse.save') }}</el-button
+                            >
+                            <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
+                              t('reuse.exit')
+                            }}</el-button>
+                          </span>
+                        </template>
+                      </el-dialog>
+                    </p>
                   </div>
                 </div>
               </template>
@@ -662,15 +1097,7 @@ const kindOfMoney = [
                   <div class="leading-6 mt-2">
                     <div>Nguyễn Phương Linh</div>
                     <div>Số điện thoại: 094345355</div>
-                  </div>
-                </div>
-                <div class="flex gap-4 w-[100%]">
-                  <label class="w-[16%] text-right">{{ t('formDemo.companyInformation') }}</label>
-                  <div class="leading-6 mt-2">
-                    <div>Công ty cổ phần Bắc Á</div>
-                    <div>Mã số thuế: 0994563243</div>
-                    <div>Địa chỉ: 79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
-                    <div>Email: info@baca.com</div>
+                    <div>Email: baca@gmail.com</div>
                   </div>
                 </div>
               </template>
@@ -678,6 +1105,64 @@ const kindOfMoney = [
           </div>
         </div>
       </el-collapse-item>
+      <!-- DialogPromotion -->
+      <el-dialog
+        v-model="openDialogChoosePromotion"
+        title="Warning"
+        width="35%"
+        align-center
+        class="z-50"
+      >
+        <el-divider />
+        <div>
+          <div class="flex items-center gap-3">
+            <el-input
+              style="width: 100%"
+              v-model="input"
+              :placeholder="t('formDemo.enterPromoCode')"
+            />
+            <el-button class="w-[150px] border-1 border-blue-500" plain>{{
+              t('formDemo.apply')
+            }}</el-button>
+          </div>
+          <div class="bg-[#F4F8FD] mt-2 mb-4">
+            <div class="ml-2 text-blue-500">FGF3443D</div>
+            <div class="ml-2 text-blue-500">Giảm giá 60% đơn hàng ...</div>
+            <div class="ml-2 text-blue-500">Áp dụng cho đơn hàng từ 300k</div>
+          </div>
+          <div class="flex items-center">
+            <h2 class="font-bold text-base w-[40%]">Hoặc chọn mã có sẵn</h2>
+            <el-divider />
+          </div>
+          <el-table :data="promoTable" border>
+            <el-table-column
+              v-model="checkDiscount"
+              width="50"
+              prop="radioSelect"
+              label-class-name="noHeader"
+              align="center"
+            >
+              <template #default="props">
+                <el-radio v-model="props.row.discount" size="large" />
+              </template>
+            </el-table-column>
+            <el-table-column label="Name" prop="name">
+              <template #header> </template>
+            </el-table-column>
+            <el-table-column prop="discount" width="120" align="left" />
+          </el-table>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="openDialogChoosePromotion = false"
+              >{{ t('reuse.save') }}
+            </el-button>
+            <el-button class="w-[150px]" @click="openDialogChoosePromotion = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
@@ -761,8 +1246,55 @@ const kindOfMoney = [
           <el-table-column width="180" />
           <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
-            <div class="text-blue-500 cursor-pointer">+ {{ t('formDemo.choosePromotion') }}</div>
-            <div class="text-blue-500 cursor-pointer">{{ t('formDemo.doesNotIncludeVAT') }} </div>
+            <div class="text-blue-500 cursor-pointer">
+              <el-button text @click="openDialogChoosePromotion = true" style="padding: 0">
+                <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
+              </el-button>
+            </div>
+            <div class="text-blue-500 cursor-pointer">
+              <el-dropdown trigger="click">
+                <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
+                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-radio-group v-model="radioVAT" class="flex-col">
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="1" size="large">{{
+                            t('formDemo.VATNotIncluded')
+                          }}</el-radio>
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="2" size="large"
+                            >VAT 10%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="3" size="large"
+                            >VAT 8%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="4" size="large"
+                            >VAT 5%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="5" size="large"
+                            >VAT 0%</el-radio
+                          >
+                        </div>
+                      </el-radio-group>
+                    </el-dropdown-item>
+                    <el-dropdown-item divided>
+                      <div style="width: 100%; text-align: center"> Confirm </div>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
             <div class="dark:text-[#fff]">{{ t('formDemo.totalFees') }}</div>
             <div class="dark:text-[#fff]">{{ t('formDemo.totalDeposit') }}</div>
           </el-table-column>
@@ -982,5 +1514,41 @@ const kindOfMoney = [
 
 ::v-deep(.el-divider__text) {
   font-size: 16px;
+}
+::v-deep(.el-dialog__body) {
+  padding-top: 0;
+}
+
+::v-deep(.el-dialog__header) {
+  padding-bottom: 0;
+}
+
+::v-deep(.el-range-editor.el-input__wrapper) {
+  padding: 0;
+}
+::v-deep(.demo-date-picker) {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  flex-wrap: wrap;
+}
+::v-deep(.demo-date-picker .block) {
+  padding: 30px 0;
+  text-align: center;
+  border-right: solid 1px var(--el-border-color);
+  flex: 1;
+}
+::v-deep(.demo-date-picker .block:last-child) {
+  border-right: none;
+}
+::v-deep(.demo-date-picker .demonstration) {
+  display: block;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+::v-deep(.el-popper-container-177 > .el-popper) {
+  left: 399 !important;
 }
 </style>

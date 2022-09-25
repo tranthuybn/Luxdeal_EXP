@@ -249,7 +249,9 @@ export default {
     enterRepresentative: 'Nhập người đại diện',
     classify: 'Phân loại',
     company: 'Công ty',
-    individual: 'Cá nhân'
+    individual: 'Cá nhân',
+    onetimePaymentInAdvance: 'Trả trước một lần',
+    payAfterOneTime: 'Trả sau một lần'
   },
   button: {
     add: 'Thêm nhanh'
@@ -1109,7 +1111,6 @@ export default {
     settingPawnPrice: 'Cài đặt giá cầm đồ',
     settingSpaPrice: 'Cài đặt giá spa',
     depositFeeByMoney: 'Phí ký gửi theo số tiền',
-    quantity: ' Số lượng',
     interestMoneyFor1trPerDay: 'Tiền lãi/1tr/ngày',
     insuranceMoneyFor1trPerDay: 'Tiền bảo hiểm/1tr/ngày',
     moneyFee: ' Thành tiền phí',

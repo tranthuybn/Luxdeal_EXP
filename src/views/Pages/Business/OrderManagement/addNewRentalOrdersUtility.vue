@@ -14,7 +14,10 @@ import {
   ElInput,
   ElRadioGroup,
   ElRadio,
-  ElCheckbox
+  ElCheckbox,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -333,58 +336,22 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 // Select kỳ hạn thuê
-const leaseTerm = ref('')
+// const leaseTerm = ref('')
 const alreadyPaidForTt = ref(true)
-const optionsLeaseTerm = [
-  {
-    value: '1',
-    label: '1'
-  },
-  {
-    value: '2',
-    label: '2'
-  },
-  {
-    value: '3',
-    label: '3'
-  },
-  {
-    value: '4',
-    label: '4'
-  },
-  {
-    value: '5',
-    label: '5'
-  },
-  {
-    value: '6',
-    label: '6'
-  },
-  {
-    value: '7',
-    label: '7'
-  },
-  {
-    value: '8',
-    label: '8'
-  },
-  {
-    value: '9',
-    label: '9'
-  },
-  {
-    value: '10',
-    label: '10'
-  },
-  {
-    value: '11',
-    label: '11'
-  },
-  {
-    value: '12',
-    label: '12'
-  }
-]
+// const optionsLeaseTerm = [
+//   {
+//     value: '1',
+//     label: '1'
+//   },
+//   {
+//     value: '2',
+//     label: '2'
+//   },
+//   {
+//     value: '3',
+//     label: '3'
+//   }
+// ]
 
 // Select loại tiền
 const kindOfMoney = [
@@ -397,6 +364,8 @@ const kindOfMoney = [
     label: t('formDemo.fee')
   }
 ]
+
+const radioVAT = ref(false)
 </script>
 
 <template>
@@ -428,23 +397,55 @@ const kindOfMoney = [
                 </div>
               </template>
               <template #leaseTerm>
-                <div class="flex items-center w-[98%] gap-4">
-                  <label class="w-[18%] text-right ml-3" for="">{{
-                    t('formDemo.leaseTerm')
-                  }}</label>
-                  <el-select
-                    v-model="leaseTerm"
-                    class="w-[80%] outline-none"
-                    placeholder="Theo tháng"
-                    size="large"
-                  >
-                    <el-option
-                      v-for="item in optionsLeaseTerm"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                <div class="flex items-center w-[100%] gap-4">
+                  <label class="w-[16%] text-right">{{ t('formDemo.leaseTerm') }}</label>
+                  <el-dropdown trigger="click" class="w-[80%] border-1 cursor-pointer">
+                    <div
+                      class="el-dropdown-link flex items-center justify-between pl-2 w-[100%] min-h-[40px]"
+                    >
+                      {{ t('formDemo.doesNotIncludeVAT') }}
+                      <Icon class="mr-2" icon="material-symbols:keyboard-arrow-down" :size="16" />
+                    </div>
+
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item
+                          ><el-radio-group v-model="radioVAT" class="flex-col">
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: blue"
+                                label="1"
+                                size="large"
+                                >{{ t('reuse.byDay') }}</el-radio
+                              >
+                            </div>
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: blue"
+                                label="2"
+                                size="large"
+                                >{{ t('reuse.byWeek') }}</el-radio
+                              >
+                            </div>
+                            <div style="width: 100%">
+                              <el-radio
+                                class="text-left"
+                                style="color: blue"
+                                label="3"
+                                size="large"
+                                >{{ t('reuse.byMonth') }}</el-radio
+                              >
+                            </div>
+                          </el-radio-group></el-dropdown-item
+                        >
+                        <el-dropdown-item divided>
+                          <div style="width: 100%; text-align: center"> Confirm </div>
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
                 </div>
               </template>
               <template #rentalPeriod>
@@ -982,5 +983,8 @@ const kindOfMoney = [
 
 ::v-deep(.el-divider__text) {
   font-size: 16px;
+}
+::v-deep(.el-popper.is-light) {
+  left: 261px !important;
 }
 </style>

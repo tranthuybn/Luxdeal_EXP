@@ -28,7 +28,8 @@ import {
   ElFormItem,
   FormInstance,
   ElSelect,
-  ElOption
+  ElOption,
+  ElTree
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -59,36 +60,43 @@ onBeforeMount(async () => {
 })
 const getAttributeData = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 100, pageIndex: 1 }).then(
-    (res) => (colorData = res.data.map((color) => ({ label: color.name, value: color.id })))
+    (res) =>
+      (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
   )
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[2].key, pageSize: 100, pageIndex: 1 }).then(
-    (res) => (sizeData = res.data.map((size) => ({ label: size.name, value: size.id })))
+    (res) =>
+      (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
   )
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[3].key, pageSize: 100, pageIndex: 1 }).then(
     (res) =>
-      (materialData = res.data.map((material) => ({ label: material.name, value: material.id })))
+      (materialData = res.data.map((material) => ({
+        label: material.name,
+        value: material.id,
+        parentid: 3
+      })))
   )
   treeSelectData.value[0].children = colorData
   treeSelectData.value[1].children = sizeData
   treeSelectData.value[2].children = materialData
 }
-const attributeTreeValue = (data) => {
-  console.log('treeData', data)
-}
+const treeRef = ref<InstanceType<typeof ElTree>>()
 const treeSelectData = ref([
   {
     value: 1,
     label: t('reuse.color'),
+    parentid: 0,
     children: []
   },
   {
     value: 2,
     label: t('reuse.size'),
+    parentid: 0,
     children: []
   },
   {
     value: 3,
     label: t('reuse.material'),
+    parentid: 0,
     children: []
   }
 ])
@@ -182,13 +190,55 @@ const OpenCollapse = () => {
 const activeName = ref(collapse[0].name)
 const handleEditRow = (data) => {
   data.edited = true
+  data.categoriesValue = []
+  data.categoriesValue.push(data.categories[2].id, data.categories[3].id, data.categories[4].id)
+  console.log('data', data.categoriesValue)
 }
 const handleSaveRow = (data) => {
   console.log('tree', treeSelectData, colorData)
   data.edited = false
 }
-const localeChange = (show: boolean) => {
-  console.log(show)
+const customCheck = (nodeObj, _selected, _subtree, row) => {
+  const tree = treeRef.value!.getCheckedNodes(false, false)
+  let sameParent = false
+  switch (nodeObj.parentid) {
+    case 0:
+      sameParent = true
+      break
+    case 1:
+      tree.map((node) => {
+        if (node.parentid == 1 && node.value != nodeObj.value) {
+          sameParent = true
+          return
+        }
+      })
+      break
+    case 2:
+      tree.map((node) => {
+        if (node.parentid == 2 && node.value != nodeObj.value) {
+          sameParent = true
+          return
+        }
+      })
+      break
+    case 3:
+      tree.map((node) => {
+        if (node.parentid == 3 && node.value != nodeObj.value) {
+          sameParent = true
+          return
+        }
+      })
+      break
+  }
+  if (sameParent) {
+    ElNotification({
+      message: t('reuse.cantChooseMultipleValueForOneAttribute'),
+      type: 'warning'
+    })
+    treeRef.value!.setChecked(nodeObj.value, false, false)
+  }
+  row.categoriesValue = treeRef.value!.getCheckedNodes(false, false).map((node) => node.value)
+  row.categoriesLabel = treeRef.value!.getCheckedNodes(false, false).map((node) => node.label)
 }
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
@@ -793,14 +843,25 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         >
           <template #default="scope">
             <ElTreeSelect
-              :value="scope.row.categories[2].value"
+              v-model="scope.row.categoriesValue"
               :data="treeSelectData"
               multiple
+              accordion
+              check-strictly
               :render-after-expand="false"
               v-if="scope.row.edited"
-              @change="(value) => attributeTreeValue(value)"
+              @check-change="
+                (nodeObj, selected, subtree) => customCheck(nodeObj, selected, subtree, scope.row)
+              "
+              ref="treeRef"
+              show-checkbox
+              node-key="value"
             />
-            <span v-else>{{ scope.row.categories[2].value }}</span>
+            <span v-else>{{
+              scope.row.categoriesLabel
+                ? scope.row.categoriesLabel.toString()
+                : `${scope.row.categories[2].value},${scope.row.categories[3].value},${scope.row.categories[4].value}`
+            }}</span>
           </template>
         </ElTableColumn>
         <ElTableColumn
@@ -819,7 +880,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 @click="openSellTable(scope.row.featureGroup)"
                 >{{ t('reuse.addPrice') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
+              <ElSwitch
+                :model-value="scope.row.bussinessSetups[0]?.value"
+                size="large"
+                inline-prompt
+                active-text="On"
+                inactive-text="Off"
+                @change="(data) => (scope.row.bussinessSetups[0].value = data)"
+              />
             </div>
           </template>
         </ElTableColumn>
@@ -840,7 +908,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 @click="openRentTable(scope.row.featureGroup)"
                 >{{ t('reuse.addPrice') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingRent" @change="localeChange" />
+              <ElSwitch
+                :model-value="scope.row.bussinessSetups[1]?.value"
+                size="large"
+                inline-prompt
+                active-text="On"
+                inactive-text="Off"
+                @change="(data) => (scope.row.bussinessSetups[1].value = data)"
+              />
             </div>
           </template>
         </ElTableColumn>
@@ -860,7 +935,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 @click="openDepositTable(scope.row.featureGroup)"
                 >{{ t('reuse.addPrice') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingDeposit" @change="localeChange" />
+              <ElSwitch
+                :model-value="scope.row.bussinessSetups[2]?.value"
+                size="large"
+                inline-prompt
+                active-text="On"
+                inactive-text="Off"
+                @change="(data) => (scope.row.bussinessSetups[2].value = data)"
+              />
             </div>
           </template>
         </ElTableColumn>
@@ -880,7 +962,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 @click="openPawnTable(scope.row.featureGroup)"
                 >{{ t('reuse.addPrice') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingPawn" @change="localeChange" />
+              <ElSwitch
+                :model-value="scope.row.bussinessSetups[3]?.value"
+                size="large"
+                inline-prompt
+                active-text="On"
+                inactive-text="Off"
+                @change="(data) => (scope.row.bussinessSetups[3].value = data)"
+              />
             </div>
           </template>
         </ElTableColumn>
@@ -900,7 +989,14 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 @click="openSpaTable(scope.row.featureGroup)"
                 >{{ t('reuse.addPrice') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingSpa" @change="localeChange" />
+              <ElSwitch
+                :model-value="scope.row.bussinessSetups[4]?.value"
+                size="large"
+                inline-prompt
+                active-text="On"
+                inactive-text="Off"
+                @change="(data) => (scope.row.bussinessSetups[4].value = data)"
+              />
             </div>
           </template>
         </ElTableColumn>

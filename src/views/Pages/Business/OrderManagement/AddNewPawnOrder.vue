@@ -339,13 +339,13 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref('1')
+const activeName = ref(collapse[0].name)
 </script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item name="1">
+      <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
@@ -374,7 +374,7 @@ const activeName = ref('1')
                 <div class="flex items-center w-[100%] gap-4">
                   <div class="w-[15%] ml-2 text-right leading-5">
                     <label class="w-[15%] leading-5" for="">{{ t('formDemo.pawnTerm') }}</label>
-                    <p class="text-[#FECB80]">{{ t('formDemo.atLeast10Days') }}</p>
+                    <p class="text-[#FECB80]">{{ t('formDemo.atLeastTenDays') }}</p>
                   </div>
 
                   <div class="flex w-[80%] gap-2">
@@ -465,7 +465,7 @@ const activeName = ref('1')
             <div class="flex">
               <div class="pl-5">
                 <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThan10Records') }}</div>
+                <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThanTenProfiles') }}</div>
               </div>
               <div class="pl-4">
                 <el-upload
@@ -596,7 +596,7 @@ const activeName = ref('1')
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item name="2">
+      <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
@@ -803,7 +803,7 @@ const activeName = ref('1')
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item name="3">
+      <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>

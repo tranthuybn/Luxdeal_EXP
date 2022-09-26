@@ -249,7 +249,25 @@ export default {
     enterRepresentative: 'Nhập người đại diện',
     classify: 'Phân loại',
     company: 'Công ty',
-    individual: 'Cá nhân'
+    individual: 'Cá nhân',
+    deliveryDate: 'Hạn trả hàng',
+    methodOfDeliverySpa: 'Nhận hàng Spa',
+    receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',
+    listProductSpa: 'Danh sách sản phẩm Spa',
+    spaDeliveryHistory: 'Lịch sử xuất trả hàng Spa',
+    renewingThePawn: 'Đang gia hạn cầm đồ',
+    pawning: 'Đang cầm đồ',
+    renewingTheSpa: 'Đang gia hạn Spa',
+    spaFeePayment: 'Thành tiền phí Spa',
+    testOrSpa: 'Đã Spa/ kiểm tra',
+    spaFeeDebt: 'Công nợ phí spa',
+    pawnTerm: 'Kỳ hạn cầm đồ',
+    atLeastTenDays: 'Ít nhất 10 ngày',
+    listOfConsignmentProducts: 'Danh sách sản phẩm ký gửi',
+    serviceTrackingTable: 'Bảng theo dõi dịch vụ phát sinh',
+    importTrackingTable: 'Bảng theo dõi hàng cầm đồ trả lại/nhập kho nội bộ',
+    depositTerm: 'Kỳ hạn ký gửi',
+    atLeast14Days: 'Ít nhất 14 ngày'
   },
   button: {
     add: 'Thêm nhanh'

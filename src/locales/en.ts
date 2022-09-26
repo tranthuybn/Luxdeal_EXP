@@ -248,7 +248,24 @@ export default {
     enterRepresentative: 'Enter representative',
     classify: 'Classify',
     company: 'Company',
-    individual: 'Individual'
+    individual: 'Individual',
+    deliveryDate: 'Delivery date',
+    methodOfDeliverySpa: 'Method of deliverySpa',
+    receiveGoodsAtCustomerAddress: 'Receive Goods At Customer Address',
+    listProductSpa: 'List product Spa',
+    spaDeliveryHistory: 'Spa delivery History',
+    renewingTheSpa: 'Renewing the Spa',
+    renewingThePawn: 'Renewing the Pawn',
+    pawning: 'pawning',
+    spaFeePayment: 'Spa fee payment',
+    testOrSpa: 'Have Spa/ test',
+    spaFeeDebt: 'Spa Fee Debt',
+    atLeastTenDays: 'At least ten days',
+    listOfConsignmentProducts: 'List of consignment product',
+    serviceTrackingTable: 'Service tracking table',
+    importTrackingTable: 'Import tracking table',
+    depositTerm: 'DepositTerm',
+    atLeast14Days: 'At least 14 days'
   },
   button: {
     add: 'Add quick'

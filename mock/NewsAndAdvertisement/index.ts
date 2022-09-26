@@ -6,7 +6,7 @@ import { NewsList } from './newslist'
 import { bannerAdvertisementList, bannerAdvertisementListMock } from './bannerAdvertisement'
 import { members, MemberListMock } from './Forum/member'
 import Mock from 'mockjs'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 const { result_code } = config
 const count = 77
 const timeout = 1000

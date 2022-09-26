@@ -4,7 +4,7 @@ import {
   ProductsApprovalList,
   ProductsApprovalListMock
 } from './productsApproval/productsApprovalTable'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 interface ApprovalManagement {
   id: Number
   categoryInfo: string

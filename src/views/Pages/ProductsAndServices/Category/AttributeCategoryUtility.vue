@@ -17,6 +17,16 @@ const { required, ValidService, notSpecialCharacters, notSpace } = useValidator(
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
+// get data from router
+const router = useRouter()
+const route = useRoute()
+const tab = String(route.params.tab)
+const currentRoute = String(router.currentRoute.value.params.backRoute)
+const title = router.currentRoute.value.meta.title
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const params = { TypeName: tab }
+const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
   {
     field: 'category',
@@ -40,7 +50,40 @@ const schema = reactive<FormSchema[]>([
           value: 1
         }
       ]
-    }
+    },
+    hidden: hierarchical
+  },
+  {
+    field: 'rankCategory',
+    label: t('reuse.chooseRankCategory'),
+    component: 'Select',
+    colProps: {
+      span: 20
+    },
+    componentProps: {
+      style: 'width: 100%',
+      placeholder: t('reuse.selectRankOrigin'),
+      options: [
+        {
+          label: t('reuse.rank1Category'),
+          value: 1
+        },
+        {
+          label: t('reuse.rank2Category'),
+          value: 2
+        }
+      ],
+      onChange: (value) => {
+        if (value == 1 || value == '') {
+          removeFormSchema()
+        }
+        if (value == 2) {
+          addFormSchema(timesCallAPI)
+          timesCallAPI++
+        }
+      }
+    },
+    hidden: !hierarchical
   },
   {
     field: 'generalInformation',
@@ -49,10 +92,13 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameCategory'),
+    label: t('reuse.nameRank1Category'),
     component: 'Input',
     colProps: {
       span: 20
+    },
+    componentProps: {
+      placeholder: t('reuse.inputOrigin')
     },
     hidden: false
   },
@@ -161,6 +207,11 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   schema[5].hidden = false
   schema[5].value = nameChildren
 }
+const removeFormSchema = () => {
+  schema[3].hidden = false
+  schema[4].hidden = true
+  schema[5].hidden = true
+}
 const postData = async (data) => {
   //manipulate Data
   if (data.ParentId == undefined) {
@@ -190,16 +241,6 @@ const postData = async (data) => {
       })
     )
 }
-// get data from router
-const router = useRouter()
-const route = useRoute()
-const tab = String(route.params.tab)
-const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-const params = { TypeName: tab }
-
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData

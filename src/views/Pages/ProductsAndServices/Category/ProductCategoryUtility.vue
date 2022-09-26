@@ -18,6 +18,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true,
       modelValue: 1,
+      value: 1,
       options: [
         {
           label: t('reuse.rank1Category'),

@@ -244,7 +244,12 @@ export default {
     totalAmountReceivable: 'Tổng tiền phải thu',
     VATNotIncluded: 'Không tính VAT',
     inventoryInformation: 'Thông tin tồn kho',
-    warehouseInformation: 'Thông tin kho'
+    warehouseInformation: 'Thông tin kho',
+    representative: 'Người đại diện',
+    enterRepresentative: 'Nhập người đại diện',
+    classify: 'Phân loại',
+    company: 'Công ty',
+    individual: 'Cá nhân'
   },
   button: {
     add: 'Thêm nhanh'
@@ -1121,6 +1126,8 @@ export default {
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
     saveFail: 'Lưu thất bại',
-    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
+    cantFindData: 'Không thể tìm thấy dữ liệu',
+    getDataSuccess: 'Lấy dữ liệu thành công'
   }
 }

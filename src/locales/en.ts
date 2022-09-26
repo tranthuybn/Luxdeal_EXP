@@ -243,7 +243,12 @@ export default {
     totalAmountReceivable: 'Total amount rêcivable',
     VATNotIncluded: 'VAT not included',
     inventoryInformation: 'Inventory information',
-    warehouseInformation: 'Warehouse information'
+    warehouseInformation: 'Warehouse information',
+    representative: 'Representative',
+    enterRepresentative: 'Enter representative',
+    classify: 'Classify',
+    company: 'Company',
+    individual: 'Individual'
   },
   button: {
     add: 'Add quick'
@@ -1072,6 +1077,8 @@ export default {
     minute: 'minute',
     saveSuccess: 'Save success',
     saveFail: 'Save fail',
-    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet'
+    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet',
+    cantFindData: 'Cant Find Data',
+    getDataSuccess: 'Get data success'
   }
 }

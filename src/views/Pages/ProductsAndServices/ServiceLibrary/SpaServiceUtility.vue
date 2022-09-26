@@ -149,6 +149,10 @@ const rules = reactive({
   ],
   code: [required()],
   shortDescription: [required()],
+  cost: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  promotePrice: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  time: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  warranty: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
   description: [required()]
 })
 //call api for select options
@@ -262,8 +266,6 @@ const editData = async (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
-  console.log('data', data)
-
   await postSpa(data)
     .then(() =>
       ElNotification({

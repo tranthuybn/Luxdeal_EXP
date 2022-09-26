@@ -16,14 +16,12 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.chooseRankCategory'),
     component: 'Select',
     componentProps: {
+      disabled: true,
+      modelValue: 1,
       options: [
         {
           label: t('reuse.rank1Category'),
-          value: '1'
-        },
-        {
-          label: t('reuse.rank2Category'),
-          value: '2'
+          value: 1
         }
       ]
     },
@@ -38,7 +36,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'field2',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameCategory'),
     component: 'Input',
     colProps: {
       span: 13

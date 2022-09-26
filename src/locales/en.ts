@@ -642,6 +642,7 @@ export default {
     businessProduct: 'Business products',
     spaProduct: 'Spa Products(Step 2)',
     propertyProduct: 'Property(Step 2)',
+    nameCategory: 'Name Category',
     categoryColorTitle: 'Color Category',
     categorySizeTitle: 'Size Category',
     categoryMaterialTitle: 'Material Category',

@@ -82,12 +82,13 @@ export default [
       const pageList = customerList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: customerList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: customerList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },

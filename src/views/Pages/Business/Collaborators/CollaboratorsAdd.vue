@@ -17,7 +17,6 @@ import {
   ElOption
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { reactive, unref, watch } from 'vue'

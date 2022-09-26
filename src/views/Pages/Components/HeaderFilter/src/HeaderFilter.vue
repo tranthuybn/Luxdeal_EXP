@@ -190,7 +190,13 @@ async function getDataEvent() {
         </el-select>
       </el-col>
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
-        <Form :rules="rule" :schema="schema" ref="dateFilterFormRefer" @register="register" />
+        <Form
+          :rules="rule"
+          :schema="schema"
+          :label-width="0"
+          ref="dateFilterFormRefer"
+          @register="register"
+        />
       </el-col>
       <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
         <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />

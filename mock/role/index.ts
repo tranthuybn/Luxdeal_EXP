@@ -400,6 +400,18 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
+            name: `business.promotion-strategy.flash-sale.${utility}`,
+            meta: {
+              title: 'reuse.createANewUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'collection',
             name: 'business.promotion-strategy.collection',
             component: 'views/Pages/Business/PromotionStrategy/Collection',

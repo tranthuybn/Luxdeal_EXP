@@ -214,7 +214,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
             .catch(() =>
               ElNotification({
                 message: t('reuse.deleteFail'),
-                type: 'warning'
+                type: 'error'
               })
             )
             .finally(() => getData())
@@ -229,7 +229,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
-            type: 'warning'
+            type: 'error'
           })
         }
       })

@@ -11,7 +11,9 @@ import {
   updateProductLibrary,
   updateProductSeo,
   getProductProperty,
-  getCategories
+  getCategories,
+  postProductProperty,
+  deleteProductProperty
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -29,7 +31,8 @@ import {
   FormInstance,
   ElSelect,
   ElOption,
-  ElTree
+  ElTree,
+  ElMessageBox
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -78,6 +81,14 @@ const getAttributeData = async () => {
   treeSelectData.value[0].children = colorData
   treeSelectData.value[1].children = sizeData
   treeSelectData.value[2].children = materialData
+}
+const ruleTreeFormRef = ref<FormInstance>()
+const validateTree = (_rule: any, value: any, callback: any) => {
+  if (value.length < 3) {
+    callback(new Error(t('reuse.notFillAllInformation')))
+  } else {
+    callback()
+  }
 }
 const treeRef = ref<InstanceType<typeof ElTree>>()
 const treeSelectData = ref([
@@ -179,6 +190,80 @@ const collapseChangeEvent = async (val) => {
     })
   }
 }
+const addLastRowAttribute = () => {
+  console.log('product:', productData)
+  collapse[1].tableList.push({
+    productCode: productData.productCode,
+    productId: id,
+    code: 'string', //api chua tra
+    categories: [
+      {
+        id: 1,
+        key: 'Gender',
+        value: 'Túi + Ví'
+      },
+      {
+        id: null,
+        key: 'Color',
+        value: ''
+      },
+      {
+        id: null,
+        key: 'Material',
+        value: ''
+      },
+      {
+        id: null,
+        key: 'Size',
+        value: ''
+      },
+      {
+        id: 116,
+        key: 'State',
+        value: 'Small(15.5 - 30.5)'
+      }
+    ],
+    bussinessSetups: [
+      {
+        id: 1,
+        serviceType: 1,
+        key: 'Ban',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 2,
+        serviceType: 2,
+        key: 'KyGui',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 3,
+        serviceType: 3,
+        key: 'ChoThue',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 4,
+        serviceType: 4,
+        key: 'TheChap',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 5,
+        serviceType: 5,
+        key: 'Spa',
+        value: false,
+        hasPrice: false
+      }
+    ],
+    edited: true,
+    newValue: true
+  })
+}
 const OpenCollapse = () => {
   if (disabledTabOpen.value == true) {
     ElNotification({
@@ -188,15 +273,100 @@ const OpenCollapse = () => {
   }
 }
 const activeName = ref(collapse[0].name)
+const handleDeleteRow = async (scope) => {
+  scope.row.newValue
+    ? collapse[1].tableList.pop()
+    : ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, t('reuse.removeProductProperty'), {
+        confirmButtonText: t('reuse.delete'),
+        cancelButtonText: t('reuse.exit'),
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      })
+        .then(async () => {
+          await deleteProductProperty({ id: scope.row.id })
+            .then(
+              () =>
+                ElNotification({
+                  message: t('reuse.deleteSuccess'),
+                  type: 'success'
+                }),
+              collapse[1].tableList.splice(scope.$index, 1)
+            )
+            .catch(() =>
+              ElNotification({
+                message: t('reuse.deleteFail'),
+                type: 'error'
+              })
+            )
+        })
+        .catch((error) => {
+          if (error == 'cancel') {
+            ElNotification({
+              type: 'info',
+              message: t('reuse.deleteCancel')
+            })
+          } else {
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'error'
+            })
+          }
+        })
+  console.log('data', scope)
+}
 const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
-  data.categoriesValue.push(data.categories[2].id, data.categories[3].id, data.categories[4].id)
+  if (
+    data.categories[2].id !== null &&
+    data.categories[3].id !== null &&
+    data.categories[4].id !== null
+  ) {
+    data.categoriesValue.push(data.categories[2].id, data.categories[3].id, data.categories[4].id)
+  }
   console.log('data', data.categoriesValue)
 }
-const handleSaveRow = (data) => {
-  console.log('tree', treeSelectData, colorData)
-  data.edited = false
+const warningForSwitch = (rowDisabled: boolean) => {
+  if (rowDisabled) {
+    ElNotification({
+      message: t('reuse.clickEditForEditing'),
+      type: 'info'
+    })
+  }
+}
+const handleSaveRow = (data, formEl: FormInstance | undefined) => {
+  console.log('save data', data)
+  if (!formEl) return
+  formEl.validate(async (valid) => {
+    if (valid) {
+      data.edited = false
+      if (data?.newValue == true) {
+        await postProductProperty(JSON.stringify(data))
+          .then(() => {
+            ;(data.newValue = false),
+              ElNotification({
+                message: t('reuse.postSuccess'),
+                type: 'success'
+              })
+          })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.postFail'),
+              type: 'error'
+            }),
+              data.pop()
+          })
+      }
+    } else {
+      ElNotification({
+        message: t('reuse.fillAllAttribute'),
+        type: 'warning'
+      })
+      return false
+    }
+  })
+
+  console.log('call post', data) //then newValue =false
 }
 const customCheck = (nodeObj, _selected, _subtree, row) => {
   const tree = treeRef.value!.getCheckedNodes(false, false)
@@ -237,8 +407,20 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     })
     treeRef.value!.setChecked(nodeObj.value, false, false)
   }
-  row.categoriesValue = treeRef.value!.getCheckedNodes(false, false).map((node) => node.value)
-  row.categoriesLabel = treeRef.value!.getCheckedNodes(false, false).map((node) => node.label)
+  const colorNode = tree.find((node) => node.parentid == 1)
+  colorNode
+    ? ((row.categories[1].id = colorNode.value), (row.categories[1].value = colorNode.label))
+    : ''
+  const sizeNode = tree.find((node) => node.parentid == 2)
+  sizeNode
+    ? ((row.categories[2].id = sizeNode.value), (row.categories[2].value = sizeNode.label))
+    : ''
+  const materialNode = tree.find((node) => node.parentid == 3)
+  materialNode
+    ? ((row.categories[3].id = materialNode.value), (row.categories[3].value = materialNode.label))
+    : ''
+  row.categoriesValue = tree.map((node) => node.value)
+  row.categoriesLabel = tree.map((node) => node.label)
 }
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
@@ -279,7 +461,7 @@ const callTableApi = async (collapseItem) => {
   //fix cung
   if (collapseItem.api !== undefined) {
     if (callTableApiTime == 0) {
-      const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
+      const res = await collapseItem.api({ ProductId: id })
       collapseItem.tableList = res.data
       callTableApiTime++
     }
@@ -326,7 +508,13 @@ const SEOdata = reactive({
   SeoTags: '4444444,2,1',
   SeoDescription: '<p>555555555555</p>'
 })
+type ProductProperty = {
+  [key: string]: any
+}
+const emptyProductPropertyObj = {} as ProductProperty
+let productData = reactive(emptyProductPropertyObj)
 const customizeData = async (formData) => {
+  productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
   setFormData.UnitId = formData.categories[2].id
@@ -823,236 +1011,248 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         <el-button class="header-icon" :icon="collapse[1].icon" link :disabled="disabledTabOpen" />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
-      <ElTable
-        :data="collapse[1].tableList"
-        :border="true"
-        v-loading="collapse[1].loading"
-        show-summary
-      >
-        <ElTableColumn
-          header-align="center"
-          min-width="100"
-          prop="productCode"
-          :label="t('reuse.managementCode')"
-        />
-        <ElTableColumn
-          header-align="center"
-          min-width="250"
-          prop="featureGroup"
-          :label="t('reuse.featureGroup')"
+      <el-form ref="ruleTreeFormRef" :model="collapse[1].tableList">
+        <ElTable
+          :data="collapse[1].tableList"
+          :border="true"
+          v-loading="collapse[1].loading"
+          show-summary
         >
-          <template #default="scope">
-            <ElTreeSelect
-              v-model="scope.row.categoriesValue"
-              :data="treeSelectData"
-              multiple
-              accordion
-              check-strictly
-              :render-after-expand="false"
-              v-if="scope.row.edited"
-              @check-change="
-                (nodeObj, selected, subtree) => customCheck(nodeObj, selected, subtree, scope.row)
-              "
-              ref="treeRef"
-              show-checkbox
-              node-key="value"
-            />
-            <span v-else>{{
-              scope.row.categoriesLabel
-                ? scope.row.categoriesLabel.toString()
-                : `${scope.row.categories[2].value},${scope.row.categories[3].value},${scope.row.categories[4].value}`
-            }}</span>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingSale"
-          :label="t('reuse.settingSale')"
-        >
-          <template #default="scope">
-            <div class="flex gap-4">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openSellTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
+          <ElTableColumn
+            header-align="center"
+            min-width="100"
+            prop="productCode"
+            :label="t('reuse.managementCode')"
+          />
+          <ElTableColumn header-align="center" min-width="250" :label="t('reuse.featureGroup')">
+            <template #default="scope">
+              <el-form-item
+                v-if="scope.row.edited"
+                :prop="`${scope.$index}.categoriesValue`"
+                :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
-              <ElSwitch
-                :model-value="scope.row.bussinessSetups[0]?.value"
-                size="large"
-                inline-prompt
-                active-text="On"
-                inactive-text="Off"
-                @change="(data) => (scope.row.bussinessSetups[0].value = data)"
-              />
-            </div>
-          </template>
-        </ElTableColumn>
+                <ElTreeSelect
+                  v-model="scope.row.categoriesValue"
+                  :data="treeSelectData"
+                  multiple
+                  accordion
+                  check-strictly
+                  :render-after-expand="false"
+                  @check-change="
+                    (nodeObj, selected, subtree) =>
+                      customCheck(nodeObj, selected, subtree, scope.row)
+                  "
+                  ref="treeRef"
+                  show-checkbox
+                  node-key="value"
+                />
+              </el-form-item>
+              <span v-else>{{
+                scope.row.categoriesLabel
+                  ? scope.row.categoriesLabel.toString()
+                  : `${scope.row.categories[2].value},${scope.row.categories[3].value},${scope.row.categories[4].value}`
+              }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingSale')"
+          >
+            <template #default="scope">
+              <div class="flex gap-4">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openSellTable(scope.row.featureGroup)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[0]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => (scope.row.bussinessSetups[0].value = data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
 
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingRent"
-          :label="t('reuse.settingRent')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingRent')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openRentTable(scope.row.featureGroup)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[1]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => (scope.row.bussinessSetups[1].value = data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingDeposit')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openDepositTable(scope.row.featureGroup)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[2]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => (scope.row.bussinessSetups[2].value = data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingPawn')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openPawnTable(scope.row.featureGroup)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[3]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => (scope.row.bussinessSetups[3].value = data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingSpa')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openSpaTable(scope.row.featureGroup)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[4]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => (scope.row.bussinessSetups[4].value = data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.inventory')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <div>{{ scope.row.inventory }} 10</div>
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openWarehouseTable(scope.row.featureGroup)"
+                  >{{ t('reuse.detail') }}</el-button
+                >
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            width="150"
+            prop="updatedAt"
+            :label="t('reuse.update')"
+          />
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            width="150"
+            prop="approveStatus"
+            :label="t('reuse.status')"
+          />
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            fixed="right"
+            :label="t('reuse.operator')"
+          >
+            <template #default="scope">
               <el-button
-                :icon="plusIcon"
-                link
+                v-if="scope.row.edited"
                 type="primary"
-                @click="openRentTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
+                @click="handleSaveRow(scope.row, ruleTreeFormRef)"
+                >{{ t('reuse.save') }}</el-button
               >
-              <ElSwitch
-                :model-value="scope.row.bussinessSetups[1]?.value"
-                size="large"
-                inline-prompt
-                active-text="On"
-                inactive-text="Off"
-                @change="(data) => (scope.row.bussinessSetups[1].value = data)"
-              />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingDeposit"
-          :label="t('reuse.settingDeposit')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openDepositTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch
-                :model-value="scope.row.bussinessSetups[2]?.value"
-                size="large"
-                inline-prompt
-                active-text="On"
-                inactive-text="Off"
-                @change="(data) => (scope.row.bussinessSetups[2].value = data)"
-              />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingPawn"
-          :label="t('reuse.settingPawn')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openPawnTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch
-                :model-value="scope.row.bussinessSetups[3]?.value"
-                size="large"
-                inline-prompt
-                active-text="On"
-                inactive-text="Off"
-                @change="(data) => (scope.row.bussinessSetups[3].value = data)"
-              />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingSpa"
-          :label="t('reuse.settingSpa')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openSpaTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch
-                :model-value="scope.row.bussinessSetups[4]?.value"
-                size="large"
-                inline-prompt
-                active-text="On"
-                inactive-text="Off"
-                @change="(data) => (scope.row.bussinessSetups[4].value = data)"
-              />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="inventory"
-          :label="t('reuse.inventory')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <div>{{ scope.row.inventory }} 10</div>
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openWarehouseTable(scope.row.featureGroup)"
-                >{{ t('reuse.detail') }}</el-button
-              >
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          width="150"
-          prop="updatedAt"
-          :label="t('reuse.update')"
-        />
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          width="150"
-          prop="approveStatus"
-          :label="t('reuse.status')"
-        />
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          fixed="right"
-          :label="t('reuse.operator')"
-        >
-          <template #default="scope">
-            <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
-              t('reuse.save')
-            }}</el-button>
-            <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-              t('reuse.edit')
-            }}</el-button>
-            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-          </template>
-        </ElTableColumn>
-      </ElTable>
-      <el-button class="ml-5 mt-5" :icon="plusIcon">{{
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.edit')
+              }}</el-button>
+              <el-button type="danger" @click="handleDeleteRow(scope)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </el-form>
+      <el-button class="ml-5 mt-5" :icon="plusIcon" @click="addLastRowAttribute">{{
         t('reuse.addAttributeAndPrice')
       }}</el-button>
     </el-collapse-item>

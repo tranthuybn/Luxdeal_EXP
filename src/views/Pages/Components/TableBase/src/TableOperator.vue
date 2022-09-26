@@ -14,7 +14,8 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage
+  ElImage,
+  ElDivider
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -367,10 +368,9 @@ const listType = ref<ListImages>('text')
         v-if="hasImage"
         class="max-h-400px overflow-y-auto shadow-inner p-1"
       >
-        <h3 class="text-center font-bold">{{ t('reuse.addImage') }}</h3>
+        <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
-          class="avatar-uploader"
           :disabled="props.type === 'detail'"
           :auto-upload="false"
           :show-file-list="multipleImages"
@@ -379,6 +379,7 @@ const listType = ref<ListImages>('text')
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
           <div v-if="!multipleImages">
             <div v-if="imageUrl" class="relative">
@@ -469,5 +470,9 @@ const listType = ref<ListImages>('text')
 .avatar-uploader-icon {
   width: 178px;
   height: 178px;
+}
+.one-avatar-uploader {
+  display: flex;
+  justify-content: center;
 }
 </style>

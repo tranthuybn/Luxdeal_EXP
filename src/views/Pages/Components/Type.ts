@@ -24,7 +24,7 @@ interface Collapse {
   name: string
   title?: string
   columns?: TableColumn[]
-  api?: apiType | undefined
+  api?: any
   buttonAdd?: string
   typeForm?: string
   typeButton?: string

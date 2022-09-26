@@ -169,6 +169,13 @@ const collapse: Array<Collapse> = reactive([
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     hasImage: false
+  },
+  {
+    icon: plusIcon,
+    name: 'sellFee',
+    api: getInventoryTrading,
+    tableList: [],
+    loading: true
   }
 ])
 let nameCollapse = ''
@@ -333,6 +340,15 @@ const warningForSwitch = (rowDisabled: boolean) => {
       type: 'info'
     })
   }
+}
+const changeDataSwitch = (scope, dataSwitch) => {
+  scope.row.bussinessSetups![scope.cellIndex - 2]!.hasPrice
+    ? (scope.row.bussinessSetups![scope.cellIndex - 2]!.value = dataSwitch)
+    : ElNotification({
+        message: t('reuse.addPricesBeforeTurningOnSetting'),
+        type: 'warning'
+      })
+  console.log('data', scope, dataSwitch)
 }
 const handleSaveRow = (data, formEl: FormInstance | undefined) => {
   console.log('save data', data)
@@ -565,7 +581,7 @@ const handleDeleteRowRent = (scope) => {
   collapse[2].tableList.splice(scope.$index, 1)
 }
 const handleDeleteRowSell = (scope) => {
-  collapse[1].tableList.splice(scope.$index, 1)
+  collapse[8].tableList.splice(scope.$index, 1)
 }
 //table dialog
 const sellTableVisible = ref(false)
@@ -586,7 +602,7 @@ const openSpaTable = async (dialogTitle) => {
   spaDialogTitle.value = dialogTitle
   spaTableVisible.value = true
   if (callApiSpaTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 10, pageIndex: 1 })
+    const res = collapse[5].api ? await collapse[5].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[5].tableList = res.data
     collapse[5].loading = false
     callApiSpaTable++
@@ -597,7 +613,7 @@ const openWarehouseTable = async (dialogTitle) => {
   warehouseDialogTitle.value = dialogTitle
   warehouseTableVisible.value = true
   if (callApiWarehouseTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
+    const res = collapse[6].api ? await collapse[6].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[6].tableList = res.data
     collapse[6].loading = false
     callApiWarehouseTable++
@@ -608,7 +624,7 @@ const openPawnTable = async (dialogTitle) => {
   pawnDialogTitle.value = dialogTitle
   pawnTableVisible.value = true
   if (callApiPawnTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
+    const res = collapse[4].api ? await collapse[4].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[4].tableList = res.data
     collapse[4].loading = false
     callApiPawnTable++
@@ -619,7 +635,7 @@ const openDepositTable = async (dialogTitle) => {
   depositDialogTitle.value = dialogTitle
   depositTableVisible.value = true
   if (callApiDepositTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
+    const res = collapse[3].api ? await collapse[3].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[3].tableList = res.data
     collapse[3].loading = false
     callApiDepositTable++
@@ -630,7 +646,7 @@ const openRentTable = async (dialogTitle) => {
   rentDialogTitle.value = dialogTitle
   rentTableVisible.value = true
   if (callApiRentTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
+    const res = collapse[2].api ? await collapse[2].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[2].tableList = res.data
     collapse[2].loading = false
     callApiRentTable++
@@ -641,9 +657,9 @@ const openSellTable = async (dialogTitle) => {
   sellDialogTitle.value = dialogTitle
   sellTableVisible.value = true
   if (callApiSellTable == 0) {
-    const res = await getProductProperty({ ProductId: id })
-    collapse[1].tableList = res.data
-    collapse[1].loading = false
+    const res = collapse[8].api ? await collapse[8].api({ pageSize: 10, pageIndex: 1 }) : ''
+    collapse[8].tableList = res.data
+    collapse[8].loading = false
     callApiSellTable++
   }
 }
@@ -678,12 +694,12 @@ const options = [
 ]
 //add row to the end of table if fill all table
 watch(
-  () => collapse[1].tableList[collapse[1].tableList.length - 1],
+  () => collapse[8].tableList[collapse[8].tableList.length - 1],
   () => {
     if (
-      collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice !== undefined &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].quantityTo !== undefined &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].unitPrices !== undefined &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].promotionPrice !== undefined &&
       forceRemove.value == false
     ) {
       addLastIndexSellTable()
@@ -722,7 +738,7 @@ watch(
   { deep: true }
 )
 const addLastIndexSellTable = () => {
-  collapse[1].tableList.push({})
+  collapse[8].tableList.push({})
 }
 const addLastIndexRentTable = () => {
   collapse[2].tableList.push({})
@@ -819,13 +835,13 @@ const saveDataSellTable = async () => {
 const removeLastRowSell = () => {
   if (
     //check if all field of last row are empty
-    collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo == undefined &&
-    collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices == undefined &&
-    collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice == undefined
+    collapse[8].tableList[collapse[8].tableList.length - 1].quantityTo == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1].unitPrices == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1].promotionPrice == undefined
   ) {
     //force remove so watch cannot add new row at the last index
     forceRemove.value = true
-    collapse[1].tableList.splice(-1)
+    collapse[8].tableList.splice(-1)
   }
 }
 const removeLastRowRent = () => {
@@ -903,8 +919,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
       width="70%"
       @close="SellTableDialogClose"
     >
-      <el-form :model="collapse[1].tableList" ref="sellForm">
-        <ElTable :data="collapse[1].tableList" :border="true" v-loading="collapse[1].loading">
+      <el-form :model="collapse[8].tableList" ref="sellForm">
+        <ElTable :data="collapse[8].tableList" :border="true" v-loading="collapse[8].loading">
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1065,7 +1081,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 <el-button
                   :icon="plusIcon"
                   link
-                  type="primary"
+                  :type="scope.row.bussinessSetups[0].hasPrice ? 'primary' : 'warning'"
                   @click="openSellTable(scope.row.featureGroup)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
@@ -1077,7 +1093,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => (scope.row.bussinessSetups[0].value = data)"
+                  @change="(data) => changeDataSwitch(scope, data)"
                 />
               </div>
             </template>
@@ -1094,7 +1110,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 <el-button
                   :icon="plusIcon"
                   link
-                  type="primary"
+                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope.row.featureGroup)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
@@ -1106,7 +1122,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => (scope.row.bussinessSetups[1].value = data)"
+                  @change="(data) => changeDataSwitch(scope, data)"
                 />
               </div>
             </template>
@@ -1122,7 +1138,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 <el-button
                   :icon="plusIcon"
                   link
-                  type="primary"
+                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
                   @click="openDepositTable(scope.row.featureGroup)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
@@ -1134,7 +1150,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => (scope.row.bussinessSetups[2].value = data)"
+                  @change="(data) => changeDataSwitch(scope, data)"
                 />
               </div>
             </template>
@@ -1150,7 +1166,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 <el-button
                   :icon="plusIcon"
                   link
-                  type="primary"
+                  :type="scope.row.bussinessSetups[3].hasPrice ? 'primary' : 'warning'"
                   @click="openPawnTable(scope.row.featureGroup)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
@@ -1162,7 +1178,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => (scope.row.bussinessSetups[3].value = data)"
+                  @change="(data) => changeDataSwitch(scope, data)"
                 />
               </div>
             </template>
@@ -1178,7 +1194,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                 <el-button
                   :icon="plusIcon"
                   link
-                  type="primary"
+                  :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
                   @click="openSpaTable(scope.row.featureGroup)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
@@ -1190,7 +1206,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => (scope.row.bussinessSetups[4].value = data)"
+                  @change="(data) => changeDataSwitch(scope, data)"
                 />
               </div>
             </template>

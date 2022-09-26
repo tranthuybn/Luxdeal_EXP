@@ -87,8 +87,9 @@ const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
-  unref(tableBase01)?.getData(data)
+  unref(tableBase01)!.getData(data)
 }
+
 //add operator for every table
 onBeforeMount(() => {
   dynamicApi.value = props.api

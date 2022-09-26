@@ -5,6 +5,7 @@ import { orderDepositList, orderDepositListMock } from './orderDeposit'
 import { orderPawnList, orderPawnListMock } from './orderPawn'
 import { orderSpaList, orderSpaListMock } from './orderSpa'
 import { SellOrder, SellOrderListMock } from './sellOrder'
+import { serviceResponse } from '../_reponseStructure'
 const count = 77
 const { result_code } = config
 const timeout = 1000
@@ -25,12 +26,13 @@ export default [
       const pageList = rentalorderList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: rentalorderList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: rentalorderList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -43,12 +45,13 @@ export default [
       const pageList = orderDepositList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: orderDepositList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: orderDepositList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -61,12 +64,13 @@ export default [
       const pageList = orderPawnList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: orderPawnList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: orderPawnList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -79,12 +83,13 @@ export default [
       const pageList = orderSpaList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: orderSpaList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: orderSpaList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -97,12 +102,13 @@ export default [
       const pageList = SellOrder.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: SellOrder.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: SellOrder.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

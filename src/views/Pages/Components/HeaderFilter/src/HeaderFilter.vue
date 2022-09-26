@@ -50,7 +50,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.startDate'),
       format: dateTimeFormat,
-      valueDateFormat: valueDateFormat,
+      valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }
@@ -63,7 +63,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.endDate'),
       format: dateTimeFormat,
-      valueDateFormat: valueDateFormat,
+      valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable
     }
@@ -145,7 +145,7 @@ function reLoadEvent() {
   searchingKey.value = ''
   periodSelected.value = ''
   verifyReset()
-  emit('refreshData')
+  emit('refreshData', { Keyword: null, Search: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
@@ -153,10 +153,10 @@ async function getDataEvent() {
     if (valid) {
       getFormData()
         .then((res) => {
-          emit('getData', { ...res, searchingKey: searchingKey.value })
+          emit('getData', { ...res, Keyword: searchingKey.value, Search: searchingKey.value })
         })
-        .catch(() => {
-          console.error('have some issues while emitting')
+        .catch((error) => {
+          console.error(error)
         })
     }
   })
@@ -190,7 +190,13 @@ async function getDataEvent() {
         </el-select>
       </el-col>
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
-        <Form :rules="rule" :schema="schema" ref="dateFilterFormRefer" @register="register" />
+        <Form
+          :rules="rule"
+          :schema="schema"
+          :label-width="0"
+          ref="dateFilterFormRefer"
+          @register="register"
+        />
       </el-col>
       <el-col :xl="3" :lg="5" :xs="12" class="inline-flex <xl:mb-2">
         <el-button type="primary" @click="reLoadEvent()" :icon="reloadIcon" />

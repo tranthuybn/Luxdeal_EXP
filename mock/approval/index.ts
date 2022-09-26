@@ -4,6 +4,7 @@ import {
   ProductsApprovalList,
   ProductsApprovalListMock
 } from './productsApproval/productsApprovalTable'
+import { serviceResponse } from '../_reponseStructure'
 interface ApprovalManagement {
   id: Number
   categoryInfo: string
@@ -52,12 +53,13 @@ export default [
       const pageList = ApprovalManagementList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: ApprovalManagementList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: ApprovalManagementList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -70,12 +72,13 @@ export default [
       const pageList = ProductsApprovalList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: ProductsApprovalList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: ProductsApprovalList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

@@ -88,7 +88,7 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkNumber: {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: Number | string, callback: any) => {
         if (value === '') callback(new Error(t('reuse.required')))
         else if (typeof value !== 'number') callback(new Error(t('reuse.numberFormat')))
         callback()

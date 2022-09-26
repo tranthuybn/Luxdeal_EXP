@@ -14,7 +14,8 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage
+  ElImage,
+  ElDivider
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -105,7 +106,6 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
-      console.log('ressdata', formValue.value)
       await setFormValue()
     } else {
       ElNotification({
@@ -136,12 +136,11 @@ const setFormValue = async () => {
   await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
-    console.log('custom', props.formDataCustomize)
     setValues(props.formDataCustomize)
-    if (!props.multipleImages) {
+    if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    if (props.multipleImages) {
+    if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>
         fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
@@ -201,7 +200,6 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      console.log('images', data.Images)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -250,7 +248,6 @@ const handleRemove = (file: UploadFile) => {
       DeleteFileIds.push(imageRemove?.id)
     }
   }
-  console.log('deleteID', DeleteFileIds)
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -371,10 +368,9 @@ const listType = ref<ListImages>('text')
         v-if="hasImage"
         class="max-h-400px overflow-y-auto shadow-inner p-1"
       >
-        <h3 class="text-center font-bold">{{ t('reuse.addImage') }}</h3>
+        <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
-          class="avatar-uploader"
           :disabled="props.type === 'detail'"
           :auto-upload="false"
           :show-file-list="multipleImages"
@@ -383,6 +379,7 @@ const listType = ref<ListImages>('text')
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
           <div v-if="!multipleImages">
             <div v-if="imageUrl" class="relative">
@@ -473,5 +470,9 @@ const listType = ref<ListImages>('text')
 .avatar-uploader-icon {
   width: 178px;
   height: 178px;
+}
+.one-avatar-uploader {
+  display: flex;
+  justify-content: center;
 }
 </style>

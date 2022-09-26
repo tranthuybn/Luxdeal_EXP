@@ -28,7 +28,9 @@ const addIcon = useIcon({ icon: 'carbon:add' })
 const dashIcon = useIcon({ icon: 'bi:dash-lg' })
 const changeIcon = useIcon({ icon: 'fa:exchange' })
 const getData = (data) => {
-  unref(tableBase01)?.getData(data)
+  if (unref(tableBase01) !== undefined) {
+    unref(tableBase01)![0]!.getData(data)
+  }
 }
 // tab logic
 const currentTab = ref<string>('')

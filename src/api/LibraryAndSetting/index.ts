@@ -16,16 +16,6 @@ export const getPropertyProductCategories = async (params: any): Promise<IRespon
   return res && res.data
 }
 
-export const getSpaList = async (params: any): Promise<IResponse> => {
-  const res = await request.get(
-    {
-      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-
 export const getCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -121,6 +111,15 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getProductProperty = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

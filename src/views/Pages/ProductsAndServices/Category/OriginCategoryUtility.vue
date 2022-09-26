@@ -33,27 +33,15 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin'),
-      disabled: false,
+      disabled: true,
+      modelValue: 1,
+      value: 1,
       options: [
         {
           label: t('reuse.rank1Category'),
           value: 1
-        },
-        {
-          label: t('reuse.rank2Category'),
-          value: 2
         }
-      ],
-      onChange: (value) => {
-        if (value == 1 || value == '') {
-          removeFormSchema()
-        }
-        if (value == 2) {
-          addFormSchema(timesCallAPI)
-          timesCallAPI++
-        }
-      }
+      ]
     }
   },
   {
@@ -63,13 +51,10 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameCategory'),
     component: 'Input',
     colProps: {
       span: 20
-    },
-    componentProps: {
-      placeholder: t('reuse.inputOrigin')
     },
     hidden: false
   },
@@ -164,11 +149,6 @@ const getRank1SelectOptions = async () => {
     })
 }
 
-const removeFormSchema = () => {
-  schema[3].hidden = false
-  schema[4].hidden = true
-  schema[5].hidden = true
-}
 const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   if (timesCallAPI == 0) {
     await getRank1SelectOptions()

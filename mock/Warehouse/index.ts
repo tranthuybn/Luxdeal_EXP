@@ -1,6 +1,7 @@
 import { config } from '@/config/axios/config'
 import { productStorageList } from './productStorage'
 import { warehouseList } from '../Warehouse/warehouse'
+import { serviceResponse } from '../_reponseStructure'
 const { result_code } = config
 const timeout = 1000
 export default [
@@ -10,27 +11,16 @@ export default [
     timeout,
     response: ({ query }) => {
       const { pageIndex, pageSize, id } = query
-      if (id) {
-        const productId = productStorageList.filter((index) => index.id == id)
-        let childProduct = productStorageList.map((index) => index.children)
-        childProduct = childProduct.filter((index) => index['id'] == id)
-        return {
-          code: result_code,
-          data: {
-            total: 1,
-            list: productId.length > 0 ? productId : childProduct
-          }
-        }
-      }
       const pageList = productStorageList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productStorageList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productStorageList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -43,12 +33,13 @@ export default [
       const pageList = warehouseList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: warehouseList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: warehouseList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

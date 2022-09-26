@@ -251,7 +251,25 @@ export default {
     company: 'Công ty',
     individual: 'Cá nhân',
     onetimePaymentInAdvance: 'Trả trước một lần',
-    payAfterOneTime: 'Trả sau một lần'
+    payAfterOneTime: 'Trả sau một lần',
+    deliveryDate: 'Hạn trả hàng',
+    methodOfDeliverySpa: 'Nhận hàng Spa',
+    receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',
+    listProductSpa: 'Danh sách sản phẩm Spa',
+    spaDeliveryHistory: 'Lịch sử xuất trả hàng Spa',
+    renewingThePawn: 'Đang gia hạn cầm đồ',
+    pawning: 'Đang cầm đồ',
+    renewingTheSpa: 'Đang gia hạn Spa',
+    spaFeePayment: 'Thành tiền phí Spa',
+    testOrSpa: 'Đã Spa/ kiểm tra',
+    spaFeeDebt: 'Công nợ phí spa',
+    pawnTerm: 'Kỳ hạn cầm đồ',
+    atLeastTenDays: 'Ít nhất 10 ngày',
+    listOfConsignmentProducts: 'Danh sách sản phẩm ký gửi',
+    serviceTrackingTable: 'Bảng theo dõi dịch vụ phát sinh',
+    importTrackingTable: 'Bảng theo dõi hàng cầm đồ trả lại/nhập kho nội bộ',
+    depositTerm: 'Kỳ hạn ký gửi',
+    atLeast14Days: 'Ít nhất 14 ngày'
   },
   button: {
     add: 'Thêm nhanh'
@@ -822,6 +840,7 @@ export default {
     rank2Category: 'Danh mục cấp 2',
     generalInformation: 'Thông tin chung',
     nameRank1Category: 'Tên danh mục cấp 1',
+    nameCategory: 'Tên danh mục',
     displayPosition: 'Vị trí hiển thị',
     statusAndFunction: 'Trạng thái và chức năng',
     stopShowAppWeb: 'Dừng hiển thị app/web user',
@@ -1128,6 +1147,8 @@ export default {
     minute: 'Phút',
     saveSuccess: 'Lưu thành công',
     saveFail: 'Lưu thất bại',
-    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm'
+    cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
+    cantFindData: 'Không thể tìm thấy dữ liệu',
+    getDataSuccess: 'Lấy dữ liệu thành công'
   }
 }

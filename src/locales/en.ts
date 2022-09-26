@@ -249,6 +249,23 @@ export default {
     classify: 'Classify',
     company: 'Company',
     individual: 'Individual',
+    deliveryDate: 'Delivery date',
+    methodOfDeliverySpa: 'Method of deliverySpa',
+    receiveGoodsAtCustomerAddress: 'Receive Goods At Customer Address',
+    listProductSpa: 'List product Spa',
+    spaDeliveryHistory: 'Spa delivery History',
+    renewingTheSpa: 'Renewing the Spa',
+    renewingThePawn: 'Renewing the Pawn',
+    pawning: 'pawning',
+    spaFeePayment: 'Spa fee payment',
+    testOrSpa: 'Have Spa/ test',
+    spaFeeDebt: 'Spa Fee Debt',
+    atLeastTenDays: 'At least ten days',
+    listOfConsignmentProducts: 'List of consignment product',
+    serviceTrackingTable: 'Service tracking table',
+    importTrackingTable: 'Import tracking table',
+    depositTerm: 'DepositTerm',
+    atLeast14Days: 'At least 14 days',
     onetimePaymentInAdvance: 'one-time payment in advance',
     payAfterOneTime: 'pay after one time'
   },
@@ -644,6 +661,7 @@ export default {
     businessProduct: 'Business products',
     spaProduct: 'Spa Products(Step 2)',
     propertyProduct: 'Property(Step 2)',
+    nameCategory: 'Name Category',
     categoryColorTitle: 'Color Category',
     categorySizeTitle: 'Size Category',
     categoryMaterialTitle: 'Material Category',
@@ -1079,6 +1097,8 @@ export default {
     minute: 'minute',
     saveSuccess: 'Save success',
     saveFail: 'Save fail',
-    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet'
+    cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet',
+    cantFindData: 'Cant Find Data',
+    getDataSuccess: 'Get data success'
   }
 }

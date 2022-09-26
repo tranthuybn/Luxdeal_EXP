@@ -70,6 +70,10 @@ const props = defineProps({
   titleButtons: {
     type: String,
     default: ''
+  },
+  deleteTitle: {
+    type: String,
+    default: 'Warning'
   }
 })
 
@@ -78,8 +82,8 @@ const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: props.api,
   response: {
-    list: 'list',
-    total: 'total'
+    list: '',
+    total: 'count'
   },
   props: {
     columns: props.fullColumns,
@@ -96,7 +100,7 @@ onBeforeMount(() => {
 })
 // execute pagination
 watch(
-  () => tableObject.tableList,
+  () => tableObject.total,
   () => {
     props.paginationType
       ? (paginationObj.value = {
@@ -252,6 +256,14 @@ const showingColumn =
         .map((el) => ({ value: el.field, label: el.label }))
         ?.filter((el) => el.value)
     : []
+
+//pagination
+const handleSizeChange = (size) => {
+  tableObject.pageSize = size
+}
+const handleCurrentChange = (current: number) => {
+  tableObject.currentPage = current
+}
 </script>
 <template>
   <ContentWrap class="relative">
@@ -298,13 +310,15 @@ const showingColumn =
       @sort-change="sortChange"
       @header-click="headerClick"
       :selection="selection"
+      @update:page-size="handleSizeChange"
+      @update:current-page="handleCurrentChange"
     >
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
             <el-image style="width: 100px; height: 100px" :src="API_URL + data.row.imageurl" />
           </div>
-          <div>{{ data.row.title }}</div>
+          <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">
@@ -317,7 +331,14 @@ const showingColumn =
           <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
-
+      <template #imageProduct="data">
+        <div>
+          <el-image
+            style="width: 130px; height: 130px"
+            :src="API_URL + data.row.productImages[0]?.path"
+          />
+        </div>
+      </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]

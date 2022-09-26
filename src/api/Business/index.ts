@@ -23,6 +23,26 @@ export const getProductsList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getListCollaborator = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/customer/List', params })
   return res && res.data

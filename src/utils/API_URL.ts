@@ -18,7 +18,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   POST_PRODUCT: '/api/v1/Product/CreateProduct',
   UPDATE_PRODUCT: '/api/v1/Product/UpdateProductInfo',
   DELETE_PRODUCT: '/api/v1/Product/DeleteProduct',
-  UPDATE_SEO_PRODUCT: '/api/v1/Product/UpdateProductSeo'
+  UPDATE_SEO_PRODUCT: '/api/v1/Product/UpdateProductSeo',
+  GET_COLLABORATOR: '/api/v1/Order/GetCollaborator'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

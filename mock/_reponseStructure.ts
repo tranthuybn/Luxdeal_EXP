@@ -1,39 +1,38 @@
-declare interface IPagination {
-  PageSize: Number
-  PageIndex: Number
-  Count: Number
+interface IPagination {
+  pageSize: Number
+  pageIndex: Number
+  count: Number
 }
-declare class serviceResponse {
-  Data: object
+export class serviceResponse {
+  data: object
   StatusCode: Number
   Succeeded: boolean
-  Code: String
+  Code: Number | String
   Message: String
-  Pagination: IPagination
+  pagination: IPagination
   constructor(
     _data: object,
     _statusCode: Number,
     _succeeded: boolean,
-    _code: String,
+    _code: Number | String,
     _message: String,
     _pagination: IPagination
   ) {
-    this.Data = _data
+    this.data = _data
     this.StatusCode = _statusCode
     this.Succeeded = _succeeded
     this.Code = _code
     this.Message = _message
-    this.Pagination = _pagination
+    this.pagination = _pagination
   }
-  serviceResponse() {
+  setServiceResponse() {
     return {
-      data: this.Data ?? {},
+      data: this.data ?? {},
       statusCode: this.StatusCode ?? 0,
       succeeded: this.Succeeded ?? true,
       code: this.Code ?? 200,
       message: this.Message ?? 'Succeed',
-      pagination: this.Pagination ?? {}
+      pagination: this.pagination ?? {}
     }
   }
 }
-export default { serviceResponse }

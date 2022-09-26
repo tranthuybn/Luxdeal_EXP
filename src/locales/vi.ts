@@ -838,6 +838,7 @@ export default {
     rank2Category: 'Danh mục cấp 2',
     generalInformation: 'Thông tin chung',
     nameRank1Category: 'Tên danh mục cấp 1',
+    nameCategory: 'Tên danh mục',
     displayPosition: 'Vị trí hiển thị',
     statusAndFunction: 'Trạng thái và chức năng',
     stopShowAppWeb: 'Dừng hiển thị app/web user',

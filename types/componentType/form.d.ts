@@ -93,7 +93,7 @@ declare global {
     // Remote loading drop
     api?: <T = any>() => AxiosPromise<T>
     title?: string
-    modelValue?: string
+    modelValue?: any
   }
 
   declare type FormSetPropsType = {

@@ -105,7 +105,6 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
-      console.log('ressdata', formValue.value)
       await setFormValue()
     } else {
       ElNotification({
@@ -136,12 +135,11 @@ const setFormValue = async () => {
   await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
-    console.log('custom', props.formDataCustomize)
     setValues(props.formDataCustomize)
-    if (!props.multipleImages) {
+    if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    if (props.multipleImages) {
+    if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>
         fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
@@ -201,7 +199,6 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      console.log('images', data.Images)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -250,7 +247,6 @@ const handleRemove = (file: UploadFile) => {
       DeleteFileIds.push(imageRemove?.id)
     }
   }
-  console.log('deleteID', DeleteFileIds)
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {

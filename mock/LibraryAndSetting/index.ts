@@ -19,6 +19,7 @@ import { spaPrice } from './productLibrary/spaPrice'
 import { inventoryTrading } from './productLibrary/inventoryTrading'
 import { priceByQuantity } from './productLibrary/priceByQuantity'
 import { importAndExportHistory } from './productLibrary/importAndExportHistory'
+import { serviceResponse } from 'mock/_reponseStructure'
 
 const { result_code } = config
 const timeout = 1000
@@ -33,12 +34,13 @@ export default [
       const pageList = productList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: productList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: productList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -51,12 +53,13 @@ export default [
       const pageList = ColorCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: ColorCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: ColorCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -69,12 +72,13 @@ export default [
       const pageList = SizeCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: SizeCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: SizeCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -87,12 +91,13 @@ export default [
       const pageList = MaterialCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: MaterialCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: MaterialCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -105,12 +110,13 @@ export default [
       const pageList = StatusCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: StatusCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: StatusCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -123,12 +129,13 @@ export default [
       const pageList = GenderCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: GenderCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: GenderCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -141,12 +148,13 @@ export default [
       const pageList = UnitCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: UnitCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: UnitCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -159,12 +167,13 @@ export default [
       const pageList = BrandCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: BrandCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: BrandCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -177,12 +186,13 @@ export default [
       const pageList = OriginCategoriesList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: OriginCategoriesList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: OriginCategoriesList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -199,12 +209,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: BusinessProductLibrary.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: BusinessProductLibrary.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -221,12 +232,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: featuresDepositFee.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: featuresDepositFee.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -243,12 +255,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: featuresPawnFee.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: featuresPawnFee.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -265,12 +278,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: featuresPrices.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: featuresPrices.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -287,12 +301,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: featuresRentalPrice.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: featuresRentalPrice.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -309,12 +324,13 @@ export default [
       const pageList = mockList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: spaPrice.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: spaPrice.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -327,12 +343,13 @@ export default [
       const pageList = inventoryTrading.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: inventoryTrading.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: inventoryTrading.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -345,12 +362,13 @@ export default [
       const pageList = priceByQuantity.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: priceByQuantity.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: priceByQuantity.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -363,12 +381,13 @@ export default [
       const pageList = importAndExportHistory.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: importAndExportHistory.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: importAndExportHistory.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

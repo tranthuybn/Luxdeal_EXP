@@ -16,7 +16,7 @@ import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
 import { auctionList, auctionListMock } from './promotionstrategy/auction'
 import { employeeList, employeeListMock } from './promotionstrategy/employeeList'
-
+import { serviceResponse } from '../_reponseStructure'
 import { paymentList, paymentListMock } from './paymentproposallist'
 import {
   receiptsAndExpendituresList,
@@ -29,7 +29,6 @@ import {
 const { result_code } = config
 const timeout = 1000
 const count = 100
-
 for (let i = 0; i < count; i++) {
   potentialCustomerCareTable.push(Mock.mock(potentialCustomerCareTableMock))
   customerList.push(Mock.mock(customerListMock))
@@ -64,12 +63,13 @@ export default [
         potentialCustomerCareTable.filter(
           (el) => el.sale == searchingKey || el.customerInfo == searchingKey
         )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: potentialCustomerCareTable.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: potentialCustomerCareTable.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -100,12 +100,13 @@ export default [
       const pageList = collaboratorsList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: collaboratorsList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: collaboratorsList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -118,12 +119,13 @@ export default [
       const pageList = flashsaleList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: flashsaleList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: flashsaleList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -136,12 +138,13 @@ export default [
       const pageList = collectionList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: collectionList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: collectionList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -154,12 +157,13 @@ export default [
       const pageList = newproductList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: newproductList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: newproductList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -172,12 +176,13 @@ export default [
       const pageList = servicesurveyList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: servicesurveyList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: servicesurveyList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -190,12 +195,13 @@ export default [
       const pageList = customerPointsList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: customerPointsList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: customerPointsList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -208,12 +214,13 @@ export default [
       const pageList = customerVirtualWalletList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: customerVirtualWalletList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: customerVirtualWalletList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -226,12 +233,13 @@ export default [
       const pageList = voucherList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: voucherList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: voucherList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -244,12 +252,13 @@ export default [
       const pageList = comboList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: comboList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: comboList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -262,12 +271,13 @@ export default [
       const pageList = auctionList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: auctionList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: auctionList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -280,12 +290,13 @@ export default [
       const pageList = employeeList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: employeeList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: employeeList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -298,12 +309,13 @@ export default [
       const pageList = paymentList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: paymentList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: paymentList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -316,12 +328,13 @@ export default [
       const pageList = receiptsAndExpendituresList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: receiptsAndExpendituresList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: receiptsAndExpendituresList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -334,12 +347,13 @@ export default [
       const pageList = potenialCustomerList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: potenialCustomerList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: potenialCustomerList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   }

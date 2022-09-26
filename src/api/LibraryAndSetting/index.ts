@@ -126,6 +126,15 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getProductProperty = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const deleteSpa = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {

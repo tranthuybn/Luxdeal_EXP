@@ -142,7 +142,7 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'image',
+    field: 'imageProduct',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'

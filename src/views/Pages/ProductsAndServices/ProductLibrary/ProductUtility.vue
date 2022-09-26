@@ -44,7 +44,7 @@ import {
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { onBeforeMount, reactive, unref, watch } from 'vue'
+import { reactive, unref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
@@ -58,9 +58,8 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 let colorData = reactive([])
 let sizeData = reactive([])
 let materialData = reactive([])
-onBeforeMount(async () => {
-  await getAttributeData()
-})
+// call api for color, size, material
+// get called when open the second collase
 const getAttributeData = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 100, pageIndex: 1 }).then(
     (res) =>
@@ -111,6 +110,7 @@ const treeSelectData = ref([
     children: []
   }
 ])
+// làm lại lấy seo tag
 const collapse: Array<Collapse> = reactive([
   {
     icon: minusIcon,
@@ -198,7 +198,6 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
-  console.log('product:', productData)
   collapse[1].tableList.push({
     productCode: productData.productCode,
     productId: id,
@@ -267,10 +266,12 @@ const addLastRowAttribute = () => {
         hasPrice: false
       }
     ],
-    edited: true,
-    newValue: true
+    edited: true, //edit data (turn to treeSelect, input ...)
+    newValue: true //check is newValue so dont have to call api
   })
 }
+// save and add cant open this Collapse
+// (newID) ? disabledTabOpen.value = false : ''
 const OpenCollapse = () => {
   if (disabledTabOpen.value == true) {
     ElNotification({
@@ -319,20 +320,16 @@ const handleDeleteRow = async (scope) => {
             })
           }
         })
-  console.log('data', scope)
 }
 const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
-  if (
-    data.categories[2].id !== null &&
-    data.categories[3].id !== null &&
-    data.categories[4].id !== null
-  ) {
+  if (!data.newValue) {
     data.categoriesValue.push(data.categories[2].id, data.categories[3].id, data.categories[4].id)
   }
-  console.log('data', data.categoriesValue)
 }
+
+//cannot turn on switch when has no price
 const warningForSwitch = (rowDisabled: boolean) => {
   if (rowDisabled) {
     ElNotification({
@@ -348,10 +345,9 @@ const changeDataSwitch = (scope, dataSwitch) => {
         message: t('reuse.addPricesBeforeTurningOnSetting'),
         type: 'warning'
       })
-  console.log('data', scope, dataSwitch)
 }
+//check validate then newValue
 const handleSaveRow = (data, formEl: FormInstance | undefined) => {
-  console.log('save data', data)
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
@@ -365,12 +361,12 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
                 type: 'success'
               })
           })
+          //chua co xoa row cuoi khi post Fail
           .catch(() => {
             ElNotification({
               message: t('reuse.postFail'),
               type: 'error'
-            }),
-              data.pop()
+            })
           })
       }
     } else {
@@ -381,9 +377,8 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
       return false
     }
   })
-
-  console.log('call post', data) //then newValue =false
 }
+// only check 1 child node from 1 parent node
 const customCheck = (nodeObj, _selected, _subtree, row) => {
   const tree = treeRef.value!.getCheckedNodes(false, false)
   let sameParent = false
@@ -438,6 +433,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
 }
+//get data from router
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
@@ -474,17 +470,17 @@ const ruleSEO = reactive({
 })
 let callTableApiTime = 0
 const callTableApi = async (collapseItem) => {
-  //fix cung
   if (collapseItem.api !== undefined) {
     if (callTableApiTime == 0) {
       const res = await collapseItem.api({ ProductId: id })
       collapseItem.tableList = res.data
+      await getAttributeData()
       callTableApiTime++
     }
   }
   collapseItem.loading = false
 }
-
+// bảo backend trả id để xóa luôn ko cần reload trang
 const postData = async (data) => {
   await postProductLibrary(FORM_IMAGES(data))
     .then(() => {
@@ -502,6 +498,8 @@ const postData = async (data) => {
       })
     )
 }
+// init reactive type
+// could do better somehow... [key: string]: any
 type CustomFormData = {
   ProductTypeId: string
   BrandId: string
@@ -529,6 +527,8 @@ type ProductProperty = {
 }
 const emptyProductPropertyObj = {} as ProductProperty
 let productData = reactive(emptyProductPropertyObj)
+
+//manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
   productData = formData
   setFormData.BrandId = formData.categories[0].id
@@ -877,11 +877,11 @@ const SellTableDialogClose = () => {
 
 //handle opentab
 const disabledTabOpen = ref(false)
+//type == '' && isNaN(id) =true  when refreshing page
 if ((type == '' && isNaN(id)) || type == 'add') {
   disabledTabOpen.value = true
 }
 </script>
-<!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
   <el-collapse
     v-model="activeName"

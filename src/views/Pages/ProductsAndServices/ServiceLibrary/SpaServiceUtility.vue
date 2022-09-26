@@ -149,6 +149,10 @@ const rules = reactive({
   ],
   code: [required()],
   shortDescription: [required()],
+  cost: [required()],
+  promotePrice: [required()],
+  time: [required()],
+  warranty: [required()],
   description: [required()]
 })
 //call api for select options
@@ -262,8 +266,6 @@ const editData = async (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
-  console.log('data', data)
-
   await postSpa(data)
     .then(() =>
       ElNotification({

@@ -1,5 +1,5 @@
 <script>
-import { ElButton, ElRow, ElCol, ElOption } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
 
 export default {
   name: 'MultipleOptionsComponent',
@@ -125,7 +125,7 @@ export default {
 }
 </script>
 <template>
-  <el-select
+  <ElSelect
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
@@ -139,20 +139,20 @@ export default {
     :disabled="disabled"
   >
     <!-- value is tje first object when click on title -->
-    <el-option
+    <ElOption
       :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
-        <el-row type="flex" :gutter="24">
-          <el-col v-for="(filed, index) in fields" :key="index" class="text-ellipsis text-center"
-            ><strong>{{ filed }}</strong></el-col
+        <ElRow type="flex" :gutter="24">
+          <ElCol v-for="(filed, index) in fields" :key="index" class="text-ellipsis text-center"
+            ><strong>{{ filed }}</strong></ElCol
           >
-        </el-row>
+        </ElRow>
       </div>
-    </el-option>
-    <el-option
+    </ElOption>
+    <ElOption
       v-for="(item, index) in options"
       :key="index"
       :value="item[identifyKey]"
@@ -160,20 +160,20 @@ export default {
       :disabled="disabled"
     >
       <div class="select-table">
-        <el-row type="flex" :gutter="24">
-          <el-col
+        <ElRow type="flex" :gutter="24">
+          <ElCol
             v-for="(key, index) in acceptKey(item)"
             :key="index"
             class="text-ellipsis text-center"
           >
-            <el-tooltip placement="left-end" :content="item[key]" effect="light">
+            <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>
-            </el-tooltip>
-          </el-col>
-        </el-row>
+            </ElTooltip>
+          </ElCol>
+        </ElRow>
       </div>
-    </el-option>
-  </el-select>
+    </ElOption>
+  </ElSelect>
 </template>
 <style lang="css" scoped>
 /* @import '@/scss/variables.scss'; */

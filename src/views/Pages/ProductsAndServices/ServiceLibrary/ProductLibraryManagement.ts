@@ -25,7 +25,10 @@ export const businessProductLibrary = [
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
+      return h('span', { innerHTML: cellValue })
+    }
   },
   {
     field: 'cost',
@@ -38,18 +41,18 @@ export const businessProductLibrary = [
     field: 'time',
     label: t('reuse.timeMinute'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true
   },
   {
     field: 'warranty',
     label: t('reuse.insuranceDate'),
     minWidth: '150',
-    align: 'right',
+    align: 'center',
     sortable: true
   },
   {
-    field: 'image',
+    field: 'imageList',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center'
@@ -68,6 +71,7 @@ export const businessProductLibrary = [
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
+    align: 'center',
     headerFilter: 'Name'
   },
   {

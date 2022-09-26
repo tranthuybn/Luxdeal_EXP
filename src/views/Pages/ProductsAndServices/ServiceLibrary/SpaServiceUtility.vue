@@ -149,10 +149,10 @@ const rules = reactive({
   ],
   code: [required()],
   shortDescription: [required()],
-  cost: [required()],
-  promotePrice: [required()],
-  time: [required()],
-  warranty: [required()],
+  cost: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  promotePrice: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  time: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
+  warranty: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
   description: [required()]
 })
 //call api for select options

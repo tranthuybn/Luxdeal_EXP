@@ -1,126 +1,121 @@
-<script>
+<script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
+import { computed, watchEffect, ref, watch } from 'vue'
+const propsObj = defineProps({
+  // columns name
+  fields: {
+    type: Array,
+    default: () => [],
+    require: true
+  },
+  // options
+  items: {
+    type: Array,
+    default: () => [],
+    require: true
+  },
+  placeHolder: {
+    type: String,
+    default: 'Vui lòng chọn bản ghi'
+  },
+  // value key of record you want to use
+  valueKey: {
+    type: String,
+    default: ''
+  },
+  // label key of record you want to use
+  labelKey: {
+    type: String,
+    default: ''
+  },
+  // hidden key
+  hiddenKey: {
+    type: Array,
+    default: () => [],
+    require: true
+  },
+  defaultValue: {
+    type: [String, Number],
+    default: null
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  clearable: {
+    type: Boolean,
+    default: true
+  }
+})
 
-export default {
-  name: 'MultipleOptionsComponent',
-  props: {
-    // columns name
-    fields: {
-      type: Array,
-      default: () => [],
-      require: true
-    },
-    // options
-    items: {
-      type: Array,
-      default: () => [],
-      require: true
-    },
-    placeHolder: {
-      type: String,
-      default: 'Vui lòng chọn bản ghi'
-    },
-    // value key of record you want to use
-    valueKey: {
-      type: String,
-      default: ''
-    },
-    // label key of record you want to use
-    labelKey: {
-      type: String,
-      default: ''
-    },
-    // hidden key
-    hiddenKey: {
-      type: Array,
-      default: () => [],
-      require: true
-    },
-    defaultValue: {
-      type: [String, Number],
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    clearable: {
-      type: Boolean,
-      default: true
-    }
-  },
-  data() {
-    return {
-      selected: '',
-      options: []
-    }
-  },
+const emit = defineEmits(['updateValue'])
 
-  computed: {
-    // if have not value, it will be set by first value key
-    identifyKey() {
-      if (this.valueKey) {
-        return this.valueKey
-      } else if (this.items.length > 0) {
-        return Object.keys(this.items[0])[0]
-      } else return 'value'
-    },
-    identifyLabel() {
-      if (this.labelKey) {
-        return this.labelKey
-      } else if (this.items.length > 0) {
-        return Object.keys(this.items[0])[0]
-      } else return 'label'
+let selected = ref<string>('')
+const options = ref<Array<any>>([])
+
+// if have not value, it will be set by first value key
+const identifyKey = computed(() => {
+  const { valueKey, items } = propsObj
+  if (valueKey) {
+    return valueKey
+  } else if (Array.isArray(items) && items.length > 0) {
+    //returns an array of a given object's own enumerable property
+    return Object.keys(items[0])[0]
+  } else return 'value'
+})
+const identifyLabel = computed(() => {
+  const { labelKey, items } = propsObj
+  if (labelKey) {
+    return labelKey
+  } else if (Array.isArray(items) && items.length > 0) {
+    return Object.keys(items[0])[0]
+  } else return 'label'
+})
+
+// set value for multiple select if defaultValue available
+watchEffect(() => {
+  if (propsObj.items?.length > 0)
+    // set options for select box
+    options.value = propsObj.items
+})
+watch(
+  () => propsObj.defaultValue,
+  (val) => {
+    if (val) selected.value = val.toString()
+  }
+)
+
+const acceptKey = (item) => {
+  const { hiddenKey } = propsObj
+  if (hiddenKey.length > 0) {
+    return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
+  } else options.value = Object.keys(item)
+}
+const filter = (str) => {
+  const { items } = propsObj
+  const searchingKey = str.toLowerCase()
+  options.value = items.filter((item) => {
+    if (
+      item != null &&
+      Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
+    ) {
+      return true
     }
-  },
-  watch: {
-    // set value for multiple select if defaultValue available
-    items: {
-      immediate: true,
-      deep: true,
-      handler(val) {
-        if (val.length > 0) {
-          // set options for select box
-          this.options = val
-        }
-      }
-    },
-    defaultValue: {
-      immediate: true,
-      handler(val) {
-        if (val) {
-          this.selected = val.toString()
-        }
-      }
-    }
-  },
-  methods: {
-    acceptKey(item) {
-      if (this.hiddenKey.length > 0) {
-        return Object.keys(item).filter((el) => this.hiddenKey.indexOf(el) === -1)
-      } else this.options = Object.keys(item)
-    },
-    filter(str) {
-      this.selected = str
-      const searchingKey = str.toLowerCase()
-      this.options = this.items.filter((item) => {
-        if (
-          Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
-        ) {
-          return true
-        }
-      })
-    },
-    appearsEvent() {
-      this.options = this.items
-    },
-    valueChangeEvent(val) {
-      if (val) {
-        // find label
-        const obj = this.items.find((el) => el[this.valueKey] === val)
-        this.$emit('updateValue', val, obj[this.labelKey] ?? '')
-      }
-    }
+  })
+}
+const appearsEvent = () => {
+  const { items } = propsObj
+  options.value = items
+}
+const valueChangeEvent = (val) => {
+  if (val) {
+    const { items, valueKey, labelKey } = propsObj
+
+    // find label
+    const obj = items.find((el) => {
+      if (el) el[valueKey] === val
+    })
+    if (obj) emit('updateValue', val, obj[labelKey] ?? '')
   }
 }
 </script>
@@ -145,10 +140,17 @@ export default {
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
-        <ElRow type="flex" :gutter="24">
-          <ElCol v-for="(filed, index) in fields" :key="index" class="text-ellipsis text-center"
-            ><strong>{{ filed }}</strong></ElCol
+        <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
+          <ElCol
+            :span="24 / fields.length"
+            v-for="(filed, index) in fields"
+            :key="index"
+            class="text-ellipsis text-center text-blue-900"
           >
+            <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
+              <strong>{{ filed }}</strong>
+            </ElTooltip>
+          </ElCol>
         </ElRow>
       </div>
     </ElOption>
@@ -160,11 +162,12 @@ export default {
       :disabled="disabled"
     >
       <div class="select-table">
-        <ElRow type="flex" :gutter="24">
+        <ElRow type="flex" justify="space-between">
           <ElCol
             v-for="(key, index) in acceptKey(item)"
             :key="index"
             class="text-ellipsis text-center"
+            :span="24 / fields.length"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>

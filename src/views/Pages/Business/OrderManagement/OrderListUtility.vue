@@ -28,7 +28,11 @@ import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getProductsList, getCollaboratorsList, getPromotionsList } from '@/api/Business'
+import {
+  // getProductsList,
+  getCollaboratorsList,
+  getPromotionsList
+} from '@/api/Business'
 
 const { t } = useI18n()
 
@@ -1161,7 +1165,8 @@ const optionsCustomer = [
                   t('formDemo.productInformation')
                 ]"
                 :items="[
-                  { id: '1', productCode: 'abc', managementCode: 'edt', information: 'eryt' }
+                  { id: '1', productCode: 'abc', managementCode: 'edt', information: 'eryt' },
+                  { id: '2', productCode: 'abc', managementCode: 'edt', information: 'eryt' }
                 ]"
                 :valueKey="'id'"
                 :labelKey="'name'"

@@ -1,4 +1,5 @@
 import { config } from '@/config/axios/config'
+import { serviceResponse } from '../_reponseStructure'
 import { MockMethod } from 'vite-plugin-mock'
 
 const utility = 'Utility'
@@ -1187,9 +1188,16 @@ export default [
     timeout,
     response: ({ query }) => {
       const { roleName } = query
+      const responseStructure = new serviceResponse(
+        roleName === 'admin' ? adminList : testList,
+        200,
+        true,
+        result_code,
+        'Succeed',
+        null
+      )
       return {
-        code: result_code,
-        data: roleName === 'admin' ? adminList : testList
+        ...responseStructure
       }
     }
   }

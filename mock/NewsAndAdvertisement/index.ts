@@ -116,9 +116,16 @@ export default [
     method: 'get',
     timeout,
     response: () => {
+      const responseStructure = new serviceResponse(
+        members,
+        200,
+        true,
+        result_code,
+        'Succeed',
+        null
+      )
       return {
-        code: result_code,
-        data: members
+        ...responseStructure
       }
     }
   }

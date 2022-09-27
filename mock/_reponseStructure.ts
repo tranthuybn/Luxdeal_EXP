@@ -4,19 +4,19 @@ interface IPagination {
   count: Number
 }
 export class serviceResponse {
-  data: object
+  data: object | null
   StatusCode: Number
   Succeeded: boolean
   Code: Number | String
   Message: String
-  pagination: IPagination
+  pagination: IPagination | null
   constructor(
-    _data: object,
+    _data: object | null,
     _statusCode: Number,
     _succeeded: boolean,
     _code: Number | String,
     _message: String,
-    _pagination: IPagination
+    _pagination: IPagination | null
   ) {
     this.data = _data
     this.StatusCode = _statusCode

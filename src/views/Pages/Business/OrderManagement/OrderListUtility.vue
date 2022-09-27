@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -221,6 +221,7 @@ interface ListOfProductsForSaleType {
   id: string
   code: string
   quantity: number
+  selfImportAccessories: string | undefined
   dram: string
   unitPrice: string
   intoMoney: string
@@ -229,13 +230,14 @@ interface ListOfProductsForSaleType {
   edited: boolean
 }
 
-const ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([
+const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
   {
     name: '',
     productCode: '',
     id: '',
     code: '',
     quantity: 1,
+    selfImportAccessories: '',
     dram: t('formDemo.psc'),
     unitPrice: 'đ',
     intoMoney: 'đ',
@@ -503,6 +505,39 @@ const optionsCustomer = [
     label: t('formDemo.customer')
   }
 ]
+
+const forceRemove = ref(false)
+const addLastIndexSellTable = () => {
+  ListOfProductsForSale.push({
+    name: '',
+    productCode: '',
+    id: '',
+    code: '',
+    quantity: 1,
+    selfImportAccessories: undefined,
+    dram: t('formDemo.psc'),
+    unitPrice: 'đ',
+    intoMoney: 'đ',
+    paymentType: '',
+    alreadyPaidForTt: '',
+    edited: true
+  })
+}
+
+watch(
+  () => ListOfProductsForSale[ListOfProductsForSale.length - 1],
+  () => {
+    if (
+      ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories !== undefined &&
+      // ListOfProductsForSale[ListOfProductsForSale.length - 1].name !== undefined &&
+      // ListOfProductsForSale[ListOfProductsForSale.length - 1].intoMoney !== undefined &&
+      forceRemove.value == false
+    ) {
+      addLastIndexSellTable()
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <template>

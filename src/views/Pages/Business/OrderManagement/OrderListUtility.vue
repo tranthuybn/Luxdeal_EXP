@@ -405,42 +405,29 @@ const customerList = ref([
 ])
 
 const radioVAT = ref(false)
-// const noLabelTable = [
-//   {
-//     id: '',
-//     code: '',
-//     name: ''
-//   }
-// ]
-// const productsTable = [
-//   {
-//     id: '',
-//     code: '',
-//     name: ''
-//   }
-// ]
+
 // Call api danh sách sản phẩm
-let listProductsTable = ref()
-const listProducts = ref()
-const optionsApi = ref()
-let optionCallAPi = 0
-const callApi = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList('')
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id,
-      value: product.id,
-      name: product.name,
-      price: product.price
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
-    console.log('listProductsTable.value', listProductsTable.value)
-    let productsList = optionsApi.value
-    return productsList
-  }
-}
+// let listProductsTable = ref()
+// const listProducts = ref()
+// const optionsApi = ref()
+// let optionCallAPi = 0
+// const callApi = async () => {
+//   if (optionCallAPi == 0) {
+//     const res = await getProductsList('')
+//     listProducts.value = res.data
+//     optionsApi.value = listProducts.value.map((product) => ({
+//       label: product.id,
+//       value: product.id,
+//       name: product.name,
+//       price: product.price
+//     }))
+//     optionCallAPi++
+//     listProductsTable.value = optionsApi.value
+//     console.log('listProductsTable.value', listProductsTable.value)
+//     let productsList = optionsApi.value
+//     return productsList
+//   }
+// }
 // const changeName = (optionID, scope) => {
 //   const option = optionsApi.value.find((option) => option.value == optionID)
 //   scope.row.name = option.name

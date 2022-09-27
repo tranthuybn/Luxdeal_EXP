@@ -22,7 +22,9 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRODUCT_PROPERTY: '/api/v1/Product/GetProductProperty',
   GET_COLLABORATOR: '/api/v1/Order/GetCollaborator',
   ADD_PRODUCT_PROPERTY: '/api/v1/Product/CreateProductProperty',
-  DELETE_PRODUCT_PROPERTY: '/api/v1/Product/DeleteProductProperty'
+  DELETE_PRODUCT_PROPERTY: '/api/v1/Product/DeleteProductProperty',
+  GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
+  CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

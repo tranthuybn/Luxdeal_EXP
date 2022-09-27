@@ -92,6 +92,22 @@ export const getCodeAndNameProductLibrary = async (params?): Promise<IResponse> 
   )
   return res && res.data
 }
+export const getPriceProductProperty = async (params?): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRICE_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const changePriceProductProperty = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.CHANGE_PRICE_PRODUCT_PROPERTY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const postProductLibrary = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data },

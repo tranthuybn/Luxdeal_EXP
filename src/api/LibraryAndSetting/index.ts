@@ -156,6 +156,13 @@ export const getProductProperty = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const updateProductProperty = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT_PROPERTY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const deleteSpa = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {

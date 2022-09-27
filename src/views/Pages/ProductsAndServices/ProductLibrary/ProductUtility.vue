@@ -14,7 +14,8 @@ import {
   postProductProperty,
   deleteProductProperty,
   getPriceProductProperty,
-  changePriceProductProperty
+  changePriceProductProperty,
+  updateProductProperty
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -326,7 +327,7 @@ const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[2].id, data.categories[3].id, data.categories[4].id)
+    data.categoriesValue.push(data.categories[0].id, data.categories[1].id, data.categories[2].id)
   }
 }
 
@@ -346,6 +347,28 @@ const changeDataSwitch = (scope, dataSwitch) => {
         message: t('reuse.addPricesBeforeTurningOnSetting'),
         type: 'warning'
       })
+}
+const emptyUpdateProductPropertyObj = {} as ProductProperty
+const customUpdateData = reactive(emptyUpdateProductPropertyObj)
+const customUpdate = async (data) => {
+  customUpdateData.id = data.id
+  customUpdateData.code = data.code
+  customUpdateData.categories = []
+  customUpdateData.categories[0] = {
+    id: 1
+    //"key": "Gender",
+    //"value": "Túi + Ví"
+  }
+  customUpdateData.categories[1] = { ...data.categories[1] }
+  customUpdateData.categories[2] = { ...data.categories[2] }
+  customUpdateData.categories[3] = { ...data.categories[3] }
+  customUpdateData.categories[4] = {
+    id: 116 //"key": "State",
+    //"value": "New"
+  }
+  customUpdateData.bussinessSetups = data.bussinessSetups
+  console.log('custom', customUpdateData)
+  return customUpdateData
 }
 //check validate then newValue
 const handleSaveRow = (data, formEl: FormInstance | undefined) => {
@@ -369,6 +392,22 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
               type: 'error'
             })
           })
+      } else {
+        data = await customUpdate(data)
+        console.log('send update data', data)
+        await updateProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.updateSuccess'),
+              type: 'success'
+            })
+          })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.updateFail'),
+              type: 'error'
+            })
+          })
       }
     } else {
       ElNotification({
@@ -378,6 +417,7 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
       return false
     }
   })
+  console.log('data update/post', data)
 }
 // only check 1 child node from 1 parent node
 const customCheck = (nodeObj, _selected, _subtree, row) => {
@@ -433,6 +473,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
+  console.log('row after select', row)
 }
 //get data from router
 const router = useRouter()
@@ -689,7 +730,7 @@ const openRentTable = async (dialogTitle) => {
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
-  sellDialogTitle.value = `${scope.row.categories[2].value},${scope.row.categories[3].value},${scope.row.categories[4].value}`
+  sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
   sellTableVisible.value = true
   if (callApiSellTable == 0) {
     const res = collapse[8].api
@@ -1120,7 +1161,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
               <span v-else>{{
                 scope.row.categoriesLabel
                   ? scope.row.categoriesLabel.toString()
-                  : `${scope.row.categories[2].value},${scope.row.categories[3].value},${scope.row.categories[4].value}`
+                  : `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
               }}</span>
             </template>
           </ElTableColumn>

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { Collapse } from '../../Components/Type'
+import { useIcon } from '@/hooks/web/useIcon'
+import { Form } from '@/components/Form'
+import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
+  UploadFile,
   ElDivider,
-  ElSwitch,
   ElRadio,
   ElRadioGroup,
   ElTable,
@@ -13,26 +16,15 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu,
-  ElIcon
+  ElDropdownMenu
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
-import { Collapse } from '../../Components/Type'
-import { useIcon } from '@/hooks/web/useIcon'
-import { Form } from '@/components/Form'
-import { useI18n } from '@/hooks/web/useI18n'
-import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
 import { useForm } from '@/hooks/web/useForm'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'information',
-    label: t('router.analysis'),
+    field: 'collectionInfo',
+    label: 'Thông tin chung',
     component: 'Divider',
     colProps: {
       span: 12
@@ -94,7 +86,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.detailsOfFlashSaleProgram'),
+    title: 'Chi tiết chương trình bộ sưu tập',
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -124,8 +116,10 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 
-const discountCode = ref('FS3452323')
-//upload image
+const collectionCode = ref('FS3452323')
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
 const handleRemove = (file: UploadFile) => {
   console.log(file)
 }
@@ -162,11 +156,8 @@ const tableData = [
   }
 ]
 
-const radioOptionCustomer = ref('2')
-
-const radioOptionPromotion = ref('Giảm theo %')
-const valueSwitch = ref(true)
-const awesome = ref(true)
+const radioSelectObject = ref(1)
+const radioVAT = ref(false)
 </script>
 
 <template>
@@ -191,7 +182,7 @@ const awesome = ref(true)
               <template #discountCode>
                 <div class="discountCode">
                   <p
-                    >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
+                    >Mã chương trình BST <strong>{{ collectionCode }}</strong></p
                   >
                 </div>
               </template>
@@ -202,13 +193,18 @@ const awesome = ref(true)
                   </label>
 
                   <div class="flex w-[80%] gap-2">
+                    <!-- <input
+                        class="w-[50%] border-1 outline-none pl-2"
+                        type="text"
+                        :placeholder="`Giảm theo %`"
+                      /> -->
                     <div class="w-[50%] items-center border-1 rounded">
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
                           <span
                             class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2"
                           >
-                            {{ radioOptionPromotion }}
+                            Giảm theo %
                           </span>
                           <Icon
                             icon="material-symbols:keyboard-arrow-down"
@@ -219,12 +215,12 @@ const awesome = ref(true)
                         <template #dropdown>
                           <el-dropdown-menu>
                             <el-dropdown-item>
-                              <el-radio-group v-model="radioOptionPromotion" class="flex-col">
+                              <el-radio-group v-model="radioVAT" class="flex-col">
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Giảm theo %"
+                                    label="1"
                                     size="large"
                                     >Giảm theo %</el-radio
                                   >
@@ -233,7 +229,7 @@ const awesome = ref(true)
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Giảm theo số tiền"
+                                    label="2"
                                     size="large"
                                     >Giảm theo số tiền</el-radio
                                   >
@@ -242,7 +238,7 @@ const awesome = ref(true)
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Không khuyến mãi"
+                                    label="3"
                                     size="large"
                                     >Không khuyến mãi</el-radio
                                   >
@@ -307,7 +303,7 @@ const awesome = ref(true)
               </template>
               <template #selectObject>
                 <div class="my-2 flex items-center text-sm">
-                  <el-radio-group v-model="radioOptionCustomer" class="ml-4">
+                  <el-radio-group v-model="radioSelectObject" class="ml-4">
                     <el-radio label="1">Tất cả khách hàng</el-radio>
                     <el-radio label="2">Chọn khách hàng chi tiết</el-radio>
                   </el-radio-group>
@@ -317,7 +313,7 @@ const awesome = ref(true)
                   <el-table-column prop="codeCustomer" label="Mã khách hàng" width="150" />
                   <el-table-column prop="nameCustomer" label="Tên khách hàng" width="600" />
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <el-button type="danger">Xóa</el-button>
+                    <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
                   </el-table-column>
                 </el-table>
 
@@ -326,44 +322,30 @@ const awesome = ref(true)
                 <el-table :data="tableData" border stripe style="width: 100%">
                   <el-table-column prop="codeCustomer" label="Mã quản lý sản phẩm" width="150" />
                   <el-table-column prop="nameCustomer" label="Thông tin sản phẩm" width="500" />
-                  <el-table-column prop="valueSw" label="Tham gia chương trình" width="100">
-                    <el-switch
-                      v-model="valueSwitch"
-                      inline-prompt
-                      size="large"
-                      width="50px"
-                      active-text="ON"
-                      inactive-text="OFF"
-                    />
-                  </el-table-column>
+                  <el-table-column prop="nameCustomer" label="Tham gia chương trình" width="100" />
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <!-- <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button> -->
-                    <el-button type="danger">Xóa</el-button>
+                    <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
                   </el-table-column>
                 </el-table>
 
                 <el-divider content-position="left">Trạng thái</el-divider>
 
-                <p class="option-select text-center"
+                <p class="option-select"
                   >Trạng thái
-                  <span v-if="awesome" class="option-1 ml-2">Đang chạy chương trình</span>
-                  <span v-else class="option-2">Chờ duyệt</span>
-                  <i class="ml-3" style="color: #3ddf4e"
+                  <span class="option-1">Đang chạy chương trình</span>
+                  <span class="option-2">Chờ duyệt</span>
+                  <i class="ml-3" style="color: red"
                     >Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt
                   </i>
                 </p>
 
-                <div class="option-page mt-5">
-                  <div v-if="awesome" class="flex justify-center option-1">
-                    <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
-                      >Lưu & chờ duyệt</el-button
-                    >
+                <div class="option-page">
+                  <div class="flex justify-center option-1">
+                    <el-button type="primary" class="min-w-42 min-h-11">Lưu & chờ duyệt</el-button>
                     <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
                   </div>
-                  <div class="flex justify-center option-2" v-else>
-                    <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11"
-                      >Sửa</el-button
-                    >
+                  <div class="flex justify-center option-2">
+                    <el-button plain class="min-w-42 min-h-11">Sửa</el-button>
                     <el-button type="danger" class="min-w-42 min-h-11">Hủy chương trình</el-button>
                   </div>
                 </div>
@@ -372,43 +354,9 @@ const awesome = ref(true)
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-              <el-divider content-position="left">Hình ảnh</el-divider>
-              <div class="upload-image">
-                <el-upload action="#" list-type="picture-card" :auto-upload="false">
-                  <el-icon><Plus /></el-icon>
-
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <el-icon><zoom-in /></el-icon>
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                          <el-icon><Download /></el-icon>
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                          <el-icon><Delete /></el-icon>
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                </el-upload>
-
-                <el-dialog v-model="dialogVisible">
-                  <img w-full :src="dialogImageUrl" />
-                </el-dialog>
+              <el-divider content-position="left">hình ảnh</el-divider>
+              <div class="flex">
+                <div class="pl-4"> Thêm ảnh </div>
               </div>
             </div>
           </div>
@@ -431,33 +379,6 @@ const awesome = ref(true)
 }
 .black-color {
   color: #000000;
-}
-
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
 }
 
 ::v-deep(.el-select) {

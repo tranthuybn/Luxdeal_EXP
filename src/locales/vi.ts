@@ -267,7 +267,9 @@ export default {
     serviceTrackingTable: 'Bảng theo dõi dịch vụ phát sinh',
     importTrackingTable: 'Bảng theo dõi hàng cầm đồ trả lại/nhập kho nội bộ',
     depositTerm: 'Kỳ hạn ký gửi',
-    atLeast14Days: 'Ít nhất 14 ngày'
+    atLeast14Days: 'Ít nhất 14 ngày',
+    detailsOfFlashSaleProgram: 'Chi tiết chương trình flash sale',
+    flashSaleCode: 'Mã chương trình Flash sale'
   },
   button: {
     add: 'Thêm nhanh'

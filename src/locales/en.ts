@@ -265,7 +265,9 @@ export default {
     serviceTrackingTable: 'Service tracking table',
     importTrackingTable: 'Import tracking table',
     depositTerm: 'DepositTerm',
-    atLeast14Days: 'At least 14 days'
+    atLeast14Days: 'At least 14 days',
+    detailsOfFlashSaleProgram: 'Details of flash sale program',
+    flashSaleCode: 'Flash sale code'
   },
   button: {
     add: 'Add quick'

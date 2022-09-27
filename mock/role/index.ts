@@ -397,28 +397,46 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/FlashSale',
             meta: {
               title: 'router.flashsale'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
+                name: `business.promotion-strategy.flash-sale.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
-          {
-            path: `${utility}`,
-            component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
-            name: `business.promotion-strategy.flash-sale.${utility}`,
-            meta: {
-              title: 'reuse.createANewUtility',
-              noTagsView: true,
-              noCache: true,
-              hidden: true,
-              showMainRoute: true
-            }
-          },
+
           {
             path: 'collection',
             name: 'business.promotion-strategy.collection',
             component: 'views/Pages/Business/PromotionStrategy/Collection',
             meta: {
               title: 'router.collection'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/CollectionUtility',
+                name: `business.promotion-strategy.collection.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
+
           {
             path: 'new-product',
             name: 'business.promotion-strategy.new-product',

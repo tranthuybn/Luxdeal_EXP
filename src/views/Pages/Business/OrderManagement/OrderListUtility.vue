@@ -454,7 +454,7 @@ const optionsCollaborators = ref()
 let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsList({ Keyword: 0 })
+    const res = await getCollaboratorsList('')
     listCollaborators.value = res.data
     optionsCollaborators.value = listCollaborators.value.map((product) => ({
       label: product.name,

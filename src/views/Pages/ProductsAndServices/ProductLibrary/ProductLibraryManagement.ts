@@ -1,4 +1,4 @@
-import { getCategories } from '@/api/LibraryAndSetting'
+import { getCategories, getTags } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
@@ -479,6 +479,26 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   }
 ])
+let callTagAPI = 0
+let tagsSelect: ComponentOptions[] = reactive([])
+const getTagsOptions = () => {
+  if (callTagAPI == 0) {
+    getTags({})
+      .then((res) => {
+        if (res.data) {
+          tagsSelect = res.data.map((tag) => ({
+            label: tag.value,
+            value: tag.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callTagAPI++)
+    return tagsSelect
+  }
+}
 export const columnManagementSeo = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -517,16 +537,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: [
-        {
-          label: 'Túi hàng hiệu',
-          value: '1'
-        },
-        {
-          label: 'LV',
-          value: '2'
-        }
-      ]
+      options: getTagsOptions()
     },
     colProps: {
       span: 16

@@ -1147,6 +1147,13 @@ export default {
     saveFail: 'Lưu thất bại',
     cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
     cantFindData: 'Không thể tìm thấy dữ liệu',
-    getDataSuccess: 'Lấy dữ liệu thành công'
+    getDataSuccess: 'Lấy dữ liệu thành công',
+    //product property
+    removeProductProperty: 'Xóa thuộc tính sản phẩm',
+    clickEditForEditing: 'Ấn nút chỉnh sửa để Bật/Tắt cài đặt',
+    addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
+    addFail: 'Thêm thất bại',
+    fillAllAttribute: 'Điền đủ thuộc tính',
+    cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính'
   }
 }

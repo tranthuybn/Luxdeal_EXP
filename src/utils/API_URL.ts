@@ -25,7 +25,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   UPDATE_PRODUCT_PROPERTY: '/api/v1/Product/UpdateProductProperty',
   DELETE_PRODUCT_PROPERTY: '/api/v1/Product/DeleteProductProperty',
   GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
-  CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice'
+  CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
+  GET_TAGS: '/api/v1/Product/GetTag'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

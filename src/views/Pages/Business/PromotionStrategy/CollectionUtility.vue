@@ -86,7 +86,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: 'Chi tiết chương trình bộ sưu tập',
+    title: t('formDemo.collectionProgramDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -114,12 +114,9 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
+const valueSwitch = ref(true)
 
-const collectionCode = ref('FS3452323')
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
+//upload image
 const handleRemove = (file: UploadFile) => {
   console.log(file)
 }
@@ -132,6 +129,12 @@ const handlePictureCardPreview = (file: UploadFile) => {
 const handleDownload = (file: UploadFile) => {
   console.log(file)
 }
+const activeName = ref(collapse[0].name)
+
+const collectionCode = ref('FS3452323')
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
 
 const tableData = [
   {
@@ -155,9 +158,9 @@ const tableData = [
     nameCustomer: 'Kat'
   }
 ]
-
-const radioSelectObject = ref(1)
-const radioVAT = ref(false)
+const radioOptionCustomer = ref('2')
+const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
+const awesome = ref(true)
 </script>
 
 <template>
@@ -182,14 +185,14 @@ const radioVAT = ref(false)
               <template #discountCode>
                 <div class="discountCode">
                   <p
-                    >Mã chương trình BST <strong>{{ collectionCode }}</strong></p
+                    >{{ t('formDemo.codeCollection') }} <strong>{{ collectionCode }}</strong></p
                   >
                 </div>
               </template>
               <template #promotion>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
-                    >Khuyễn mại <span style="color: red">*</span>
+                    >{{ t('formDemo.promotions') }} <span style="color: red">*</span>
                   </label>
 
                   <div class="flex w-[80%] gap-2">
@@ -204,7 +207,7 @@ const radioVAT = ref(false)
                           <span
                             class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2"
                           >
-                            Giảm theo %
+                            {{ radioOptionPromotion }}
                           </span>
                           <Icon
                             icon="material-symbols:keyboard-arrow-down"
@@ -215,32 +218,32 @@ const radioVAT = ref(false)
                         <template #dropdown>
                           <el-dropdown-menu>
                             <el-dropdown-item>
-                              <el-radio-group v-model="radioVAT" class="flex-col">
+                              <el-radio-group v-model="radioOptionPromotion" class="flex-col">
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="1"
+                                    :label="t('formDemo.decreaseByPercent')"
                                     size="large"
-                                    >Giảm theo %</el-radio
+                                    >{{ t('formDemo.decreaseByPercent') }}</el-radio
                                   >
                                 </div>
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="2"
+                                    :label="t('formDemo.decreaseByAmount')"
                                     size="large"
-                                    >Giảm theo số tiền</el-radio
+                                    >{{ t('formDemo.decreaseByAmount') }}</el-radio
                                   >
                                 </div>
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="3"
+                                    :label="t('formDemo.noPromotion')"
                                     size="large"
-                                    >Không khuyến mãi</el-radio
+                                    >{{ t('formDemo.noPromotion') }}</el-radio
                                   >
                                 </div>
                               </el-radio-group>
@@ -286,67 +289,108 @@ const radioVAT = ref(false)
               <template #desc>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >Mô tả ngắn<span style="color: red">*</span>
+                    >{{ t('formDemo.shortDescription') }}<span style="color: red">*</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`nhập mô tả ngắn`"
+                    :placeholder="t('formDemo.enterDescription')"
                   />
                 </div>
               </template>
 
               <template #applicableObject>
                 <div class="flex w-[100%]">
-                  <el-divider content-position="left">Đối tượng áp dụng</el-divider>
+                  <el-divider content-position="left">{{
+                    t('reuse.subjectsOfApplication')
+                  }}</el-divider>
                 </div>
               </template>
               <template #selectObject>
                 <div class="my-2 flex items-center text-sm">
-                  <el-radio-group v-model="radioSelectObject" class="ml-4">
-                    <el-radio label="1">Tất cả khách hàng</el-radio>
-                    <el-radio label="2">Chọn khách hàng chi tiết</el-radio>
+                  <el-radio-group v-model="radioOptionCustomer" class="ml-4">
+                    <el-radio label="1">{{ t('reuse.allCustomer') }}</el-radio>
+                    <el-radio label="2">{{ t('formDemo.chooseCustomerDetail') }}</el-radio>
                   </el-radio-group>
                 </div>
 
                 <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column prop="codeCustomer" label="Mã khách hàng" width="150" />
-                  <el-table-column prop="nameCustomer" label="Tên khách hàng" width="600" />
+                  <el-table-column
+                    prop="codeCustomer"
+                    :label="t('reuse.customerCode')"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="nameCustomer"
+                    :label="t('reuse.customerName')"
+                    width="600"
+                  />
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
+                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
                   </el-table-column>
                 </el-table>
-
-                <el-divider content-position="left">Sản phẩm áp dụng</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.applicableProducts')
+                }}</el-divider>
 
                 <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column prop="codeCustomer" label="Mã quản lý sản phẩm" width="150" />
-                  <el-table-column prop="nameCustomer" label="Thông tin sản phẩm" width="500" />
-                  <el-table-column prop="nameCustomer" label="Tham gia chương trình" width="100" />
+                  <el-table-column
+                    prop="codeCustomer"
+                    :label="t('formDemo.productManagementCode')"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="nameCustomer"
+                    :label="t('formDemo.productInfomation')"
+                    width="500"
+                  />
+                  <el-table-column prop="valueSw" :label="t('formDemo.joinTheProgram')" width="100">
+                    <el-switch
+                      v-model="valueSwitch"
+                      inline-prompt
+                      size="large"
+                      width="50px"
+                      active-text="ON"
+                      inactive-text="OFF"
+                    />
+                  </el-table-column>
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
+                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
                   </el-table-column>
                 </el-table>
 
-                <el-divider content-position="left">Trạng thái</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
 
-                <p class="option-select"
-                  >Trạng thái
-                  <span class="option-1">Đang chạy chương trình</span>
-                  <span class="option-2">Chờ duyệt</span>
-                  <i class="ml-3" style="color: red"
-                    >Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt
+                <p class="option-select text-center"
+                  >{{ t('formDemo.status') }}
+                  <span v-if="awesome" class="option-1 ml-2">{{
+                    t('formDemo.theProgramIsRunning')
+                  }}</span>
+                  <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
+                  <i class="ml-3" style="color: #3ddf4e"
+                    >{{
+                      t('formDemo.newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule')
+                    }}
                   </i>
                 </p>
 
-                <div class="option-page">
-                  <div class="flex justify-center option-1">
-                    <el-button type="primary" class="min-w-42 min-h-11">Lưu & chờ duyệt</el-button>
+                <div class="option-page mt-5">
+                  <div v-if="awesome" class="flex justify-center option-1">
+                    <el-button
+                      type="primary"
+                      @click="awesome = !awesome"
+                      class="min-w-42 min-h-11"
+                      >{{ t('formDemo.saveAndPending') }}</el-button
+                    >
                     <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
                   </div>
-                  <div class="flex justify-center option-2">
-                    <el-button plain class="min-w-42 min-h-11">Sửa</el-button>
-                    <el-button type="danger" class="min-w-42 min-h-11">Hủy chương trình</el-button>
+                  <div class="flex justify-center option-2" v-else>
+                    <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11"
+                      >Sửa</el-button
+                    >
+                    <el-button type="danger" class="min-w-42 min-h-11">{{
+                      t('formDemo.cancelTheProgram')
+                    }}</el-button>
                   </div>
                 </div>
               </template>
@@ -354,9 +398,43 @@ const radioVAT = ref(false)
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-              <el-divider content-position="left">hình ảnh</el-divider>
-              <div class="flex">
-                <div class="pl-4"> Thêm ảnh </div>
+              <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
+              <div class="upload-image">
+                <el-upload action="#" list-type="picture-card" :auto-upload="false">
+                  <el-icon><Plus /></el-icon>
+
+                  <template #file="{ file }">
+                    <div>
+                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                      <span class="el-upload-list__item-actions">
+                        <span
+                          class="el-upload-list__item-preview"
+                          @click="handlePictureCardPreview(file)"
+                        >
+                          <el-icon><zoom-in /></el-icon>
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleDownload(file)"
+                        >
+                          <el-icon><Download /></el-icon>
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleRemove(file)"
+                        >
+                          <el-icon><Delete /></el-icon>
+                        </span>
+                      </span>
+                    </div>
+                  </template>
+                </el-upload>
+
+                <el-dialog v-model="dialogVisible">
+                  <img w-full :src="dialogImageUrl" />
+                </el-dialog>
               </div>
             </div>
           </div>

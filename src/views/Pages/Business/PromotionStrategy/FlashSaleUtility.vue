@@ -164,7 +164,7 @@ const tableData = [
 
 const radioOptionCustomer = ref('2')
 
-const radioOptionPromotion = ref('Giảm theo %')
+const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
 const valueSwitch = ref(true)
 const awesome = ref(true)
 </script>
@@ -198,7 +198,7 @@ const awesome = ref(true)
               <template #promotion>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
-                    >Khuyễn mại <span style="color: red">*</span>
+                    >{{ t('formDemo.promotions') }} <span style="color: red">*</span>
                   </label>
 
                   <div class="flex w-[80%] gap-2">
@@ -224,27 +224,27 @@ const awesome = ref(true)
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Giảm theo %"
+                                    :label="t('formDemo.decreaseByPercent')"
                                     size="large"
-                                    >Giảm theo %</el-radio
+                                    >{{ t('formDemo.decreaseByPercent') }}</el-radio
                                   >
                                 </div>
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Giảm theo số tiền"
+                                    :label="t('formDemo.decreaseByAmount')"
                                     size="large"
-                                    >Giảm theo số tiền</el-radio
+                                    >{{ t('formDemo.decreaseByAmount') }}</el-radio
                                   >
                                 </div>
                                 <div style="width: 100%">
                                   <el-radio
                                     class="text-left"
                                     style="color: blue"
-                                    label="Không khuyến mãi"
+                                    :label="t('formDemo.noPromotion')"
                                     size="large"
-                                    >Không khuyến mãi</el-radio
+                                    >{{ t('formDemo.noPromotion') }}</el-radio
                                   >
                                 </div>
                               </el-radio-group>
@@ -260,7 +260,7 @@ const awesome = ref(true)
                       <input
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         type="text"
-                        :placeholder="`nhập số %`"
+                        :placeholder="t('formDemo.enterPercent')"
                       />
                       <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
                     </div>
@@ -290,43 +290,63 @@ const awesome = ref(true)
               <template #desc>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >Mô tả ngắn<span style="color: red">*</span>
+                    >{{ t('formDemo.shortDescription') }}<span style="color: red">*</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`nhập mô tả ngắn`"
+                    :placeholder="t('formDemo.enterDescription')"
                   />
                 </div>
               </template>
 
               <template #applicableObject>
                 <div class="flex w-[100%]">
-                  <el-divider content-position="left">Đối tượng áp dụng</el-divider>
+                  <el-divider content-position="left">{{
+                    t('reuse.subjectsOfApplication')
+                  }}</el-divider>
                 </div>
               </template>
               <template #selectObject>
                 <div class="my-2 flex items-center text-sm">
                   <el-radio-group v-model="radioOptionCustomer" class="ml-4">
-                    <el-radio label="1">Tất cả khách hàng</el-radio>
-                    <el-radio label="2">Chọn khách hàng chi tiết</el-radio>
+                    <el-radio label="1">{{ t('reuse.allCustomer') }}</el-radio>
+                    <el-radio label="2">{{ t('formDemo.chooseCustomerDetail') }}</el-radio>
                   </el-radio-group>
                 </div>
 
                 <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column prop="codeCustomer" label="Mã khách hàng" width="150" />
-                  <el-table-column prop="nameCustomer" label="Tên khách hàng" width="600" />
+                  <el-table-column
+                    prop="codeCustomer"
+                    :label="t('reuse.customerCode')"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="nameCustomer"
+                    :label="t('reuse.customerName')"
+                    width="600"
+                  />
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <el-button type="danger">Xóa</el-button>
+                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
                   </el-table-column>
                 </el-table>
 
-                <el-divider content-position="left">Sản phẩm áp dụng</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.applicableProducts')
+                }}</el-divider>
 
                 <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column prop="codeCustomer" label="Mã quản lý sản phẩm" width="150" />
-                  <el-table-column prop="nameCustomer" label="Thông tin sản phẩm" width="500" />
-                  <el-table-column prop="valueSw" label="Tham gia chương trình" width="100">
+                  <el-table-column
+                    prop="codeCustomer"
+                    :label="t('formDemo.productManagementCode')"
+                    width="150"
+                  />
+                  <el-table-column
+                    prop="nameCustomer"
+                    :label="t('formDemo.productInfomation')"
+                    width="500"
+                  />
+                  <el-table-column prop="valueSw" :label="t('formDemo.joinTheProgram')" width="100">
                     <el-switch
                       v-model="valueSwitch"
                       inline-prompt
@@ -337,26 +357,32 @@ const awesome = ref(true)
                     />
                   </el-table-column>
                   <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <!-- <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button> -->
-                    <el-button type="danger">Xóa</el-button>
+                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
                   </el-table-column>
                 </el-table>
 
-                <el-divider content-position="left">Trạng thái</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
 
                 <p class="option-select text-center"
-                  >Trạng thái
-                  <span v-if="awesome" class="option-1 ml-2">Đang chạy chương trình</span>
-                  <span v-else class="option-2">Chờ duyệt</span>
+                  >{{ t('formDemo.status') }}
+                  <span v-if="awesome" class="option-1 ml-2">{{
+                    t('formDemo.theProgramIsRunning')
+                  }}</span>
+                  <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
                   <i class="ml-3" style="color: #3ddf4e"
-                    >Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt
+                    >{{
+                      t('formDemo.newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule')
+                    }}
                   </i>
                 </p>
 
                 <div class="option-page mt-5">
                   <div v-if="awesome" class="flex justify-center option-1">
-                    <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
-                      >Lưu & chờ duyệt</el-button
+                    <el-button
+                      type="primary"
+                      @click="awesome = !awesome"
+                      class="min-w-42 min-h-11"
+                      >{{ t('formDemo.saveAndPending') }}</el-button
                     >
                     <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
                   </div>
@@ -364,7 +390,9 @@ const awesome = ref(true)
                     <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11"
                       >Sửa</el-button
                     >
-                    <el-button type="danger" class="min-w-42 min-h-11">Hủy chương trình</el-button>
+                    <el-button type="danger" class="min-w-42 min-h-11">{{
+                      t('formDemo.cancelTheProgram')
+                    }}</el-button>
                   </div>
                 </div>
               </template>
@@ -372,7 +400,7 @@ const awesome = ref(true)
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-              <el-divider content-position="left">Hình ảnh</el-divider>
+              <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
               <div class="upload-image">
                 <el-upload action="#" list-type="picture-card" :auto-upload="false">
                   <el-icon><Plus /></el-icon>
@@ -462,6 +490,9 @@ const awesome = ref(true)
 
 ::v-deep(.el-select) {
   width: 100%;
+}
+::v-deep(.el-table .cell) {
+  word-break: break-word;
 }
 
 ::v-deep(.el-textarea__inner) {

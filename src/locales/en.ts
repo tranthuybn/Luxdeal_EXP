@@ -113,6 +113,7 @@ export default {
     statusAndFunctional: 'Status and functional',
     status: 'Status',
     pending: 'Pending',
+    saveAndPending: 'Save and pending',
     isActive: 'Is active',
     pauseActivity: 'Pause activity',
     enterServiceCode: 'Enter service code',
@@ -157,6 +158,7 @@ export default {
     orderStatus: 'Order status',
     paymenAndDelivery: 'Payment & delivery',
     chooseACustomer: 'Choose a customer',
+    chooseCustomerDetail: 'Choose customer detail',
     delivery: 'Delivery',
     chooseDelivery: 'Choose delivery',
     deliveryAddress: 'Delivery address',
@@ -267,7 +269,22 @@ export default {
     depositTerm: 'DepositTerm',
     atLeast14Days: 'At least 14 days',
     onetimePaymentInAdvance: 'one-time payment in advance',
-    payAfterOneTime: 'pay after one time'
+    payAfterOneTime: 'pay after one time',
+    detailsOfFlashSaleProgram: 'Details of flash sale program',
+    flashSaleCode: 'Flash sale code',
+    promotions: 'Promotions',
+    applicableProducts: 'Applicable products',
+    joinTheProgram: 'Join the program',
+    theProgramIsRunning: 'The program is Running',
+    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
+      'New and edit Flasher Programs must have SA approval in the Browsing module',
+    cancelTheProgram: 'Cancel the program',
+    decreaseByPercent: 'Decrease by percent',
+    enterPercent: 'Enter percentage',
+    decreaseByAmount: 'Decrease by amount',
+    noPromotion: 'No promotion',
+    collectionProgramDetails: 'Collection program details',
+    codeCollection: 'Collection code'
   },
   button: {
     add: 'Add quick'
@@ -613,6 +630,7 @@ export default {
     picture: 'Picture',
     collectionCode: 'Collection Code',
     subject: 'Subject',
+    subjectsOfApplication: 'Subjects of application',
     promotion: 'Promotion',
     newproductCode: 'New Product Code',
     flashSaleCode: 'Flash Sale Code',

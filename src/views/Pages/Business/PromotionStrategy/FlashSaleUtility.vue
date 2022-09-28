@@ -13,15 +13,13 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu,
-  ElIcon
+  ElDropdownMenu
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
-import { Delete, Download, Plus, ZoomIn } from '@element-plus/icons-vue'
 import { useForm } from '@/hooks/web/useForm'
 
 const dialogImageUrl = ref('')
@@ -89,6 +87,9 @@ const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 const collapse: Array<Collapse> = [
   {
@@ -133,10 +134,6 @@ const handleRemove = (file: UploadFile) => {
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
-}
-
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
 }
 
 const tableData = [
@@ -403,7 +400,7 @@ const awesome = ref(true)
               <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
               <div class="upload-image">
                 <el-upload action="#" list-type="picture-card" :auto-upload="false">
-                  <el-icon><Plus /></el-icon>
+                  <ElButton :icon="addIcon" class="avatar-uploader-icon" />
 
                   <template #file="{ file }">
                     <div>
@@ -413,21 +410,15 @@ const awesome = ref(true)
                           class="el-upload-list__item-preview"
                           @click="handlePictureCardPreview(file)"
                         >
-                          <el-icon><zoom-in /></el-icon>
+                          <ElButton :icon="viewIcon" />
                         </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                          <el-icon><Download /></el-icon>
-                        </span>
+
                         <span
                           v-if="!disabled"
                           class="el-upload-list__item-delete"
                           @click="handleRemove(file)"
                         >
-                          <el-icon><Delete /></el-icon>
+                          <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
                     </div>

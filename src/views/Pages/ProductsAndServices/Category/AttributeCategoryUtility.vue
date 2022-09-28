@@ -26,7 +26,6 @@ const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: tab }
-let valueSelect = 0
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
   {
@@ -38,34 +37,15 @@ const schema = reactive<FormSchema[]>([
     field: 'rankCategory',
     label: t('reuse.selectLevelAttribute'),
     component: 'Select',
+    modelValue: 1,
+    value: 1,
     colProps: {
       span: 20
     },
     componentProps: {
       style: 'width: 100%',
-      disabled: true,
-      modelValue: 1,
-      value: 1,
-      options: [
-        {
-          label: t('reuse.attributeLevel1'),
-          value: 1
-        }
-      ]
-    },
-    hidden: hierarchical
-  },
-  {
-    field: 'rankCategory',
-    label: t('reuse.selectLevelAttribute'),
-    component: 'Select',
-    modelValue: valueSelect,
-    colProps: {
-      span: 20
-    },
-    componentProps: {
-      style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin'),
+      disabled: !hierarchical,
+      placeholder: t('reuse.selectLevelAttribute'),
       options: [
         {
           label: t('reuse.attributeLevel1'),
@@ -78,17 +58,14 @@ const schema = reactive<FormSchema[]>([
       ],
       onChange: (value) => {
         if (value == 1 || value == '') {
-          valueSelect = 1
           removeFormSchema()
         }
         if (value == 2) {
-          valueSelect = 2
           addFormSchema(timesCallAPI)
           timesCallAPI++
         }
       }
-    },
-    hidden: !hierarchical
+    }
   },
   {
     field: 'generalInformation',
@@ -123,13 +100,13 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameAttributeLevel1'),
+    label: t('reuse.nameAttributeLevel2'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.InputNameAttributeLevel2')
     },
     hidden: true
   },
@@ -172,22 +149,27 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
     required()
   ],
-  parentid: [required()],
-  count: [required()],
-  categoryName: [required()],
-  displayPosition: [required()],
-  categoryLevel: [required()],
+  parentid: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
+    required()
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
-  await getCategories({ ...params })
+  const payload = {
+    PageIndex: 1,
+    PageSize: 1000
+  }
+  await getCategories({ ...payload, ...params })
     .then((res) => {
       if (res.data) {
         rank1SelectOptions = res.data.map((index) => ({
@@ -207,15 +189,15 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
-  schema[4].hidden = true
+  schema[3].hidden = true
+  schema[4].hidden = false
   schema[5].hidden = false
-  schema[6].hidden = false
-  schema[6].value = nameChildren
+  schema[5].value = nameChildren
 }
 const removeFormSchema = () => {
-  schema[4].hidden = false
+  schema[3].hidden = false
+  schema[4].hidden = true
   schema[5].hidden = true
-  schema[6].hidden = true
 }
 const postData = async (data) => {
   //manipulate Data

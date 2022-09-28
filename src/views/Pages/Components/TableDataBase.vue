@@ -48,6 +48,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory'
+  },
   titleChilden: {
     type: String,
     default: ''
@@ -113,7 +117,7 @@ const pushAdd = () => {
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot>
         <el-button type="primary" :icon="createIcon" @click="pushAdd">
-          {{ t('reuse.addCategory') }}</el-button
+          {{ t(`${props.titleAdd}`) }}</el-button
         >
       </template>
     </HeaderFiler>

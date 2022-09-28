@@ -25,7 +25,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field14',
+    field: 'rankCategory',
     label: t('reuse.selectUnitLevel'),
     component: 'Select',
     colProps: {
@@ -126,13 +126,18 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
     required()
   ],
-  parentid: [required()],
+  parentid: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
+    required()
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options

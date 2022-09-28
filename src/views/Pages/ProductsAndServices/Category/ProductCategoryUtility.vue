@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import {
   getCategories,
   getCategoryById,
@@ -11,25 +11,16 @@ import {
   deleteCategory
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElMessage } from 'element-plus'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { ElNotification } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
+const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
-// get data from router
-const router = useRouter()
-const route = useRoute()
-const tab = String(route.params.tab)
-const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-const params = { TypeName: tab }
-const { t } = useI18n()
-
 const schema = reactive<FormSchema[]>([
   {
-    field: 'field13',
+    field: 'field20',
     label: t('reuse.typeCategory'),
     component: 'Divider'
   },
@@ -43,6 +34,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       style: 'width: 100%',
       placeholder: t('reuse.chooseRankCategory'),
+      disabled: false,
       options: [
         {
           label: t('reuse.rank1Category'),
@@ -90,6 +82,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       options: [],
+      disabled: false,
       style: 'width: 100%',
       placeholder: t('reuse.EnterNameCategory')
     },
@@ -108,14 +101,14 @@ const schema = reactive<FormSchema[]>([
     hidden: true
   },
   {
-    field: 'field3',
+    field: 'index',
     label: t('reuse.displayPosition'),
     component: 'Input',
-    componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
-    },
     colProps: {
       span: 20
+    },
+    componentProps: {
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {
@@ -124,7 +117,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -135,33 +128,38 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.active'),
-          value: '1'
+          value: 'active'
         },
         {
           label: t('reuse.stopShowAppWeb'),
-          value: '2'
+          value: 'hide'
         }
       ]
     }
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
     required()
   ],
-  parentid: [required()],
-  count: [required()],
-  categoryName: [required()],
-  displayPosition: [required()],
-  categoryLevel: [required()],
+  parentid: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
+    required()
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
-  await getCategories({ ...params })
+  const payload = {
+    PageIndex: 1,
+    PageSize: 1000
+  }
+  await getCategories({ ...payload, TypeName: PRODUCTS_AND_SERVICES[0].key })
     .then((res) => {
       if (res.data) {
         rank1SelectOptions = res.data.map((index) => ({
@@ -174,10 +172,16 @@ const getRank1SelectOptions = async () => {
       console.error(err)
     })
 }
+
+const removeFormSchema = () => {
+  schema[3].hidden = false
+  schema[4].hidden = true
+  schema[5].hidden = true
+}
 const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   if (timesCallAPI == 0) {
     await getRank1SelectOptions()
-    if (schema[4].componentProps?.options != undefined) {
+    if (schema[4].componentProps?.options !== undefined) {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
@@ -185,11 +189,6 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
   schema[4].hidden = false
   schema[5].hidden = false
   schema[5].value = nameChildren
-}
-const removeFormSchema = () => {
-  schema[3].hidden = false
-  schema[4].hidden = true
-  schema[5].hidden = true
 }
 const postData = async (data) => {
   //manipulate Data
@@ -206,22 +205,37 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  await postCategory({ ...params, ...data })
+  await postCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
-      ElMessage({
+      ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
     )
     .catch((error) =>
-      ElMessage({
+      ElNotification({
         message: error,
         type: 'warning'
       })
     )
 }
+// get data from router
+const router = useRouter()
+const title = router.currentRoute.value.meta.title
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const params = { TypeName: PRODUCTS_AND_SERVICES[0].key }
+
 const formDataCustomize = ref()
+//custom data before set Value to Form
 const customizeData = async (formData) => {
+  //disable parent select
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -236,16 +250,15 @@ const customizeData = async (formData) => {
   if (formData.isHide == true) {
     formDataCustomize.value['status'].push('hide')
   }
-  formDataCustomize.value.isDelete = false
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
-    ? (formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`)
-    : null
+  formDataCustomize.value.isDelete = false
 }
+//type of post api data
 type FormDataPost = {
   Id: number
   Name: string
   code?: string
-  Image?: string
+  Image?: any
   TypeName: string
   ParentId: number
   CreatedBy: string
@@ -267,28 +280,29 @@ const customPostData = (data) => {
 }
 const editData = async (data) => {
   data = customPostData(data)
-  await updateCategory({ ...params, ...data })
+  await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
-      ElMessage({
+      ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
     )
     .catch(() =>
-      ElMessage({
+      ElNotification({
         message: t('reuse.updateFail'),
         type: 'warning'
       })
     )
 }
+const deleteOrigin = `${t('reuse.deleteOrigin')}`
 </script>
 
 <template>
   <TableOperator
     ref="formRef"
     :schema="schema"
-    :nameBack="currentRoute"
     :title="title"
+    :deleteTitle="deleteOrigin"
     :type="type"
     :id="id"
     @post-data="postData"

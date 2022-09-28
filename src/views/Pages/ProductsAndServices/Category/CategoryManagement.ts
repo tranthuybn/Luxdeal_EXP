@@ -16,21 +16,21 @@ export const productCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus
@@ -49,14 +49,14 @@ export const colorCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -67,7 +67,7 @@ export const colorCategories = [
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus,
-    align: 'left',
+    align: 'center',
     valueFormat: valueDateFormat,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -87,14 +87,14 @@ export const sizeCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -104,7 +104,7 @@ export const sizeCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'left',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -124,14 +124,14 @@ export const materialCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -141,7 +141,7 @@ export const materialCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'left',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -161,14 +161,14 @@ export const statusCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -178,7 +178,7 @@ export const statusCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'left',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -198,14 +198,14 @@ export const genderCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -215,7 +215,7 @@ export const genderCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'left',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -235,15 +235,15 @@ export const unitCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: 'center',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     valueFormat: valueDateFormat,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -273,14 +273,14 @@ export const brandCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -290,7 +290,7 @@ export const brandCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'left',
+    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
@@ -310,14 +310,14 @@ export const originCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)

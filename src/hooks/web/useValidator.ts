@@ -38,6 +38,12 @@ export const useValidator = () => {
     // The password cannot be a special character
     if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
       callback(new Error(t('reuse.notSpecialCharacters')))
+    } else if (
+      /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+        val
+      )
+    ) {
+      callback(new Error(t('reuse.checkEmoji')))
     } else {
       callback()
     }
@@ -76,6 +82,12 @@ export const useValidator = () => {
       message: t('reuse.dateFormat'),
       trigger: 'blur'
     },
+    checkEmoji: {
+      pattern:
+        /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g,
+      message: t('reuse.checkEmoji'),
+      trigger: 'blur'
+    },
     checkMonth: {
       pattern: /^\d{2}[/]\d{4}$/g,
       message: t('reuse.monthFormat'),
@@ -106,9 +118,6 @@ export const useValidator = () => {
     },
     checkSpace: {
       validator: (_rule: any, value: any, callback: any) => {
-        // if (value.match(/^\s+$/) === null) {
-        //   callback(new Error(t('reuse.notSpaceAfter')))
-        // }
         if (/^\s+$/.test(value)) {
           callback(new Error(t('reuse.notSpaceAfter')))
         }

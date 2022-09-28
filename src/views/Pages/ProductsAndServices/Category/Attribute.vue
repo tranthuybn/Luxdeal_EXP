@@ -62,4 +62,9 @@ const changeParam = (val = '') => {
   })
 }
 </script>
-<template> <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" /></template>
+<template>
+  <productCategoryTable
+    :titleAdd="'reuse.addNewCharacteristic'"
+    :tabs="tabs"
+    @tab-change-event="changeParam"
+/></template>

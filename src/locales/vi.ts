@@ -658,7 +658,7 @@ export default {
     nameAttributeLevel1: 'Tên đặc tính cấp 1',
     InputNameAttributeLevel1: 'Nhập tên đặc tính cấp 1',
     nameAttributeLevel2: 'Tên đặc tính cấp 2',
-    InputameAttributeLevel2: 'Nhập tên đặc tính cấp 2',
+    InputNameAttributeLevel2: 'Nhập tên đặc tính cấp 2',
     attributeLevel2: 'Đặc tính cấp 2',
     selectLevelAttribute: 'Chọn cấp đặc tính',
     categoryColorTitle: 'Thông tin đặc tính màu sắc',
@@ -1069,6 +1069,7 @@ export default {
     emailFormat: 'Vui lòng nhập đúng định dạng email',
     dateTimeFormat: 'Định dạng ngày giờ không đúng',
     dateFormat: 'Định dạng ngày không đúng',
+    checkEmoji: 'Vui lòng không nhập icon',
     monthFormat: 'Định dạng tháng không đúng',
     yearFormat: 'Định dạng năm không đúng',
     numberFormat: 'Vui lòng chỉ nhập số',
@@ -1170,6 +1171,8 @@ export default {
     saveFail: 'Lưu thất bại',
     cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
     cantFindData: 'Không thể tìm thấy dữ liệu',
-    getDataSuccess: 'Lấy dữ liệu thành công'
+    getDataSuccess: 'Lấy dữ liệu thành công',
+    newInitialization: 'Khởi tạo mới',
+    addNewCharacteristic: 'Thêm mới đặc tính'
   }
 }

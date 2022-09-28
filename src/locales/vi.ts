@@ -250,6 +250,8 @@ export default {
     classify: 'Phân loại',
     company: 'Công ty',
     individual: 'Cá nhân',
+    onetimePaymentInAdvance: 'Trả trước một lần',
+    payAfterOneTime: 'Trả sau một lần',
     deliveryDate: 'Hạn trả hàng',
     methodOfDeliverySpa: 'Nhận hàng Spa',
     receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',

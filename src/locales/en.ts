@@ -193,7 +193,7 @@ export default {
     receivableOrPayable: 'Receivable/payable',
     invoiceForGoodsEnteringTheWarehouse: 'Invoice for goods entering the warehouse',
     invoice: 'Invoice',
-    addNewRentalOrder: 'Add new rental order',
+    addNewRentalOrders: 'Add new rental order',
     leaseTerm: 'Lease term',
     month: 'Month',
     byMonth: 'By month',
@@ -240,7 +240,7 @@ export default {
     apply: 'Apply',
     enterPromoCode: 'Enter promo code',
     salesDebt: 'Sales debt',
-    totalAmountReceivable: 'Total amount rêcivable',
+    totalAmountReceivable: 'Total amount receivable',
     VATNotIncluded: 'VAT not included',
     inventoryInformation: 'Inventory information',
     warehouseInformation: 'Warehouse information',
@@ -265,7 +265,9 @@ export default {
     serviceTrackingTable: 'Service tracking table',
     importTrackingTable: 'Import tracking table',
     depositTerm: 'DepositTerm',
-    atLeast14Days: 'At least 14 days'
+    atLeast14Days: 'At least 14 days',
+    onetimePaymentInAdvance: 'one-time payment in advance',
+    payAfterOneTime: 'pay after one time'
   },
   button: {
     add: 'Add quick'

@@ -17,6 +17,12 @@ export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
 }
+export const collaboratorStatusTransferToText = (val) => {
+  if (val == 0) return `${t('reuse.pending')}`
+  else if (val == 1) return `${t('reuse.active')}`
+  else if (val == 2) return `${t('reuse.inactive')}`
+  return `${t('reuse.lock')}`
+}
 export const formatPotentialCustomerStatusIdToText = (val) => {
   switch (val) {
     case 1:
@@ -112,6 +118,7 @@ export default {
   businessStatusTransferToText,
   businessIventoryStatusTransferToText,
   dateTimeFormat,
+  collaboratorStatusTransferToText,
   valueDateFormat,
   dateFormType,
   dateTimeDisable

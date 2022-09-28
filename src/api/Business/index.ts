@@ -62,8 +62,13 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/collaborators/List', params })
-  return res && res.data
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COLLABORATOR_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
 }
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/rentalorder/List', params })

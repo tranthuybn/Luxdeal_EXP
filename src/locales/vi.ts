@@ -128,7 +128,9 @@ export default {
     orderCode: 'Mã đơn hàng',
     enterOrderCode: 'Nhập mã đơn hàng',
     collaborators: 'Cộng tác viên',
+    profileCollaborator: 'Thông tin cộng tác viên',
     selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
+    CollaboratorCode: 'Mã cộng tác viên',
     enterDiscount: 'Nhập chiết khấu',
     orderNotes: 'Ghi chú đơn hàng',
     addNotes: 'Thêm ghi chú',
@@ -1173,6 +1175,7 @@ export default {
     cantFindData: 'Không thể tìm thấy dữ liệu',
     getDataSuccess: 'Lấy dữ liệu thành công',
     newInitialization: 'Khởi tạo mới',
-    addNewCharacteristic: 'Thêm mới đặc tính'
+    addNewCharacteristic: 'Thêm mới đặc tính',
+    lock: 'Khóa'
   }
 }

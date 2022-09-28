@@ -79,6 +79,7 @@ const props = defineProps({
 
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
+const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: props.api,
   response: {
@@ -86,7 +87,7 @@ const { register, tableObject, methods } = useTable<TableData>({
     total: 'count'
   },
   props: {
-    columns: props.fullColumns,
+    columns: temporaryColumn,
     headerAlign: 'center'
   }
 })
@@ -101,13 +102,18 @@ onBeforeMount(() => {
 // execute pagination
 watch(
   () => tableObject.total,
-  () => {
-    props.paginationType
-      ? (paginationObj.value = {
-          total: tableObject.total
-        })
-      : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList?.length)
+  (val) => {
+    if (val) {
+      props.paginationType
+        ? (paginationObj.value = {
+            total: val
+          })
+        : (paginationObj.value = undefined)
+    }
+    emit('TotalRecord', tableObject?.tableList?.length ?? 0)
+  },
+  {
+    immediate: true
   }
 )
 // operation colum toggle
@@ -261,6 +267,11 @@ const handleSizeChange = (size) => {
 const handleCurrentChange = (current: number) => {
   tableObject.currentPage = current
 }
+const updateTableColumn = () => {
+  temporaryColumn.value = props.fullColumns.filter((el) =>
+    showingColumnList.value.includes(el.field)
+  )
+}
 </script>
 <template>
   <ContentWrap class="relative">
@@ -272,7 +283,7 @@ const handleCurrentChange = (current: number) => {
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="15%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>

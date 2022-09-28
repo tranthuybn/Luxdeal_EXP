@@ -79,7 +79,7 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'numberOfTimesRented',
+    field: 'productStat.luotThue',
     label: t('reuse.numberOfTimesRented'),
     minWidth: '150',
     align: 'right',
@@ -342,6 +342,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.productCode'),
     component: 'Select',
     componentProps: {
+      id: 'hiddenGem',
       placeholder: t('reuse.enterProductCode'),
       style: 'width: 100%',
       loading: true,
@@ -481,14 +482,15 @@ export const columnProfileProduct = reactive<FormSchema[]>([
 ])
 let callTagAPI = 0
 let tagsSelect: ComponentOptions[] = reactive([])
-const getTagsOptions = () => {
+const getTagsOptions = async () => {
   if (callTagAPI == 0) {
-    getTags({})
+    await getTags({})
       .then((res) => {
         if (res.data) {
           tagsSelect = res.data.map((tag) => ({
-            label: tag.value,
-            value: tag.id
+            label: tag.key,
+            value: tag.key,
+            id: tag.id
           }))
         }
       })
@@ -537,7 +539,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: getTagsOptions()
+      options: await getTagsOptions()
     },
     colProps: {
       span: 16

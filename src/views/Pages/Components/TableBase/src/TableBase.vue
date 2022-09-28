@@ -107,10 +107,7 @@ watch(
           total: tableObject.total
         })
       : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
-  },
-  {
-    immediate: true
+    emit('TotalRecord', tableObject.tableList?.length)
   }
 )
 // operation colum toggle

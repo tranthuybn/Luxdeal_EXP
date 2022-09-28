@@ -52,6 +52,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -200,9 +201,10 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
+  const findId = isNaN(id) ? newId.value : id
   collapse[1].tableList.push({
     productCode: productData.productCode,
-    productId: id,
+    productId: findId,
     code: 'string', //api chua tra
     categories: [
       {
@@ -372,6 +374,8 @@ const customUpdate = async (data) => {
   console.log('custom', customUpdateData)
   return customUpdateData
 }
+
+const newProductPropertyId = ref<number>()
 //check validate then newValue
 const handleSaveRow = (data, formEl: FormInstance | undefined) => {
   if (!formEl) return
@@ -380,8 +384,9 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
       data.edited = false
       if (data?.newValue == true) {
         await postProductProperty(JSON.stringify(data))
-          .then(() => {
+          .then((res) => {
             ;(data.newValue = false),
+              (newProductPropertyId.value = res.data),
               ElNotification({
                 message: t('reuse.addSuccess'),
                 type: 'success'
@@ -516,7 +521,8 @@ let callTableApiTime = 0
 const callTableApi = async (collapseItem) => {
   if (collapseItem.api !== undefined) {
     if (callTableApiTime == 0) {
-      const res = await collapseItem.api({ ProductId: id })
+      const findId = isNaN(id) ? newId.value : id
+      const res = await collapseItem.api({ ProductId: findId })
       collapseItem.tableList = res.data
       await getAttributeData()
       callTableApiTime++
@@ -527,13 +533,13 @@ const callTableApi = async (collapseItem) => {
 // bảo backend trả id để xóa luôn ko cần reload trang
 const postData = async (data) => {
   await postProductLibrary(FORM_IMAGES(data))
-    .then(() => {
+    .then((res) => {
+      newId.value = res.data
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
       disabledTabOpen.value = false
-      id = data.id
     })
     .catch(() =>
       ElNotification({
@@ -565,11 +571,27 @@ type ProductProperty = {
 }
 const emptyProductPropertyObj = {} as ProductProperty
 
-const emptySeoObj = {} as ProductProperty
+type seoData = {
+  SeoTitle: string
+  SeoUrl: string
+  SeoTags: Array<string>
+  SeoDescription: string
+}
+const emptySeoObj = {} as seoData
 let productData = reactive(emptyProductPropertyObj)
 
 const SEOdata = reactive(emptySeoObj)
-
+const customSeoData = (formData) => {
+  formData.seoTitle ? (SEOdata.SeoTitle = formData.seoTitle) : (SEOdata.SeoTitle = '')
+  formData.seoUrl ? (SEOdata.SeoUrl = formData.seoUrl) : (SEOdata.SeoUrl = '')
+  SEOdata.SeoTags = []
+  if (formData.seoTags) {
+    SEOdata.SeoTags = formData.seoTags.map((tag) => tag.key)
+  }
+  formData.seoDescription
+    ? (SEOdata.SeoDescription = formData.seoDescription)
+    : (SEOdata.SeoDescription = '')
+}
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
   productData = formData
@@ -581,10 +603,7 @@ const customizeData = async (formData) => {
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
-  SEOdata.SeoTitle = formData.seoTitle
-  SEOdata.SeoUrl = formData.seoUrl
-  SEOdata.SeoTags = formData.seoTags
-  SEOdata.SeoDescription = formData.seoDescription
+  customSeoData(formData)
 }
 const editData = async (data) => {
   await updateProductLibrary(FORM_IMAGES(data))
@@ -602,6 +621,8 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  console.log('dataseo', data)
+  data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -685,8 +706,9 @@ let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
   rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
   rentTableVisible.value = true
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   const res = collapse[2].api
-    ? await collapse[2].api({ ProductPropertyId: scope.row.id, ServiceType: 2 })
+    ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
     : ''
   if (res.data.length == 0) {
     collapse[2].tableList = []
@@ -703,7 +725,7 @@ const openRentTable = async (scope) => {
     collapse[2].tableList = []
     collapse[2].tableList = res.data
   }
-  collapse[2].tableList.productPropertyId = scope.row.id
+  collapse[2].tableList.productPropertyId = findPropertyId
   collapse[2].tableList.serviceType = 2
   collapse[2].tableList.currentRow = scope.$index
   collapse[2].loading = false
@@ -713,8 +735,9 @@ let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
   sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
   sellTableVisible.value = true
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   const res = collapse[8].api
-    ? await collapse[8].api({ ProductPropertyId: scope.row.id, ServiceType: 1 })
+    ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
     : ''
   if (res.data.length == 0) {
     collapse[8].tableList = []
@@ -729,7 +752,7 @@ const openSellTable = async (scope) => {
     collapse[8].tableList = []
     collapse[8].tableList = res.data
   }
-  collapse[8].tableList.productPropertyId = scope.row.id
+  collapse[8].tableList.productPropertyId = findPropertyId
   collapse[8].tableList.serviceType = 1
   collapse[8].tableList.currentRow = scope.$index
   collapse[8].loading = false
@@ -982,10 +1005,18 @@ const SellTableDialogClose = () => {
 
 //handle opentab
 const disabledTabOpen = ref(false)
+const newId = ref<number>()
 //type == '' && isNaN(id) =true  when refreshing page
 if ((type == '' && isNaN(id)) || type == 'add') {
   disabledTabOpen.value = true
 }
+watch(
+  () => newId,
+  () => {
+    console.log('newId', newId)
+    disabledTabOpen.value = false
+  }
+)
 </script>
 <template>
   <el-collapse
@@ -1315,7 +1346,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <div class="flex justify-between">
-                <div>{{ scope.row.inventory }} 10</div>
+                <div>{{ scope.row.tonKho }}</div>
                 <el-button
                   :icon="plusIcon"
                   link
@@ -1326,20 +1357,16 @@ if ((type == '' && isNaN(id)) || type == 'add') {
               </div>
             </template>
           </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            width="150"
-            prop="updatedAt"
-            :label="t('reuse.update')"
-          />
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            width="150"
-            prop="approveStatus"
-            :label="t('reuse.status')"
-          />
+          <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.update')"
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updatedAt)
+            }}</template></ElTableColumn
+          >
+          <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.status')"
+            ><template #default="scope">{{
+              productStatusTransferToText(scope.row.isActive)
+            }}</template>
+          </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"

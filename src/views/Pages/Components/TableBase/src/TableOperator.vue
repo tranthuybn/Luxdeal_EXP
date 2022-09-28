@@ -135,6 +135,7 @@ const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
   const { setValues } = methods
+  console.log('props.formDataCustomize', props.formDataCustomize)
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     if (props.hasImage && !props.multipleImages) {
@@ -240,6 +241,8 @@ if (props.title == 'undefined') {
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  // remove image when edit data
   if (props.formDataCustomize.Images) {
     let imageRemove = props.formDataCustomize?.Images.find(
       (image) => `${API_URL}${image.path}` === file.url
@@ -283,7 +286,11 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    if (fileList.value) {
+    //báo lỗi nếu ko có ảnh
+    if (type === 'list' && fileList.value.length > 0) {
+      return true
+    }
+    if (type === 'single' && (rawUploadFile.value !== null || imageUrl.value !== null)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))

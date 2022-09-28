@@ -1117,6 +1117,13 @@ export default {
     saveFail: 'Save fail',
     cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet',
     cantFindData: 'Cant Find Data',
-    getDataSuccess: 'Get data success'
+    getDataSuccess: 'Get data success',
+    //product property
+    removeProductProperty: 'Rremove product property',
+    clickEditForEditing: ' Click edit to turn on/off settings',
+    addPricesBeforeTurningOnSetting: 'Add prices before turning on setting',
+    addFail: 'Add fail',
+    fillAllAttribute: 'Fill all attribute',
+    cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute'
   }
 }

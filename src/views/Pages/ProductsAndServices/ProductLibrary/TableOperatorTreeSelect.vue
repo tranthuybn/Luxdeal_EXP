@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, onMounted } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -20,7 +20,8 @@ import {
   ElRadioGroup,
   ElRadio,
   ElSelect,
-  ElOption
+  ElOption,
+  ElScrollbar
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -135,11 +136,11 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref('')
 //set data for form edit and detail
+const { setValues } = methods
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
 
-  const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     await customPostData(props.formDataCustomize)
     setValues(props.formDataCustomize)
@@ -256,7 +257,9 @@ if (props.title == 'undefined') {
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  if (formValue.value.productImages) {
+  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  // remove image when edit data
+  if (formValue.value && formValue.value.productImages) {
     let imageRemove = formValue.value.productImages.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -297,7 +300,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    if (fileList.value) {
+    if (fileList.value.length > 0) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -400,7 +403,8 @@ const getCodeAndNameSelect = async () => {
     CodeAndNameSelect.value = res.data.map((val) => ({
       label: val.productCode,
       value: val.productCode,
-      name: val.name
+      name: val.name,
+      id: val.id
     }))
     NameAndCodeSelect.value = res.data.map((val) => ({
       label: val.name,
@@ -410,6 +414,39 @@ const getCodeAndNameSelect = async () => {
     callGetCodeAndNameAPI++
   }
 }
+const remoteProductCode = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
+    CodeAndNameSelect.value = res.data.map((val) => ({
+      label: val.productCode,
+      value: val.productCode,
+      name: val.name
+    }))
+  } else {
+    CodeAndNameSelect.value = []
+  }
+}
+const remoteProductName = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
+    NameAndCodeSelect.value = res.data.map((val) => ({
+      label: val.name,
+      value: val.name,
+      productCode: val.productCode
+    }))
+  } else {
+    NameAndCodeSelect.value = []
+  }
+}
+//for infinite scroll
+const scrollMethod = () => {
+  // console.log('scroll value', scrollTop)
+  // console.log('height', divRef.value?.clientHeight)
+}
+const divRef = ref<HTMLDivElement>()
+onMounted(() => {
+  // console.log('height', divRef.value)
+})
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -457,19 +494,27 @@ const getCodeAndNameSelect = async () => {
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductCode"
             >
-              <el-option
-                v-for="item in CodeAndNameSelect"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                :disabled="true"
-              >
-                <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
-                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productName') }}: {{ item.name }}</span
-                >
-              </el-option>
+              <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
+                <div ref="divRef" class="whereisthis">
+                  <el-option
+                    ref="optionCodeHeight"
+                    v-for="item in CodeAndNameSelect"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                    :disabled="true"
+                  >
+                    <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
+                    <span
+                      style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                      >{{ t('reuse.productName') }}: {{ item.name }}</span
+                    >
+                  </el-option>
+                </div>
+              </el-scrollbar>
             </el-select>
           </template>
           <template #Name="form">
@@ -481,6 +526,8 @@ const getCodeAndNameSelect = async () => {
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductName"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"

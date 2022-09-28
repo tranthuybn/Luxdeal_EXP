@@ -1097,6 +1097,17 @@ export default {
     saveFail: 'Save fail',
     cannotOpenBecauseNotCreateProduct: 'Cannot open because you have not create product yet',
     cantFindData: 'Cant Find Data',
-    getDataSuccess: 'Get data success'
+    getDataSuccess: 'Get data success',
+    enterRepresentativeName: 'Enter representative name',
+    supplier: 'Supplier',
+    classify: 'Classify',
+    companyName: 'Company name',
+    enterSelectCompanyName: 'Enter or select company name',
+    enterPrise: 'Enterprise',
+    enterSelectTaxCode: 'Enter or select tax code',
+    taxCode: 'Tax code',
+    addActions: 'Add Action',
+    addFail: 'Add fail',
+    orderSaleAsignrequired: 'Please input order sale asign'
   }
 }

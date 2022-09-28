@@ -11,7 +11,7 @@ import {
   InputNumberRange,
   InputName
 } from '../../Components/TableBase'
-import { getPotentialCustomerList } from '@/api/Business'
+import { getPotentialCustomerList, deletePotentialCustomer } from '@/api/Business'
 import {
   filterStatus,
   filterPotentialCustomerStatus,
@@ -235,39 +235,31 @@ const action = (row: TableData, type: string) => {
     })
   }
 }
-const delData = async (row: TableData | null, multiple: boolean) => {
+const delData = async (row: TableData | null, _multiple: boolean) => {
   {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'Xóa', {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, `xoa`, {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
       confirmButtonClass: 'el-button--danger'
     })
       .then(async () => {
-        console.log('row', row, multiple)
         if (row !== null) {
           // change this to delApi
-          const res = await getPotentialCustomerList({ Id: row.id })
+          await deletePotentialCustomer({ Id: row.id })
             .then(() =>
               ElNotification({
                 message: t('reuse.deleteSuccess'),
                 type: 'success'
               })
             )
-            .catch((error) =>
+            .catch(() =>
               ElNotification({
-                message: error,
+                message: t('reuse.deleteFail'),
                 type: 'warning'
               })
             )
-          if (res) {
-            getData()
-          }
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
+            .finally(() => getData())
         }
       })
       .catch((error) => {

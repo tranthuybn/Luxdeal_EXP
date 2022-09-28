@@ -14,7 +14,8 @@ export const useValidator = () => {
   const required = (message?: string) => {
     return {
       required: true,
-      message: message || t('common.required')
+      message: message || t('common.required'),
+      trigger: 'blur'
     }
   }
 
@@ -109,6 +110,17 @@ export const useValidator = () => {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
         if (value && value.length > 50) {
+          callback(new Error(t('reuse.checkNameLength')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'change'
+    },
+    checkPercent: {
+      type: 'number',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 3) {
           callback(new Error(t('reuse.checkNameLength')))
         }
         callback()

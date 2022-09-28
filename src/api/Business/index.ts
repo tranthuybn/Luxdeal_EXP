@@ -13,6 +13,78 @@ export const getPotentialCustomerList = async (params: any): Promise<IResponse> 
   )
   return res.data && res.data.data
 }
+
+export const getPotentialCustomerListById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const addNewPotentialCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CUSTOMER_API.ADD_POTENTIAL_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const deletePotentialCustomer = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const deletePotentialCustomerHistory = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER_HISTORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const deletePotentialCustomerHistoryOfSale = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// export const getCustomer = async (params: any): Promise<IResponse> => {
+//   const res = await request.get(
+//     {
+//       url: CUSTOMER_API.ALL_CUSTOMER,
+//       data: params
+//     },
+//     fixedBaseURL
+//   )
+//   return res && res.data
+// }
+export const getCustomer = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.ALL_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -47,16 +119,7 @@ export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/customer/List', params })
   return res && res.data
 }
-export const addNewPotentialCustomer = async (params: any): Promise<IResponse> => {
-  const res = await request.post(
-    {
-      url: CUSTOMER_API.ADD_POTENTIAL_CUSTOMER,
-      data: params
-    },
-    fixedBaseURL
-  )
-  return res.data && res.data.data
-}
+
 export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data

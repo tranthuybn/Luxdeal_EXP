@@ -564,6 +564,7 @@ export default {
     createDate: 'Ngày tạo',
     customerName: 'Tên khách hàng',
     representative: 'Người đại diện',
+    enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
     customer: 'Khách hàng',
     gender: 'Giới  tính',
@@ -1061,8 +1062,8 @@ export default {
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkStartDateTime: 'Ngày bắt đầu trước thời điểm hiện tại',
     enterOrSelectCustomerName: 'Nhập hoặc chọn tên khách hàng',
-    enterPhoneNumber: 'Vui lòng nhập số điện thoại',
-    enterEmail: 'Vui lòng nhập email',
+    enterPhoneNumber: 'Nhập số điện thoại',
+    enterEmail: 'Nhập email',
     socialNetwork: 'Facebook/zalo...',
     enterSelectOutreachChannel: 'Nhập hoặc chọn kênh tiếp cận',
     enterSelectSource: 'Nhập hoặc chọn nguồn',
@@ -1071,6 +1072,10 @@ export default {
     enterDetailedRequirements: 'Nhập nhu cầu chi tiết',
     selectOrder: 'Chọn đơn hàng',
     addActions: 'Thêm hành động',
+    supplier: 'Nhà cung cấp',
+    classify: 'Phân loại',
+    companyName: 'Tên công ty',
+    enterSelectCompanyName: 'Nhập hoặc chọn tên công ty',
     //notification
     exit: 'Thoát',
     deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
@@ -1086,6 +1091,9 @@ export default {
     inputUnit: 'Nhập tên đơn vị tính',
     cantGetData: 'Không thể lấy dữ lỉệu',
     deleteService: 'Xóa dịch vụ',
+    enterPrise: 'Doanh nghiệp',
+    enterSelectTaxCode: 'Nhập hoặc chọn mã số thuế',
+    taxCode: 'Mã số thuế',
     //CSKH
     potentialCustomerHistory: 'Lịch sử CSKH',
     date: 'Ngày',
@@ -1147,6 +1155,8 @@ export default {
     saveFail: 'Lưu thất bại',
     cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
     cantFindData: 'Không thể tìm thấy dữ liệu',
-    getDataSuccess: 'Lấy dữ liệu thành công'
+    getDataSuccess: 'Lấy dữ liệu thành công',
+    addFail: 'Thêm thất bại',
+    orderSaleAsignrequired: 'Vui lòng nhập phần trăm doanh số'
   }
 }

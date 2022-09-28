@@ -1,5 +1,4 @@
 import { config } from '@/config/axios/config'
-import { serviceResponse } from '../_reponseStructure'
 import { MockMethod } from 'vite-plugin-mock'
 
 const utility = 'Utility'
@@ -398,23 +397,20 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/FlashSale',
             meta: {
               title: 'router.flashsale'
-            },
-            children: [
-              {
-                path: `${utility}`,
-                component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
-                name: `business.promotion-strategy.flash-sale.${utility}`,
-                meta: {
-                  title: 'reuse.createANewUtility',
-                  noTagsView: true,
-                  noCache: true,
-                  hidden: true,
-                  showMainRoute: true
-                }
-              }
-            ]
+            }
           },
-
+          {
+            path: `${utility}`,
+            component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
+            name: `business.promotion-strategy.flash-sale.${utility}`,
+            meta: {
+              title: 'reuse.createANewUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
           {
             path: 'collection',
             name: 'business.promotion-strategy.collection',
@@ -1188,16 +1184,9 @@ export default [
     timeout,
     response: ({ query }) => {
       const { roleName } = query
-      const responseStructure = new serviceResponse(
-        roleName === 'admin' ? adminList : testList,
-        200,
-        true,
-        result_code,
-        'Succeed',
-        null
-      )
       return {
-        ...responseStructure
+        code: result_code,
+        data: roleName === 'admin' ? adminList : testList
       }
     }
   }

@@ -7,8 +7,9 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  UploadFile,
+  ElUpload,
   ElDivider,
+  ElSwitch,
   ElRadio,
   ElRadioGroup,
   ElTable,
@@ -16,8 +17,10 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu
+  ElDropdownMenu,
+  ElIcon
 } from 'element-plus'
+import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 const { t } = useI18n()
 

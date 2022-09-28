@@ -13,7 +13,7 @@ import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
 
-const { required } = useValidator()
+const { required, notSpecialCharacters } = useValidator()
 
 const emit = defineEmits(['to-register'])
 
@@ -28,8 +28,8 @@ const { wsCache } = useCache()
 const { t } = useI18n()
 
 const rules = {
-  username: [required()],
-  password: [required()]
+  username: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
+  password: [required(), { validator: notSpecialCharacters, trigger: 'blur' }]
 }
 
 const schema = reactive<FormSchema[]>([

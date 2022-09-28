@@ -102,13 +102,15 @@ onBeforeMount(() => {
 // execute pagination
 watch(
   () => tableObject.total,
-  () => {
-    props.paginationType
-      ? (paginationObj.value = {
-          total: tableObject.total
-        })
-      : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
+  (val) => {
+    if (val) {
+      props.paginationType
+        ? (paginationObj.value = {
+            total: val
+          })
+        : (paginationObj.value = undefined)
+    }
+    emit('TotalRecord', tableObject?.tableList?.length ?? 0)
   },
   {
     immediate: true

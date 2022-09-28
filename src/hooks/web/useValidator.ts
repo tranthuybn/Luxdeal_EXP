@@ -173,6 +173,16 @@ export const useValidator = () => {
       },
       required: true,
       trigger: 'change'
+    },
+    checkStringSpace: {
+      validator: (rule, value, callback) => {
+        if (value.toString().trim() === '') {
+          callback(new Error(t('reuse.required')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
     }
   }
 

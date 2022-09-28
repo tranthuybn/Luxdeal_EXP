@@ -144,6 +144,7 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
 function reLoadEvent() {
   searchingKey.value = ''
   periodSelected.value = ''
+  dateTimeDisable.value = false
   verifyReset()
   emit('refreshData', { Keyword: null, Search: null, startDate: null, endDate: null })
 }

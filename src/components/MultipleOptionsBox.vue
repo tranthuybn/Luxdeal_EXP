@@ -6,13 +6,15 @@ const propsObj = defineProps({
   fields: {
     type: Array,
     default: () => [],
-    require: true
+    require: true,
+    description: 'Tiêu đề của các cột'
   },
   // options
   items: {
     type: Array,
     default: () => [],
-    require: true
+    require: true,
+    description: 'Mảng các giá trị truyền vào để chọn'
   },
   placeHolder: {
     type: String,
@@ -21,22 +23,25 @@ const propsObj = defineProps({
   // value key of record you want to use
   valueKey: {
     type: String,
-    default: ''
+    default: '',
+    description: 'Chỉ định giá trị khóa '
   },
   // label key of record you want to use
   labelKey: {
     type: String,
-    default: ''
+    default: 'Chỉ định giá trị hiển thị sau khi đã chọn '
   },
   // hidden key
   hiddenKey: {
     type: Array,
     default: () => [],
-    require: true
+    require: true,
+    description: 'Trường nào sẽ bị ẩn đi '
   },
   defaultValue: {
     type: [String, Number],
-    default: null
+    default: null,
+    description: 'Dùng khi xem chi tiết, truyền giá trị mặc định vào'
   },
   disabled: {
     type: Boolean,

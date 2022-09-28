@@ -19,14 +19,46 @@ const confirm2 = () => {
   objValue[field.value] = arrValue
   emit('confirm', objValue)
 }
+const validateFrom = (_rule: any, value: any, callback: any) => {
+  value = Number(value.replace(/[^0-9\.-]+/g, ''))
+  const valueFrom = Number(ruleForm.inputFrom.replace(/[^0-9\.-]+/g, ''))
+  const valueTo = Number(ruleForm.inputTo.replace(/[^0-9\.-]+/g, ''))
+  if (value === '') {
+    callback(new Error(t('reuse.warningMoney')))
+  }
+  if (isNaN(value)) {
+    callback(new Error(t('reuse.warningInputNumber')))
+  }
+  if (ruleForm.inputTo !== '' && valueFrom > valueTo) {
+    callback(new Error(t('reuse.warningMoneyGreater')))
+  }
+  callback()
+}
+const validateTo = (_rule: any, value: any, callback: any) => {
+  value = Number(value.replace(/[^0-9\.-]+/g, ''))
+  const valueFrom = Number(ruleForm.inputFrom.replace(/[^0-9\.-]+/g, ''))
+  const valueTo = Number(ruleForm.inputTo.replace(/[^0-9\.-]+/g, ''))
+  if (value === '') {
+    callback(new Error(t('reuse.warningMoney')))
+  }
+  if (isNaN(value)) {
+    callback(new Error(t('reuse.warningInputNumber')))
+  }
+  if (ruleForm.inputFrom !== '' && valueFrom > valueTo) {
+    callback(new Error(t('reuse.warningMoneyGreater')))
+  }
+  callback()
+}
 const rules = reactive<FormRules>({
-  inputFrom: [{ required: true, message: t('reuse.warningMoney'), trigger: 'blur' }],
-  inputTo: [{ required: true, message: t('reuse.warningMoney'), trigger: 'blur' }]
+  inputFrom: [{ validator: validateFrom, required: true }],
+  inputTo: [{ validator: validateTo, required: true }]
 })
+const filtering = ref(false)
 const confirm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      filtering.value = true
       confirm2()
     } else {
       console.error('error submit!', fields)
@@ -37,11 +69,17 @@ const confirm = async (formEl: FormInstance | undefined) => {
 const cancel = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
+  filtering.value = false
   emit('cancel', field.value)
+}
+const hide = (formEl: FormInstance | undefined) => {
+  if (!filtering.value) {
+    formEl?.resetFields()
+  }
 }
 </script>
 <template>
-  <el-popover placement="bottom" trigger="click" width="fit-content">
+  <el-popover placement="bottom" trigger="click" width="fit-content" @hide="hide(ruleFormRef)">
     <template #reference>
       <span>
         <el-button :icon="ArrowDown" text style="padding: 0" />
@@ -54,7 +92,7 @@ const cancel = (formEl: FormInstance | undefined) => {
           :placeholder="t('reuse.placeholderMoney')"
           :formatter="(value) => formatMoneyInput(value)"
           :parser="(value) => parseMoneyInput(value)"
-          ><template #suffix> đ</template>
+          ><template #suffix> {{ t('reuse.currency') }}</template>
         </el-input>
       </el-form-item>
       <el-form-item :label="t('reuse.to')" prop="inputTo" label-width="50px">
@@ -63,7 +101,7 @@ const cancel = (formEl: FormInstance | undefined) => {
           :placeholder="t('reuse.placeholderMoney')"
           :formatter="(value) => formatMoneyInput(value)"
           :parser="(value) => parseMoneyInput(value)"
-          ><template #suffix> đ</template>
+          ><template #suffix> {{ t('reuse.currency') }}</template>
         </el-input>
       </el-form-item>
       <el-divider />

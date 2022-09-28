@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import productCategoryTable from '../../Components/productCategory-table.vue'
-import {
-  getColorCategories,
-  getSizeCategories,
-  getMaterialCategories,
-  getStatusCategories,
-  getGenderCategories
-} from '@/api/LibraryAndSetting'
+import productCategoryTable from '../../Components/TabsBase.vue'
 import {
   colorCategories,
   sizeCategories,
@@ -16,40 +9,62 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
+import { provide, reactive } from 'vue'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { getCategories, deleteCategory } from '@/api/LibraryAndSetting'
+let params = reactive({ TypeName: 'mausac' })
+provide('parameters', {
+  params
+})
 const { t } = useI18n()
 const tabs: Array<Tab> = [
   {
-    name: 'colorCategories',
+    name: PRODUCTS_AND_SERVICES[1].key,
     label: t('reuse.color'),
-    api: getColorCategories,
-    column: colorCategories
+    api: getCategories,
+    column: colorCategories,
+    delApi: deleteCategory
   },
   {
-    name: 'sizeCategories',
+    name: PRODUCTS_AND_SERVICES[2].key,
     label: t('reuse.size'),
-    api: getSizeCategories,
-    column: sizeCategories
+    api: getCategories,
+    column: sizeCategories,
+    delApi: deleteCategory
   },
   {
-    name: 'materialCategories',
+    name: PRODUCTS_AND_SERVICES[3].key,
     label: t('reuse.material'),
-    api: getMaterialCategories,
-    column: materialCategories
+    api: getCategories,
+    column: materialCategories,
+    delApi: deleteCategory
   },
   {
-    name: 'statusCategories',
+    name: PRODUCTS_AND_SERVICES[4].key,
     label: t('reuse.status'),
-    api: getStatusCategories,
-    column: statusCategories
+    api: getCategories,
+    column: statusCategories,
+    delApi: deleteCategory
   },
   {
-    name: 'genderCategories',
+    name: PRODUCTS_AND_SERVICES[5].key,
     label: t('reuse.gender'),
-    api: getGenderCategories,
-    column: genderCategories
+    api: getCategories,
+    column: genderCategories,
+    delApi: deleteCategory
   }
 ]
+
+const changeParam = (val = '') => {
+  if (val.length > 0) params.TypeName = val
+  provide('parameters', {
+    params
+  })
+}
 </script>
 <template>
-  <productCategoryTable :tabs="tabs" />
-</template>
+  <productCategoryTable
+    :titleAdd="'reuse.addNewCharacteristic'"
+    :tabs="tabs"
+    @tab-change-event="changeParam"
+/></template>

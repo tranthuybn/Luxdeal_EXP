@@ -229,7 +229,7 @@ export default defineComponent({
     const showForm = () => {
       formVisible.value = !formVisible.value
     }
-    const getHeaderForm = (formSchema1?: FormSchema, label: String) => {
+    const getHeaderForm = (formSchema1?: FormSchema, label?: String) => {
       return (
         <div>
           <div>{label}</div>
@@ -351,10 +351,14 @@ export default defineComponent({
     white-space: unset;
   }
 }
-::v-deep(.el-table__row--level-1) {
-  .imageTitle {
-    padding-left: 30px;
-  }
+
+.arrowRight {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
 }
 ::v-deep(.el-pagination.is-background .btn-next),
 ::v-deep(.el-pagination.is-background .btn-prev),

@@ -1,4 +1,5 @@
 const servicesurveyList: {
+  id: number
   surveyDate: Date
   customerName: string
   orderCode: string
@@ -10,6 +11,7 @@ const servicesurveyList: {
 }[] = []
 
 const servicesurveyListMock = {
+  id: '@id',
   surveyDate: '@date("dd/MM/yyyy")',
   customerName: '@name',
   orderCode: '@natural',

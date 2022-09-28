@@ -189,6 +189,14 @@ export default {
           }
         }
       ]
+    },
+    {
+      path: 'approve-management',
+      component: () => import('@/views/Pages/Approval/ApprovalManagement.vue'),
+      name: 'approve.approve-management',
+      meta: {
+        title: t('router.approveManagement')
+      }
     }
   ]
 }

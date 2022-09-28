@@ -1,4 +1,5 @@
 const orderPawnList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -26,6 +27,7 @@ const orderPawnList: {
 }[] = []
 
 const orderPawnListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
   creator: '@name',
@@ -33,8 +35,8 @@ const orderPawnListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
-  explain: '@string(15)',
-  depositManagement: 'Ký gửi, bán, cho thuê',
+  explain: '@paragraph(1)',
+  depositManagement: 'Cầm đồ; Ký gửi bán; Ký gửi cho thuê',
   pawnNumber: '@integer(1, 10)',
   depositedSoldNumber: '@integer(1, 10)',
   spaTimes: '@integer(1, 10)',
@@ -50,7 +52,7 @@ const orderPawnListMock = {
   receiptAndExpenditure: 'phải thu',
   startDate: '@date("dd/MM/yyyy")',
   endDate: '@date("dd/MM/yyyy")',
-  status: 'Đang ký gửi'
+  status: 'Đang cầm đồ'
 }
 
 export { orderPawnList, orderPawnListMock }

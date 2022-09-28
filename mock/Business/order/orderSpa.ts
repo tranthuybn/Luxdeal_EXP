@@ -1,4 +1,5 @@
 const orderSpaList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -24,6 +25,7 @@ const orderSpaList: {
 }[] = []
 
 const orderSpaListMock = {
+  id: '@id',
   spaService: 'Vệ sinh, hấp nhiệt',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
@@ -32,7 +34,7 @@ const orderSpaListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
-  explain: '@string(15)',
+  explain: '@paragraph(1)',
   spaTimes: '@integer(1, 10)',
   spaNumberInput: '@integer(1, 10)',
   returnedNumber: '@integer(1, 10)',
@@ -40,7 +42,7 @@ const orderSpaListMock = {
   unpaidDebt: '10.000.000 đ',
   receiptAndExpenditure: 'phải thu',
   spaDeadline: '@date("dd/MM/yyyy")',
-  status: 'Đang ký gửi'
+  status: 'Đang spa'
 }
 
 export { orderSpaList, orderSpaListMock }

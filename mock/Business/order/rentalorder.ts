@@ -1,4 +1,5 @@
 const rentalorderList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -19,6 +20,7 @@ const rentalorderList: {
 }[] = []
 
 const rentalorderListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
   creator: '@name',
@@ -26,10 +28,10 @@ const rentalorderListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
-  explain: '@string(15)',
-  returnedNumber: '10',
-  rentingNumber: '10.000.000 đ',
-  totalDepositMoney: '15.000.000 đ',
+  explain: '@paragraph(1)',
+  returnedNumber: '00',
+  rentingNumber: '10',
+  totalDepositMoney: '20.000.000 đ',
   totalRentFeeByTerm: '5.000.000 đ',
   unpaidDebt: '00 đ',
   receiptAndExpenditure: 'phải thu',

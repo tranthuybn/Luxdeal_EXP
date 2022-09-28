@@ -1,4 +1,5 @@
 const flashsaleList: {
+  id: number
   createDate: Date
   flashSaleCode: string
   descriptions: string
@@ -11,6 +12,7 @@ const flashsaleList: {
 }[] = []
 
 const flashsaleListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   flashSaleCode: '@natural',
   descriptions: '@string(10,20)',

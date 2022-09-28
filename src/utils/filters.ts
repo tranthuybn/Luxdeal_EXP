@@ -5,6 +5,23 @@ interface Filter {
   text: string
   value: any
 }
+export const filterPotentialCustomerStatus: Array<Filter> = [
+  { text: t('reuse.newData'), value: 1 },
+  { text: t('reuse.takingCare'), value: 2 },
+  { text: t('common.doneLabel'), value: 3 }
+]
+export const filterIventory: Array<Filter> = [
+  { text: t('reuse.outOfStock'), value: 0 },
+  { text: t('reuse.stocking'), value: 1 }
+]
+export const filterSentStatus: Array<Filter> = [
+  { text: t('reuse.sented'), value: 1 },
+  { text: t('reuse.notSent'), value: 2 }
+]
+export const filterNotification: Array<Filter> = [
+  { text: t('reuse.auto'), value: 1 },
+  { text: t('reuse.manual'), value: 2 }
+]
 export const filterSpaService: Array<Filter> = [
   { text: t('reuse.cleaning'), value: 1 },
   { text: t('reuse.steaming'), value: 2 }
@@ -63,11 +80,15 @@ export const filterAuctionResult: Array<Filter> = [
   { text: t('reuse.buyProduct'), value: 1 },
   { text: t('reuse.notBuy'), value: 2 }
 ]
+export const filterProductStatus: Array<Filter> = [
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false }
+]
 export const filterTableStatus: Array<Filter> = [
-  { text: t('reuse.active'), value: 1 },
-  { text: t('reuse.inactive'), value: 2 },
-  { text: t('reuse.pending'), value: 3 },
-  { text: t('reuse.finishPending'), value: 4 }
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false },
+  { text: t('reuse.pending'), value: 'Chờ duyệt' },
+  { text: t('reuse.finishPending'), value: 'Đã duyệt' }
 ]
 export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.bag'), value: 1 },
@@ -112,9 +133,11 @@ export const filterStatusTagTable: Array<Filter> = [
   { text: t('reuse.pendingConsult'), value: 2 }
 ]
 export const filterService: Array<Filter> = [
-  { text: t('reuse.buying'), value: 1 },
+  { text: t('reuse.sell'), value: 1 },
   { text: t('reuse.deposit'), value: 2 },
-  { text: t('reuse.pawn'), value: 3 }
+  { text: t('reuse.rent'), value: 3 },
+  { text: t('workplace.mortgage'), value: 4 },
+  { text: t('workplace.spa'), value: 5 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },
@@ -163,4 +186,35 @@ export const filterAuctionStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.finishPending'), value: 2 },
   { text: t('reuse.auctioning'), value: 3 }
+]
+export const filterLocation: Array<Filter> = [
+  { text: t('Tầng 1'), value: 1 },
+  { text: t('Tầng 2'), value: 2 },
+  { text: t('Tầng 3'), value: 3 }
+]
+export const filterWarehouseManagement: Array<Filter> = [
+  { text: t('Kho 1'), value: 1 },
+  { text: t('Kho 2'), value: 2 },
+  { text: t('Kho 3'), value: 3 }
+]
+export const filterStatusRevenueExpenditure: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.auctioning'), value: 3 }
+]
+export const filterReciprocalProfile: Array<Filter> = [
+  { text: t('reuse.yes'), value: 1 },
+  { text: t('reuse.no'), value: 2 }
+]
+export const filterTypeNotification: Array<Filter> = [
+  { text: t('reuse.auto'), value: 1 },
+  { text: t('reuse.handmade'), value: 2 }
+]
+export const filterTypePolicies: Array<Filter> = [
+  { text: t('reuse.showing'), value: 1 },
+  { text: t('reuse.hiding'), value: 2 }
+]
+export const filterShow: Array<Filter> = [
+  { text: t('reuse.home'), value: 1 },
+  { text: t('reuse.trending'), value: 2 }
 ]

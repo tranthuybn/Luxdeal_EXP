@@ -1,323 +1,335 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { filterTableStatus } from '@/utils/filters'
+import { filterProductStatus } from '@/utils/filters'
+import { productStatusTransferToText, dateTimeFormat, valueDateFormat } from '@/utils/format'
+import { h } from 'vue'
 export const productCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '100',
-    filters: filterTableStatus
-  }
-]
-
-export const spaProductCategories = [
-  { field: 'void', width: '50' },
-  {
-    field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650',
-    sortable: true
-  },
-
-  {
-    field: 'position',
-    label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
-  }
-]
-export const propertyProductCategories = [
-  { field: 'void', width: '50' },
-  {
-    field: 'imgTitle',
-    label: t('reuse.categoryTitle'),
-    minWidth: '650',
-    sortable: true
-  },
-
-  {
-    field: 'position',
-    label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center',
-    sortable: true
-  },
-  {
-    field: 'status',
-    label: t('reuse.status'),
-    minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus
   }
 ]
 export const colorCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus,
+    align: 'center',
+    valueFormat: valueDateFormat,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const sizeCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categorySizeTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const materialCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryMaterialTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const statusCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryStatusTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const genderCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryGenderTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const unitCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryUnitTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
+    headerAlign: 'center',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    valueFormat: valueDateFormat,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const brandCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryBrandTitle'),
-    minWidth: '650',
-    sortable: true
+    minWidth: '450',
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    align: 'center',
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const originCategories = [
-  { field: 'void', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imgTitle',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
-    sortable: true
+    headerFilter: 'Name'
   },
 
   {
-    field: 'position',
+    field: 'index',
     label: t('reuse.position'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterTableStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]

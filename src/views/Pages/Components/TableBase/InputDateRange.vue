@@ -39,12 +39,14 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+const filtering = ref(false)
 async function confirm() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.validate((valid) => {
     if (valid) {
       getFormData()
         .then((res) => {
+          filtering.value = true
           emit('confirm', res)
         })
         .catch(() => {
@@ -56,11 +58,18 @@ async function confirm() {
 const cancel = () => {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.resetFields()
+  filtering.value = false
   emit('cancel', propField.value)
+}
+const hide = () => {
+  if (!filtering.value) {
+    const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+    elFormRef?.resetFields()
+  }
 }
 </script>
 <template>
-  <el-popover placement="bottom" width="fit-content" trigger="click">
+  <el-popover placement="bottom" width="fit-content" trigger="click" @hide="hide()">
     <template #reference>
       <span>
         <el-button :icon="ArrowDown" text style="padding: 0" />

@@ -1,6 +1,5 @@
-import Mock from 'mockjs'
 const PurchaseOrder: {
-  id: string
+  id: number
   productCode: string
   saleCode: string
   saleName: string
@@ -15,15 +14,16 @@ const PurchaseOrder: {
   status: string
 }[] = []
 const PurchaseOrderList = {
+  id: '@id',
   productCode: '@string(10,20)',
   saleCode: '@string(10,20)',
   saleName: '@last',
   companyInformation: '@name',
   description: '@title',
-  numberInput: '@natural',
-  totalMoneyInput: '@natural',
-  unpaidDebt: '@natural',
-  revenueAndExpenditure: '@natural',
+  numberInput: '@integer(10,20)',
+  totalMoneyInput: '@integer(0,10000) đ',
+  unpaidDebt: '@integer(0,10000) đ',
+  revenueAndExpenditure: 'Phải chi',
   creator: '@first',
   createDate: '@date("dd/MM/yyyy")',
   status: 'Đang giao hàng'

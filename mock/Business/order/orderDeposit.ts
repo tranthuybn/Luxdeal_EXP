@@ -1,4 +1,5 @@
 const orderDepositList: {
+  id: number
   createDate: Date
   orderCode: string
   creator: string
@@ -24,6 +25,7 @@ const orderDepositList: {
 }[] = []
 
 const orderDepositListMock = {
+  id: '@id',
   createDate: '@date("dd/MM/yyyy")',
   orderCode: '@natural',
   creator: '@name',
@@ -31,7 +33,7 @@ const orderDepositListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
-  explain: '@string(15)',
+  explain: '@paragraph(1)',
   depositManagement: 'Ký gửi, bán, cho thuê',
   depositNumber: '@integer(1, 10)',
   soldNumber: '@integer(1, 10)',

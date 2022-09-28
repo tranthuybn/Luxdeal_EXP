@@ -44,13 +44,15 @@ export interface AppState {
   mobile: boolean
   footer: boolean
   theme: ThemeTypes
+  utility: string
 }
 
 export const appModules: AppState = {
+  utility: 'Utility', // push to Add-Component of each route
   userInfo: 'userInfo', // Login information storage field-It is recommended to change a field for each project to avoid conflicting with other projects
   sizeMap: ['default', 'large', 'small'],
   mobile: false, // Whether it is a mobile terminal
-  title: import.meta.env.VITE_APP_TITLE, //title
+  title: 'Luxdeal ERP', //title
   pageLoading: false, // Route jumping loading
 
   breadcrumb: true, //Bread crumbs
@@ -68,7 +70,7 @@ export const appModules: AppState = {
   footer: false, // Display foot
   greyMode: false, // Whether the gray mode starts for special mourning days
 
-  layout: wsCache.get('layout') || 'classic', // layout layout
+  layout: wsCache.get('layout') || 'cutMenu', // layout layout
   isDark: wsCache.get('isDark') || false, // Is it a dark mode
   currentSize: wsCache.get('default') || 'default', // Component size
   theme: wsCache.get('theme') || {

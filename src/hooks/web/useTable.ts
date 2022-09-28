@@ -1,5 +1,5 @@
 import { Table, TableExpose } from '@/components/Table'
-import { ElTable, ElMessageBox, ElMessage } from 'element-plus'
+import { ElTable, ElMessageBox, ElMessage, ElNotification } from 'element-plus'
 import { ref, reactive, watch, computed, unref, nextTick } from 'vue'
 import { get } from 'lodash-es'
 import type { TableProps } from '@/components/Table/src/types'
@@ -13,7 +13,11 @@ interface TableResponse<T = any> {
   pageNumber: number
   pageSize: number
 }
-
+interface IPagination {
+  pageSize: Number
+  pageIndex: Number
+  count: Number
+}
 interface UseTableConfig<T = any> {
   getListApi: (option: any) => Promise<IResponse<TableResponse<T>>>
   delListApi?: (option: any) => Promise<IResponse>
@@ -26,10 +30,16 @@ interface UseTableConfig<T = any> {
 }
 
 interface TableObject<T = any> {
+  data: any
+  StatusCode: Number
+  Succeeded: boolean
+  Code: Number | String
+  Message: String
+  pagination: IPagination
   pageSize: number
   currentPage: number
   total: number
-  tableList: T[]
+  tableList: any
   params: any
   loading: boolean
   currentRow: Nullable<T>
@@ -37,6 +47,16 @@ interface TableObject<T = any> {
 
 export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const tableObject = reactive<TableObject<T>>({
+    data: [],
+    StatusCode: 200,
+    Succeeded: true,
+    Code: '0000',
+    Message: 'success',
+    pagination: {
+      pageSize: 10,
+      pageIndex: 1,
+      count: 100
+    },
     // Number of pages
     pageSize: 10,
     // current page
@@ -122,13 +142,26 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const methods = {
     getList: async () => {
       tableObject.loading = true
-      const res = await config?.getListApi(unref(paramsObj)).finally(() => {
-        tableObject.loading = false
-      })
-      if (res) {
-        tableObject.tableList = get(res.data || {}, config?.response.list as string)
-        tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
-      }
+      await config
+        ?.getListApi(unref(paramsObj))
+        .then((res) => {
+          ElNotification({
+            message: t('reuse.getDataSuccess'),
+            type: 'success'
+          })
+          tableObject.tableList = res.data
+          tableObject.total = get(res.pagination || {}, config?.response?.total as string) || 0
+        })
+        .catch(() => {
+          tableObject.tableList = []
+          ElNotification({
+            message: t('reuse.cantFindData'),
+            type: 'error'
+          })
+        })
+        .finally(() => {
+          tableObject.loading = false
+        })
     },
     setProps: async (props: TableProps = {}) => {
       const table = await getTable()

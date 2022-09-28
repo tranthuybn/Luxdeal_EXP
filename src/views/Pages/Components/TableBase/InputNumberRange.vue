@@ -18,14 +18,40 @@ const confirm2 = () => {
   objValue[field.value] = arrValue
   emit('confirm', objValue)
 }
+const validateFrom = (_rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error(t('reuse.warningNumber')))
+  }
+  if (isNaN(value)) {
+    callback(new Error(t('reuse.warningInputNumber')))
+  }
+  if (ruleForm.inputTo !== '' && Number(ruleForm.inputFrom) > Number(ruleForm.inputTo)) {
+    callback(new Error(t('reuse.warningNumberGreater')))
+  }
+  callback()
+}
+const validateTo = (_rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error(t('reuse.warningNumber')))
+  }
+  if (isNaN(value)) {
+    callback(new Error(t('reuse.warningInputNumber')))
+  }
+  if (ruleForm.inputFrom !== '' && Number(ruleForm.inputFrom) > Number(ruleForm.inputTo)) {
+    callback(new Error(t('reuse.warningNumberGreater')))
+  }
+  callback()
+}
 const rules = reactive<FormRules>({
-  inputFrom: [{ required: true, message: t('reuse.warningNumber'), trigger: 'blur' }],
-  inputTo: [{ required: true, message: t('reuse.warningNumber'), trigger: 'blur' }]
+  inputFrom: [{ validator: validateFrom, required: true }],
+  inputTo: [{ validator: validateTo, required: true }]
 })
+const filtering = ref(false)
 const confirm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      filtering.value = true
       confirm2()
     } else {
       console.error('error submit!', fields)
@@ -36,11 +62,17 @@ const confirm = async (formEl: FormInstance | undefined) => {
 const cancel = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
+  filtering.value = false
   emit('cancel', field.value)
+}
+const hide = (formEl: FormInstance | undefined) => {
+  if (!filtering.value) {
+    formEl?.resetFields()
+  }
 }
 </script>
 <template>
-  <el-popover placement="bottom" trigger="click" width="fit-content">
+  <el-popover placement="bottom" trigger="click" width="fit-content" @hide="hide(ruleFormRef)">
     <template #reference>
       <el-button :icon="ArrowDown" text style="padding: 0" />
     </template>

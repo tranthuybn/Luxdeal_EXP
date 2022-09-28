@@ -22,18 +22,10 @@ export default {
     },
     {
       path: 'forum',
-      component: () => import('@/views/Pages/NewsAndAdvertisement/Forum.vue'),
+      component: () => import('@/views/Pages/NewsAndAdvertisement/ForumPage/forum.vue'),
       name: 'New-and-advertisement.forum',
       meta: {
         title: t('router.forum')
-      }
-    },
-    {
-      path: 'news-site',
-      component: () => import('@/views/Pages/NewsAndAdvertisement/NewsSites.vue'),
-      name: 'New-and-advertisement.news-site',
-      meta: {
-        title: t('router.newsSite')
       }
     },
     {
@@ -43,6 +35,32 @@ export default {
       meta: {
         title: t('router.bannerAdvertisement')
       }
+    },
+    {
+      path: 'news-site',
+      name: 'New-and-advertisement.news-site',
+      meta: {
+        title: t('router.newsSite')
+      },
+      children: [
+        {
+          path: 'news-list',
+          component: () => import('@/views/Pages/NewsAndAdvertisement/NewsSites/NewsList.vue'),
+          name: 'New-and-advertisement.news-site.news-list',
+          meta: {
+            title: t('router.newsList')
+          }
+        },
+        {
+          path: 'manage-news',
+          component: () =>
+            import('@/views/Pages/NewsAndAdvertisement/NewsSites/ManageNewsCategories.vue'),
+          name: 'New-and-advertisement.news-site.manage-news',
+          meta: {
+            title: t('router.manageNew')
+          }
+        }
+      ]
     },
     {
       path: 'profile-admin',

@@ -65,11 +65,23 @@ export default {
           }
         },
         {
+          path: 'order-management',
+          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+          name: `business.order-management.order-list-add`,
+          meta: {
+            title: 'reuse.createANewOrder',
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
+        },
+        {
           path: 'create-new-order',
           name: 'business.order-management.create-new-order',
-          component: () => import('@/views/Pages/Business/OrderManagement/CreateANewOrder.vue'),
+          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
           meta: {
-            title: t('router.createANewOrder')
+            title: 'router.createANewOrder'
           }
         }
       ]
@@ -104,6 +116,40 @@ export default {
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
           meta: {
             title: t('router.customerAdd')
+          }
+        }
+      ]
+    },
+    {
+      path: 'collaborators',
+      name: 'business.collaborators',
+      redirect: { name: 'business.collaborators.collaboratorsList' },
+      meta: {
+        title: t('router.collaborators')
+      },
+      children: [
+        {
+          path: 'collaboratorsList',
+          name: 'business.collaborators.collaboratorsList',
+          component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
+          meta: {
+            title: t('router.collaboratorsList')
+          }
+        },
+        {
+          path: 'paymentRequest',
+          name: 'business.collaborators.paymentRequest',
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
+          meta: {
+            title: t('router.paymentRequest')
+          }
+        },
+        {
+          path: 'collaboratorsAdd',
+          name: 'business.collaborators.collaboratorsAdd',
+          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd')
           }
         }
       ]
@@ -222,40 +268,6 @@ export default {
           component: () => import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWallet.vue'),
           meta: {
             title: t('router.settingsvirtualWallet')
-          }
-        }
-      ]
-    },
-    {
-      path: 'collaborators',
-      name: 'business.collaborators',
-      redirect: { name: 'business.collaborators.collaboratorsList' },
-      meta: {
-        title: t('router.collaborators')
-      },
-      children: [
-        {
-          path: 'collaboratorsList',
-          name: 'business.collaborators.collaboratorsList',
-          component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
-          meta: {
-            title: t('router.collaboratorsList')
-          }
-        },
-        {
-          path: 'paymentRequest',
-          name: 'business.collaborators.paymentRequest',
-          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
-          meta: {
-            title: t('router.paymentRequest')
-          }
-        },
-        {
-          path: 'collaboratorsAdd',
-          name: 'business.collaborators.collaboratorsAdd',
-          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
-          meta: {
-            title: t('router.collaboratorsAdd')
           }
         }
       ]

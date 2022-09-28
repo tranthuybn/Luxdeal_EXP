@@ -3,6 +3,8 @@ declare type TableColumn = {
   label?: string | VNode
   children?: TableColumn[]
   align?: string
+  headerFilter?: string = 'Number' | 'Date' | 'Money' | 'Name'
+  title?: string
 } & Recordable
 
 declare type TableSlotDefault = {

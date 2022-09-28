@@ -1,5 +1,7 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 export default {
   path: '/accountant',
@@ -41,20 +43,61 @@ export default {
       ]
     },
     {
-      path: 'receipts-and-expenditures',
-      component: () => import('@/views/Pages/Accountant/ReceiptsAndExpenditures.vue'),
-      name: 'accountant.receiptsAndExpenditures',
+      path: 'receipts-expenditures',
+      name: 'accountant.receipts-expenditures',
       meta: {
         title: t('router.receiptsAndExpenditures')
-      }
+      },
+      children: [
+        {
+          path: 'receipts-expenditures-list',
+          component: () =>
+            import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAndExpenditures.vue'),
+          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
+          meta: {
+            title: t('router.receiptsAndExpendituresList')
+          }
+        },
+        {
+          path: 'receipts-add',
+          component: () =>
+            import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd.vue'),
+          name: 'accountant.receipts-expenditures.receipts-add',
+          meta: {
+            title: t('router.receiptsAdd')
+          }
+        },
+        {
+          path: 'payment-add',
+          component: () =>
+            import('@/views/Pages/Accountant/ReceiptsAndExpenditures/PaymentsAdd.vue'),
+          name: 'accountant.receipts-expenditures.payment-add',
+          meta: {
+            title: t('router.paymentsAdd')
+          }
+        }
+      ]
     },
     {
       path: 'balanceSheet',
-      component: () => import('@/views/Pages/Accountant/BalanceSheet.vue'),
       name: 'accountant.balanceSheet',
       meta: {
         title: t('router.balanceSheet')
-      }
+      },
+      children: [
+        {
+          path: `${utility}`,
+          component: () => import('@/views/Pages/Accountant/BalanceSheetUtility.vue'),
+          name: `accountant.balanceSheet.${utility}`,
+          meta: {
+            title: t('reuse.addNewAccount'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
+        }
+      ]
     }
   ]
 }

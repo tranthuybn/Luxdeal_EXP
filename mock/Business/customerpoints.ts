@@ -1,4 +1,5 @@
 const customerPointsList: {
+  id: number
   customerCode: string
   customerName: string
   totalRechargePoints: number
@@ -9,6 +10,7 @@ const customerPointsList: {
 }[] = []
 
 const customerPointsListMock = {
+  id: '@id',
   customerCode: '@string(10,20)',
   customerName: '@string(10,20)',
   totalRechargePoints: '@natural',

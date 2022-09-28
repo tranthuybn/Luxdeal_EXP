@@ -1,6 +1,7 @@
 import { config } from '@/config/axios/config'
 import { MockMethod } from 'vite-plugin-mock'
 
+const utility = 'Utility'
 const { result_code } = config
 
 const timeout = 1000
@@ -38,10 +39,10 @@ const adminList = [
     ]
   },
   {
-    path: '/products-sevices',
+    path: '/products-services',
     component: '#',
-    redirect: { name: 'products-sevices.ProductLibrary' },
-    name: 'products-sevices',
+    redirect: { name: 'products-services.ProductLibrary' },
+    name: 'products-services',
     meta: {
       title: 'router.productsAndServices',
       icon: 'gridicons:product-virtual',
@@ -50,40 +51,39 @@ const adminList = [
     children: [
       {
         path: 'product-library',
-        name: 'products-sevices.ProductLibrary',
+        name: 'products-services.ProductLibrary',
+        redirect: { name: 'products-services.productLibrary.Products' },
         meta: {
-          title: 'router.productManagement'
+          title: 'router.productManagement',
+          alwaysShow: true
         },
         children: [
           {
             path: 'products',
             component: 'views/Pages/ProductsAndServices/ProductLibrary/Products',
-            name: 'products-sevices.productLibraryProducts',
+            name: 'products-services.productLibrary.Products',
             meta: {
               title: 'router.productLibraryProducts'
-            }
-          },
-          {
-            path: 'spa-material',
-            component: 'views/Pages/ProductsAndServices/ProductLibrary/SpaMaterial',
-            name: 'products-sevices.productLibrarySpaMaterial',
-            meta: {
-              title: 'router.productLibrarySpaMaterial'
-            }
-          },
-          {
-            path: 'properties',
-            component: 'views/Pages/ProductsAndServices/ProductLibrary/Properties',
-            name: 'products-sevices.productLibraryproperties',
-            meta: {
-              title: 'router.productLibraryproperties'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
+                name: `products-services.productLibrary.Products.${utility}`,
+                meta: {
+                  title: 'reuse.addNewCategory',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true
+                }
+              }
+            ]
           }
         ]
       },
       {
         path: 'service-library',
-        name: 'products-sevices.ServiceLibrary',
+        name: 'products-services.ServiceLibrary',
         meta: {
           title: 'router.serviceManagement',
           alwaysShow: true
@@ -92,16 +92,28 @@ const adminList = [
           {
             path: 'spa-service',
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaService',
-            name: 'products-sevices.ServiceLibrarySpaService',
+            name: 'products-services.ServiceLibrarySpaService',
             meta: {
               title: 'router.ServiceLibrarySpaService'
+            }
+          },
+          {
+            path: `${utility}/:id?/:type?`,
+            component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
+            name: `products-services.ServiceLibrarySpaService.${utility}`,
+            meta: {
+              title: 'reuse.addNewSpaService',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
             }
           }
         ]
       },
       {
         path: 'product-property',
-        name: 'products-sevices.product-property',
+        name: 'products-services.product-property',
         meta: {
           title: 'router.productPropertyNew'
         },
@@ -109,42 +121,112 @@ const adminList = [
           {
             path: 'product-category',
             component: 'views/Pages/ProductsAndServices/Category/Product',
-            name: 'products-sevices.productCategoryProducts',
+            name: 'products-services.ProductCategory',
             meta: {
               title: 'router.productCategoryProducts'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
+                name: `products-services.ProductCategory.${utility}`,
+                meta: {
+                  title: 'reuse.addNewProductCategory',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'attribute-category',
             component: 'views/Pages/ProductsAndServices/Category/Attribute',
-            name: 'products-sevices.productCategoryAttribute',
+            name: 'products-services.AttributeCategory',
             meta: {
               title: 'router.productCategoryAttribute'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?/:tab?`,
+                component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
+                name: `products-services.AttributeCategory.${utility}`,
+                meta: {
+                  title: 'reuse.addNewAttribute',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'unit-category',
             component: 'views/Pages/ProductsAndServices/Category/Unit',
-            name: 'products-sevices.productCategoryUnit',
+            name: 'products-services.UnitCategory',
             meta: {
               title: 'router.productCategoryUnit'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
+                name: `products-services.UnitCategory.${utility}`,
+                meta: {
+                  title: 'reuse.addNewUnit',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'brand-category',
             component: 'views/Pages/ProductsAndServices/Category/Brand',
-            name: 'products-sevices.productCategoryBrand',
+            name: 'products-services.BrandCategory',
             meta: {
               title: 'router.productCategoryBrand'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
+                name: `products-services.BrandCategory.${utility}`,
+                meta: {
+                  title: 'reuse.addNewBrand',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'origin-category',
             component: 'views/Pages/ProductsAndServices/Category/Origin',
-            name: 'products-sevices.productCategoryOrigin',
+            name: 'products-services.OriginCategory',
             meta: {
               title: 'router.productCategoryOrigin'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
+                name: `products-services.OriginCategory.${utility}`,
+                meta: {
+                  title: 'reuse.addNewOrigin',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       }
@@ -178,9 +260,9 @@ const adminList = [
             }
           },
           {
-            path: 'potential-customer-add',
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
-            name: 'business.potential-customer-care.potential-customer-add',
+            name: `business.potential-customer-care.potential-customer-list.${utility}`,
             meta: {
               title: 'router.potentialCustomerAdd'
             }
@@ -212,9 +294,21 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/OrderManagement/index',
+            name: `business.order-management.order-list.${utility}`,
+            meta: {
+              title: 'reuse.createANewOrder',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'create-new-order',
             name: 'business.order-management.create-new-order',
-            component: 'views/Pages/Business/OrderManagement/CreateANewOrder',
+            component: 'views/Pages/Business/OrderManagement/index',
             meta: {
               title: 'router.createANewOrder'
             }
@@ -415,7 +509,6 @@ const adminList = [
           }
         ]
       },
-
       {
         path: 'employee-management',
         name: 'business.employee-management',
@@ -526,10 +619,10 @@ const adminList = [
     ]
   },
   {
-    path: '/warehouse',
+    path: '/inventory-management',
     component: '#',
-    redirect: '/warehouse/list-warehouse',
-    name: 'Warehouse',
+    redirect: '/inventory-management/business-product-warehouse',
+    name: 'Inventorymanagement',
     meta: {
       title: 'router.warehouseManagement',
       icon: 'maki:warehouse',
@@ -537,43 +630,68 @@ const adminList = [
     },
     children: [
       {
-        path: 'list-warehouse',
-        component: 'views/Pages/Warehouse/index',
-        name: 'Warehouse.ListWarehouse',
+        path: 'business-product-warehouse',
+        name: 'Inventorymanagement.ListWarehouse',
+        redirect: { name: 'Inventorymanagement.ListWarehouse.inventory-tracking' },
         meta: {
-          title: 'router.warehouseList'
-        }
+          title: 'router.createRepositoryDirectoryProductStorage'
+        },
+        children: [
+          {
+            path: 'inventory-tracking',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/index',
+            name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
+            meta: {
+              title: 'router.inventoryTracking'
+            }
+          },
+          {
+            path: 'ware-house',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/WareHouse',
+            name: 'Inventorymanagement.ListWarehouse.ware-house',
+            meta: {
+              title: 'router.warehouse'
+            }
+          },
+          {
+            path: 'export',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Export',
+            name: 'Inventorymanagement.ListWarehouse.export',
+            meta: {
+              title: 'router.export'
+            }
+          }
+        ]
       },
       {
         path: 'create-repository-directory',
-        name: 'Warehouse.createRepositoryDirectory',
+        name: 'Inventorymanagement.createRepositoryDirectory',
         meta: {
-          title: 'router.createRepositoryDirectory'
+          title: 'router.createRepositoryDirectory',
+          alwaysShow: true
         },
         children: [
           {
             path: 'product-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/ProductStorage',
-            name: 'Warehouse.createRepositoryDirectory.ProductStorage',
+            component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorage',
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
             meta: {
               title: 'router.createRepositoryDirectoryProductStorage'
-            }
-          },
-          {
-            path: 'spa-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/SpaStorage',
-            name: 'Warehouse.createRepositoryDirectory.productLibrarySpaStorage',
-            meta: {
-              title: 'router.productLibrarySpaStorage'
-            }
-          },
-          {
-            path: 'property-storage',
-            component: 'views/Pages/ProductsAndServices/StorageLibrary/PropertyStorage',
-            name: 'Warehouse.createRepositoryDirectory.productPropertyStorage',
-            meta: {
-              title: 'router.productLibrarypropertiesPropertyStorage'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
+                name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
+                meta: {
+                  title: 'reuse.addNewWarehouse',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       }
@@ -607,7 +725,7 @@ const adminList = [
             }
           },
           {
-            path: 'apayment-proposal-add',
+            path: 'payment-proposal-add',
             component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
             name: 'accountant.payment-proposal.payment-proposal-add',
             meta: {
@@ -618,11 +736,36 @@ const adminList = [
       },
       {
         path: 'receipts-expenditures',
-        component: 'views/Pages/Accountant/ReceiptsAndExpenditures',
-        name: 'accountant.receiptsAndExpenditures',
+        name: 'accountant.receipts-expenditures',
         meta: {
           title: 'router.receiptsAndExpenditures'
-        }
+        },
+        children: [
+          {
+            path: 'receipts-expenditures-list',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAndExpenditures',
+            name: 'accountant.receipts-expenditures.receipts-expenditures-list',
+            meta: {
+              title: 'router.receiptsAndExpendituresList'
+            }
+          },
+          {
+            path: 'receipts-add',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',
+            name: 'accountant.receipts-expenditures.receipts-add',
+            meta: {
+              title: 'router.receiptsAdd'
+            }
+          },
+          {
+            path: 'payment-add',
+            component: 'views/Pages/Accountant/ReceiptsAndExpenditures/PaymentsAdd',
+            name: 'accountant.receipts-expenditures.payment-add',
+            meta: {
+              title: 'router.paymentsAdd'
+            }
+          }
+        ]
       },
       {
         path: 'balanceSheet',
@@ -630,7 +773,21 @@ const adminList = [
         name: 'accountant.balanceSheet',
         meta: {
           title: 'router.balanceSheet'
-        }
+        },
+        children: [
+          {
+            path: `${utility}/:id?/:type?`,
+            component: 'views/Pages/Accountant/BalanceSheetUtility',
+            name: `accountant.balanceSheet.${utility}`,
+            meta: {
+              title: 'reuse.addNewAccount',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          }
+        ]
       }
     ]
   },
@@ -822,6 +979,14 @@ const adminList = [
             }
           }
         ]
+      },
+      {
+        path: 'approve-management',
+        component: 'views/Pages/Approval/ApprovalManagement',
+        name: 'approve.approve-management',
+        meta: {
+          title: 'router.approveManagement'
+        }
       }
     ]
   },
@@ -846,18 +1011,10 @@ const adminList = [
       },
       {
         path: 'forum',
-        component: 'views/Pages/NewsAndAdvertisement/Forum',
         name: 'New-and-advertisement.forum',
+        component: 'views/Pages/NewsAndAdvertisement/ForumPage/forum',
         meta: {
           title: 'router.forum'
-        }
-      },
-      {
-        path: 'news-site',
-        component: 'views/Pages/NewsAndAdvertisement/NewsSites',
-        name: 'New-and-advertisement.news-site',
-        meta: {
-          title: 'router.newsSite'
         }
       },
       {
@@ -867,6 +1024,31 @@ const adminList = [
         meta: {
           title: 'router.bannerAdvertisement'
         }
+      },
+      {
+        path: 'news-site',
+        name: 'New-and-advertisement.news-site',
+        meta: {
+          title: 'router.newsSite'
+        },
+        children: [
+          {
+            path: 'news-list',
+            component: 'views/Pages/NewsAndAdvertisement/NewsSites/NewsList',
+            name: 'New-and-advertisement.news-site.news-list',
+            meta: {
+              title: 'router.newsList'
+            }
+          },
+          {
+            path: 'manage-news',
+            component: 'views/Pages/NewsAndAdvertisement/NewsSites/ManageNewsCategories',
+            name: 'New-and-advertisement.news-site.manage-news',
+            meta: {
+              title: 'router.manageNew'
+            }
+          }
+        ]
       },
       {
         path: 'profile-admin',
@@ -930,6 +1112,28 @@ const adminList = [
         meta: {
           title: 'router.personnelAccounts'
         }
+      },
+      {
+        path: 'department-directory',
+        name: 'human-resource-management.department-directory',
+        component: 'views/Pages/HumanResourceManagement/DepartmentDirectory',
+        meta: {
+          title: 'router.departmentDirectory'
+        },
+        children: [
+          {
+            path: `${utility}/:id?/:type?`,
+            component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
+            name: `human-resource-management.department-directory.${utility}`,
+            meta: {
+              title: 'reuse.addNewBranch',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          }
+        ]
       }
     ]
   }

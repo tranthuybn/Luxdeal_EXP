@@ -90,7 +90,7 @@ const dialogStyle = computed(() => {
   </ElDialog>
 </template>
 
-<style lang="less">
+<style lang="less" scoped>
 .@{elNamespace}-dialog__header {
   margin-right: 0 !important;
   border-bottom: 1px solid var(--tags-view-border-color);

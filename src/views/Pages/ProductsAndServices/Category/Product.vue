@@ -1,39 +1,32 @@
 <script setup lang="ts">
-import productCategoryTable from '../../Components/productCategory-table.vue'
-import {
-  getProductCategories,
-  getSpaProductCategories,
-  getPropertyProductCategories
-} from '@/api/LibraryAndSetting'
-import {
-  productCategories,
-  spaProductCategories,
-  propertyProductCategories
-} from './CategoryManagement'
+import productCategoryTable from '../../Components/TabsBase.vue'
+import { getCategories, deleteCategory } from '@/api/LibraryAndSetting'
+import { productCategories } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { provide } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+const params = { TypeName: PRODUCTS_AND_SERVICES[0].key }
+provide('parameters', {
+  params
+})
 const tabs: Array<Tab> = [
   {
-    name: 'productCategories',
+    name: PRODUCTS_AND_SERVICES[0].key,
     label: t('reuse.businessProduct'),
-    api: getProductCategories,
-    column: productCategories
-  },
-  {
-    name: 'Spa',
-    label: t('reuse.spaProduct'),
-    api: getSpaProductCategories,
-    column: spaProductCategories
-  },
-  {
-    name: 'Property',
-    label: t('reuse.propertyProduct'),
-    api: getPropertyProductCategories,
-    column: propertyProductCategories
+    api: getCategories,
+    column: productCategories,
+    delApi: deleteCategory
   }
 ]
+const changeParam = (val = '') => {
+  if (val.length > 0) params.TypeName = val
+  provide('parameters', {
+    params
+  })
+}
 </script>
 <template>
-  <productCategoryTable :tabs="tabs" />
+  <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" />
 </template>

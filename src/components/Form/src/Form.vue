@@ -14,7 +14,7 @@ import {
 } from './helper'
 import { useRenderSelect } from './components/useRenderSelect'
 import { useRenderRadio } from './components/useRenderRadio'
-import { useRenderCheckbox } from './components/useRenderCheckbox'
+import { useRenderCheckboxButton } from './components/useRenderCheckbox'
 import { useDesign } from '@/hooks/web/useDesign'
 import { findIndex } from '@/utils'
 import { set } from 'lodash-es'
@@ -29,10 +29,6 @@ export default defineComponent({
   name: 'Form',
   props: {
     // The layout structure array of FORM
-    formSchema: {
-      type: Object as PropType<FormSchema>,
-      default: () => {}
-    },
     schema: {
       type: Array as PropType<FormSchema[]>,
       default: () => [] || {}
@@ -152,25 +148,23 @@ export default defineComponent({
     // Whether to render EL-COL
     const renderFormItemWrap = () => {
       // Hidden attribute means hidden, not rendering
-      const { schema = [], isCol, formSchema } = unref(getProps)
+      const { schema = [], isCol } = unref(getProps)
 
-      return schema.length > 0
-        ? schema
-            .filter((v) => !v.hidden)
-            .map((item) => {
-              // If it is a divider component, you need to occupy one line by yourself
-              const isDivider = item.component === 'Divider'
-              const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
-              return isDivider ? (
-                <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
-              ) : isCol ? (
-                // If you need a grid, you need to wrap ELCOL
-                <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
-              ) : (
-                renderFormItem(item)
-              )
-            })
-        : renderFormItem(formSchema)
+      return schema
+        .filter((v) => !v.hidden)
+        .map((item) => {
+          // If it is a divider component, you need to occupy one line by yourself
+          const isDivider = item.component === 'Divider'
+          const Com = componentMap['Divider'] as ReturnType<typeof defineComponent>
+          return isDivider ? (
+            <Com {...{ contentPosition: 'left', ...item.componentProps }}>{item?.label}</Com>
+          ) : isCol ? (
+            // If you need a grid, you need to wrap ELCOL
+            <ElCol {...setGridProp(item.colProps)}>{renderFormItem(item)}</ElCol>
+          ) : (
+            renderFormItem(item)
+          )
+        })
     }
 
     // Rendering Formitem
@@ -256,8 +250,8 @@ export default defineComponent({
           return renderRadioOptions(item)
         case 'Checkbox':
         case 'CheckboxButton':
-          const { renderChcekboxOptions } = useRenderCheckbox()
-          return renderChcekboxOptions(item)
+          const { renderCheckboxOptions } = useRenderCheckboxButton()
+          return renderCheckboxOptions(item)
         default:
           break
       }

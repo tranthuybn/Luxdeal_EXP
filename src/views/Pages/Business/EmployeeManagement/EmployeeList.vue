@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import tableDatetimeFilterBasicVue from '../../Components/tableType01-datetimefilter-basic.vue'
+import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeList } from '@/api/Business'
 import {
   filterGender,
@@ -23,8 +23,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'employeeCode',
     label: t('reuse.employeeCode'),
-    minWidth: '250',
-    sortable: true
+    minWidth: '250'
   },
   {
     field: 'employeeName',
@@ -47,8 +46,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '100',
-    sortable: true
+    minWidth: '100'
   },
   {
     field: 'branch',

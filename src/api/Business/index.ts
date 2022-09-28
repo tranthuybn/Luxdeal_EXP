@@ -1,14 +1,61 @@
 import { useAxios } from '@/hooks/web/useAxios'
+import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
+import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
-
+const fixedBaseURL = true
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/potentialCustomerCareTable/List', params })
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMERS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+export const getProductsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
+
+export const getListCollaborator = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/customer/List', params })
   return res && res.data
+}
+export const addNewPotentialCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CUSTOMER_API.ADD_POTENTIAL_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
 }
 export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
@@ -76,5 +123,18 @@ export const getOrderPawnList = async (params: any): Promise<IResponse> => {
 }
 export const getOrderSpaList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/orderSpa/List', params })
+  return res && res.data
+}
+export const getPaymentList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/payment', params })
+  return res && res.data
+}
+export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/receipts-expenditures', params })
+  return res && res.data
+}
+
+export const getaddNewPotenialCustomerList = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/addNewPotenialCustomer/List', params })
   return res && res.data
 }

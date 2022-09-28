@@ -1,4 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import { filterTableStatus } from '@/utils/filters'
+import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { h } from 'vue'
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -10,59 +13,74 @@ export const businessProductLibrary = [
   },
 
   {
-    field: 'serviceCode',
+    field: 'code',
     label: t('reuse.serviceCode'),
     minWidth: '150'
   },
   {
-    field: 'serviceName',
+    field: 'name',
     label: t('reuse.serviceName'),
     minWidth: '250'
   },
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '250'
+    minWidth: '250',
+    formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
+      return h('span', { innerHTML: cellValue })
+    }
   },
   {
-    field: 'unitPrice',
+    field: 'cost',
     label: t('reuse.unitPrice'),
     minWidth: '150',
+    align: 'right',
     sortable: true
   },
   {
     field: 'time',
-    label: t('reuse.time'),
+    label: t('reuse.timeMinute'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
-    field: 'insurance',
-    label: t('reuse.insurance'),
+    field: 'warranty',
+    label: t('reuse.insuranceDate'),
     minWidth: '150',
+    align: 'center',
     sortable: true
   },
   {
-    field: 'image',
+    field: 'imageList',
     label: t('reuse.image'),
-    minWidth: '150'
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center'
   },
   {
-    field: 'creator',
-    label: t('reuse.creator'),
+    field: 'createdAt',
+    label: t('reuse.createDate'),
     minWidth: '150',
-    sortable: true
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'status',
+    field: 'createdBy',
+    label: t('reuse.creator'),
+    minWidth: '150',
+    align: 'center',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    sortable: true
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]

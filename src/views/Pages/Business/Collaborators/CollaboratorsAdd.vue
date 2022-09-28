@@ -1,5 +1,5 @@
 <template>
-  <div>{{ t('router.collaboratorsAdd') }}</div>
+  <div>{{ t('router.paymentRequest') }}</div>
 </template>
 
 <script setup lang="ts">

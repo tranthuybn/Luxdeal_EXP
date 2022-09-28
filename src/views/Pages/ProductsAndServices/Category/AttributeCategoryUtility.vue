@@ -26,16 +26,17 @@ const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: tab }
+let valueSelect = 0
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
   {
     field: 'category',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeAttribute'),
     component: 'Divider'
   },
   {
     field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.selectLevelAttribute'),
     component: 'Select',
     colProps: {
       span: 20
@@ -47,7 +48,7 @@ const schema = reactive<FormSchema[]>([
       value: 1,
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.attributeLevel1'),
           value: 1
         }
       ]
@@ -56,8 +57,9 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.selectLevelAttribute'),
     component: 'Select',
+    modelValue: valueSelect,
     colProps: {
       span: 20
     },
@@ -66,19 +68,21 @@ const schema = reactive<FormSchema[]>([
       placeholder: t('reuse.selectRankOrigin'),
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.attributeLevel1'),
           value: 1
         },
         {
-          label: t('reuse.rank2Category'),
+          label: t('reuse.attributeLevel2'),
           value: 2
         }
       ],
       onChange: (value) => {
         if (value == 1 || value == '') {
+          valueSelect = 1
           removeFormSchema()
         }
         if (value == 2) {
+          valueSelect = 2
           addFormSchema(timesCallAPI)
           timesCallAPI++
         }
@@ -93,19 +97,19 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.inputOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel1')
     },
     hidden: false
   },
   {
     field: 'parentid',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Select',
     colProps: {
       span: 20
@@ -113,19 +117,19 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel1')
     },
     hidden: true
   },
   {
     field: 'name',
-    label: t('reuse.nameRank2Category'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.inputOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel1')
     },
     hidden: true
   },
@@ -137,7 +141,7 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.displayPosition')
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {
@@ -203,15 +207,15 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
-  schema[3].hidden = true
-  schema[4].hidden = false
+  schema[4].hidden = true
   schema[5].hidden = false
-  schema[5].value = nameChildren
+  schema[6].hidden = false
+  schema[6].value = nameChildren
 }
 const removeFormSchema = () => {
-  schema[3].hidden = false
-  schema[4].hidden = true
+  schema[4].hidden = false
   schema[5].hidden = true
+  schema[6].hidden = true
 }
 const postData = async (data) => {
   //manipulate Data
@@ -314,7 +318,7 @@ const editData = async (data) => {
     :type="type"
     :id="id"
     @post-data="postData"
-    :multipleImages="true"
+    :multipleImages="false"
     :rules="rules"
     :apiId="getCategoryById"
     :params="params"

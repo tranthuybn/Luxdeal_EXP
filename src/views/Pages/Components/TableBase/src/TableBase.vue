@@ -328,7 +328,7 @@ const handleCurrentChange = (current: number) => {
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
+          <el-image fit="contain" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
       <template #imageProduct="data">

@@ -21,12 +21,12 @@ let timesCallAPI = 0
 const schema = reactive<FormSchema[]>([
   {
     field: 'typeCategory',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeBrand'),
     component: 'Divider'
   },
   {
     field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
+    label: t('formDemo.selectRankBrand'),
     component: 'Select',
     colProps: {
       span: 20
@@ -38,7 +38,7 @@ const schema = reactive<FormSchema[]>([
       value: 1,
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('formDemo.rank1Brand'),
           value: 1
         }
       ]
@@ -51,10 +51,14 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameCategory'),
+    label: t('formDemo.brandName'),
     component: 'Input',
     colProps: {
       span: 20
+    },
+    componentProps: {
+      style: 'width: 100%',
+      placeholder: t('formDemo.inputBrandName')
     },
     hidden: false
   },
@@ -93,7 +97,7 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.displayPosition')
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {

@@ -17,7 +17,6 @@ export const useValidator = () => {
       message: message || t('common.required')
     }
   }
-
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
     const { min, max } = options
     if (val.length < min || val.length > max) {
@@ -105,6 +104,19 @@ export const useValidator = () => {
       required: true,
       trigger: 'blur'
     },
+    checkSpace: {
+      validator: (_rule: any, value: any, callback: any) => {
+        // if (value.match(/^\s+$/) === null) {
+        //   callback(new Error(t('reuse.notSpaceAfter')))
+        // }
+        if (/^\s+$/.test(value)) {
+          callback(new Error(t('reuse.notSpaceAfter')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    },
     checkNameLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
@@ -116,15 +128,37 @@ export const useValidator = () => {
       required: false,
       trigger: 'change'
     },
+    checkCodeServiceLength: {
+      type: 'string',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 20) {
+          callback(new Error(t('reuse.checkCodeServiceLength')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'change'
+    },
     checkDescriptionLength: {
       type: 'string',
-      validator: (val, callback) => {
-        if (val.length > 500) {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value.length > 500) {
           callback(new Error(t('reuse.checkDescriptionLength')))
         }
         callback()
       },
       required: false,
+      trigger: 'change'
+    },
+    checkNameServiceLength: {
+      type: 'string',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value.length > 255) {
+          callback(new Error(t('reuse.checkNameServiceLength')))
+        }
+        callback()
+      },
+      required: true,
       trigger: 'change'
     },
     checkStartDateTime: {

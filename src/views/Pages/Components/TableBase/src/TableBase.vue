@@ -102,13 +102,15 @@ onBeforeMount(() => {
 // execute pagination
 watch(
   () => tableObject.total,
-  () => {
-    props.paginationType
-      ? (paginationObj.value = {
-          total: tableObject.total
-        })
-      : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
+  (val) => {
+    if (val) {
+      props.paginationType
+        ? (paginationObj.value = {
+            total: val
+          })
+        : (paginationObj.value = undefined)
+    }
+    emit('TotalRecord', tableObject?.tableList?.length ?? 0)
   },
   {
     immediate: true
@@ -215,7 +217,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
             .catch(() =>
               ElNotification({
                 message: t('reuse.deleteFail'),
-                type: 'warning'
+                type: 'error'
               })
             )
             .finally(() => getData())
@@ -230,7 +232,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
-            type: 'warning'
+            type: 'error'
           })
         }
       })

@@ -113,6 +113,7 @@ export default {
     statusAndFunctional: 'Trạng thái và chức năng',
     status: 'Trạng thái',
     pending: 'Chờ duyệt',
+    saveAndPending: 'Lưu và chờ duyệt',
     isActive: 'Đang hoạt động',
     pauseActivity: 'Tạm dừng hoạt động',
     enterServiceCode: 'Nhập mã dịch vụ',
@@ -158,6 +159,7 @@ export default {
     orderStatus: 'Trạng thái đơn hàng',
     paymenAndDelivery: 'Sản phẩm & thanh toán',
     chooseACustomer: 'Chọn khách hàng',
+    chooseCustomerDetail: 'Chọn khách hàng chi tiết',
     delivery: 'Giao hàng',
     chooseDelivery: 'Chọn giao vận',
     deliveryAddress: 'Địa chỉ nhận hàng',
@@ -273,11 +275,21 @@ export default {
     importTrackingTable: 'Bảng theo dõi hàng cầm đồ trả lại/nhập kho nội bộ',
     depositTerm: 'Kỳ hạn ký gửi',
     atLeast14Days: 'Ít nhất 14 ngày',
-    enterDate: 'Nhập ngày',
-    deliveryAtTheCounter: 'Nhận hàng tại quầy',
-    deliveryAtCustomerAddress: 'Nhận hàng ký tại địa chỉ khách hàng',
-    numberSpa: 'Số lượng Spa',
-    deliveryNote: 'Phiếu xuất trả hàng'
+    detailsOfFlashSaleProgram: 'Chi tiết chương trình flash sale',
+    flashSaleCode: 'Mã chương trình Flash sale',
+    promotions: 'Khuyến mại',
+    applicableProducts: 'Sản phẩm áp dụng',
+    joinTheProgram: 'Tham gia chương trình',
+    theProgramIsRunning: 'Đang chạy chương trình',
+    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
+      'Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
+    cancelTheProgram: 'Hủy chương trình',
+    decreaseByPercent: 'Giảm theo %',
+    enterPercent: 'Nhập số %',
+    decreaseByAmount: 'Giảm theo số tiền',
+    noPromotion: 'Không khuyến mãi',
+    collectionProgramDetails: 'Chi tiết chương trình bộ sưu tập',
+    codeCollection: 'Mã chương trình BST'
   },
   button: {
     add: 'Thêm nhanh'
@@ -628,6 +640,7 @@ export default {
     picture: 'Hình ảnh',
     collectionCode: 'Mã bộ sưu tập',
     subject: 'Đối tượng',
+    subjectsOfApplication: 'Đối tượng áp dụng',
     promotion: 'Khuyến mại',
     promotionCode: 'Mã khuyến mại',
     newproductCode: 'Mã HMV',
@@ -1166,6 +1179,13 @@ export default {
     saveFail: 'Lưu thất bại',
     cannotOpenBecauseNotCreateProduct: 'Không thể mở vì chưa khởi tạo sản phẩm',
     cantFindData: 'Không thể tìm thấy dữ liệu',
-    getDataSuccess: 'Lấy dữ liệu thành công'
+    getDataSuccess: 'Lấy dữ liệu thành công',
+    //product property
+    removeProductProperty: 'Xóa thuộc tính sản phẩm',
+    clickEditForEditing: 'Ấn nút chỉnh sửa để Bật/Tắt cài đặt',
+    addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
+    addFail: 'Thêm thất bại',
+    fillAllAttribute: 'Điền đủ thuộc tính',
+    cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính'
   }
 }

@@ -443,9 +443,9 @@ watch(
   () => collapse[1].tableList[collapse[1].tableList.length - 1],
   () => {
     if (
-      collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice !== undefined &&
+      collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo !== null &&
+      collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices !== null &&
+      collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice !== null &&
       forceRemove.value == false
     ) {
       addLastIndexSellTable()

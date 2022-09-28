@@ -13,6 +13,7 @@ export const getPotentialCustomerList = async (params: any): Promise<IResponse> 
   )
   return res.data && res.data.data
 }
+// Lấy danh sách sản phẩm
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -23,16 +24,40 @@ export const getProductsList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
-export const getListCollaborator = async (params: any): Promise<IResponse> => {
+// Lấy danh sách cộng tác viên
+export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATOR}?${objectToQueryParams(params)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATORS}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
   return res && res.data
 }
 
+// Lấy danh sách khách hàng
+export const getAllCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_ALL_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách mã giảm giá
+export const getPromotionsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PROMOTIONS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách dịch vụ Spa
 export const getSpaList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -61,10 +86,10 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data
 }
-export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/collaborators/List', params })
-  return res && res.data
-}
+// export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+//   const res = await request.get({ url: '/collaborators/List', params })
+//   return res && res.data
+// }
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/rentalorder/List', params })
   return res && res.data

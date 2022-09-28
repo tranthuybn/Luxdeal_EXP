@@ -22,6 +22,8 @@ const orderDepositList: {
   startDate: Date
   endDate: Date
   status: string
+  productManagementCode: string
+  productInformation: string
 }[] = []
 
 const orderDepositListMock = {
@@ -33,6 +35,8 @@ const orderDepositListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
+  productManagementCode: '@natural',
+  productInformation: '@paragraph(1)',
   explain: '@paragraph(1)',
   depositManagement: 'Ký gửi, bán, cho thuê',
   depositNumber: '@integer(1, 10)',
@@ -45,6 +49,7 @@ const orderDepositListMock = {
   totalNegotiateMoney: '200.000.000 đ',
   totalFeeMoney: '20.000.000 đ',
   unpaidDebt: '10.000.000 đ',
+
   receiptAndExpenditure: 'phải thu',
   startDate: '@date("dd/MM/yyyy")',
   endDate: '@date("dd/MM/yyyy")',

@@ -99,6 +99,11 @@ export const filtersReceiptExpenditure: Array<Filter> = [
   { text: t('reuse.haveToCollect'), value: true },
   { text: t('reuse.havetoPay'), value: false }
 ]
+export const filtersCustomerType: Array<Filter> = [
+  { text: t('reuse.customerName'), value: 1 },
+  { text: t('formDemo.companyName'), value: 2 }
+]
+
 export const filtersStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.closedTheOrder'), value: 2 },

@@ -10,6 +10,8 @@ const orderSpaList: {
   explain: string
   spaNumberInput: string
   soldNumber: string
+  productManagementCode: string
+  productInformation: string
   spaTimes: string
   rentedTimes: string
   rentingNumber: string
@@ -34,6 +36,8 @@ const orderSpaListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
+  productManagementCode: '@natural',
+  productInformation: '@paragraph(1)',
   explain: '@paragraph(1)',
   spaTimes: '@integer(1, 10)',
   spaNumberInput: '@integer(1, 10)',

@@ -24,6 +24,8 @@ const orderPawnList: {
   startDate: Date
   endDate: Date
   status: string
+  productManagementCode: string
+  productInformation: string
 }[] = []
 
 const orderPawnListMock = {
@@ -35,6 +37,8 @@ const orderPawnListMock = {
   companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
+  productManagementCode: '@natural',
+  productInformation: '@paragraph(1)',
   explain: '@paragraph(1)',
   depositManagement: 'Cầm đồ; Ký gửi bán; Ký gửi cho thuê',
   pawnNumber: '@integer(1, 10)',

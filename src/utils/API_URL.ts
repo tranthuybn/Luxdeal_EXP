@@ -20,7 +20,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   DELETE_PRODUCT: '/api/v1/Product/DeleteProduct',
   UPDATE_SEO_PRODUCT: '/api/v1/Product/UpdateProductSeo',
   GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
-  GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder'
+  GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
+  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

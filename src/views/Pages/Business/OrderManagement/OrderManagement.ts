@@ -128,16 +128,23 @@ export const rentalorder = [
     minWidth: '170',
     headerFilter: 'Name'
   },
-  {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
-  },
+
   {
     field: 'explain',
     label: t('reuse.explain'),
     minWidth: '170'
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
   },
   {
     field: 'rentingNumber',
@@ -167,9 +174,11 @@ export const rentalorder = [
     align: 'right',
     sortable: true
   },
+
   {
     field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    label: t('formDemo.totalRentalFeeDebt'),
+
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -198,6 +207,12 @@ export const rentalorder = [
     label: t('reuse.endDate'),
     minWidth: '150',
     align: 'center',
+    sortable: true
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '170',
     sortable: true
   },
   {
@@ -575,15 +590,21 @@ export const orderSpa = [
     headerFilter: 'Name'
   },
   {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
+    field: 'explain',
+    label: t('reuse.explain'),
+    minWidth: '170'
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
     minWidth: '170',
     headerFilter: 'Name'
   },
   {
-    field: 'explain',
-    label: t('reuse.explain'),
-    minWidth: '170'
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
   },
   {
     field: 'spaService',
@@ -621,7 +642,7 @@ export const orderSpa = [
   },
   {
     field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    label: t('formDemo.totalSpaFeeDebt'),
     minWidth: '150',
     align: 'right',
     sortable: true

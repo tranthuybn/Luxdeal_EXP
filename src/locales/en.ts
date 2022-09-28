@@ -174,6 +174,8 @@ export default {
     collected: 'Collected',
     spent: 'Spent',
     unpaidDebt: 'Unpaid debt',
+    totalRentalFeeDebt: 'Total renrtal fee debt',
+    totalSpaFeeDebt: 'Total Spa fee debt',
     chooseWarehouse: 'Choose warehouse',
     intoMoney: 'Into money',
     doesNotIncludeVAT: 'Does not include VAT',

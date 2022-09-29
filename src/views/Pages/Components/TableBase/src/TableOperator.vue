@@ -135,7 +135,6 @@ const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
   const { setValues } = methods
-  console.log('props.formDataCustomize', props.formDataCustomize)
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     if (props.hasImage && !props.multipleImages) {

@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { ElInput, ElSelect, ElOption, ElCol, ElRow, ElButton, ElFormItem } from 'element-plus'
+import {
+  ElSelect,
+  ElOption,
+  ElCol,
+  ElRow,
+  ElButton,
+  ElFormItem,
+  ElForm,
+  FormInstance,
+  ElInput
+} from 'element-plus'
 import { reactive, ref, unref } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
@@ -12,7 +22,6 @@ import { useForm } from '@/hooks/web/useForm'
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
 type momentDateType = Date | moment.Moment | null
-const searchingKey = ref<string>('')
 const periodSelected = ref<string>('')
 // disable when selection have value
 let dateTimeDisable = ref<boolean>(false)
@@ -142,19 +151,30 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
   })
 }
 function reLoadEvent() {
-  searchingKey.value = ''
+  validateHeaderInput.searchingKey = ''
   periodSelected.value = ''
   dateTimeDisable.value = false
   verifyReset()
   emit('refreshData', { Keyword: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
+  let inputValid = false
+
+  const formEl = unref(formRef)
+  formEl?.validate((valid) => {
+    if (valid) {
+      inputValid = true
+    } else {
+      inputValid = false
+    }
+  })
+
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.validate((valid) => {
-    if (valid) {
+    if (valid && inputValid) {
       getFormData()
         .then((res) => {
-          emit('getData', { ...res, Keyword: searchingKey.value })
+          emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
         })
         .catch((error) => {
           console.error(error)
@@ -162,6 +182,10 @@ async function getDataEvent() {
     }
   })
 }
+
+//validate input header
+const validateHeaderInput = reactive({ searchingKey: '' })
+const formRef = ref<FormInstance>()
 </script>
 <template>
   <section>
@@ -170,9 +194,16 @@ async function getDataEvent() {
         <slot name="headerFilterSlot"></slot>
       </el-col>
       <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
-        <ElFormItem>
-          <el-input class="w-full" v-model="searchingKey" :placeholder="t('reuse.enterKeyWords')" />
-        </ElFormItem>
+        <ElForm ref="formRef" :model="validateHeaderInput">
+          <ElFormItem prop="searchingKey">
+            <ElInput
+              clearable
+              class="w-full"
+              v-model="validateHeaderInput.searchingKey"
+              :placeholder="t('reuse.enterKeyWords')"
+            />
+          </ElFormItem>
+        </ElForm>
       </el-col>
       <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
         <el-select

@@ -1124,6 +1124,9 @@ export default {
     addPricesBeforeTurningOnSetting: 'Add prices before turning on setting',
     addFail: 'Add fail',
     fillAllAttribute: 'Fill all attribute',
-    cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute'
+    cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute',
+    //image
+    onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
+    notSpaceBeforeAndAfter: 'Not space before and after value'
   }
 }

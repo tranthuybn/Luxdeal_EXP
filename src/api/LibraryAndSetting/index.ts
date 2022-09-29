@@ -122,7 +122,6 @@ export const postProductLibrary = async (data): Promise<IResponse> => {
     { url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data },
     fixedBaseURL
   )
-  console.log('return here', res)
   return res && res.data
 }
 export const updateProductLibrary = async (data): Promise<IResponse> => {

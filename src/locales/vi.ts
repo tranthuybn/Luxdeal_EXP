@@ -1174,6 +1174,9 @@ export default {
     addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
     addFail: 'Thêm thất bại',
     fillAllAttribute: 'Điền đủ thuộc tính',
-    cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính'
+    cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
+    //image
+    onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
+    notSpaceBeforeAndAfter: 'Không để khoảng trắng trước và sau từ'
   }
 }

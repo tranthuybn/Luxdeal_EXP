@@ -218,7 +218,7 @@ const save = async (type) => {
         loading.value = false
       }
     }
-    if (!isValid || imageUrl.value === '') {
+    if (!isValid) {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
   })

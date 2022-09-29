@@ -114,7 +114,7 @@ const pushAdd = () => {
               </div>
               <div v-if="customHeaderButton === 'Base'">
                 <el-button type="primary" :icon="createIcon" @click="pushAdd">
-                  {{ t(`${props.titleAdd}`) }}
+                  {{ t('reuse.addCategory') }}
                 </el-button>
               </div>
             </template>

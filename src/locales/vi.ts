@@ -326,7 +326,11 @@ export default {
     appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
     voucherSendingSettings: 'Cài đặt gửi Voucher',
     ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
-      'Nếu không lựa chọn, Voucher chỉ được gửi sau khi nhấn "Gửi"'
+      'Nếu không lựa chọn, Voucher chỉ được gửi sau khi nhấn "Gửi"',
+    comboGetFree: 'Combo nhận miễn phí',
+
+    enterCondition: 'Nhập điều kiện',
+    auctionCode: 'Mã đấu giá'
   },
   button: {
     add: 'Thêm nhanh',

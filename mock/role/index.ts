@@ -432,11 +432,35 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
+            name: `business.promotion-strategy.combo.${utility}`,
+            meta: {
+              title: 'reuse.createANewOrder',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'auction',
             name: 'business.promotion-strategy.auction',
             component: 'views/Pages/Business/PromotionStrategy/Auction',
             meta: {
               title: 'router.auction'
+            }
+          },
+          {
+            path: `${utility}`,
+            component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
+            name: `business.promotion-strategy.auction.${utility}`,
+            meta: {
+              title: 'reuse.createANewOrder',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
             }
           }
         ]

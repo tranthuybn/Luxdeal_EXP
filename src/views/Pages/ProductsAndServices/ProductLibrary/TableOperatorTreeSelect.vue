@@ -205,10 +205,21 @@ const save = async (type) => {
       if (treeSelectData.value == undefined) {
         await apiTreeSelect()
       }
-      let ProductTypeId = treeSelectData.value.find((tree) =>
-        tree.children.find((child) => child.label == data.ProductTypeId)
-      )
-      ProductTypeId = ProductTypeId.children.find((options) => options.label === data.ProductTypeId)
+      let parentNode = true
+      let ProductTypeId = treeSelectData.value.find((tree) => {
+        if (tree.children.length > 0) {
+          parentNode = false
+          return tree?.children.find((child) => child.label == data.ProductTypeId)
+        } else {
+          parentNode = true
+          return tree.label == data.ProductTypeId
+        }
+      })
+      parentNode
+        ? (ProductTypeId = ProductTypeId)
+        : (ProductTypeId = ProductTypeId.children.find(
+            (options) => options.label === data.ProductTypeId
+          ))
       ProductTypeId
         ? (data.ProductTypeId = ProductTypeId.id)
         : ElNotification({

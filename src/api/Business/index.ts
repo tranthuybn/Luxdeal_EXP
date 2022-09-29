@@ -25,7 +25,7 @@ export const getProductsList = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách cộng tác viên
-export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+export const getCollaboratorsInOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATORS}?${objectToQueryParams(params)}`
@@ -64,10 +64,15 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data
 }
-// export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get({ url: '/collaborators/List', params })
-//   return res && res.data
-// }
+export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COLLABORATOR_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/rentalorder/List', params })
   return res && res.data

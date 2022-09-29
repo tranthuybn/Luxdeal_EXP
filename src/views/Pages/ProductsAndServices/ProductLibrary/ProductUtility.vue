@@ -371,7 +371,6 @@ const customUpdate = async (data) => {
     //"value": "New"
   }
   customUpdateData.bussinessSetups = data.bussinessSetups
-  console.log('custom', customUpdateData)
   return customUpdateData
 }
 
@@ -401,7 +400,6 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
           })
       } else {
         data = await customUpdate(data)
-        console.log('send update data', data)
         await updateProductProperty(JSON.stringify(data))
           .then(() => {
             ElNotification({
@@ -424,7 +422,6 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
       return false
     }
   })
-  console.log('data update/post', data)
 }
 // only check 1 child node from 1 parent node
 const customCheck = (nodeObj, _selected, _subtree, row) => {
@@ -480,7 +477,6 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
-  console.log('row after select', row)
 }
 //get data from router
 const router = useRouter()
@@ -495,6 +491,7 @@ const rules = reactive({
   OriginId: [required()],
   ProductCode: [
     { validator: notSpace },
+    { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
@@ -508,6 +505,7 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
+  Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()]
 })
@@ -621,7 +619,6 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
-  console.log('dataseo', data)
   data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
     .then(() =>
@@ -870,7 +867,6 @@ const saveDataRentTable = async () => {
     if (valid) {
       rentTableVisible.value = false
       const data = customPostPrice(collapse[2].tableList)
-      console.log('data', data)
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
@@ -939,7 +935,6 @@ const saveDataSellTable = async () => {
     if (valid) {
       sellTableVisible.value = false
       const data = customPostPrice(collapse[8].tableList)
-      console.log('data', data)
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
@@ -1013,7 +1008,6 @@ if ((type == '' && isNaN(id)) || type == 'add') {
 watch(
   () => newId,
   () => {
-    console.log('newId', newId)
     disabledTabOpen.value = false
   }
 )

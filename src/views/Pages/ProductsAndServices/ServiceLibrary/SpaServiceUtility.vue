@@ -141,19 +141,44 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
+  rankCategory: [{ validator: ValidService.checkSpace.validator }, required()],
   name: [
     { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator },
+    required()
+  ],
+  code: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkCodeServiceLength.validator },
+    required()
+  ],
+  shortDescription: [
+    { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  code: [required()],
-  shortDescription: [required()],
-  cost: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
-  promotePrice: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
-  time: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
-  warranty: [{ validator: ValidService.checkPositiveNumber.validator }, required()],
-  description: [required()]
+  cost: [
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkPositiveNumber.validator },
+    required()
+  ],
+  promotePrice: [
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkPositiveNumber.validator },
+    required()
+  ],
+  time: [
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkPositiveNumber.validator },
+    required()
+  ],
+  warranty: [
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkPositiveNumber.validator },
+    required()
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -240,6 +265,7 @@ const customPostData = (data) => {
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
   data.status.includes('active') ? (customData.IsActive = true) : (customData.IsActive = false)
+  data.status.includes('') ? (customData.IsActive = false) : (customData.IsActive = true)
   customData.IsApproved = true
   return customData
 }

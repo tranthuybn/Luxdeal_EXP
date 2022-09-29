@@ -18,6 +18,10 @@ const props = defineProps({
   customHeaderButton: {
     type: String,
     default: 'Base'
+  },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory'
   }
 })
 const emit = defineEmits(['tabChangeEvent'])
@@ -100,7 +104,7 @@ const pushAdd = () => {
               </div>
               <div v-if="customHeaderButton === 'Base'">
                 <el-button type="primary" :icon="createIcon" @click="pushAdd">
-                  {{ t('reuse.addCategory') }}
+                  {{ t(`${props.titleAdd}`) }}
                 </el-button>
               </div>
             </template>

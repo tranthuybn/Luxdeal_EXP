@@ -71,7 +71,7 @@ const adminList = [
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
                 name: `products-services.productLibrary.Products.${utility}`,
                 meta: {
-                  title: 'reuse.addNewProductCategory',
+                  title: 'reuse.addNewCategory',
                   noTagsView: true,
                   noCache: true,
                   hidden: true

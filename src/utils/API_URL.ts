@@ -32,5 +32,6 @@ export const PRODUCTS_AND_SERVICES_API = {
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
-  ADD_POTENTIAL_CUSTOMER: '/api/v1/Customer/addPotentialCustomers'
+  ADD_POTENTIAL_CUSTOMER: '/api/v1/Customer/addPotentialCustomers',
+  GET_COLLABORATOR_API: '/api/v1/Customer/GetCollaborator'
 }

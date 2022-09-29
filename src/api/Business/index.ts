@@ -64,10 +64,6 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data
 }
-// export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get({ url: '/collaborators/List', params })
-//   return res && res.data
-// }
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/rentalorder/List', params })
   return res && res.data

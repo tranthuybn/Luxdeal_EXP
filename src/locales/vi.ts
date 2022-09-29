@@ -1182,6 +1182,7 @@ export default {
     newInitialization: 'Khởi tạo mới',
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
-    accountBank: 'Tài khoản ngân hàng'
+    accountBank: 'Tài khoản ngân hàng',
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
   }
 }

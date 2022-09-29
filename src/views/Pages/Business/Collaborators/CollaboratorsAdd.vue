@@ -27,6 +27,11 @@ const collapse: Array<Collapse> = [
     icon: minusIcon,
     name: 'information',
     title: t('reuse.customerInfo')
+  },
+  {
+    icon: plusIcon,
+    name: 'information',
+    title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
 const { register } = useForm()

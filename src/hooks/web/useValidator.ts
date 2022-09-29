@@ -162,7 +162,7 @@ export const useValidator = () => {
     checkNameServiceLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 255) {
+        if (value.length >= 255) {
           callback(new Error(t('reuse.checkNameServiceLength')))
         }
         callback()

@@ -134,6 +134,8 @@ export default {
     selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
     CollaboratorCode: 'Mã cộng tác viên',
     enterDiscount: 'Nhập chiết khấu',
+    discountCollaborator: 'Triết khấu CTV',
+    enterCommissionCalculatedOnOrderSales: 'Nhập hoa hồng tính trên doanh số đơn hàng',
     orderNotes: 'Ghi chú đơn hàng',
     addNotes: 'Thêm ghi chú',
     customer: 'Khách hàng',
@@ -166,6 +168,7 @@ export default {
     delivery: 'Giao hàng',
     chooseDelivery: 'Chọn giao vận',
     deliveryAddress: 'Địa chỉ nhận hàng',
+    address: 'Địa chỉ',
     changeTheAddress: 'Thay đổi địa chỉ',
     ListOfProductsForSale: 'Danh sách sản phẩm bán',
     productManagementCode: 'Mã quản lý sản phẩm',
@@ -777,7 +780,7 @@ export default {
     from: 'Từ',
     to: 'Đến',
     confirm: 'Xác nhận',
-    cancel: 'Hủy bỏ',
+    cancel: 'Hủy',
     placeholderMoney: 'Nhập số tiền',
     placeholderDate: 'Chọn thời gian',
     placeholderNumber: 'Nhập số lượng',
@@ -935,6 +938,7 @@ export default {
     displayPosition: 'Vị trí hiển thị',
     EnterDisplayPosition: 'Nhập vị trí hiển thị',
     statusAndFunction: 'Trạng thái và chức năng',
+    statusAndAccount: 'Trạng thái và tài khoản',
     stopShowAppWeb: 'Dừng hiển thị app/web user',
     stopActive: 'Dừng hoạt động',
     addImage: 'Thêm ảnh',
@@ -966,6 +970,7 @@ export default {
     closeAccount: 'Đóng tài khoản',
     typeAccount: 'Loại tài khoản',
     saveAndAdd: 'Lưu và thêm mới',
+    saveAndPending: 'Lưu & chờ duyệt',
     //khoi tao moi San pham va dich vu
     addNewCategory: 'Thêm mới danh mục',
     addNewProductCategory: 'Thêm mới danh mục sản phẩm',
@@ -1261,6 +1266,8 @@ export default {
     cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
     newInitialization: 'Khởi tạo mới',
     addNewCharacteristic: 'Thêm mới đặc tính',
-    lock: 'Khóa'
+    lock: 'Khóa',
+    accountBank: 'Tài khoản ngân hàng',
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
   }
 }

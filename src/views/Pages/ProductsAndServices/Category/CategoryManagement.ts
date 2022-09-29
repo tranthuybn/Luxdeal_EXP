@@ -33,7 +33,10 @@ export const productCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const colorCategories = [

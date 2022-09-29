@@ -147,6 +147,7 @@ const setFormValue = async () => {
       )
     }
   } else {
+    console.log('formValue.value', formValue.value)
     setValues(formValue.value)
   }
 }

@@ -5,21 +5,7 @@ import { reactive, ref } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Form } from '@/components/Form'
-import {
-  ElCollapse,
-  ElCollapseItem,
-  ElUpload,
-  ElSelect,
-  ElOption,
-  ElButton,
-  ElDivider,
-  ElTable,
-  ElTableColumn,
-  ElInput,
-  ElRadioGroup,
-  ElRadio,
-  ElCheckbox
-} from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElUpload, ElButton, ElDivider } from 'element-plus'
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })

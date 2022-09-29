@@ -19,7 +19,7 @@ let dateTimeDisable = ref<boolean>(false)
 let dateFormType = ref<IDatePickerType>('date')
 const { t } = useI18n()
 const dateTimeFormat = ref<string>('DD/MM/YYYY')
-const valueDateFormat = ref<string>('YYYY-MM-DD')
+const valueDateFormat = ref<string>('YYYY-MM-DD HH:mm:ss')
 
 type Callback = (error?: string | Error | undefined) => void
 const { register, methods } = useForm()
@@ -144,8 +144,9 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
 function reLoadEvent() {
   searchingKey.value = ''
   periodSelected.value = ''
+  dateTimeDisable.value = false
   verifyReset()
-  emit('refreshData', { Keyword: null, Search: null, startDate: null, endDate: null })
+  emit('refreshData', { Keyword: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
@@ -153,7 +154,7 @@ async function getDataEvent() {
     if (valid) {
       getFormData()
         .then((res) => {
-          emit('getData', { ...res, Keyword: searchingKey.value, Search: searchingKey.value })
+          emit('getData', { ...res, Keyword: searchingKey.value })
         })
         .catch((error) => {
           console.error(error)

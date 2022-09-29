@@ -30,7 +30,7 @@ import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
-  getCollaboratorsList,
+  getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer
 } from '@/api/Business'
@@ -497,7 +497,7 @@ const optionsCollaborators = ref()
 let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsList('')
+    const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
     optionsCollaborators.value = listCollaborators.value.map((product) => ({
       label: product.name,

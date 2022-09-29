@@ -1,7 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { filterProductStatus } from '@/utils/filters'
-import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { productStatusTransferToText, dateTimeFormat, valueDateFormat } from '@/utils/format'
 import { h } from 'vue'
 export const productCategories = [
   { field: '', width: '50' },
@@ -16,18 +16,21 @@ export const productCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150',
     align: 'center',
     sortable: true
   },
   {
-    field: 'status',
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
     filters: filterProductStatus
@@ -65,6 +68,7 @@ export const colorCategories = [
     minWidth: '100',
     filters: filterProductStatus,
     align: 'center',
+    valueFormat: valueDateFormat,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
     }
@@ -231,7 +235,8 @@ export const unitCategories = [
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
-    align: 'right',
+    headerAlign: 'center',
+    align: 'center',
     sortable: true
   },
   {
@@ -240,6 +245,7 @@ export const unitCategories = [
     minWidth: '150',
     align: 'center',
     sortable: true,
+    valueFormat: valueDateFormat,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -321,7 +327,6 @@ export const originCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))

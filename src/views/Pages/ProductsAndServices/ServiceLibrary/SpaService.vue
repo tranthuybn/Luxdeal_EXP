@@ -18,5 +18,6 @@ const deleteOrigin = t('reuse.deleteService')
     :deleteTitle="deleteOrigin"
     :selection="true"
     :api="getSpaLibrary"
+    :titleAdd="'reuse.newInitialization'"
   />
 </template>

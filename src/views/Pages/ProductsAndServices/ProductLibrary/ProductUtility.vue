@@ -695,56 +695,70 @@ const openDepositTable = async (dialogTitle) => {
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
   rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  rentTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[2].api
-    ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[2].tableList = []
-    collapse[2].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined },
-        { price: undefined },
-        { price: undefined },
-        { price: undefined }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[2].tableList = []
-    collapse[2].tableList = res.data
+    rentTableVisible.value = true
+    const res = collapse[2].api
+      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[2].tableList = []
+      collapse[2].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined },
+          { price: undefined },
+          { price: undefined },
+          { price: undefined }
+        ]
+      })
+    } else {
+      collapse[2].tableList = []
+      collapse[2].tableList = res.data
+    }
+    collapse[2].tableList.productPropertyId = findPropertyId
+    collapse[2].tableList.serviceType = 2
+    collapse[2].tableList.currentRow = scope.$index
   }
-  collapse[2].tableList.productPropertyId = findPropertyId
-  collapse[2].tableList.serviceType = 2
-  collapse[2].tableList.currentRow = scope.$index
   collapse[2].loading = false
   forceRemove.value == false
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
   sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  sellTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[8].api
-    ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[8].tableList = []
-    collapse[8].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined, priceType: 1 },
-        { price: undefined, priceType: 2 }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[8].tableList = []
-    collapse[8].tableList = res.data
+    sellTableVisible.value = true
+    const res = collapse[8].api
+      ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[8].tableList = []
+      collapse[8].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined, priceType: 1 },
+          { price: undefined, priceType: 2 }
+        ]
+      })
+    } else {
+      collapse[8].tableList = []
+      collapse[8].tableList = res.data
+    }
+    collapse[8].tableList.productPropertyId = findPropertyId
+    collapse[8].tableList.serviceType = 1
+    collapse[8].tableList.currentRow = scope.$index
   }
-  collapse[8].tableList.productPropertyId = findPropertyId
-  collapse[8].tableList.serviceType = 1
-  collapse[8].tableList.currentRow = scope.$index
   collapse[8].loading = false
   forceRemove.value == false
 }

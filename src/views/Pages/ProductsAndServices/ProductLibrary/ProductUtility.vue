@@ -328,7 +328,6 @@ const handleEditRow = (data) => {
   if (!data.newValue) {
     data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
   }
-  console.log(data)
 }
 
 //cannot turn on switch when has no price
@@ -377,7 +376,6 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
   formEl.validate(async (valid) => {
     if (valid) {
       data.edited = false
-      console.log('dataNew', data)
       if (data?.newValue == true) {
         await postProductProperty(JSON.stringify(data))
           .then((res) => {
@@ -472,7 +470,6 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
-  console.log('row', row)
 }
 //get data from router
 const router = useRouter()

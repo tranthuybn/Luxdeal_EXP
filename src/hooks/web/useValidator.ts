@@ -118,7 +118,7 @@ export const useValidator = () => {
     },
     checkDescriptionLength: {
       type: 'string',
-      validator: (val, callback) => {
+      validator: (_rule: any, val: any, callback: any) => {
         if (val.length > 500) {
           callback(new Error(t('reuse.checkDescriptionLength')))
         }

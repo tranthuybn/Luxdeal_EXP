@@ -498,7 +498,8 @@ const getTagsOptions = async () => {
         console.error(err)
       })
       .finally(() => callTagAPI++)
-    return tagsSelect
+    columnManagementSeo[3].componentProps!.options = tagsSelect
+    columnManagementSeo[3].componentProps!.loading = false
   }
 }
 export const columnManagementSeo = reactive<FormSchema[]>([
@@ -534,12 +535,14 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: 'Tag',
     component: 'Select',
     componentProps: {
+      onClick: () => getTagsOptions(),
       allowCreate: true,
       filterable: true,
+      loading: true,
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: await getTagsOptions()
+      options: []
     },
     colProps: {
       span: 16

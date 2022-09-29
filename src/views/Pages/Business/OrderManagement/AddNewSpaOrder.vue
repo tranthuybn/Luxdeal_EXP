@@ -21,7 +21,9 @@ import {
   ElDropdown,
   ElDropdownItem,
   ElRadio,
-  ElRadioGroup
+  ElRadioGroup,
+  ElDropdownMenu,
+  ElForm
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -931,7 +933,7 @@ const activeName = ref(collapse[0].name)
             <template #default="scope">
               <ElButton>
                 <span>{{ scope.row.name }}</span>
-                <ElIcon class="el-icon--right"><ArrowDown /></ElIcon>
+                <ElIcon class="el-icon--right" />
               </ElButton>
             </template>
           </el-table-column>

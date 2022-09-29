@@ -3,9 +3,15 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElTabs, ElTabPane } from 'element-plus'
 import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
-import { TableBase } from './TableBase/index'
+import { TableBase, TableExtension } from './TableBase/index'
 import { Tab } from './Type'
-import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
+import {
+  dynamicApi,
+  dynamicColumns,
+  addOperatorColumn,
+  getTotalRecord,
+  getSelectedRecord
+} from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
@@ -18,6 +24,10 @@ const props = defineProps({
   customHeaderButton: {
     type: String,
     default: 'Base'
+  },
+  selection: {
+    type: Boolean,
+    default: true
   },
   titleAdd: {
     type: String,
@@ -109,9 +119,14 @@ const pushAdd = () => {
               </div>
             </template>
           </HeaderFiler>
+          <TableExtension
+            v-if="props.selection"
+            :totalRecord="getTotalRecord"
+            :selectedRecord="getSelectedRecord"
+          />
           <TableBase
             ref="tableBase01"
-            :selection="false"
+            :selection="selection"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
             :delApi="item.delApi"

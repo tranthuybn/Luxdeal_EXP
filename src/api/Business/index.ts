@@ -35,6 +35,17 @@ export const getCollaboratorsInOrderList = async (params: any): Promise<IRespons
   return res && res.data
 }
 
+// Lấy danh sách khách hàng
+export const getAllCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_ALL_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Lấy danh sách mã giảm giá
 export const getPromotionsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(

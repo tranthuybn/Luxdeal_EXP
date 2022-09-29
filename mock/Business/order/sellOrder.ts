@@ -12,8 +12,10 @@ const SellOrder: {
   status: number
   collaboratorsCode: string
   promotionCode: string
+  productManagementCode: string
   companyInfo: string
   explain: string
+  productInformation: string
 }[] = []
 
 const SellOrderListMock = {
@@ -23,6 +25,7 @@ const SellOrderListMock = {
   creator: '@name',
   customer: '@name',
   description: '@paragraph(1)',
+  productManagementCode: '@natural',
   saleNumber: '@natural(1,1000)',
   totalMoney: '@natural(10000,1000000) đ',
   debitTotal: '@natural(10000,1000000) đ',
@@ -31,7 +34,8 @@ const SellOrderListMock = {
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
   companyInfo: '@title',
-  explain: '@paragraph(1)'
+  explain: '@paragraph(1)',
+  productInformation: '@paragraph(1)'
 }
 
 export { SellOrder, SellOrderListMock }

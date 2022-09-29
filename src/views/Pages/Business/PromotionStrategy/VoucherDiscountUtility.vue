@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { Collapse } from '../../Components/Type'
+import { useIcon } from '@/hooks/web/useIcon'
+import { Form } from '@/components/Form'
+import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
   ElUpload,
   ElDivider,
-  ElSwitch,
   ElRadio,
   ElRadioGroup,
   ElTable,
@@ -13,23 +16,17 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu
+  ElDropdownMenu,
+  ElDialog,
+  ElCheckbox
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { Collapse } from '../../Components/Type'
-import { useIcon } from '@/hooks/web/useIcon'
-import { Form } from '@/components/Form'
-import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'information',
+    field: 'newProductInfo',
     label: t('router.analysis'),
     component: 'Divider',
     colProps: {
@@ -51,6 +48,13 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
+    field: 'oderApply',
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
+  {
     field: 'duration',
     component: 'Input',
     colProps: {
@@ -65,6 +69,13 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('reuse.descriptions')
+    }
+  },
+  {
+    field: 'condition',
+    component: 'Input',
+    colProps: {
+      span: 24
     }
   },
   {
@@ -90,12 +101,11 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
-
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.detailsOfFlashSaleProgram'),
+    title: t('formDemo.voucherDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -123,9 +133,7 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
 
-const discountCode = ref('FS3452323')
 //upload image
 const handleRemove = (file: UploadFile) => {
   console.log(file)
@@ -135,6 +143,13 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+
+const activeName = ref(collapse[0].name)
+
+const voucherCode = ref('FS3452323')
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
 
 const tableData = [
   {
@@ -159,11 +174,42 @@ const tableData = [
   }
 ]
 
+const gridData = [
+  {
+    name: 'Voucher nhận miễn phí',
+    address: ''
+  },
+  {
+    name: 'Voucher Affiliate',
+    address: ''
+  },
+  {
+    name: 'Đổi bảng điểm',
+    address: '500 đ '
+  },
+  {
+    name: 'Mua bằng tiền ảo',
+    address: '200,000 đ'
+  }
+]
+const checked1 = ref(false)
 const radioOptionCustomer = ref('2')
-
-const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
-const valueSwitch = ref(true)
+const radioOptionPromotionList = [
+  t('formDemo.decreaseByPercent'),
+  t('formDemo.decreaseByAmount'),
+  t('formDemo.noPromotion')
+]
+const radioOptionPromotion = ref(radioOptionPromotionList[0])
 const awesome = ref(true)
+const input = ref('')
+const openDialogChoosePromotion = ref(false)
+
+const radioOrderApplyList = [
+  t('reuse.sellOrderList'),
+  t('reuse.leaseOrderList'),
+  t('reuse.spaOrderList')
+]
+const radioOrderApply = ref(radioOrderApplyList[0])
 </script>
 
 <template>
@@ -188,7 +234,7 @@ const awesome = ref(true)
               <template #discountCode>
                 <div class="discountCode">
                   <p
-                    >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
+                    >{{ t('formDemo.voucherCode') }} <strong>{{ voucherCode }}</strong></p
                   >
                 </div>
               </template>
@@ -199,6 +245,11 @@ const awesome = ref(true)
                   </label>
 
                   <div class="flex w-[80%] gap-2">
+                    <!-- <input
+                          class="w-[50%] border-1 outline-none pl-2"
+                          type="text"
+                          :placeholder="`Giảm theo %`"
+                        /> -->
                     <div class="w-[50%] items-center border-1 rounded">
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
@@ -264,10 +315,89 @@ const awesome = ref(true)
                   </div>
                 </div>
               </template>
+
+              <template #oderApply>
+                <div class="flex items-center w-[100%] gap-4">
+                  <label class="w-[15%] leading-5 text-right" for=""
+                    >{{ t('formDemo.odersApply') }} <span style="color: red">*</span>
+                  </label>
+
+                  <div class="flex w-[80%] gap-2">
+                    <!-- <input
+                          class="w-[50%] border-1 outline-none pl-2"
+                          type="text"
+                          :placeholder="`Giảm theo %`"
+                        /> -->
+                    <div class="w-[50%] items-center border-1 rounded">
+                      <el-dropdown trigger="click" class="w-[100%] h-[100%]">
+                        <div class="flex justify-between w-[100%] items-center black-color">
+                          <span
+                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2"
+                          >
+                            {{ radioOrderApply }}
+                          </span>
+                          <Icon
+                            icon="material-symbols:keyboard-arrow-down"
+                            :size="16"
+                            class="mr-2"
+                          />
+                        </div>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item>
+                              <el-radio-group v-model="radioOrderApply" class="flex-col">
+                                <div style="width: 100%">
+                                  <el-radio
+                                    class="text-left"
+                                    style="color: blue"
+                                    :label="t('reuse.sellOrderList')"
+                                    size="large"
+                                    >{{ t('reuse.sellOrderList') }}</el-radio
+                                  >
+                                </div>
+
+                                <div style="width: 100%">
+                                  <el-radio
+                                    class="text-left"
+                                    style="color: blue"
+                                    :label="t('reuse.leaseOrderList')"
+                                    size="large"
+                                    >{{ t('reuse.leaseOrderList') }}</el-radio
+                                  >
+                                </div>
+                                <div style="width: 100%">
+                                  <el-radio
+                                    class="text-left"
+                                    style="color: blue"
+                                    :label="t('reuse.spaOrderList')"
+                                    size="large"
+                                    >{{ t('reuse.spaOrderList') }}</el-radio
+                                  >
+                                </div>
+                              </el-radio-group>
+                            </el-dropdown-item>
+                            <el-dropdown-item divided>
+                              <div style="width: 100%; text-align: center"> Confirm </div>
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
+                    </div>
+                    <div class="flex items-center w-[50%] border-1 rounded">
+                      <input
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        type="text"
+                        :placeholder="t('formDemo.appliesToOrdersFrom')"
+                      />
+                      <span class="mr-5">đ</span>
+                    </div>
+                  </div>
+                </div>
+              </template>
               <template #duration>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
-                    >Thời hạn <span style="color: red">*</span>
+                    >{{ t('formDemo.duration') }} <span style="color: red">*</span>
                   </label>
 
                   <div class="flex w-[80%] gap-2">
@@ -296,6 +426,31 @@ const awesome = ref(true)
                   />
                 </div>
               </template>
+              .
+
+              <template #condition>
+                <div class="flex items-center w-[100%] gap-4">
+                  <label class="w-[15%] text-right leading-5" for=""
+                    >{{ t('formDemo.condition') }}
+                  </label>
+                  <input
+                    class="w-[63%] border-1 outline-none pl-2"
+                    type="text"
+                    :placeholder="`Voucher nhận miễn phí`"
+                  />
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        openDialogChoosePromotion = true
+                      }
+                    "
+                    style="width: 15%; border: 1px solid"
+                  >
+                    + {{ t('formDemo.change') }}
+                  </el-button>
+                </div>
+              </template>
 
               <template #applicableObject>
                 <div class="flex w-[100%]">
@@ -316,8 +471,9 @@ const awesome = ref(true)
                   v-if="radioOptionCustomer == '2'"
                   :data="tableData"
                   border
-                  stripe
+                  width="100%"
                   style="width: 100%"
+                  stripe
                 >
                   <el-table-column
                     prop="codeCustomer"
@@ -334,50 +490,34 @@ const awesome = ref(true)
                   </el-table-column>
                 </el-table>
 
-                <el-divider content-position="left">{{
-                  t('formDemo.applicableProducts')
-                }}</el-divider>
-
-                <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column
-                    prop="codeCustomer"
-                    :label="t('formDemo.productManagementCode')"
-                    width="150"
-                  />
-                  <el-table-column
-                    prop="nameCustomer"
-                    :label="t('formDemo.productInfomation')"
-                    width="500"
-                  />
-                  <el-table-column prop="valueSw" :label="t('formDemo.joinTheProgram')" width="100">
-                    <el-switch
-                      v-model="valueSwitch"
-                      inline-prompt
-                      size="large"
-                      width="50px"
-                      active-text="ON"
-                      inactive-text="OFF"
-                    />
-                  </el-table-column>
-                  <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-                  </el-table-column>
-                </el-table>
-
                 <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
 
-                <p class="option-select text-center"
+                <div class="setting-sent-voucher text-center">
+                  <span>{{ t('formDemo.voucherSendingSettings') }}</span>
+                  <span class="mx-2"
+                    ><el-checkbox
+                      v-model="checked1"
+                      :label="t('formDemo.sendImmediatelyAfterBrowsing')"
+                      size="large"
+                    />
+                  </span>
+                  <span style="color: orange"
+                    >(
+                    {{ t('formDemo.ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit') }}
+                    )</span
+                  >
+                </div>
+
+                <div class="option-select text-center"
                   >{{ t('formDemo.status') }}
                   <span v-if="awesome" class="option-1 ml-2">{{
                     t('formDemo.theProgramIsRunning')
                   }}</span>
                   <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
                   <i class="ml-3" style="color: #3ddf4e"
-                    >{{
-                      t('formDemo.newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule')
-                    }}
+                    >{{ t('formDemo.newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule') }}
                   </i>
-                </p>
+                </div>
 
                 <div class="option-page mt-5">
                   <div v-if="awesome" class="flex justify-center option-1">
@@ -440,6 +580,39 @@ const awesome = ref(true)
         </div>
       </el-collapse-item>
     </el-collapse>
+
+    <!-- DialogPromotion -->
+    <el-dialog v-model="openDialogChoosePromotion" width="35%" align-center class="z-50">
+      <div>
+        <p>{{ t('formDemo.setConditionsToReceiveVoucher') }}</p>
+        <el-divider />
+
+        <el-table :data="gridData" border>
+          <el-table-column width="50" property="value" label-class-name="noHeader" align="center">
+            <template #default="data">
+              <el-radio-group v-model="data.row.radio">
+                <el-radio label="1" size="large" />
+              </el-radio-group>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column prop="name" />
+          <el-table-column prop="discount" width="120" align="left" /> -->
+
+          <el-table-column property="name" label="Điều kiện" width="400" />
+          <el-table-column property="address" label="Nhập điều kiện" />
+        </el-table>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button class="w-[150px]" type="primary" @click="openDialogChoosePromotion = false"
+            >{{ t('reuse.save') }}
+          </el-button>
+          <el-button class="w-[150px]" @click="openDialogChoosePromotion = false">{{
+            t('reuse.exit')
+          }}</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -454,42 +627,13 @@ const awesome = ref(true)
   color: #ffffff;
   padding: 5px;
 }
-.black-color {
-  color: #000000;
-}
 
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
+::v-deep(.el-table .cell) {
+  word-break: break-word;
 }
 
 ::v-deep(.el-select) {
   width: 100%;
-}
-::v-deep(.el-table .cell) {
-  word-break: break-word;
 }
 
 ::v-deep(.el-textarea__inner) {
@@ -500,12 +644,6 @@ const awesome = ref(true)
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
 }
 
 ::v-deep(.d-block > .el-row) {
@@ -524,6 +662,10 @@ const awesome = ref(true)
 
 ::v-deep(label) {
   color: #828387;
+}
+
+::v-deep(.cell) {
+  color: #303133;
 }
 
 ::v-deep(.el-divider__text) {

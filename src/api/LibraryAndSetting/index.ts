@@ -3,10 +3,6 @@ import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
 const fixedBaseURL = true
 const request = useAxios()
-export const getProductCategories = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/products/List', params })
-  return res && res.data
-}
 export const getSpaProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/SpaProduct/List', params })
   return res && res.data
@@ -159,7 +155,7 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
 export const getProductProperty = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

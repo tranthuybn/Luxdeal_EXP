@@ -796,9 +796,9 @@ watch(
   () => collapse[8].tableList[collapse[8].tableList.length - 1],
   () => {
     if (
-      collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== undefined &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== undefined &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== undefined &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== null &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== null &&
+      collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== null &&
       forceRemove.value == false
     ) {
       addLastIndexSellTable()

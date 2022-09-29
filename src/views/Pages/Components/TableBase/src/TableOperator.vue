@@ -400,9 +400,13 @@ const listType = ref<ListImages>('text')
           :multiple="multipleImages"
           :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
-          <div v-if="!multipleImages">
-            <div v-if="imageUrl" class="relative">
-              <ElImage style="width: 160px; height: 160px" :src="imageUrl" class="avatar" />
+          <div v-if="!multipleImages" class="one-avatar-uploader">
+            <div
+              v-if="imageUrl"
+              style="width: 178px; height: 178px; border: solid 1px #e5e7eb; border-radius: 4px"
+              class="flex justify-center relative mb-2"
+            >
+              <ElImage fit="contain" :src="imageUrl" class="avatar" />
             </div>
             <ElButton v-else :icon="addIcon" class="avatar-uploader-icon" />
           </div>
@@ -427,11 +431,15 @@ const listType = ref<ListImages>('text')
             </div>
           </template>
         </el-upload>
-        <div class="w-250px flex justify-center" v-if="imageUrl">
+        <div
+          class="w-250px flex justify-center"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          v-if="imageUrl"
+        >
           <ElButton :icon="viewIcon" @click="previewImage" />
           <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog v-model="dialogVisible">
+        <el-dialog width="80%" v-model="dialogVisible">
           <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
@@ -493,5 +501,6 @@ const listType = ref<ListImages>('text')
 .one-avatar-uploader {
   display: flex;
   justify-content: center;
+  margin: 0 auto;
 }
 </style>

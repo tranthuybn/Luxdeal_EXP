@@ -169,8 +169,8 @@ const valueChangeEvent = (val) => {
       <div class="select-table">
         <ElRow type="flex" justify="space-between">
           <ElCol
-            v-for="(key, index) in acceptKey(item)"
-            :key="index"
+            v-for="(key, i) in acceptKey(item)"
+            :key="i"
             class="text-ellipsis text-center"
             :span="24 / fields.length"
           >

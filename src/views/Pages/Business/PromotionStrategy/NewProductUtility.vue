@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { Collapse } from '../../Components/Type'
+import { useIcon } from '@/hooks/web/useIcon'
+import { Form } from '@/components/Form'
+import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -16,20 +20,12 @@ import {
   ElDropdownMenu
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { Collapse } from '../../Components/Type'
-import { useIcon } from '@/hooks/web/useIcon'
-import { Form } from '@/components/Form'
-import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
   {
-    field: 'information',
+    field: 'collectionInfo',
     label: t('router.analysis'),
     component: 'Divider',
     colProps: {
@@ -90,12 +86,11 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
-
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.detailsOfFlashSaleProgram'),
+    title: t('formDemo.newProductProgramDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -123,9 +118,8 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
+const valueSwitch = ref(true)
 
-const discountCode = ref('FS3452323')
 //upload image
 const handleRemove = (file: UploadFile) => {
   console.log(file)
@@ -135,6 +129,13 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+
+const activeName = ref(collapse[0].name)
+
+const newProductCode = ref('FS3452323')
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
 
 const tableData = [
   {
@@ -158,11 +159,8 @@ const tableData = [
     nameCustomer: 'Kat'
   }
 ]
-
-const radioOptionCustomer = ref('2')
-
+const radioOptionCustomer = ref('1')
 const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
-const valueSwitch = ref(true)
 const awesome = ref(true)
 </script>
 
@@ -188,17 +186,22 @@ const awesome = ref(true)
               <template #discountCode>
                 <div class="discountCode">
                   <p
-                    >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
+                    >{{ t('formDemo.codeNewProduct') }} <strong>{{ newProductCode }}</strong></p
                   >
                 </div>
               </template>
               <template #promotion>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
-                    >{{ t('formDemo.promotions') }} <span style="color: red">*</span>
+                    >{{ t('formDemo.promotions') }} <span style="color: red"> *</span>
                   </label>
 
                   <div class="flex w-[80%] gap-2">
+                    <!-- <input
+                          class="w-[50%] border-1 outline-none pl-2"
+                          type="text"
+                          :placeholder="`Giảm theo %`"
+                        /> -->
                     <div class="w-[50%] items-center border-1 rounded">
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
@@ -267,7 +270,7 @@ const awesome = ref(true)
               <template #duration>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
-                    >Thời hạn <span style="color: red">*</span>
+                    >{{ t('formDemo.duration') }}<span style="color: red"> *</span>
                   </label>
 
                   <div class="flex w-[80%] gap-2">
@@ -287,7 +290,7 @@ const awesome = ref(true)
               <template #desc>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.shortDescription') }}<span style="color: red">*</span>
+                    >{{ t('formDemo.shortDescription') }}<span style="color: red"> *</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
@@ -312,13 +315,7 @@ const awesome = ref(true)
                   </el-radio-group>
                 </div>
 
-                <el-table
-                  v-if="radioOptionCustomer == '2'"
-                  :data="tableData"
-                  border
-                  stripe
-                  style="width: 100%"
-                >
+                <el-table v-if="radioOptionCustomer == '2'" :data="tableData" border stripe>
                   <el-table-column
                     prop="codeCustomer"
                     :label="t('reuse.customerCode')"
@@ -333,7 +330,6 @@ const awesome = ref(true)
                     <el-button type="danger">{{ t('reuse.delete') }}</el-button>
                   </el-table-column>
                 </el-table>
-
                 <el-divider content-position="left">{{
                   t('formDemo.applicableProducts')
                 }}</el-divider>
@@ -458,38 +454,12 @@ const awesome = ref(true)
   color: #000000;
 }
 
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
+::v-deep(.el-table .cell) {
+  word-break: break-word;
 }
 
 ::v-deep(.el-select) {
   width: 100%;
-}
-::v-deep(.el-table .cell) {
-  word-break: break-word;
 }
 
 ::v-deep(.el-textarea__inner) {
@@ -500,12 +470,6 @@ const awesome = ref(true)
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
 }
 
 ::v-deep(.d-block > .el-row) {

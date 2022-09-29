@@ -21,12 +21,12 @@ let timesCallAPI = 0
 const schema = reactive<FormSchema[]>([
   {
     field: 'field20',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeOrigin'),
     component: 'Divider'
   },
   {
     field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.selectRankOrigin'),
     component: 'Select',
     colProps: {
       span: 20
@@ -38,7 +38,7 @@ const schema = reactive<FormSchema[]>([
       value: 1,
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.originLevel1'),
           value: 1
         }
       ]
@@ -51,10 +51,14 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameCategory'),
+    label: t('reuse.nameOrigin'),
     component: 'Input',
     colProps: {
       span: 20
+    },
+    componentProps: {
+      style: 'width: 100%',
+      placeholder: t('reuse.inputOrigin')
     },
     hidden: false
   },
@@ -93,7 +97,7 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.displayPosition')
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {
@@ -124,13 +128,18 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
+    required(),
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
   ],
-  parentid: [required()],
+  parentid: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options

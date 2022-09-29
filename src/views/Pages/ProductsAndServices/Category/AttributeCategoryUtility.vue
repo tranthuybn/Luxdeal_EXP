@@ -30,47 +30,29 @@ const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatli
 const schema = reactive<FormSchema[]>([
   {
     field: 'category',
-    label: t('reuse.typeCategory'),
+    label: t('reuse.typeAttribute'),
     component: 'Divider'
   },
   {
     field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
+    label: t('reuse.selectLevelAttribute'),
     component: 'Select',
+    modelValue: 1,
+    value: 1,
     colProps: {
       span: 20
     },
     componentProps: {
       style: 'width: 100%',
-      disabled: true,
-      modelValue: 1,
-      value: 1,
+      disabled: !hierarchical,
+      placeholder: t('reuse.selectLevelAttribute'),
       options: [
         {
-          label: t('reuse.rank1Category'),
-          value: 1
-        }
-      ]
-    },
-    hidden: hierarchical
-  },
-  {
-    field: 'rankCategory',
-    label: t('reuse.chooseRankCategory'),
-    component: 'Select',
-    colProps: {
-      span: 20
-    },
-    componentProps: {
-      style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin'),
-      options: [
-        {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.attributeLevel1'),
           value: 1
         },
         {
-          label: t('reuse.rank2Category'),
+          label: t('reuse.attributeLevel2'),
           value: 2
         }
       ],
@@ -83,8 +65,7 @@ const schema = reactive<FormSchema[]>([
           timesCallAPI++
         }
       }
-    },
-    hidden: !hierarchical
+    }
   },
   {
     field: 'generalInformation',
@@ -93,19 +74,19 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.inputOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel1')
     },
     hidden: false
   },
   {
     field: 'parentid',
-    label: t('reuse.nameRank1Category'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Select',
     colProps: {
       span: 20
@@ -113,19 +94,19 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel1')
     },
     hidden: true
   },
   {
     field: 'name',
-    label: t('reuse.nameRank2Category'),
+    label: t('reuse.nameAttributeLevel2'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.inputOrigin')
+      placeholder: t('reuse.InputNameAttributeLevel2')
     },
     hidden: true
   },
@@ -137,7 +118,7 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.displayPosition')
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {
@@ -168,22 +149,27 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
+    required(),
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
   ],
-  parentid: [required()],
-  count: [required()],
-  categoryName: [required()],
-  displayPosition: [required()],
-  categoryLevel: [required()],
+  parentid: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
-  await getCategories({ ...params })
+  const payload = {
+    PageIndex: 1,
+    PageSize: 1000
+  }
+  await getCategories({ ...payload, ...params })
     .then((res) => {
       if (res.data) {
         rank1SelectOptions = res.data.map((index) => ({
@@ -314,7 +300,7 @@ const editData = async (data) => {
     :type="type"
     :id="id"
     @post-data="postData"
-    :multipleImages="true"
+    :multipleImages="false"
     :rules="rules"
     :apiId="getCategoryById"
     :params="params"

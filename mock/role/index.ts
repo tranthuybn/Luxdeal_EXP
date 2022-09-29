@@ -433,14 +433,27 @@ const adminList = [
               }
             ]
           },
-
           {
             path: 'new-product',
             name: 'business.promotion-strategy.new-product',
             component: 'views/Pages/Business/PromotionStrategy/NewProduct',
             meta: {
               title: 'router.newproduct'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
+                name: `business.promotion-strategy.new-product.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'voucher',
@@ -448,7 +461,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Voucher',
             meta: {
               title: 'router.voucher'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
+                name: `business.promotion-strategy.voucher.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'combo',

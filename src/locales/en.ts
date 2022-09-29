@@ -274,17 +274,36 @@ export default {
     flashSaleCode: 'Flash sale code',
     promotions: 'Promotions',
     applicableProducts: 'Applicable products',
+    applicableProductsAndSpaApply: 'Applicable product and Spa apply',
     joinTheProgram: 'Join the program',
     theProgramIsRunning: 'The program is Running',
     newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
       'New and edit Flasher Programs must have SA approval in the Browsing module',
+    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
+      'New and edit Voucher must have SA approval in the Browsing module',
     cancelTheProgram: 'Cancel the program',
     decreaseByPercent: 'Decrease by percent',
     enterPercent: 'Enter percentage',
     decreaseByAmount: 'Decrease by amount',
     noPromotion: 'No promotion',
     collectionProgramDetails: 'Collection program details',
-    codeCollection: 'Collection code'
+    codeCollection: 'Collection code',
+    codeNewProduct: 'New product code',
+    newProductProgramDetails: 'New product program details',
+    duration: 'Duration',
+    voucherDetails: 'Voucher details',
+    voucherCode: 'Mã Voucher',
+    odersApply: 'Oders apply',
+    condition: 'Condition',
+    change: 'Change',
+    voucherDiscount: 'Voucher Discount',
+    voucherGiftSpa: 'Voucher gift Spa',
+    appliesToOrdersFrom: 'Applies to orders from',
+    voucherSendingSettings: 'Voucher sending settings',
+    setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
+    sendImmediatelyAfterBrowsing: 'Send immediately after browsing',
+    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
+      'If not selected Voucher will only be sent after clicking "Submit"'
   },
   button: {
     add: 'Add quick'
@@ -558,6 +577,7 @@ export default {
   },
   reuse: {
     index: 'Index',
+    fix: 'Fix',
     receivedDate: 'Received Date',
     sale: 'Sale',
     customerInfo: 'Customer information',

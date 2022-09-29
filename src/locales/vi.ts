@@ -276,17 +276,37 @@ export default {
     flashSaleCode: 'Mã chương trình Flash sale',
     promotions: 'Khuyến mại',
     applicableProducts: 'Sản phẩm áp dụng',
+    applicableProductsAndSpaApply: 'Sản phẩm & dịch vụ spa áp dụng',
     joinTheProgram: 'Tham gia chương trình',
     theProgramIsRunning: 'Đang chạy chương trình',
     newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
       'Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
+    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
+      'Voucher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
+
     cancelTheProgram: 'Hủy chương trình',
     decreaseByPercent: 'Giảm theo %',
     enterPercent: 'Nhập số %',
     decreaseByAmount: 'Giảm theo số tiền',
     noPromotion: 'Không khuyến mãi',
     collectionProgramDetails: 'Chi tiết chương trình bộ sưu tập',
-    codeCollection: 'Mã chương trình BST'
+    codeCollection: 'Mã chương trình BST',
+    codeNewProduct: 'Mã chương trình HMV',
+    newProductProgramDetails: 'Chi tiết hàng mới về',
+    duration: 'Thời hạn',
+    voucherDetails: 'Chi tiết Voucher',
+    voucherCode: 'Voucher code',
+    odersApply: 'Đơn hàng áp dụng',
+    condition: 'Điều kiện',
+    change: 'Thay đổi',
+    voucherDiscount: 'Voucher giảm giá đơn hàng',
+    voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
+    appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
+    voucherSendingSettings: 'Cài đặt gửi Voucher',
+    setConditionsToReceiveVoucher: 'Cài đặt điều kiện nhận Voucher',
+    sendImmediatelyAfterBrowsing: 'Gửi ngay sau khi duyệt',
+    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
+      'Nếu không lựa chọn, Voucher chỉ được gửi sau khi nhấn "Gửi"'
   },
   button: {
     add: 'Thêm nhanh'

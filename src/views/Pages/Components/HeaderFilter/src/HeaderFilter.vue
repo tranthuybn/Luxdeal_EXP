@@ -41,6 +41,8 @@ const checkStartDate = (_, endDate: any, callback: Callback) => {
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
   )
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.validateField('startDate', () => null)
 }
 const checkEndDate = (_, startDate: any, callback: Callback) => {
   getFormData().then((res) =>
@@ -83,10 +85,10 @@ const rule = reactive({
   endDate: [{ validator: checkStartDate }]
 })
 const periodFilter = reactive([
-  { value: '1', label: 'Hôm nay' },
-  { value: '2', label: 'Tháng này' },
   { value: '3', label: 'Hôm qua' },
+  { value: '1', label: 'Hôm nay' },
   { value: '4', label: 'Tuần này' },
+  { value: '2', label: 'Tháng này' },
   { value: '5', label: 'Quý này' },
   { value: '6', label: 'Năm nay' },
   { value: '7', label: 'Năm trước' }
@@ -101,7 +103,7 @@ function periodChange(val): void {
       case '1':
         dateFormType.value = 'datetime'
         start = moment().set('hour', 0).set('minute', 0).set('second', 0)
-        end = moment().set('hour', 21).set('minute', 59).set('second', 59)
+        end = moment().set('hour', 23).set('minute', 59).set('second', 59)
         break
       case '2':
         dateFormType.value = 'date'
@@ -111,7 +113,7 @@ function periodChange(val): void {
       case '3':
         dateFormType.value = 'datetime'
         start = moment().subtract(1, 'days').set('hour', 0).set('minute', 0).set('second', 0)
-        end = moment().subtract(1, 'days').set('hour', 21).set('minute', 59).set('second', 59)
+        end = moment().subtract(1, 'days').set('hour', 23).set('minute', 59).set('second', 59)
         break
       case '4':
         dateFormType.value = 'date'
@@ -174,6 +176,13 @@ async function getDataEvent() {
     if (valid && inputValid) {
       getFormData()
         .then((res) => {
+          res?.endDate
+            ? (res['endDate'] = moment(res?.endDate)
+                .set('hour', 23)
+                .set('minute', 59)
+                .set('second', 59)
+                .format('YYYY-MM-DD HH:mm:ss'))
+            : ''
           emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
         })
         .catch((error) => {

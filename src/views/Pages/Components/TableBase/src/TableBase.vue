@@ -101,7 +101,7 @@ onBeforeMount(() => {
 // execute pagination
 watch(
   //watch multiple variables (total: run 1 after load page, pageSize/length when click change size)
-  () => [tableObject.total, tableObject.pageSize, tableObject.tableList.length],
+  () => [tableObject.total, tableObject.pageSize, tableObject?.tableList?.length],
   () => {
     props.paginationType
       ? (paginationObj.value = {
@@ -129,7 +129,6 @@ const { getSelections } = methods
 async function getTableSelected() {
   await getSelections()
     .then((res) => {
-      console.log('res', res)
       emit('SelectedRecord', res)
     })
     .catch(() => {})

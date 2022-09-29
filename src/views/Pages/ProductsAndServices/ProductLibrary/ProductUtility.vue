@@ -208,11 +208,6 @@ const addLastRowAttribute = () => {
     code: 'string', //api chua tra
     categories: [
       {
-        id: 1,
-        key: 'Gender',
-        value: 'Túi + Ví'
-      },
-      {
         id: null,
         key: 'Color',
         value: ''
@@ -331,8 +326,9 @@ const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[0].id, data.categories[1].id, data.categories[2].id)
+    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
   }
+  console.log(data)
 }
 
 //cannot turn on switch when has no price
@@ -363,9 +359,9 @@ const customUpdate = async (data) => {
     //"key": "Gender",
     //"value": "Túi + Ví"
   }
-  customUpdateData.categories[1] = { ...data.categories[1] }
+  customUpdateData.categories[1] = { ...data.categories[0] }
   customUpdateData.categories[2] = { ...data.categories[2] }
-  customUpdateData.categories[3] = { ...data.categories[3] }
+  customUpdateData.categories[3] = { ...data.categories[1] }
   customUpdateData.categories[4] = {
     id: 116 //"key": "State",
     //"value": "New"
@@ -381,6 +377,7 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
   formEl.validate(async (valid) => {
     if (valid) {
       data.edited = false
+      console.log('dataNew', data)
       if (data?.newValue == true) {
         await postProductProperty(JSON.stringify(data))
           .then((res) => {
@@ -393,6 +390,7 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
+            collapse[1].tableList.pop()
             ElNotification({
               message: t('reuse.addFail'),
               type: 'error'
@@ -432,28 +430,25 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
       sameParent = true
       break
     case 1:
-      tree.map((node) => {
-        if (node.parentid == 1 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore = tree.find((node) => {
+        return node.parentid == 1 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 2:
-      tree.map((node) => {
-        if (node.parentid == 2 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore2 = tree.find((node) => {
+        return node.parentid == 2 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore2?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 3:
-      tree.map((node) => {
-        if (node.parentid == 3 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore3 = tree.find((node) => {
+        return node.parentid == 3 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore3?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
   }
   if (sameParent) {
@@ -465,7 +460,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
   }
   const colorNode = tree.find((node) => node.parentid == 1)
   colorNode
-    ? ((row.categories[1].id = colorNode.value), (row.categories[1].value = colorNode.label))
+    ? ((row.categories[0].id = colorNode.value), (row.categories[0].value = colorNode.label))
     : ''
   const sizeNode = tree.find((node) => node.parentid == 2)
   sizeNode
@@ -473,10 +468,11 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   const materialNode = tree.find((node) => node.parentid == 3)
   materialNode
-    ? ((row.categories[3].id = materialNode.value), (row.categories[3].value = materialNode.label))
+    ? ((row.categories[1].id = materialNode.value), (row.categories[1].value = materialNode.label))
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
+  console.log('row', row)
 }
 //get data from router
 const router = useRouter()

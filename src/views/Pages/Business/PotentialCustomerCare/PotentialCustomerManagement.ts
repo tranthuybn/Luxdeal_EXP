@@ -327,15 +327,15 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.newData'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.takingCare'),
-          value: '2'
+          value: 2
         },
         {
           label: t('common.doneLabel'),
-          value: '3'
+          value: 3
         }
       ]
     }

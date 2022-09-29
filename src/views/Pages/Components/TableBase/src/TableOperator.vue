@@ -219,7 +219,7 @@ const save = async (type) => {
         loading.value = false
       }
     }
-    if (!isValid) {
+    if (!isValid || imageUrl.value === '') {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
   })
@@ -241,6 +241,8 @@ if (props.title == 'undefined') {
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  // remove image when edit data
   if (props.formDataCustomize.Images) {
     let imageRemove = props.formDataCustomize?.Images.find(
       (image) => `${API_URL}${image.path}` === file.url
@@ -284,7 +286,11 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    if (fileList.value) {
+    //báo lỗi nếu ko có ảnh
+    if (type === 'list' && fileList.value.length > 0) {
+      return true
+    }
+    if (type === 'single' && (rawUploadFile.value !== null || imageUrl.value !== null)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -382,7 +388,7 @@ const listType = ref<ListImages>('text')
           :multiple="multipleImages"
           :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
-          <div v-if="!multipleImages">
+          <div v-if="!multipleImages" class="one-avatar-uploader">
             <div v-if="imageUrl" class="relative">
               <ElImage style="width: 160px; height: 160px" :src="imageUrl" class="avatar" />
             </div>
@@ -409,7 +415,11 @@ const listType = ref<ListImages>('text')
             </div>
           </template>
         </el-upload>
-        <div class="w-250px flex justify-center" v-if="imageUrl">
+        <div
+          class="w-250px flex justify-center"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          v-if="imageUrl"
+        >
           <ElButton :icon="viewIcon" @click="previewImage" />
           <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
@@ -475,5 +485,6 @@ const listType = ref<ListImages>('text')
 .one-avatar-uploader {
   display: flex;
   justify-content: center;
+  margin: 0 auto;
 }
 </style>

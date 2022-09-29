@@ -18,7 +18,6 @@ export const useValidator = () => {
       trigger: 'blur'
     }
   }
-
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
     const { min, max } = options
     if (val.length < min || val.length > max) {
@@ -40,6 +39,12 @@ export const useValidator = () => {
     // The password cannot be a special character
     if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
       callback(new Error(t('reuse.notSpecialCharacters')))
+    } else if (
+      /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+        val
+      )
+    ) {
+      callback(new Error(t('reuse.checkEmoji')))
     } else {
       callback()
     }
@@ -78,6 +83,12 @@ export const useValidator = () => {
       message: t('reuse.dateFormat'),
       trigger: 'blur'
     },
+    checkEmoji: {
+      pattern:
+        /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g,
+      message: t('reuse.checkEmoji'),
+      trigger: 'blur'
+    },
     checkMonth: {
       pattern: /^\d{2}[/]\d{4}$/g,
       message: t('reuse.monthFormat'),
@@ -106,11 +117,32 @@ export const useValidator = () => {
       required: true,
       trigger: 'blur'
     },
+    checkSpace: {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (/^\s+$/.test(value)) {
+          callback(new Error(t('reuse.notSpaceAfter')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    },
     checkNameLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
         if (value && value.length > 50) {
           callback(new Error(t('reuse.checkNameLength')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'change'
+    },
+    checkCodeServiceLength: {
+      type: 'string',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 20) {
+          callback(new Error(t('reuse.checkCodeServiceLength')))
         }
         callback()
       },
@@ -130,13 +162,24 @@ export const useValidator = () => {
     },
     checkDescriptionLength: {
       type: 'string',
-      validator: (val, callback) => {
-        if (val.length > 500) {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value.length > 500) {
           callback(new Error(t('reuse.checkDescriptionLength')))
         }
         callback()
       },
       required: false,
+      trigger: 'change'
+    },
+    checkNameServiceLength: {
+      type: 'string',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value.length > 255) {
+          callback(new Error(t('reuse.checkNameServiceLength')))
+        }
+        callback()
+      },
+      required: true,
       trigger: 'change'
     },
     checkStartDateTime: {

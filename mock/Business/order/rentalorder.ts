@@ -4,9 +4,10 @@ const rentalorderList: {
   orderCode: string
   creator: string
   customer: string
-  companyInfo: string
   collaboratorsCode: string
   promotionCode: string
+  productManagementCode: string
+  productInformation: string
   explain: string
   returnedNumber: string
   rentingNumber: string
@@ -25,10 +26,11 @@ const rentalorderListMock = {
   orderCode: '@natural',
   creator: '@name',
   customer: '@name',
-  companyInfo: '@title',
   collaboratorsCode: '@natural',
   promotionCode: '@natural',
   explain: '@paragraph(1)',
+  productManagementCode: '@natural',
+  productInformation: '@paragraph(1)',
   returnedNumber: '00',
   rentingNumber: '10',
   totalDepositMoney: '20.000.000 đ',

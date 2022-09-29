@@ -2,7 +2,12 @@
 // import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { TableOperator } from '../../Components/TableBase'
 import { getBranchList } from '@/api/HumanResourceManagement'
-import { addNewPotentialCustomer, getCustomer, getPotentialCustomerListById } from '@/api/Business'
+import {
+  addNewPotentialCustomer,
+  getCustomer,
+  getPotentialCustomerListById,
+  updatePotentialCustomer
+} from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { isNumber } from '@/utils/is'
@@ -11,6 +16,7 @@ import { onBeforeMount, onBeforeUpdate, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import moment from 'moment'
+// import { onlineToText } from '@/utils/format'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -65,6 +71,29 @@ interface tableDataType {
   edited: Boolean
   family: Array<tableChildren> | []
 }
+
+interface potentialCustomerInfo {
+  id: any
+  name: String
+  userName: String
+  code: String
+  phonenumber: String
+  email: String
+  link: String
+  taxCode: String
+  isOrganization: Boolean
+  historyTransaction: Number
+  isOnline: Boolean
+  accessChannel: Number
+  source: Number
+  note: String
+  service: Number
+  serviceDetail: string
+  orderCode: string
+  statusId: Number
+  total: Number
+}
+
 const parentBorder = ref(false)
 const tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
@@ -95,6 +124,7 @@ const postData = (data) => {
     name: data.name,
     userName: 'string',
     code: 'string',
+    taxCode: data.taxCode.toString(),
     phonenumber: data.phonenumber,
     email: data.email,
     link: data.link,
@@ -103,7 +133,7 @@ const postData = (data) => {
     accessChannel: data.customerContactChannel,
     source: data.newCustomerSource,
     note: data.Note,
-    service: 1,
+    service: data.service[0],
     serviceDetail: data.serviceDetails,
     orderId: 1,
     statusId: 1,
@@ -332,7 +362,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'historyTransactionName',
+    field: 'transactionHistory',
     label: t('reuse.transactionHistory'),
     component: 'Select',
     componentProps: {
@@ -342,11 +372,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       placeholder: t('reuse.firstTime'),
       options: [
         {
-          label: '1',
+          label: 'Lần đầu',
           value: 1
         },
         {
-          label: '2',
+          label: 'Đã giao dịch',
           value: 2
         }
       ]
@@ -368,12 +398,12 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: t('reuse.online'),
-          value: 1
+          label: 'Online',
+          value: true
         },
         {
-          label: t('reuse.offline'),
-          value: 2
+          label: 'Offline',
+          value: false
         }
       ]
     },
@@ -382,7 +412,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'accessChannelName',
+    field: 'customerContactChannel',
     label: t('reuse.approachingChannel'),
     component: 'Select',
     componentProps: {
@@ -392,12 +422,12 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: '1',
-          value: 1
+          label: 'Zalo',
+          value: 221
         },
         {
-          label: '2',
-          value: 2
+          label: 'Facebook',
+          value: 222
         }
       ]
     },
@@ -406,7 +436,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'sourceName',
+    field: 'newCustomerSource',
     label: t('reuse.originated'),
     component: 'Select',
     componentProps: {
@@ -416,12 +446,12 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: '1',
-          value: 1
+          label: 'Tự đến',
+          value: 223
         },
         {
-          label: '2',
-          value: 2
+          label: 'Vãng lai',
+          value: 224
         }
       ]
     },
@@ -430,7 +460,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'note',
+    field: 'Note',
     label: t('reuse.note'),
     component: 'Input',
     componentProps: {
@@ -458,12 +488,24 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: '1',
+          label: 'Bán',
           value: 1
         },
         {
-          label: '2',
+          label: 'Ký gửi',
           value: 2
+        },
+        {
+          label: 'Cho thuê',
+          value: 3
+        },
+        {
+          label: 'Thế chấp',
+          value: 4
+        },
+        {
+          label: 'Spa',
+          value: 5
         }
       ]
     },
@@ -472,7 +514,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'serviceDetail',
+    field: 'serviceDetails',
     label: t('reuse.serviceDetails'),
     component: 'Input',
     componentProps: {
@@ -525,15 +567,15 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.newData'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.takingCare'),
-          value: '2'
+          value: 2
         },
         {
           label: t('common.doneLabel'),
-          value: '3'
+          value: 3
         }
       ]
     }
@@ -560,21 +602,21 @@ console.log('type:', type, 'id:', id)
 const getCustomerOptions = async () => {
   if (cutomerOptions.value.length === 0) {
     const res = await getCustomer({ PageIndex: 1, PageSize: 20 })
-    if (res.data && res.data.data.length > 0) {
-      cutomerOptions.value = res.data.data.map((data) => ({
+    if (res && res.data.length > 0) {
+      cutomerOptions.value = res.data.map((data) => ({
         label: data.name,
         value: data.id
       }))
     }
   }
-}
-onBeforeMount(async () => {
-  await getCustomerOptions()
-  if (cutomerOptions.value.length > 0) {
+  if (cutomerOptions.value!.length > 0) {
     if (columnProfileCustomer[2].componentProps?.options !== undefined) {
       columnProfileCustomer[2].componentProps.options = cutomerOptions.value
     }
   }
+}
+onBeforeMount(async () => {
+  await getCustomerOptions()
 })
 // add history for sale
 const historyRow = reactive<tableDataType>({
@@ -603,11 +645,129 @@ const addNewSale = () => {
   ]
   tableData.value.push(tempObj)
 }
+
+//custom form data
+type setFormCustomData = {
+  email: string
+  link: string
+  phonenumber: string
+  status: number[]
+  name: string
+  taxCode: string
+  serviceDetails: string
+  customerContactChannel: string
+  transactionHistory: string
+  Note: string
+  newCustomerSource: string
+  service: string[]
+}
+const emptyFormCustom = {} as setFormCustomData
+const formDataCustomize = ref(emptyFormCustom)
+const customizeData = (formData) => {
+  console.log('formData', formData)
+  // formDataCustomize.value = formData
+  formDataCustomize.value.email = formData.email
+  formDataCustomize.value.phonenumber = formData.phonenumber
+  formDataCustomize.value.link = formData.link
+  formDataCustomize.value.name = formData.name
+  formDataCustomize.value.taxCode = formData.taxCode
+  console.log('formDataCustomize', formDataCustomize)
+  formDataCustomize.value.serviceDetails = formData.serviceDetail
+  formDataCustomize.value.customerContactChannel = formData.accessChannelName
+  formDataCustomize.value.transactionHistory = formData.historyTransaction
+  formDataCustomize.value.Note = formData.note
+  formDataCustomize.value.newCustomerSource = formData.sourceName
+  formDataCustomize.value['status'] = []
+  if (formData.statusId == 1) {
+    formDataCustomize.value['status'].push(1)
+  }
+  if (formData.statusId == 2) {
+    formDataCustomize.value['status'].push(2)
+  }
+  if (formData.statusId == 3) {
+    formDataCustomize.value['status'].push(3)
+  }
+  formDataCustomize.value['service'] = []
+  if (formData.service == 1) {
+    formDataCustomize.value['service'].push('Bán')
+  }
+  if (formData.service == 2) {
+    formDataCustomize.value['service'].push('Ký gửi')
+  }
+  if (formData.service == 3) {
+    formDataCustomize.value['service'].push('Cho thuê')
+  }
+  if (formData.service == 4) {
+    formDataCustomize.value['service'].push('Thế chấp')
+  }
+  if (formData.service == 5) {
+    formDataCustomize.value['service'].push('Spa')
+  }
+}
+const customPostData = (data) => {
+  const customData = {} as potentialCustomerInfo
+  customData.id = data.id
+  customData.name = data.name
+  customData.userName = data.userName
+  customData.code = data.code
+  customData.phonenumber = data.phonenumber
+  customData.email = data.email
+  customData.link = data.link
+  customData.taxCode = data.taxCode
+  customData.isOrganization = data.index
+  customData.historyTransaction = data.transactionHistory
+  customData.isOnline = data.isOnline
+  customData.accessChannel = data.customerContactChannel
+  customData.source = data.newCustomerSource
+  customData.note = data.note
+  customData.service = data.service
+  customData.serviceDetail = data.serviceDetails
+  customData.orderCode = data.orderCode
+  customData.statusId = data.statusId
+  customData.total = data.total
+  return customData
+}
+
+const editData = async (data) => {
+  data = customPostData(data)
+  await updatePotentialCustomer({ data })
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
 </script>
 <template>
   <!-- <CollapseBase :collapse="collapse" :default="'information'" @post-data="postData" /> -->
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
+      <el-collapse-item name="collapse[0].name">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[0].icon" link />
+          <span class="text-center text-xl">{{ t('reuse.customerInfo') }}</span>
+        </template>
+        <TableOperator
+          ref="formRef"
+          :schema="columnProfileCustomer"
+          :type="type"
+          :id="id"
+          :apiId="getPotentialCustomerListById"
+          @post-data="postData"
+          @customize-form-data="customizeData"
+          @edit-data="editData"
+          :formDataCustomize="formDataCustomize"
+          :rules="rules"
+          :hasImage="false"
+        />
+      </el-collapse-item>
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -824,20 +984,6 @@ const addNewSale = () => {
             </div>
           </div>
         </el-form>
-      </el-collapse-item>
-      <el-collapse-item :name="collapse[0].name">
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
-        </template>
-        <TableOperator
-          ref="formRef"
-          :schema="columnProfileCustomer"
-          :type="type"
-          :id="id"
-          @post-data="postData"
-          :rules="rules"
-        />
       </el-collapse-item>
     </el-collapse>
   </div>

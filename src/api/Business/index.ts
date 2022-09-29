@@ -21,13 +21,35 @@ export const getPotentialCustomerListById = async (params: any): Promise<IRespon
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 export const addNewPotentialCustomer = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
       url: CUSTOMER_API.ADD_POTENTIAL_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const updatePotentialCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: CUSTOMER_API.UPDATE_POTENTIAL_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const UpdatePotentialCustomerHistory = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: CUSTOMER_API.UPDATE_POTENTIAL_CUSTOMER_HISTORY,
       data: params
     },
     fixedBaseURL
@@ -96,10 +118,21 @@ export const getProductsList = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách cộng tác viên
-export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+export const getCollaboratorsInOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATORS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách khách hàng
+export const getAllCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_ALL_CUSTOMER}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -126,10 +159,15 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/sell-order/list', params })
   return res && res.data
 }
-// export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get({ url: '/collaborators/List', params })
-//   return res && res.data
-// }
+export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COLLABORATOR_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/rentalorder/List', params })
   return res && res.data

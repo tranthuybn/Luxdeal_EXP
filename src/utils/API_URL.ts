@@ -19,15 +19,27 @@ export const PRODUCTS_AND_SERVICES_API = {
   UPDATE_PRODUCT: '/api/v1/Product/UpdateProductInfo',
   DELETE_PRODUCT: '/api/v1/Product/DeleteProduct',
   UPDATE_SEO_PRODUCT: '/api/v1/Product/UpdateProductSeo',
+  GET_PRODUCT_PROPERTY: '/api/v1/Product/GetProductProperty',
+  GET_COLLABORATOR: '/api/v1/Order/GetCollaborator',
+  ADD_PRODUCT_PROPERTY: '/api/v1/Product/CreateProductProperty',
+  UPDATE_PRODUCT_PROPERTY: '/api/v1/Product/UpdateProductProperty',
+  DELETE_PRODUCT_PROPERTY: '/api/v1/Product/DeleteProductProperty',
+  GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
+  CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
+  GET_TAGS: '/api/v1/Product/GetTag',
   GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
-  GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder'
+  GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
+  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
   GET_POTENTIAL_CUSTOMER_BY_ID: 'api/v1/Customer/getPotentialCustomerById',
   ADD_POTENTIAL_CUSTOMER: '/api/v1/Customer/addPotentialCustomers',
   ALL_CUSTOMER: '/api/v1/Customer/GetCustomers',
+  UPDATE_POTENTIAL_CUSTOMER: '/api/v1/Customer/UpdatePotentialCustomers',
+  UPDATE_POTENTIAL_CUSTOMER_HISTORY: '/api/v1/Customer/UpdatePotentialCustomerHistory',
   DELETE_POTENTIAL_CUSTOMER: '/api/v1/Customer/deletePotentialCustomers',
   DELETE_POTENTIAL_CUSTOMER_HISTORY: 'api/v1/Customer/deletePotentialCustomerHistory',
-  DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD: 'api/v1/Customer/deletePotentialCustomerHistoryOfSale'
+  DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD: 'api/v1/Customer/deletePotentialCustomerHistoryOfSale',
+  GET_COLLABORATOR_API: '/api/v1/Customer/GetCollaborator'
 }

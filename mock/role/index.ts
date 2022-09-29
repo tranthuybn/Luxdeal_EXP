@@ -71,7 +71,7 @@ const adminList = [
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
                 name: `products-services.productLibrary.Products.${utility}`,
                 meta: {
-                  title: 'reuse.addNewProductCategory',
+                  title: 'reuse.addNewCategory',
                   noTagsView: true,
                   noCache: true,
                   hidden: true
@@ -433,14 +433,27 @@ const adminList = [
               }
             ]
           },
-
           {
             path: 'new-product',
             name: 'business.promotion-strategy.new-product',
             component: 'views/Pages/Business/PromotionStrategy/NewProduct',
             meta: {
               title: 'router.newproduct'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
+                name: `business.promotion-strategy.new-product.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'voucher',
@@ -448,7 +461,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Voucher',
             meta: {
               title: 'router.voucher'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
+                name: `business.promotion-strategy.voucher.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'combo',
@@ -456,7 +483,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Combo',
             meta: {
               title: 'router.combo'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
+                name: `business.promotion-strategy.combo.${utility}`,
+                meta: {
+                  title: 'reuse.createANewOrder',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'auction',
@@ -464,7 +505,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Auction',
             meta: {
               title: 'router.auction'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
+                name: `business.promotion-strategy.auction.${utility}`,
+                meta: {
+                  title: 'reuse.createANewOrder',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       },

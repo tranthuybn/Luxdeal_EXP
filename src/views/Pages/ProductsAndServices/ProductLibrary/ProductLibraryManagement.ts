@@ -93,13 +93,15 @@ export const businessProductLibrary = [
     field: 'price',
     label: t('reuse.sellingPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'hirePrice',
     label: t('reuse.rentalPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'categories[2].value',

@@ -212,8 +212,11 @@ const save = async (type) => {
       }
       if (type == 'edit') {
         data.Id = props.id
+        // fix cung theo api (nen theo 1 quy tac)
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
+        console.log(data.Image, imageUrl.value)
+        data.Imageurl = data.Image ? null : imageUrl.value
         emit('edit-data', data, go(-1))
         loading.value = false
       }

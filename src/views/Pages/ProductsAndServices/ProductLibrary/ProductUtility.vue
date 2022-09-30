@@ -208,11 +208,6 @@ const addLastRowAttribute = () => {
     code: 'string', //api chua tra
     categories: [
       {
-        id: 1,
-        key: 'Gender',
-        value: 'Túi + Ví'
-      },
-      {
         id: null,
         key: 'Color',
         value: ''
@@ -331,7 +326,7 @@ const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[0].id, data.categories[1].id, data.categories[2].id)
+    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
   }
 }
 
@@ -363,9 +358,9 @@ const customUpdate = async (data) => {
     //"key": "Gender",
     //"value": "Túi + Ví"
   }
-  customUpdateData.categories[1] = { ...data.categories[1] }
+  customUpdateData.categories[1] = { ...data.categories[0] }
   customUpdateData.categories[2] = { ...data.categories[2] }
-  customUpdateData.categories[3] = { ...data.categories[3] }
+  customUpdateData.categories[3] = { ...data.categories[1] }
   customUpdateData.categories[4] = {
     id: 116 //"key": "State",
     //"value": "New"
@@ -393,6 +388,7 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
+            collapse[1].tableList.pop()
             ElNotification({
               message: t('reuse.addFail'),
               type: 'error'
@@ -432,28 +428,25 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
       sameParent = true
       break
     case 1:
-      tree.map((node) => {
-        if (node.parentid == 1 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore = tree.find((node) => {
+        return node.parentid == 1 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 2:
-      tree.map((node) => {
-        if (node.parentid == 2 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore2 = tree.find((node) => {
+        return node.parentid == 2 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore2?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 3:
-      tree.map((node) => {
-        if (node.parentid == 3 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore3 = tree.find((node) => {
+        return node.parentid == 3 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore3?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
   }
   if (sameParent) {
@@ -465,7 +458,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
   }
   const colorNode = tree.find((node) => node.parentid == 1)
   colorNode
-    ? ((row.categories[1].id = colorNode.value), (row.categories[1].value = colorNode.label))
+    ? ((row.categories[0].id = colorNode.value), (row.categories[0].value = colorNode.label))
     : ''
   const sizeNode = tree.find((node) => node.parentid == 2)
   sizeNode
@@ -473,7 +466,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   const materialNode = tree.find((node) => node.parentid == 3)
   materialNode
-    ? ((row.categories[3].id = materialNode.value), (row.categories[3].value = materialNode.label))
+    ? ((row.categories[1].id = materialNode.value), (row.categories[1].value = materialNode.label))
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
@@ -702,56 +695,70 @@ const openDepositTable = async (dialogTitle) => {
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
   rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  rentTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[2].api
-    ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[2].tableList = []
-    collapse[2].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined },
-        { price: undefined },
-        { price: undefined },
-        { price: undefined }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[2].tableList = []
-    collapse[2].tableList = res.data
+    rentTableVisible.value = true
+    const res = collapse[2].api
+      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[2].tableList = []
+      collapse[2].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined },
+          { price: undefined },
+          { price: undefined },
+          { price: undefined }
+        ]
+      })
+    } else {
+      collapse[2].tableList = []
+      collapse[2].tableList = res.data
+    }
+    collapse[2].tableList.productPropertyId = findPropertyId
+    collapse[2].tableList.serviceType = 2
+    collapse[2].tableList.currentRow = scope.$index
   }
-  collapse[2].tableList.productPropertyId = findPropertyId
-  collapse[2].tableList.serviceType = 2
-  collapse[2].tableList.currentRow = scope.$index
   collapse[2].loading = false
   forceRemove.value == false
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
   sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  sellTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[8].api
-    ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[8].tableList = []
-    collapse[8].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined, priceType: 1 },
-        { price: undefined, priceType: 2 }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[8].tableList = []
-    collapse[8].tableList = res.data
+    sellTableVisible.value = true
+    const res = collapse[8].api
+      ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[8].tableList = []
+      collapse[8].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined, priceType: 1 },
+          { price: undefined, priceType: 2 }
+        ]
+      })
+    } else {
+      collapse[8].tableList = []
+      collapse[8].tableList = res.data
+    }
+    collapse[8].tableList.productPropertyId = findPropertyId
+    collapse[8].tableList.serviceType = 1
+    collapse[8].tableList.currentRow = scope.$index
   }
-  collapse[8].tableList.productPropertyId = findPropertyId
-  collapse[8].tableList.serviceType = 1
-  collapse[8].tableList.currentRow = scope.$index
   collapse[8].loading = false
   forceRemove.value == false
 }

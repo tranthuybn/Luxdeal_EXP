@@ -139,17 +139,18 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
+  rankCategory: [required()],
   name: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
-    { validator: ValidService.checkSpace.validator },
-    required()
+    { validator: ValidService.checkSpace.validator }
   ],
   parentid: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
-    { validator: ValidService.checkSpace.validator },
-    required()
+    { validator: ValidService.checkSpace.validator }
   ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })

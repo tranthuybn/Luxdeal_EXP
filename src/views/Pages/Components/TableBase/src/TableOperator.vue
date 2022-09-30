@@ -147,6 +147,7 @@ const setFormValue = async () => {
       )
     }
   } else {
+    console.log('formValue.value', formValue.value)
     setValues(formValue.value)
   }
 }
@@ -218,7 +219,7 @@ const save = async (type) => {
         loading.value = false
       }
     }
-    if (!isValid || imageUrl.value === '') {
+    if (!isValid) {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
   })
@@ -257,12 +258,16 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 //validate Ảnh
+const validImageType = ['jpeg', 'png']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
     //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (!validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
@@ -276,6 +281,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
+        } else if (validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
@@ -343,12 +351,18 @@ const cancel = () => {
 }
 //xử lí ảnh
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
-    rawUploadFile.value = uploadFile
-    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    const validImage = await beforeAvatarUpload(uploadFile, 'single')
+    if (validImage) {
+      rawUploadFile.value = uploadFile
+      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    }
   } else {
-    ListFileUpload.value = uploadFiles
+    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
+    if (validImage) {
+      ListFileUpload.value = uploadFiles
+    }
   }
 }
 const previewImage = () => {
@@ -388,8 +402,12 @@ const listType = ref<ListImages>('text')
           :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
           <div v-if="!multipleImages" class="one-avatar-uploader">
-            <div v-if="imageUrl" class="relative">
-              <ElImage style="width: 160px; height: 160px" :src="imageUrl" class="avatar" />
+            <div
+              v-if="imageUrl"
+              style="width: 178px; height: 178px; border: solid 1px #e5e7eb; border-radius: 4px"
+              class="flex justify-center relative mb-2"
+            >
+              <ElImage fit="contain" :src="imageUrl" class="avatar" />
             </div>
             <ElButton v-else :icon="addIcon" class="avatar-uploader-icon" />
           </div>
@@ -422,7 +440,7 @@ const listType = ref<ListImages>('text')
           <ElButton :icon="viewIcon" @click="previewImage" />
           <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog v-model="dialogVisible">
+        <el-dialog width="80%" v-model="dialogVisible">
           <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>

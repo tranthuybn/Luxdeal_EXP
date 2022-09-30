@@ -14,7 +14,8 @@ export const useValidator = () => {
   const required = (message?: string) => {
     return {
       required: true,
-      message: message || t('common.required')
+      message: message || t('common.required'),
+      trigger: 'blur'
     }
   }
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
@@ -148,6 +149,17 @@ export const useValidator = () => {
       required: false,
       trigger: 'change'
     },
+    checkPercent: {
+      type: 'number',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 3) {
+          callback(new Error(t('reuse.checkNameLength')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'change'
+    },
     checkDescriptionLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
@@ -162,7 +174,7 @@ export const useValidator = () => {
     checkNameServiceLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 255) {
+        if (value.length >= 255) {
           callback(new Error(t('reuse.checkNameServiceLength')))
         }
         callback()

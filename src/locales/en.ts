@@ -1181,6 +1181,16 @@ export default {
     addPricesBeforeTurningOnSetting: 'Add prices before turning on setting',
     addFail: 'Add fail',
     fillAllAttribute: 'Fill all attribute',
-    cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute'
+    cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute',
+    enterRepresentativeName: 'Enter representative name',
+    supplier: 'Supplier',
+    classify: 'Classify',
+    companyName: 'Company name',
+    enterSelectCompanyName: 'Enter or select company name',
+    enterPrise: 'Enterprise',
+    enterSelectTaxCode: 'Enter or select tax code',
+    taxCode: 'Tax code',
+    addActions: 'Add Action',
+    orderSaleAsignrequired: 'Please input order sale asign'
   }
 }

@@ -26,7 +26,6 @@ import { API_URL } from '@/utils/API_URL'
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
-let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
@@ -76,7 +75,6 @@ const props = defineProps({
     default: 'Warning'
   }
 })
-
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const temporaryColumn = ref<any>(props.fullColumns)
@@ -92,6 +90,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
 // get api
+let paginationObj = ref<Pagination>()
 
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
@@ -101,15 +100,14 @@ onBeforeMount(() => {
 })
 // execute pagination
 watch(
-  () => tableObject.total,
-  (val) => {
-    if (val) {
-      props.paginationType
-        ? (paginationObj.value = {
-            total: val
-          })
-        : (paginationObj.value = undefined)
-    }
+  //watch multiple variables (total: run 1 after load page, pageSize/length when click change size)
+  () => [tableObject.total, tableObject.pageSize, tableObject?.tableList?.length],
+  () => {
+    props.paginationType
+      ? (paginationObj.value = {
+          total: tableObject.total
+        })
+      : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject?.tableList?.length ?? 0)
   },
   {
@@ -149,21 +147,31 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
-const sortChange = () => {
-  //empty function but dont remove
-}
-//watch sort change function
-const headerClick = (column) => {
-  const sorting = {} as any
-  let valueSort: any = null
+const sortField = ref('')
+const sortValue = ref()
+const sortObj = {}
+const lastSort = ref()
+const sortChange = (column) => {
+  //value of sort : true/false
   if (column.order == 'ascending') {
-    valueSort = true
+    sortValue.value = true
   }
   if (column.order == 'descending') {
-    valueSort = false
+    sortValue.value = false
   }
-  sorting[`${column.property}Sort`] = valueSort
-  setSearchParams(sorting)
+  //sort 1 column at a time
+  //remove search params by making it value = null
+  if (column.prop !== null) {
+    sortField.value = column.prop
+    sortObj[`${sortField.value}Sort`] = sortValue.value
+    if (lastSort.value && lastSort.value !== `${sortField.value}Sort`) {
+      sortObj[lastSort.value] = null
+    }
+    lastSort.value = `${sortField.value}Sort`
+  } else {
+    sortObj[lastSort.value] = null
+  }
+  setSearchParams({ ...sortObj })
 }
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
@@ -316,7 +324,6 @@ const updateTableColumn = () => {
       @register="register"
       @filter-change="filterChange"
       @sort-change="sortChange"
-      @header-click="headerClick"
       :selection="selection"
       @update:page-size="handleSizeChange"
       @update:current-page="handleCurrentChange"
@@ -324,25 +331,26 @@ const updateTableColumn = () => {
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="API_URL + data.row.imageurl" />
+            <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.imageurl" />
           </div>
           <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">
         <div>
-          <el-image style="width: 180px" :src="API_URL + data.row.image" />
+          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.image" />
         </div>
       </template>
       <template #imageList="data">
         <div>
-          <el-image style="width: 130px; height: 130px" :src="API_URL + data.row.photos[0]?.path" />
+          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.photos[0]?.path" />
         </div>
       </template>
       <template #imageProduct="data">
         <div>
           <el-image
-            style="width: 130px; height: 130px"
+            fit="contain"
+            style="width: 130px"
             :src="API_URL + data.row.productImages[0]?.path"
           />
         </div>

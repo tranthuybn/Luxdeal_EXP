@@ -25,22 +25,23 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field14',
+    field: 'rankCategory',
     label: t('reuse.selectUnitLevel'),
     component: 'Select',
+    colProps: {
+      span: 20
+    },
     componentProps: {
+      style: 'width: 100%',
       disabled: true,
       modelValue: 1,
       value: 1,
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.UnitLevel1'),
           value: 1
         }
       ]
-    },
-    colProps: {
-      span: 13
     }
   },
   {
@@ -50,7 +51,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameCategory'),
+    label: t('reuse.unitName'),
     component: 'Input',
     colProps: {
       span: 20
@@ -94,7 +95,7 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.displayPosition')
+      placeholder: t('reuse.EnterDisplayPosition')
     }
   },
   {
@@ -125,13 +126,18 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [required()],
   name: [
+    required(),
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
   ],
-  parentid: [required()],
+  parentid: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
+  ],
   index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
 })
 //call api for select options
@@ -244,6 +250,7 @@ const customPostData = (data) => {
 }
 const editData = async (data) => {
   data = customPostData(data)
+
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({

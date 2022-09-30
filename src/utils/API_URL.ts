@@ -33,5 +33,13 @@ export const PRODUCTS_AND_SERVICES_API = {
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
-  ADD_POTENTIAL_CUSTOMER: '/api/v1/Customer/addPotentialCustomers'
+  GET_POTENTIAL_CUSTOMER_BY_ID: 'api/v1/Customer/getPotentialCustomerById',
+  ADD_POTENTIAL_CUSTOMER: '/api/v1/Customer/addPotentialCustomers',
+  ALL_CUSTOMER: '/api/v1/Customer/GetCustomers',
+  UPDATE_POTENTIAL_CUSTOMER: '/api/v1/Customer/UpdatePotentialCustomers',
+  UPDATE_POTENTIAL_CUSTOMER_HISTORY: '/api/v1/Customer/UpdatePotentialCustomerHistory',
+  DELETE_POTENTIAL_CUSTOMER: '/api/v1/Customer/deletePotentialCustomers',
+  DELETE_POTENTIAL_CUSTOMER_HISTORY: 'api/v1/Customer/deletePotentialCustomerHistory',
+  DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD: 'api/v1/Customer/deletePotentialCustomerHistoryOfSale',
+  GET_COLLABORATOR_API: '/api/v1/Customer/GetCollaborator'
 }

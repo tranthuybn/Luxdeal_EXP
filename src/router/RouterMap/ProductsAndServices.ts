@@ -37,7 +37,7 @@ export default {
                 import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
               name: `products-services.productLibrary.Products.${utility}`,
               meta: {
-                title: t('reuse.addNewProductCategory'),
+                title: t('reuse.addNewCategory'),
                 noTagsView: true,
                 noCache: true,
                 hidden: true,
@@ -88,7 +88,7 @@ export default {
                 import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
               name: `products-services.ProductCategory.${utility}`,
               meta: {
-                title: t('reuse.addNewProductCategory'),
+                title: t('reuse.addNewCategory'),
                 noTagsView: true,
                 noCache: true,
                 hidden: true,

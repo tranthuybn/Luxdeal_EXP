@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -30,7 +30,7 @@ import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
-  getCollaboratorsList,
+  getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer
 } from '@/api/Business'
@@ -188,8 +188,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const value2 = ref(t('formDemo.selfDelivery'))
-
 const choosePayment = [
   {
     value: 'cashPayment',
@@ -211,6 +209,7 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
+const deliveryMethod = ref(chooseDelivery[0].value)
 
 const radio1 = ref('')
 
@@ -400,30 +399,63 @@ const onAddDebtTableItem = () => {
 }
 
 const radioVAT = ref(false)
-
+let infoCompany = reactive({
+  name: '',
+  taxCode: '',
+  phone: '',
+  email: ''
+})
+let customerAddress = ref('')
 // Call api danh sách khách hàng
 const customersValue = ref('')
-const listCustomers = ref()
-const optionsCustomerApi = ref()
-// const addressCustomer = ref('')
+const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    listCustomers.value = res.data.data
-    optionsCustomerApi.value = listCustomers.value.map((product) => ({
-      label: product.representative
-        ? product.representative + ' | MST ' + product.taxCode
-        : product.name + ' | ' + product.phonenumber,
-      value: product.phonenumber,
-      address: product.address
-    }))
+    const getCustomerResult = res.data
+    console.log('getCustomerResult', getCustomerResult)
+    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+      optionsCustomerApi.value = getCustomerResult.map((product) => ({
+        label: product.representative
+          ? product.representative + ' | MST ' + product.taxCode
+          : product.name + ' | ' + product.phonenumber,
+        value: product.code,
+        address: product.address,
+        isOrganization: product.isOrganization,
+        name: product.name,
+        taxCode: product.taxCode,
+        phone: product.phonenumber,
+        email: product.email
+      }))
+    }
   }
   optionCallCustomerAPi++
 }
 
-const changeAdressCustomer = (scope) => {
-  console.log('scope:', scope)
+const changeAddressCustomer = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsCustomerApi.value.find((e) => e.value == data)
+    console.log('result: ', result)
+    if (result.isOrganization) {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    } else {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    }
+  } else {
+    customerAddress.value = ''
+    deliveryMethod.value = ''
+  }
+  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -465,7 +497,7 @@ const optionsCollaborators = ref()
 let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsList('')
+    const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
     optionsCollaborators.value = listCollaborators.value.map((product) => ({
       label: product.name,
@@ -561,6 +593,11 @@ const removeListProductsSale = (index) => {
     ListOfProductsForSale.splice(index, 1)
   }
 }
+onBeforeMount(() => {
+  callCustomersApi()
+  callApiCollaborators()
+  callApiProductList()
+})
 </script>
 
 <template>
@@ -607,7 +644,6 @@ const removeListProductsSale = (index) => {
                         :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                         filterable
                         size="large"
-                        @focus="callApiCollaborators()"
                       >
                         <el-option
                           v-for="(item, index) in optionsCollaborators"
@@ -715,7 +751,7 @@ const removeListProductsSale = (index) => {
                   <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
                 </div>
               </template>
-              <template #customerName="props">
+              <template #customerName>
                 <div class="flex gap-6">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4 items-center">
@@ -723,14 +759,14 @@ const removeListProductsSale = (index) => {
                         <label>{{ t('formDemo.customerName') }}</label>
                         <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                       </div>
-                      <div class="flex items-center w-[80%] gap-4">
+                      <div class="flex items-center w-[80%] max-w-[698.39px] gap-4">
                         <div class="flex w-[80%] gap-2 bg-transparent">
                           <el-select
                             v-model="customersValue"
                             filterable
+                            :clearable="true"
                             placeholder="Select"
-                            @focus="callCustomersApi()"
-                            @change="changeAdressCustomer(props)"
+                            @change="changeAddressCustomer"
                           >
                             <el-option
                               v-for="item in optionsCustomerApi"
@@ -919,9 +955,9 @@ const removeListProductsSale = (index) => {
                         t('formDemo.chooseShipping')
                       }}</label>
                       <el-select
-                        v-model="value2"
+                        v-model="deliveryMethod"
                         class="fix-full-width"
-                        :placeholder="`${t('formDemo.selfDelivery')}`"
+                        :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
                         size="large"
                       >
                         <el-option
@@ -948,7 +984,7 @@ const removeListProductsSale = (index) => {
                     <p class="w-[16%] ml-2 text-[#828387] text-right">{{
                       t('formDemo.deliveryAddress')
                     }}</p>
-                    <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
+                    <p>{{ customerAddress }}</p>
                     <p>
                       <el-button
                         class="hover:bg-transparent; focus:bg-transparent"
@@ -1052,10 +1088,10 @@ const removeListProductsSale = (index) => {
                 <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''">
                   <label class="w-[16%] text-right">{{ t('formDemo.companyInformation') }}</label>
                   <div class="leading-6 mt-2">
-                    <div>Công ty cổ phần Bắc Á</div>
-                    <div>Mã số thuế: 0994563243</div>
-                    <div>Số điện thoại: 094345355</div>
-                    <div>Email: info@baca.com</div>
+                    <div>{{ infoCompany.name }}</div>
+                    <div> Mã số thuế: {{ infoCompany.taxCode }}</div>
+                    <div>{{ infoCompany.phone }}</div>
+                    <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
               </template>
@@ -1183,7 +1219,6 @@ const removeListProductsSale = (index) => {
                 :labelKey="'id'"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                @focus="callApiProductList()"
                 :clearable="false"
                 @change="(option) => changeName(option, props)"
               />
@@ -1480,7 +1515,26 @@ const removeListProductsSale = (index) => {
         <div>
           <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
-            <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150" />
+            <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
+              <template #default="props">
+                <MultipleOptionsBox
+                  :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('formDemo.productInformation')
+                  ]"
+                  filterable
+                  :items="listProductsTable"
+                  :valueKey="'name'"
+                  :labelKey="'id'"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  @focus="callApiProductList()"
+                  :clearable="false"
+                  @change="(option) => changeName(option, props)"
+                />
+              </template>
+            </el-table-column>
             <el-table-column
               prop="name"
               :label="`${t('formDemo.productInformation')}`"

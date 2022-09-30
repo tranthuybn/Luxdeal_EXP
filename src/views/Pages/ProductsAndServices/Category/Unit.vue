@@ -14,6 +14,7 @@ const deleteUnit = t('reuse.deleteUnit')
 </script>
 <template>
   <TableType01
+    :titleAdd="'reuse.addNewUnit'"
     :delApi="deleteCategory"
     :deleteTitle="deleteUnit"
     :columns="unitCategories"

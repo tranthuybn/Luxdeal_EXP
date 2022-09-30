@@ -17,8 +17,7 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu,
-  ElIcon
+  ElDropdownMenu
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
@@ -27,7 +26,7 @@ const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
-    label: 'Thông tin chung',
+    label: t('router.analysis'),
     component: 'Divider',
     colProps: {
       span: 12
@@ -61,7 +60,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      placeholder: 'mô tả'
+      placeholder: t('reuse.descriptions')
     }
   },
   {
@@ -84,7 +83,9 @@ const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -129,9 +130,6 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
-}
 const activeName = ref(collapse[0].name)
 
 const collectionCode = ref('FS3452323')
@@ -262,7 +260,7 @@ const awesome = ref(true)
                       <input
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         type="text"
-                        :placeholder="`nhập số %`"
+                        :placeholder="t('formDemo.enterPercent')"
                       />
                       <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
                     </div>
@@ -317,7 +315,7 @@ const awesome = ref(true)
                   </el-radio-group>
                 </div>
 
-                <el-table :data="tableData" border stripe style="width: 100%">
+                <el-table v-if="radioOptionCustomer == '2'" :data="tableData" border stripe>
                   <el-table-column
                     prop="codeCustomer"
                     :label="t('reuse.customerCode')"
@@ -388,9 +386,9 @@ const awesome = ref(true)
                     <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
                   </div>
                   <div class="flex justify-center option-2" v-else>
-                    <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11"
-                      >Sửa</el-button
-                    >
+                    <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11">{{
+                      t('reuse.fix')
+                    }}</el-button>
                     <el-button type="danger" class="min-w-42 min-h-11">{{
                       t('formDemo.cancelTheProgram')
                     }}</el-button>
@@ -404,7 +402,7 @@ const awesome = ref(true)
               <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
               <div class="upload-image">
                 <el-upload action="#" list-type="picture-card" :auto-upload="false">
-                  <el-icon><Plus /></el-icon>
+                  <ElButton :icon="addIcon" class="avatar-uploader-icon" />
 
                   <template #file="{ file }">
                     <div>
@@ -414,21 +412,15 @@ const awesome = ref(true)
                           class="el-upload-list__item-preview"
                           @click="handlePictureCardPreview(file)"
                         >
-                          <el-icon><zoom-in /></el-icon>
+                          <ElButton :icon="viewIcon" />
                         </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                          <el-icon><Download /></el-icon>
-                        </span>
+
                         <span
                           v-if="!disabled"
                           class="el-upload-list__item-delete"
                           @click="handleRemove(file)"
                         >
-                          <el-icon><Delete /></el-icon>
+                          <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
                     </div>
@@ -461,6 +453,9 @@ const awesome = ref(true)
 .black-color {
   color: #000000;
 }
+::v-deep(.el-table .cell) {
+  word-break: break-word;
+}
 
 ::v-deep(.el-select) {
   width: 100%;
@@ -474,12 +469,6 @@ const awesome = ref(true)
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
 }
 
 ::v-deep(.d-block > .el-row) {
@@ -498,10 +487,6 @@ const awesome = ref(true)
 
 ::v-deep(label) {
   color: #828387;
-}
-
-::v-deep(.cell) {
-  color: #303133;
 }
 
 ::v-deep(.el-divider__text) {

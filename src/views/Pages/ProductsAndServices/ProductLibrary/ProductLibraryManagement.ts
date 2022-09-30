@@ -72,34 +72,6 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.daBan',
-    label: t('reuse.quantitySold'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.luotThue',
-    label: t('reuse.numberOfTimesRented'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.kiGui',
-    label: t('reuse.numberOfTimesDeposited'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.camDo',
-    label: t('reuse.numberOfTimesPawn'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
     field: 'productStat.spa',
     label: t('reuse.numberOfTimesSpa'),
     minWidth: '150',
@@ -498,7 +470,8 @@ const getTagsOptions = async () => {
         console.error(err)
       })
       .finally(() => callTagAPI++)
-    return tagsSelect
+    columnManagementSeo[3].componentProps!.options = tagsSelect
+    columnManagementSeo[3].componentProps!.loading = false
   }
 }
 export const columnManagementSeo = reactive<FormSchema[]>([
@@ -534,12 +507,14 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: 'Tag',
     component: 'Select',
     componentProps: {
+      onClick: () => getTagsOptions(),
       allowCreate: true,
       filterable: true,
+      loading: true,
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: await getTagsOptions()
+      options: []
     },
     colProps: {
       span: 16

@@ -503,10 +503,14 @@ const rules = reactive({
   SellInventoryStatus: [required()]
 })
 const ruleSEO = reactive({
-  SeoTitle: [required()],
+  SeoTitle: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator }
+  ],
   SeoUrl: [required()],
-  SeoTags: [{ required: true, trigger: 'blur' }],
-  SeoDescription: [required()]
+  SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
+  SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 let callTableApiTime = 0
 const callTableApi = async (collapseItem) => {

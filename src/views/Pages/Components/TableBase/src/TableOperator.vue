@@ -356,11 +356,14 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
     if (validImage) {
       rawUploadFile.value = uploadFile
       imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    } else {
     }
   } else {
     const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     if (validImage) {
       ListFileUpload.value = uploadFiles
+    } else {
+      uploadFiles.map((file) => handleRemove(file))
     }
   }
 }

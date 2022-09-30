@@ -72,13 +72,6 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.spa',
-    label: t('reuse.numberOfTimesSpa'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
     field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
     minWidth: '150',

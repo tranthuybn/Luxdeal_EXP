@@ -59,7 +59,6 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosError) => {
-    console.log('err' + error) // for debug
     ElMessage.error(error.message)
     return Promise.reject(error)
   }

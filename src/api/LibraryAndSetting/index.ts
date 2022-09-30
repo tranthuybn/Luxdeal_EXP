@@ -11,7 +11,15 @@ export const getPropertyProductCategories = async (params: any): Promise<IRespon
   const res = await request.get({ url: '/PropertyProduct/List', params })
   return res && res.data
 }
-
+export const getTags = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_TAGS}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const getCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -34,6 +42,22 @@ export const postCategory = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const postProductProperty = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.ADD_PRODUCT_PROPERTY}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteProductProperty = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.DELETE_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+    },
     fixedBaseURL
   )
   return res && res.data
@@ -69,6 +93,22 @@ export const getCodeAndNameProductLibrary = async (params?): Promise<IResponse> 
     {
       url: `${PRODUCTS_AND_SERVICES_API.CHECK_PRODUCT}?${objectToQueryParams(params)}`
     },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getPriceProductProperty = async (params?): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRICE_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const changePriceProductProperty = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${PRODUCTS_AND_SERVICES_API.CHANGE_PRICE_PRODUCT_PROPERTY}`, data },
     fixedBaseURL
   )
   return res && res.data
@@ -115,8 +155,15 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
 export const getProductProperty = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
+      url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
     },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateProductProperty = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT_PROPERTY}`, data },
     fixedBaseURL
   )
   return res && res.data

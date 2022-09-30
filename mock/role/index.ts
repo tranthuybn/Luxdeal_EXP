@@ -400,12 +400,38 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
+            name: `business.promotion-strategy.flash-sale.${utility}`,
+            meta: {
+              title: 'reuse.createANewUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'collection',
             name: 'business.promotion-strategy.collection',
             component: 'views/Pages/Business/PromotionStrategy/Collection',
             meta: {
               title: 'router.collection'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/CollectionUtility',
+                name: `business.promotion-strategy.collection.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'new-product',
@@ -413,7 +439,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/NewProduct',
             meta: {
               title: 'router.newproduct'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
+                name: `business.promotion-strategy.new-product.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'voucher',
@@ -421,7 +461,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Voucher',
             meta: {
               title: 'router.voucher'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
+                name: `business.promotion-strategy.voucher.${utility}`,
+                meta: {
+                  title: 'reuse.createANewUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'combo',
@@ -429,7 +483,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Combo',
             meta: {
               title: 'router.combo'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
+                name: `business.promotion-strategy.combo.${utility}`,
+                meta: {
+                  title: 'reuse.createANewOrder',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'auction',
@@ -437,7 +505,21 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/Auction',
             meta: {
               title: 'router.auction'
-            }
+            },
+            children: [
+              {
+                path: `${utility}`,
+                component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
+                name: `business.promotion-strategy.auction.${utility}`,
+                meta: {
+                  title: 'reuse.createANewOrder',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       },

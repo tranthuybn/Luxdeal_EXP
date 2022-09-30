@@ -1,4 +1,4 @@
-import { getCategories } from '@/api/LibraryAndSetting'
+import { getCategories, getTags } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
@@ -67,34 +67,6 @@ export const businessProductLibrary = [
   {
     field: 'productStat.dangThue',
     label: t('reuse.currentlyLeased'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.daBan',
-    label: t('reuse.quantitySold'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'numberOfTimesRented',
-    label: t('reuse.numberOfTimesRented'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.kiGui',
-    label: t('reuse.numberOfTimesDeposited'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.camDo',
-    label: t('reuse.numberOfTimesPawn'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -342,6 +314,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.productCode'),
     component: 'Select',
     componentProps: {
+      id: 'hiddenGem',
       placeholder: t('reuse.enterProductCode'),
       style: 'width: 100%',
       loading: true,
@@ -479,6 +452,28 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   }
 ])
+let callTagAPI = 0
+let tagsSelect: ComponentOptions[] = reactive([])
+const getTagsOptions = async () => {
+  if (callTagAPI == 0) {
+    await getTags({})
+      .then((res) => {
+        if (res.data) {
+          tagsSelect = res.data.map((tag) => ({
+            label: tag.key,
+            value: tag.key,
+            id: tag.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callTagAPI++)
+    columnManagementSeo[3].componentProps!.options = tagsSelect
+    columnManagementSeo[3].componentProps!.loading = false
+  }
+}
 export const columnManagementSeo = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -512,21 +507,14 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: 'Tag',
     component: 'Select',
     componentProps: {
+      onClick: () => getTagsOptions(),
       allowCreate: true,
       filterable: true,
+      loading: true,
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: [
-        {
-          label: 'Túi hàng hiệu',
-          value: '1'
-        },
-        {
-          label: 'LV',
-          value: '2'
-        }
-      ]
+      options: []
     },
     colProps: {
       span: 16

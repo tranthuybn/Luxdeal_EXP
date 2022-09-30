@@ -26,7 +26,6 @@ import { API_URL } from '@/utils/API_URL'
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
-let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
@@ -76,9 +75,9 @@ const props = defineProps({
     default: 'Warning'
   }
 })
-
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
+const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: props.api,
   response: {
@@ -86,11 +85,12 @@ const { register, tableObject, methods } = useTable<TableData>({
     total: 'count'
   },
   props: {
-    columns: props.fullColumns,
+    columns: temporaryColumn,
     headerAlign: 'center'
   }
 })
 // get api
+let paginationObj = ref<Pagination>()
 
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
@@ -100,14 +100,15 @@ onBeforeMount(() => {
 })
 // execute pagination
 watch(
-  () => tableObject.total,
+  //watch multiple variables (total: run 1 after load page, pageSize/length when click change size)
+  () => [tableObject.total, tableObject.pageSize, tableObject?.tableList?.length],
   () => {
     props.paginationType
       ? (paginationObj.value = {
           total: tableObject.total
         })
       : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
+    emit('TotalRecord', tableObject?.tableList?.length ?? 0)
   },
   {
     immediate: true
@@ -146,21 +147,31 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
-const sortChange = () => {
-  //empty function but dont remove
-}
-//watch sort change function
-const headerClick = (column) => {
-  const sorting = {} as any
-  let valueSort: any = null
+const sortField = ref('')
+const sortValue = ref()
+const sortObj = {}
+const lastSort = ref()
+const sortChange = (column) => {
+  //value of sort : true/false
   if (column.order == 'ascending') {
-    valueSort = true
+    sortValue.value = true
   }
   if (column.order == 'descending') {
-    valueSort = false
+    sortValue.value = false
   }
-  sorting[`${column.property}Sort`] = valueSort
-  setSearchParams(sorting)
+  //sort 1 column at a time
+  //remove search params by making it value = null
+  if (column.prop !== null) {
+    sortField.value = column.prop
+    sortObj[`${sortField.value}Sort`] = sortValue.value
+    if (lastSort.value && lastSort.value !== `${sortField.value}Sort`) {
+      sortObj[lastSort.value] = null
+    }
+    lastSort.value = `${sortField.value}Sort`
+  } else {
+    sortObj[lastSort.value] = null
+  }
+  setSearchParams({ ...sortObj })
 }
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
@@ -214,7 +225,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
             .catch(() =>
               ElNotification({
                 message: t('reuse.deleteFail'),
-                type: 'warning'
+                type: 'error'
               })
             )
             .finally(() => getData())
@@ -229,7 +240,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
-            type: 'warning'
+            type: 'error'
           })
         }
       })
@@ -264,6 +275,11 @@ const handleSizeChange = (size) => {
 const handleCurrentChange = (current: number) => {
   tableObject.currentPage = current
 }
+const updateTableColumn = () => {
+  temporaryColumn.value = props.fullColumns.filter((el) =>
+    showingColumnList.value.includes(el.field)
+  )
+}
 </script>
 <template>
   <ContentWrap class="relative">
@@ -275,7 +291,7 @@ const handleCurrentChange = (current: number) => {
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="15%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
@@ -308,7 +324,6 @@ const handleCurrentChange = (current: number) => {
       @register="register"
       @filter-change="filterChange"
       @sort-change="sortChange"
-      @header-click="headerClick"
       :selection="selection"
       @update:page-size="handleSizeChange"
       @update:current-page="handleCurrentChange"

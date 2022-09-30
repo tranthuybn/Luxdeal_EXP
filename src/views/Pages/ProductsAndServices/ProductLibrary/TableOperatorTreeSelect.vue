@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, onMounted } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -135,11 +135,11 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref('')
 //set data for form edit and detail
+const { setValues } = methods
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
 
-  const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     await customPostData(props.formDataCustomize)
     setValues(props.formDataCustomize)
@@ -204,10 +204,21 @@ const save = async (type) => {
       if (treeSelectData.value == undefined) {
         await apiTreeSelect()
       }
-      let ProductTypeId = treeSelectData.value.find((tree) =>
-        tree.children.find((child) => child.label == data.ProductTypeId)
-      )
-      ProductTypeId = ProductTypeId.children.find((options) => options.label === data.ProductTypeId)
+      let parentNode = true
+      let ProductTypeId = treeSelectData.value.find((tree) => {
+        if (tree.children.length > 0) {
+          parentNode = false
+          return tree?.children.find((child) => child.label == data.ProductTypeId)
+        } else {
+          parentNode = true
+          return tree.label == data.ProductTypeId
+        }
+      })
+      parentNode
+        ? (ProductTypeId = ProductTypeId)
+        : (ProductTypeId = ProductTypeId.children.find(
+            (options) => options.label === data.ProductTypeId
+          ))
       ProductTypeId
         ? (data.ProductTypeId = ProductTypeId.id)
         : ElNotification({
@@ -256,7 +267,9 @@ if (props.title == 'undefined') {
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  if (formValue.value.productImages) {
+  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  // remove image when edit data
+  if (formValue.value && formValue.value.productImages) {
     let imageRemove = formValue.value.productImages.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -271,23 +284,32 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
+const validImageType = ['jpeg', 'png']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
+    //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (rawFile.raw.size / 1024 / 1024 > 4) {
+      } else if (!validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
       }
     }
+    //nếu là 1 list ảnh
     if (type === 'list') {
       let inValid = true
       rawFile.map((file) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
+        } else if (validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
@@ -297,7 +319,11 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    if (fileList.value) {
+    //báo lỗi nếu ko có ảnh
+    if (type === 'list' && fileList.value.length > 0) {
+      return true
+    }
+    if (type === 'single' && (rawUploadFile.value !== null || imageUrl.value !== null)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -348,12 +374,18 @@ const cancel = () => {
   go(-1)
 }
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
-    rawUploadFile.value = uploadFile
-    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    const validImage = await beforeAvatarUpload(uploadFile, 'single')
+    if (validImage) {
+      rawUploadFile.value = uploadFile
+      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    }
   } else {
-    ListFileUpload.value = uploadFiles
+    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
+    if (validImage) {
+      ListFileUpload.value = uploadFiles
+    }
   }
 }
 const previewImage = () => {
@@ -400,7 +432,8 @@ const getCodeAndNameSelect = async () => {
     CodeAndNameSelect.value = res.data.map((val) => ({
       label: val.productCode,
       value: val.productCode,
-      name: val.name
+      name: val.name,
+      id: val.id
     }))
     NameAndCodeSelect.value = res.data.map((val) => ({
       label: val.name,
@@ -410,6 +443,39 @@ const getCodeAndNameSelect = async () => {
     callGetCodeAndNameAPI++
   }
 }
+const remoteProductCode = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
+    CodeAndNameSelect.value = res.data.map((val) => ({
+      label: val.productCode,
+      value: val.productCode,
+      name: val.name
+    }))
+  } else {
+    CodeAndNameSelect.value = []
+  }
+}
+const remoteProductName = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
+    NameAndCodeSelect.value = res.data.map((val) => ({
+      label: val.name,
+      value: val.name,
+      productCode: val.productCode
+    }))
+  } else {
+    NameAndCodeSelect.value = []
+  }
+}
+//for infinite scroll
+// const scrollMethod = () => {
+// console.log('scroll value', scrollTop)
+// console.log('height', divRef.value?.clientHeight)
+// }
+// const divRef = ref<HTMLDivElement>()
+onMounted(() => {
+  // console.log('height', divRef.value)
+})
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -457,8 +523,13 @@ const getCodeAndNameSelect = async () => {
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductCode"
             >
+              <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
+                <div ref="divRef" class="whereisthis"> -->
               <el-option
+                ref="optionCodeHeight"
                 v-for="item in CodeAndNameSelect"
                 :key="item.value"
                 :label="item.label"
@@ -470,6 +541,8 @@ const getCodeAndNameSelect = async () => {
                   >{{ t('reuse.productName') }}: {{ item.name }}</span
                 >
               </el-option>
+              <!-- </div>
+              </el-scrollbar> -->
             </el-select>
           </template>
           <template #Name="form">
@@ -481,6 +554,8 @@ const getCodeAndNameSelect = async () => {
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductName"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"

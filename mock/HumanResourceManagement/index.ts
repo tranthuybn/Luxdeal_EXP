@@ -1,5 +1,5 @@
 import { config } from '@/config/axios/config'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 import { productBranchList } from './branch'
 import { productDepartmentList } from './department'
 import { productRankList } from './rank'

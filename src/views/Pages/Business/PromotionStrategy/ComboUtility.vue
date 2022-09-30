@@ -448,9 +448,6 @@ onBeforeMount(() => {
                   <div>
                     <span class="block relative w-[100%] border-t-1"></span>
                   </div>
-                  <div class="text-center">
-                    <button class="text-base pt-2">Confirm</button>
-                  </div>
                 </el-select>
               </template>
             </el-table-column>

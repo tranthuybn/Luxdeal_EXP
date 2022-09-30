@@ -490,7 +490,7 @@ const adminList = [
                 component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
                 name: `business.promotion-strategy.combo.${utility}`,
                 meta: {
-                  title: 'reuse.createANewOrder',
+                  title: 'reuse.comboDetail',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,
@@ -512,7 +512,7 @@ const adminList = [
                 component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
                 name: `business.promotion-strategy.auction.${utility}`,
                 meta: {
-                  title: 'reuse.createANewOrder',
+                  title: 'reuse.auctionDetail',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,

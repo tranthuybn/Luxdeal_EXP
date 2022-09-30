@@ -206,7 +206,7 @@ const awesome = ref(true)
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
                           <span
-                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2"
+                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2 dark:text-light-50"
                           >
                             {{ radioOptionPromotion }}
                           </span>

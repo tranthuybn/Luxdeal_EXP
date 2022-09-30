@@ -279,10 +279,7 @@ export default {
     applicableProductsAndSpaApply: 'Applicable product and Spa apply',
     joinTheProgram: 'Join the program',
     theProgramIsRunning: 'The program is Running',
-    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Flasher Programs must have SA approval in the Browsing module',
-    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Voucher must have SA approval in the Browsing module',
+
     cancelTheProgram: 'Cancel the program',
     decreaseByPercent: 'Decrease by percent',
     enterPercent: 'Enter percentage',
@@ -304,8 +301,7 @@ export default {
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
     sendImmediatelyAfterBrowsing: 'Send immediately after browsing',
-    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
-      'If not selected Voucher will only be sent after clicking "Submit"',
+
     comboDetail: 'Combo detail',
     comboGetFree: 'Combo get free',
     ApplicableSpaProductsServices: 'applicable spa products & services',

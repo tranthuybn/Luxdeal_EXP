@@ -308,10 +308,6 @@ export default {
     applicableProductsAndSpaApply: 'Sản phẩm & dịch vụ spa áp dụng',
     joinTheProgram: 'Tham gia chương trình',
     theProgramIsRunning: 'Đang chạy chương trình',
-    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
-      'Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
-    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
-      'Voucher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
     cancelTheProgram: 'Hủy chương trình',
     decreaseByPercent: 'Giảm theo %',
     enterPercent: 'Nhập số %',
@@ -328,8 +324,6 @@ export default {
     voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
     appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
     voucherSendingSettings: 'Cài đặt gửi Voucher',
-    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
-      'Nếu không lựa chọn, Voucher chỉ được gửi sau khi nhấn "Gửi"',
     comboGetFree: 'Combo nhận miễn phí',
 
     enterCondition: 'Nhập điều kiện',

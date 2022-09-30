@@ -709,7 +709,7 @@ export default {
     typeOfTransfer: 'Loại hình chuyển kho',
     location: 'Vị trí',
     amountImport: 'Số lượng nhập',
-    inventory: 'Tồn kho',
+    inventory: 'Tồn các kho',
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',

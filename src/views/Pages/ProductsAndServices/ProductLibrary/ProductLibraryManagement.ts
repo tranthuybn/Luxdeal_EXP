@@ -72,34 +72,6 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.daBan',
-    label: t('reuse.quantitySold'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.luotThue',
-    label: t('reuse.numberOfTimesRented'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.kiGui',
-    label: t('reuse.numberOfTimesDeposited'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.camDo',
-    label: t('reuse.numberOfTimesPawn'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
     field: 'productStat.spa',
     label: t('reuse.numberOfTimesSpa'),
     minWidth: '150',

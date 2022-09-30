@@ -1184,6 +1184,9 @@ export default {
     cantChooseMultipleValueForOneAttribute: 'Cant choose multiple value for one attribute',
     //image
     onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
-    notSpaceBeforeAndAfter: 'Not space before and after value'
+    notSpaceBeforeAndAfter: 'Not space before and after value',
+    //seo
+    enterTitle: 'Enter title',
+    enterLink: 'Enter link'
   }
 }

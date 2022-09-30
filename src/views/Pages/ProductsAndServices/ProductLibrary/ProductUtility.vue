@@ -84,6 +84,7 @@ const getAttributeData = async () => {
   treeSelectData.value[1].children = sizeData
   treeSelectData.value[2].children = materialData
 }
+const unitData = ref()
 const ruleTreeFormRef = ref<FormInstance>()
 const validateTree = (_rule: any, value: any, callback: any) => {
   if (value.length < 3) {
@@ -350,7 +351,7 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
-  customUpdateData.id = data.id
+  customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
   customUpdateData.categories = []
   customUpdateData.categories[0] = {
@@ -525,8 +526,21 @@ const callTableApi = async (collapseItem) => {
   }
   collapseItem.loading = false
 }
+const getUnitValue = async (UnitId) => {
+  let unitSelect = { name: '' }
+  const res = await getCategories({
+    TypeName: PRODUCTS_AND_SERVICES[6].key,
+    pageSize: 100,
+    pageIndex: 1
+  })
+  if (res) {
+    unitSelect = res.data.find((unit) => unit.id == UnitId)
+    unitData.value = unitSelect?.name
+  }
+}
 // bảo backend trả id để xóa luôn ko cần reload trang
 const postData = async (data) => {
+  const UnitId = data.UnitId
   await postProductLibrary(FORM_IMAGES(data))
     .then((res) => {
       newId.value = res.data
@@ -539,9 +553,13 @@ const postData = async (data) => {
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
-        type: 'warning'
+        type: 'error'
       })
     )
+    //maybe use async await
+    .finally(() => {
+      getUnitValue(UnitId)
+    })
 }
 // init reactive type
 // could do better somehow... [key: string]: any
@@ -598,6 +616,7 @@ const customizeData = async (formData) => {
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
+  unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
 const editData = async (data) => {
@@ -800,10 +819,11 @@ watch(
   () => collapse[8].tableList[collapse[8].tableList.length - 1],
   () => {
     if (
-      collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== null &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== null &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== null &&
-      forceRemove.value == false
+      collapse[8].tableList.length < 1 ||
+      (collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexSellTable()
     }
@@ -828,12 +848,13 @@ watch(
   () => collapse[2].tableList[collapse[2].tableList.length - 1],
   () => {
     if (
-      collapse[2].tableList[collapse[2].tableList.length - 1].quantity !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price !== undefined &&
-      forceRemove.value == false
+      collapse[2].tableList.length < 1 ||
+      (collapse[2].tableList[collapse[2].tableList.length - 1].quantity !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexRentTable()
     }
@@ -969,9 +990,9 @@ const saveDataSellTable = async () => {
 const removeLastRowSell = () => {
   if (
     //check if all field of last row are empty
-    collapse[8].tableList[collapse[8].tableList.length - 1].quantity == undefined &&
-    collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price == undefined &&
-    collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price == undefined
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.quantity == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[0].price == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[1].price == undefined
   ) {
     //force remove so watch cannot add new row at the last index
     forceRemove.value = true
@@ -1086,7 +1107,7 @@ watch(
           >
             <template #default>
               <!--get this data from product Api-->
-              <div>Chiếc</div>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1433,7 +1454,7 @@ watch(
           >
             <template #default>
               <!--get this data from product Api-->
-              <div>Chiếc</div>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1565,7 +1586,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1657,7 +1678,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1805,7 +1826,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn

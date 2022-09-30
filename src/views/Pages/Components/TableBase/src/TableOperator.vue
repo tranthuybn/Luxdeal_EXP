@@ -129,7 +129,7 @@ const customizeData = async () => {
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-const imageUrl = ref('')
+const imageUrl = ref()
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
@@ -239,10 +239,10 @@ if (props.title == 'undefined') {
 
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
   // remove image when edit data
-  if (props.formDataCustomize.Images) {
+  if (props.formDataCustomize.Images.length > 0) {
     let imageRemove = props.formDataCustomize?.Images.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -265,7 +265,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (!validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
         ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
@@ -280,8 +280,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
-        } else if (validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
           ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
           return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
@@ -296,7 +297,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     if (type === 'list' && fileList.value.length > 0) {
       return true
     }
-    if (type === 'single' && (rawUploadFile.value !== null || imageUrl.value !== null)) {
+    if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -360,10 +361,11 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
     }
   } else {
     const validImage = await beforeAvatarUpload(uploadFiles, 'list')
-    if (validImage) {
-      ListFileUpload.value = uploadFiles
-    } else {
-      uploadFiles.map((file) => handleRemove(file))
+    ListFileUpload.value = uploadFiles
+    if (!validImage) {
+      uploadFiles.map((file) => {
+        file.raw ? handleRemove(file) : ''
+      })
     }
   }
 }
@@ -373,7 +375,7 @@ const previewImage = () => {
 }
 const removeImage = () => {
   rawUploadFile.value = undefined
-  imageUrl.value = ''
+  imageUrl.value = undefined
 }
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')

@@ -478,7 +478,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.title'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập vị trí hiển thị'
+      placeholder: t('reuse.enterTitle')
     },
     colProps: {
       span: 16
@@ -489,7 +489,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.path'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập đường dẫn'
+      placeholder: t('reuse.enterLink')
     },
     colProps: {
       span: 16

@@ -244,7 +244,6 @@ export const useValidator = () => {
     },
     checkSpaceBeforeAndAfter: {
       validator: (_rule, value, callback) => {
-        console.log('space', value.indexOf(' '))
         if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
           callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
         } else {

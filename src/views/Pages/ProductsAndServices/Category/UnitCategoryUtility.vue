@@ -206,7 +206,6 @@ const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {

@@ -1271,6 +1271,9 @@ export default {
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
-    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
+    //seo
+    enterTitle: 'Nhập tiêu đề',
+    enterLink: 'Nhập link'
   }
 }

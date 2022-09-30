@@ -237,6 +237,9 @@ const save = async (type) => {
       if (type == 'saveAndAdd') {
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
+        props.multipleImages
+          ? ListFileUpload.value.map((file) => handleRemove(file))
+          : removeImage()
         loading.value = false
       }
       if (type == 'edit') {
@@ -266,8 +269,8 @@ if (props.title == 'undefined') {
 }
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
   // remove image when edit data
   if (formValue.value && formValue.value.productImages) {
     let imageRemove = formValue.value.productImages.find(
@@ -292,7 +295,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (!validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
         ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
@@ -307,8 +310,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
-        } else if (validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
           ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
           return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
@@ -383,10 +387,11 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
     }
   } else {
     const validImage = await beforeAvatarUpload(uploadFiles, 'list')
-    if (validImage) {
-      ListFileUpload.value = uploadFiles
-    } else {
-      uploadFiles.map((file) => handleRemove(file))
+    ListFileUpload.value = uploadFiles
+    if (!validImage) {
+      uploadFiles.map((file) => {
+        file.raw ? handleRemove(file) : ''
+      })
     }
   }
 }
@@ -478,6 +483,7 @@ const remoteProductName = async (query: string) => {
 onMounted(() => {
   // console.log('height', divRef.value)
 })
+//key up enter
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -486,10 +492,11 @@ onMounted(() => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
-              v-model="form['ProductTypeId']"
+              :modelValue="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
               style="width: 100%"
+              @change="(data) => (form['ProductTypeId'] = data)"
             />
           </template>
           <template #HireInventoryStatus-label>
@@ -527,6 +534,7 @@ onMounted(() => {
               clearable
               remote
               :remote-method="remoteProductCode"
+              default-first-option
             >
               <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
                 <div ref="divRef" class="whereisthis"> -->
@@ -558,6 +566,7 @@ onMounted(() => {
               clearable
               remote
               :remote-method="remoteProductName"
+              default-first-option
             >
               <el-option
                 v-for="item in NameAndCodeSelect"
@@ -673,6 +682,9 @@ onMounted(() => {
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="go(-1)">
+          {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">

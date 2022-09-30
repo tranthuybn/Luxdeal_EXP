@@ -710,7 +710,7 @@ export default {
     typeOfTransfer: 'Loại hình chuyển kho',
     location: 'Vị trí',
     amountImport: 'Số lượng nhập',
-    inventory: 'Tồn kho',
+    inventory: 'Tồn các kho',
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
@@ -1273,13 +1273,13 @@ export default {
     addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
     fillAllAttribute: 'Điền đủ thuộc tính',
     cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
+    //image
+    onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
+    notSpaceBeforeAndAfter: 'Không để khoảng trắng trước và sau từ',
     newInitialization: 'Khởi tạo mới',
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
-    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
-    //image
-    onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
-    notSpaceBeforeAndAfter: 'Không để khoảng trắng trước và sau từ'
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
   }
 }

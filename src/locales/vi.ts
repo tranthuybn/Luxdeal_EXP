@@ -383,6 +383,7 @@ export default {
     employeeList: 'Danh sách nhân viên',
     employeeRatings: 'Xếp hạng nhân viên',
     accumulatePoints: 'Tích điểm',
+    packageAccumulatePointsCode: 'Mã gói tích điểm',
     customerPoints: 'Tích điểm khách hàng',
     installPoints: 'Cài đặt tích điểm',
     totalRechargePoints: 'Tổng nạp điểm',

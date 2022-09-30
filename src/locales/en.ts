@@ -1191,6 +1191,9 @@ export default {
     enterSelectTaxCode: 'Enter or select tax code',
     taxCode: 'Tax code',
     addActions: 'Add Action',
-    orderSaleAsignrequired: 'Please input order sale asign'
+    orderSaleAsignrequired: 'Please input order sale asign',
+    //image
+    onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
+    notSpaceBeforeAndAfter: 'Not space before and after value'
   }
 }

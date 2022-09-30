@@ -1277,6 +1277,9 @@ export default {
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
-    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
+    //image
+    onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
+    notSpaceBeforeAndAfter: 'Không để khoảng trắng trước và sau từ'
   }
 }

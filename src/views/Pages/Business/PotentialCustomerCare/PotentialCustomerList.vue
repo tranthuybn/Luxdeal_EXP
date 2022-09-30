@@ -2,7 +2,7 @@
 import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 
-import { getPotentialCustomerList } from '@/api/Business'
+import { getPotentialCustomerList, deletePotentialCustomer } from '@/api/Business'
 import {
   filterStatus,
   filterPotentialCustomerStatus,
@@ -165,5 +165,9 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getPotentialCustomerList" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getPotentialCustomerList"
+    :delApi="deletePotentialCustomer"
+  />
 </template>

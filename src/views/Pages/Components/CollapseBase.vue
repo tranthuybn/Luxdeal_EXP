@@ -8,7 +8,7 @@ import { TableOperator } from '../Components/TableBase'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 import TableChildren from './TableBase/src/TableChildren.vue'
 import { useI18n } from '@/hooks/web/useI18n'
-
+import { getPotentialCustomerListById } from '@/api/Business'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -43,6 +43,11 @@ const collapseChangeEvent = (val) => {
 const activeName = ref(props.default)
 // const router = useRouter()
 // const currentRoute = String(router.currentRoute.value.params.backRoute)
+const emit = defineEmits(['post-data'])
+const postData = (data) => {
+  console.log('runhere', data)
+  emit('post-data', data)
+}
 </script>
 
 <template>
@@ -109,7 +114,11 @@ const activeName = ref(props.default)
           class="infinite-list"
           style="overflow: auto"
           :rules="item.rules"
+          :apiId="getPotentialCustomerListById"
           :hasImage="item.hasImage"
+          @post-data="postData"
+          :id="item.id"
+          :type="item.type"
           :schema="item.columns"
           :title="item.title"
           :typeButton="item.typeButton"

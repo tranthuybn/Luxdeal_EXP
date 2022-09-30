@@ -332,6 +332,18 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+            name: `business.customer-management.customerList.${utility}`,
+            meta: {
+              title: 'reuse.createANewUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'customerRatings',
             name: 'business.customer-management.customerRatings',
             component: 'views/Pages/Business/CustomerManagement/CustomerRatings',

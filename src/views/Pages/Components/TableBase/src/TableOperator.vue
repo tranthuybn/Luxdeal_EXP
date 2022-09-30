@@ -147,7 +147,6 @@ const setFormValue = async () => {
       )
     }
   } else {
-    console.log('formValue.value', formValue.value)
     setValues(formValue.value)
   }
 }
@@ -216,7 +215,6 @@ const save = async (type) => {
         // fix cung theo api (nen theo 1 quy tac)
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
-        console.log(data.Image, imageUrl.value)
         data.Imageurl = data.Image ? null : imageUrl.value
         emit('edit-data', data, go(-1))
         loading.value = false

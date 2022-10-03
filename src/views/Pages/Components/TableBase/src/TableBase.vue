@@ -50,9 +50,9 @@ const props = defineProps({
     default: 1,
     validator(value: number) {
       // The value must match one of these strings
-      return [1, 2, 3].includes(value)
+      return [1, 2, 3, 4].includes(value)
     },
-    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
+    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem)'
   },
   paginationType: {
     type: Boolean,
@@ -403,6 +403,9 @@ const updateTableColumn = () => {
             {{ t('reuse.delete') }}
           </ElButton></div
         >
+        <div v-if="customOperator === 4">
+          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
+        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />

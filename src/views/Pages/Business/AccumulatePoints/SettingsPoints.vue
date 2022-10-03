@@ -1,27 +1,55 @@
 <script setup lang="ts">
-import { h, onBeforeMount, reactive, ref, unref } from 'vue'
-import { useForm } from '@/hooks/web/useForm'
+import { reactive, ref, onBeforeMount } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { getAllCustomer } from '@/api/Business'
-import { Form } from '@/components/Form'
 import {
   ElUpload,
-  ElSelect,
-  ElOption,
   ElButton,
   ElDivider,
-  ElInput,
-  ElCheckbox
+  ElTable,
+  ElTableColumn,
+  ElRadioGroup,
+  ElRadio,
+  ElDialog,
+  UploadUserFile,
+  ElDatePicker
 } from 'element-plus'
+import type { UploadFile } from 'element-plus'
+import { useForm } from '@/hooks/web/useForm'
+import { Form } from '@/components/Form'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { useIcon } from '@/hooks/web/useIcon'
+import { getProductsList } from '@/api/Business'
+
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const { t } = useI18n()
 const { register } = useForm()
+// upload image
+const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-const newList = reactive<FormSchema[]>([
+const radio1 = ref('1')
+let fileList = ref<UploadUserFile[]>([])
+const ListFileUpload = ref()
+const handleRemove = (file: UploadFile) => {
+  fileList.value = fileList.value.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+}
+
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
+
+const schema = reactive<FormSchema[]>([
   {
     field: 'generalInformation',
     label: t('formDemo.generalInformation'),
-    component: 'Divider'
+    component: 'Divider',
+    colProps: {
+      span: 12
+    }
   },
   {
     field: 'packageAccumulatePointsCode',
@@ -35,380 +63,407 @@ const newList = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
+    },
+    componentProps: {
+      placeholder: t('formDemo.addNotes')
     }
   },
   {
-    field: 'customerInfo',
-    label: t('reuse.customerInfo'),
-    component: 'Divider'
-  },
-  {
-    field: 'chooseACustomer',
-    component: 'Select',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'companyInformation',
+    field: 'points',
     component: 'Input',
     colProps: {
       span: 12
     }
   },
   {
-    field: 'statusAndAccount',
-    label: t('reuse.statusAndAccount'),
-    component: 'Divider'
-  },
-  {
-    field: 'status',
-    component: 'Checkbox',
-    value: [],
+    field: 'duration',
+    component: 'Input',
     colProps: {
       span: 24
+    },
+    componentProps: {
+      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
+    }
+  },
+  {
+    field: 'shortDescription',
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      placeholder: t('formDemo.addNotes')
     }
   }
 ])
-const dialogAddQuick = ref(false)
-const valueClassify = ref('company')
-const packageAccumulatePointsCode = Math.random()
-let customerAddress = ref('')
-// Call api danh sách khách hàng
-const customersValue = ref('')
-const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
-const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    console.log('getCustomerResult', getCustomerResult)
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
-        name: product.name,
-        taxCode: product.taxCode,
-        phonenumber: product.phonenumber,
-        email: product.email,
-        representative: product.representative
-      }))
-    }
+
+// Value date
+const pickdate = ref('')
+
+const forceRemove = ref(false)
+// remove row table
+const removeListProductsSale = (index) => {
+  if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
+    forceRemove.value = true
+    console.log('index:', index)
+    ListOfProductsForSale.splice(index, 1)
   }
-  optionCallCustomerAPi++
 }
-let infoCompany = reactive({
-  name: '',
-  taxCode: '',
-  phone: '',
-  email: '',
-  representative: '',
-  phonenumber: '',
-  address: ''
-})
-const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-    }
-  } else {
-    customerAddress.value = ''
+
+// Table data
+interface ListOfProductsForSaleType {
+  name: string
+  productCode: string
+  id: string
+  code: string
+  quantity: number | undefined
+  selfImportAccessories: string | undefined
+  dram: string
+  unitPrice: string
+  intoMoney: string
+  paymentType: string
+  alreadyPaidForTt: string
+  edited: boolean
+}
+
+const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
+  {
+    name: '',
+    productCode: '',
+    id: '',
+    code: '',
+    quantity: 1,
+    selfImportAccessories: '',
+    dram: t('formDemo.psc'),
+    unitPrice: 'đ',
+    intoMoney: 'đ',
+    paymentType: '',
+    alreadyPaidForTt: '',
+    edited: true
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
+])
+
+// Call api danh sách sản phẩm
+let listProductsTable = ref()
+const listProducts = ref()
+const optionsApi = ref()
+
+let optionCallAPi = 0
+const callApiProductList = async () => {
+  if (optionCallAPi == 0) {
+    const res = await getProductsList({ ProductId: 1 })
+    listProducts.value = res.data
+    optionsApi.value = listProducts.value.map((product) => ({
+      label: product.id.toString(),
+      value: product.id.toString(),
+      name: product.name,
+      price: product.price.toString()
+    }))
+    optionCallAPi++
+    listProductsTable.value = optionsApi.value
+  }
 }
+// select MSP đổi tên thông tin sản phẩm
+const changeName = (optionID, scope) => {
+  const option = optionsApi.value.find((option) => option.name == optionID)
+  scope.row.name = option.name
+  scope.row.unitPrice = option.price
+  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+}
+
+// check button save or edit
+const checkButton = ref(false)
+
+// open or close change combo dialog
+const openChangeComboDialog = ref(false)
+
+// table change combo
+const tableChangeCombo = [
+  {
+    radioComboTable: '1',
+    condition: 'Combo nhận miễn phí',
+    enterCondition: ''
+  },
+  {
+    radioComboTable: '2',
+    condition: 'Đổi bằng điểm',
+    enterCondition: '500 điểm'
+  },
+  {
+    radioComboTable: '3',
+    condition: 'Mua bằng tiền ảo',
+    enterCondition: '200,000 đ'
+  }
+]
+
+// radio condition combo
+const radioCondition = ref(false)
+
 onBeforeMount(() => {
-  callCustomersApi()
+  callApiProductList()
 })
-//lay du lieu tu router
-// const router = useRouter()
-//const id = String(router.currentRoute.value.params.id)
 </script>
 <template>
-  <div class="demo-collapse dark:bg-[#141414]">
-    <div class="flex w-[100%]">
-      <div class="w-[50%]">
-        <Form
-          :schema="newList"
-          label-position="top"
-          hide-required-asterisk
-          size="large"
-          class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
-          @register="register"
-        >
-          <template #packageAccumulatePointsCode>
-            <div class="flex items-center w-[100%] gap-4">
-              <label class="w-[16%] text-right">{{
-                t('router.packageAccumulatePointsCode')
-              }}</label>
-              <div class="w-[80%] w-[100%] outline-none pl-2 bg-transparent">
-                <div>{{ packageAccumulatePointsCode }}</div>
-              </div>
-            </div>
-          </template>
-          <template #type>
-            <div class="flex gap-4">
-              <div class="flex w-[50%]">
-                <div class="flex w-[100%] gap-4">
-                  <div class="w-[15%] text-right ml-2 leading-5">
-                    <label>{{ t('formDemo.customerName') }}</label>
-                    <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
-                  </div>
-                  <input
-                    class="w-[62%] border-1 outline-none pl-2"
-                    type="text"
-                    :placeholder="`${t('formDemo.chooseACustomer')}`"
-                  />
-                  <div class="border-1 border-blue-500">
-                    <el-button text @click="dialogAddQuick = true"
-                      >+ {{ t('button.add') }}</el-button
-                    >
-                  </div>
-                  <el-dialog
-                    v-model="dialogAddQuick"
-                    width="40%"
-                    align-center
-                    :title="`${t('formDemo.QuicklyAddCustomers')}`"
-                    v-if="valueClassify == 'company'"
-                  />
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #chooseACustomer>
-            <div class="flex items-center w-[100%] gap-4">
-              <label class="w-[16%] text-right">{{ t('formDemo.chooseACustomer') }}</label>
-              <div class="flex items-center w-[80%] gap-4">
-                <div class="w-[100%] outline-none pl-2 bg-transparent">
-                  <ElSelect
-                    v-model="customersValue"
-                    filterable
-                    :clearable="true"
-                    :placeholder="t('formDemo.chooseACustomer')"
-                    @change="changeAddressCustomer"
-                  >
-                    <ElOption
-                      v-for="item in optionsCustomerApi"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </ElSelect>
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #companyInformation>
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''">
-              <label class="w-[33%] text-right">{{ t('formDemo.customerName') }}</label>
-              <div class="leading-6 mt-2 ml-2">
-                <div>{{ infoCompany.name }}</div>
-              </div>
-            </div>
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('formDemo.taxCode') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.taxCode }}</div>
-              </div></div
-            >
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('formDemo.represent') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.representative }}</div>
-              </div></div
-            >
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.phonenumber }}</div>
-              </div></div
-            >
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('reuse.email') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.email }}</div>
-              </div></div
-            >
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.address }}</div>
-              </div></div
-            >
-            <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''"
-              ><label class="w-[33%] text-right">{{ t('reuse.accountBank') }}</label>
-              <div class="leading-6 ml-2 mt-2">
-                <div>{{ infoCompany.name }}</div>
-              </div></div
-            >
-          </template>
-          <template #status>
-            <div class="flex items-center w-[100%] gap-4">
-              <label class="w-[16%] text-right">{{ t('reuse.status') }}</label>
-              <div class="flex items-center ml-2 w-[80%] gap-4">
-                <ElCheckbox :v-model="true" :label="t('formDemo.isActive')" size="large" />
-              </div>
-            </div>
-          </template>
-        </Form>
-      </div>
-      <div class="w-[50%]">
-        <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-          <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
-        </div>
-        <div class="flex">
-          <div class="pl-5">
-            <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-            <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
+  <div class="flex w-[100%] gap-6">
+    <div class="w-[50%]">
+      <Form
+        :schema="schema"
+        label-position="top"
+        hide-required-asterisk
+        size="large"
+        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
+        @register="register"
+      >
+        <template #packageAccumulatePointsCode>
+          <div class="flex items-center w-[100%] gap-4">
+            <label class="w-[16%] text-right" for="">{{
+              t('router.packageAccumulatePointsCode')
+            }}</label>
+            <div class="font-bold">CB3452323</div>
           </div>
-          <div class="pl-4">
-            <el-upload action="#" list-type="picture-card" :auto-upload="false" class="relative">
-              <template #file="{ file }">
-                <div>
-                  <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                  <span class="el-upload-list__item-actions">
-                    <span class="el-upload-list__item-preview"> </span>
-                    <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                    <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                  </span>
-                </div>
-              </template>
-              <el-dialog v-model="dialogVisible" class="absolute">
-                <div class="text-[#303133] font-medium dark:text-[#fff]"
-                  >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                >
-              </el-dialog>
-            </el-upload>
+        </template>
+        <template #duration>
+          <div class="flex items-center w-[100%] gap-4">
+            <label class="w-[16%] text-right">{{ t('formDemo.duration') }}</label>
+            <div class="flex w-[80%] gap-2 demo-date-picker">
+              <el-date-picker
+                v-model="pickdate"
+                type="daterange"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+                format="DD/MM/YYYY"
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+        <template #points>
+          <div class="flex gap-4 w-[100%]">
+            <label class="w-[33%] text-right">{{ t('reuse.Points') }}</label>
+            <div class="leading-6 mt-2 ml-2">
+              <div>500 Điểm</div>
+            </div>
+          </div>
+          <div class="flex gap-4 w-[100%]"
+            ><label class="w-[33%] text-right">{{ t('reuse.exchangedMoney') }}</label>
+            <div class="leading-6 ml-2 mt-2">
+              <div>300,000 đ</div>
+            </div></div
+          >
+        </template>
+        <template #shortDescription>
+          <div class="flex items-center w-[100%] gap-4">
+            <label class="w-[16%] text-right" for="">{{ t('formDemo.shortDescription') }}</label>
+            <input
+              class="w-[80%] border-1 outline-none pl-2 bg-transparent rounded dark:border-"
+              type="text"
+              :placeholder="`${t('formDemo.enterShortDescription')}`"
+            />
+          </div>
+        </template>
+
+        <template #type>
+          <div class="flex items-center w-[100%] gap-4">
+            <label class="w-[16%] text-right">{{ t('reuse.type') }}</label>
+            <div class="w-[80%] bg-transparent flex items-center gap-4">
+              <input
+                type="text"
+                class="border-1 w-[80%] outline-none rounded bg-transparent pl-2"
+                :placeholder="`${t('router.buyPointsPackage')}`"
+              />
+              <el-button
+                @click="openChangeComboDialog = true"
+                :icon="plusIcon"
+                style="padding: 8px 34px"
+                >{{ t('formDemo.change') }}</el-button
+              >
+            </div>
+          </div>
+        </template>
+      </Form>
     </div>
-    <div class="flex justify-center">
-      <ElButton class="min-w-42" type="primary"> {{ t('reuse.saveAndPending') }} </ElButton>
-      <ElButton class="min-w-42"> {{ t('reuse.cancel') }} </ElButton>
+    <div class="w-[50%]">
+      <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+        <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
+      </div>
+      <div class="flex">
+        <div class="pl-4">
+          <el-upload
+            :icon="plusIcon"
+            action="#"
+            list-type="picture-card"
+            :auto-upload="false"
+            :limit="1"
+            class="relative"
+          >
+            <ElButton :icon="plusIcon" />
+            <template #file="{ file }">
+              <div>
+                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                <span class="el-upload-list__item-actions">
+                  <span
+                    class="el-upload-list__item-preview"
+                    @click="handlePictureCardPreview(file)"
+                  >
+                    <ElButton :icon="viewIcon" />
+                  </span>
+                  <span
+                    v-if="!disabled"
+                    class="el-upload-list__item-delete"
+                    @click="handleRemove(file)"
+                  >
+                    <ElButton :icon="deleteIcon" />
+                  </span>
+                </span>
+              </div>
+            </template>
+          </el-upload>
+          <el-dialog width="80%" v-model="dialogVisible">
+            <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+          </el-dialog>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="flex w-[100%] gap-6">
+    <div class="w-[50%] pl-2">
+      <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
+      <div class="mb-2 flex items-center text-sm">
+        <el-radio-group v-model="radio1" class="ml-4">
+          <el-radio label="1" size="large">
+            <div class="text-[#303133] font-normal dark:text-white">{{
+              t('reuse.allCustomer')
+            }}</div></el-radio
+          >
+          <el-radio label="2" size="large"
+            ><div class="text-[#303133] font-normal dark:text-white">{{
+              t('formDemo.chooseCustomerDetail')
+            }}</div></el-radio
+          >
+        </el-radio-group>
+      </div>
+      <el-table
+        :data="ListOfProductsForSale"
+        border
+        :class="[
+          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+        ]"
+      >
+        <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
+          <template #default="props">
+            <MultipleOptionsBox
+              :fields="[
+                t('reuse.customerCode'),
+                t('reuse.phoneNumber'),
+                t('formDemo.customerName')
+              ]"
+              filterable
+              :items="listProductsTable"
+              :valueKey="'name'"
+              :labelKey="'id'"
+              :hiddenKey="['id']"
+              :placeHolder="'Chọn mã sản phẩm'"
+              :clearable="false"
+              @change="(option) => changeName(option, props)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
+        <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
+          <template #default="scope">
+            <button
+              @click.prevent="removeListProductsSale(scope.$index)"
+              class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
+              >Xóa</button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="w-[50%]"> </div>
+  </div>
+  <div class="flex w-[100%] gap-6">
+    <div class="w-[50%] pl-2">
+      <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
+      <div class="flex gap-4 items-center pt-4 pb-6">
+        <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
+        <span class="border-1 bg-[#FD9800] text-light-50 pl-2 pr-22 dark:border-transparent">{{
+          t('formDemo.pending')
+        }}</span>
+      </div>
+      <div class="flex gap-4 items-center h-12">
+        <span class="w-[16%]"></span>
+        <div v-if="checkButton">
+          <el-button
+            class="min-w-[142px]"
+            @click.prevent="checkButton = !checkButton"
+            type="primary"
+            size="large"
+            >{{ t('button.saveAndWaitApproval') }}</el-button
+          >
+          <el-button class="min-w-[142px]" size="large">{{ t('button.cancel') }}</el-button>
+        </div>
+        <div v-else>
+          <el-button
+            class="min-w-[142px]"
+            size="large"
+            @click.prevent="checkButton = !checkButton"
+            >{{ t('button.edit') }}</el-button
+          >
+          <el-button class="min-w-[142px]" size="large" type="danger">{{
+            t('button.cancelVoucher')
+          }}</el-button>
+        </div>
+      </div>
+    </div>
+    <div class="w-[50%]"></div>
+  </div>
+
+  <!-- Dialog change combo -->
+  <el-dialog
+    v-model="openChangeComboDialog"
+    :title="t('formDemo.inventoryInformation')"
+    width="35%"
+    align-center
+    class="z-50"
+  >
+    <el-divider />
+    <el-table :data="tableChangeCombo" border>
+      <el-table-column prop="radioComboTable" width="90" align="center">
+        <template #default="props">
+          <el-radio-group v-model="radioCondition" class="ml-4">
+            <el-radio :label="props.row.radioComboTable" size="large" />
+          </el-radio-group>
+        </template>
+      </el-table-column>
+      <el-table-column prop="condition" :label="t('formDemo.condition')" width="360" />
+      <el-table-column prop="enterCondition" :label="t('formDemo.enterCondition')" />
+    </el-table>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button class="w-[150px]" type="primary" @click="openChangeComboDialog = false"
+          >{{ t('reuse.save') }}
+        </el-button>
+        <el-button class="w-[150px]" @click="openChangeComboDialog = false">{{
+          t('reuse.exit')
+        }}</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
-::v-deep(.el-select) {
-  width: 100%;
+::v-deep(.el-divider__text.is-left) {
+  font-size: 16px !important;
 }
 
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
+::v-deep(.el-radio.el-radio--large .el-radio__label) {
+  color: transparent;
 }
 
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
+.fix-padding {
+  padding: 0;
 }
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: block;
-}
-
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.cell) {
-  color: #303133;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-
-.el-button--text {
-  margin-right: 15px;
-}
-
-::v-deep(.el-input) {
-  width: auto;
-}
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
-::v-deep(.el-table th.el-table__cell) {
-  padding: 0 !important;
-}
-
-::v-deep(.el-input) {
-  width: 100%;
-}
-
-.example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-dropdown-menu__item) {
-  padding: 5px 30px;
-}
-
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.input-width > .el-select .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-select .el-input) {
-  width: 100% !important;
-}
+/* ::v-deep(.el-select-dropdown__item) {
+    padding: 0 !important;
+  } */
 </style>

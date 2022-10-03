@@ -452,6 +452,7 @@ export default {
     employeeRatings: 'Xếp hạng nhân viên',
     accumulatePoints: 'Tích điểm',
     packageAccumulatePointsCode: 'Mã gói tích điểm',
+    buyPointsPackage: 'Mua gói tích điểm',
     customerPoints: 'Tích điểm khách hàng',
     installPoints: 'Cài đặt tích điểm',
     totalRechargePoints: 'Tổng nạp điểm',
@@ -1286,6 +1287,8 @@ export default {
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
-    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
+    Points: 'Số điểm',
+    exchangedMoney: 'Số tiền quy đổi'
   }
 }

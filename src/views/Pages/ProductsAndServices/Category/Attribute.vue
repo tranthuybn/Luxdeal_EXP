@@ -23,35 +23,40 @@ const tabs: Array<Tab> = [
     label: t('reuse.color'),
     api: getCategories,
     column: colorCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addNewCharacteristicColor'
   },
   {
     name: PRODUCTS_AND_SERVICES[2].key,
     label: t('reuse.size'),
     api: getCategories,
     column: sizeCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addNewCharacteristicSize'
   },
   {
     name: PRODUCTS_AND_SERVICES[3].key,
     label: t('reuse.material'),
     api: getCategories,
     column: materialCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addNewCharacteristicMaterial'
   },
   {
     name: PRODUCTS_AND_SERVICES[4].key,
     label: t('reuse.status'),
     api: getCategories,
     column: statusCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addNewCharacteristicStatus'
   },
   {
     name: PRODUCTS_AND_SERVICES[5].key,
     label: t('reuse.gender'),
     api: getCategories,
     column: genderCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addNewCharacteristicGender'
   }
 ]
 
@@ -62,9 +67,4 @@ const changeParam = (val = '') => {
   })
 }
 </script>
-<template>
-  <productCategoryTable
-    :titleAdd="'reuse.addNewCharacteristic'"
-    :tabs="tabs"
-    @tab-change-event="changeParam"
-/></template>
+<template> <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" /> </template>

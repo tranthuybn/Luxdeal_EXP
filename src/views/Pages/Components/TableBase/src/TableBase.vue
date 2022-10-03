@@ -312,6 +312,7 @@ const updateTableColumn = () => {
       :expand="expand"
       v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage"
+      row-key="id"
       :data="tableObject.tableList"
       :loading="tableObject.loading"
       :pagination="paginationObj"
@@ -331,26 +332,38 @@ const updateTableColumn = () => {
       <template #imgTitle="data">
         <div class="imageTitle" style="display: flex; align-items: center">
           <div style="padding-right: 20px">
-            <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.imageurl" />
+            <el-image
+              fit="contain"
+              style="width: 130px; height: 130px"
+              :src="API_URL + data.row.imageurl"
+            />
           </div>
           <div>{{ data.row.name }}</div>
         </div>
       </template>
       <template #image="data">
         <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.image" />
+          <el-image
+            fit="contain"
+            style="width: 130px; height: 130px"
+            :src="API_URL + data.row.image"
+          />
         </div>
       </template>
       <template #imageList="data">
         <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.photos[0]?.path" />
+          <el-image
+            fit="contain"
+            style="width: 130px; height: 130px"
+            :src="API_URL + data.row.photos[0]?.path"
+          />
         </div>
       </template>
       <template #imageProduct="data">
         <div>
           <el-image
             fit="contain"
-            style="width: 130px"
+            style="width: 130px; height: 130px"
             :src="API_URL + data.row.productImages[0]?.path"
           />
         </div>

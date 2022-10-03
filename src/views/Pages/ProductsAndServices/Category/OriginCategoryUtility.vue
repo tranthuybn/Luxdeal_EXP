@@ -246,6 +246,7 @@ type FormDataPost = {
   isHide: boolean
   isActive: boolean
   index: number
+  imageurl?: string
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
@@ -253,6 +254,7 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
+  customData.imageurl = data.imageurl.slice(32)
   customData.Image = data.Image
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)

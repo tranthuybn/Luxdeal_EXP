@@ -30,20 +30,24 @@ const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api lấy danh sách dữ liệu của bảng '
   },
   delApi: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api xóa dữ liệu trong bảng'
   },
   fullColumns: {
     type: Array as PropType<TableColumn[]>,
-    default: () => []
+    default: () => [],
+    description: 'Các cột trong bảng'
   },
   selection: { type: Boolean, default: true },
   maxHeight: {
     type: String || Number,
-    default: '69vh'
+    default: '69vh',
+    description: 'Chiều cao của bảng danh sách'
   },
   customOperator: {
     type: Number,
@@ -52,7 +56,7 @@ const props = defineProps({
       // The value must match one of these strings
       return [1, 2, 3].includes(value)
     },
-    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
+    descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
   },
   paginationType: {
     type: Boolean,
@@ -64,7 +68,8 @@ const props = defineProps({
   },
   removeDrawer: {
     type: Boolean,
-    default: false
+    default: false,
+    Description: 'Bỏ lọc cột '
   },
   titleButtons: {
     type: String,
@@ -72,7 +77,8 @@ const props = defineProps({
   },
   deleteTitle: {
     type: String,
-    default: 'Warning'
+    default: 'Warning',
+    description: 'Tiêu đề thông báo khi ấn nút xóa'
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -401,8 +407,8 @@ const updateTableColumn = () => {
           </ElButton>
           <ElButton type="danger" @click="action(row, 'delete')">
             {{ t('reuse.delete') }}
-          </ElButton></div
-        >
+          </ElButton>
+        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />

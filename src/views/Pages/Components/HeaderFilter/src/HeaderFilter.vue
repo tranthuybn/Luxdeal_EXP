@@ -210,6 +210,7 @@ const formRef = ref<FormInstance>()
               class="w-full"
               v-model="validateHeaderInput.searchingKey"
               :placeholder="t('reuse.enterKeyWords')"
+              @keydown.enter.prevent="getDataEvent"
             />
           </ElFormItem>
         </ElForm>

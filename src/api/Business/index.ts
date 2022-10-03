@@ -14,7 +14,7 @@ export const getPotentialCustomerList = async (params: any): Promise<IResponse> 
   return res.data && res.data.data
 }
 
-export const getPotentialCustomerListById = async (params: any): Promise<IResponse> => {
+export const getPotentialCustomerById = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`

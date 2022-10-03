@@ -99,6 +99,24 @@ export default {
     code: 'Verification code',
     codePlaceholder: 'Please input verification code'
   },
+  customerList: {
+    rankingList: 'Ranking list',
+    ratingSettings: 'Rating settings',
+    monthlyRevenue: 'Monthly revenue',
+    quarterlySales: 'Quarterly sales',
+    salesYear: 'sales by year',
+    rankMonth: 'Rank by month',
+    quarterlyRanking: 'Quarterly ranking',
+    rankingYear: 'Ranking by year',
+    rankName: 'Rank name',
+    picture: 'Picture',
+    ratings: 'Ratings',
+    sales: 'Sales',
+    creator: 'Creator',
+    addNewRatings: 'Add new ratings',
+    ratingInformation: 'Rating information',
+    enterSales: 'Enter sales'
+  },
   formDemo: {
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
@@ -327,7 +345,10 @@ export default {
     supplyAddress: 'Suplly address',
     enterCCCD: 'Enter number...',
     address: 'Address',
-    codeQR: 'QR code'
+    codeQR: 'QR code',
+    completeEntryTrackingSheet: 'Complete entry tracking sheet',
+    chooseCustomer: 'Choose customer',
+    enterDetailAddress: 'Enter detailed address'
   },
   button: {
     add: 'Add quick',
@@ -335,7 +356,8 @@ export default {
     cancel: 'Cancel',
     edit: 'Edit',
     cancelVoucher: 'Cancel voucher',
-    cancelResult: 'Cancel result'
+    cancelResult: 'Cancel result',
+    cancelOrder: 'Cancel order'
   },
   router: {
     login: 'Login',
@@ -1195,6 +1217,12 @@ export default {
     taxCode: 'Tax code',
     addActions: 'Add Action',
     orderSaleAsignrequired: 'Please input order sale asign',
+    comboDetail: 'Combo detail',
+    auctionDetail: 'Auction detail',
+    voucherDetail: 'Voucher detail',
+    newProductDetail: 'New product detail',
+    collectionDetail: 'Collection detail',
+    flashSaleDetail: 'Flash sale detail',
     //image
     onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
     notSpaceBeforeAndAfter: 'Not space before and after value',

@@ -1,4 +1,6 @@
+import { h } from 'vue'
 import { isServer } from './is'
+import { API_URL } from '@/utils/API_URL'
 const ieVersion = isServer ? 0 : Number((document as any).documentMode)
 const SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g
 const MOZ_HACK_REGEXP = /^moz([A-Z])/
@@ -287,3 +289,14 @@ export const isInContainer = (el: Element, container: any) => {
     elRect.left < containerRect.right
   )
 }
+import { ElImage, ElEmpty } from 'element-plus'
+export const setImageDisplayInDOm = (
+  record: Recordable,
+  column: TableColumn,
+  cellValue: TableSlotDefault
+) =>
+  h('div', [
+    cellValue
+      ? h(ElImage, { src: API_URL + cellValue, style: 'width: 120px', fit: 'contain' })
+      : h(ElEmpty, { style: 'width: 20%' })
+  ])

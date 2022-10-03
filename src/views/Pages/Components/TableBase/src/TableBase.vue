@@ -5,7 +5,6 @@ import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { TableResponse } from '../../Type'
 import {
-  ElImage,
   ElButton,
   ElDrawer,
   ElCheckboxGroup,
@@ -21,7 +20,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
-import { API_URL } from '@/utils/API_URL'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -334,33 +332,6 @@ const updateTableColumn = () => {
       @update:page-size="handleSizeChange"
       @update:current-page="handleCurrentChange"
     >
-      <template #imgTitle="data">
-        <div class="imageTitle" style="display: flex; align-items: center">
-          <div style="padding-right: 20px">
-            <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.imageurl" />
-          </div>
-          <div>{{ data.row.name }}</div>
-        </div>
-      </template>
-      <template #image="data">
-        <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.image" />
-        </div>
-      </template>
-      <template #imageList="data">
-        <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.photos[0]?.path" />
-        </div>
-      </template>
-      <template #imageProduct="data">
-        <div>
-          <el-image
-            fit="contain"
-            style="width: 130px"
-            :src="API_URL + data.row.productImages[0]?.path"
-          />
-        </div>
-      </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]

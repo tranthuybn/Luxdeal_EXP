@@ -185,7 +185,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('data raw', data)
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
     .then(() =>
       ElNotification({
@@ -254,7 +253,7 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
-  customData.imageurl = data.imageurl.slice(32)
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
@@ -262,6 +261,7 @@ const customPostData = (data) => {
   return customData
 }
 const editData = async (data) => {
+  console.log(data)
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
     .then(() =>

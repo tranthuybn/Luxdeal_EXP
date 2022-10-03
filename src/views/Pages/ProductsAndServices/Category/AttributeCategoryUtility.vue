@@ -253,7 +253,7 @@ type FormDataPost = {
   Id: number
   Name: string
   code?: string
-  Image?: string
+  Image?: any
   TypeName: string
   ParentId: number
   CreatedBy: string
@@ -268,7 +268,7 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
-  customData.imageurl = data.imageurl.slice(32)
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)

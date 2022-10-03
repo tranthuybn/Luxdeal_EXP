@@ -571,7 +571,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/CustomerVirtualWallet',
             meta: {
               title: 'router.customervirtualWallet'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Business/VirtualWallet/VirtualWalletUtility',
+                name: `business.virtual-wallet.customer.${utility}`,
+                meta: {
+                  title: 'reuse.VirtualWalletUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'with-drewal-request',

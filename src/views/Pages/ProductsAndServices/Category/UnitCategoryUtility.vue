@@ -206,7 +206,6 @@ const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -244,7 +243,7 @@ const customPostData = (data) => {
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
   customData.Image = data.Image
-  customData.imageurl = data.imageurl.slice(32)
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
@@ -252,7 +251,6 @@ const customPostData = (data) => {
 }
 const editData = async (data) => {
   data = customPostData(data)
-
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({

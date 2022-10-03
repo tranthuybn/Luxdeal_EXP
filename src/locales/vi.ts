@@ -327,7 +327,11 @@ export default {
     comboGetFree: 'Combo nhận miễn phí',
 
     enterCondition: 'Nhập điều kiện',
-    auctionCode: 'Mã đấu giá'
+    auctionCode: 'Mã đấu giá',
+    supplyDate: 'Ngày cấp',
+    supplyAddress: 'Nơi cấp',
+    enterCCCD: 'Nhập số CCCD/cmnd',
+    codeQR: 'Mã QR code'
   },
   button: {
     add: 'Thêm nhanh',
@@ -766,6 +770,7 @@ export default {
     employeeCode: 'Mã nhân viên',
     employeeName: 'Tên nhân viên',
     dateOfBirth: 'Ngày sinh',
+    dateOfBirthAnGender: 'Ngày sinh/giới tính',
     branch: 'Chi nhánh',
     department: 'Phòng ban',
     rank: 'Cấp bậc',

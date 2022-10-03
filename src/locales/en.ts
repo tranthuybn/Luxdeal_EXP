@@ -322,7 +322,12 @@ export default {
     auctionHistoryResults: 'Auction history and results',
     highestBid: 'Highest bid',
     paymentTime: 'Payment time',
-    permissionPurchase: 'Permission to purchase'
+    permissionPurchase: 'Permission to purchase',
+    supplyDate: 'Supply date',
+    supplyAddress: 'Suplly address',
+    enterCCCD: 'Enter number...',
+    address: 'Address',
+    codeQR: 'QR code'
   },
   button: {
     add: 'Add quick',
@@ -600,6 +605,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    accountBank: 'Account bank',
     index: 'Index',
     fix: 'Fix',
     receivedDate: 'Received Date',
@@ -793,6 +799,7 @@ export default {
     remainingPoints: 'Remaining point',
     employeeName: 'Employee Name',
     employeeCode: 'Employee Code',
+    dateOfBirthAnGender: 'Date of birth/gender',
     dateOfBirth: 'Date of birth',
     branch: 'Branch',
     department: 'Department',

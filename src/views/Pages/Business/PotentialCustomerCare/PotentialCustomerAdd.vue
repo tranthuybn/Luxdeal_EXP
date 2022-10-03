@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { TableOperator } from '../../Components/TableBase'
 import { getBranchList } from '@/api/HumanResourceManagement'
 import {
@@ -10,13 +9,11 @@ import {
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { isNumber } from '@/utils/is'
 import { useValidator } from '@/hooks/web/useValidator'
 import { onBeforeMount, onBeforeUpdate, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import moment from 'moment'
-// import { onlineToText } from '@/utils/format'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -104,18 +101,16 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = (data) => {
-  const cumtomerHistory: Array<any> = []
+  const customerHistory: Array<any> = []
   if (tableData.value.length > 0) {
     tableData.value.forEach((element) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
-          cumtomerHistory.push({
+          customerHistory.push({
             id: element.sale,
             staffId: 0,
-            content: ChildEl.customerCareContent,
-            percentageOfSales: isNumber(element.oderSalesAssign)
-              ? element.oderSalesAssign
-              : parseInt(element.oderSalesAssign)
+            content: ChildEl?.customerCareContent ?? '',
+            percentageOfSales: element.oderSalesAssign
           })
         })
     })
@@ -138,7 +133,7 @@ const postData = (data) => {
     orderId: 1,
     statusId: 1,
     total: 1,
-    potentialCustomerHistorys: cumtomerHistory
+    potentialCustomerHistorys: customerHistory
   }
 
   addNewPotentialCustomer(payload)
@@ -179,7 +174,6 @@ const handleItemEdit = (child, scope) => {
     : (scope.row.lastContent = child.row.customerCareContent)
   isLastDate ? (scope.row.date = lastChildDate.value) : (scope.row.date = child.row.date)
 }
-
 const addActions = (props) => {
   const newObj: tableChildren = {
     date: '',
@@ -187,7 +181,8 @@ const addActions = (props) => {
     customerCareContent: '',
     editedChild: true
   }
-  tableData.value[props].family.push(newObj)
+  const temp: tableChildren[] = tableData.value[props].family ?? []
+  temp.push(newObj)
 }
 const handleDelete = (payload) => {
   tableData.value.splice(payload, 1)
@@ -746,7 +741,6 @@ const editData = async (data) => {
 }
 </script>
 <template>
-  <!-- <CollapseBase :collapse="collapse" :default="'information'" @post-data="postData" /> -->
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item name="collapse[0].name">

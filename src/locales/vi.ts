@@ -128,13 +128,17 @@ export default {
     orderInformation: 'Thông tin đơn hàng',
     generalInformation: 'Thông tin chung',
     orderCode: 'Mã đơn hàng',
+    withdrawalRequestCode: 'Mã yêu cầu rút tiền',
     enterOrderCode: 'Nhập mã đơn hàng',
     collaborators: 'Cộng tác viên',
     profileCollaborator: 'Thông tin cộng tác viên',
     selectOrEnterTheCollaboratorCode: 'Chọn hoặc nhập mã cộng tác viên',
     CollaboratorCode: 'Mã cộng tác viên',
+    intoDiscountComMoney: 'Thành tiền com chiết khấu',
+    cumulativeCom: 'Cộng dồn Com',
     enterDiscount: 'Nhập chiết khấu',
     discountCollaborator: 'Triết khấu CTV',
+    discount: 'Triết khấu',
     enterCommissionCalculatedOnOrderSales: 'Nhập hoa hồng tính trên doanh số đơn hàng',
     orderNotes: 'Ghi chú đơn hàng',
     addNotes: 'Thêm ghi chú',
@@ -442,6 +446,8 @@ export default {
     employeeList: 'Danh sách nhân viên',
     employeeRatings: 'Xếp hạng nhân viên',
     accumulatePoints: 'Tích điểm',
+    packageAccumulatePointsCode: 'Mã gói tích điểm',
+    buyPointsPackage: 'Mua gói tích điểm',
     customerPoints: 'Tích điểm khách hàng',
     installPoints: 'Cài đặt tích điểm',
     totalRechargePoints: 'Tổng nạp điểm',
@@ -710,7 +716,7 @@ export default {
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
     stockCard: 'Thẻ kho',
-    warningDate: 'Ngày bắt đầu không thể bé hơn ngày kết thúc',
+    warningDate: 'Ngày bắt đầu không thể lớn hơn ngày kết thúc',
     categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
     position: 'Vị trí',
     color: 'Màu săc',
@@ -1119,6 +1125,7 @@ export default {
     newData: 'Dữ liệu mới',
     lastContent: 'Nội dung cuối',
     orderSalesAssign: 'Gán doanh số đơn hàng',
+    orderSales: 'Doanh số đơn hàng',
     customerCareContent: 'Nội dung chăm sóc khách hàng',
     saleHistoryCustomerCare: 'Sale & lịch sử chăm sóc khách hàng',
     addSale: 'Thêm mới sale',
@@ -1277,6 +1284,13 @@ export default {
     ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
     //seo
     enterTitle: 'Nhập tiêu đề',
-    enterLink: 'Nhập link'
+    enterLink: 'Nhập link',
+    //virtual wallet
+    depositAndUsageMethod: 'Phương thức nạp & sử dụng tiền',
+    moneyDeposit: 'Số tiền nạp',
+    moneyUsed: 'Số tiền sử dụng',
+    statusPoint: 'Trạng thái điểm',
+    Points: 'Số điểm',
+    exchangedMoney: 'Số tiền quy đổi'
   }
 }

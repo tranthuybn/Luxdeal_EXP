@@ -91,6 +91,11 @@ const props = defineProps({
   formDataCustomize: {
     type: Object,
     default: () => {}
+  },
+  // remove the button at the end of the component
+  removeButton: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -451,7 +456,7 @@ const listType = ref<ListImages>('text')
         </el-dialog>
       </ElCol>
     </ElRow>
-    <template #under>
+    <template #under v-if="!removeButton">
       <div v-if="props.type === 'add' || isNaN(props.id)">
         <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}

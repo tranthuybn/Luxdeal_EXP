@@ -3,6 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
+import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
 import { getAllCustomer } from '@/api/Business'
 import { Form } from '@/components/Form'
@@ -14,8 +15,6 @@ import {
   ElOption,
   ElButton,
   ElDivider,
-  ElTable,
-  ElTableColumn,
   ElInput,
   ElCheckbox
 } from 'element-plus'
@@ -32,6 +31,47 @@ const collapse: Array<Collapse> = [
     icon: plusIcon,
     name: 'information',
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
+  }
+]
+const tableColumn = [
+  {
+    field: 'date',
+    label: t('reuse.date'),
+    minWidth: '150'
+  },
+  {
+    field: 'code',
+    label: t('reuse.orderCode') + '/' + t('formDemo.withdrawalRequestCode'),
+    minWidth: '350'
+  },
+  {
+    field: 'discount',
+    label: '%' + t('formDemo.discount'),
+    minWidth: '150'
+  },
+  {
+    field: 'orderSales',
+    label: t('reuse.orderSales'),
+    minWidth: '150',
+    align: 'right'
+  },
+  {
+    field: 'intoDiscountComMoney',
+    label: t('formDemo.intoDiscountComMoney'),
+    minWidth: '150',
+    align: 'center'
+  },
+  {
+    field: 'spent',
+    label: t('formDemo.spent'),
+    minWidth: '150',
+    align: 'center'
+  },
+  {
+    field: 'cumulativeCom',
+    label: t('formDemo.cumulativeCom'),
+    minWidth: '150',
+    align: 'center'
   }
 ]
 const { register } = useForm()
@@ -331,6 +371,23 @@ const activeName = ref('1')
           <ElButton class="min-w-42" type="primary"> {{ t('reuse.saveAndPending') }} </ElButton>
           <ElButton class="min-w-42"> {{ t('reuse.cancel') }} </ElButton>
         </div>
+      </el-collapse-item>
+      <el-collapse-item name="2">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[1].icon" link />
+          <span class="text-center text-xl">{{ collapse[1].title }}</span>
+        </template>
+        <TableBase
+          :removeDrawer="false"
+          :expand="false"
+          :customOperator="1"
+          :paginationType="false"
+          ref="tableBase01"
+          :api="''"
+          :maxHeight="'69vh'"
+          :fullColumns="tableColumn"
+          :selection="false"
+        />
       </el-collapse-item>
     </el-collapse>
   </div>

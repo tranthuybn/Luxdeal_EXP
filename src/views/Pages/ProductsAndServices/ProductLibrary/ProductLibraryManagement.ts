@@ -14,17 +14,8 @@ import {
 } from '@/utils/format'
 import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
-//const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-// const seeDetail = (...param) => {
-//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-//     ? unref(tableBase01)?.tableObject.tableList
-//     : []
-//   if (array && array.length > 0) {
-//     array.forEach((el) => {
-//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-//     })
-//   }
-// }
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -112,7 +103,9 @@ export const businessProductLibrary = [
     field: 'imageProduct',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue)
   },
   {
     field: 'businessManagement',

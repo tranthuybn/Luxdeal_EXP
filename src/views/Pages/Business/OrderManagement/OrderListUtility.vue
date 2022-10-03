@@ -226,7 +226,6 @@ interface ListOfProductsForSaleType {
   unitPrice: string
   intoMoney: string
   paymentType: string
-  alreadyPaidForTt: string
   edited: boolean
 }
 
@@ -242,7 +241,6 @@ const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
     unitPrice: 'đ',
     intoMoney: 'đ',
     paymentType: '',
-    alreadyPaidForTt: '',
     edited: true
   }
 ])
@@ -371,6 +369,7 @@ interface tableDataType {
   salesDebt: string
   edited: boolean
   paymentType: string
+  alreadyPaidForTt: boolean
 }
 const debtTable = ref<Array<tableDataType>>([
   {
@@ -381,7 +380,8 @@ const debtTable = ref<Array<tableDataType>>([
     spent: '',
     salesDebt: '',
     edited: true,
-    paymentType: ''
+    paymentType: '',
+    alreadyPaidForTt: false
   }
 ])
 
@@ -394,7 +394,8 @@ const onAddDebtTableItem = () => {
     spent: '',
     salesDebt: '',
     edited: true,
-    paymentType: ''
+    paymentType: '',
+    alreadyPaidForTt: false
   })
 }
 
@@ -405,6 +406,7 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
+
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 const customersValue = ref('')
@@ -516,9 +518,10 @@ let optionCallPromoAPi = 0
 const callPromoApi = async () => {
   if (optionCallPromoAPi == 0) {
     const res = await getPromotionsList('')
+    let count = 0
     listPromotions.value = res.data
     optionPromotions.value = listPromotions.value.map((product) => ({
-      radio: '',
+      radio: count++,
       label: product.code,
       value: product.name,
       name: product.description,
@@ -532,7 +535,7 @@ const callPromoApi = async () => {
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
-const valueClassify = ref('company')
+const valueClassify = ref('individual')
 const optionsClassify = [
   {
     value: 'company',
@@ -565,10 +568,11 @@ const addLastIndexSellTable = () => {
     unitPrice: 'đ',
     intoMoney: 'đ',
     paymentType: '',
-    alreadyPaidForTt: '',
     edited: true
   })
 }
+
+const initialRadio = ref(false)
 
 //add row to the end of table if fill all table
 watch(
@@ -593,11 +597,17 @@ const removeListProductsSale = (index) => {
     ListOfProductsForSale.splice(index, 1)
   }
 }
+
+const inputCode = ref('DHB039423')
+
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
 })
+
+// const res = callDatabyId({ id: id })
+// setValues(res.data)
 </script>
 
 <template>
@@ -621,13 +631,14 @@ onBeforeMount(() => {
               label-position="top"
               hide-required-asterisk
               size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-transparent"
               @register="register"
             >
               <template #orderCode>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
+                  <label class="w-[16%] text-right">{{ t('formDemo.orderCode') }}</label>
                   <input
+                    v-model="inputCode"
                     class="w-[80%] border-1 w-[100%] outline-none pl-2 bg-transparent"
                     type="text"
                     :placeholder="`${t('formDemo.orderCode')}`"
@@ -674,14 +685,6 @@ onBeforeMount(() => {
                   />
                 </div>
               </template>
-
-              <template #debt>
-                <div class="flex items-center w-[100%]">
-                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
-                    <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
-                  </div>
-                </div>
-              </template>
             </Form>
           </div>
           <div class="w-[50%]">
@@ -726,11 +729,10 @@ onBeforeMount(() => {
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}
-                    </div>
-                  </el-dialog>
+                  <el-dialog v-model="dialogVisible" class="relative" />
+                  <div class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}
+                  </div>
                 </el-upload>
               </div>
             </div>
@@ -756,11 +758,11 @@ onBeforeMount(() => {
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4 items-center">
                       <div class="w-[18%] max-w-[139.67px] text-right leading-5">
-                        <label>{{ t('formDemo.customerName') }}</label>
+                        <label>{{ t('formDemo.chooseCustomer') }}</label>
                         <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                       </div>
                       <div class="flex items-center w-[80%] max-w-[698.39px] gap-4">
-                        <div class="flex w-[80%] gap-2 bg-transparent">
+                        <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
                             v-model="customersValue"
                             filterable
@@ -775,10 +777,10 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
+                          <el-button @click="dialogAddQuick = true"
+                            >+ {{ t('button.add') }}</el-button
+                          >
                         </div>
-                        <el-button @click="dialogAddQuick = true"
-                          >+ {{ t('button.add') }}</el-button
-                        >
                       </div>
 
                       <el-dialog
@@ -791,9 +793,10 @@ onBeforeMount(() => {
                           <el-divider />
                           <div>
                             <div class="flex gap-4 pt-4 pb-4 items-center">
-                              <label class="w-[30%] text-right max-w-[162.73px]">{{
-                                t('formDemo.classify')
-                              }}</label>
+                              <label class="w-[30%] text-right max-w-[162.73px]"
+                                >{{ t('formDemo.classify') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
                                   <el-select
@@ -826,16 +829,20 @@ onBeforeMount(() => {
                               </div>
                             </div>
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{
-                                t('formDemo.companyName')
-                              }}</label>
+                              <label class="w-[30%] text-right"
+                                >{{ t('formDemo.companyName') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <el-input
                                 style="width: 100%"
                                 :placeholder="`${t('formDemo.enterCompanyName')}`"
                               />
                             </div>
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                              <label class="w-[30%] text-right"
+                                >{{ t('formDemo.taxCode') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <el-input
                                 style="width: 100%"
                                 :placeholder="`${t('formDemo.enterTaxCode')}`"
@@ -851,19 +858,20 @@ onBeforeMount(() => {
                               />
                             </div>
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                              <label class="w-[30%] text-right"
+                                >{{ t('reuse.phoneNumber') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <el-input
                                 style="width: 100%"
-                                :placeholder="`${t('formDemo.enterTaxCode')}`"
+                                :placeholder="`${t('formDemo.enterPhoneNumber')}`"
                               />
                             </div>
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{
-                                t('formDemo.representative')
-                              }}</label>
+                              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
                               <el-input
                                 style="width: 100%"
-                                :placeholder="`${t('formDemo.enterRepresentative')}`"
+                                :placeholder="`${t('formDemo.enterEmail')}`"
                               />
                             </div>
                           </div>
@@ -872,9 +880,10 @@ onBeforeMount(() => {
                           <el-divider />
                           <div>
                             <div class="flex gap-4 pt-4 pb-4 items-center">
-                              <label class="w-[30%] text-right max-w-[162.73px]">{{
-                                t('formDemo.classify')
-                              }}</label>
+                              <label class="w-[30%] text-right max-w-[162.73px]"
+                                >{{ t('formDemo.classify') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
                                   <el-select
@@ -908,15 +917,21 @@ onBeforeMount(() => {
                             </div>
 
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                              <label class="w-[30%] text-right"
+                                >{{ t('reuse.customerName') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <el-input
                                 style="width: 100%"
-                                :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                                :placeholder="`${t('formDemo.enterCustomerName')}`"
                               />
                             </div>
 
                             <div class="flex gap-4 pt-4 pb-4">
-                              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                              <label class="w-[30%] text-right"
+                                >{{ t('reuse.phoneNumber') }}
+                                <span class="text-red-500">*</span></label
+                              >
                               <el-input
                                 style="width: 100%"
                                 :placeholder="`${t('formDemo.enterPhoneNumber')}`"
@@ -1001,9 +1016,10 @@ onBeforeMount(() => {
                         <el-divider />
                         <div>
                           <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.provinceOrCity')
-                            }}</label>
+                            <label class="w-[25%] text-right"
+                              >{{ t('formDemo.provinceOrCity') }}
+                              <span class="text-red-500">*</span></label
+                            >
                             <el-select
                               v-model="valueProvince"
                               style="width: 96%"
@@ -1019,9 +1035,10 @@ onBeforeMount(() => {
                             </el-select>
                           </div>
                           <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.countyOrDistrict')
-                            }}</label>
+                            <label class="w-[25%] text-right"
+                              >{{ t('formDemo.countyOrDistrict') }}
+                              <span class="text-red-500">*</span></label
+                            >
                             <el-select
                               v-model="valueDistrict"
                               style="width: 96%"
@@ -1037,9 +1054,10 @@ onBeforeMount(() => {
                             </el-select>
                           </div>
                           <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.wardOrCommune')
-                            }}</label>
+                            <label class="w-[25%] text-right"
+                              >{{ t('formDemo.wardOrCommune') }}
+                              <span class="text-red-500">*</span></label
+                            >
                             <el-select
                               v-model="valueCommune"
                               style="width: 96%"
@@ -1055,14 +1073,15 @@ onBeforeMount(() => {
                             </el-select>
                           </div>
                           <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.detailedAddress')
-                            }}</label>
+                            <label class="w-[25%] text-right"
+                              >{{ t('formDemo.detailedAddress') }}
+                              <span class="text-red-500">*</span></label
+                            >
                             <el-input
                               v-model="enterdetailAddress"
                               class="m-2 fix-full-width"
                               style="width: 96%"
-                              placeholder="Please input"
+                              :placeholder="t('formDemo.enterDetailAddress')"
                             />
                           </div>
                         </div>
@@ -1086,7 +1105,7 @@ onBeforeMount(() => {
               </template>
               <template #companyInformation>
                 <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''">
-                  <label class="w-[16%] text-right">{{ t('formDemo.companyInformation') }}</label>
+                  <label class="w-[16%] text-right">{{ t('reuse.customerInfo') }}</label>
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div> Mã số thuế: {{ infoCompany.taxCode }}</div>
@@ -1165,10 +1184,10 @@ onBeforeMount(() => {
             <el-divider />
           </div>
           <el-table :data="promoTable" border :loading="promoLoading">
-            <el-table-column width="50" prop="value" label-class-name="noHeader" align="center">
-              <template #default="data">
-                <el-radio-group v-model="data.row.radio" class="ml-4">
-                  <el-radio label="1" size="large" />
+            <el-table-column prop="radio" width="90" align="center">
+              <template #default="props">
+                <el-radio-group v-model="initialRadio" class="ml-4 fix-label-color">
+                  <el-radio :label="props.row.radio" size="large" />
                 </el-radio-group>
               </template>
             </el-table-column>
@@ -1224,7 +1243,25 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="680" />
+          <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="680">
+            <!-- <template #default="props">
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.productCode'),
+                  t('reuse.managementCode'),
+                  t('formDemo.productInformation')
+                ]"
+                filterable
+                :items="listProductsTable"
+                :valueKey="'name'"
+                :labelKey="'id'"
+                :hiddenKey="['id']"
+                :placeHolder="'Chọn mã sản phẩm'"
+                :clearable="false"
+                @change="(option) => changeName(option, props)"
+              />
+            </template> -->
+          </el-table-column>
           <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <el-input
@@ -1278,16 +1315,7 @@ onBeforeMount(() => {
               </div>
             </div>
           </el-table-column>
-          <el-table-column
-            prop="alreadyPaidForTt"
-            :label="`${t('formDemo.alreadyPaidForTt')}`"
-            align="center"
-            min-width="90"
-          >
-            <template #default="scope">
-              <el-checkbox v-model="scope.row.alreadyPaidForTt" size="large" />
-            </template>
-          </el-table-column>
+
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
             <template #default="scope">
               <button
@@ -1375,7 +1403,6 @@ onBeforeMount(() => {
             <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </el-table-column>
-          <el-table-column align="center" min-width="90" />
           <el-table-column min-width="90" />
         </el-table>
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
@@ -1403,11 +1430,11 @@ onBeforeMount(() => {
           <el-table-column
             :label="`${t('formDemo.receiptOrPayment')}`"
             min-width="120"
-            align="right"
+            align="left"
           >
             <div class="text-blue-500">+{{ t('formDemo.receiptOrPayment') }}</div>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="right">
+          <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="left">
             <div class="text-blue-500">+{{ t('formDemo.paymentOrder') }}</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.collected')}`" align="left" min-width="150">
@@ -1454,6 +1481,16 @@ onBeforeMount(() => {
                   :value="item.value"
                 />
               </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="alreadyPaidForTt"
+            :label="`${t('formDemo.alreadyPaidForTt')}`"
+            align="center"
+            min-width="90"
+          >
+            <template #default="scope">
+              <el-checkbox v-model="scope.row.alreadyPaidForTt" size="large" />
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="90" align="center">
@@ -1503,7 +1540,9 @@ onBeforeMount(() => {
             <el-button type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.complete')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
+            <el-button type="danger" class="min-w-42 min-h-11">{{
+              t('button.cancelOrder')
+            }}</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -1513,7 +1552,9 @@ onBeforeMount(() => {
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
+          <el-divider content-position="left">{{
+            t('formDemo.completeEntryTrackingSheet')
+          }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
               <template #default="props">
@@ -1561,10 +1602,6 @@ onBeforeMount(() => {
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
               <template #default="scope">
                 <div class="flex gap-4 justify-center">
-                  <button class="border-1 bg-[#2C6DDA] pt-2 pb-2 pl-4 pr-4 text-[#fff]">
-                    Lưu
-                  </button>
-
                   <button
                     class="border-1 bg-[#F78F8F] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
                     @click.prevent="deleteRow(scope.$index)"
@@ -1679,5 +1716,13 @@ onBeforeMount(() => {
 
 ::v-deep(.el-button--large) {
   padding: 12px 18px;
+}
+
+.fix-label-color > .el-radio {
+  color: transparent;
+}
+
+::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
+  color: transparent;
 }
 </style>

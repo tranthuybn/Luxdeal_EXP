@@ -520,7 +520,7 @@ onBeforeMount(() => {
           </div>
           <div class="flex gap-4 items-center h-12">
             <span class="w-[16%]"></span>
-            <div v-if="checkButton">
+            <div v-if="!checkButton">
               <el-button
                 class="min-w-[142px]"
                 @click.prevent="

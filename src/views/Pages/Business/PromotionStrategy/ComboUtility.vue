@@ -445,9 +445,6 @@ onBeforeMount(() => {
                       <div class="flex-1 pl-5">{{ item.value }}</div>
                     </div>
                   </el-option>
-                  <div>
-                    <span class="block relative w-[100%] border-t-1"></span>
-                  </div>
                 </el-select>
               </template>
             </el-table-column>

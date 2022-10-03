@@ -99,6 +99,24 @@ export default {
     code: 'Mã xác nhận',
     codePlaceholder: 'vui lòng nhập mã xác nhận'
   },
+  customerList: {
+    rankingList: 'Danh sách xếp hạng',
+    ratingSettings: 'Cài đặt xếp hạng',
+    monthlyRevenue: 'Doanh số tháng',
+    quarterlySales: 'Doanh số quý',
+    salesYear: 'Doanh số theo năm',
+    rankMonth: 'Xếp hạng theo tháng',
+    quarterlyRanking: 'Xếp hạng theo quý',
+    rankingYear: 'Xếp hạng theo năm',
+    rankName: 'Tên hạng',
+    picture: 'Hình ảnh',
+    ratings: 'Xếp hạng',
+    sales: 'Doanh số',
+    creator: 'Người tạo',
+    addNewRatings: 'Thêm mới xếp hạng',
+    ratingInformation: 'Thông tin xếp hạng',
+    enterSales: 'Nhập doanh số'
+  },
   formDemo: {
     generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
@@ -189,7 +207,7 @@ export default {
     choosePromotion: 'Chọn khuyến mãi',
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
-    productImportHistory: 'Lịch sử nhập hàng',
+    productImportHistory: 'Lịch sử nhập hoàn',
     consignmentReturnHistoryForCustomers: 'Lịch sử hoàn trả lại hàng ký gửi cho khách hàng',
     orderReceiptsGoods: 'Đơn nhập hàng',
     brandName: 'Tên Thương hiệu',
@@ -201,7 +219,7 @@ export default {
     alreadyPaidForTt: 'Đã thanh toán',
     total: 'Tổng tiền',
     receivableOrPayable: 'Phải thu/phải chi',
-    invoiceForGoodsEnteringTheWarehouse: 'Phiếu nhập hàng vào kho',
+    invoiceForGoodsEnteringTheWarehouse: 'Phiếu nhập hoàn kho',
     productImportInvoice: 'Phiếu nhập hàng',
     invoice: 'Phiếu nhập kho',
     addNewRentalOrder: 'Thêm mới đơn hàng cho thuê',
@@ -236,9 +254,9 @@ export default {
     represent: 'Đại diện',
     changedUnitPriceIsWaitingForPriceApproval: 'Đơn giá đã thay đổi, đang chờ duyệt giá',
     add: 'Thêm',
-    provinceOrCity: 'Tỉnh/thành phố',
-    countyOrDistrict: 'Quận/huyện',
-    wardOrCommune: 'Phường/xã',
+    provinceOrCity: 'Tỉnh/Thành phố',
+    countyOrDistrict: 'Quận/Huyện',
+    wardOrCommune: 'Phường/Xã',
     detailedAddress: 'Địa chỉ chi tiết',
     QuicklyAddCustomers: 'Thêm khách hàng nhanh',
     companyName: 'Tên Công ty',
@@ -336,7 +354,10 @@ export default {
     auctionHistoryResults: 'Lịch sử & kết quả đấu giá',
     highestBid: 'Trả giá cao nhất',
     paymentTime: 'Thời gian trả giá',
-    permissionPurchase: 'Cho phép mua hàng'
+    permissionPurchase: 'Cho phép mua hàng',
+    completeEntryTrackingSheet: 'Bảng theo dõi nhập hoàn',
+    chooseCustomer: 'Chọn khách hàng',
+    enterDetailAddress: 'Nhập địa chỉ chi tiết'
   },
   button: {
     add: 'Thêm nhanh',
@@ -344,7 +365,8 @@ export default {
     cancel: 'Hủy',
     edit: 'Sửa',
     cancelVoucher: 'Hủy voucher',
-    cancelResult: 'Hủy kết quả'
+    cancelResult: 'Hủy kết quả',
+    cancelOrder: 'Hủy đơn hàng'
   },
   router: {
     login: 'Đăng nhập',
@@ -909,7 +931,7 @@ export default {
     rentedTimes: 'Số lần đã cho thuê',
     soldNumber: 'Số lượng đã bán',
     depositNumber: 'Số lượng ký gửi',
-    totalRentFeeByTerm: 'Tổng tiền phải thuê theo kỳ hạn',
+    totalRentFeeByTerm: 'Tổng tiền phí thuê theo kỳ hạn',
     totalDepositMoney: 'Tổng tiền cọc thuê',
     cleaning: 'Vệ sinh',
     steaming: 'Hấp nhiệt',
@@ -970,7 +992,7 @@ export default {
     nameAccount1: 'Tên tài khoản cấp 1',
     closeAccount: 'Đóng tài khoản',
     typeAccount: 'Loại tài khoản',
-    saveAndAdd: 'Lưu và thêm mới',
+    saveAndAdd: 'Lưu & thêm mới',
     saveAndPending: 'Lưu & chờ duyệt',
     //khoi tao moi San pham va dich vu
     addNewCategory: 'Thêm mới danh mục',
@@ -1277,6 +1299,12 @@ export default {
     addNewCharacteristic: 'Thêm mới đặc tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
-    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng'
+    ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
+    comboDetail: 'Thông tin combo',
+    auctionDetail: 'Thông tin đấu giá',
+    voucherDetail: 'Thông tin voucher',
+    newProductDetail: 'Thông tin hàng mới về',
+    collectionDetail: 'Thông tin bộ sưu tập',
+    flashSaleDetail: 'Thông tin flash sale'
   }
 }

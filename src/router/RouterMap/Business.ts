@@ -232,8 +232,7 @@ export default {
                 title: 'reuse.auction-title',
                 noTagsView: true,
                 noCache: true,
-                hidden: true,
-                showMainRoute: true
+                hidden: true
               }
             }
           ]

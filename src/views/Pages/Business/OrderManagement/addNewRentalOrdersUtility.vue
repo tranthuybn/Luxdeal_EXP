@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onBeforeMount, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -26,6 +26,14 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
+import {
+  getCollaboratorsInOrderList,
+  getAllCustomer,
+  getPromotionsList,
+  getProductsList
+} from '@/api/Business'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+
 const { t } = useI18n()
 
 const schema = reactive<FormSchema[]>([
@@ -210,7 +218,6 @@ const collapse: Array<Collapse> = [
 ]
 
 const value = ref('')
-const value2 = ref(t('formDemo.selfDelivery'))
 
 const choosePayment = [
   {
@@ -234,6 +241,8 @@ const chooseDelivery = [
   }
 ]
 
+const deliveryMethod = ref(chooseDelivery[0].value)
+
 const codeProducts = [
   {
     value: '1',
@@ -249,9 +258,9 @@ const dram = [
 ]
 const radio1 = ref('')
 
-const doThis = () => {
-  console.log('sas')
-}
+// const doThis = () => {
+//   console.log('sas')
+// }
 
 const input = ref('')
 
@@ -430,40 +439,148 @@ const district = [
 ]
 const enterdetailAddress = ref('')
 const openDialogChoosePromotion = ref(false)
-// promo table
-const promoTable = [
-  {
-    radioSelect: '',
-    name: `FGD3443D
-    Giảm giá 60% đơn hàng...
-    Áp dụng cho đơn hàng từ 300`,
-    discount: '50%'
-  },
-  {
-    radioSelect: '',
-    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
-    discount: '50%'
-  },
-  {
-    radioSelect: '',
-    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
-    discount: '50%'
-  },
-  {
-    radioSelect: '',
-    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
-    discount: '50%'
-  },
-  {
-    radioSelect: '',
-    name: `FGD3443D\nGiảm giá 60% đơn hàng...\nÁp dụng cho đơn hàng từ 300`,
-    discount: '50%'
-  }
-]
 
-const checkDiscount = ref(false)
+// const checkDiscount = ref(false)
 // Chọn kỳ thanh toán phí thuê
 const chooseRentalPaymentPeriod = ref('')
+
+// Call api danh sách cộng tác viên
+const collaboratorsValue = ref()
+const listCollaborators = ref()
+const optionsCollaborators = ref()
+let optionCallCollaborators = 0
+const callApiCollaborators = async () => {
+  if (optionCallCollaborators == 0) {
+    const res = await getCollaboratorsInOrderList('')
+    listCollaborators.value = res.data
+    optionsCollaborators.value = listCollaborators.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  optionCallCollaborators++
+}
+
+let customerAddress = ref('')
+
+let infoCompany = reactive({
+  name: '',
+  taxCode: '',
+  phone: '',
+  email: ''
+})
+// Call api danh sách khách hàng
+const customersValue = ref('')
+const optionsCustomerApi = ref<Array<any>>([])
+let optionCallCustomerAPi = 0
+const callCustomersApi = async () => {
+  if (optionCallCustomerAPi == 0) {
+    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
+    const getCustomerResult = res.data
+    console.log('getCustomerResult', getCustomerResult)
+    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+      optionsCustomerApi.value = getCustomerResult.map((product) => ({
+        label: product.representative
+          ? product.representative + ' | MST ' + product.taxCode
+          : product.name + ' | ' + product.phonenumber,
+        value: product.code,
+        address: product.address,
+        isOrganization: product.isOrganization,
+        name: product.name,
+        taxCode: product.taxCode,
+        phone: product.phonenumber,
+        email: product.email
+      }))
+    }
+  }
+  optionCallCustomerAPi++
+}
+
+const changeAddressCustomer = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsCustomerApi.value.find((e) => e.value == data)
+    console.log('result: ', result)
+    if (result.isOrganization) {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    } else {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    }
+  } else {
+    customerAddress.value = ''
+    deliveryMethod.value = ''
+  }
+  console.log('infoCompany: ', typeof infoCompany.taxCode)
+}
+
+// Call api promo list
+const initialRadio = ref(false)
+let promoTable = ref()
+const promoLoading = ref(true)
+const listPromotions = ref()
+const optionPromotions = ref()
+let optionCallPromoAPi = 0
+const callPromoApi = async () => {
+  if (optionCallPromoAPi == 0) {
+    const res = await getPromotionsList('')
+    let count = 0
+    listPromotions.value = res.data
+    optionPromotions.value = listPromotions.value.map((product) => ({
+      radio: count++,
+      label: product.code,
+      value: product.name,
+      name: product.description,
+      discount: product.reduce,
+      min: product.minimumPriceToGetReduce,
+      max: product.maximumReduce
+    }))
+    optionCallPromoAPi++
+    promoTable.value = optionPromotions.value
+  }
+}
+
+// Call api danh sách sản phẩm
+let listProductsTable = ref()
+const listProducts = ref()
+const optionsApi = ref()
+
+let optionCallAPi = 0
+const callApiProductList = async () => {
+  if (optionCallAPi == 0) {
+    const res = await getProductsList({ ProductId: 1 })
+    listProducts.value = res.data
+    optionsApi.value = listProducts.value.map((product) => ({
+      label: product.id.toString(),
+      value: product.id.toString(),
+      name: product.name,
+      price: product.price.toString()
+    }))
+    optionCallAPi++
+    listProductsTable.value = optionsApi.value
+  }
+}
+
+const changeName = (optionID, scope) => {
+  const option = optionsApi.value.find((option) => option.name == optionID)
+  scope.row.name = option.name
+  scope.row.unitPrice = option.price
+  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+}
+
+onBeforeMount(() => {
+  callApiCollaborators()
+  callCustomersApi()
+  callPromoApi()
+  callApiProductList()
+})
 </script>
 
 <template>
@@ -486,9 +603,9 @@ const chooseRentalPaymentPeriod = ref('')
             >
               <template #orderCode>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
+                  <label class="w-[16%] text-right">{{ t('formDemo.orderCode') }}</label>
                   <input
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2"
+                    class="w-[80%] border-1 w-[100%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="`${t('formDemo.orderCode')}`"
                   />
@@ -639,13 +756,23 @@ const chooseRentalPaymentPeriod = ref('')
               </template>
               <template #collaborators>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.collaborators') }}</label>
+                  <label class="w-[16%] text-right">{{ t('formDemo.collaborators') }}</label>
                   <div class="flex w-[80%] gap-2">
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('formDemo.selectOrEnterTheCollaboratorCode')}`"
-                    />
+                    <div class="w-[50%] input-width">
+                      <el-select
+                        v-model="collaboratorsValue"
+                        :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
+                        filterable
+                        size="large"
+                      >
+                        <el-option
+                          v-for="(item, index) in optionsCollaborators"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
                     <div class="flex items-center w-[50%] border-1 rounded">
                       <input
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
@@ -665,17 +792,6 @@ const chooseRentalPaymentPeriod = ref('')
                     type="text"
                     :placeholder="`${t('formDemo.addNotes')}`"
                   />
-                </div>
-              </template>
-              <template #customerName>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
-                  <div class="flex w-[84%] gap-2">
-                    <input class="w-[80%] border-1 outline-none pl-2" type="text" />
-                    <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
-                      >+ {{ t('button.add') }}</button
-                    >
-                  </div>
                 </div>
               </template>
 
@@ -757,30 +873,39 @@ const chooseRentalPaymentPeriod = ref('')
                 <div class="flex gap-4">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4">
-                      <div class="w-[15%] text-right ml-2 leading-5">
+                      <div class="w-[18%] max-w-[139.67px] text-right leading-5">
                         <label>{{ t('formDemo.customerName') }}</label>
                         <p class="text-[#FECB80] italic">Đại diện</p>
                       </div>
-
-                      <input
-                        class="w-[62%] border-1 outline-none pl-2"
-                        type="text"
-                        :placeholder="`${t('formDemo.chooseACustomer')}`"
-                      />
-                      <div class="border-1 border-blue-500">
-                        <el-button text @click="dialogAddQuick = true"
-                          >+ {{ t('button.add') }}</el-button
-                        >
+                      <div class="flex items-center w-[80%] max-w-[698.39px] gap-4">
+                        <div class="flex w-[100%] gap-2 bg-transparent">
+                          <el-select
+                            v-model="customersValue"
+                            filterable
+                            :clearable="true"
+                            placeholder="Select"
+                            @change="changeAddressCustomer"
+                          >
+                            <el-option
+                              v-for="item in optionsCustomerApi"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            />
+                          </el-select>
+                          <el-button @click="dialogAddQuick = true"
+                            >+ {{ t('button.add') }}</el-button
+                          >
+                        </div>
                       </div>
                       <el-dialog
                         v-model="dialogAddQuick"
                         width="40%"
                         align-center
                         :title="`${t('formDemo.QuicklyAddCustomers')}`"
-                        v-if="valueClassify == 'company'"
                       >
                         <el-divider />
-                        <div>
+                        <div v-if="valueClassify == 'company'">
                           <div class="flex gap-4 pt-4 pb-4 items-center">
                             <label class="w-[30%] text-right max-w-[162.73px]">{{
                               t('formDemo.classify')
@@ -816,130 +941,110 @@ const chooseRentalPaymentPeriod = ref('')
                               </div>
                             </div>
                           </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{
-                              t('formDemo.companyName')
-                            }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterCompanyName')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterTaxCode')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{
-                              t('formDemo.representative')
-                            }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterRepresentative')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterTaxCode')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{
-                              t('formDemo.representative')
-                            }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterRepresentative')}`"
-                            />
+                          <div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{
+                                t('formDemo.companyName')
+                              }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterCompanyName')}`"
+                              />
+                            </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterTaxCode')}`"
+                              />
+                            </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{
+                                t('formDemo.representative')
+                              }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterRepresentative')}`"
+                              />
+                            </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterTaxCode')}`"
+                              />
+                            </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{
+                                t('formDemo.representative')
+                              }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterRepresentative')}`"
+                              />
+                            </div>
                           </div>
                         </div>
-                        <template #footer>
-                          <span class="dialog-footer">
-                            <el-button
-                              type="primary"
-                              class="w-[150px]"
-                              @click.stop.prevent="dialogAddQuick = false"
-                              >{{ t('reuse.save') }}</el-button
-                            >
-                            <el-button
-                              class="w-[150px]"
-                              @click.stop.prevent="dialogAddQuick = false"
-                              >{{ t('reuse.exit') }}</el-button
-                            >
-                          </span>
-                        </template>
-                      </el-dialog>
-                      <el-dialog
-                        v-model="dialogAddQuick"
-                        v-else
-                        width="40%"
-                        align-center
-                        :title="`${t('formDemo.QuicklyAddCustomers')}`"
-                      >
-                        <el-divider />
-                        <div>
-                          <div class="flex gap-4 pt-4 pb-4 items-center">
-                            <label class="w-[30%] text-right max-w-[162.73px]">{{
-                              t('formDemo.classify')
-                            }}</label>
-                            <div class="w-[80%] flex gap-2">
-                              <div class="w-[50%] fix-full-width">
-                                <el-select
-                                  v-model="valueClassify"
-                                  placeholder="Select"
-                                  size="large"
-                                >
-                                  <el-option
-                                    v-for="item in optionsClassify"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                  />
-                                </el-select>
-                              </div>
-                              <div class="w-[50%] fix-full-width">
-                                <el-select
-                                  v-model="valueSelectCustomer"
-                                  placeholder="Select"
-                                  size="large"
-                                >
-                                  <el-option
-                                    v-for="item in optionsCustomer"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                  />
-                                </el-select>
+                        <div v-else>
+                          <div>
+                            <div class="flex gap-4 pt-4 pb-4 items-center">
+                              <label class="w-[30%] text-right max-w-[162.73px]">{{
+                                t('formDemo.classify')
+                              }}</label>
+                              <div class="w-[80%] flex gap-2">
+                                <div class="w-[50%] fix-full-width">
+                                  <el-select
+                                    v-model="valueClassify"
+                                    placeholder="Select"
+                                    size="large"
+                                  >
+                                    <el-option
+                                      v-for="item in optionsClassify"
+                                      :key="item.value"
+                                      :label="item.label"
+                                      :value="item.value"
+                                    />
+                                  </el-select>
+                                </div>
+                                <div class="w-[50%] fix-full-width">
+                                  <el-select
+                                    v-model="valueSelectCustomer"
+                                    placeholder="Select"
+                                    size="large"
+                                  >
+                                    <el-option
+                                      v-for="item in optionsCustomer"
+                                      :key="item.value"
+                                      :label="item.label"
+                                      :value="item.value"
+                                    />
+                                  </el-select>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
-                            />
-                          </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                              />
+                            </div>
 
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterPhoneNumber')}`"
-                            />
-                          </div>
-                          <div class="flex gap-4 pt-4 pb-4">
-                            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-                            <el-input
-                              style="width: 100%"
-                              :placeholder="`${t('formDemo.enterEmail')}`"
-                            />
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterPhoneNumber')}`"
+                              />
+                            </div>
+                            <div class="flex gap-4 pt-4 pb-4">
+                              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                              <el-input
+                                style="width: 100%"
+                                :placeholder="`${t('formDemo.enterEmail')}`"
+                              />
+                            </div>
                           </div>
                         </div>
                         <template #footer>
@@ -966,8 +1071,8 @@ const chooseRentalPaymentPeriod = ref('')
                         t('formDemo.chooseShipping')
                       }}</label>
                       <el-select
-                        v-model="value2"
-                        :placeholder="`${t('formDemo.selfDelivery')}`"
+                        v-model="deliveryMethod"
+                        :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
                         size="large"
                       >
                         <el-option
@@ -984,15 +1089,17 @@ const chooseRentalPaymentPeriod = ref('')
               <template #debtAndAddress>
                 <div class="flex w-[100%] gap-6">
                   <div class="w-[50%] pl-[8%]">
-                    <p class="max-w-[94%] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]">{{
-                      t('formDemo.noDebt')
-                    }}</p>
+                    <p
+                      v-if="customersValue !== ''"
+                      class="max-w-[698.39px] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]"
+                      >{{ t('formDemo.noDebt') }}</p
+                    >
                   </div>
-                  <div class="flex w-[50%] gap-4">
+                  <div class="flex w-[50%] gap-4" v-if="customersValue !== ''">
                     <p class="w-[16%] ml-2 text-[#828387] text-right">{{
                       t('formDemo.deliveryAddress')
                     }}</p>
-                    <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
+                    <p>{{ customerAddress }}</p>
                     <p>
                       <el-button
                         class="hover:bg-transparent; focus:bg-transparent"
@@ -1093,12 +1200,13 @@ const chooseRentalPaymentPeriod = ref('')
                 </div>
               </template>
               <template #companyInformation>
-                <div class="flex gap-4 w-[100%]">
-                  <label class="w-[16%] text-right">{{ t('formDemo.customerName') }}</label>
+                <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''">
+                  <label class="w-[16%] text-right">{{ t('formDemo.companyInformation') }}</label>
                   <div class="leading-6 mt-2">
-                    <div>Nguyễn Phương Linh</div>
-                    <div>Số điện thoại: 094345355</div>
-                    <div>Email: baca@gmail.com</div>
+                    <div>{{ infoCompany.name }}</div>
+                    <div> Mã số thuế: {{ infoCompany.taxCode }}</div>
+                    <div>{{ infoCompany.phone }}</div>
+                    <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
               </template>
@@ -1135,21 +1243,15 @@ const chooseRentalPaymentPeriod = ref('')
             <h2 class="font-bold text-base w-[40%]">Hoặc chọn mã có sẵn</h2>
             <el-divider />
           </div>
-          <el-table :data="promoTable" border>
-            <el-table-column
-              v-model="checkDiscount"
-              width="50"
-              prop="radioSelect"
-              label-class-name="noHeader"
-              align="center"
-            >
+          <el-table :data="promoTable" border :loading="promoLoading">
+            <el-table-column prop="radio" width="90" align="center">
               <template #default="props">
-                <el-radio v-model="props.row.discount" size="large" />
+                <el-radio-group v-model="initialRadio" class="ml-4 fix-label-color">
+                  <el-radio :label="props.row.radio" size="large" />
+                </el-radio-group>
               </template>
             </el-table-column>
-            <el-table-column label="Name" prop="name">
-              <template #header> </template>
-            </el-table-column>
+            <el-table-column prop="name" />
             <el-table-column prop="discount" width="120" align="left" />
           </el-table>
         </div>
@@ -1172,14 +1274,23 @@ const chooseRentalPaymentPeriod = ref('')
         <el-divider content-position="left">{{ t('formDemo.rentalProductList') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value" class="m-2" size="large">
-              <el-option
-                v-for="item in codeProducts"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+            <template #default="props">
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.productCode'),
+                  t('reuse.managementCode'),
+                  t('formDemo.productInformation')
+                ]"
+                filterable
+                :items="listProductsTable"
+                :valueKey="'name'"
+                :labelKey="'id'"
+                :hiddenKey="['id']"
+                :placeHolder="'Chọn mã sản phẩm'"
+                :clearable="false"
+                @change="(option) => changeName(option, props)"
               />
-            </el-select>
+            </template>
           </el-table-column>
           <el-table-column prop="name" :label="`${t('formDemo.productInformation')}`" width="680" />
           <el-table-column :label="`${t('reuse.accessory')}`" width="180">
@@ -1554,5 +1665,13 @@ const chooseRentalPaymentPeriod = ref('')
 
 ::v-deep(.el-popper-container-177 > .el-popper) {
   left: 399 !important;
+}
+
+.fix-label-color > .el-radio {
+  color: transparent;
+}
+
+::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
+  color: transparent;
 }
 </style>

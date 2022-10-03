@@ -59,5 +59,10 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCustomerVirtualEWalletList" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getCustomerVirtualEWalletList"
+    :customOperator="4"
+    :removeHeaderFilterSlot="true"
+  />
 </template>

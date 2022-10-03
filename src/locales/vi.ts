@@ -715,7 +715,7 @@ export default {
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
     stockCard: 'Thẻ kho',
-    warningDate: 'Ngày bắt đầu không thể bé hơn ngày kết thúc',
+    warningDate: 'Ngày bắt đầu không thể lớn hơn ngày kết thúc',
     categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
     position: 'Vị trí',
     color: 'Màu săc',
@@ -1283,6 +1283,11 @@ export default {
     ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
     //seo
     enterTitle: 'Nhập tiêu đề',
-    enterLink: 'Nhập link'
+    enterLink: 'Nhập link',
+    //virtual wallet
+    depositAndUsageMethod: 'Phương thức nạp & sử dụng tiền',
+    moneyDeposit: 'Số tiền nạp',
+    moneyUsed: 'Số tiền sử dụng',
+    statusPoint: 'Trạng thái điểm'
   }
 }

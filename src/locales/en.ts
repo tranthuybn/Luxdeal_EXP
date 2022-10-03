@@ -1197,6 +1197,11 @@ export default {
     notSpaceBeforeAndAfter: 'Not space before and after value',
     //seo
     enterTitle: 'Enter title',
-    enterLink: 'Enter link'
+    enterLink: 'Enter link',
+    //virtual wallet
+    depositAndUsageMethod: 'Deposit and usage method',
+    moneyDeposit: 'Money deposit',
+    moneyUsed: 'Money used',
+    statusPoint: 'Status point'
   }
 }

@@ -13,7 +13,7 @@ export const productCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -51,7 +51,7 @@ export const colorCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -91,7 +91,7 @@ export const sizeCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -130,7 +130,7 @@ export const materialCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -169,7 +169,7 @@ export const statusCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -208,7 +208,7 @@ export const genderCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -247,7 +247,7 @@ export const unitCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -287,7 +287,7 @@ export const brandCategories = [
     minWidth: '450',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -326,7 +326,7 @@ export const originCategories = [
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {

@@ -293,10 +293,12 @@ import { ElImage, ElEmpty } from 'element-plus'
 export const setImageDisplayInDOm = (
   record: Recordable,
   column: TableColumn,
-  cellValue: TableSlotDefault
+  cellValue: TableSlotDefault,
+  content = ''
 ) =>
-  h('div', [
+  h('div', { class: 'flex justify-start items-center' }, [
     cellValue
       ? h(ElImage, { src: API_URL + cellValue, style: 'width: 120px', fit: 'contain' })
-      : h(ElEmpty, { style: 'width: 20%' })
+      : h(ElEmpty, { imageSize: 120 }),
+    content ? h('h3', { style: 'font-weight:500; margin-left:10px' }, content) : null
   ])

@@ -84,6 +84,7 @@ const getAttributeData = async () => {
   treeSelectData.value[1].children = sizeData
   treeSelectData.value[2].children = materialData
 }
+const unitData = ref()
 const ruleTreeFormRef = ref<FormInstance>()
 const validateTree = (_rule: any, value: any, callback: any) => {
   if (value.length < 3) {
@@ -208,11 +209,6 @@ const addLastRowAttribute = () => {
     code: 'string', //api chua tra
     categories: [
       {
-        id: 1,
-        key: 'Gender',
-        value: 'Túi + Ví'
-      },
-      {
         id: null,
         key: 'Color',
         value: ''
@@ -331,7 +327,7 @@ const handleEditRow = (data) => {
   data.edited = true
   data.categoriesValue = []
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[0].id, data.categories[1].id, data.categories[2].id)
+    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
   }
 }
 
@@ -355,7 +351,7 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
-  customUpdateData.id = data.id
+  customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
   customUpdateData.categories = []
   customUpdateData.categories[0] = {
@@ -363,9 +359,9 @@ const customUpdate = async (data) => {
     //"key": "Gender",
     //"value": "Túi + Ví"
   }
-  customUpdateData.categories[1] = { ...data.categories[1] }
+  customUpdateData.categories[1] = { ...data.categories[0] }
   customUpdateData.categories[2] = { ...data.categories[2] }
-  customUpdateData.categories[3] = { ...data.categories[3] }
+  customUpdateData.categories[3] = { ...data.categories[1] }
   customUpdateData.categories[4] = {
     id: 116 //"key": "State",
     //"value": "New"
@@ -393,6 +389,7 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
+            collapse[1].tableList.pop()
             ElNotification({
               message: t('reuse.addFail'),
               type: 'error'
@@ -432,28 +429,25 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
       sameParent = true
       break
     case 1:
-      tree.map((node) => {
-        if (node.parentid == 1 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore = tree.find((node) => {
+        return node.parentid == 1 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 2:
-      tree.map((node) => {
-        if (node.parentid == 2 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore2 = tree.find((node) => {
+        return node.parentid == 2 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore2?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
     case 3:
-      tree.map((node) => {
-        if (node.parentid == 3 && node.value != nodeObj.value) {
-          sameParent = true
-          return
-        }
+      const nodeBefore3 = tree.find((node) => {
+        return node.parentid == 3 && node.value != nodeObj.value
       })
+      treeRef.value!.setChecked(nodeBefore3?.value, false, false)
+      treeRef.value!.setChecked(nodeObj.value, true, true)
       break
   }
   if (sameParent) {
@@ -465,7 +459,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
   }
   const colorNode = tree.find((node) => node.parentid == 1)
   colorNode
-    ? ((row.categories[1].id = colorNode.value), (row.categories[1].value = colorNode.label))
+    ? ((row.categories[0].id = colorNode.value), (row.categories[0].value = colorNode.label))
     : ''
   const sizeNode = tree.find((node) => node.parentid == 2)
   sizeNode
@@ -473,7 +467,7 @@ const customCheck = (nodeObj, _selected, _subtree, row) => {
     : ''
   const materialNode = tree.find((node) => node.parentid == 3)
   materialNode
-    ? ((row.categories[3].id = materialNode.value), (row.categories[3].value = materialNode.label))
+    ? ((row.categories[1].id = materialNode.value), (row.categories[1].value = materialNode.label))
     : ''
   row.categoriesValue = tree.map((node) => node.value)
   row.categoriesLabel = tree.map((node) => node.label)
@@ -510,10 +504,14 @@ const rules = reactive({
   SellInventoryStatus: [required()]
 })
 const ruleSEO = reactive({
-  SeoTitle: [required()],
+  SeoTitle: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator }
+  ],
   SeoUrl: [required()],
-  SeoTags: [{ required: true, trigger: 'blur' }],
-  SeoDescription: [required()]
+  SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
+  SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 let callTableApiTime = 0
 const callTableApi = async (collapseItem) => {
@@ -528,8 +526,21 @@ const callTableApi = async (collapseItem) => {
   }
   collapseItem.loading = false
 }
+const getUnitValue = async (UnitId) => {
+  let unitSelect = { name: '' }
+  const res = await getCategories({
+    TypeName: PRODUCTS_AND_SERVICES[6].key,
+    pageSize: 100,
+    pageIndex: 1
+  })
+  if (res) {
+    unitSelect = res.data.find((unit) => unit.id == UnitId)
+    unitData.value = unitSelect?.name
+  }
+}
 // bảo backend trả id để xóa luôn ko cần reload trang
 const postData = async (data) => {
+  const UnitId = data.UnitId
   await postProductLibrary(FORM_IMAGES(data))
     .then((res) => {
       newId.value = res.data
@@ -542,9 +553,13 @@ const postData = async (data) => {
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
-        type: 'warning'
+        type: 'error'
       })
     )
+    //maybe use async await
+    .finally(() => {
+      getUnitValue(UnitId)
+    })
 }
 // init reactive type
 // could do better somehow... [key: string]: any
@@ -601,6 +616,7 @@ const customizeData = async (formData) => {
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
+  unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
 const editData = async (data) => {
@@ -702,56 +718,70 @@ const openDepositTable = async (dialogTitle) => {
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
   rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  rentTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[2].api
-    ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[2].tableList = []
-    collapse[2].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined },
-        { price: undefined },
-        { price: undefined },
-        { price: undefined }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[2].tableList = []
-    collapse[2].tableList = res.data
+    rentTableVisible.value = true
+    const res = collapse[2].api
+      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[2].tableList = []
+      collapse[2].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined },
+          { price: undefined },
+          { price: undefined },
+          { price: undefined }
+        ]
+      })
+    } else {
+      collapse[2].tableList = []
+      collapse[2].tableList = res.data
+    }
+    collapse[2].tableList.productPropertyId = findPropertyId
+    collapse[2].tableList.serviceType = 2
+    collapse[2].tableList.currentRow = scope.$index
   }
-  collapse[2].tableList.productPropertyId = findPropertyId
-  collapse[2].tableList.serviceType = 2
-  collapse[2].tableList.currentRow = scope.$index
   collapse[2].loading = false
   forceRemove.value == false
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
   sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-  sellTableVisible.value = true
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  const res = collapse[8].api
-    ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
-    : ''
-  if (res.data.length == 0) {
-    collapse[8].tableList = []
-    collapse[8].tableList.push({
-      quantity: undefined,
-      prices: [
-        { price: undefined, priceType: 1 },
-        { price: undefined, priceType: 2 }
-      ]
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
     })
   } else {
-    collapse[8].tableList = []
-    collapse[8].tableList = res.data
+    sellTableVisible.value = true
+    const res = collapse[8].api
+      ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[8].tableList = []
+      collapse[8].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined, priceType: 1 },
+          { price: undefined, priceType: 2 }
+        ]
+      })
+    } else {
+      collapse[8].tableList = []
+      collapse[8].tableList = res.data
+    }
+    collapse[8].tableList.productPropertyId = findPropertyId
+    collapse[8].tableList.serviceType = 1
+    collapse[8].tableList.currentRow = scope.$index
   }
-  collapse[8].tableList.productPropertyId = findPropertyId
-  collapse[8].tableList.serviceType = 1
-  collapse[8].tableList.currentRow = scope.$index
   collapse[8].loading = false
   forceRemove.value == false
 }
@@ -789,10 +819,11 @@ watch(
   () => collapse[8].tableList[collapse[8].tableList.length - 1],
   () => {
     if (
-      collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== null &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== null &&
-      collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== null &&
-      forceRemove.value == false
+      collapse[8].tableList.length < 1 ||
+      (collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexSellTable()
     }
@@ -817,12 +848,13 @@ watch(
   () => collapse[2].tableList[collapse[2].tableList.length - 1],
   () => {
     if (
-      collapse[2].tableList[collapse[2].tableList.length - 1].quantity !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price !== undefined &&
-      forceRemove.value == false
+      collapse[2].tableList.length < 1 ||
+      (collapse[2].tableList[collapse[2].tableList.length - 1].quantity !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexRentTable()
     }
@@ -958,9 +990,9 @@ const saveDataSellTable = async () => {
 const removeLastRowSell = () => {
   if (
     //check if all field of last row are empty
-    collapse[8].tableList[collapse[8].tableList.length - 1].quantity == undefined &&
-    collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price == undefined &&
-    collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price == undefined
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.quantity == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[0].price == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[1].price == undefined
   ) {
     //force remove so watch cannot add new row at the last index
     forceRemove.value = true
@@ -1075,7 +1107,7 @@ watch(
           >
             <template #default>
               <!--get this data from product Api-->
-              <div>Chiếc</div>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1422,7 +1454,7 @@ watch(
           >
             <template #default>
               <!--get this data from product Api-->
-              <div>Chiếc</div>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1554,7 +1586,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1646,7 +1678,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1794,7 +1826,7 @@ watch(
             :label="t('reuse.unit')"
           >
             <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+              <div>{{ scope.row.unit }}{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn

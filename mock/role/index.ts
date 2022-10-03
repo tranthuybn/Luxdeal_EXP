@@ -332,6 +332,18 @@ const adminList = [
             }
           },
           {
+            path: `${utility}`,
+            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+            name: `business.customer-management.customerList.${utility}`,
+            meta: {
+              title: 'reuse.createANewUtility',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'customerRatings',
             name: 'business.customer-management.customerRatings',
             component: 'views/Pages/Business/CustomerManagement/TabsCustomerRatings',
@@ -575,7 +587,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/CustomerVirtualWallet',
             meta: {
               title: 'router.customervirtualWallet'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Business/VirtualWallet/VirtualWalletUtility',
+                name: `business.virtual-wallet.customer.${utility}`,
+                meta: {
+                  title: 'reuse.VirtualWalletUtility',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'with-drewal-request',

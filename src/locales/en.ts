@@ -297,10 +297,7 @@ export default {
     applicableProductsAndSpaApply: 'Applicable product and Spa apply',
     joinTheProgram: 'Join the program',
     theProgramIsRunning: 'The program is Running',
-    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Flasher Programs must have SA approval in the Browsing module',
-    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Voucher must have SA approval in the Browsing module',
+
     cancelTheProgram: 'Cancel the program',
     decreaseByPercent: 'Decrease by percent',
     enterPercent: 'Enter percentage',
@@ -322,8 +319,7 @@ export default {
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
     sendImmediatelyAfterBrowsing: 'Send immediately after browsing',
-    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
-      'If not selected Voucher will only be sent after clicking "Submit"',
+
     comboDetail: 'Combo detail',
     comboGetFree: 'Combo get free',
     ApplicableSpaProductsServices: 'applicable spa products & services',
@@ -347,7 +343,12 @@ export default {
     permissionPurchase: 'Permission to purchase',
     completeEntryTrackingSheet: 'Complete entry tracking sheet',
     chooseCustomer: 'Choose customer',
-    enterDetailAddress: 'Enter detailed address'
+    enterDetailAddress: 'Enter detailed address',
+    supplyDate: 'Supply date',
+    supplyAddress: 'Suplly address',
+    enterCCCD: 'Enter number...',
+    address: 'Address',
+    codeQR: 'QR code'
   },
   button: {
     add: 'Add quick',
@@ -626,6 +627,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    accountBank: 'Account bank',
     index: 'Index',
     fix: 'Fix',
     receivedDate: 'Received Date',
@@ -819,6 +821,7 @@ export default {
     remainingPoints: 'Remaining point',
     employeeName: 'Employee Name',
     employeeCode: 'Employee Code',
+    dateOfBirthAnGender: 'Date of birth/gender',
     dateOfBirth: 'Date of birth',
     branch: 'Branch',
     department: 'Department',
@@ -1214,6 +1217,17 @@ export default {
     taxCode: 'Tax code',
     addActions: 'Add Action',
     orderSaleAsignrequired: 'Please input order sale asign',
+    //image
+    onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
+    notSpaceBeforeAndAfter: 'Not space before and after value',
+    //seo
+    enterTitle: 'Enter title',
+    enterLink: 'Enter link',
+    //virtual wallet
+    depositAndUsageMethod: 'Deposit and usage method',
+    moneyDeposit: 'Money deposit',
+    moneyUsed: 'Money used',
+    statusPoint: 'Status point',
     comboDetail: 'Combo detail',
     auctionDetail: 'Auction detail',
     voucherDetail: 'Voucher detail',

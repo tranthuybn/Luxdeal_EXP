@@ -20,8 +20,7 @@ import {
   ElRadioGroup,
   ElRadio,
   ElSelect,
-  ElOption,
-  ElScrollbar
+  ElOption
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -238,6 +237,9 @@ const save = async (type) => {
       if (type == 'saveAndAdd') {
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
+        props.multipleImages
+          ? ListFileUpload.value.map((file) => handleRemove(file))
+          : removeImage()
         loading.value = false
       }
       if (type == 'edit') {
@@ -267,8 +269,8 @@ if (props.title == 'undefined') {
 }
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
   // remove image when edit data
   if (formValue.value && formValue.value.productImages) {
     let imageRemove = formValue.value.productImages.find(
@@ -285,23 +287,33 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
+const validImageType = ['jpeg', 'png']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
+    //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (rawFile.raw.size / 1024 / 1024 > 4) {
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
       }
     }
+    //nếu là 1 list ảnh
     if (type === 'list') {
       let inValid = true
       rawFile.map((file) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
@@ -311,7 +323,11 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    if (fileList.value.length > 0) {
+    //báo lỗi nếu ko có ảnh
+    if (type === 'list' && fileList.value.length > 0) {
+      return true
+    }
+    if (type === 'single' && (rawUploadFile.value !== null || imageUrl.value !== null)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -362,12 +378,21 @@ const cancel = () => {
   go(-1)
 }
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
-    rawUploadFile.value = uploadFile
-    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    const validImage = await beforeAvatarUpload(uploadFile, 'single')
+    if (validImage) {
+      rawUploadFile.value = uploadFile
+      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    }
   } else {
+    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     ListFileUpload.value = uploadFiles
+    if (!validImage) {
+      uploadFiles.map((file) => {
+        file.raw ? handleRemove(file) : ''
+      })
+    }
   }
 }
 const previewImage = () => {
@@ -450,14 +475,15 @@ const remoteProductName = async (query: string) => {
   }
 }
 //for infinite scroll
-const scrollMethod = () => {
-  // console.log('scroll value', scrollTop)
-  // console.log('height', divRef.value?.clientHeight)
-}
-const divRef = ref<HTMLDivElement>()
+// const scrollMethod = () => {
+// console.log('scroll value', scrollTop)
+// console.log('height', divRef.value?.clientHeight)
+// }
+// const divRef = ref<HTMLDivElement>()
 onMounted(() => {
   // console.log('height', divRef.value)
 })
+//key up enter
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -466,10 +492,11 @@ onMounted(() => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
-              v-model="form['ProductTypeId']"
+              :modelValue="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
               style="width: 100%"
+              @change="(data) => (form['ProductTypeId'] = data)"
             />
           </template>
           <template #HireInventoryStatus-label>
@@ -507,25 +534,25 @@ onMounted(() => {
               clearable
               remote
               :remote-method="remoteProductCode"
+              default-first-option
             >
-              <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
-                <div ref="divRef" class="whereisthis">
-                  <el-option
-                    ref="optionCodeHeight"
-                    v-for="item in CodeAndNameSelect"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                    :disabled="true"
-                  >
-                    <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
-                    <span
-                      style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                      >{{ t('reuse.productName') }}: {{ item.name }}</span
-                    >
-                  </el-option>
-                </div>
-              </el-scrollbar>
+              <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
+                <div ref="divRef" class="whereisthis"> -->
+              <el-option
+                ref="optionCodeHeight"
+                v-for="item in CodeAndNameSelect"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :disabled="true"
+              >
+                <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
+                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                  >{{ t('reuse.productName') }}: {{ item.name }}</span
+                >
+              </el-option>
+              <!-- </div>
+              </el-scrollbar> -->
             </el-select>
           </template>
           <template #Name="form">
@@ -539,6 +566,7 @@ onMounted(() => {
               clearable
               remote
               :remote-method="remoteProductName"
+              default-first-option
             >
               <el-option
                 v-for="item in NameAndCodeSelect"
@@ -654,6 +682,9 @@ onMounted(() => {
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="go(-1)">
+          {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">

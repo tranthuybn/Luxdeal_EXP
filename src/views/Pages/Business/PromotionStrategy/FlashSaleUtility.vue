@@ -203,7 +203,7 @@ const awesome = ref(true)
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
                           <span
-                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold text-current ml-2"
+                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold dark:text-light-50 ml-2"
                           >
                             {{ radioOptionPromotion }}
                           </span>
@@ -372,11 +372,6 @@ const awesome = ref(true)
                     t('formDemo.theProgramIsRunning')
                   }}</span>
                   <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
-                  <i class="ml-3" style="color: #3ddf4e"
-                    >{{
-                      t('formDemo.newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule')
-                    }}
-                  </i>
                 </p>
 
                 <div class="option-page mt-5">
@@ -500,12 +495,6 @@ const awesome = ref(true)
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
 }
 
 ::v-deep(.d-block > .el-row) {

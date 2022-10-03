@@ -60,6 +60,21 @@ export const useValidator = () => {
   }
 
   const ValidService = {
+    checkEmojiValidator: {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (
+          /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+            value
+          )
+        ) {
+          callback(new Error(t('reuse.checkEmoji')))
+        } else {
+          callback()
+        }
+      },
+      required: true,
+      trigger: 'blur'
+    },
     checkPhone: {
       pattern: /((09|03|07|08|05)+([0-9]{8})\b)/g,
       message: t('reuse.phoneNumberFormat'),
@@ -230,9 +245,19 @@ export const useValidator = () => {
       trigger: 'change'
     },
     checkStringSpace: {
-      validator: (rule, value, callback) => {
+      validator: (_rule, value, callback) => {
         if (value.toString().trim() === '') {
           callback(new Error(t('reuse.required')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    },
+    checkSpaceBeforeAndAfter: {
+      validator: (_rule, value, callback) => {
+        if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
+          callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
         } else {
           callback()
         }

@@ -348,7 +348,18 @@ export default {
     supplyAddress: 'Suplly address',
     enterCCCD: 'Enter number...',
     address: 'Address',
-    codeQR: 'QR code'
+    codeQR: 'QR code',
+    userName: 'User name',
+    enterUserName: 'Enter user name',
+    accountAndStatus: 'Account and status',
+    enterPassword: 'Enter password',
+    confirmPassword: 'Confirm password',
+    cancelAccount: 'Cancel account',
+    enterAccountNumber: 'Enter account number',
+    enterAccountName: 'Enter account name',
+    provinceAndCity: 'Provine/city',
+    countyAndDistrict: 'Country/district',
+    wards: 'Wards'
   },
   button: {
     add: 'Add quick',
@@ -620,6 +631,7 @@ export default {
     index: 'Index',
     action: 'Action',
     username: 'Username',
+    accountNumber: 'Account number',
     password: 'Password',
     role: 'Role',
     remark: 'Remark',
@@ -1217,6 +1229,12 @@ export default {
     taxCode: 'Tax code',
     addActions: 'Add Action',
     orderSaleAsignrequired: 'Please input order sale asign',
+    comboDetail: 'Combo detail',
+    auctionDetail: 'Auction detail',
+    voucherDetail: 'Voucher detail',
+    newProductDetail: 'New product detail',
+    collectionDetail: 'Collection detail',
+    flashSaleDetail: 'Flash sale detail',
     //image
     onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
     notSpaceBeforeAndAfter: 'Not space before and after value',
@@ -1228,11 +1246,7 @@ export default {
     moneyDeposit: 'Money deposit',
     moneyUsed: 'Money used',
     statusPoint: 'Status point',
-    comboDetail: 'Combo detail',
-    auctionDetail: 'Auction detail',
-    voucherDetail: 'Voucher detail',
-    newProductDetail: 'New product detail',
-    collectionDetail: 'Collection detail',
-    flashSaleDetail: 'Flash sale detail'
+    bank: 'Bank',
+    selectBank: 'Select bank'
   }
 }

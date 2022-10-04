@@ -1249,6 +1249,7 @@ export default {
     bank: 'Bank',
     selectBank: 'Select bank',
     notSave: 'Not save yet',
-    checkNameImageLength: 'Image name cant be over 100 characters'
+    checkNameImageLength: 'Image name cant be over 100 characters',
+    checkEmoji: 'Cant use emoji'
   }
 }

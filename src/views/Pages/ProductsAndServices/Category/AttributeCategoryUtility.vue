@@ -254,13 +254,13 @@ type FormDataPost = {
   Name: string
   code?: string
   Image?: any
-  Imageurl?: string
   TypeName: string
   ParentId: number
   CreatedBy: string
   isHide: boolean
   isActive: boolean
   index: number
+  imageurl?: string
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
@@ -268,8 +268,8 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
-  customData.Imageurl = formDataCustomize.value.imageurl
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)

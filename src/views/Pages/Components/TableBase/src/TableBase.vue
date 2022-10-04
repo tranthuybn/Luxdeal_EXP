@@ -316,6 +316,7 @@ const updateTableColumn = () => {
       :expand="expand"
       v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage"
+      row-key="id"
       :data="tableObject.tableList"
       :loading="tableObject.loading"
       :pagination="paginationObj"

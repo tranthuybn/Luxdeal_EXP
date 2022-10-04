@@ -18,5 +18,6 @@ const deleteBrand = t('formDemo.deleteBrand')
     :selection="false"
     :delApi="deleteCategory"
     :deleteTitle="deleteBrand"
+    :titleAdd="'reuse.addNewBrand'"
   />
 </template>

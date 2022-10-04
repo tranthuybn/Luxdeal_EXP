@@ -28,6 +28,10 @@ const props = defineProps({
   selection: {
     type: Boolean,
     default: true
+  },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory'
   }
 })
 const emit = defineEmits(['tabChangeEvent'])

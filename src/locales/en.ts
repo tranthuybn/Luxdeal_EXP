@@ -141,7 +141,7 @@ export default {
     enterPrice: 'Enter price',
     enterNumberHours: 'Enter the number of hours',
     enterNumberDays: 'Enter the number of days',
-    productInfomation: 'Product infomation',
+    productInfomation: 'Product information',
     standardManagementMaterialsUsed: 'Standard management of materials used',
     orderInformation: 'Order information',
     generalInformation: 'General information',
@@ -310,7 +310,7 @@ export default {
     duration: 'Duration',
     voucherDetails: 'Voucher details',
     voucherCode: 'Mã Voucher',
-    odersApply: 'Oders apply',
+    odersApply: 'Orders apply',
     condition: 'Condition',
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
@@ -357,7 +357,7 @@ export default {
     cancelAccount: 'Cancel account',
     enterAccountNumber: 'Enter account number',
     enterAccountName: 'Enter account name',
-    provinceAndCity: 'Provine/city',
+    provinceAndCity: 'Province/city',
     countyAndDistrict: 'Country/district',
     wards: 'Wards'
   },
@@ -531,7 +531,7 @@ export default {
     paymentsAdd: 'Payments Add',
     departmentDirectory: 'Department Directory',
     newsList: 'News List',
-    manageNew: 'Manage news categori'
+    manageNew: 'Manage news category'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -901,7 +901,7 @@ export default {
     shortDescription: 'Short Description',
     notificationType: 'NotificationT ype',
     sendDate: 'Send Date',
-    sented: 'Sented',
+    sented: 'Sent',
     notSent: 'Not Sent',
     auto: 'Auto',
     manual: 'Manual',
@@ -913,7 +913,7 @@ export default {
     cash: 'cash',
     PawnMoney: 'Pawn money',
     pawnfeeMoney: 'Pawn fee money',
-    importWarehouse: 'Import wree',
+    importWarehouse: 'Import warehouse',
     //approve management
     categoriesInfo: 'Categories Info',
     approveCondition: 'Approve Condition',
@@ -930,7 +930,7 @@ export default {
     generalInformation: 'General Information',
     nameRank1Category: 'Name of Rank1 Category',
     displayPosition: 'Display Position',
-    statusAndFunction: 'Satus And Function',
+    statusAndFunction: 'Status And Function',
     stopShowAppWeb: 'Stop show app/web user',
     stopActive: 'Stop active',
     addImage: 'Add Image',
@@ -987,7 +987,7 @@ export default {
     branchName: 'Branch name',
     branchCode: 'Branch code',
     stocking: 'Stocking',
-    newsDerectoryinformation: 'News derectory information',
+    newsDerectoryinformation: 'News directory information',
     warehouseListInformation: 'Warehouse List Information',
     featureGroup: 'Feature Group',
     handmade: 'Handmade',
@@ -1070,7 +1070,7 @@ export default {
     lastContent: 'Last Content',
     orderSalesAssign: 'Order Sale Assign',
     customerCareContent: 'Customer Care Content',
-    saleHistoryCustomerCare: 'Sale & History Custormer Care',
+    saleHistoryCustomerCare: 'Sale & History Customer Care',
     addSale: 'Add New Sale',
     historySaleCustomerCare: 'History Sale Customer Care',
     //Warehouse
@@ -1213,7 +1213,7 @@ export default {
     cantFindData: 'Cant Find Data',
     getDataSuccess: 'Get data success',
     //product property
-    removeProductProperty: 'Rremove product property',
+    removeProductProperty: 'Remove product property',
     clickEditForEditing: ' Click edit to turn on/off settings',
     addPricesBeforeTurningOnSetting: 'Add prices before turning on setting',
     addFail: 'Add fail',
@@ -1228,7 +1228,7 @@ export default {
     enterSelectTaxCode: 'Enter or select tax code',
     taxCode: 'Tax code',
     addActions: 'Add Action',
-    orderSaleAsignrequired: 'Please input order sale asign',
+    orderSaleAsignrequired: 'Please input order sale assign',
     comboDetail: 'Combo detail',
     auctionDetail: 'Auction detail',
     voucherDetail: 'Voucher detail',

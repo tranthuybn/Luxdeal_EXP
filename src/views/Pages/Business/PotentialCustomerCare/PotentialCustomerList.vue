@@ -46,7 +46,7 @@ const columns = reactive<TableColumn[]>([
         ]),
         h('li', [
           h('span', [t('reuse.phoneNumber'), ':']),
-          h('span', { style: { paddingLeft: '3px' } }, Recordable['phoneNumber'])
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['phonenumber'])
         ]),
         h('li', [
           h('span', [t('reuse.email'), ':']),

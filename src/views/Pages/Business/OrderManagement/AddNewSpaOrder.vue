@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onBeforeMount } from 'vue'
+import { reactive, ref, watch, onBeforeMount, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -31,7 +31,7 @@ import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
-  getCollaboratorsList,
+  getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
   getSpaList
@@ -120,6 +120,9 @@ const newList = reactive<FormSchema[]>([
     }
   }
 ])
+// const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 const { register } = useForm()
 
@@ -200,8 +203,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const value2 = ref(t('formDemo.deliveryAtCustomerAddress'))
-
 const choosePayment = [
   {
     value: 'cashPayment',
@@ -210,17 +211,6 @@ const choosePayment = [
   {
     value: 'cardPayment',
     label: t('formDemo.cardPayment')
-  }
-]
-
-const chooseDelivery = [
-  {
-    value: 'deliveryAtTheCounter',
-    label: t('formDemo.deliveryAtTheCounter')
-  },
-  {
-    value: 'deliveryAtCustomerAddress',
-    label: t('formDemo.deliveryAtCustomerAddress')
   }
 ]
 
@@ -267,6 +257,12 @@ const tableData2 = [
     intoMoney: ''
   }
 ]
+
+onBeforeMount(() => {
+  callCustomersApi()
+  callApiCollaborators()
+  callApiProductList()
+})
 
 const historyTable = ref([
   {
@@ -414,28 +410,64 @@ const onAddDebtTableItem = () => {
 const radioVAT = ref(false)
 
 // Call api danh sách khách hàng
+let customerAddress = ref('')
+
 const customersValue = ref('')
-const listCustomers = ref()
-const optionsCustomerApi = ref()
-// const addressCustomer = ref('')
+const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    listCustomers.value = res.data.data
-    optionsCustomerApi.value = listCustomers.value.map((product) => ({
-      label: product.representative
-        ? product.representative + ' | MST ' + product.taxCode
-        : product.name + ' | ' + product.phonenumber,
-      value: product.phonenumber,
-      address: product.address
-    }))
+    const getCustomerResult = res.data
+    console.log('getCustomerResult', getCustomerResult)
+    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+      optionsCustomerApi.value = getCustomerResult.map((product) => ({
+        label: product.representative
+          ? product.representative + ' | MST ' + product.taxCode
+          : product.name + ' | ' + product.phonenumber,
+        value: product.code,
+        address: product.address,
+        isOrganization: product.isOrganization,
+        name: product.name,
+        taxCode: product.taxCode,
+        phone: product.phonenumber,
+        email: product.email
+      }))
+    }
   }
   optionCallCustomerAPi++
 }
 
-const changeAdressCustomer = (scope) => {
-  console.log('scope:', scope)
+let infoCompany = reactive({
+  name: '',
+  taxCode: '',
+  phone: '',
+  email: ''
+})
+
+const changeAddressCustomer = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsCustomerApi.value.find((e) => e.value == data)
+    console.log('result: ', result)
+    if (result.isOrganization) {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    } else {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    }
+  } else {
+    customerAddress.value = ''
+    deliveryMethod.value = ''
+  }
+  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -477,8 +509,10 @@ const optionsCollaborators = ref()
 let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsList('')
+    const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
+    console.log('api', listCollaborators)
+
     optionsCollaborators.value = listCollaborators.value.map((product) => ({
       label: product.name,
       value: product.id
@@ -536,11 +570,12 @@ const callApiServicesSpa = async () => {
 onBeforeMount(() => {
   callApiServicesSpa()
 })
+const inputCode = ref('DHB039423')
 
 const checked1 = ref(true)
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
-const valueClassify = ref('company')
+const valueClassify = ref('individual')
 const optionsClassify = [
   {
     value: 'company',
@@ -637,6 +672,17 @@ const form = reactive({
   phoneNumber: '',
   email: ''
 })
+const chooseDelivery = [
+  {
+    value: 'deliveryAtTheCounter',
+    label: t('formDemo.selfDelivery')
+  },
+  {
+    value: 'deliveryToYourPlace',
+    label: t('formDemo.deliveryToYourPlace')
+  }
+]
+const deliveryMethod = ref(chooseDelivery[0].value)
 </script>
 
 <template>
@@ -667,6 +713,7 @@ const form = reactive({
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
                   <input
+                    v-model="inputCode"
                     class="w-[80%] border-1 w-[100%] outline-none pl-2 bg-transparent"
                     type="text"
                     :placeholder="`${t('formDemo.enterOrderCode')}`"
@@ -682,7 +729,7 @@ const form = reactive({
                   <input
                     class="w-[80%] border-1 outline-none pl-2 bg-transparent"
                     type="text"
-                    :placeholder="t('formDemo.deliveryDate')"
+                    :placeholder="t('formDemo.returnDate')"
                   />
                 </div>
               </template>
@@ -696,7 +743,6 @@ const form = reactive({
                         :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                         filterable
                         size="large"
-                        @focus="callApiCollaborators()"
                       >
                         <el-option
                           v-for="(item, index) in optionsCollaborators"
@@ -755,6 +801,8 @@ const form = reactive({
                   :auto-upload="false"
                   class="relative"
                 >
+                  <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon" /> -->
+                  <strong>+ Thêm ảnh hoặc file</strong>
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -763,6 +811,7 @@ const form = reactive({
                           class="el-upload-list__item-preview"
                           @click="handlePictureCardPreview(file)"
                         >
+                          <ElButton :icon="viewIcon" />
                         </span>
                         <span
                           v-if="!disabled"
@@ -775,6 +824,7 @@ const form = reactive({
                           class="el-upload-list__item-delete"
                           @click="handleRemove(file)"
                         >
+                          <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
                     </div>
@@ -806,20 +856,20 @@ const form = reactive({
                   }}</el-divider>
                 </div>
               </template>
-              <template #customerName="props">
+              <template #customerName>
                 <div class="flex gap-6">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4 items-center">
-                      <label class="w-[24%] text-right">{{ t('formDemo.chooseACustomer') }}</label>
+                      <label class="w-[16%] text-right">{{ t('formDemo.chooseACustomer') }}</label>
 
-                      <div class="flex items-center w-[80%] gap-4">
-                        <div class="flex w-[80%] gap-2 bg-transparent">
+                      <div class="flex items-center w-[79%] gap-4">
+                        <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
                             v-model="customersValue"
                             filterable
+                            :clearable="true"
                             placeholder="Select"
-                            @focus="callCustomersApi()"
-                            @change="changeAdressCustomer(props)"
+                            @change="changeAddressCustomer"
                           >
                             <el-option
                               v-for="item in optionsCustomerApi"
@@ -828,10 +878,10 @@ const form = reactive({
                               :value="item.value"
                             />
                           </el-select>
+                          <el-button @click="dialogAddQuick = true"
+                            >+ {{ t('button.add') }}</el-button
+                          >
                         </div>
-                        <el-button @click="dialogAddQuick = true"
-                          >+ {{ t('button.add') }}</el-button
-                        >
                       </div>
 
                       <el-dialog
@@ -1008,9 +1058,9 @@ const form = reactive({
                         t('formDemo.chooseShipping')
                       }}</label>
                       <el-select
-                        v-model="value2"
+                        v-model="deliveryMethod"
                         class="fix-full-width"
-                        :placeholder="`${t('formDemo.selfDelivery')}`"
+                        :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
                         size="large"
                       >
                         <el-option
@@ -1037,7 +1087,7 @@ const form = reactive({
                     <p class="w-[16%] ml-2 text-[#828387] text-right">{{
                       t('formDemo.deliveryAddress')
                     }}</p>
-                    <p>79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</p>
+                    <p>{{ customerAddress }}</p>
                     <p>
                       <el-button
                         class="hover:bg-transparent; focus:bg-transparent"
@@ -1278,30 +1328,6 @@ const form = reactive({
             </template>
           </el-table-column>
 
-          <!-- <el-table-column
-            :label="`${t('formDemo.productManagementCode')}`"
-            min-width="250"
-            prop="name"
-          >
-            <template #default="props">
-              <MultipleOptionsBox
-                :fields="[
-                  t('reuse.productCode'),
-                  t('reuse.managementCode'),
-                  t('formDemo.productInformation')
-                ]"
-                filterable
-                :items="listProductsTable"
-                :valueKey="'name'"
-                :labelKey="'id'"
-                :hiddenKey="['id']"
-                :placeHolder="'Chọn sản phẩm'"
-                @focus="callApiProductList()"
-                :clearable="false"
-                @change="(option) => changeName(option, props)"
-              />
-            </template>
-          </el-table-column> -->
           <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="400" />
           <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -1324,7 +1350,7 @@ const form = reactive({
           </el-table-column>
           <el-table-column
             prop="quantity"
-            :label="t('formDemo.numberSpa')"
+            :label="t('formDemo.numberOfSpa')"
             align="center"
             width="90"
           >
@@ -1519,7 +1545,7 @@ const form = reactive({
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.receivableOrPayable')}`" min-width="120">
-            <div>Phải thu</div>
+            <div>{{ t('reuse.haveToCollect') }}</div>
           </el-table-column>
           <el-table-column
             prop="paymentType"
@@ -1592,7 +1618,9 @@ const form = reactive({
             <el-button type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.complete')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
+            <el-button type="danger" class="min-w-42 min-h-11">{{
+              t('button.cancelOrder')
+            }}</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -1611,7 +1639,6 @@ const form = reactive({
             ref="multipleTableRef"
             border
             :data="callApiTable"
-            style="width: 100%"
             @selection-change="handleSelectionChange"
           >
             <el-table-column type="selection" width="55" />
@@ -1643,12 +1670,42 @@ const form = reactive({
         </template>
         <div>
           <el-divider content-position="left">Bảng theo dõi nhập hàng</el-divider>
-          <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
-            <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150" />
+          <el-table
+            :data="ListOfProductsForSale"
+            border
+            :class="[
+              'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+            ]"
+          >
+            <el-table-column
+              :label="`${t('formDemo.productManagementCode')}`"
+              min-width="250"
+              prop="code"
+            >
+              <template #default="props">
+                <MultipleOptionsBox
+                  :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('formDemo.productInformation')
+                  ]"
+                  filterable
+                  :items="listProductsTable"
+                  :valueKey="'name'"
+                  :labelKey="'id'"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  @focus="callApiProductList()"
+                  :clearable="false"
+                  @change="(option) => changeName(option, props)"
+                />
+              </template>
+            </el-table-column>
+
             <el-table-column
               prop="name"
-              :label="`${t('formDemo.productInformation')}`"
-              width="720"
+              :label="t('formDemo.productInformation')"
+              min-width="400"
             />
             <el-table-column :label="`${t('reuse.accessory')}`" width="180">
               <el-input
@@ -1675,16 +1732,6 @@ const form = reactive({
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
               <template #default="scope">
                 <div class="flex gap-4 justify-center">
-                  <!-- <button class="border-1 bg-[#2C6DDA] pt-2 pb-2 pl-4 pr-4 text-[#fff]">
-                    Lưu
-                  </button> -->
-
-                  <!-- <button
-                    class="border-1 bg-[#F78F8F] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-                    @click.prevent="deleteRow(scope.$index)"
-                  >
-                    Xóa
-                  </button> -->
                   <el-button @click.prevent="deleteRow(scope.$index)" type="danger">{{
                     t('reuse.delete')
                   }}</el-button>

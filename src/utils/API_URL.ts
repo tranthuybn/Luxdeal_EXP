@@ -41,7 +41,6 @@ export const CUSTOMER_API = {
   DELETE_POTENTIAL_CUSTOMER: '/api/v1/Customer/deletePotentialCustomers',
   DELETE_POTENTIAL_CUSTOMER_HISTORY: 'api/v1/Customer/deletePotentialCustomerHistory',
   DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD: 'api/v1/Customer/deletePotentialCustomerHistoryOfSale',
-  GET_COLLABORATOR_API: '/api/v1/Customer/GetCollaborator',
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers'
 }
 export const ORDER_API = {

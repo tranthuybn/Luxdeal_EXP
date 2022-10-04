@@ -172,6 +172,8 @@ export default {
     choseDeliveryMethod: 'Chose delivery method',
     deliveryToYourPlace: 'delivery to your place',
     printSalesSlip: 'Print sales slip',
+    deliveryNotes: 'Delivery note',
+
     printSpaBill: 'Print spa bill',
     printDepositSlip: 'Print deposit slip',
     complete: 'Completed',
@@ -275,6 +277,7 @@ export default {
     company: 'Company',
     individual: 'Individual',
     deliveryDate: 'Delivery date',
+    returnDate: 'Return date',
     methodOfDeliverySpa: 'Method of deliverySpa',
     receiveGoodsAtCustomerAddress: 'Receive Goods At Customer Address',
     listProductSpa: 'List product Spa',
@@ -362,7 +365,17 @@ export default {
     enterAccountName: 'Enter account name',
     provinceAndCity: 'Provine/city',
     countyAndDistrict: 'Country/district',
-    wards: 'Wards'
+    wards: 'Wards',
+    numberOfSpa: 'Number of spa',
+    depositing: 'Depositing',
+    renewingConsignment: 'Renewing',
+    orderValue: 'Order value',
+    negotiablePrice: 'Negotiable price',
+    depositFee: 'Deposit fee',
+    payableFees: 'Payable fee',
+    pawnFeePaymentTime: 'Pawn fee payment time',
+    businessManagement: 'Business management',
+    pawnFeeDebt: 'Pawn fee debt'
   },
   button: {
     add: 'Add quick',
@@ -657,6 +670,10 @@ export default {
     serviceDetail: 'serviceDetail',
     statusTag: 'Status tag',
     result: 'Result',
+    receiveConsignmentGoodsAtCounter: 'Receive consignment good at counter',
+    receivePawnGoodsAtCounter: 'Receive pawn good at counter',
+
+    receiveConsignment: 'Receive consignment',
     order: 'Order',
     feedBack: 'Feedback',
     status: 'Status',

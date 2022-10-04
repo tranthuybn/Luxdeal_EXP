@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { h, onBeforeMount, reactive, ref, unref } from 'vue'
+import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
 import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
+import { getCollaboratorsById, getGenCodeCollaborators, addNewCollaborators } from '@/api/Business'
+import { useRouter } from 'vue-router'
 import { getAllCustomer } from '@/api/Business'
 import { Form } from '@/components/Form'
 import {
@@ -16,7 +18,11 @@ import {
   ElButton,
   ElDivider,
   ElInput,
-  ElCheckbox
+  ElCheckbox,
+  ElNotification,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile
 } from 'element-plus'
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -74,9 +80,9 @@ const tableColumn = [
     align: 'center'
   }
 ]
-const { register } = useForm()
 const dialogVisible = ref(false)
-const disabled = ref(false)
+// const disabled = ref(false)
+const disabledTable = ref(false)
 const newList = reactive<FormSchema[]>([
   {
     field: 'profileCollaborator',
@@ -133,7 +139,6 @@ const newList = reactive<FormSchema[]>([
     }
   }
 ])
-const CollaboratorCode = Math.random()
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -147,7 +152,7 @@ const collapseChangeEvent = (val) => {
 }
 let customerAddress = ref('')
 // Call api danh sách khách hàng
-const customersValue = ref('')
+
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -170,9 +175,12 @@ const callCustomersApi = async () => {
         representative: product.representative
       }))
     }
+    profileCustomer.value = getCustomerResult
   }
   optionCallCustomerAPi++
+  console.log('saveValue', profileCustomer)
 }
+let profileCustomer = ref()
 let infoCompany = reactive({
   name: '',
   taxCode: '',
@@ -207,14 +215,138 @@ const changeAddressCustomer = (data) => {
   } else {
     customerAddress.value = ''
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
+  console.log('infoCompany: ', infoCompany)
+}
+// eslint-disable-next-line vue/no-setup-props-destructure
+const { register, methods, elFormRef } = useForm({
+  newList
+})
+// get data from router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+//Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
+watch(
+  () => type,
+  () => {
+    if (type === 'detail') {
+      const { setProps } = methods
+      setProps({
+        disabled: true
+      })
+    }
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+    }
+    if (type === 'add') {
+      const { setProps } = methods
+      setProps({
+        disabledTable: true
+      })
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+defineExpose({
+  elFormRef,
+  getFormData: methods.getFormData
+})
+const formValue = ref()
+const getTableValue = async () => {
+  if (!isNaN(id)) {
+    const res = await getCollaboratorsById({ id: id })
+    if (res) {
+      if (res.data?.list !== undefined) {
+        formValue.value = res.data.list[0]
+      } else {
+        formValue.value = res.data
+      }
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+}
+const CustomerId = ref()
+const getGenCodeCollaborator = async () => {
+  await getGenCodeCollaborators({})
+    .then((res) => {
+      CustomerId.value = res
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  CustomerId
+}
+
+type FormDataInput = {
+  CollaboratorStatus: boolean
+  Discount: number
+  customersValue: any
+}
+type FormDataPost = {
+  CustomerId: any
+  Code: string
+  CollaboratorStatus: number
+  Discount: number
+  AccountNumber: string
+  AccountName: string
+  BankId: string
+  Files?: any
+}
+const customersValue = ref('')
+const EmptyCustomData = {} as FormDataInput
+const FormData = reactive(EmptyCustomData)
+const customPostData = (FormData) => {
+  const customData = {} as FormDataPost
+  customData.CustomerId = CustomerId.value
+  customData.Code = customersValue.value
+  customData.Discount = FormData.Discount
+  customData.AccountNumber = infoCompany.phonenumber
+  customData.AccountName = infoCompany.phonenumber
+  customData.BankId = infoCompany.phonenumber
+  customData.Files = upload.value
+  FormData.CollaboratorStatus
+    ? (customData.CollaboratorStatus = 1)
+    : (customData.CollaboratorStatus = 0)
+  return customData
+}
+
+const save = async (type) => {
+  if (type === 'add') {
+    console.log('1', FormData)
+    customPostData(FormData)
+    console.log('2', customPostData(FormData))
+    await addNewCollaborators({ ...customPostData(FormData) })
+      .then(() =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+      )
+      .catch((error) =>
+        ElNotification({
+          message: error,
+          type: 'warning'
+        })
+      )
+  }
+}
+const upload = ref<UploadInstance>()
+
+const handleExceed: UploadProps['onExceed'] = (files) => {
+  const file = files[0] as UploadRawFile
+  upload.value!.handleStart(file)
 }
 onBeforeMount(() => {
   callCustomersApi()
+  getGenCodeCollaborator()
 })
-//lay du lieu tu router
-// const router = useRouter()
-//const id = String(router.currentRoute.value.params.id)
 const activeName = ref('1')
 </script>
 <template>
@@ -239,7 +371,7 @@ const activeName = ref('1')
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right">{{ t('formDemo.CollaboratorCode') }}</label>
                   <div class="w-[80%] w-[100%] outline-none pl-2 bg-transparent">
-                    <div>{{ CollaboratorCode }}</div>
+                    <div>{{ CustomerId }}</div>
                   </div>
                 </div>
               </template>
@@ -248,6 +380,7 @@ const activeName = ref('1')
                   <label class="w-[16%] text-right">{{ t('formDemo.discountCollaborator') }}</label>
                   <div class="w-[80%] w-[100%] outline-none pl-2 bg-transparent">
                     <ElInput
+                      v-model="FormData.Discount"
                       :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                       :suffixIcon="h('div', '%')"
                     />
@@ -325,7 +458,11 @@ const activeName = ref('1')
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right">{{ t('reuse.status') }}</label>
                   <div class="flex items-center ml-2 w-[80%] gap-4">
-                    <ElCheckbox :v-model="true" :label="t('formDemo.isActive')" size="large" />
+                    <ElCheckbox
+                      v-model="FormData.CollaboratorStatus"
+                      :label="t('formDemo.isActive')"
+                      size="large"
+                    />
                   </div>
                 </div>
               </template>
@@ -342,22 +479,13 @@ const activeName = ref('1')
               </div>
               <div class="pl-4">
                 <el-upload
-                  action="#"
-                  list-type="picture-card"
+                  ref="upload"
+                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  :limit="1"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
-                  class="relative"
                 >
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span class="el-upload-list__item-preview"> </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog v-model="dialogVisible" class="absolute">
+                  <el-dialog v-model="dialogVisible">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
                       >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                     >
@@ -368,11 +496,13 @@ const activeName = ref('1')
           </div>
         </div>
         <div class="flex justify-center">
-          <ElButton class="min-w-42" type="primary"> {{ t('reuse.saveAndPending') }} </ElButton>
+          <ElButton class="min-w-42" type="primary" @click="save('add')">
+            {{ t('reuse.saveAndPending') }}
+          </ElButton>
           <ElButton class="min-w-42"> {{ t('reuse.cancel') }} </ElButton>
         </div>
       </el-collapse-item>
-      <el-collapse-item name="2">
+      <el-collapse-item :disabled="disabledTable" name="2">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>

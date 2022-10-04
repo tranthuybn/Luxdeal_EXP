@@ -28,14 +28,7 @@ import {
 } from '../../Components/TablesReusabilityFunction'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import {
-  ElMessageBox,
-  ElNotification,
-  ElDrawer,
-  ElButton,
-  ElCheckboxGroup,
-  ElCheckboxButton
-} from 'element-plus'
+import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -45,18 +38,18 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'customerId',
+    field: 'code',
     label: t('reuse.collaboratorsCode'),
     minWidth: '100'
   },
   {
-    field: 'customer.name',
+    field: 'accountName',
     label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
 
   {
-    field: 'contact',
+    field: 'accountNumber',
     label: t('reuse.contact'),
     minWidth: '250'
   },
@@ -89,7 +82,7 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
-    field: 'collaboratorStatus',
+    field: 'status',
     label: t('reuse.accountStatus'),
     minWidth: '200',
     filters: filterStatusCustomer,
@@ -102,14 +95,13 @@ const columns = reactive<TableColumn[]>([
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: getCollaboratorsList,
   response: {
-    list: 'list',
-    total: 'total'
+    list: '',
+    total: 'count'
   },
   props: {
     columns: columns,
@@ -127,7 +119,9 @@ const appStore = useAppStore()
 const Utility = appStore.getUtility
 const route = useRoute()
 const { push } = useRouter()
+// get data from router
 const router = useRouter()
+
 const pushAdd = () => {
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
@@ -177,56 +171,6 @@ const action = (row: TableData, type: string) => {
     })
   }
 }
-const delData = async (row: TableData | null, multiple: boolean) => {
-  {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'Xóa', {
-      confirmButtonText: t('reuse.delete'),
-      cancelButtonText: t('reuse.exit'),
-      type: 'warning',
-      confirmButtonClass: 'el-button--danger'
-    })
-      .then(async () => {
-        console.log('row', row, multiple)
-        if (row !== null) {
-          // change this to delApi
-          const res = await getCollaboratorsList({ Id: row.id })
-            .then(() =>
-              ElNotification({
-                message: t('reuse.deleteSuccess'),
-                type: 'success'
-              })
-            )
-            .catch((error) =>
-              ElNotification({
-                message: error,
-                type: 'warning'
-              })
-            )
-          if (res) {
-            getData()
-          }
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
-      .catch((error) => {
-        if (error == 'cancel') {
-          ElNotification({
-            type: 'info',
-            message: t('reuse.deleteCancel')
-          })
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
-  }
-}
 const getData = (data = {}) => {
   methods.setSearchParams({ ...data })
 }
@@ -261,7 +205,7 @@ const filterSelect = (value) => {
   <HeaderFiler @get-data="getData" @refresh-data="getData">
     <template #headerFilterSlot>
       <el-button type="primary" :icon="createIcon" @click="pushAdd">
-        {{ t('reuse.addCategory') }}</el-button
+        {{ t('router.collaboratorsAdd') }}</el-button
       >
     </template>
   </HeaderFiler>
@@ -322,7 +266,6 @@ const filterSelect = (value) => {
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-        <ElButton @click="delData(row, false)" :icon="trashIcon" />
       </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"

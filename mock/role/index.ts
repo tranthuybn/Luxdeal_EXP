@@ -363,7 +363,21 @@ const adminList = [
             component: 'views/Pages/Business/Collaborators/Collaborators',
             meta: {
               title: 'router.collaboratorsList'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                name: `business.collaborators.collaboratorsList.${utility}`,
+                component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+                meta: {
+                  title: 'router.collaboratorsAdd',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'paymentRequest',

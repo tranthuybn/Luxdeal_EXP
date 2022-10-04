@@ -384,6 +384,7 @@ const removeImage = () => {
   rawUploadFile.value = undefined
   imageUrl.value = undefined
 }
+
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
@@ -415,19 +416,24 @@ const listType = ref<ListImages>('text')
           <div v-if="!multipleImages" class="one-avatar-uploader">
             <div
               v-if="imageUrl"
-              style="width: 178px; height: 178px; border: solid 1px #e5e7eb; border-radius: 4px"
+              style="width: 148px; height: 148px; border-radius: 4px"
               class="flex justify-center relative mb-2"
             >
               <ElImage fit="contain" :src="imageUrl" class="avatar" />
             </div>
-            <ElButton v-else :icon="addIcon" class="avatar-uploader-icon" />
+            <ElButton
+              v-else
+              :icon="addIcon"
+              style="border: dashed 1px #e5e7eb"
+              class="avatar-uploader-icon"
+            />
           </div>
           <div v-else>
             <ElButton :icon="addIcon" />
           </div>
           <template #file="{ file }">
             <div>
-              <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+              <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <ElButton :icon="viewIcon" />
@@ -507,8 +513,8 @@ const listType = ref<ListImages>('text')
 }
 
 .avatar-uploader-icon {
-  width: 178px;
-  height: 178px;
+  width: 148px;
+  height: 148px;
 }
 .one-avatar-uploader {
   display: flex;

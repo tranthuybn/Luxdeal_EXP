@@ -349,7 +349,18 @@ export default {
 
     completeEntryTrackingSheet: 'Bảng theo dõi nhập hoàn',
     chooseCustomer: 'Chọn khách hàng',
-    enterDetailAddress: 'Nhập địa chỉ chi tiết'
+    enterDetailAddress: 'Nhập địa chỉ chi tiết',
+    userName: 'Tên đăng nhập',
+    enterUserName: 'Nhập tên đăng nhập',
+    accountAndStatus: 'Tài khoản và trạng thái',
+    enterPassword: 'Nhập mật khẩu',
+    confirmPassword: 'Nhập lại mật khẩu',
+    cancelAccount: 'Hủy tài khoản',
+    enterAccountNumber: 'Nhập số tài khoản',
+    enterAccountName: 'Nhập tên tài khoản',
+    provinceAndCity: 'Tỉnh/thành phố',
+    countyAndDistrict: 'Quận/huyện',
+    wards: 'Phường/xã'
   },
   button: {
     add: 'Thêm nhanh',
@@ -627,6 +638,7 @@ export default {
     index: 'Số seri',
     action: 'Vận hành',
     username: 'Tên tài khoản',
+    accountNumber: 'Số tài khoản',
     password: 'Mật khẩu mở khóa',
     role: 'Role',
     remark: 'Nhận xét',
@@ -1312,6 +1324,8 @@ export default {
     voucherDetail: 'Thông tin voucher',
     newProductDetail: 'Thông tin hàng mới về',
     collectionDetail: 'Thông tin bộ sưu tập',
-    flashSaleDetail: 'Thông tin flash sale'
+    flashSaleDetail: 'Thông tin flash sale',
+    bank: 'Ngân hàng',
+    selectBank: 'Chọn ngân hàng'
   }
 }

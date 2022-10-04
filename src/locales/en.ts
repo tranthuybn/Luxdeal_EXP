@@ -348,7 +348,18 @@ export default {
     codeQR: 'QR code',
     completeEntryTrackingSheet: 'Complete entry tracking sheet',
     chooseCustomer: 'Choose customer',
-    enterDetailAddress: 'Enter detailed address'
+    enterDetailAddress: 'Enter detailed address',
+    userName: 'User name',
+    enterUserName: 'Enter user name',
+    accountAndStatus: 'Account and status',
+    enterPassword: 'Enter password',
+    confirmPassword: 'Confirm password',
+    cancelAccount: 'Cancel account',
+    enterAccountNumber: 'Enter account number',
+    enterAccountName: 'Enter account name',
+    provinceAndCity: 'Provine/city',
+    countyAndDistrict: 'Country/district',
+    wards: 'Wards'
   },
   button: {
     add: 'Add quick',
@@ -620,6 +631,7 @@ export default {
     index: 'Index',
     action: 'Action',
     username: 'Username',
+    accountNumber: 'Account number',
     password: 'Password',
     role: 'Role',
     remark: 'Remark',
@@ -1233,6 +1245,8 @@ export default {
     depositAndUsageMethod: 'Deposit and usage method',
     moneyDeposit: 'Money deposit',
     moneyUsed: 'Money used',
-    statusPoint: 'Status point'
+    statusPoint: 'Status point',
+    bank: 'Bank',
+    selectBank: 'Select bank'
   }
 }

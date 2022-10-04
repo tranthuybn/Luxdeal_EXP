@@ -604,18 +604,20 @@ const district = [
               </template>
 
               <template #selectObject>
-                <el-divider content-position="left">Tài khoản và trạng thái</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.accountAndStatus')
+                }}</el-divider>
               </template>
 
               <template #userInfo>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >Tên đăng nhập<span style="color: red">*</span>
+                    >{{ t('formDemo.userName') }}<span style="color: red">*</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`nhập tên đăng nhập`"
+                    :placeholder="t('formDemo.enterUserName')"
                   />
                 </div>
               </template>
@@ -623,12 +625,12 @@ const district = [
               <template #password>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >mật khẩu<span style="color: red">*</span>
+                    >{{ t('login.password') }}<span style="color: red">*</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`nhập mật khẩu`"
+                    :placeholder="t('formDemo.enterPassword')"
                   />
                 </div>
               </template>
@@ -636,12 +638,12 @@ const district = [
               <template #confirmPassword>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] text-right leading-5" for=""
-                    >Nhập lại mật khẩu<span style="color: red">*</span>
+                    >{{ t('formDemo.confirmPassword') }}<span style="color: red">*</span>
                   </label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`Xác nhận lại mật khẩu`"
+                    :placeholder="t('formDemo.confirmPassword')"
                   />
                 </div>
               </template>
@@ -651,7 +653,11 @@ const district = [
                   <p class="option-select text-center w-[15%] text-right leading-5"
                     >{{ t('formDemo.status') }}
                   </p>
-                  <el-checkbox v-model="statusActive" label="Đang hoạt động" size="large" />
+                  <el-checkbox
+                    v-model="statusActive"
+                    :label="t('formDemo.isActive')"
+                    size="large"
+                  />
                 </div>
 
                 <div class="option-page mt-5">
@@ -659,7 +665,9 @@ const district = [
                     <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
                       >Lưu</el-button
                     >
-                    <el-button type="primary" class="min-w-42 min-h-11">Lưu & thêm mới</el-button>
+                    <el-button type="primary" class="min-w-42 min-h-11">{{
+                      t('reuse.saveAndAdd')
+                    }}</el-button>
 
                     <el-button type="danger" class="min-w-42 min-h-11">{{
                       t('reuse.cancel')
@@ -669,11 +677,15 @@ const district = [
                     <el-button @click="fix = !fix" type="primary" class="min-w-42 min-h-11"
                       >Sửa</el-button
                     >
-                    <el-button type="danger" class="min-w-42 min-h-11">Hủy tài khoản</el-button>
+                    <el-button type="danger" class="min-w-42 min-h-11">{{
+                      t('formDemo.cancelAccount')
+                    }}</el-button>
                   </div>
 
                   <div v-if="fix" class="flex justify-center option-1">
-                    <el-button type="primary" class="min-w-42 min-h-11">Lưu</el-button>
+                    <el-button type="primary" class="min-w-42 min-h-11">{{
+                      t('reuse.save')
+                    }}</el-button>
                     <el-button type="danger" class="min-w-42 min-h-11">{{
                       t('reuse.cancel')
                     }}</el-button>
@@ -687,8 +699,8 @@ const district = [
               <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
               <div class="flex gap-4">
                 <div class="about-image">
-                  <p>Thêm ảnh hoặc file</p>
-                  <p style="color: orange">Dưới 10 hồ sơ</p>
+                  <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
+                  <p style="color: orange">{{ t('formDemo.lessThanTenProfiles') }}</p>
                 </div>
                 <div class="upload-image">
                   <el-upload action="#" list-type="picture-card" :auto-upload="false">
@@ -737,7 +749,9 @@ const district = [
               >
                 <template #placeCustomer>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[14%] text-right leading-5" for="">Tỉnh/thành phố </label>
+                    <label class="w-[14%] text-right leading-5" for="">{{
+                      t('formDemo.provinceAndCity')
+                    }}</label>
                     <el-select
                       v-model="valueProvince"
                       style="width: 80%"
@@ -755,7 +769,9 @@ const district = [
                 </template>
                 <template #placeCustomer2>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[14%] text-right leading-5" for="">Quận/huyện </label>
+                    <label class="w-[14%] text-right leading-5" for="">{{
+                      t('formDemo.countyAndDistrict')
+                    }}</label>
                     <el-select
                       v-model="valueDistrict"
                       style="width: 80%"
@@ -773,7 +789,9 @@ const district = [
                 </template>
                 <template #placeCustomer3>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">Phường/xã </label>
+                    <label class="w-[15%] text-right leading-5" for=""
+                      >{{ t('formDemo.wards') }}
+                    </label>
                     <input
                       class="w-[80%] border-1 outline-none pl-2"
                       type="text"
@@ -783,42 +801,48 @@ const district = [
                 </template>
                 <template #placeCustomer4>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">Địa chỉ chi tiết </label>
+                    <label class="w-[15%] text-right leading-5" for="">{{
+                      t('formDemo.detailedAddress')
+                    }}</label>
                     <input
                       class="w-[80%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="` nhập Địa chỉ chi tiết`"
+                      :placeholder="t('formDemo.enterDetailAddress')"
                     />
                   </div>
                 </template>
 
                 <template #referralCode>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">Tên tài khoản </label>
+                    <label class="w-[15%] text-right leading-5" for="">{{
+                      t('userDemo.username')
+                    }}</label>
                     <input
                       class="w-[80%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="`nhập tên tài khoản`"
+                      :placeholder="t('formDemo.enterAccountName')"
                     />
                   </div>
                 </template>
                 <template #referralCode2>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">Số tài khoản </label>
+                    <label class="w-[15%] text-right leading-5" for=""
+                      >{{ t('userDemo.accountNumber') }}
+                    </label>
                     <input
                       class="w-[80%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="`nhập số tài khoản`"
+                      :placeholder="t('formDemo.enterAccountNumber')"
                     />
                   </div>
                 </template>
                 <template #referralCode3>
                   <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">Ngân hàng</label>
+                    <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.bank') }}</label>
                     <input
                       class="w-[80%] border-1 outline-none pl-2"
                       type="text"
-                      :placeholder="`chọn ngân hàng`"
+                      :placeholder="t('reuse.selectBank')"
                     />
                   </div>
                 </template>

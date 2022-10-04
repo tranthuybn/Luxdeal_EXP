@@ -4,8 +4,9 @@ import { getBranchList } from '@/api/HumanResourceManagement'
 import {
   addNewPotentialCustomer,
   getCustomer,
-  getPotentialCustomerListById,
-  updatePotentialCustomer
+  getPotentialCustomerById,
+  updatePotentialCustomer,
+  UpdatePotentialCustomerHistory
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -28,6 +29,9 @@ import {
   ElFormItem,
   ElNotification
 } from 'element-plus'
+// import { useForm } from '@/hooks/web/useForm'
+import form from 'element-plus/es/components/form'
+import { dateTimeFormat } from '@/utils/format'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const { required, ValidService } = useValidator()
@@ -40,7 +44,7 @@ const rules = reactive({
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
   email: [required(), ValidService.checkEmail],
-  oderSalesAssign: [ValidService.checkNumber]
+  percentageOfSales: [ValidService.checkNumber]
 })
 type FormValueType = string | number | boolean
 type ComponentOptions = {
@@ -59,11 +63,11 @@ interface tableChildren {
 }
 interface tableDataType {
   id: any
-  sale: Number
-  saleName: String
-  lastContent: String
-  date: String
-  oderSalesAssign: NonNullable<Number>
+  staffId: Number
+  staffName: String
+  content: String
+  createdAt: String
+  percentageOfSales: NonNullable<Number>
   manipulation: string
   edited: Boolean
   family: Array<tableChildren> | []
@@ -91,8 +95,15 @@ interface potentialCustomerInfo {
   total: Number
 }
 
+interface potentialCustomerHistoryInfo {
+  id: any
+  staffId: Number
+  content: string
+  percentageOfSales: number
+}
+
 const parentBorder = ref(false)
-const tableData = ref<tableDataType[]>([])
+let tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
 
 //lay du lieu tu router
@@ -107,10 +118,9 @@ const postData = (data) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
           customerHistory.push({
-            id: element.sale,
-            staffId: 0,
+            id: element.staffId,
             content: ChildEl?.customerCareContent ?? '',
-            percentageOfSales: element.oderSalesAssign
+            percentageOfSales: element.percentageOfSales
           })
         })
     })
@@ -124,7 +134,7 @@ const postData = (data) => {
     email: data.email,
     link: data.link,
     historyTransaction: data.transactionHistory,
-    isOnline: true,
+    isOnline: data.isOnline,
     accessChannel: data.customerContactChannel,
     source: data.newCustomerSource,
     note: data.Note,
@@ -137,6 +147,7 @@ const postData = (data) => {
   }
 
   addNewPotentialCustomer(payload)
+  console.log('payload', payload)
 }
 
 const collapseChangeEvent = (val) => {
@@ -152,8 +163,25 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref('collapse[0].name')
 
-const handleEdit = (row) => {
+const handleEdit = async (row) => {
   row.edited = !row.edited
+
+  if (type == 'edit') {
+    row = customPostDataHistory(row)
+    await UpdatePotentialCustomerHistory({ ...row })
+      .then(() =>
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.updateFail'),
+          type: 'warning'
+        })
+      )
+  }
 }
 let isLastChild = false
 let lastChildContent = ref('')
@@ -161,8 +189,8 @@ let isLastDate = false
 let lastChildDate = ref('')
 const handleItemEdit = (child, scope) => {
   child.row.editedChild = !child.row.editedChild
-  scope.row.lastContent = child.row.customerCareContent
-  scope.row.date = child.row.date
+  scope.row.content = child.row.customerCareContent
+  scope.row.createdAt = child.row.date
   if (child.$index == scope.row.family.length - 1) {
     isLastChild = true
     lastChildContent.value = child.row.customerCareContent
@@ -170,9 +198,9 @@ const handleItemEdit = (child, scope) => {
     lastChildDate.value = child.row.date
   }
   isLastChild
-    ? (scope.row.lastContent = lastChildContent.value)
-    : (scope.row.lastContent = child.row.customerCareContent)
-  isLastDate ? (scope.row.date = lastChildDate.value) : (scope.row.date = child.row.date)
+    ? (scope.row.content = lastChildContent.value)
+    : (scope.row.content = child.row.customerCareContent)
+  isLastDate ? (scope.row.createdAt = lastChildDate.value) : (scope.row.createdAt = child.row.date)
 }
 const addActions = (props) => {
   const newObj: tableChildren = {
@@ -193,29 +221,6 @@ const handleItemDelete = (payload, scope) => {
 }
 const size = ref<'' | 'large' | 'small'>('')
 
-const shortcuts = [
-  {
-    text: 'Today',
-    value: new Date()
-  },
-  {
-    text: 'Yesterday',
-    value: () => {
-      const date = new Date()
-      date.setTime(date.getTime() - 3600 * 1000 * 24)
-      return date
-    }
-  },
-  {
-    text: 'A week ago',
-    value: () => {
-      const date = new Date()
-      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-      return date
-    }
-  }
-]
-
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
@@ -233,17 +238,16 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     componentProps: {
       allowCreate: true,
       filterable: true,
-      multiple: true,
       style: 'width: 100%',
       placeholder: t('reuse.personal'),
       options: [
         {
           label: t('reuse.personal'),
-          value: 1
+          value: true
         },
         {
           label: t('reuse.enterPrise'),
-          value: 2
+          value: false
         }
       ]
     },
@@ -259,7 +263,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     componentProps: {
       allowCreate: true,
       filterable: true,
-      multiple: true,
       style: 'width: 100%',
       placeholder: t('reuse.supplier'),
       options: []
@@ -280,7 +283,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       allowCreate: true,
       filterable: true,
-      multiple: true,
       placeholder: t('reuse.enterSelectCompanyName')
     },
     colProps: {
@@ -296,7 +298,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       allowCreate: true,
       filterable: true,
-      multiple: true,
       placeholder: t('reuse.enterSelectTaxCode')
     },
     colProps: {
@@ -368,11 +369,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       options: [
         {
           label: 'Lần đầu',
-          value: 1
+          value: 219
         },
         {
           label: 'Đã giao dịch',
-          value: 2
+          value: 220
         }
       ]
     },
@@ -386,9 +387,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Select',
     title: 'àcasfa',
     componentProps: {
-      allowCreate: true,
-      filterable: true,
-      multiple: true,
       placeholder: t('reuse.offline'),
       style: 'width: 100%',
       options: [
@@ -478,28 +476,27 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     componentProps: {
       allowCreate: true,
       filterable: true,
-      multiple: true,
       placeholder: t('reuse.selectService'),
       style: 'width: 100%',
       options: [
         {
-          label: 'Bán',
+          label: t('workplace.sale'),
           value: 1
         },
         {
-          label: 'Ký gửi',
+          label: t('workplace.deposit'),
           value: 2
         },
         {
-          label: 'Cho thuê',
+          label: t('workplace.lease'),
           value: 3
         },
         {
-          label: 'Thế chấp',
+          label: t('workplace.mortgage'),
           value: 4
         },
         {
-          label: 'Spa',
+          label: t('workplace.spa'),
           value: 5
         }
       ]
@@ -532,7 +529,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     componentProps: {
       allowCreate: true,
       filterable: true,
-      multiple: true,
       placeholder: t('reuse.selectOrder'),
       style: 'width: 100%',
       options: [
@@ -616,11 +612,11 @@ onBeforeMount(async () => {
 // add history for sale
 const historyRow = reactive<tableDataType>({
   id: moment().toString(),
-  sale: 1,
-  saleName: '',
-  lastContent: '',
-  date: '',
-  oderSalesAssign: 0,
+  staffId: 1,
+  staffName: '',
+  content: '',
+  createdAt: '',
+  percentageOfSales: 0,
   manipulation: '',
   edited: true,
   family: []
@@ -630,7 +626,7 @@ onBeforeUpdate(async () => {
 })
 const addNewSale = () => {
   const tempObj = { ...historyRow }
-  tempObj.sale = tableData.value.length + 1
+  tempObj.staffId = tableData.value.length + 1
   tempObj.family = [
     {
       date: '',
@@ -650,14 +646,16 @@ type setFormCustomData = {
   name: string
   taxCode: string
   serviceDetails: string
-  customerContactChannel: string
+  customerContactChannel: number
   transactionHistory: string
+  isOnline: boolean
   Note: string
-  newCustomerSource: string
-  service: string[]
+  newCustomerSource: number
+  service: number
 }
 const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
+//set form value
 const customizeData = (formData) => {
   console.log('formData', formData)
   // formDataCustomize.value = formData
@@ -665,13 +663,13 @@ const customizeData = (formData) => {
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
   formDataCustomize.value.name = formData.name
+  formDataCustomize.value.isOnline = formData.isOnline
   formDataCustomize.value.taxCode = formData.taxCode
-  console.log('formDataCustomize', formDataCustomize)
   formDataCustomize.value.serviceDetails = formData.serviceDetail
-  formDataCustomize.value.customerContactChannel = formData.accessChannelName
+  formDataCustomize.value.customerContactChannel = formData.accessChannel
   formDataCustomize.value.transactionHistory = formData.historyTransaction
   formDataCustomize.value.Note = formData.note
-  formDataCustomize.value.newCustomerSource = formData.sourceName
+  formDataCustomize.value.newCustomerSource = formData.source
   formDataCustomize.value['status'] = []
   if (formData.statusId == 1) {
     formDataCustomize.value['status'].push(1)
@@ -682,26 +680,18 @@ const customizeData = (formData) => {
   if (formData.statusId == 3) {
     formDataCustomize.value['status'].push(3)
   }
-  formDataCustomize.value['service'] = []
-  if (formData.service == 1) {
-    formDataCustomize.value['service'].push('Bán')
-  }
-  if (formData.service == 2) {
-    formDataCustomize.value['service'].push('Ký gửi')
-  }
-  if (formData.service == 3) {
-    formDataCustomize.value['service'].push('Cho thuê')
-  }
-  if (formData.service == 4) {
-    formDataCustomize.value['service'].push('Thế chấp')
-  }
-  if (formData.service == 5) {
-    formDataCustomize.value['service'].push('Spa')
-  }
+  formDataCustomize.value.service = formData.service
+  console.log('tableData: ', tableData)
+  tableData.value[0] = formData.potentialCustomerHistorys[0]
+  tableData.value[0].family = [{}]
+  tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0].content
+  tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt
+  console.log('family: ', tableData.value[0].family)
 }
+// data update api
 const customPostData = (data) => {
   const customData = {} as potentialCustomerInfo
-  customData.id = data.id
+  customData.id = id
   customData.name = data.name
   customData.userName = data.userName
   customData.code = data.code
@@ -709,23 +699,32 @@ const customPostData = (data) => {
   customData.email = data.email
   customData.link = data.link
   customData.taxCode = data.taxCode
-  customData.isOrganization = data.index
+  customData.isOrganization = true
   customData.historyTransaction = data.transactionHistory
   customData.isOnline = data.isOnline
   customData.accessChannel = data.customerContactChannel
   customData.source = data.newCustomerSource
-  customData.note = data.note
+  customData.note = data.Note
   customData.service = data.service
   customData.serviceDetail = data.serviceDetails
-  customData.orderCode = data.orderCode
-  customData.statusId = data.statusId
-  customData.total = data.total
+  customData.orderCode = ''
+  customData.statusId = 1
+  customData.total = 0
   return customData
+}
+
+const customPostDataHistory = (data) => {
+  const customDataHistory = {} as potentialCustomerHistoryInfo
+  customDataHistory.id = id
+  customDataHistory.staffId = data.staffId
+  customDataHistory.content = data.content
+  customDataHistory.percentageOfSales = data.percentageOfSales
+  return customDataHistory
 }
 
 const editData = async (data) => {
   data = customPostData(data)
-  await updatePotentialCustomer({ data })
+  await updatePotentialCustomer(JSON.stringify(data))
     .then(() =>
       ElNotification({
         message: t('reuse.updateSuccess'),
@@ -739,6 +738,7 @@ const editData = async (data) => {
       })
     )
 }
+let disableData = false
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -753,7 +753,7 @@ const editData = async (data) => {
           :schema="columnProfileCustomer"
           :type="type"
           :id="id"
-          :apiId="getPotentialCustomerListById"
+          :apiId="getPotentialCustomerById"
           @post-data="postData"
           @customize-form-data="customizeData"
           @edit-data="editData"
@@ -767,7 +767,7 @@ const editData = async (data) => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
         </template>
-        <el-form ref="form" label-width="20px">
+        <el-form :disabled="disableData" ref="form" label-width="20px">
           <div>
             <div>
               <el-table
@@ -807,19 +807,13 @@ const editData = async (data) => {
                                 type="date"
                                 placeholder="Pick a day"
                                 :disabled-date="disabledDate"
-                                :shortcuts="shortcuts"
                                 :size="size"
                                 format="DD/MM/YYYY"
-                                value-format="DD/MM/YYYY"
+                                value-format="YYYY-MM-DD"
                               />
-                              <div
-                                v-else
-                                type="date"
-                                :disabled-date="disabledDate"
-                                :shortcuts="shortcuts"
-                                :size="size"
-                                >{{ data.row.date }}</div
-                              >
+                              <div v-else type="date" :size="size">{{
+                                dateTimeFormat(data.row.date)
+                              }}</div>
                             </template>
                           </el-table-column>
                           <el-table-column
@@ -867,38 +861,34 @@ const editData = async (data) => {
                 </el-table-column>
                 <el-table-column
                   :label="`${t('reuse.sale')}`"
-                  prop="sale"
+                  prop="staffId"
                   class="text-black font-bold"
                   width="150"
                 >
                   <template #default="data">
-                    {{ data.row.sale }}
+                    {{ data.row.staffId }}
                   </template>
                 </el-table-column>
-                <el-table-column
-                  :label="`${t('reuse.lastContent')}`"
-                  prop="lastContent"
-                  width="720"
-                >
+                <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" width="720">
                   <template #default="scope">
                     <!-- <el-input v-model="scope.row.lastContent" v-if="scope.row.edited" /> -->
-                    <div>{{ scope.row.lastContent }}</div>
+                    <div>{{ scope.row.content }}</div>
                   </template>
                 </el-table-column>
-                <el-table-column :label="`${t('reuse.date')}`" prop="date" width="220">
+                <el-table-column :label="`${t('reuse.date')}`" prop="createdAt" width="220">
                   <template #default="data">
                     <!-- <ElInput v-model="data.row.date" v-if="data.row.edited" /> -->
-                    <div>{{ data.row.date }}</div>
+                    <div> {{ dateTimeFormat(data.row.createdAt) }}</div>
                   </template>
                 </el-table-column>
-                <el-table-column :label="`${t('reuse.saleName')}`" prop="saleName" width="250">
+                <el-table-column :label="`${t('reuse.saleName')}`" prop="staffName" width="250">
                   <!-- <template #default="data">
                   <ElInput v-model="data.row.saleName" v-if="data.row.edited" />
                   <div v-else>{{ data.row.saleName }}</div>
                 </template> -->
                   <template #default="props">
                     <el-select
-                      v-model="props.row.saleName"
+                      v-model="props.row.staffName"
                       filterable
                       class="m-2"
                       size="large"
@@ -911,36 +901,29 @@ const editData = async (data) => {
                         :value="item.value!"
                       />
                     </el-select>
-                    <div v-else>{{ props.row.saleName }}</div>
+                    <div v-else>{{ props.row.staffName }}</div>
                   </template>
                 </el-table-column>
                 <el-table-column
                   :label="`${t('reuse.orderSalesAssign')}`"
-                  prop="oderSalesAssign"
-                  :rules="rules.oderSalesAssign"
+                  prop="percentageOfSales"
+                  :rules="rules.percentageOfSales"
                 >
                   <template #default="data">
                     <el-form-item
                       v-if="data && data.$index >= 0"
                       label=" "
                       :prop="'dataList.' + data.$index + '.name'"
-                      :rules="[
-                        {
-                          required: true,
-                          message: t('reuse.orderSaleAsignrequired'),
-                          trigger: 'blur',
-                          max: 2
-                        }
-                      ]"
+                      :rules="[]"
                     >
                       <ElInput
                         type="Number"
                         step="5"
                         min="0"
-                        v-model="data.row.oderSalesAssign"
+                        v-model="data.row.percentageOfSales"
                         v-if="data.row.edited"
                       />
-                      <div v-else>{{ data.row.oderSalesAssign }}</div>
+                      <div v-else>{{ data.row.percentageOfSales }}</div>
                     </el-form-item>
                   </template>
                 </el-table-column>

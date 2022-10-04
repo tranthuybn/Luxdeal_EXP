@@ -99,6 +99,24 @@ export default {
     code: 'Verification code',
     codePlaceholder: 'Please input verification code'
   },
+  customerList: {
+    rankingList: 'Ranking list',
+    ratingSettings: 'Rating settings',
+    monthlyRevenue: 'Monthly revenue',
+    quarterlySales: 'Quarterly sales',
+    salesYear: 'sales by year',
+    rankMonth: 'Rank by month',
+    quarterlyRanking: 'Quarterly ranking',
+    rankingYear: 'Ranking by year',
+    rankName: 'Rank name',
+    picture: 'Picture',
+    ratings: 'Ratings',
+    sales: 'Sales',
+    creator: 'Creator',
+    addNewRatings: 'Add new ratings',
+    ratingInformation: 'Rating information',
+    enterSales: 'Enter sales'
+  },
   formDemo: {
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
@@ -282,10 +300,7 @@ export default {
     applicableProductsAndSpaApply: 'Applicable product and Spa apply',
     joinTheProgram: 'Join the program',
     theProgramIsRunning: 'The program is Running',
-    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Flasher Programs must have SA approval in the Browsing module',
-    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
-      'New and edit Voucher must have SA approval in the Browsing module',
+
     cancelTheProgram: 'Cancel the program',
     decreaseByPercent: 'Decrease by percent',
     enterPercent: 'Enter percentage',
@@ -307,8 +322,7 @@ export default {
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
     sendImmediatelyAfterBrowsing: 'Send immediately after browsing',
-    ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit:
-      'If not selected Voucher will only be sent after clicking "Submit"',
+
     comboDetail: 'Combo detail',
     comboGetFree: 'Combo get free',
     ApplicableSpaProductsServices: 'applicable spa products & services',
@@ -329,7 +343,26 @@ export default {
     auctionHistoryResults: 'Auction history and results',
     highestBid: 'Highest bid',
     paymentTime: 'Payment time',
-    permissionPurchase: 'Permission to purchase'
+    permissionPurchase: 'Permission to purchase',
+    completeEntryTrackingSheet: 'Complete entry tracking sheet',
+    chooseCustomer: 'Choose customer',
+    enterDetailAddress: 'Enter detailed address',
+    supplyDate: 'Supply date',
+    supplyAddress: 'Suplly address',
+    enterCCCD: 'Enter number...',
+    address: 'Address',
+    codeQR: 'QR code',
+    userName: 'User name',
+    enterUserName: 'Enter user name',
+    accountAndStatus: 'Account and status',
+    enterPassword: 'Enter password',
+    confirmPassword: 'Confirm password',
+    cancelAccount: 'Cancel account',
+    enterAccountNumber: 'Enter account number',
+    enterAccountName: 'Enter account name',
+    provinceAndCity: 'Provine/city',
+    countyAndDistrict: 'Country/district',
+    wards: 'Wards'
   },
   button: {
     add: 'Add quick',
@@ -337,7 +370,8 @@ export default {
     cancel: 'Cancel',
     edit: 'Edit',
     cancelVoucher: 'Cancel voucher',
-    cancelResult: 'Cancel result'
+    cancelResult: 'Cancel result',
+    cancelOrder: 'Cancel order'
   },
   router: {
     login: 'Login',
@@ -600,6 +634,7 @@ export default {
     index: 'Index',
     action: 'Action',
     username: 'Username',
+    accountNumber: 'Account number',
     password: 'Password',
     role: 'Role',
     remark: 'Remark',
@@ -607,6 +642,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    accountBank: 'Account bank',
     index: 'Index',
     fix: 'Fix',
     receivedDate: 'Received Date',
@@ -800,6 +836,7 @@ export default {
     remainingPoints: 'Remaining point',
     employeeName: 'Employee Name',
     employeeCode: 'Employee Code',
+    dateOfBirthAnGender: 'Date of birth/gender',
     dateOfBirth: 'Date of birth',
     branch: 'Branch',
     department: 'Department',
@@ -1195,6 +1232,12 @@ export default {
     taxCode: 'Tax code',
     addActions: 'Add Action',
     orderSaleAsignrequired: 'Please input order sale asign',
+    comboDetail: 'Combo detail',
+    auctionDetail: 'Auction detail',
+    voucherDetail: 'Voucher detail',
+    newProductDetail: 'New product detail',
+    collectionDetail: 'Collection detail',
+    flashSaleDetail: 'Flash sale detail',
     //image
     onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
     notSpaceBeforeAndAfter: 'Not space before and after value',
@@ -1205,6 +1248,8 @@ export default {
     depositAndUsageMethod: 'Deposit and usage method',
     moneyDeposit: 'Money deposit',
     moneyUsed: 'Money used',
-    statusPoint: 'Status point'
+    statusPoint: 'Status point',
+    bank: 'Bank',
+    selectBank: 'Select bank'
   }
 }

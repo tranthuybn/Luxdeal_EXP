@@ -7,6 +7,8 @@ import {
   filterSpaService,
   filtersCustomerType
 } from '@/utils/filters'
+import { h } from 'vue'
+import { dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
 
 //Đơn bán hàng
@@ -18,7 +20,7 @@ export const sellOrder = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
@@ -35,13 +37,13 @@ export const sellOrder = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
     filters: filtersCustomerType
   },
   {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
@@ -49,30 +51,48 @@ export const sellOrder = [
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
     minWidth: '170',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'productInformation',
     label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
   },
   {
-    field: 'saleNumber',
+    field: 'totalQuantity',
     label: t('reuse.saleNumber'),
     minWidth: '200',
     align: 'right',
     sortable: true
   },
   {
-    field: 'totalMoney',
+    field: 'totalPrice',
     label: t('reuse.totaMoney'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'debitTotal',
+    field: 'totalDebt',
     label: t('reuse.outstandingDebt'),
     minWidth: '130',
     align: 'right',
@@ -85,20 +105,23 @@ export const sellOrder = [
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'createDate',
+    field: 'createdDate',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'orderStatusName',
     label: t('reuse.status'),
     minWidth: '120',
     filters: filtersStatus
@@ -113,7 +136,7 @@ export const rentalorder = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
@@ -130,13 +153,13 @@ export const rentalorder = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
     filters: filtersCustomerType
   },
   {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
@@ -144,13 +167,31 @@ export const rentalorder = [
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
     minWidth: '170',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'productInformation',
     label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
   },
   {
     field: 'productManagementCode',
@@ -165,7 +206,7 @@ export const rentalorder = [
     headerFilter: 'Name'
   },
   {
-    field: 'rentingNumber',
+    field: 'totalQuantity',
     label: t('reuse.rentingNumber'),
     minWidth: '200',
     align: 'right',
@@ -194,7 +235,7 @@ export const rentalorder = [
   },
 
   {
-    field: 'unpaidDebt',
+    field: 'totalDebt',
     label: t('reuse.totalRentalFeeDebt'),
 
     minWidth: '150',
@@ -228,19 +269,23 @@ export const rentalorder = [
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdDate',
     label: t('reuse.createDate'),
-    minWidth: '170',
-    sortable: true
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'orderStatusName',
     label: t('reuse.status'),
     minWidth: '120',
     filters: filtersStatus

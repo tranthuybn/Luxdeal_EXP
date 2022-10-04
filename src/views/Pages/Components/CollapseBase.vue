@@ -8,7 +8,6 @@ import { TableOperator } from '../Components/TableBase'
 import tableDatetimeFilterBasicVue from '@/views/Pages/Components/TableDataBase.vue'
 import TableChildren from './TableBase/src/TableChildren.vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { getPotentialCustomerListById } from '@/api/Business'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -114,7 +113,6 @@ const postData = (data) => {
           class="infinite-list"
           style="overflow: auto"
           :rules="item.rules"
-          :apiId="getPotentialCustomerListById"
           :hasImage="item.hasImage"
           @post-data="postData"
           :id="item.id"

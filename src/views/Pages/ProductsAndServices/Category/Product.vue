@@ -17,7 +17,8 @@ const tabs: Array<Tab> = [
     label: t('reuse.businessProduct'),
     api: getCategories,
     column: productCategories,
-    delApi: deleteCategory
+    delApi: deleteCategory,
+    titleAdd: 'reuse.addCategory'
   }
 ]
 const changeParam = (val = '') => {

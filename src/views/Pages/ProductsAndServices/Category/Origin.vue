@@ -19,5 +19,6 @@ const deleteOrigin = t('reuse.deleteOrigin')
     :selection="false"
     :delApi="deleteCategory"
     :deleteTitle="deleteOrigin"
+    :titleAdd="'reuse.addNewOrigin'"
   />
 </template>

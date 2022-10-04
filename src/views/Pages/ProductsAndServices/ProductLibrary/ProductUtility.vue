@@ -1771,7 +1771,7 @@ watch(
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
                 <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>%</template></el-input
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>

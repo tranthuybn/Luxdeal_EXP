@@ -1247,6 +1247,7 @@ export default {
     moneyUsed: 'Money used',
     statusPoint: 'Status point',
     bank: 'Bank',
-    selectBank: 'Select bank'
+    selectBank: 'Select bank',
+    notSave: 'Not save yet'
   }
 }

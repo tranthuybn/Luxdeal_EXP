@@ -1302,7 +1302,7 @@ export default {
     removeProductProperty: 'Xóa thuộc tính sản phẩm',
     clickEditForEditing: 'Ấn nút chỉnh sửa để Bật/Tắt cài đặt',
     addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
-    fillAllAttribute: 'Điền đủ thuộc tính',
+    fillAllAttribute: 'Chưa điền đủ thuộc tính',
     cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
     //image
     onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
@@ -1329,6 +1329,7 @@ export default {
     collectionDetail: 'Thông tin bộ sưu tập',
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
-    selectBank: 'Chọn ngân hàng'
+    selectBank: 'Chọn ngân hàng',
+    notSave: 'Chưa lưu'
   }
 }

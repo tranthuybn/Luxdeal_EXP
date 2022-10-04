@@ -100,7 +100,7 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'imageProduct',
+    field: 'productImages[0].path',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',

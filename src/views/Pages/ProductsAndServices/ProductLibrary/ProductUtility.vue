@@ -97,22 +97,24 @@ const treeSelectData = ref([
     value: 1,
     label: t('reuse.color'),
     parentid: 0,
+    disabled: true,
     children: []
   },
   {
     value: 2,
     label: t('reuse.size'),
     parentid: 0,
+    disabled: true,
     children: []
   },
   {
     value: 3,
     label: t('reuse.material'),
     parentid: 0,
+    disabled: true,
     children: []
   }
 ])
-// làm lại lấy seo tag
 const collapse: Array<Collapse> = reactive([
   {
     icon: minusIcon,
@@ -186,7 +188,8 @@ const collapseChangeEvent = async (val) => {
     const collapseItem = collapse.find(
       (element) => ((nameCollapse = val.slice(-1)), element.name == nameCollapse)
     )
-    if (collapseItem !== undefined) {
+    if (collapseItem !== undefined && collapseItem.name == 'priceCharacteristics') {
+      //call api for priceCharacteristics-collapse
       await callTableApi(collapseItem)
     }
     collapse.forEach((el) => {
@@ -200,11 +203,14 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
+  //have id when in edit mode
+  //newId: when click save and add return id
   const findId = isNaN(id) ? newId.value : id
   collapse[1].tableList.push({
+    categoriesValue: [],
     productCode: productData.productCode,
     productId: findId,
-    code: 'string', //api chua tra
+    code: 'string', //api chua tra/chưa có trường nào để lấy thông tin
     categories: [
       {
         id: null,
@@ -222,12 +228,13 @@ const addLastRowAttribute = () => {
         value: ''
       },
       {
-        id: 116,
+        id: 116, //fix cứng chưa có trường nào để lấy thông tin
         key: 'State',
         value: 'Small(15.5 - 30.5)'
       }
     ],
     bussinessSetups: [
+      //fix theo api (ko đổi)
       {
         id: 1,
         serviceType: 1,
@@ -268,8 +275,7 @@ const addLastRowAttribute = () => {
     newValue: true //check is newValue so dont have to call api
   })
 }
-// save and add cant open this Collapse
-// (newID) ? disabledTabOpen.value = false : ''
+// Add mode cant open this Collapse
 const openLastCollapse = ref(false)
 const OpenCollapse = () => {
   if (disabledTabOpen.value == true) {
@@ -282,8 +288,9 @@ const OpenCollapse = () => {
 }
 const activeName = ref(collapse[0].name)
 const handleDeleteRow = async (scope) => {
+  //newValue : newly created (havent post api)
   scope.row.newValue
-    ? collapse[1].tableList.pop()
+    ? collapse[1].tableList.splice(scope.$index, 1)
     : ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, t('reuse.removeProductProperty'), {
         confirmButtonText: t('reuse.delete'),
         cancelButtonText: t('reuse.exit'),
@@ -322,8 +329,9 @@ const handleDeleteRow = async (scope) => {
         })
 }
 const handleEditRow = (data) => {
-  data.edited = true
+  data.edited = true //change table cell to tree select
   data.categoriesValue = []
+  //push data to tree select
   if (!data.newValue) {
     data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
   }
@@ -349,6 +357,7 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
+  //return newProductPropertyId when newValue post success
   customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
   customUpdateData.categories = []
@@ -357,9 +366,9 @@ const customUpdate = async (data) => {
     //"key": "Gender",
     //"value": "Túi + Ví"
   }
-  customUpdateData.categories[1] = { ...data.categories[0] }
-  customUpdateData.categories[2] = { ...data.categories[2] }
-  customUpdateData.categories[3] = { ...data.categories[1] }
+  customUpdateData.categories[1] = { ...data.categories[0] } //color
+  customUpdateData.categories[2] = { ...data.categories[2] } //size
+  customUpdateData.categories[3] = { ...data.categories[1] } //material
   customUpdateData.categories[4] = {
     id: 116 //"key": "State",
     //"value": "New"
@@ -370,15 +379,17 @@ const customUpdate = async (data) => {
 
 const newProductPropertyId = ref<number>()
 //check validate then newValue
-const handleSaveRow = (data, formEl: FormInstance | undefined) => {
+const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   if (!formEl) return
-  formEl.validate(async (valid) => {
+  //validate for its own row not all table
+  formEl.validateField(`${scope.$index}.categoriesValue`, async (valid) => {
     if (valid) {
-      data.edited = false
-      if (data?.newValue == true) {
-        await postProductProperty(JSON.stringify(data))
+      scope.row.edited = false
+      //newValue ? post api : update api
+      if (scope.row?.newValue == true) {
+        await postProductProperty(JSON.stringify(scope.row))
           .then((res) => {
-            ;(data.newValue = false),
+            ;(scope.row.newValue = false),
               (newProductPropertyId.value = res.data),
               ElNotification({
                 message: t('reuse.addSuccess'),
@@ -387,15 +398,15 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
-            collapse[1].tableList.pop()
+            collapse[1].tableList.splice(scope.$index, 1)
             ElNotification({
               message: t('reuse.addFail'),
               type: 'error'
             })
           })
       } else {
-        data = await customUpdate(data)
-        await updateProductProperty(JSON.stringify(data))
+        scope.row = await customUpdate(scope.row)
+        await updateProductProperty(JSON.stringify(scope.row))
           .then(() => {
             ElNotification({
               message: t('reuse.updateSuccess'),
@@ -419,56 +430,70 @@ const handleSaveRow = (data, formEl: FormInstance | undefined) => {
   })
 }
 // only check 1 child node from 1 parent node
-const customCheck = (nodeObj, _selected, _subtree, row) => {
-  const tree = treeRef.value!.getCheckedNodes(false, false)
-  let sameParent = false
+const customCheck = (nodeObj, tree, scope) => {
+  const checkedNodes = tree.checkedNodes
+  const checkedKeys = tree.checkedKeys
+  // let sameParent = false
   switch (nodeObj.parentid) {
-    case 0:
-      sameParent = true
-      break
+    //parentid ==0 cap 1
+    // case 0:
+    //   sameParent = true
+    //   break
+    //parentid ==1 color
     case 1:
-      const nodeBefore = tree.find((node) => {
+      const nodeBefore = checkedNodes.find((node) => {
         return node.parentid == 1 && node.value != nodeObj.value
       })
-      treeRef.value!.setChecked(nodeBefore?.value, false, false)
-      treeRef.value!.setChecked(nodeObj.value, true, true)
+      if (nodeBefore) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
       break
+    //parentid ==2 size
     case 2:
-      const nodeBefore2 = tree.find((node) => {
+      const nodeBefore2 = checkedNodes.find((node) => {
         return node.parentid == 2 && node.value != nodeObj.value
       })
-      treeRef.value!.setChecked(nodeBefore2?.value, false, false)
-      treeRef.value!.setChecked(nodeObj.value, true, true)
+      if (nodeBefore2) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
       break
+    //parentid ==3 material
     case 3:
-      const nodeBefore3 = tree.find((node) => {
+      const nodeBefore3 = checkedNodes.find((node) => {
         return node.parentid == 3 && node.value != nodeObj.value
       })
-      treeRef.value!.setChecked(nodeBefore3?.value, false, false)
-      treeRef.value!.setChecked(nodeObj.value, true, true)
+      if (nodeBefore3) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
       break
   }
-  if (sameParent) {
-    ElNotification({
-      message: t('reuse.cantChooseMultipleValueForOneAttribute'),
-      type: 'warning'
-    })
-    treeRef.value!.setChecked(nodeObj.value, false, false)
-  }
-  const colorNode = tree.find((node) => node.parentid == 1)
+  // if (sameParent) {
+  //   ElNotification({
+  //     message: t('reuse.cantChooseMultipleValueForOneAttribute'),
+  //     type: 'warning'
+  //   })
+  //   tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeObj.value), 1)
+  //   // treeRef.value!.setChecked(nodeObj.value, false, false)
+  // }
+
+  //bind value to table data
+  const colorNode = checkedNodes.find((node) => node.parentid == 1)
   colorNode
-    ? ((row.categories[0].id = colorNode.value), (row.categories[0].value = colorNode.label))
+    ? ((scope.row.categories[0].id = colorNode.value),
+      (scope.row.categories[0].value = colorNode.label))
     : ''
-  const sizeNode = tree.find((node) => node.parentid == 2)
+  const sizeNode = checkedNodes.find((node) => node.parentid == 2)
   sizeNode
-    ? ((row.categories[2].id = sizeNode.value), (row.categories[2].value = sizeNode.label))
+    ? ((scope.row.categories[2].id = sizeNode.value),
+      (scope.row.categories[2].value = sizeNode.label))
     : ''
-  const materialNode = tree.find((node) => node.parentid == 3)
+  const materialNode = checkedNodes.find((node) => node.parentid == 3)
   materialNode
-    ? ((row.categories[1].id = materialNode.value), (row.categories[1].value = materialNode.label))
+    ? ((scope.row.categories[1].id = materialNode.value),
+      (scope.row.categories[1].value = materialNode.label))
     : ''
-  row.categoriesValue = tree.map((node) => node.value)
-  row.categoriesLabel = tree.map((node) => node.label)
+  scope.row.categoriesValue = checkedKeys
+  scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
 }
 //get data from router
 const router = useRouter()
@@ -511,19 +536,23 @@ const ruleSEO = reactive({
   SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
   SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
-let callTableApiTime = 0
+
+//call api for ProductProperty table
+let callProductProperty = 0
 const callTableApi = async (collapseItem) => {
-  if (collapseItem.api !== undefined) {
-    if (callTableApiTime == 0) {
+  if (callProductProperty == 0) {
+    if (collapseItem.api !== undefined) {
       const findId = isNaN(id) ? newId.value : id
       const res = await collapseItem.api({ ProductId: findId })
       collapseItem.tableList = res.data
       await getAttributeData()
-      callTableApiTime++
+      callProductProperty++
     }
   }
   collapseItem.loading = false
 }
+
+//store unitValue so it can be pass to ProductProperty table
 const getUnitValue = async (UnitId) => {
   let unitSelect = { name: '' }
   const res = await getCategories({
@@ -536,7 +565,7 @@ const getUnitValue = async (UnitId) => {
     unitData.value = unitSelect?.name
   }
 }
-// bảo backend trả id để xóa luôn ko cần reload trang
+// if(postSuccess)  api return newId and use this newId to add product property
 const postData = async (data) => {
   const UnitId = data.UnitId
   await postProductLibrary(FORM_IMAGES(data))
@@ -666,13 +695,17 @@ const spaTableVisible = ref(false)
 const warehouseTableVisible = ref(false)
 let callApiWarehouseTable = 0
 
+//same logic for table in product property(spa,rent,sell,deposit,pawn)
+// findPropertyId: id of product(father)
+// newProductPropertyId: if property newly created (havent post to api so dont have id)
+// if res.data return empty array [] then push a empty obj to table
 let spaDialogTitle = ref('')
 const openSpaTable = async (scope) => {
   spaDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: 'Chưa lưu',
+      message: t('reuse.notSave'),
       type: 'warning'
     })
   } else {
@@ -698,6 +731,7 @@ const openSpaTable = async (scope) => {
     } else {
       collapse[5].tableList = []
       collapse[5].tableList = res.data[0].prices
+      //calculate spa time
       collapse[5].tableList.map((row) => {
         ;((row.SpaServicesSelected = []),
         (row.spaTotalTime = row.spaTime),
@@ -705,8 +739,6 @@ const openSpaTable = async (scope) => {
           (row.SpaServicesSelected = row.spaServices.map((spa) => spa.id)),
           (row.spaServices = [])
       })
-      console.log('collapse[5].tableList', collapse[5].tableList)
-      console.log('SpaSelectOptions', SpaSelectOptions.value)
     }
     collapse[5].tableList.productPropertyId = findPropertyId
     collapse[5].tableList.serviceType = 5
@@ -715,6 +747,7 @@ const openSpaTable = async (scope) => {
   collapse[5].loading = false
   forceRemove.value == false
 }
+//chua co api sau nay se lam
 let warehouseDialogTitle = ref('')
 const openWarehouseTable = async (dialogTitle) => {
   warehouseDialogTitle.value = dialogTitle
@@ -726,13 +759,14 @@ const openWarehouseTable = async (dialogTitle) => {
     callApiWarehouseTable++
   }
 }
+//same logic
 let pawnDialogTitle = ref('')
 const openPawnTable = async (scope) => {
   pawnDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: 'Chưa lưu',
+      message: t('reuse.notSave'),
       type: 'warning'
     })
   } else {
@@ -766,7 +800,7 @@ const openDepositTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: 'Chưa lưu',
+      message: t('reuse.notSave'),
       type: 'warning'
     })
   } else {
@@ -797,7 +831,7 @@ const openRentTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: 'Chưa lưu',
+      message: t('reuse.notSave'),
       type: 'warning'
     })
   } else {
@@ -833,7 +867,7 @@ const openSellTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: 'Chưa lưu',
+      message: t('reuse.notSave'),
       type: 'warning'
     })
   } else {
@@ -869,14 +903,14 @@ const spaForm = ref<FormInstance>()
 const forceRemove = ref(false)
 
 let SpaSelectOptions = ref()
-const updateTimeSpa = (value, scope) => {
+//calculate spa time
+const updateTimeSpa = (_value, scope) => {
   scope.row.spaTotalTime = 0
   let time = 0
   scope.row.SpaServicesSelected.map(
     (spa) => (time += SpaSelectOptions.value.find((option) => option.value == spa)?.time)
   )
   scope.row.spaTotalTime = time
-  console.log('value spa', value, scope, SpaSelectOptions.value, time)
 }
 //add row to the end of table if fill all table
 watch(
@@ -940,15 +974,15 @@ const addLastIndexRentTable = () => {
 const addLastIndexSpaTable = () => {
   collapse[5].tableList.push({ price: undefined, SpaServicesSelected: [], spaTotalTime: 0 })
 }
+
+//map value to post spa price
 const customPostSpaPrice = (data) => {
-  console.log('runhere')
   const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
   customPostPriceData.productPropertyPrices = [{}]
   customPostPriceData.productPropertyPrices[0].quantity = 1
   customPostPriceData.productPropertyPrices[0].prices = data
   customPostPriceData.productPropertyId = data.productPropertyId
   customPostPriceData.serviceType = 5
-  console.log('runhere', data, customPostPriceData)
   customPostPriceData.productPropertyPrices[0].prices.map((spa) => {
     spa.spaServices = []
     spa.spaTime = spa.spaTotalTime
@@ -956,7 +990,6 @@ const customPostSpaPrice = (data) => {
       spa.spaServices.push({ id: ele })
     })
   })
-  console.log('data5', data, customPostPriceData)
   return customPostPriceData
 }
 const saveDataSpaTable = async () => {
@@ -985,6 +1018,10 @@ const saveDataSpaTable = async () => {
     }
   })
 }
+
+//same logic for rent,deposit,pawn,sell
+//remove last row if the last row is empty
+//forceRemove = false so it wont auto add last row because of watch()
 const saveDataRentTable = async () => {
   removeLastRowRent()
   await unref(rentForm)!.validate((valid) => {
@@ -1070,6 +1107,7 @@ const saveDataDepositTable = async () => {
     }
   })
 }
+//add few fields so for api/backend
 const customPostPrice = (data) => {
   const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
   customPostPriceData.productPropertyId = data.productPropertyId
@@ -1103,6 +1141,9 @@ const saveDataSellTable = async () => {
     }
   })
 }
+//same logic
+//check last row only (for performance) because others row already get from api so it cant be undefined
+//forceRemove = false so it wont auto add last row because of watch()
 const removeLastRowSell = () => {
   if (
     //check if all field of last row are empty
@@ -1146,7 +1187,8 @@ const SellTableDialogClose = () => {
   forceRemove.value = false
 }
 
-//handle opentab
+//can only open in detail or edit mode
+//or when click PressAndAdd button
 const disabledTabOpen = ref(false)
 const newId = ref<number>()
 //type == '' && isNaN(id) =true  when refreshing page
@@ -1159,6 +1201,7 @@ watch(
     disabledTabOpen.value = false
   }
 )
+//glhf:)
 </script>
 <template>
   <el-collapse
@@ -1325,13 +1368,10 @@ watch(
                   accordion
                   check-strictly
                   :render-after-expand="false"
-                  @check-change="
-                    (nodeObj, selected, subtree) =>
-                      customCheck(nodeObj, selected, subtree, scope.row)
-                  "
                   ref="treeRef"
                   show-checkbox
                   node-key="value"
+                  @check="(nodeObj, tree) => customCheck(nodeObj, tree, scope)"
                 />
               </el-form-item>
               <span v-else>{{
@@ -1522,7 +1562,7 @@ watch(
               <el-button
                 v-if="scope.row.edited"
                 type="primary"
-                @click="handleSaveRow(scope.row, ruleTreeFormRef)"
+                @click="handleSaveRow(scope, ruleTreeFormRef)"
                 >{{ t('reuse.save') }}</el-button
               >
               <el-button v-else type="default" @click="handleEditRow(scope.row)">{{

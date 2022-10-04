@@ -19,7 +19,7 @@ import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 import { useValidator } from '@/hooks/web/useValidator'
 
-const { ValidService } = useValidator()
+const { ValidService, required } = useValidator()
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
@@ -89,8 +89,8 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rule = reactive({
-  startDate: [{ validator: checkEndDate, trigger: 'change' }],
-  endDate: [{ validator: checkStartDate, trigger: 'change' }]
+  startDate: [{ validator: checkEndDate, trigger: 'change' }, required()],
+  endDate: [{ validator: checkStartDate, trigger: 'change' }, required()]
 })
 const periodFilter = reactive([
   { value: '3', label: 'Hôm qua' },
@@ -220,7 +220,10 @@ const formRef = ref<FormInstance>()
         <ElForm ref="formRef" :model="validateHeaderInput">
           <ElFormItem
             prop="searchingKey"
-            :rules="[{ validator: ValidService.checkEmojiValidator.validator }]"
+            :rules="[
+              { validator: ValidService.checkEmojiValidator.validator },
+              { validator: ValidService.checkNameLength.validator }
+            ]"
           >
             <ElInput
               clearable

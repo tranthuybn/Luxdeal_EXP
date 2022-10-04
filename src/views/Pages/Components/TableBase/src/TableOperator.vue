@@ -277,6 +277,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
+      } else if (rawFile.name?.length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
       }
     }
     //nếu là 1 list ảnh
@@ -293,6 +296,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
+        } else if (file.name?.length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          return false
         }
       })
       return inValid

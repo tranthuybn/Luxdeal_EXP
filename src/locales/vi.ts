@@ -1335,6 +1335,7 @@ export default {
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
-    notSave: 'Chưa lưu'
+    notSave: 'Chưa lưu',
+    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự'
   }
 }

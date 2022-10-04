@@ -1350,7 +1350,7 @@ watch(
         >
           <ElTableColumn
             header-align="center"
-            min-width="100"
+            min-width="130"
             prop="productCode"
             :label="t('reuse.managementCode')"
           />
@@ -1892,7 +1892,7 @@ watch(
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="50"
+            min-width="100"
             fixed="right"
             :label="t('reuse.operator')"
           />
@@ -2140,5 +2140,8 @@ watch(
 :deep(.el-dialog) {
   height: 70vh;
   overflow: auto;
+}
+:deep(.cell) {
+  word-break: break-word;
 }
 </style>

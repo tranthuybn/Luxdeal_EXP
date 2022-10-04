@@ -1177,13 +1177,13 @@ export default {
     settingPawn: 'Setting pawn',
     settingSpa: 'Setting spa',
     update: 'Update',
-    settingSalePrice: 'Setting sale price',
+    settingSalePrice: 'Setting sale prices',
     unit: 'Unit',
     modifyDate: 'Modify date',
-    settingRentPrice: 'Setting rent price',
-    settingDepositPrice: 'Setting deposit price',
-    settingPawnPrice: 'Setting pawn price',
-    settingSpaPrice: 'Setting spa price',
+    settingRentPrice: 'Setting rent prices',
+    settingDepositPrice: 'Setting deposit prices',
+    settingPawnPrice: 'Setting pawn prices',
+    settingSpaPrice: 'Setting spa prices',
     depositFeeByMoney: 'Deposit fee by amount',
     quantity: 'Quantity',
     interestMoneyFor1trPerDay: 'Interest money for 1tr per day',
@@ -1248,6 +1248,7 @@ export default {
     statusPoint: 'Status point',
     bank: 'Bank',
     selectBank: 'Select bank',
-    notSave: 'Not save yet'
+    notSave: 'Not save yet',
+    checkNameImageLength: 'Image name cant be over 100 characters'
   }
 }

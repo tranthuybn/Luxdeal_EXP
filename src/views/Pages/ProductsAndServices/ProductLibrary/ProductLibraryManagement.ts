@@ -14,17 +14,8 @@ import {
 } from '@/utils/format'
 import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
-//const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-// const seeDetail = (...param) => {
-//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-//     ? unref(tableBase01)?.tableObject.tableList
-//     : []
-//   if (array && array.length > 0) {
-//     array.forEach((el) => {
-//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-//     })
-//   }
-// }
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -72,13 +63,6 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.spa',
-    label: t('reuse.numberOfTimesSpa'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
     field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
     minWidth: '150',
@@ -100,13 +84,15 @@ export const businessProductLibrary = [
     field: 'price',
     label: t('reuse.sellingPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'hirePrice',
     label: t('reuse.rentalPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'categories[2].value',
@@ -117,7 +103,9 @@ export const businessProductLibrary = [
     field: 'imageProduct',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue)
   },
   {
     field: 'businessManagement',
@@ -485,7 +473,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.title'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập vị trí hiển thị'
+      placeholder: t('reuse.enterTitle')
     },
     colProps: {
       span: 16
@@ -496,7 +484,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.path'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập đường dẫn'
+      placeholder: t('reuse.enterLink')
     },
     colProps: {
       span: 16

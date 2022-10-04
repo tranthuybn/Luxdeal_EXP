@@ -1197,6 +1197,14 @@ export default {
     orderSaleAsignrequired: 'Please input order sale asign',
     //image
     onlyAcceptValidImageType: 'Only accept PNG, JPG image file',
-    notSpaceBeforeAndAfter: 'Not space before and after value'
+    notSpaceBeforeAndAfter: 'Not space before and after value',
+    //seo
+    enterTitle: 'Enter title',
+    enterLink: 'Enter link',
+    //virtual wallet
+    depositAndUsageMethod: 'Deposit and usage method',
+    moneyDeposit: 'Money deposit',
+    moneyUsed: 'Money used',
+    statusPoint: 'Status point'
   }
 }

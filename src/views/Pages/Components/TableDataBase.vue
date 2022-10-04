@@ -75,6 +75,10 @@ const props = defineProps({
   deleteTitle: {
     type: String,
     default: 'Warning'
+  },
+  removeHeaderFilterSlot: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -117,7 +121,7 @@ function fnGetSelectedRecord(val) {
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
-      <template #headerFilterSlot>
+      <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
         <el-button type="primary" :icon="createIcon" @click="pushAdd">
           {{ t(`${props.titleAdd}`) }}</el-button
         >

@@ -105,7 +105,7 @@ export default {
         {
           path: 'customerRatings',
           name: 'business.customer-management.customerRatings',
-          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerRatings.vue'),
+          component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('router.customerRatings')
           }

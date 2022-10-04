@@ -29,8 +29,6 @@ import {
   ElFormItem,
   ElNotification
 } from 'element-plus'
-// import { useForm } from '@/hooks/web/useForm'
-import form from 'element-plus/es/components/form'
 import { dateTimeFormat } from '@/utils/format'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -112,14 +110,16 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = (data) => {
-  const customerHistory: Array<any> = []
+  const customerHistory = reactive<
+    Array<{ id: Number; content: String; percentageOfSales: Number }>
+  >([])
   if (tableData.value.length > 0) {
     tableData.value.forEach((element) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
           customerHistory.push({
-            id: element.staffId,
-            content: ChildEl?.customerCareContent ?? '',
+            id: element?.staffId ?? 0,
+            content: ChildEl['customerCareContent'] ?? '',
             percentageOfSales: element.percentageOfSales
           })
         })

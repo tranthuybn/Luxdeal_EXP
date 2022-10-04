@@ -6,12 +6,14 @@ import {
   getCustomer,
   getPotentialCustomerById,
   updatePotentialCustomer,
-  UpdatePotentialCustomerHistory
+  UpdatePotentialCustomerHistory,
+  deletePotentialCustomer,
+  deletePotentialCustomerHistory
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useValidator } from '@/hooks/web/useValidator'
-import { onBeforeMount, onBeforeUpdate, reactive, ref } from 'vue'
+import { onBeforeMount, onBeforeUpdate, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import moment from 'moment'
@@ -65,7 +67,7 @@ interface tableDataType {
   staffName: String
   content: String
   createdAt: String
-  percentageOfSales: NonNullable<Number>
+  percentageOfSales: Number
   manipulation: string
   edited: Boolean
   family: Array<tableChildren> | []
@@ -97,7 +99,7 @@ interface potentialCustomerHistoryInfo {
   id: any
   staffId: Number
   content: string
-  percentageOfSales: number
+  percentageOfSales: Number
 }
 
 const parentBorder = ref(false)
@@ -111,16 +113,17 @@ const type = String(router.currentRoute.value.params.type)
 
 const postData = (data) => {
   const customerHistory = reactive<
-    Array<{ id: Number; content: String; percentageOfSales: Number }>
+    Array<{ id: Number; staffId: Number; content: String; percentageOfSales: Number }>
   >([])
   if (tableData.value.length > 0) {
     tableData.value.forEach((element) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
           customerHistory.push({
-            id: element?.staffId ?? 0,
-            content: ChildEl['customerCareContent'] ?? '',
-            percentageOfSales: element.percentageOfSales
+            id: element.staffId,
+            staffId: element.staffId,
+            content: ChildEl?.customerCareContent ?? '',
+            percentageOfSales: Number(element.percentageOfSales)
           })
         })
     })
@@ -145,9 +148,8 @@ const postData = (data) => {
     total: 1,
     potentialCustomerHistorys: customerHistory
   }
-
+  console.log('pay', payload)
   addNewPotentialCustomer(payload)
-  console.log('payload', payload)
 }
 
 const collapseChangeEvent = (val) => {
@@ -212,12 +214,42 @@ const addActions = (props) => {
   const temp: tableChildren[] = tableData.value[props].family ?? []
   temp.push(newObj)
 }
-const handleDelete = (payload) => {
+const handleDelete = async (payload) => {
   tableData.value.splice(payload, 1)
+  if (type == 'edit') {
+    await deletePotentialCustomer({ ...payload })
+      .then(() =>
+        ElNotification({
+          message: t('reuse.deleteSuccess'),
+          type: 'success'
+        })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.deleteFail'),
+          type: 'warning'
+        })
+      )
+  }
 }
 
-const handleItemDelete = (payload, scope) => {
+const handleItemDelete = async (payload, scope) => {
   tableData.value[scope.$index].family.splice(payload, 1)
+  if (type == 'edit') {
+    await deletePotentialCustomerHistory({ ...payload })
+      .then(() =>
+        ElNotification({
+          message: t('reuse.deleteSuccess'),
+          type: 'success'
+        })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.deleteFail'),
+          type: 'warning'
+        })
+      )
+  }
 }
 const size = ref<'' | 'large' | 'small'>('')
 
@@ -589,7 +621,6 @@ const collapse: Array<Collapse> = [
 ]
 // get Customer
 let cutomerOptions = ref<Array<ComponentOptions>>([])
-console.log('type:', type, 'id:', id)
 const getCustomerOptions = async () => {
   if (cutomerOptions.value.length === 0) {
     const res = await getCustomer({ PageIndex: 1, PageSize: 20 })
@@ -657,8 +688,6 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
-  console.log('formData', formData)
-  // formDataCustomize.value = formData
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
@@ -681,12 +710,10 @@ const customizeData = (formData) => {
     formDataCustomize.value['status'].push(3)
   }
   formDataCustomize.value.service = formData.service
-  console.log('tableData: ', tableData)
   tableData.value[0] = formData.potentialCustomerHistorys[0]
   tableData.value[0].family = [{}]
   tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0].content
   tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt
-  console.log('family: ', tableData.value[0].family)
 }
 // data update api
 const customPostData = (data) => {
@@ -739,6 +766,18 @@ const editData = async (data) => {
     )
 }
 let disableData = false
+watch(
+  () => type,
+  () => {
+    if (type === 'detail') {
+      disableData = true
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">

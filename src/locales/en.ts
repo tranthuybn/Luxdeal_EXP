@@ -1250,6 +1250,7 @@ export default {
     selectBank: 'Select bank',
     notSave: 'Not save yet',
     checkNameImageLength: 'Image name cant be over 100 characters',
-    checkEmoji: 'Cant use emoji'
+    checkEmoji: 'Cant use emoji',
+    notSaveAttribute: 'Not save attribute yet'
   }
 }

@@ -1336,6 +1336,7 @@ export default {
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
     notSave: 'Chưa lưu',
-    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự'
+    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
+    notSaveAttribute: 'Chưa lưu thuộc tính'
   }
 }

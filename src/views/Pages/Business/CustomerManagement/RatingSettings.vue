@@ -5,7 +5,7 @@ import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
-import { getCustomerList } from '@/api/Business'
+import { getCustomerRatings } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
 import TableDataBase from '../../Components/TableDataBase.vue'
 import { filterStatusCustomerRatings } from '@/utils/filters'
@@ -125,7 +125,7 @@ const columns = reactive<TableColumn[]>([
         </template>
         <TableDataBase
           :columns="columns"
-          :api="getCustomerList"
+          :api="getCustomerRatings"
           :selection="false"
           :remove-drawer="true"
           :remove-header-filter="true"

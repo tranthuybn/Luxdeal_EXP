@@ -4,6 +4,16 @@ import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
+export const getCustomerRatings = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    0
+  )
+  return res.data && res.data.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

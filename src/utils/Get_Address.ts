@@ -9,7 +9,6 @@ export const getCity = async () => {
   const res = await getAllCity()
   if (res) {
     cityOptions.value = res.data.map((city) => ({ label: city.name, value: city.id }))
-    console.log('res', res)
     return cityOptions.value
   } else {
     ElMessage({
@@ -19,6 +18,7 @@ export const getCity = async () => {
     return
   }
 }
+
 export const getDistrict = async (ID) => {
   const districtOptions = ref()
   const res = await getAllDistrict({ id: ID })
@@ -27,7 +27,6 @@ export const getDistrict = async (ID) => {
       label: district.name,
       value: district.id
     }))
-    console.log('res', res)
     return districtOptions.value
   } else {
     ElMessage({
@@ -45,7 +44,6 @@ export const getWard = async (ID) => {
       label: ward.name,
       value: ward.id
     }))
-    console.log('res', res)
     return wardOptions.value
   } else {
     ElMessage({
@@ -63,7 +61,6 @@ export const getStreet = async (ID) => {
       label: street.name,
       value: street.id
     }))
-    console.log('res', res)
     return streetOptions.value
   } else {
     ElMessage({

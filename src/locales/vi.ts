@@ -1334,6 +1334,10 @@ export default {
     collectionDetail: 'Thông tin bộ sưu tập',
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
-    selectBank: 'Chọn ngân hàng'
+    selectBank: 'Chọn ngân hàng',
+    //Short Key
+    mst: 'MST',
+    sdt: 'SDT',
+    enterFacebookZaloLink: 'Nhập link facebook/zalo...'
   }
 }

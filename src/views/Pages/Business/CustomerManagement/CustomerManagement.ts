@@ -6,6 +6,7 @@ import {
   filterStatusCustomer
 } from '@/utils/filters'
 import { dateTimeFormat } from '@/utils/format'
+import { h } from 'vue'
 const { t } = useI18n()
 
 export const CustomerList = [
@@ -18,7 +19,7 @@ export const CustomerList = [
   {
     field: 'code',
     label: t('reuse.customerCode'),
-    minWidth: '250'
+    minWidth: '150'
   },
   {
     field: 'name',
@@ -33,7 +34,7 @@ export const CustomerList = [
     sortable: true
   },
   {
-    field: 'gender',
+    field: 'sex',
     label: t('reuse.gender'),
     minWidth: '100',
     filters: filterGender
@@ -41,12 +42,41 @@ export const CustomerList = [
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '250'
+    minWidth: '400',
+    formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
+      return h('ul', [
+        // h('li', [
+        //   h('span', [t('reuse.mst'), ':']),
+        //   h('span', { style: { paddingLeft: '3px' } }, Recordable['taxCode']),
+        //   console.log('taxCode', Recordable['taxCode'])
+        // ]),
+        h('li', [
+          Recordable['taxCode']
+            ? h('li', [
+                h('span', [t('reuse.mst'), ':']),
+                h('span', { style: { paddingLeft: '3px' } }, Recordable['taxCode'])
+              ])
+            : h('span')
+        ]),
+        h('li', [
+          h('span', [t('reuse.sdt'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['phonenumber'])
+        ]),
+        h('li', [
+          h('span', [t('reuse.email'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['email'])
+        ]),
+        h('li', [
+          h('span', [t('formDemo.address'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['address'])
+        ])
+      ])
+    }
   },
   {
     field: 'accountType',
     label: t('reuse.accountType'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterAccount
   },
   {
@@ -60,7 +90,7 @@ export const CustomerList = [
     }
   },
   {
-    field: 'updatedBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'

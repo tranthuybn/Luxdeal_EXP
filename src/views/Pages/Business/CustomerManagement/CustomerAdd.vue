@@ -14,7 +14,8 @@ import {
   ElCheckbox,
   ElDialog,
   ElOption,
-  ElSelect
+  ElSelect,
+  ElDatePicker
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Collapse } from '../../Components/Type'
@@ -22,11 +23,18 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const { t } = useI18n()
+const value1 = ref('')
+const value2 = ref('')
+const size = ref<'' | 'large' | 'small'>('')
+const disabledDate = (time: Date) => {
+  return time.getTime() > Date.now()
+}
 
 const schema = reactive<FormSchema[]>([
   {
@@ -179,6 +187,13 @@ const schema2 = reactive<FormSchema[]>([
     field: 'information',
     label: t('formDemo.codeQR'),
     component: 'Divider',
+    colProps: {
+      span: 12
+    }
+  },
+  {
+    field: 'QRcode',
+    component: 'Input',
     colProps: {
       span: 12
     }
@@ -341,7 +356,7 @@ const district = [
                     t('reuse.referralCode')
                   }}</label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.referralCode')"
                   />
@@ -464,7 +479,7 @@ const district = [
                     >{{ t('formDemo.customerName') }}<span style="color: red"> *</span>
                   </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterCustomerName')"
                   />
@@ -475,7 +490,7 @@ const district = [
                     >{{ t('reuse.phoneNumber') }}<span style="color: red"> *</span>
                   </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
                   />
@@ -484,7 +499,7 @@ const district = [
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.email') }} </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterEmail')"
                   />
@@ -493,17 +508,26 @@ const district = [
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for="">CCCD/CMND </label>
                   <input
-                    class="w-[25%] border-1 outline-none pl-2"
+                    class="w-[25%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterCCCD')"
                   />
-                  <input
-                    class="w-[26%] border-1 outline-none pl-2"
+                  <!-- <input
+                    class="w-[26%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.supplyDate')"
+                  /> -->
+                  <el-date-picker
+                    v-model="value2"
+                    type="date"
+                    :placeholder="t('formDemo.supplyDate')"
+                    :disabled-date="disabledDate"
+                    :size="size"
+                    format="DD/MM/YYYY"
+                    value-format="YYYY-MM-DD"
                   />
                   <input
-                    class="w-[25%] border-1 outline-none pl-2"
+                    class="w-[25%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.supplyAddress')"
                   />
@@ -514,10 +538,19 @@ const district = [
                     t('reuse.dateOfBirthAnGender')
                   }}</label>
 
-                  <input
-                    class="w-[40%] border-1 outline-none pl-2"
+                  <!-- <input
+                    class="w-[40%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.dateOfBirth')"
+                  /> -->
+                  <el-date-picker
+                    v-model="value1"
+                    type="date"
+                    :placeholder="t('reuse.dateOfBirth')"
+                    :disabled-date="disabledDate"
+                    :size="size"
+                    format="DD/MM/YYYY"
+                    value-format="YYYY-MM-DD"
                   />
                   <el-select v-model="value" class="w-[38%]" clearable placeholder="Select">
                     <el-option
@@ -530,11 +563,11 @@ const district = [
                 </div>
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">Link </label>
+                  <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }} </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
-                    :placeholder="`Thêm link facebook/zalo ...`"
+                    :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
                 </div>
               </template>
@@ -569,7 +602,7 @@ const district = [
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`Nhập tên người đai diện`"
+                    :placeholder="t('reuse.enterRepresentativeName')"
                   />
                 </div>
 
@@ -585,7 +618,7 @@ const district = [
                 </div>
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">Email</label>
+                  <label class="w-[15%] text-right leading-5" for=""> {{ t('reuse.email') }}</label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
@@ -594,11 +627,11 @@ const district = [
                 </div>
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">Link</label>
+                  <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }}</label>
                   <input
                     class="w-[80%] border-1 outline-none pl-2"
                     type="text"
-                    :placeholder="`Nhập link Fb, zalo`"
+                    :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
                 </div>
               </template>
@@ -615,7 +648,7 @@ const district = [
                     >{{ t('formDemo.userName') }}<span style="color: red">*</span>
                   </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterUserName')"
                   />
@@ -628,7 +661,7 @@ const district = [
                     >{{ t('login.password') }}<span style="color: red">*</span>
                   </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterPassword')"
                   />
@@ -641,7 +674,7 @@ const district = [
                     >{{ t('formDemo.confirmPassword') }}<span style="color: red">*</span>
                   </label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.confirmPassword')"
                   />
@@ -756,7 +789,7 @@ const district = [
                       v-model="valueProvince"
                       style="width: 80%"
                       class="m-2 fix-full-width"
-                      placeholder="Select"
+                      placeholder="Chọn tỉnh/thành phố"
                     >
                       <el-option
                         v-for="item in province"
@@ -776,7 +809,7 @@ const district = [
                       v-model="valueDistrict"
                       style="width: 80%"
                       class="m-2 fix-full-width"
-                      placeholder="Select"
+                      placeholder="Chọn quận/huyện"
                     >
                       <el-option
                         v-for="item in district"
@@ -818,7 +851,7 @@ const district = [
                       t('userDemo.username')
                     }}</label>
                     <input
-                      class="w-[80%] border-1 outline-none pl-2"
+                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterAccountName')"
                     />
@@ -830,7 +863,7 @@ const district = [
                       >{{ t('userDemo.accountNumber') }}
                     </label>
                     <input
-                      class="w-[80%] border-1 outline-none pl-2"
+                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterAccountNumber')"
                     />
@@ -840,11 +873,14 @@ const district = [
                   <div class="flex items-center w-[100%] gap-4">
                     <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.bank') }}</label>
                     <input
-                      class="w-[80%] border-1 outline-none pl-2"
+                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.selectBank')"
                     />
                   </div>
+                </template>
+                <template #QRcode>
+                  <Qrcode />
                 </template>
               </Form>
             </div>
@@ -941,5 +977,27 @@ const district = [
 
 ::v-deep(.el-divider__text) {
   font-size: 16px;
+}
+
+.demo-date-picker {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  flex-wrap: wrap;
+}
+.demo-date-picker .block {
+  padding: 30px 0;
+  text-align: center;
+  border-right: solid 1px var(--el-border-color);
+  flex: 1;
+}
+.demo-date-picker .block:last-child {
+  border-right: none;
+}
+.demo-date-picker .demonstration {
+  display: block;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 </style>

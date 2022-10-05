@@ -10,7 +10,7 @@ import { isString } from '@/utils/is'
 const props = defineProps({
   // img 或者 canvas,img不支持logo嵌套
   tag: propTypes.string.validate((v: string) => ['canvas', 'img'].includes(v)).def('canvas'),
-  // 二维码内容
+  // QR code content
   text: {
     type: [String, Array] as PropType<string | Recordable[]>,
     default: null

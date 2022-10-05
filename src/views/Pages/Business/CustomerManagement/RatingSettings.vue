@@ -64,12 +64,14 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'rankName',
     label: t('customerList.rankName'),
-    minWidth: '450'
+    minWidth: '450',
+    headerAlign: 'left',
+    align: 'left'
   },
   {
     field: 'image',
     label: t('reuse.image'),
-    minWidth: '200'
+    minWidth: '150'
   },
   {
     field: 'ratings',

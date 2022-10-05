@@ -15,26 +15,27 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'customerName',
     label: t('reuse.customerName'),
-    minWidth: '350'
+    headerAlign: 'left',
+    minWidth: '400'
   },
   {
     field: 'monthlyRevenue',
     label: t('customerList.monthlyRevenue'),
-    minWidth: '200',
+    minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'quarterlySales',
     label: t('customerList.quarterlySales'),
-    minWidth: '200',
+    minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'salesYear',
     label: t('customerList.salesYear'),
-    minWidth: '200',
+    minWidth: '150',
     align: 'right',
     sortable: true
   },

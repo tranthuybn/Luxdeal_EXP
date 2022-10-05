@@ -13,7 +13,8 @@ export const filterStatusCustomerRatings: Array<Filter> = [
 export const filterRankCustomer: Array<Filter> = [
   { text: t('reuse.silver'), value: 1 },
   { text: t('reuse.gold'), value: 2 },
-  { text: t('reuse.platinum'), value: 3 }
+  { text: t('reuse.platinum'), value: 3 },
+  { text: 'Titan', value: 4 }
 ]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },

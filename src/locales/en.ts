@@ -978,7 +978,7 @@ export default {
     setInventoryForRent: 'Set Inventory For Rent',
     sellingPriceFrom: 'Selling Price From',
     rentalPriceFrom: 'Rental Price From',
-    dram: 'Dram',
+    dram: 'Unit',
     serviceCode: 'Service Code',
     serviceName: 'Service Name',
     unitPrice: 'Unit Price',

@@ -45,5 +45,6 @@ export const CUSTOMER_API = {
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers'
 }
 export const ORDER_API = {
-  GET_ORDER_LIST: '/api/v1/Order/GetOrder'
+  GET_ORDER_LIST: '/api/v1/Order/GetOrder',
+  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'
 }

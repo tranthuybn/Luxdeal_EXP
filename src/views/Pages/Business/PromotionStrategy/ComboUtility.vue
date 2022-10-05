@@ -262,6 +262,10 @@ const optionsSpaService = [
   }
 ]
 
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+
 onBeforeMount(() => {
   callApiProductList()
 })
@@ -345,7 +349,8 @@ onBeforeMount(() => {
           </div>
           <div class="flex">
             <div class="pl-4">
-              <el-upload action="#" list-type="picture-card" :auto-upload="false" class="relative">
+              <el-upload action="#" list-type="picture-card" :auto-upload="false">
+                <ElButton :icon="addIcon" class="avatar-uploader-icon border-none" />
                 <template #file="{ file }">
                   <div>
                     <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -354,27 +359,25 @@ onBeforeMount(() => {
                         class="el-upload-list__item-preview"
                         @click="handlePictureCardPreview(file)"
                       >
+                        <ElButton :icon="viewIcon" class="avatar-uploader-icon border-none" />
                       </span>
                       <span
                         v-if="!disabled"
                         class="el-upload-list__item-delete"
                         @click="handleDownload(file)"
                       >
+                        <el-icon><Download /></el-icon>
                       </span>
                       <span
                         v-if="!disabled"
                         class="el-upload-list__item-delete"
                         @click="handleRemove(file)"
                       >
+                        <ElButton :icon="deleteIcon" class="avatar-uploader-icon border-none" />
                       </span>
                     </span>
                   </div>
                 </template>
-                <el-dialog v-model="dialogVisible" class="absolute">
-                  <div class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}
-                  </div>
-                </el-dialog>
               </el-upload>
             </div>
           </div>
@@ -415,11 +418,11 @@ onBeforeMount(() => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="name" :label="t('formDemo.productInformation')" width="480" />
+            <el-table-column prop="name" :label="t('formDemo.productInformation')" width="320" />
             <el-table-column
               prop="selfImportAccessories"
               :label="t('reuse.spaService')"
-              width="240"
+              width="320"
             >
               <template #default>
                 <el-select
@@ -554,7 +557,7 @@ onBeforeMount(() => {
 .fix-padding {
   padding: 0;
 }
-/* ::v-deep(.el-select-dropdown__item) {
-  padding: 0 !important;
-} */
+::v-deep(.cell) {
+  word-break: break-word;
+}
 </style>

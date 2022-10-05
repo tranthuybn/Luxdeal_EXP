@@ -26,14 +26,17 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
+import { useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
   getPromotionsList,
-  getAllCustomer
+  getAllCustomer,
+  addNewOrderList
 } from '@/api/Business'
+import { FORM_IMAGES } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -416,7 +419,6 @@ const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
-    console.log('getCustomerResult', getCustomerResult)
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         label: product.representative
@@ -598,16 +600,70 @@ const removeListProductsSale = (index) => {
   }
 }
 
-const inputCode = ref('DHB039423')
+const inputCode = ref<string>('DHB039423')
+
+//lay du lieu tu router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
+console.log('id: ', id)
+console.log('type: ', type)
+
+// tạo đơn hàng
+
+// const dataProductPayment = reactive()
+const postData = () => {
+  const productPayment = reactive<
+    Array<{
+      productPropertyId: number
+      quantity: Number
+      warehouseId: Number
+      isPaid: Boolean
+      accessory: String
+    }>
+  >([])
+  // if (ListOfProductsForSale.length > 0) {
+  // ListOfProductsForSale.forEach((element) => {
+  // if (element && Array.isArray(element) && element.length > 0)
+  // element.forEach(() => {
+  productPayment.push({
+    productPropertyId: 2,
+    quantity: 1,
+    warehouseId: 6,
+    isPaid: true,
+    accessory: 'Dây túi xách'
+  })
+  // })
+  // })
+  // }
+  const payload = {
+    ServiceType: 1,
+    OrderCode: inputCode.value,
+    PromotionCode: 'AA12',
+    // collaboratorId: collaboratorsValue.value ?? 1,
+    CollaboratorId: 1,
+    CollaboratorCommission: 4,
+    // CustomerId: customersValue.value,
+    CustomerId: 1,
+    DeliveryOptionId: 1,
+    OrderDetail: productPayment[0],
+    CampaignId: 12113,
+    VAT: 1
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  addNewOrderList(formDataPayLoad)
+  console.log('postData', formDataPayLoad)
+}
+
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
 })
-
-// const res = callDatabyId({ id: id })
-// setValues(res.data)
 </script>
 
 <template>
@@ -713,6 +769,7 @@ onBeforeMount(() => {
                           class="el-upload-list__item-preview"
                           @click="handlePictureCardPreview(file)"
                         >
+                          <ElButton :icon="viewIcon" class="avatar-uploader-icon border-none" />
                         </span>
                         <span
                           v-if="!disabled"
@@ -725,6 +782,7 @@ onBeforeMount(() => {
                           class="el-upload-list__item-delete"
                           @click="handleRemove(file)"
                         >
+                          <ElButton :icon="deleteIcon" class="avatar-uploader-icon border-none" />
                         </span>
                       </span>
                     </div>
@@ -1537,7 +1595,7 @@ onBeforeMount(() => {
           <div class="w-[100%] flex ml-1 gap-4">
             <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
             <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button type="primary" class="min-w-42 min-h-11">{{
+            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.complete')
             }}</el-button>
             <el-button type="danger" class="min-w-42 min-h-11">{{
@@ -1595,9 +1653,11 @@ onBeforeMount(() => {
               :label="`${t('formDemo.invoiceForGoodsEnteringTheWarehouse')}`"
               align="right"
               width="200"
-              class="text-blue-500"
             >
-              +{{ t('formDemo.invoice') }}
+              <div class="flex text-blue-500">
+                <span class="flex-1 text-left">NK3424</span>
+                <span class="flex-1">+ {{ t('button.edit') }}</span>
+              </div>
             </el-table-column>
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
               <template #default="scope">

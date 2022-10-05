@@ -104,7 +104,7 @@ export default {
     ratingSettings: 'Rating settings',
     monthlyRevenue: 'Monthly revenue',
     quarterlySales: 'Quarterly sales',
-    salesYear: 'sales by year',
+    salesYear: 'Sales by year',
     rankMonth: 'Rank by month',
     quarterlyRanking: 'Quarterly ranking',
     rankingYear: 'Ranking by year',
@@ -115,7 +115,12 @@ export default {
     creator: 'Creator',
     addNewRatings: 'Add new ratings',
     ratingInformation: 'Rating information',
-    enterSales: 'Enter sales'
+    enterSales: 'Enter sales',
+    addRanking: 'Add ranking',
+    addNewRanking: 'Add new ranking',
+    enterNameRanking: 'Enter name ranking',
+    byQuarter: 'By quarter',
+    byYear: 'By year'
   },
   formDemo: {
     generalServiceInformation: 'General service information',
@@ -973,7 +978,7 @@ export default {
     setInventoryForRent: 'Set Inventory For Rent',
     sellingPriceFrom: 'Selling Price From',
     rentalPriceFrom: 'Rental Price From',
-    dram: 'Dram',
+    dram: 'Unit',
     serviceCode: 'Service Code',
     serviceName: 'Service Name',
     unitPrice: 'Unit Price',
@@ -1251,6 +1256,9 @@ export default {
     notSave: 'Not save yet',
     checkNameImageLength: 'Image name cant be over 100 characters',
     checkEmoji: 'Cant use emoji',
-    notSaveAttribute: 'Not save attribute yet'
+    notSaveAttribute: 'Not save attribute yet',
+    silver: 'Silver',
+    gold: 'Gold',
+    platinum: 'Platinum'
   }
 }

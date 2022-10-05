@@ -96,6 +96,11 @@ const props = defineProps({
   removeButton: {
     type: Boolean,
     default: false
+  },
+  // add exit button to header
+  backButton: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -298,6 +303,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
           inValid = false
         } else if (file.name?.length > 100) {
           ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
           return false
         }
       })
@@ -394,7 +400,7 @@ const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
 <template>
-  <ContentWrap :title="props.title">
+  <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />

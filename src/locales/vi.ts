@@ -115,7 +115,12 @@ export default {
     creator: 'Người tạo',
     addNewRatings: 'Thêm mới xếp hạng',
     ratingInformation: 'Thông tin xếp hạng',
-    enterSales: 'Nhập doanh số'
+    enterSales: 'Nhập doanh số',
+    addRanking: 'Thêm xếp hạng',
+    addNewRanking: 'Thêm mới xếp hạng',
+    enterNameRanking: 'Nhập tên hạng',
+    byQuarter: 'Theo quý',
+    byYear: 'Theo năm'
   },
   formDemo: {
     generalServiceInformation: 'Thông tin chung dịch vụ',
@@ -1337,6 +1342,9 @@ export default {
     selectBank: 'Chọn ngân hàng',
     notSave: 'Chưa lưu',
     checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
-    notSaveAttribute: 'Chưa lưu thuộc tính'
+    notSaveAttribute: 'Chưa lưu thuộc tính',
+    silver: 'Bạc',
+    gold: 'Vàng',
+    platinum: 'Bạch kim'
   }
 }

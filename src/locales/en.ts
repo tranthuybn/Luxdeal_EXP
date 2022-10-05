@@ -1259,6 +1259,8 @@ export default {
     notSaveAttribute: 'Not save attribute yet',
     silver: 'Silver',
     gold: 'Gold',
-    platinum: 'Platinum'
+    platinum: 'Platinum',
+    cantChooseSameProductCode: 'Cant choose the same code for product',
+    cantFindDataOfProduct: 'Cant find data of product'
   }
 }

@@ -1342,9 +1342,11 @@ export default {
     selectBank: 'Chọn ngân hàng',
     notSave: 'Chưa lưu',
     checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
-    notSaveAttribute: 'Chưa lưu thuộc tính',
+    notSaveAttribute: 'Chưa lưu đặc tính',
     silver: 'Bạc',
     gold: 'Vàng',
-    platinum: 'Bạch kim'
+    platinum: 'Bạch kim',
+    cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
+    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm'
   }
 }

@@ -115,7 +115,12 @@ export default {
     creator: 'Creator',
     addNewRatings: 'Add new ratings',
     ratingInformation: 'Rating information',
-    enterSales: 'Enter sales'
+    enterSales: 'Enter sales',
+    addRanking: 'Add ranking',
+    addNewRanking: 'Add new ranking',
+    enterNameRanking: 'Enter name ranking',
+    byQuarter: 'By quarter',
+    byYear: 'By year'
   },
   formDemo: {
     generalServiceInformation: 'General service information',

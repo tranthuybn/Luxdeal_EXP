@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ElCard, ElTooltip } from 'element-plus'
+import { ElCard, ElTooltip, ElButton } from 'element-plus'
 import { useDesign } from '@/hooks/web/useDesign'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useRouter } from 'vue-router'
+import { useIcon } from '@/hooks/web/useIcon'
 
 const { t } = useI18n()
 const { getPrefixCls } = useDesign()
@@ -16,8 +18,15 @@ const props = defineProps({
   message: {
     type: String,
     default: ''
+  },
+  // add exit button to header
+  backButton: {
+    type: Boolean,
+    default: false
   }
 })
+const { go } = useRouter()
+const deleteIcon = useIcon({ icon: 'bi:x-lg' })
 </script>
 
 <template>
@@ -30,7 +39,12 @@ const props = defineProps({
           placement="right"
           :content="props.message"
         >
-          <div class="max-w-250px font-medium">{{ t(`${props.title}`) }}</div>
+          <div class="flex justify-between w-full">
+            <div class="max-w-250px font-medium">{{ t(`${props.title}`) }}</div>
+            <el-button v-if="backButton" @click="go(-1)" :icon="deleteIcon">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
         </ElTooltip>
       </div>
     </template>

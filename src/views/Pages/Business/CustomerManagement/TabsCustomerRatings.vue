@@ -8,9 +8,7 @@ const { t } = useI18n()
 
 const activeName = ref('first-page')
 
-const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
-}
+const handleClick = (_tab: TabsPaneContext, _event: Event) => {}
 </script>
 <template>
   <ElTabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">

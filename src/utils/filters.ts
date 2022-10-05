@@ -5,6 +5,16 @@ interface Filter {
   text: string
   value: any
 }
+export const filterStatusCustomerRatings: Array<Filter> = [
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 },
+  { text: t('common.cancel'), value: 3 }
+]
+export const filterRankCustomer: Array<Filter> = [
+  { text: t('reuse.silver'), value: 1 },
+  { text: t('reuse.gold'), value: 2 },
+  { text: t('common.platinum'), value: 3 }
+]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
   { text: t('reuse.takingCare'), value: 2 },

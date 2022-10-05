@@ -159,6 +159,10 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
+  description: [
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkNameLength.validator }
+  ],
   cost: [
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkPositiveNumber.validator },
@@ -291,7 +295,11 @@ const editData = async (data) => {
     )
 }
 const postData = async (data) => {
+  console.log(data)
+
   data = customPostData(data)
+  console.log(data)
+
   await postSpa(data)
     .then(() =>
       ElNotification({

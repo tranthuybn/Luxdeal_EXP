@@ -16,7 +16,7 @@ const inventoryTrading: {
   total: number
   productCategoryUnit: string
 }[] = []
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 0; i++) {
   inventoryTrading.push(
     Mock.mock({
       id: i,

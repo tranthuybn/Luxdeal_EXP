@@ -330,6 +330,11 @@ export default {
     applicableProductsAndSpaApply: 'Sản phẩm & dịch vụ spa áp dụng',
     joinTheProgram: 'Tham gia chương trình',
     theProgramIsRunning: 'Đang chạy chương trình',
+    newAndEditFlasherProgramsMustHaveSAApprovalInTheBrowsingModule:
+      'Chương trình Flasher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
+    newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule:
+      'Voucher tạo mới/chỉnh sửa phải có SA duyệt ở module duyệt',
+
     cancelTheProgram: 'Hủy chương trình',
     decreaseByPercent: 'Giảm theo %',
     enterPercent: 'Nhập số %',
@@ -339,15 +344,6 @@ export default {
     codeCollection: 'Mã chương trình BST',
     codeNewProduct: 'Mã chương trình HMV',
     newProductProgramDetails: 'Chi tiết hàng mới về',
-    voucherDetails: 'Chi tiết Voucher',
-    voucherCode: 'Voucher code',
-    odersApply: 'Đơn hàng áp dụng',
-    voucherDiscount: 'Voucher giảm giá đơn hàng',
-    voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
-    appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
-    voucherSendingSettings: 'Cài đặt gửi Voucher',
-    comboGetFree: 'Combo nhận miễn phí',
-
     enterCondition: 'Nhập điều kiện',
     auctionCode: 'Mã đấu giá',
     supplyDate: 'Ngày cấp',
@@ -356,7 +352,18 @@ export default {
     codeQR: 'Mã QR code',
     completeEntryTrackingSheet: 'Bảng theo dõi nhập hoàn',
     chooseCustomer: 'Chọn khách hàng',
-    enterDetailAddress: 'Nhập địa chỉ chi tiết'
+    enterDetailAddress: 'Nhập địa chỉ chi tiết',
+    userName: 'Tên đăng nhập',
+    enterUserName: 'Nhập tên đăng nhập',
+    accountAndStatus: 'Tài khoản và trạng thái',
+    enterPassword: 'Nhập mật khẩu',
+    confirmPassword: 'Nhập lại mật khẩu',
+    cancelAccount: 'Hủy tài khoản',
+    enterAccountNumber: 'Nhập số tài khoản',
+    enterAccountName: 'Nhập tên tài khoản',
+    provinceAndCity: 'Tỉnh/thành phố',
+    countyAndDistrict: 'Quận/huyện',
+    wards: 'Phường/xã'
   },
   button: {
     add: 'Thêm nhanh',
@@ -634,6 +641,7 @@ export default {
     index: 'Số seri',
     action: 'Vận hành',
     username: 'Tên tài khoản',
+    accountNumber: 'Số tài khoản',
     password: 'Mật khẩu mở khóa',
     role: 'Role',
     remark: 'Nhận xét',
@@ -1301,15 +1309,14 @@ export default {
     notSpaceBeforeAndAfter: 'Không để khoảng trắng trước và sau từ',
     newInitialization: 'Khởi tạo mới',
     addNewCharacteristic: 'Thêm mới đặc tính',
+    addNewCharacteristicColor: 'Thêm mới đặc tính màu sắc',
+    addNewCharacteristicSize: 'Thêm mới đặc tính size',
+    addNewCharacteristicMaterial: 'Thêm mới đặc tính chất liệu',
+    addNewCharacteristicStatus: 'Thêm mới đặc tính trạng thái',
+    addNewCharacteristicGender: 'Thêm mới đặc tính giới tính',
     lock: 'Khóa',
     accountBank: 'Tài khoản ngân hàng',
     ManageSalesHistoryAndCommissionPayments: 'Quản lý lịch sử doanh số & thanh toán hoa hồng',
-    comboDetail: 'Thông tin combo',
-    auctionDetail: 'Thông tin đấu giá',
-    voucherDetail: 'Thông tin voucher',
-    newProductDetail: 'Thông tin hàng mới về',
-    collectionDetail: 'Thông tin bộ sưu tập',
-    flashSaleDetail: 'Thông tin flash sale',
     //seo
     enterTitle: 'Nhập tiêu đề',
     enterLink: 'Nhập link',
@@ -1319,6 +1326,14 @@ export default {
     moneyUsed: 'Số tiền sử dụng',
     statusPoint: 'Trạng thái điểm',
     Points: 'Số điểm',
-    exchangedMoney: 'Số tiền quy đổi'
+    exchangedMoney: 'Số tiền quy đổi',
+    comboDetail: 'Thông tin combo',
+    auctionDetail: 'Thông tin đấu giá',
+    voucherDetail: 'Thông tin voucher',
+    newProductDetail: 'Thông tin hàng mới về',
+    collectionDetail: 'Thông tin bộ sưu tập',
+    flashSaleDetail: 'Thông tin flash sale',
+    bank: 'Ngân hàng',
+    selectBank: 'Chọn ngân hàng'
   }
 }

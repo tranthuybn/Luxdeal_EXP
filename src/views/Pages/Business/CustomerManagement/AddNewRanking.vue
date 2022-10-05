@@ -36,6 +36,7 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 12
     },
+    value: 1,
     componentProps: {
       options: [
         {
@@ -120,7 +121,6 @@ const customPostData = (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
-  console.log('data post', data)
   await addCustomerRatings(FORM_IMAGES(data))
     .then(() =>
       ElNotification({

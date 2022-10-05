@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/modules/app'
 import { getCustomerRatings } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
 import TableDataBase from '../../Components/TableDataBase.vue'
-import { filterStatusCustomerRatings } from '@/utils/filters'
+import { filterProductStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import {
   dateTimeFormat,
@@ -122,7 +122,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.status'),
     minWidth: '150',
     align: 'left',
-    filters: filterStatusCustomerRatings,
+    filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
     }

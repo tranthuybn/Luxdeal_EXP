@@ -12,10 +12,10 @@ const handleClick = (_tab: TabsPaneContext, _event: Event) => {}
 </script>
 <template>
   <ElTabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-    <ElTabPane :label="`${t('customerList.rankingList')}`" name="first-page"
+    <ElTabPane :label="`${t('customerList.rankingList')}`" name="first-page" lazy
       ><RatingLists
     /></ElTabPane>
-    <ElTabPane :label="`${t('customerList.ratingSettings')}`" name="second"
+    <ElTabPane :label="`${t('customerList.ratingSettings')}`" name="second" lazy
       ><RatingSettings />
     </ElTabPane>
   </ElTabs>

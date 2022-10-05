@@ -105,7 +105,7 @@ export default {
         {
           path: 'customerRatings',
           name: 'business.customer-management.customerRatings',
-          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerRatings.vue'),
+          component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('router.customerRatings')
           }
@@ -200,7 +200,21 @@ export default {
           component: () => import('@/views/Pages/Business/PromotionStrategy/Combo.vue'),
           meta: {
             title: t('router.combo')
-          }
+          },
+          children: [
+            {
+              path: `combo-utility`,
+              component: '@views/Pages/Business/PromotionStrategy/ComboUtility.vue',
+              name: `business.promotion-strategy.comboUtility`,
+              meta: {
+                title: 'reuse.combo-title',
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         },
         {
           path: 'auction',
@@ -208,7 +222,20 @@ export default {
           component: () => import('@/views/Pages/Business/PromotionStrategy/Auction.vue'),
           meta: {
             title: t('router.auction')
-          }
+          },
+          children: [
+            {
+              path: `auction-utility`,
+              component: '@views/Pages/Business/PromotionStrategy/AuctionUtility.vue',
+              name: `business.promotion-strategy.auction-utility`,
+              meta: {
+                title: 'reuse.auction-title',
+                noTagsView: true,
+                noCache: true,
+                hidden: true
+              }
+            }
+          ]
         }
       ]
     },

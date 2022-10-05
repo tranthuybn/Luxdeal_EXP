@@ -68,7 +68,7 @@ export const businessStatusTransferToText = (val) => {
 }
 
 export const dateTimeFormat = (val) => {
-  return moment(val).format('DD-MM-y')
+  return moment(val).format('DD/MM/YYYY')
 }
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'

@@ -44,5 +44,9 @@ export const CUSTOMER_API = {
   GET_COLLABORATOR_API: 'api/v1/Customer/GetCollaborator',
   GET_COLLABORATOR_BY_ID: 'api/v1/Customer/getCollaboratorById',
   GET_GEN_CODE_COLLABORATOR: 'api/v1/Customer/genCodeCollaborator',
-  POST_COLLABORATOR_API: 'api/v1/Customer/addCollaborator'
+  POST_COLLABORATOR_API: 'api/v1/Customer/addCollaborator',
+  GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers'
+}
+export const ORDER_API = {
+  GET_ORDER_LIST: '/api/v1/Order/GetOrder'
 }

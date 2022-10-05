@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
+import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
 import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
@@ -14,7 +14,7 @@ export const getPotentialCustomerList = async (params: any): Promise<IResponse> 
   return res.data && res.data.data
 }
 
-export const getPotentialCustomerListById = async (params: any): Promise<IResponse> => {
+export const getPotentialCustomerById = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`
@@ -87,16 +87,6 @@ export const deletePotentialCustomerHistoryOfSale = async (params): Promise<IRes
   return res && res.data
 }
 
-// export const getCustomer = async (params: any): Promise<IResponse> => {
-//   const res = await request.get(
-//     {
-//       url: CUSTOMER_API.ALL_CUSTOMER,
-//       data: params
-//     },
-//     fixedBaseURL
-//   )
-//   return res && res.data
-// }
 export const getCustomer = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -151,14 +141,66 @@ export const getPromotionsList = async (params: any): Promise<IResponse> => {
 }
 
 export const getCustomerList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/customer/List', params })
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_LIST_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+
+// Lấy danh sách đơn hàng
+export const getSellOrderList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 
-export const getSellOrderList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/sell-order/list', params })
+export const getRentalorderList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
+
+export const getOrderDepositList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getOrderPawnList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getOrderSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -241,18 +283,7 @@ export const getEmployeeList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/employee', params })
   return res && res.data
 }
-export const getOrderDepositList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/orderDeposit/List', params })
-  return res && res.data
-}
-export const getOrderPawnList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/orderPawn/List', params })
-  return res && res.data
-}
-export const getOrderSpaList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/orderSpa/List', params })
-  return res && res.data
-}
+
 export const getPaymentList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/payment', params })
   return res && res.data

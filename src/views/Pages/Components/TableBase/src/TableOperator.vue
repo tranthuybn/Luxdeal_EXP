@@ -224,8 +224,7 @@ const save = async (type) => {
         emit('edit-data', data, go(-1))
         loading.value = false
       }
-    }
-    if (!isValid) {
+    } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
   })

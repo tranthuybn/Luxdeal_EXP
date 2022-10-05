@@ -520,7 +520,7 @@ onBeforeMount(() => {
           </div>
           <div class="flex gap-4 items-center h-12">
             <span class="w-[16%]"></span>
-            <div v-if="checkButton">
+            <div v-if="!checkButton">
               <el-button
                 class="min-w-[142px]"
                 @click.prevent="
@@ -566,7 +566,12 @@ onBeforeMount(() => {
         <el-table-column prop="purchaseTime" :label="t('formDemo.purchaseTime')" />
         <el-table-column prop="orderCode" :label="t('formDemo.orderCode')" />
         <el-table-column prop="status" :label="t('formDemo.status')" />
-        <el-table-column prop="permissionPurchase" :label="t('formDemo.permissionPurchase')">
+        <el-table-column
+          prop="permissionPurchase"
+          :label="t('formDemo.permissionPurchase')"
+          width="180"
+          align="center"
+        >
           <template #default="props">
             <el-switch
               v-model="props.row.permissionPurchase"

@@ -176,18 +176,22 @@ const tableData = [
 
 const gridData = [
   {
+    radioComboTable: '1',
     name: 'Voucher nhận miễn phí',
     address: ''
   },
   {
+    radioComboTable: '2',
     name: 'Voucher Affiliate',
     address: ''
   },
   {
+    radioComboTable: '3',
     name: 'Đổi bảng điểm',
     address: '500 đ '
   },
   {
+    radioComboTable: '4',
     name: 'Mua bằng tiền ảo',
     address: '200,000 đ'
   }
@@ -210,6 +214,7 @@ const radioOrderApplyList = [
   t('reuse.spaOrderList')
 ]
 const radioOrderApply = ref(radioOrderApplyList[0])
+const radioCondition = ref(false)
 </script>
 
 <template>
@@ -588,10 +593,10 @@ const radioOrderApply = ref(radioOrderApplyList[0])
         <el-divider />
 
         <el-table :data="gridData" border>
-          <el-table-column width="50" property="value" label-class-name="noHeader" align="center">
-            <template #default="data">
-              <el-radio-group v-model="data.row.radio">
-                <el-radio label="1" size="large" />
+          <el-table-column prop="radioComboTable" width="90" align="center">
+            <template #default="props">
+              <el-radio-group v-model="radioCondition" class="ml-4">
+                <el-radio :label="props.row.radioComboTable" size="large" />
               </el-radio-group>
             </template>
           </el-table-column>
@@ -670,5 +675,9 @@ const radioOrderApply = ref(radioOrderApplyList[0])
 
 ::v-deep(.el-divider__text) {
   font-size: 16px;
+}
+
+::v-deep(.el-radio.el-radio--large .el-radio__label) {
+  color: transparent;
 }
 </style>

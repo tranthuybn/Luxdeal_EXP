@@ -10,7 +10,12 @@ import { Collapse } from '../../Components/Type'
 import TableDataBase from '../../Components/TableDataBase.vue'
 import { filterStatusCustomerRatings } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
-import { dateTimeFormat, formatCustomerRatings, productStatusTransferToText } from '@/utils/format'
+import {
+  dateTimeFormat,
+  formatCustomerRatings,
+  moneyFormat,
+  productStatusTransferToText
+} from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -90,7 +95,10 @@ const columns = reactive<TableColumn[]>([
     field: 'sales',
     label: t('customerList.sales'),
     minWidth: '200',
-    align: 'right'
+    align: 'right',
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return moneyFormat(cellValue)
+    }
   },
   {
     field: 'createdAt',

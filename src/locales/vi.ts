@@ -1341,6 +1341,9 @@ export default {
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
     notSave: 'Chưa lưu',
-    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự'
+    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
+    silver: 'Bạc',
+    gold: 'Vàng',
+    platinum: 'Bạch kim'
   }
 }

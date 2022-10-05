@@ -75,15 +75,13 @@ const columns = reactive<TableColumn[]>([
     field: 'ratings',
     label: t('customerList.ratings'),
     minWidth: '200',
-    align: 'right',
-    sortable: true
+    align: 'left'
   },
   {
     field: 'sales',
     label: t('customerList.sales'),
     minWidth: '200',
-    align: 'right',
-    sortable: true
+    align: 'right'
   },
   {
     field: 'createDate',
@@ -97,7 +95,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.creator'),
     minWidth: '150',
     align: 'left',
-    HeaderFilter: 'Name'
+    headerFilter: 'Name'
   },
   {
     field: 'status',

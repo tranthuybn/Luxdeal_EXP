@@ -104,7 +104,7 @@ export default {
     ratingSettings: 'Rating settings',
     monthlyRevenue: 'Monthly revenue',
     quarterlySales: 'Quarterly sales',
-    salesYear: 'sales by year',
+    salesYear: 'Sales by year',
     rankMonth: 'Rank by month',
     quarterlyRanking: 'Quarterly ranking',
     rankingYear: 'Ranking by year',
@@ -1255,6 +1255,9 @@ export default {
     selectBank: 'Select bank',
     notSave: 'Not save yet',
     checkNameImageLength: 'Image name cant be over 100 characters',
-    checkEmoji: 'Cant use emoji'
+    checkEmoji: 'Cant use emoji',
+    silver: 'Silver',
+    gold: 'Gold',
+    platinum: 'Platinum'
   }
 }

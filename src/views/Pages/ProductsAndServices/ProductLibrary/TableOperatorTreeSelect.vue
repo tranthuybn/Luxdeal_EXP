@@ -322,6 +322,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
           inValid = false
         } else if (file.name?.length > 100) {
           ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
           return false
         }
       })

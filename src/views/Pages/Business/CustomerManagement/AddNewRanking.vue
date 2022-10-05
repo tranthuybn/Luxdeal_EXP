@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getCategoryById, deleteCategory } from '@/api/LibraryAndSetting'
-import { reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
@@ -33,7 +33,6 @@ const schema = reactive<FormSchema[]>([
       span: 12
     },
     componentProps: {
-      modelValue: 1,
       options: [
         {
           label: t('reuse.byMonth'),
@@ -62,7 +61,8 @@ const schema = reactive<FormSchema[]>([
       labelWidth: '0px'
     },
     componentProps: {
-      placeholder: t('customerList.enterSales')
+      placeholder: t('customerList.enterSales'),
+      suffixIcon: h('div', 'đ')
     }
   },
   {

@@ -91,7 +91,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
           <label class="w-[20%] text-right">{{ t('customerList.rankName') }}</label>
           <el-input class="w-[80%]" v-model="inputRankName" />
         </div>
-        <div class="flex pt-4">
+        <div class="flex pt-4 items-center">
           <label class="w-[20%] max-w-[146.83px] text-right">{{ t('customerList.ratings') }}</label>
           <div class="flex items-center w-[84%]">
             <el-select v-model="ratings" class="m-2 flex-1" placeholder="Select">

@@ -4,6 +4,16 @@ import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
+export const addCustomerRatings = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CUSTOMER_API.ADD_CUSTOMER_RATINGS}`,
+      data: params
+    },
+    0
+  )
+  return res && res.data
+}
 export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -11,7 +21,7 @@ export const getCustomerRatings = async (): Promise<IResponse> => {
     },
     0
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {

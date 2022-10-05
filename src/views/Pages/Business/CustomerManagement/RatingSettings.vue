@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -9,6 +9,8 @@ import { getCustomerRatings } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
 import TableDataBase from '../../Components/TableDataBase.vue'
 import { filterStatusCustomerRatings } from '@/utils/filters'
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+import { dateTimeFormat, formatCustomerRatings, productStatusTransferToText } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -62,22 +64,27 @@ const pushAdd = () => {
 }
 const columns = reactive<TableColumn[]>([
   {
-    field: 'rankName',
+    field: 'name',
     label: t('customerList.rankName'),
     minWidth: '450',
     headerAlign: 'left',
     align: 'left'
   },
   {
-    field: 'image',
+    field: 'imageUrl',
     label: t('reuse.image'),
-    minWidth: '150'
+    minWidth: '150',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue)
   },
   {
-    field: 'ratings',
+    field: 'rating',
     label: t('customerList.ratings'),
     minWidth: '200',
-    align: 'left'
+    align: 'left',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', formatCustomerRatings(cellValue))
+    }
   },
   {
     field: 'sales',
@@ -86,25 +93,31 @@ const columns = reactive<TableColumn[]>([
     align: 'right'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'updatedBy',
     label: t('reuse.creator'),
     minWidth: '150',
     align: 'left',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     align: 'left',
-    filters: filterStatusCustomerRatings
+    filters: filterStatusCustomerRatings,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ])
 </script>

@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { h, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import TableOperatorPaymentRequest from './TableOperatorPaymentRequest.vue'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
 //get data from router
@@ -50,8 +51,8 @@ const formVirtualWallet = reactive<FormSchema[]>([
       placeholder: t('reuse.chooseReceiptAndPayment'),
       style: 'width: 100%',
       options: [
-        { label: t('reuse.using'), value: true },
-        { label: t('reuse.lockPoint'), value: false }
+        { label: t('reuse.using'), value: 1 },
+        { label: t('reuse.lockPoint'), value: 2 }
       ]
     }
   },
@@ -71,8 +72,8 @@ const formVirtualWallet = reactive<FormSchema[]>([
       placeholder: t('reuse.choosePaymentProposal'),
       style: 'width: 100%',
       options: [
-        { label: t('reuse.using'), value: true },
-        { label: t('reuse.lockPoint'), value: false }
+        { label: t('reuse.using'), value: 1 },
+        { label: t('reuse.lockPoint'), value: 2 }
       ]
     }
   },
@@ -94,11 +95,19 @@ const formVirtualWallet = reactive<FormSchema[]>([
     }
   }
 ])
+const { required, ValidService } = useValidator()
+const rules = reactive({
+  customer: [required()],
+  amountOfMoney: [required(), { validator: ValidService.checkMoney.validator }],
+  receiptOrPayment: [required()],
+  paymentProposal: [required()]
+})
 </script>
 <template>
   <TableOperatorPaymentRequest
     :id="id"
     :type="type"
+    :rules="rules"
     :schema="formVirtualWallet"
     :title="t('reuse.detailVirtualWalletRequest')"
   />

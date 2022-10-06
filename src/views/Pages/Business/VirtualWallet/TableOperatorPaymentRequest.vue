@@ -345,24 +345,16 @@ listType.value = 'text'
 
 const options = [
   {
-    value: 'Option1',
-    label: 'Option1'
+    value: 1,
+    label: 'Ngô Quang Trường'
   },
   {
-    value: 'Option2',
-    label: 'Option2'
+    value: 2,
+    label: 'Ngô Trường'
   },
   {
-    value: 'Option3',
-    label: 'Option3'
-  },
-  {
-    value: 'Option4',
-    label: 'Option4'
-  },
-  {
-    value: 'Option5',
-    label: 'Option5'
+    value: 3,
+    label: 'Trường Ngô'
   }
 ]
 </script>

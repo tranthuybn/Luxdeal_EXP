@@ -1270,6 +1270,9 @@ export default {
     choosePaymentProposal: 'Choose payment proposal',
     addNewVirtualWalletRequest: 'Add new virtual wallet request',
     detailVirtualWalletRequest: 'Detail virtual wallet request',
-    addNewMoneyPaymentCode: 'Add new money payment code'
+    addNewMoneyPaymentCode: 'Add new money payment code',
+    moneyPaymentCode: 'Money payment code',
+    alreadyPaid: 'Already paid',
+    notPaid: 'Not paid'
   }
 }

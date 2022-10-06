@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n'
 import { h, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
 //get data from router
@@ -37,27 +38,14 @@ const formVirtualWalletSettings = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'startDate',
+    field: 'date',
     label: t('formDemo.duration'),
     component: 'DatePicker',
-    colProps: { span: 12 },
+    colProps: { span: 24 },
     componentProps: {
+      type: 'daterange',
       style: 'width: 100%',
-      editable: false,
-      placeholder: t('formDemo.startDay')
-    }
-  },
-  {
-    field: 'endDate',
-    component: 'DatePicker',
-    colProps: { span: 12 },
-    formItemProps: {
-      labelWidth: '0px'
-    },
-    componentProps: {
-      style: 'width: 100%',
-      editable: false,
-      placeholder: t('formDemo.endDay')
+      editable: false
     }
   },
   {
@@ -71,7 +59,7 @@ const formVirtualWalletSettings = reactive<FormSchema[]>([
   },
   {
     field: 'Divider',
-    label: t('reuse.generalInformation'),
+    label: t('reuse.status'),
     component: 'Divider'
   },
   {
@@ -86,12 +74,20 @@ const formVirtualWalletSettings = reactive<FormSchema[]>([
   }
 ])
 const title = router.currentRoute.value.meta.title
+const { required, ValidService } = useValidator()
+const rules = reactive({
+  customer: [required()],
+  amountOfMoney: [required(), { validator: ValidService.checkMoney.validator }],
+  date: [required()],
+  shortDescription: [required(), { validator: ValidService.checkNameLength.validator }]
+})
 </script>
 <template>
-  <TableOperator :id="id" :type="type" :schema="formVirtualWalletSettings" :title="title" />
+  <TableOperator
+    :id="id"
+    :type="type"
+    :rules="rules"
+    :schema="formVirtualWalletSettings"
+    :title="title"
+  />
 </template>
-<style scoped>
-:deep(.el-input__wrapper) {
-  width: 100%;
-}
-</style>

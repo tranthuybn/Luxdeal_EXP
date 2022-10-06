@@ -631,7 +631,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
             meta: {
               title: 'router.settingsvirtualWallet'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWalletUtility',
+                name: `business.virtual-wallet.settings.${utility}`,
+                meta: {
+                  title: 'reuse.addNewMoneyPaymentCode',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       },

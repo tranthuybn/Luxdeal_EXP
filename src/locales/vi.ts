@@ -1358,6 +1358,7 @@ export default {
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
     choosePaymentProposal: 'Chọn đè',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
-    detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo'
+    detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền'
   }
 }

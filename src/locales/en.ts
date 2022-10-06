@@ -1269,6 +1269,7 @@ export default {
     chooseReceiptAndPayment: 'Choose receipt and payment',
     choosePaymentProposal: 'Choose payment proposal',
     addNewVirtualWalletRequest: 'Add new virtual wallet request',
-    detailVirtualWalletRequest: 'Detail virtual wallet request'
+    detailVirtualWalletRequest: 'Detail virtual wallet request',
+    addNewMoneyPaymentCode: 'Add new money payment code'
   }
 }

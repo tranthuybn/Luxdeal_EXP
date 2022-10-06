@@ -13,6 +13,18 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatCustomerRatings = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.byMonth')
+    case 2:
+      return t('customerList.byQuarter')
+    case 3:
+      return t('customerList.byYear')
+    default:
+      return t('reuse.byMonth')
+  }
+}
 export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
@@ -104,6 +116,9 @@ export const FORM_IMAGES = (data) => {
     }
     return form
   }, new FormData())
+}
+export const moneyFormat = (money) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
 }
 export default {
   formatPotentialCustomerStatusIdToText,

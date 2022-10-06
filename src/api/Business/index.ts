@@ -3,7 +3,28 @@ import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_
 import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
-const fixedBaseURL = true
+
+const fixedBaseURL = 0
+export const addCustomerRatings = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CUSTOMER_API.ADD_CUSTOMER_RATINGS}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRatings = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -97,6 +118,19 @@ export const getCustomer = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+// Tạo mới đơn hàng
+export const addNewOrderList = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_NEW_ORDER,
+      data: params
+    },
+    0
+  )
+  return res.data && res.data.data
+}
+
+// Lấy danh sách đơn hàng
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

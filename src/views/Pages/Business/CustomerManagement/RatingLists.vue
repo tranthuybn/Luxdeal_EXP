@@ -3,7 +3,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { filterRankCustomer } from '@/utils/filters'
 import { reactive } from 'vue'
 import TableDataBase from '../../Components/TableDataBase.vue'
-import { getCustomerRatings } from '@/api/Business'
+import { getCustomerPointsList } from '@/api/Business'
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
@@ -47,6 +47,13 @@ const columns = reactive<TableColumn[]>([
     filters: filterRankCustomer
   },
   {
+    field: 'quarterlyRanking',
+    label: t('customerList.quarterlyRanking'),
+    minWidth: '150',
+    align: 'left',
+    filters: filterRankCustomer
+  },
+  {
     field: 'rankingYear',
     label: t('customerList.rankingYear'),
     minWidth: '150',
@@ -59,7 +66,7 @@ const columns = reactive<TableColumn[]>([
 <template>
   <TableDataBase
     :columns="columns"
-    :api="getCustomerRatings"
+    :api="getCustomerPointsList"
     :is-operator-column-customize="true"
   />
 </template>

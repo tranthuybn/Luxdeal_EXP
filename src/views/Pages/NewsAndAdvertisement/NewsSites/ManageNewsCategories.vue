@@ -4,15 +4,19 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getManageNewsList } from '@/api/NewsAndAdvertisement'
 import { filterTableStatus } from '@/utils/filters'
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.newsDerectoryinformation'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue)
   },
   {
     field: 'createDate',

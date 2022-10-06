@@ -5,7 +5,6 @@ import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { TableResponse } from '../../Type'
 import {
-  ElImage,
   ElButton,
   ElDrawer,
   ElCheckboxGroup,
@@ -21,7 +20,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
-import { API_URL } from '@/utils/API_URL'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -30,29 +28,33 @@ const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api lấy danh sách dữ liệu của bảng '
   },
   delApi: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api xóa dữ liệu trong bảng'
   },
   fullColumns: {
     type: Array as PropType<TableColumn[]>,
-    default: () => []
+    default: () => [],
+    description: 'Các cột trong bảng'
   },
   selection: { type: Boolean, default: true },
   maxHeight: {
     type: String || Number,
-    default: '69vh'
+    default: '69vh',
+    description: 'Chiều cao của bảng danh sách'
   },
   customOperator: {
     type: Number,
     default: 1,
-    validator(value: number) {
+    validator: (value: number) => {
       // The value must match one of these strings
       return [1, 2, 3, 4].includes(value)
     },
-    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem)'
+    descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem)'
   },
   paginationType: {
     type: Boolean,
@@ -64,7 +66,8 @@ const props = defineProps({
   },
   removeDrawer: {
     type: Boolean,
-    default: false
+    default: false,
+    Description: 'Bỏ lọc cột '
   },
   titleButtons: {
     type: String,
@@ -72,7 +75,8 @@ const props = defineProps({
   },
   deleteTitle: {
     type: String,
-    default: 'Warning'
+    default: 'Warning',
+    description: 'Tiêu đề thông báo khi ấn nút xóa'
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -312,6 +316,7 @@ const updateTableColumn = () => {
       :expand="expand"
       v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage"
+      row-key="id"
       :data="tableObject.tableList"
       :loading="tableObject.loading"
       :pagination="paginationObj"
@@ -328,33 +333,6 @@ const updateTableColumn = () => {
       @update:page-size="handleSizeChange"
       @update:current-page="handleCurrentChange"
     >
-      <template #imgTitle="data">
-        <div class="imageTitle" style="display: flex; align-items: center">
-          <div style="padding-right: 20px">
-            <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.imageurl" />
-          </div>
-          <div>{{ data.row.name }}</div>
-        </div>
-      </template>
-      <template #image="data">
-        <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.image" />
-        </div>
-      </template>
-      <template #imageList="data">
-        <div>
-          <el-image fit="contain" style="width: 130px" :src="API_URL + data.row.photos[0]?.path" />
-        </div>
-      </template>
-      <template #imageProduct="data">
-        <div>
-          <el-image
-            fit="contain"
-            style="width: 130px"
-            :src="API_URL + data.row.productImages[0]?.path"
-          />
-        </div>
-      </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]
@@ -401,8 +379,8 @@ const updateTableColumn = () => {
           </ElButton>
           <ElButton type="danger" @click="action(row, 'delete')">
             {{ t('reuse.delete') }}
-          </ElButton></div
-        >
+          </ElButton>
+        </div>
         <div v-if="customOperator === 4">
           <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         </div>

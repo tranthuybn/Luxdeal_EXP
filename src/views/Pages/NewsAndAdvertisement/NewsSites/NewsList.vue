@@ -4,6 +4,8 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getNotificationList } from '@/api/NewsAndAdvertisement'
 import { filterSubject, filterSentStatus, filterNotification } from '@/utils/filters'
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -43,7 +45,9 @@ const columns = reactive<TableColumn[]>([
     field: 'image',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue)
   },
   {
     field: 'sendDate',

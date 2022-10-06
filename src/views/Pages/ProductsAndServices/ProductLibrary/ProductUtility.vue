@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { getTypePersonnelList } from '@/api/HumanResourceManagement'
+import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import {
-  getFeaturesDepositFee,
-  getFeaturesPawnFee,
-  getSpaLPrice,
   getInventoryTrading,
   postProductLibrary,
   getBusinessProductLibrary,
@@ -141,21 +139,21 @@ const collapse: Array<Collapse> = reactive([
   {
     icon: plusIcon,
     name: 'depositFee',
-    api: getFeaturesDepositFee,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'pawnFee',
-    api: getFeaturesPawnFee,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'SpaPrice',
-    api: getSpaLPrice,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
@@ -666,21 +664,56 @@ const depositTableVisible = ref(false)
 const pawnTableVisible = ref(false)
 const spaTableVisible = ref(false)
 const warehouseTableVisible = ref(false)
-let callApiDepositTable = 0
-let callApiPawnTable = 0
-let callApiSpaTable = 0
 let callApiWarehouseTable = 0
 
 let spaDialogTitle = ref('')
-const openSpaTable = async (dialogTitle) => {
-  spaDialogTitle.value = dialogTitle
-  spaTableVisible.value = true
-  if (callApiSpaTable == 0) {
-    const res = collapse[5].api ? await collapse[5].api({ pageSize: 10, pageIndex: 1 }) : ''
-    collapse[5].tableList = res.data
-    collapse[5].loading = false
-    callApiSpaTable++
+const openSpaTable = async (scope) => {
+  spaDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
+    })
+  } else {
+    spaTableVisible.value = true
+    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
+      (res) =>
+        (SpaSelectOptions.value = res.data.map((spa) => ({
+          label: spa.name,
+          value: spa.id,
+          key: spa.id,
+          time: spa.time
+        })))
+    )
+    const res = collapse[5].api
+      ? await collapse[5].api({ ProductPropertyId: findPropertyId, ServiceType: 5 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[5].tableList = []
+      collapse[5].tableList.push({
+        quantity: 1,
+        prices: [{ price: undefined, SpaServicesSelected: [], spaTotalTime: 0 }]
+      })
+    } else {
+      collapse[5].tableList = []
+      collapse[5].tableList = res.data[0].prices
+      collapse[5].tableList.map((row) => {
+        ;((row.SpaServicesSelected = []),
+        (row.spaTotalTime = row.spaTime),
+        (row.updateDate = res.data[0].updateDate)),
+          (row.SpaServicesSelected = row.spaServices.map((spa) => spa.id)),
+          (row.spaServices = [])
+      })
+      console.log('collapse[5].tableList', collapse[5].tableList)
+      console.log('SpaSelectOptions', SpaSelectOptions.value)
+    }
+    collapse[5].tableList.productPropertyId = findPropertyId
+    collapse[5].tableList.serviceType = 5
+    collapse[5].tableList.currentRow = scope.$index
   }
+  collapse[5].loading = false
+  forceRemove.value == false
 }
 let warehouseDialogTitle = ref('')
 const openWarehouseTable = async (dialogTitle) => {
@@ -694,26 +727,69 @@ const openWarehouseTable = async (dialogTitle) => {
   }
 }
 let pawnDialogTitle = ref('')
-const openPawnTable = async (dialogTitle) => {
-  pawnDialogTitle.value = dialogTitle
-  pawnTableVisible.value = true
-  if (callApiPawnTable == 0) {
-    const res = collapse[4].api ? await collapse[4].api({ pageSize: 10, pageIndex: 1 }) : ''
-    collapse[4].tableList = res.data
-    collapse[4].loading = false
-    callApiPawnTable++
+const openPawnTable = async (scope) => {
+  pawnDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
+    })
+  } else {
+    pawnTableVisible.value = true
+    const res = collapse[4].api
+      ? await collapse[4].api({ ProductPropertyId: findPropertyId, ServiceType: 4 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[4].tableList = []
+      collapse[4].tableList.push({
+        quantity: 1,
+        prices: [
+          { priceType: 4, price: undefined },
+          { priceType: 5, price: undefined }
+        ]
+      })
+    } else {
+      collapse[4].tableList = []
+      collapse[4].tableList = res.data
+    }
+    collapse[4].tableList.productPropertyId = findPropertyId
+    collapse[4].tableList.serviceType = 4
+    collapse[4].tableList.currentRow = scope.$index
   }
+  collapse[4].loading = false
+  forceRemove.value == false
 }
 let depositDialogTitle = ref('')
-const openDepositTable = async (dialogTitle) => {
-  depositDialogTitle.value = dialogTitle
-  depositTableVisible.value = true
-  if (callApiDepositTable == 0) {
-    const res = collapse[3].api ? await collapse[3].api({ pageSize: 10, pageIndex: 1 }) : ''
-    collapse[3].tableList = res.data
-    collapse[3].loading = false
-    callApiDepositTable++
+const openDepositTable = async (scope) => {
+  depositDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: 'Chưa lưu',
+      type: 'warning'
+    })
+  } else {
+    depositTableVisible.value = true
+    const res = collapse[3].api
+      ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 3 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[3].tableList = []
+      collapse[3].tableList.push({
+        quantity: 1,
+        prices: [{ price: undefined }, { price: undefined }]
+      })
+    } else {
+      collapse[3].tableList = []
+      collapse[3].tableList = res.data
+    }
+    collapse[3].tableList.productPropertyId = findPropertyId
+    collapse[3].tableList.serviceType = 3
+    collapse[3].tableList.currentRow = scope.$index
   }
+  collapse[3].loading = false
+  forceRemove.value == false
 }
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
@@ -792,28 +868,16 @@ const pawnForm = ref<FormInstance>()
 const spaForm = ref<FormInstance>()
 const forceRemove = ref(false)
 
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1'
-  },
-  {
-    value: 'Option2',
-    label: 'Option2'
-  },
-  {
-    value: 'Option3',
-    label: 'Option3'
-  },
-  {
-    value: 'Option4',
-    label: 'Option4'
-  },
-  {
-    value: 'Option5',
-    label: 'Option5'
-  }
-]
+let SpaSelectOptions = ref()
+const updateTimeSpa = (value, scope) => {
+  scope.row.spaTotalTime = 0
+  let time = 0
+  scope.row.SpaServicesSelected.map(
+    (spa) => (time += SpaSelectOptions.value.find((option) => option.value == spa)?.time)
+  )
+  scope.row.spaTotalTime = time
+  console.log('value spa', value, scope, SpaSelectOptions.value, time)
+}
 //add row to the end of table if fill all table
 watch(
   () => collapse[8].tableList[collapse[8].tableList.length - 1],
@@ -834,10 +898,10 @@ watch(
   () => collapse[5].tableList[collapse[5].tableList.length - 1],
   () => {
     if (
-      collapse[5].tableList[collapse[5].tableList.length - 1].service !== undefined &&
-      collapse[5].tableList[collapse[5].tableList.length - 1].service.length > 0 &&
-      collapse[5].tableList[collapse[5].tableList.length - 1].spaPrices !== undefined &&
-      forceRemove.value == false
+      collapse[5].tableList.length < 1 ||
+      (collapse[5].tableList[collapse[5].tableList.length - 1].price !== undefined &&
+        collapse[5].tableList[collapse[5].tableList.length - 1].SpaServicesSelected.length > 0 &&
+        forceRemove.value == false)
     ) {
       addLastIndexSpaTable()
     }
@@ -874,22 +938,50 @@ const addLastIndexRentTable = () => {
   })
 }
 const addLastIndexSpaTable = () => {
-  collapse[5].tableList.push({})
+  collapse[5].tableList.push({ price: undefined, SpaServicesSelected: [], spaTotalTime: 0 })
+}
+const customPostSpaPrice = (data) => {
+  console.log('runhere')
+  const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
+  customPostPriceData.productPropertyPrices = [{}]
+  customPostPriceData.productPropertyPrices[0].quantity = 1
+  customPostPriceData.productPropertyPrices[0].prices = data
+  customPostPriceData.productPropertyId = data.productPropertyId
+  customPostPriceData.serviceType = 5
+  console.log('runhere', data, customPostPriceData)
+  customPostPriceData.productPropertyPrices[0].prices.map((spa) => {
+    spa.spaServices = []
+    spa.spaTime = spa.spaTotalTime
+    spa.SpaServicesSelected.forEach((ele) => {
+      spa.spaServices.push({ id: ele })
+    })
+  })
+  console.log('data5', data, customPostPriceData)
+  return customPostPriceData
 }
 const saveDataSpaTable = async () => {
   removeLastRowSpa()
   await unref(spaForm)!.validate((valid) => {
     if (valid) {
-      spaTableVisible.value = false
-      ElNotification({
-        message: t('reuse.saveSuccess'),
-        type: 'success'
-      })
+      const data = customPostSpaPrice(collapse[5].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.saveSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.saveFail'),
+            type: 'warning'
+          })
+        })
+        .finally(() => (spaTableVisible.value = false))
     } else {
-      ElNotification({
-        message: t('reuse.saveFail'),
-        type: 'warning'
-      })
+      forceRemove.value = false
     }
   })
 }
@@ -926,10 +1018,22 @@ const saveDataPawnTable = async () => {
   await unref(pawnForm)!.validate((valid) => {
     if (valid) {
       pawnTableVisible.value = false
-      ElNotification({
-        message: t('reuse.saveSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[4].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[4].tableList.currentRow].bussinessSetups[3].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        })
     } else {
       ElNotification({
         message: t('reuse.saveFail'),
@@ -942,10 +1046,22 @@ const saveDataDepositTable = async () => {
   await unref(depositForm)!.validate((valid) => {
     if (valid) {
       depositTableVisible.value = false
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[3].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[3].tableList.currentRow].bussinessSetups[2].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        })
     } else {
       ElNotification({
         message: t('reuse.addFail'),
@@ -1013,8 +1129,8 @@ const removeLastRowRent = () => {
 }
 const removeLastRowSpa = () => {
   if (
-    collapse[5].tableList[collapse[5].tableList.length - 1].service == undefined &&
-    collapse[5].tableList[collapse[5].tableList.length - 1].spaPrices == undefined
+    collapse[5].tableList[collapse[5].tableList.length - 1].price == undefined &&
+    collapse[5].tableList[collapse[5].tableList.length - 1].SpaServicesSelected.length == 0
   ) {
     forceRemove.value = true
     collapse[5].tableList.splice(-1)
@@ -1148,9 +1264,11 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1292,7 +1410,7 @@ watch(
                   :icon="plusIcon"
                   link
                   :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
-                  @click="openDepositTable(scope.row.featureGroup)"
+                  @click="openDepositTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
@@ -1320,7 +1438,7 @@ watch(
                   :icon="plusIcon"
                   link
                   :type="scope.row.bussinessSetups[3].hasPrice ? 'primary' : 'warning'"
-                  @click="openPawnTable(scope.row.featureGroup)"
+                  @click="openPawnTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
@@ -1348,7 +1466,7 @@ watch(
                   :icon="plusIcon"
                   link
                   :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
-                  @click="openSpaTable(scope.row.featureGroup)"
+                  @click="openSpaTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
@@ -1529,9 +1647,11 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1569,14 +1689,7 @@ watch(
             min-width="130"
             :label="t('reuse.quantityTo')"
           >
-            <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.quantityTo`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
-              >
-                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
-              </el-form-item>
-            </template>
+            <template #default> 1 </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
@@ -1585,8 +1698,8 @@ watch(
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}{{ unitData }}</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1597,10 +1710,10 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
+                :prop="`${scope.$index}.prices[0].price`"
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>%</template></el-input
                 >
               </el-form-item>
@@ -1614,10 +1727,10 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
+                :prop="`${scope.$index}.prices[1].price`"
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
                   ><template #append>%</template></el-input
                 >
               </el-form-item>
@@ -1627,9 +1740,11 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1661,14 +1776,7 @@ watch(
             min-width="130"
             :label="t('reuse.quantity')"
           >
-            <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.quantity`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
-              >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
-              </el-form-item>
-            </template>
+            <template #default> 1 </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
@@ -1677,8 +1785,8 @@ watch(
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}{{ unitData }}</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1689,13 +1797,10 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.interestMoneyFor1trPerDay`"
+                :prop="`${scope.$index}.prices[0].price`"
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input
-                  v-model.number="scope.row.interestMoneyFor1trPerDay"
-                  type="text"
-                  autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1709,10 +1814,10 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
+                :prop="`${scope.$index}.prices[1].price`"
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1727,7 +1832,7 @@ watch(
             <template #default="scope">
               <el-form-item>
                 <el-input
-                  :value="scope.row.interestMoneyFor1trPerDay * scope.row.depositFee"
+                  :value="scope.row.prices[0].price + scope.row.prices[1].price"
                   type="text"
                   autocomplete="off"
                   ><template #append>đ</template></el-input
@@ -1739,9 +1844,11 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1777,17 +1884,18 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.service`"
+                :prop="`${scope.$index}.SpaServicesSelected`"
                 :rules="[{ required: true, trigger: 'blur' }]"
               >
                 <el-select
-                  v-model="scope.row.service"
+                  v-model="scope.row.SpaServicesSelected"
                   multiple
                   placeholder="Select"
                   style="width: 240px"
+                  @change="(data) => updateTimeSpa(data, scope)"
                 >
                   <el-option
-                    v-for="item in options"
+                    v-for="item in SpaSelectOptions"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -1800,18 +1908,16 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="standardTime"
             :label="t('reuse.standardTime')"
           >
             <template #default="scope">
-              <div>{{ scope.row.standardTime }} 20 {{ t('reuse.minute') }}</div>
+              <div>{{ scope.row.spaTotalTime }} {{ t('reuse.minute') }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
             min-width="130"
-            prop="quantityTo"
             :label="t('reuse.quantityTo')"
           >
             <template #default>
@@ -1825,8 +1931,8 @@ watch(
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}{{ unitData }}</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1837,10 +1943,10 @@ watch(
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.spaPrices`"
+                :prop="`${scope.$index}.price`"
                 :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.spaPrices" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1850,9 +1956,11 @@ watch(
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"

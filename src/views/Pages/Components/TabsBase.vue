@@ -27,7 +27,12 @@ const props = defineProps({
   },
   selection: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory',
+    Descriptions: 'tiêu đề nút thêm mới'
   }
 })
 const emit = defineEmits(['tabChangeEvent'])
@@ -110,7 +115,7 @@ const pushAdd = () => {
               </div>
               <div v-if="customHeaderButton === 'Base'">
                 <el-button type="primary" :icon="createIcon" @click="pushAdd">
-                  {{ t('reuse.addCategory') }}
+                  {{ t(`${item.titleAdd}`) }}
                 </el-button>
               </div>
             </template>

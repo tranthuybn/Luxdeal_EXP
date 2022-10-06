@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton, ElTable, ElTableColumn } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
-
+import { getCustomerList } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
+import TableDataBase from '../../Components/TableDataBase.vue'
+import { filterStatusCustomerRatings } from '@/utils/filters'
 
 const { t } = useI18n()
 
@@ -34,10 +36,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
-
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -52,56 +50,63 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 
-const tableData = [
-  {
-    name: 'Platinum',
-    image: '',
-    ratings: 'Theo tháng',
-    sales: '20,000,000 đ',
-    createDate: '02/07/2022',
-    creator: 'Bùi Hiển',
-    status: 'Đang hoạt động'
-  },
-  {
-    name: 'Platinum',
-    image: '',
-    ratings: 'Theo quý',
-    sales: '20,000,000 đ',
-    createDate: '02/07/2022',
-    creator: 'Bùi Hiển',
-    status: 'Đang hoạt động'
-  },
-  {
-    name: 'Platinum',
-    image: '',
-    ratings: 'Theo năm',
-    sales: '20,000,000 đ',
-    createDate: '02/07/2022',
-    creator: 'Bùi Hiển',
-    status: 'Đang hoạt động'
-  },
-  {
-    name: 'Gold',
-    image: '',
-    ratings: 'Theo tháng',
-    sales: '20,000,000 đ',
-    createDate: '02/07/2022',
-    creator: 'Bùi Hiển',
-    status: 'Đang hoạt động'
-  }
-]
-
 const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 const pushAdd = () => {
-  console.log('router: ', `${String(router.currentRoute.value.name)}.${Utility}`)
-
   push({
-    name: `${String(router.currentRoute.value.name)}.${Utility}`
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
+    params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
   })
 }
+const columns = reactive<TableColumn[]>([
+  {
+    field: 'rankName',
+    label: t('customerList.rankName'),
+    minWidth: '450',
+    headerAlign: 'left',
+    align: 'left'
+  },
+  {
+    field: 'image',
+    label: t('reuse.image'),
+    minWidth: '150'
+  },
+  {
+    field: 'ratings',
+    label: t('customerList.ratings'),
+    minWidth: '200',
+    align: 'left'
+  },
+  {
+    field: 'sales',
+    label: t('customerList.sales'),
+    minWidth: '200',
+    align: 'right'
+  },
+  {
+    field: 'createDate',
+    label: t('reuse.createDate'),
+    minWidth: '200',
+    align: 'right',
+    sortable: true
+  },
+  {
+    field: 'creator',
+    label: t('reuse.creator'),
+    minWidth: '150',
+    align: 'left',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    minWidth: '150',
+    align: 'left',
+    filters: filterStatusCustomerRatings
+  }
+])
 </script>
 
 <template>
@@ -118,134 +123,18 @@ const pushAdd = () => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <el-table :data="tableData" border style="width: 100%">
-          <el-table-column prop="name" :label="t('customerList.rankName')" width="720" />
-          <el-table-column prop="image" :label="t('customerList.picture')" width="120" />
-          <el-table-column prop="ratings" :label="t('customerList.ratings')" width="150" />
-          <el-table-column prop="sales" :label="t('customerList.sales')" width="150" />
-          <el-table-column prop="createDate" :label="t('reuse.createDate')" width="150" />
-          <el-table-column prop="creator" :label="t('customerList.creator')" width="150" />
-          <el-table-column prop="status" :label="t('reuse.status')" width="150" />
-          <el-table-column :label="t('reuse.operator')" width="180">
-            <template #default>
-              <div class="flex">
-                <ElButton @click="pushAdd" :icon="eyeIcon" />
-                <ElButton @click="pushAdd" :icon="editIcon" />
-                <ElButton :icon="trashIcon" />
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+        <TableDataBase
+          :columns="columns"
+          :api="getCustomerList"
+          :selection="false"
+          :remove-drawer="true"
+          :remove-header-filter="true"
+          :pagination="false"
+        />
         <div class="pt-4">
-          <el-button @click="pushAdd">+ Thêm xếp hạng</el-button>
+          <el-button @click="pushAdd">+ {{ t('customerList.addRanking') }}</el-button>
         </div>
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
-<style scoped>
-::v-deep(.el-select) {
-  width: 100%;
-}
-
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
-}
-
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: block;
-}
-
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.cell) {
-  color: #303133;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-
-.el-button--text {
-  margin-right: 15px;
-}
-
-::v-deep(.el-input) {
-  width: auto;
-}
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
-::v-deep(.el-table th.el-table__cell) {
-  padding: 0 !important;
-}
-
-::v-deep(.el-input) {
-  width: fit-content;
-}
-
-.example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-dropdown-menu__item) {
-  padding: 5px 30px;
-}
-
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.el-select .el-input) {
-  width: 100% !important;
-}
-
-::v-deep(.el-button--large) {
-  padding: 12px 18px;
-}
-
-.fix-label-color > .el-radio {
-  color: transparent;
-}
-
-::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
-  color: transparent;
-}
-</style>

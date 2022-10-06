@@ -100,12 +100,12 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'imageProduct',
+    field: 'productImages[0].path',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+    formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.productImages[0].path)
   },
   {
     field: 'businessManagement',

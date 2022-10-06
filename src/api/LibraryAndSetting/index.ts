@@ -1,7 +1,7 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
-const fixedBaseURL = true
+
 const request = useAxios()
 export const getSpaProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/SpaProduct/List', params })
@@ -16,7 +16,7 @@ export const getTags = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_TAGS}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -25,7 +25,7 @@ export const getCategories = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -34,22 +34,19 @@ export const getCategoryById = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_CATEGORY_BY_ID}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const postCategory = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
-  const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data },
-    fixedBaseURL
-  )
+  const res = await request.post({ url: `${PRODUCTS_AND_SERVICES_API.ADD_CATEGORY}`, data }, 0)
   return res && res.data
 }
 export const postProductProperty = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.ADD_PRODUCT_PROPERTY}`, data },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -58,16 +55,13 @@ export const deleteProductProperty = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.DELETE_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const updateCategory = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
-  const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_CATEGORY}`, data },
-    fixedBaseURL
-  )
+  const res = await request.post({ url: `${PRODUCTS_AND_SERVICES_API.UPDATE_CATEGORY}`, data }, 0)
   return res && res.data
 }
 export const deleteCategory = async (params): Promise<IResponse> => {
@@ -75,7 +69,7 @@ export const deleteCategory = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.DELETE_CATEGORY}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -84,7 +78,7 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCT}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -93,7 +87,7 @@ export const getCodeAndNameProductLibrary = async (params?): Promise<IResponse> 
     {
       url: `${PRODUCTS_AND_SERVICES_API.CHECK_PRODUCT}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -102,36 +96,27 @@ export const getPriceProductProperty = async (params?): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRICE_PRODUCT_PROPERTY}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const changePriceProductProperty = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.CHANGE_PRICE_PRODUCT_PROPERTY}`, data },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const postProductLibrary = async (data): Promise<IResponse> => {
-  const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data },
-    fixedBaseURL
-  )
+  const res = await request.post({ url: `${PRODUCTS_AND_SERVICES_API.POST_PRODUCT}`, data }, 0)
   return res && res.data
 }
 export const updateProductLibrary = async (data): Promise<IResponse> => {
-  const res = await request.put(
-    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT}`, data },
-    fixedBaseURL
-  )
+  const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT}`, data }, 0)
   return res && res.data
 }
 export const updateProductSeo = async (data): Promise<IResponse> => {
-  const res = await request.put(
-    { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_SEO_PRODUCT}`, data },
-    fixedBaseURL
-  )
+  const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.UPDATE_SEO_PRODUCT}`, data }, 0)
   return res && res.data
 }
 export const deleteProduct = async (params): Promise<IResponse> => {
@@ -139,7 +124,7 @@ export const deleteProduct = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.DELETE_PRODUCT}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -148,7 +133,7 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -157,14 +142,14 @@ export const getProductProperty = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const updateProductProperty = async (data): Promise<IResponse> => {
   const res = await request.put(
     { url: `${PRODUCTS_AND_SERVICES_API.UPDATE_PRODUCT_PROPERTY}`, data },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
@@ -173,21 +158,18 @@ export const deleteSpa = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.DELETE_SPA}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }
 export const postSpa = async (data): Promise<IResponse> => {
   data = FORM_IMAGES(data)
-  const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data },
-    fixedBaseURL
-  )
+  const res = await request.post({ url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data }, 0)
   return res && res.data
 }
 export const updateSpa = async (data): Promise<IResponse> => {
   data = FORM_IMAGES(data)
-  const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data }, fixedBaseURL)
+  const res = await request.put({ url: `${PRODUCTS_AND_SERVICES_API.PUT_SPA}`, data }, 0)
   return res && res.data
 }
 export const getSpaById = async (params: any): Promise<IResponse> => {
@@ -195,7 +177,7 @@ export const getSpaById = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_SPASERVICE}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data.data
 }
@@ -204,7 +186,7 @@ export const deleteSpaImage = async (params): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.DELETE_SPA_IMAGE}?${objectToQueryParams(params)}`
     },
-    fixedBaseURL
+    0
   )
   return res && res.data
 }

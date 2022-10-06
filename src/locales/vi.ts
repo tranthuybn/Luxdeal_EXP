@@ -181,6 +181,7 @@ export default {
     deliveryToYourPlace: 'Giao hàng tận nơi',
     printSalesSlip: 'In phiếu bán hàng',
     deliveryNotes: 'Phiếu xuất trả hàng',
+    deliveryNotesAndImport: 'Phiếu xuất trả/nhập hàng',
     printSpaBill: 'In phiếu Spa',
     printDepositSlip: 'In phiếu đặt cọc',
     complete: 'Hoàn thành',
@@ -208,9 +209,10 @@ export default {
     spent: 'Đã chi',
     unpaidDebt: 'Công nợ tồn',
     totalRentalFeeDebt: 'Tổng công nợ phí thuê',
-    totalSpaFeeDebt: 'Tổng công nợ phí Spa',
+    totalSpaFeeDebt: 'Tổng tiền phí Spa',
     chooseWarehouse: 'Chọn kho',
     intoMoney: 'Thành tiền',
+    intoMoneyPawn: 'Thành tiền phí cầm đồ',
     doesNotIncludeVAT: 'Không bao gồm VAT',
     choosePromotion: 'Chọn khuyến mãi',
     statusAndManipulation: 'Trạng thái & thao tác',
@@ -378,7 +380,8 @@ export default {
     payableFees: 'Thành tiền phí phải thu',
     pawnFeePaymentTime: 'Kỳ hạn phí cầm đồ',
     businessManagement: 'Quản lý kinh doanh',
-    pawnFeeDebt: 'Công nợ phí cầm đồ'
+    pawnFeeDebt: 'Công nợ phí cầm đồ',
+    numberOfTimesRented: 'Số lần đã cho thuê'
   },
   button: {
     add: 'Thêm nhanh',

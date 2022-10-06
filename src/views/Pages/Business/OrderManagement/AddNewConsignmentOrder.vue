@@ -436,7 +436,13 @@ const dialogAddQuick = ref(false)
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
-    <el-collapse v-model="activeName" @change="collapseChangeEvent">
+    <el-collapse
+      v-model="activeName"
+      @change="collapseChangeEvent"
+      :class="[
+        'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+      ]"
+    >
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -448,8 +454,7 @@ const dialogAddQuick = ref(false)
               :schema="schema"
               label-position="top"
               hide-required-asterisk
-              size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-transparent"
               @register="register"
             >
               <template #orderCode>
@@ -457,7 +462,7 @@ const dialogAddQuick = ref(false)
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
                   <input
                     v-model="inputCode"
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2"
+                    class="w-[80%] border-1 w-[100%] outline-none pl-2 rounded"
                     type="text"
                     :placeholder="`${t('formDemo.enterOrderCode')}`"
                   />
@@ -490,7 +495,6 @@ const dialogAddQuick = ref(false)
                         v-model="collaboratorsValue"
                         :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                         filterable
-                        size="large"
                       >
                         <el-option
                           v-for="(item, index) in optionsCollaborators"
@@ -502,7 +506,7 @@ const dialogAddQuick = ref(false)
                     </div>
                     <div class="flex items-center w-[50%] border-1 rounded">
                       <input
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent rounded"
                         type="text"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
                       />
@@ -517,7 +521,7 @@ const dialogAddQuick = ref(false)
                     t('formDemo.orderNotes')
                   }}</label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 rounded"
                     type="text"
                     :placeholder="`${t('formDemo.addNotes')}`"
                   />
@@ -527,7 +531,7 @@ const dialogAddQuick = ref(false)
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
                   <div class="flex w-[84%] gap-2">
-                    <input class="w-[80%] border-1 outline-none pl-2" type="text" />
+                    <input class="w-[80%] border-1 outline-none pl-2 rounded" type="text" />
                   </div>
                 </div>
               </template>
@@ -557,7 +561,7 @@ const dialogAddQuick = ref(false)
                   :auto-upload="false"
                   class="relative"
                 >
-                  <strong>+ Thêm ảnh hoặc file</strong>
+                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -604,7 +608,6 @@ const dialogAddQuick = ref(false)
               :schema="newList"
               label-position="top"
               hide-required-asterisk
-              size="large"
               @register="register"
             >
               <template #customer>
@@ -661,11 +664,7 @@ const dialogAddQuick = ref(false)
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -675,11 +674,7 @@ const dialogAddQuick = ref(false)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -748,11 +743,7 @@ const dialogAddQuick = ref(false)
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -762,11 +753,7 @@ const dialogAddQuick = ref(false)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -834,7 +821,6 @@ const dialogAddQuick = ref(false)
                       <el-select
                         v-model="deliveryMethod"
                         :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
-                        size="large"
                       >
                         <el-option
                           v-for="i in chooseDelivery"
@@ -889,7 +875,7 @@ const dialogAddQuick = ref(false)
         }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value2" class="m-2" size="large">
+            <el-select v-model="value2" class="m-2">
               <el-option
                 v-for="item in codeProducts"
                 :key="item.value"
@@ -918,7 +904,7 @@ const dialogAddQuick = ref(false)
           <el-table-column :label="`${t('reuse.currentlyLeased')}`" align="center" width="100" />
           <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
           <el-table-column :label="`${t('reuse.dram')}`" align="center" width="150">
-            <el-select v-model="dramValue" class="m-2" size="large">
+            <el-select v-model="dramValue" class="m-2">
               <el-option
                 v-for="item in dram"
                 :key="item.dramValue"
@@ -952,7 +938,7 @@ const dialogAddQuick = ref(false)
         <el-divider content-position="left">{{ t('formDemo.serviceTrackingTable') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value2" class="m-2" size="large">
+            <el-select v-model="value2" class="m-2">
               <el-option
                 v-for="item in codeProducts"
                 :key="item.value"
@@ -972,7 +958,7 @@ const dialogAddQuick = ref(false)
             width="90"
           />
           <el-table-column :label="`${t('reuse.dram')}`" align="center" width="150">
-            <el-select v-model="dramValue" class="m-2" size="large">
+            <el-select v-model="dramValue" class="m-2">
               <el-option
                 v-for="item in dram"
                 :key="item.dramValue"
@@ -1040,7 +1026,7 @@ const dialogAddQuick = ref(false)
             <div>Phải thu</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.choosePayment')}`">
-            <el-select class="m-2" v-model="value" placeholder="Select" size="large">
+            <el-select class="m-2" v-model="value" placeholder="Select">
               <el-option
                 v-for="item in options1"
                 :key="item.value"
@@ -1096,7 +1082,7 @@ const dialogAddQuick = ref(false)
           <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-              <el-select v-model="value" class="m-2" size="large">
+              <el-select v-model="value" class="m-2">
                 <el-option
                   v-for="item in options1"
                   :key="item.value"
@@ -1115,7 +1101,7 @@ const dialogAddQuick = ref(false)
 
             <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
             <el-table-column :label="`${t('reuse.dram')}`" align="center" width="150">
-              <el-select v-model="dramValue" class="m-2" size="large">
+              <el-select v-model="dramValue" class="m-2">
                 <el-option
                   v-for="item in dram"
                   :key="item.dramValue"
@@ -1173,6 +1159,10 @@ const dialogAddQuick = ref(false)
 }
 ::v-deep(.el-table .cell) {
   word-break: break-word;
+}
+::v-deep(.el-input) {
+  width: auto;
+  height: fit-content;
 }
 
 ::v-deep(.d-block > .el-row) {

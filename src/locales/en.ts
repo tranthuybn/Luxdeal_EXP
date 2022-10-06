@@ -203,6 +203,7 @@ export default {
     totalSpaFeeDebt: 'Total Spa fee debt',
     chooseWarehouse: 'Choose warehouse',
     intoMoney: 'Into money',
+    intoMoneyPawn: 'Into money Pawn',
     doesNotIncludeVAT: 'Does not include VAT',
     choosePromotion: 'Choose promotion',
     statusAndManipulation: 'Status and manipulation',
@@ -375,7 +376,8 @@ export default {
     payableFees: 'Payable fee',
     pawnFeePaymentTime: 'Pawn fee payment time',
     businessManagement: 'Business management',
-    pawnFeeDebt: 'Pawn fee debt'
+    pawnFeeDebt: 'Pawn fee debt',
+    numberOfTimesRented: 'Number of times rented'
   },
   button: {
     add: 'Add quick',
@@ -933,7 +935,7 @@ export default {
     cash: 'cash',
     PawnMoney: 'Pawn money',
     pawnfeeMoney: 'Pawn fee money',
-    importWarehouse: 'Import wree',
+    importWarehouse: 'Import warehouse',
     //approve management
     categoriesInfo: 'Categories Info',
     approveCondition: 'Approve Condition',
@@ -1224,6 +1226,8 @@ export default {
     depositFee: 'Deposit fee by %',
     addAttributeAndPrice: 'Add attribute and price',
     totalInventory: 'Total inventory',
+    internalPawnReturnAndRetentionHistoryForCustomers:
+      'Internal pawn return and retention History for customers',
     seoManagement: 'SEO Management',
     validateEnterNumber: 'Enter a number',
     minute: 'minute',

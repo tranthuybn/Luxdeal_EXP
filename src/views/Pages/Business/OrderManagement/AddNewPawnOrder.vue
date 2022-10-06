@@ -55,6 +55,14 @@ const schema = reactive<FormSchema[]>([
       placehoder: t('formDemo.enterDates')
     }
   },
+
+  {
+    field: 'pawnPaymentTerm',
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
   {
     field: 'collaborators',
     component: 'Input',
@@ -63,13 +71,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
-    }
-  },
-  {
-    field: 'pawnPaymentTerm',
-    component: 'Input',
-    colProps: {
-      span: 24
     }
   },
   {
@@ -196,18 +197,8 @@ const collapse: Array<Collapse> = [
 const inputCode = ref('DHB039423')
 const value = ref('')
 const value2 = ref('')
+const value4 = ref('')
 const valuePawnTerm = ref('')
-
-const options1 = [
-  {
-    value: 'cashPayment',
-    label: t('formDemo.cashPayment')
-  },
-  {
-    value: 'cardPayment',
-    label: t('formDemo.cardPayment')
-  }
-]
 
 const codeProducts = [
   {
@@ -437,7 +428,14 @@ const doThis = () => {
 }
 
 const input = ref('')
-
+const tableData2 = [
+  {
+    name: '',
+    quantity: '',
+    unitPrice: '',
+    intoMoney: ''
+  }
+]
 const tableData = [
   {
     name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; không quai',
@@ -499,7 +497,13 @@ const activeName = ref(collapse[0].name)
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
-    <el-collapse v-model="activeName" @change="collapseChangeEvent">
+    <el-collapse
+      v-model="activeName"
+      @change="collapseChangeEvent"
+      :class="[
+        'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+      ]"
+    >
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -511,21 +515,9 @@ const activeName = ref(collapse[0].name)
               :schema="schema"
               label-position="top"
               hide-required-asterisk
-              size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-transparent"
               @register="register"
             >
-              <template #orderCode>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
-                  <input
-                    v-model="inputCode"
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2"
-                    type="text"
-                    :placeholder="`${t('formDemo.enterOrderCode')}`"
-                  />
-                </div>
-              </template>
               <template #pawnTerm>
                 <div class="flex items-center w-[100%] gap-4">
                   <div class="w-[15%] ml-2 text-right leading-5">
@@ -544,13 +536,14 @@ const activeName = ref(collapse[0].name)
                   </div>
                 </div>
               </template>
+
               <template #pawnPaymentTerm>
-                <div class="flex w-[100%] gap-4">
+                <div class="flex w-[100%] gap-4 items-center">
                   <label class="w-[15%] text-right ml-2 leading-5">{{
                     t('formDemo.pawnFeePaymentTime')
                   }}</label>
                   <div class="w-[80%]">
-                    <el-select v-model="valuePawnTerm" :placeholder="t('reuse.byDay')" size="large">
+                    <el-select v-model="valuePawnTerm" :placeholder="t('reuse.byDay')">
                       <el-option
                         v-for="i in optionsPawnTerm"
                         :key="i.value"
@@ -559,6 +552,17 @@ const activeName = ref(collapse[0].name)
                       />
                     </el-select>
                   </div>
+                </div>
+              </template>
+              <template #orderCode>
+                <div class="flex items-center w-[100%] gap-4">
+                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
+                  <input
+                    v-model="inputCode"
+                    class="w-[80%] border-1 w-[100%] outline-none pl-2 rounded"
+                    type="text"
+                    :placeholder="`${t('formDemo.enterOrderCode')}`"
+                  />
                 </div>
               </template>
               <template #collaborators>
@@ -582,7 +586,7 @@ const activeName = ref(collapse[0].name)
                     </div>
                     <div class="flex items-center w-[50%] border-1 rounded">
                       <input
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent rounded"
                         type="text"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
                       />
@@ -597,7 +601,7 @@ const activeName = ref(collapse[0].name)
                     t('formDemo.orderNotes')
                   }}</label>
                   <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                    class="w-[80%] border-1 outline-none pl-2 rounded"
                     type="text"
                     :placeholder="`${t('formDemo.addNotes')}`"
                   />
@@ -607,7 +611,7 @@ const activeName = ref(collapse[0].name)
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
                   <div class="flex w-[84%] gap-2">
-                    <input class="w-[80%] border-1 outline-none pl-2" type="text" />
+                    <input class="w-[80%] border-1 outline-none pl-2 rounded" type="text" />
                     <button @click.stop.prevent="doThis" class="border-1 pl-5 pr-5 border-[#2C6DDA]"
                       >+ {{ t('button.add') }}</button
                     >
@@ -640,7 +644,7 @@ const activeName = ref(collapse[0].name)
                   :auto-upload="false"
                   class="relative"
                 >
-                  <strong>+ Thêm ảnh hoặc file</strong>
+                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -681,7 +685,6 @@ const activeName = ref(collapse[0].name)
               :schema="newList"
               label-position="top"
               hide-required-asterisk
-              size="large"
               @register="register"
             >
               <template #customer>
@@ -736,11 +739,7 @@ const activeName = ref(collapse[0].name)
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -750,11 +749,7 @@ const activeName = ref(collapse[0].name)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -823,11 +818,7 @@ const activeName = ref(collapse[0].name)
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -837,11 +828,7 @@ const activeName = ref(collapse[0].name)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -909,7 +896,6 @@ const activeName = ref(collapse[0].name)
                       <el-select
                         v-model="deliveryMethod"
                         :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
-                        size="large"
                       >
                         <el-option
                           v-for="i in chooseDelivery"
@@ -964,7 +950,7 @@ const activeName = ref(collapse[0].name)
         }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value2" class="m-2" size="large">
+            <el-select v-model="value2" class="m-2">
               <el-option
                 v-for="item in codeProducts"
                 :key="item.value"
@@ -979,21 +965,26 @@ const activeName = ref(collapse[0].name)
           </el-table-column>
           <el-table-column
             prop="quantity"
-            :label="`${t('reuse.depositNumber')}`"
+            :label="`${t('reuse.pawnNumber')}`"
             align="center"
             width="90"
           />
           <el-table-column :label="`${t('reuse.quantitySold')}`" align="center" width="90" />
           <el-table-column
-            :label="`${t('reuse.numberOfTimesRented')}`"
+            :label="`${t('formDemo.numberOfTimesRented')}`"
             align="center"
             width="100"
           />
           <el-table-column :label="`${t('reuse.numberOfTimesSpa')}`" align="center" width="100" />
           <el-table-column :label="`${t('reuse.currentlyLeased')}`" align="center" width="100" />
+          <el-table-column
+            :label="`${t('reuse.quantityImportedInternalWarehouse')}`"
+            align="center"
+            width="100"
+          />
           <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
           <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
-            <el-select v-model="dramValue" class="m-2" size="large">
+            <el-select v-model="dramValue" class="m-2">
               <el-option
                 v-for="item in dram"
                 :key="item.dramValue"
@@ -1011,7 +1002,7 @@ const activeName = ref(collapse[0].name)
               </div>
             </div>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.intoMoney')}`" align="center" width="100" />
+          <el-table-column :label="`${t('formDemo.intoMoneyPawn')}`" align="center" width="100" />
           <el-table-column :label="`${t('formDemo.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">...</div>
@@ -1021,7 +1012,7 @@ const activeName = ref(collapse[0].name)
             </div>
           </el-table-column>
 
-          <el-table-column :label="`Kho nhập`" width="200">
+          <el-table-column :label="t('reuse.importWarehouse')" width="250">
             <div class="flex w-[100%]">
               <div class="flex-1">{{ t('reuse.stocking') }}</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer"
@@ -1031,16 +1022,14 @@ const activeName = ref(collapse[0].name)
           </el-table-column>
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
-            <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
-              t('reuse.delete')
-            }}</button>
+            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
           </el-table-column>
         </el-table>
         <!-- s -->
         <el-divider content-position="left">{{ t('formDemo.serviceTrackingTable') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
-          <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value" class="m-2" size="large">
+          <el-table-column width="150">
+            <el-select v-model="value" class="m-2">
               <el-option
                 v-for="item in codeProducts"
                 :key="item.value"
@@ -1049,13 +1038,13 @@ const activeName = ref(collapse[0].name)
               />
             </el-select>
           </el-table-column>
-          <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
-          <el-table-column :label="`${t('reuse.accessory')}`" width="180">
+          <el-table-column prop="name" width="680" />
+          <el-table-column width="180">
             <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
           </el-table-column>
-          <el-table-column prop="quantity" :label="`Số lượng`" align="center" width="90" />
-          <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
-            <el-select v-model="dramValue" class="m-2" size="large">
+          <el-table-column prop="quantity" align="center" width="90" />
+          <el-table-column align="center" width="140">
+            <el-select v-model="dramValue" class="m-2">
               <el-option
                 v-for="item in dram"
                 :key="item.dramValue"
@@ -1064,21 +1053,46 @@ const activeName = ref(collapse[0].name)
               />
             </el-select>
           </el-table-column>
-          <el-table-column prop="unitPrice" :label="`Giá trị đơn hàng`" align="center" width="90" />
-          <el-table-column :label="`Giá đàm phán`" align="center" width="100" />
-          <el-table-column :label="`Phí ký gửi`" width="200">
+          <el-table-column prop="unitPrice" align="center" width="90" />
+          <el-table-column align="center" width="100" />
+          <el-table-column width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">20%</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">+ Sửa</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                >+ {{ t('formDemo.edit') }}</div
+              >
             </div>
           </el-table-column>
-          <el-table-column :label="`Thành tiền phí phải thu`" align="center" width="100" />
-          <el-table-column :label="`Loại đơn`" align="center" width="100" />
-          <el-table-column :label="`Mã đơn hàng`" width="100" />
+          <el-table-column align="center" width="100">36,000,000đ </el-table-column>
+          <el-table-column align="center" width="100">Bán</el-table-column>
+          <el-table-column width="100">ABafdw4</el-table-column>
 
-          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
-            <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
+          <el-table-column align="center" width="90">
+            <!-- <el-button type="danger">{{ t('reuse.delete') }}</el-button> -->
           </el-table-column>
+        </el-table>
+
+        <el-table :data="tableData2" class="pl-4 dark:text-[#fff]">
+          <el-table-column min-width="250" />
+          <el-table-column min-width="400" />
+          <el-table-column min-width="180" />
+          <el-table-column min-width="90" />
+          <el-table-column min-width="350">
+            <div class="dark:text-[#fff] text-right">Tổng tiền đàm phán ký gửi phải trả</div>
+            <div class="dark:text-[#fff] text-right">Tổng tiền phí ký gửi phải thu</div>
+            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ phải thu</div>
+            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ}</div>
+          </el-table-column>
+
+          <el-table-column align="right" min-width="100">
+            <div class="dark:text-[#fff]">190,000,000 đ</div>
+            <div class="dark:text-[#fff]">-95,000,000 đ</div>
+            <div class="dark:text-[#fff]">-95,000,000 đ</div>
+
+            <div class="dark:text-[#fff]">95,000,000 đ</div>
+          </el-table-column>
+
+          <el-table-column min-width="90" />
         </el-table>
 
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
@@ -1106,7 +1120,7 @@ const activeName = ref(collapse[0].name)
             <div class="text-blue-500">+{{ t('formDemo.paymentOrder') }}</div>
           </el-table-column>
           <el-table-column :label="`${t('reuse.typeMoney')}`" align="center" width="100">
-            <el-select v-model="moneyValue" class="m-2" size="large">
+            <el-select v-model="moneyValue" class="m-2">
               <el-option
                 v-for="item in moneyVal"
                 :key="item.value"
@@ -1129,7 +1143,7 @@ const activeName = ref(collapse[0].name)
             <div>Phải thu</div>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.choosePayment')}`">
-            <el-select class="m-2" v-model="value" placeholder="Select" size="large">
+            <el-select class="m-2" v-model="value" placeholder="Select">
               <el-option
                 v-for="item in codeProducts"
                 :key="item.value"
@@ -1142,10 +1156,12 @@ const activeName = ref(collapse[0].name)
             <el-checkbox v-model="checked1" label="" size="large" />
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
-            <button class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">Xóa</button>
+            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
           </el-table-column>
         </el-table>
-        <button class="bg-none border-1 pt-2 pb-2 pl-4 pr-4 mt-2 text-[#cccccc]">+ Thêm</button>
+        <button class="bg-none border-1 pt-2 pb-2 pl-4 pr-4 mt-2 text-[#cccccc]"
+          >+ {{ t('formDemo.add') }}</button
+        >
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -1179,9 +1195,9 @@ const activeName = ref(collapse[0].name)
           <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-              <el-select v-model="value" class="m-2" size="large">
+              <el-select v-model="value4" class="m-2">
                 <el-option
-                  v-for="item in options1"
+                  v-for="item in codeProducts"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -1195,7 +1211,7 @@ const activeName = ref(collapse[0].name)
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </el-table-column>
-            <el-select v-model="loaiHinhValue" class="m-2" size="large">
+            <el-select v-model="loaiHinhValue" class="m-2">
               <el-option
                 v-for="item in loaiHinh"
                 :key="item.value"
@@ -1204,8 +1220,8 @@ const activeName = ref(collapse[0].name)
               />
             </el-select>
 
-            <el-table-column :label="`Loại hình`" align="center" width="120">
-              <el-select v-model="loaiHinhValue" class="m-2" size="large">
+            <el-table-column :label="t('reuse.type')" align="center" width="120">
+              <el-select v-model="loaiHinhValue" class="m-2">
                 <el-option
                   v-for="item in loaiHinh"
                   :key="item.value"
@@ -1218,21 +1234,22 @@ const activeName = ref(collapse[0].name)
             <el-table-column prop="quantity" :label="`${t('reuse.dram')}`" width="120" />
 
             <el-table-column
-              :label="`${t('formDemo.invoiceForGoodsEnteringTheWarehouse')}`"
+              :label="`${t('formDemo.deliveryNotesAndImport')}`"
               align="right"
               width="200"
               class="text-blue-500"
             >
-              +{{ t('formDemo.invoice') }}
+              <div class="flex w-[100%]">
+                <div class="flex-1 text-blue-500">XJDFAW43</div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                  >+ {{ t('reuse.fix') }}</div
+                >
+              </div>
             </el-table-column>
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="180">
               <div class="flex gap-4">
-                <button class="flex-1 bg-[#409EFF] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
-                  t('reuse.save')
-                }}</button>
-                <button class="flex-1 bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]">{{
-                  t('reuse.delete')
-                }}</button>
+                <el-button type="primary">{{ t('reuse.save') }}</el-button>
+                <el-button type="danger">{{ t('reuse.delete') }}</el-button>
               </div>
             </el-table-column>
           </el-table>
@@ -1266,7 +1283,10 @@ const activeName = ref(collapse[0].name)
 ::v-deep(.d-block > .el-row) {
   display: block;
 }
-
+::v-deep(.el-input) {
+  width: auto;
+  height: fit-content;
+}
 ::v-deep(.el-form-item__content) {
   display: block;
 }

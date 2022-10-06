@@ -20,7 +20,10 @@ import {
   ElDropdownMenu,
   ElDropdownItem,
   ElDatePicker,
-  ElForm
+  ElForm,
+  ElFormItem,
+  FormRules,
+  FormInstance
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -29,13 +32,18 @@ import { Form } from '@/components/Form'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { useRouter } from 'vue-router'
+import { FORM_IMAGES } from '@/utils/format'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
-  getSpaList
+  getSpaList,
+  addNewSpaOrders
 } from '@/api/Business'
+import { useValidator } from '@/hooks/web/useValidator'
+const { required, ValidService } = useValidator()
 
 const { t } = useI18n()
 
@@ -123,6 +131,7 @@ const newList = reactive<FormSchema[]>([
 // const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 const { register } = useForm()
 
@@ -232,6 +241,19 @@ interface ListOfProductsForSaleType {
   alreadyPaidForTt: string
   edited: boolean
 }
+
+// interface spaOdersInfo {
+//   name: string
+//   productCode: string
+//   id: string
+//   code: string
+//   customerInfo: string | undefined
+//   dram: string
+//   unitPrice: string
+//   intoMoney: string
+//   paymentType: string
+//   alreadyPaidForTt: string
+// }
 
 const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
   {
@@ -444,7 +466,7 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
+const valueDate = ref('')
 const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
@@ -570,7 +592,6 @@ const callApiServicesSpa = async () => {
 onBeforeMount(() => {
   callApiServicesSpa()
 })
-const inputCode = ref('DHB039423')
 
 const checked1 = ref(true)
 
@@ -637,24 +658,133 @@ const removeListProductsSale = (index) => {
   }
 }
 const dialogFormSettingServiceSpa = ref(false)
-// const tableDataSettingSpa = [
-//   {
-//     name: 'Kiểm tra',
-//     service: '00'
-//   },
-//   {
-//     name: 'Vệ sinh',
-//     service: '50,000'
-//   },
-//   {
-//     name: 'Sơn',
-//     service: '500,000'
-//   },
-//   {
-//     name: 'Đánh bóng',
-//     service: '500,000'
+
+//lay du lieu tu router
+// const router = useRouter()
+// const id = Number(router.currentRoute.value.params.id)
+// const type = String(router.currentRoute.value.params.type)
+const collaboratorCommission = ref('')
+// // post data form
+
+// const postData = () => {
+//   const payload = {
+//     ServiceType: 5,
+//     OrderCode: inputCode.value,
+//     PromotionCode: 'test',
+//     deliveryDate: valueDate.value,
+//     CollaboratorId: collaboratorsValue.value,
+//     CollaboratorCommission: CollaboratorCommission.value,
+//     Description: 'desc',
+//     CustomerId: 1,
+//     DeliveryOptionId: 1,
+//     ProvinceId: 1,
+//     DistrictId: 3,
+//     WardId: 2,
+//     Address: 'HN',
+//     OrderDetail: {
+//       productPropertyId: 2,
+//       quantity: 1,
+//       warehouseId: 6,
+//       isPaid: true,
+//       accessory: 'Dây túi xách'
+//     },
+//     CampaignId: 1,
+//     VAT: 2,
+//     Status: 1
 //   }
-// ]
+//   const formDataPayload = FORM_IMAGES(payload)
+//   addNewSpaOrders(formDataPayload)
+//   console.log('pay', payload)
+//   addNewSpaOrders(payload)
+// }
+
+// tạo đơn hàng
+
+const inputDiscount = ref()
+const postData = () => {
+  // let productPayment = reactive<
+  //   Array<{
+  //     productPropertyId: number | string
+  //     quantity: Number
+  //     ProductPrice: Number
+  //     SoldPrice: Number
+  //     warehouseId: Number
+  //     isPaid: Boolean
+  //     accessory: String
+  //   }>
+  // >([])
+
+  const productPayment = JSON.stringify([
+    {
+      ProductPropertyId: 2,
+      Quantity: 1,
+      ProductPrice: 10000,
+      SoldPrice: 10000,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: 'Accessory1'
+    },
+    {
+      ProductPropertyId: 3,
+      Quantity: 1,
+      ProductPrice: 90000,
+      SoldPrice: 80000,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: 'Accessory2'
+    }
+  ])
+  // if (ListOfProductsForSale.length > 0) {
+  // ListOfProductsForSale.forEach((element) => {
+  // if (element && Array.isArray(element) && element.length > 0)
+  // element.forEach(() => {
+  // productPayment.push(
+  //   // {
+  //   //   ProductPropertyId: 2,
+  //   //   Quantity: 1,
+  //   //   ProductPrice: 10000,
+  //   //   SoldPrice: 10000,
+  //   //   WarehouseId: 1,
+  //   //   IsPaid: true,
+  //   //   Accessory: 'Accessory1'
+  //   // },
+  //   {
+  //     ProductPropertyId: 3,
+  //     Quantity: 1,
+  //     ProductPrice: 90000,
+  //     SoldPrice: 80000,
+  //     WarehouseId: 1,
+  //     IsPaid: true,
+  //     Accessory: 'Accessory2'
+  //   }
+  // )
+  // })
+  // })
+  // }
+
+  const inputCode = ref('DHB039423')
+
+  const payload = {
+    ServiceType: 1,
+    OrderCode: inputCode.value,
+    PromotionCode: 'AA12',
+    CollaboratorId: 1,
+    CollaboratorCommission: inputDiscount.value,
+    Description: 'sadasd',
+    CustomerId: 2,
+    DeliveryOptionId: 1,
+    ProvinceId: 1,
+    DistrictId: 1,
+    WardId: 1,
+    Address: 'trieu khuc',
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  console.log('postData', payload)
+  addNewSpaOrders(formDataPayLoad)
+}
 
 interface User {
   date: string
@@ -672,6 +802,7 @@ const form = reactive({
   phoneNumber: '',
   email: ''
 })
+
 const chooseDelivery = [
   {
     value: 'deliveryAtTheCounter',
@@ -682,7 +813,97 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
+
+const ruleFormRef = ref<FormInstance>()
+
+const ruleForm = reactive({
+  name: 'MS53623',
+  collaborators: '',
+  collaboratorCommission: '',
+  orderNotes: '',
+  customersValue: '',
+  count: '',
+  date1: '',
+  date2: '',
+  delivery: false,
+  type: [],
+  resource: '',
+  desc: ''
+})
+
+const rules = reactive<FormRules>({
+  name: [{ required: true, message: 'Please input Activity name', trigger: 'blur' }],
+  collaborators: [
+    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+  ],
+  collaboratorCommission: [
+    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+  ],
+  orderNotes: [
+    { required: true, message: 'Please input Activity name', trigger: 'blur' },
+    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+  ],
+  count: [
+    {
+      required: true,
+      message: 'Please select Activity count',
+      trigger: 'change'
+    }
+  ],
+  customersValue: [
+    {
+      required: true,
+      message: 'Please select Activity count',
+      trigger: 'change'
+    }
+  ],
+  date1: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Please pick a date',
+      trigger: 'change'
+    }
+  ],
+  date2: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Please pick a time',
+      trigger: 'change'
+    }
+  ],
+  type: [
+    {
+      type: 'array',
+      required: true,
+      message: 'Please select at least one activity type',
+      trigger: 'change'
+    }
+  ],
+  resource: [
+    {
+      required: true,
+      message: 'Please select activity resource',
+      trigger: 'change'
+    }
+  ],
+  desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
+})
+
 const deliveryMethod = ref(chooseDelivery[0].value)
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
 </script>
 
 <template>
@@ -701,87 +922,74 @@ const deliveryMethod = ref(chooseDelivery[0].value)
         </template>
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
-            <Form
-              :schema="schema"
-              label-position="top"
-              hide-required-asterisk
-              size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
-              @register="register"
+            <el-form
+              ref="ruleFormRef"
+              :model="ruleForm"
+              :rules="rules"
+              label-width="165px"
+              class="demo-ruleForm"
+              status-icon
             >
-              <template #orderCode>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
-                  <input
-                    v-model="inputCode"
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2 bg-transparent"
-                    type="text"
-                    :placeholder="`${t('formDemo.enterOrderCode')}`"
-                  />
-                </div>
-              </template>
-              <template #deliveryDate>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] leading-5 text-right" for="">
-                    {{ t('formDemo.deliveryDate') }}
-                  </label>
+              <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
+              <el-button @click="submitForm(ruleFormRef)">fawf</el-button>
+              <el-form-item :label="t('formDemo.orderCode')" prop="name">
+                <el-input
+                  v-model="ruleForm.name"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterOrderCode')"
+                />
+              </el-form-item>
 
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 bg-transparent"
-                    type="text"
+              <el-form-item :label="t('formDemo.deliveryDate')" prop="date1" required>
+                <div class="custom-date">
+                  <el-date-picker
+                    v-model="ruleForm.date1"
+                    type="date"
+                    format="DD/MM/YYYY"
                     :placeholder="t('formDemo.returnDate')"
+                    style="width: 100%"
                   />
                 </div>
-              </template>
-              <template #collaborators>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right">{{ t('formDemo.collaborators') }}</label>
-                  <div class="flex w-[80%] gap-2">
-                    <div class="w-[50%] input-width">
-                      <el-select
-                        v-model="collaboratorsValue"
-                        :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
-                        filterable
-                        size="large"
-                      >
-                        <el-option
-                          v-for="(item, index) in optionsCollaborators"
-                          :key="index"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                    </div>
-                    <div class="flex items-center w-[50%] border-1 rounded">
-                      <input
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
-                        type="text"
-                        :placeholder="`${t('formDemo.enterDiscount')}`"
-                      />
-                      <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <template #orderNotes>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderNotes') }}</label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 bg-transparent"
-                    type="text"
-                    :placeholder="`${t('formDemo.addNotes')}`"
-                  />
-                </div>
-              </template>
+              </el-form-item>
 
-              <template #debt>
-                <div class="flex items-center w-[100%]">
-                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
-                    <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
-                  </div>
+              <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
+                <div class="flex gap-2">
+                  <el-form-item style="flex: 1">
+                    <el-select
+                      v-model="ruleForm.collaborators"
+                      :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
+                      filterable
+                    >
+                      <el-option
+                        v-for="(item, index) in optionsCollaborators"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </el-form-item>
+
+                  <el-form-item prop="collaboratorCommission" style="flex: 1">
+                    <el-input
+                      v-model="ruleForm.collaboratorCommission"
+                      type="text"
+                      :placeholder="`${t('formDemo.enterDiscount')}`"
+                      style="width: 100%"
+                      :suffix-icon="percentIcon"
+                    />
+                  </el-form-item>
                 </div>
-              </template>
-            </Form>
+              </el-form-item>
+
+              <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
+                <el-input
+                  v-model="ruleForm.orderNotes"
+                  style="width: 100%"
+                  type="text"
+                  :placeholder="`${t('formDemo.addNotes')}`"
+                />
+              </el-form-item>
+            </el-form>
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -802,7 +1010,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                   class="relative"
                 >
                   <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon" /> -->
-                  <strong>+ Thêm ảnh hoặc file</strong>
+                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -841,31 +1049,29 @@ const deliveryMethod = ref(chooseDelivery[0].value)
         </div>
         <div class="flex w-[100%]">
           <div class="w-[100%]">
-            <Form
-              :schema="newList"
-              label-position="top"
-              hide-required-asterisk
-              size="large"
-              @register="register"
+            <el-form
+              ref="ruleFormRef"
+              :model="ruleForm"
+              :rules="rules"
+              label-width="165px"
+              class="demo-ruleForm"
+              status-icon
             >
-              <template #customer>
-                <div class="flex w-[100%] gap-8">
-                  <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                  <el-divider content-position="left">{{
-                    t('formDemo.methodOfDeliverySpa')
-                  }}</el-divider>
-                </div>
-              </template>
-              <template #customerName>
+              <div class="flex w-[100%] gap-8">
+                <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.methodOfDeliverySpa')
+                }}</el-divider>
+              </div>
+
+              <el-form-item :label="t('formDemo.chooseACustomer')" prop="customersValue">
                 <div class="flex gap-6">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4 items-center">
-                      <label class="w-[16%] text-right">{{ t('formDemo.chooseACustomer') }}</label>
-
                       <div class="flex items-center w-[79%] gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
-                            v-model="customersValue"
+                            v-model="ruleForm.customersValue"
                             filterable
                             :clearable="true"
                             placeholder="Select"
@@ -899,11 +1105,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                               }}</label>
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -913,11 +1115,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -980,11 +1178,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                               }}</label>
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -994,11 +1188,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -1061,7 +1251,6 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                         v-model="deliveryMethod"
                         class="fix-full-width"
                         :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
-                        size="large"
                       >
                         <el-option
                           v-for="i in chooseDelivery"
@@ -1073,131 +1262,130 @@ const deliveryMethod = ref(chooseDelivery[0].value)
                     </div>
                   </div>
                 </div>
-              </template>
-              <template #debtAndAddress>
-                <div class="flex w-[100%] gap-6">
-                  <div class="w-[50%] pl-[8%]">
-                    <p
-                      v-if="customersValue !== ''"
-                      class="max-w-[698.39px] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]"
-                      >{{ t('formDemo.noDebt') }}</p
-                    >
-                  </div>
-                  <div class="flex w-[50%] gap-4" v-if="customersValue !== ''">
-                    <p class="w-[16%] ml-2 text-[#828387] text-right">{{
-                      t('formDemo.deliveryAddress')
-                    }}</p>
-                    <p>{{ customerAddress }}</p>
-                    <p>
-                      <el-button
-                        class="hover:bg-transparent; focus:bg-transparent"
-                        text
-                        @click="dialogFormVisible = true"
-                        ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
-                      </el-button>
-                      <el-dialog
-                        v-model="dialogFormVisible"
-                        width="40%"
-                        align-center
-                        title="Địa chỉ nhận hàng"
-                      >
-                        <el-divider />
-                        <div>
-                          <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.provinceOrCity')
-                            }}</label>
-                            <el-select
-                              v-model="valueProvince"
-                              style="width: 96%"
-                              class="m-2 fix-full-width"
-                              placeholder="Select"
-                            >
-                              <el-option
-                                v-for="item in province"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                              />
-                            </el-select>
-                          </div>
-                          <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.countyOrDistrict')
-                            }}</label>
-                            <el-select
-                              v-model="valueDistrict"
-                              style="width: 96%"
-                              class="m-2 fix-full-width"
-                              placeholder="Select"
-                            >
-                              <el-option
-                                v-for="item in district"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                              />
-                            </el-select>
-                          </div>
-                          <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.wardOrCommune')
-                            }}</label>
-                            <el-select
-                              v-model="valueCommune"
-                              style="width: 96%"
-                              class="m-2 fix-full-width"
-                              placeholder="Select"
-                            >
-                              <el-option
-                                v-for="item in choosePayment"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                              />
-                            </el-select>
-                          </div>
-                          <div class="flex w-[100%] gap-4 items-center">
-                            <label class="w-[25%] text-right">{{
-                              t('formDemo.detailedAddress')
-                            }}</label>
-                            <el-input
-                              v-model="enterdetailAddress"
-                              class="m-2 fix-full-width"
-                              style="width: 96%"
-                              placeholder="Please input"
-                            />
-                          </div>
-                        </div>
-                        <template #footer>
-                          <span class="dialog-footer">
-                            <el-button
-                              class="w-[150px]"
-                              type="primary"
-                              @click="dialogFormVisible = false"
-                              >{{ t('reuse.save') }}</el-button
-                            >
-                            <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
-                              t('reuse.exit')
-                            }}</el-button>
-                          </span>
-                        </template>
-                      </el-dialog>
-                    </p>
-                  </div>
+              </el-form-item>
+
+              <div class="flex w-[100%] gap-6">
+                <div class="w-[50%] pl-[8%]">
+                  <p
+                    v-if="customersValue !== ''"
+                    class="max-w-[698.39px] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]"
+                    >{{ t('formDemo.noDebt') }}</p
+                  >
                 </div>
-              </template>
-              <template #companyInformation>
-                <div class="flex gap-4 w-[100%]" v-if="customersValue !== ''">
-                  <label class="w-[16%] text-right">{{ t('reuse.customerInfo') }}</label>
+                <div class="flex w-[50%] gap-4" v-if="customersValue !== ''">
+                  <p class="w-[16%] ml-2 text-[#828387] text-right">{{
+                    t('formDemo.deliveryAddress')
+                  }}</p>
+                  <p>{{ customerAddress }}</p>
+                  <p>
+                    <el-button
+                      class="hover:bg-transparent; focus:bg-transparent"
+                      text
+                      @click="dialogFormVisible = true"
+                      ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
+                    </el-button>
+                    <el-dialog
+                      v-model="dialogFormVisible"
+                      width="40%"
+                      align-center
+                      title="Địa chỉ nhận hàng"
+                    >
+                      <el-divider />
+                      <div>
+                        <div class="flex w-[100%] gap-4 items-center">
+                          <label class="w-[25%] text-right">{{
+                            t('formDemo.provinceOrCity')
+                          }}</label>
+                          <el-select
+                            v-model="valueProvince"
+                            style="width: 96%"
+                            class="m-2 fix-full-width"
+                            placeholder="Select"
+                          >
+                            <el-option
+                              v-for="item in province"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            />
+                          </el-select>
+                        </div>
+                        <div class="flex w-[100%] gap-4 items-center">
+                          <label class="w-[25%] text-right">{{
+                            t('formDemo.countyOrDistrict')
+                          }}</label>
+                          <el-select
+                            v-model="valueDistrict"
+                            style="width: 96%"
+                            class="m-2 fix-full-width"
+                            placeholder="Select"
+                          >
+                            <el-option
+                              v-for="item in district"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            />
+                          </el-select>
+                        </div>
+                        <div class="flex w-[100%] gap-4 items-center">
+                          <label class="w-[25%] text-right">{{
+                            t('formDemo.wardOrCommune')
+                          }}</label>
+                          <el-select
+                            v-model="valueCommune"
+                            style="width: 96%"
+                            class="m-2 fix-full-width"
+                            placeholder="Select"
+                          >
+                            <el-option
+                              v-for="item in choosePayment"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            />
+                          </el-select>
+                        </div>
+                        <div class="flex w-[100%] gap-4 items-center">
+                          <label class="w-[25%] text-right">{{
+                            t('formDemo.detailedAddress')
+                          }}</label>
+                          <el-input
+                            v-model="enterdetailAddress"
+                            class="m-2 fix-full-width"
+                            style="width: 96%"
+                            placeholder="Please input"
+                          />
+                        </div>
+                      </div>
+                      <template #footer>
+                        <span class="dialog-footer">
+                          <el-button
+                            class="w-[150px]"
+                            type="primary"
+                            @click="dialogFormVisible = false"
+                            >{{ t('reuse.save') }}</el-button
+                          >
+                          <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
+                            t('reuse.exit')
+                          }}</el-button>
+                        </span>
+                      </template>
+                    </el-dialog>
+                  </p>
+                </div>
+              </div>
+
+              <el-form-item :label="t('reuse.customerInfo')">
+                <div class="w-[100%]" v-if="customersValue !== ''">
                   <div class="leading-6 mt-2">
                     <div>nguyễn phương linh</div>
                     <div>Số điện thoại: 094345355</div>
                     <div>Email: info@baca.com</div>
                   </div>
                 </div>
-              </template>
-            </Form>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
       </el-collapse-item>
@@ -1339,7 +1527,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
             </template>
           </el-table-column>
           <el-table-column :label="t('router.ServiceLibrarySpaService')" width="230">
-            <div class="flex w-[100%]">
+            <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
                 <el-button text border @click="dialogFormSettingServiceSpa = true"
@@ -1470,7 +1658,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
               </template>
             </el-dropdown>
 
-            <div class="dark:text-[#fff]">{{ t('reuse.totalSpaFeeDebt') }}</div>
+            <div class="dark:text-[#fff]">{{ t('formDemo.totalSpaFeeDebt') }}</div>
           </el-table-column>
           <el-table-column align="right" min-width="180">
             <div class="dark:text-[#fff]">190,000,000 đ</div>
@@ -1615,7 +1803,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
               t('formDemo.printSpaBill')
             }}</el-button>
             <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button type="primary" class="min-w-42 min-h-11">{{
+            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.complete')
             }}</el-button>
             <el-button type="danger" class="min-w-42 min-h-11">{{
@@ -1775,6 +1963,12 @@ const deliveryMethod = ref(chooseDelivery[0].value)
 ::v-deep(.el-form-item__content) {
   display: block;
 }
+::v-deep(.custom-date .el-input__wrapper) {
+  width: 100%;
+}
+::v-deep(.custom-date .el-date-editor) {
+  width: 100%;
+}
 
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
@@ -1800,6 +1994,7 @@ const deliveryMethod = ref(chooseDelivery[0].value)
 
 ::v-deep(.el-input) {
   width: auto;
+  height: fit-content;
 }
 
 .dialog-footer button:first-child {

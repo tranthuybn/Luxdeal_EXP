@@ -160,6 +160,17 @@ export const getCustomerList = async (params: any): Promise<IResponse> => {
   )
   return res.data && res.data
 }
+// post đơn hàng spa
+export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: PRODUCTS_AND_SERVICES_API.POST_SPA_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
 
 // Lấy danh sách đơn hàng
 export const getSellOrderList = async (params: any): Promise<IResponse> => {

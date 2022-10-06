@@ -665,6 +665,7 @@ export default {
     order: 'Đơn hàng',
     feedBack: 'Phản hồi CSKH',
     status: 'Trạng thái',
+    approval: 'Chờ duyệt',
     operator: 'Thao tác',
     createDate: 'Ngày tạo',
     customerName: 'Tên khách hàng',

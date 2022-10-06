@@ -54,10 +54,9 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
-
   {
     field: 'contact',
-    label: t('reuse.contact'),
+    label: t('reuse.amountOfMoney'),
     minWidth: '250'
   },
   {

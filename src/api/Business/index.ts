@@ -230,13 +230,13 @@ export const getGenCodeCollaborators = async (params: any): Promise<IResponse> =
 }
 export const addNewCollaborators = async (data): Promise<IResponse> => {
   const res = await request.post(
-    { url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data },
+    { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
     fixedBaseURL
   )
   return res && res.data
 }
-export const getRentalorderList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/rentalorder/List', params })
+export const updateCollaborators = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data
 }
 export const getFlashSaleList = async (params: any): Promise<IResponse> => {

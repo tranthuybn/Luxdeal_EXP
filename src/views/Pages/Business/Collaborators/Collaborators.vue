@@ -5,13 +5,7 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { Table } from '@/components/Table'
 import { collaboratorStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import { HeaderFiler } from '../../Components/HeaderFilter'
-import {
-  TableExtension,
-  InputMoneyRange,
-  InputDateRange,
-  InputNumberRange,
-  InputName
-} from '../../Components/TableBase'
+import { TableExtension } from '../../Components/TableBase'
 import { getCollaboratorsList } from '@/api/Business'
 import { filterStatusCustomer } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -154,7 +148,7 @@ async function getTableSelected() {
     })
     .catch(() => {})
 }
-const { setSearchParams, clearSearchParams } = methods
+const { setSearchParams } = methods
 const filterChange = (filterValue) => {
   if (filterValue && typeof unref(filterValue) === 'object')
     for (let key in filterValue) {
@@ -189,17 +183,6 @@ watch(
     immediate: true
   }
 )
-const ColumnsHaveHeaderFilter = columns.filter((col) => col.headerFilter)
-//value is an object, get called when filter range(to-from) value
-const confirm = (value) => {
-  setSearchParams(value)
-}
-const cancel = (field) => {
-  clearSearchParams(field)
-}
-const filterSelect = (value) => {
-  setSearchParams(value)
-}
 </script>
 <template>
   <HeaderFiler @get-data="getData" @refresh-data="getData">
@@ -266,37 +249,6 @@ const filterSelect = (value) => {
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-      </template>
-      <template
-        v-for="(header, index) in ColumnsHaveHeaderFilter"
-        #[`${header.field}-header`]
-        :key="index"
-      >
-        {{ header.label }}
-        <InputMoneyRange
-          v-if="header.headerFilter === 'Money'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputDateRange
-          v-if="header.headerFilter === 'Date'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputNumberRange
-          v-if="header.headerFilter === 'Number'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputName
-          v-if="header.headerFilter === 'Name'"
-          :field="header.field"
-          @filter-select="filterSelect"
-          @cancel="cancel"
-        />
       </template>
     </Table>
   </ContentWrap>

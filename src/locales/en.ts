@@ -657,6 +657,7 @@ export default {
     order: 'Order',
     feedBack: 'Feedback',
     status: 'Status',
+    approval: 'Approval',
     operator: 'Operator',
     createDate: 'Create date',
     customerName: `Customer's name`,

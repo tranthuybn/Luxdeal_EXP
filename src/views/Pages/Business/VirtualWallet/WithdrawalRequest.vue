@@ -15,7 +15,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'customerName',
     label: t('reuse.customerName'),
-    minWidth: '300'
+    minWidth: '250'
   },
   {
     field: 'amountOfMoney',

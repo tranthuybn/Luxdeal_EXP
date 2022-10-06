@@ -671,7 +671,6 @@ onBeforeMount(() => {
             <Form
               :schema="schema"
               label-position="top"
-              hide-required-asterisk
               class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
               @register="register"
             >

@@ -104,7 +104,7 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
       url: ORDER_API.ADD_NEW_ORDER,
       data: params
     },
-    fixedBaseURL
+    0
   )
   return res.data && res.data.data
 }

@@ -37,6 +37,21 @@ import {
   addNewOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
+import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import { useValidator } from '@/hooks/web/useValidator'
+
+// validate
+const { required, ValidService } = useValidator()
+const rules = reactive({
+  orderCode: [required()],
+  collaborators: [required()],
+  companyName: [required()],
+  taxCode: [required()],
+  customerName: [required()],
+  phonenumber: [required(), ValidService.checkPhone],
+  email: [required(), ValidService.checkEmail],
+  percentageOfSales: [ValidService.checkNumber]
+})
 
 const { t } = useI18n()
 
@@ -302,51 +317,12 @@ const openDialogChoosePromotion = ref(false)
 const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
-const province = [
-  {
-    value: 'HN',
-    label: 'HN'
-  },
-  {
-    value: 'TP.HCM',
-    label: 'TP.HCM'
-  },
-  {
-    value: 'ĐN',
-    label: 'ĐN'
-  },
-  {
-    value: 'Vinh',
-    label: 'Vinh'
-  },
-  {
-    value: 'Nha Trang',
-    label: 'Nha Trang'
-  }
-]
-const district = [
-  {
-    value: 'Thanh Xuan',
-    label: 'Thanh Xuan'
-  },
-  {
-    value: 'Hai Ba Trung',
-    label: 'Hai Ba Trung'
-  },
-  {
-    value: 'Dong Da',
-    label: 'Dong Da'
-  },
-  {
-    value: 'Vinh',
-    label: 'Vinh'
-  },
-  {
-    value: 'Nha Trang',
-    label: 'Nha Trang'
-  }
-]
-const enterdetailAddress = ref('')
+
+const district = ref()
+const ward = ref()
+const street = ref()
+
+const enterdetailAddress = ref([])
 const tableWarehouse = [
   {
     warehouseCheckbox: '',
@@ -612,28 +588,64 @@ console.log('type: ', type)
 
 // tạo đơn hàng
 
-// const dataProductPayment = reactive()
+const inputDiscount = ref()
 const postData = () => {
-  const productPayment = reactive<
-    Array<{
-      productPropertyId: number
-      quantity: Number
-      warehouseId: Number
-      isPaid: Boolean
-      accessory: String
-    }>
-  >([])
+  // let productPayment = reactive<
+  //   Array<{
+  //     productPropertyId: number | string
+  //     quantity: Number
+  //     ProductPrice: Number
+  //     SoldPrice: Number
+  //     warehouseId: Number
+  //     isPaid: Boolean
+  //     accessory: String
+  //   }>
+  // >([])
+
+  const productPayment = JSON.stringify([
+    {
+      ProductPropertyId: 2,
+      Quantity: 1,
+      ProductPrice: 10000,
+      SoldPrice: 10000,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: 'Accessory1'
+    },
+    {
+      ProductPropertyId: 3,
+      Quantity: 1,
+      ProductPrice: 90000,
+      SoldPrice: 80000,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: 'Accessory2'
+    }
+  ])
   // if (ListOfProductsForSale.length > 0) {
   // ListOfProductsForSale.forEach((element) => {
   // if (element && Array.isArray(element) && element.length > 0)
   // element.forEach(() => {
-  productPayment.push({
-    productPropertyId: 2,
-    quantity: 1,
-    warehouseId: 6,
-    isPaid: true,
-    accessory: 'Dây túi xách'
-  })
+  // productPayment.push(
+  //   // {
+  //   //   ProductPropertyId: 2,
+  //   //   Quantity: 1,
+  //   //   ProductPrice: 10000,
+  //   //   SoldPrice: 10000,
+  //   //   WarehouseId: 1,
+  //   //   IsPaid: true,
+  //   //   Accessory: 'Accessory1'
+  //   // },
+  //   {
+  //     ProductPropertyId: 3,
+  //     Quantity: 1,
+  //     ProductPrice: 90000,
+  //     SoldPrice: 80000,
+  //     WarehouseId: 1,
+  //     IsPaid: true,
+  //     Accessory: 'Accessory2'
+  //   }
+  // )
   // })
   // })
   // }
@@ -641,28 +653,48 @@ const postData = () => {
     ServiceType: 1,
     OrderCode: inputCode.value,
     PromotionCode: 'AA12',
-    // collaboratorId: collaboratorsValue.value ?? 1,
     CollaboratorId: 1,
-    CollaboratorCommission: 4,
-    // CustomerId: customersValue.value,
-    CustomerId: 1,
+    CollaboratorCommission: inputDiscount.value,
+    Description: 'sadasd',
+    CustomerId: 2,
     DeliveryOptionId: 1,
-    OrderDetail: productPayment[0],
-    CampaignId: 12113,
+    ProvinceId: 1,
+    DistrictId: 1,
+    WardId: 1,
+    Address: 'trieu khuc',
+    OrderDetail: productPayment,
+    CampaignId: 2,
     VAT: 1
   }
   const formDataPayLoad = FORM_IMAGES(payload)
+  console.log('postData', payload)
   addNewOrderList(formDataPayLoad)
-  console.log('postData', formDataPayLoad)
 }
 
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
+const cities = ref()
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
+
+const CityChange = async (value) => {
+  district.value = await getDistrict(value)
+}
+
+const districtChange = async (value) => {
+  ward.value = await getWard(value)
+}
+
+// const wardChange = async (value) => {
+//   street.value = await getStreet(value)
+// }
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
+  callApiCity()
 })
 </script>
 
@@ -686,16 +718,16 @@ onBeforeMount(() => {
               :schema="schema"
               label-position="top"
               hide-required-asterisk
-              size="large"
               class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-transparent"
               @register="register"
+              :rules="rules"
             >
               <template #orderCode>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right">{{ t('formDemo.orderCode') }}</label>
                   <input
                     v-model="inputCode"
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2 bg-transparent"
+                    class="w-[80%] border-1 w-[100%] outline-none pl-2 bg-transparent rounded"
                     type="text"
                     :placeholder="`${t('formDemo.orderCode')}`"
                   />
@@ -705,12 +737,11 @@ onBeforeMount(() => {
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[16%] text-right">{{ t('formDemo.collaborators') }}</label>
                   <div class="flex w-[80%] gap-2">
-                    <div class="w-[50%] input-width">
+                    <div class="w-[50%]">
                       <el-select
                         v-model="collaboratorsValue"
                         :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                         filterable
-                        size="large"
                       >
                         <el-option
                           v-for="(item, index) in optionsCollaborators"
@@ -722,8 +753,10 @@ onBeforeMount(() => {
                     </div>
                     <div class="flex items-center w-[50%] border-1 rounded">
                       <input
+                        v-model="inputDiscount"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         type="text"
+                        :rules="rules.orderCode"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
                       />
                       <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
@@ -755,12 +788,7 @@ onBeforeMount(() => {
                 }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  :auto-upload="false"
-                  class="relative"
-                >
+                <el-upload action="#" list-type="picture-card" :auto-upload="false">
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -787,7 +815,9 @@ onBeforeMount(() => {
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="relative" />
+                  <el-dialog v-model="dialogVisible">
+                    <img w-full :src="dialogImageUrl" alt="Preview Image" />
+                  </el-dialog>
                   <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}
                   </div>
@@ -802,7 +832,6 @@ onBeforeMount(() => {
               :schema="newList"
               label-position="top"
               hide-required-asterisk
-              size="large"
               @register="register"
             >
               <template #customer>
@@ -857,11 +886,7 @@ onBeforeMount(() => {
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -871,11 +896,7 @@ onBeforeMount(() => {
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -944,11 +965,7 @@ onBeforeMount(() => {
                               >
                               <div class="w-[80%] flex gap-2">
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueClassify"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueClassify" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsClassify"
                                       :key="item.value"
@@ -958,11 +975,7 @@ onBeforeMount(() => {
                                   </el-select>
                                 </div>
                                 <div class="w-[50%] fix-full-width">
-                                  <el-select
-                                    v-model="valueSelectCustomer"
-                                    placeholder="Select"
-                                    size="large"
-                                  >
+                                  <el-select v-model="valueSelectCustomer" placeholder="Select">
                                     <el-option
                                       v-for="item in optionsCustomer"
                                       :key="item.value"
@@ -1031,7 +1044,6 @@ onBeforeMount(() => {
                         v-model="deliveryMethod"
                         class="fix-full-width"
                         :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
-                        size="large"
                       >
                         <el-option
                           v-for="i in chooseDelivery"
@@ -1083,9 +1095,10 @@ onBeforeMount(() => {
                               style="width: 96%"
                               class="m-2 fix-full-width"
                               placeholder="Select"
+                              @change="(data) => CityChange(data)"
                             >
                               <el-option
-                                v-for="item in province"
+                                v-for="item in cities"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value"
@@ -1102,6 +1115,7 @@ onBeforeMount(() => {
                               style="width: 96%"
                               class="m-2 fix-full-width"
                               placeholder="Select"
+                              @change="(data) => districtChange(data)"
                             >
                               <el-option
                                 v-for="item in district"
@@ -1123,7 +1137,7 @@ onBeforeMount(() => {
                               placeholder="Select"
                             >
                               <el-option
-                                v-for="item in choosePayment"
+                                v-for="item in ward"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value"
@@ -1135,12 +1149,22 @@ onBeforeMount(() => {
                               >{{ t('formDemo.detailedAddress') }}
                               <span class="text-red-500">*</span></label
                             >
-                            <el-input
+                            <el-select
                               v-model="enterdetailAddress"
-                              class="m-2 fix-full-width"
                               style="width: 96%"
-                              :placeholder="t('formDemo.enterDetailAddress')"
-                            />
+                              class="m-2 fix-full-width"
+                              placeholder="Select"
+                              clearable
+                              filterable
+                              allow-create
+                            >
+                              <el-option
+                                v-for="item in street"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
                           </div>
                         </div>
                         <template #footer>
@@ -1189,7 +1213,7 @@ onBeforeMount(() => {
         <el-table :data="tableWarehouse" border>
           <el-table-column prop="warehouseCheckbox" width="90" align="center">
             <template #default="props">
-              <el-checkbox v-model="props.row.warehouseCheckbox" size="large" />
+              <el-checkbox v-model="props.row.warehouseCheckbox" />
             </template>
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
@@ -1245,7 +1269,7 @@ onBeforeMount(() => {
             <el-table-column prop="radio" width="90" align="center">
               <template #default="props">
                 <el-radio-group v-model="initialRadio" class="ml-4 fix-label-color">
-                  <el-radio :label="props.row.radio" size="large" />
+                  <el-radio :label="props.row.radio" />
                 </el-radio-group>
               </template>
             </el-table-column>
@@ -1301,7 +1325,7 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="680">
+          <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="620">
             <!-- <template #default="props">
               <MultipleOptionsBox
                 :fields="[
@@ -1378,19 +1402,18 @@ onBeforeMount(() => {
             <template #default="scope">
               <button
                 @click.prevent="removeListProductsSale(scope.$index)"
-                class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-                >Xóa</button
+                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
+                >{{ t('reuse.delete') }}</button
               >
             </template>
           </el-table-column>
         </el-table>
-        <el-table :data="tableData2" class="pl-4 dark:text-[#fff]">
-          <el-table-column min-width="250" />
-          <el-table-column min-width="680" />
-          <el-table-column min-width="180" />
-          <el-table-column min-width="90" />
-          <el-table-column min-width="100" />
-          <el-table-column align="right" min-width="180">
+        <el-table :data="tableData2" class="dark:text-[#fff]">
+          <el-table-column width="250" />
+          <el-table-column width="220" />
+          <el-table-column width="220" />
+          <el-table-column width="550" />
+          <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
             <div class="text-blue-500 cursor-pointer">
               <el-button
@@ -1416,34 +1439,23 @@ onBeforeMount(() => {
                   <el-dropdown-item>
                     <el-radio-group v-model="radioVAT" class="flex-col">
                       <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="1" size="large">{{
+                        <el-radio class="text-left" style="color: blue" label="1">{{
                           t('formDemo.VATNotIncluded')
                         }}</el-radio>
                       </div>
                       <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="2" size="large"
-                          >VAT 10%</el-radio
-                        >
+                        <el-radio class="text-left" style="color: blue" label="2">VAT 10%</el-radio>
                       </div>
                       <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="3" size="large"
-                          >VAT 8%</el-radio
-                        >
+                        <el-radio class="text-left" style="color: blue" label="3">VAT 8%</el-radio>
                       </div>
                       <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="4" size="large"
-                          >VAT 5%</el-radio
-                        >
+                        <el-radio class="text-left" style="color: blue" label="4">VAT 5%</el-radio>
                       </div>
                       <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="5" size="large"
-                          >VAT 0%</el-radio
-                        >
+                        <el-radio class="text-left" style="color: blue" label="5">VAT 0%</el-radio>
                       </div>
                     </el-radio-group>
-                  </el-dropdown-item>
-                  <el-dropdown-item divided>
-                    <div style="width: 100%; text-align: center"> Confirm </div>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -1451,17 +1463,16 @@ onBeforeMount(() => {
 
             <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
           </el-table-column>
-          <el-table-column align="right" min-width="180">
+          <el-table-column align="right" width="180">
             <div class="dark:text-[#fff]">190,000,000 đ</div>
             <div class="dark:text-[#fff]">-95,000,000 đ</div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="dark:text-[#fff]">95,000,000 đ</div>
           </el-table-column>
-          <el-table-column min-width="200" align="right">
+          <el-table-column width="200" align="right">
             <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </el-table-column>
-          <el-table-column min-width="90" />
         </el-table>
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
         <el-table :data="debtTable" border>
@@ -1545,19 +1556,19 @@ onBeforeMount(() => {
             prop="alreadyPaidForTt"
             :label="`${t('formDemo.alreadyPaidForTt')}`"
             align="center"
-            min-width="90"
+            min-width="55"
           >
             <template #default="scope">
-              <el-checkbox v-model="scope.row.alreadyPaidForTt" size="large" />
+              <el-checkbox v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="90" align="center">
             <template #default="scope">
               <button
-                class="border-1 bg-[#F78F8F] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
+                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 @click.prevent="deleteRowDebtTable(scope.$index)"
               >
-                Xóa
+                {{ t('reuse.delete') }}
               </button>
             </template>
           </el-table-column>
@@ -1572,12 +1583,12 @@ onBeforeMount(() => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1" size="large">{{ t('reuse.closedTheOrder') }}</el-radio>
-              <el-radio label="2" size="large">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3" size="large">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4" size="large">{{ t('reuse.deliveryFailed') }}</el-radio>
-              <el-radio label="5" size="large">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6" size="large">{{ t('common.doneLabel') }}</el-radio>
+              <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio>
+              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
+              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
+              <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
+              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio>
             </el-radio-group>
           </div>
         </div>
@@ -1663,10 +1674,10 @@ onBeforeMount(() => {
               <template #default="scope">
                 <div class="flex gap-4 justify-center">
                   <button
-                    class="border-1 bg-[#F78F8F] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
+                    class="border-1 bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                     @click.prevent="deleteRow(scope.$index)"
                   >
-                    Xóa
+                    {{ t('reuse.delete') }}
                   </button>
                 </div>
               </template>
@@ -1733,6 +1744,7 @@ onBeforeMount(() => {
 
 ::v-deep(.el-input) {
   width: auto;
+  height: fit-content;
 }
 
 .dialog-footer button:first-child {

@@ -1,7 +1,7 @@
 import { getAllCity, getAllDistrict, getAllStreet, getAllWard } from '@/api/Address'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
 export const cityOptions = ref()

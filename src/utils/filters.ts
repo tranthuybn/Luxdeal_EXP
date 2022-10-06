@@ -5,6 +5,12 @@ interface Filter {
   text: string
   value: any
 }
+export const filterPaymentWalletStatus: Array<Filter> = [
+  { text: t('reuse.waitingConfirm'), value: 1 },
+  { text: t('reuse.confirmed'), value: 2 },
+  { text: t('common.doneLabel'), value: 3 },
+  { text: t('reuse.cancelled'), value: 4 }
+]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
   { text: t('reuse.takingCare'), value: 2 },

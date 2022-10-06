@@ -1288,6 +1288,9 @@ export default {
     depositAndUsageMethod: 'Phương thức nạp & sử dụng tiền',
     moneyDeposit: 'Số tiền nạp',
     moneyUsed: 'Số tiền sử dụng',
-    statusPoint: 'Trạng thái điểm'
+    statusPoint: 'Trạng thái điểm',
+    codeRequest: 'Mã yêu cầu',
+    waitingConfirm: 'Chờ xác nhận',
+    confirmed: 'Đã xác nhận'
   }
 }

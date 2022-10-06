@@ -1202,6 +1202,9 @@ export default {
     depositAndUsageMethod: 'Deposit and usage method',
     moneyDeposit: 'Money deposit',
     moneyUsed: 'Money used',
-    statusPoint: 'Status point'
+    statusPoint: 'Status point',
+    codeRequest: 'Code request',
+    waitingConfirm: 'Waiting confirm',
+    confirmed: 'Confirmed'
   }
 }

@@ -115,7 +115,12 @@ export default {
     creator: 'Người tạo',
     addNewRatings: 'Thêm mới xếp hạng',
     ratingInformation: 'Thông tin xếp hạng',
-    enterSales: 'Nhập doanh số'
+    enterSales: 'Nhập doanh số',
+    addRanking: 'Thêm xếp hạng',
+    addNewRanking: 'Thêm mới xếp hạng',
+    enterNameRanking: 'Nhập tên hạng',
+    byQuarter: 'Theo quý',
+    byYear: 'Theo năm'
   },
   formDemo: {
     generalServiceInformation: 'Thông tin chung dịch vụ',
@@ -1303,7 +1308,7 @@ export default {
     removeProductProperty: 'Xóa thuộc tính sản phẩm',
     clickEditForEditing: 'Ấn nút chỉnh sửa để Bật/Tắt cài đặt',
     addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
-    fillAllAttribute: 'Điền đủ thuộc tính',
+    fillAllAttribute: 'Chưa điền đủ thuộc tính',
     cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
     //image
     onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
@@ -1335,6 +1340,14 @@ export default {
     collectionDetail: 'Thông tin bộ sưu tập',
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
-    selectBank: 'Chọn ngân hàng'
+    selectBank: 'Chọn ngân hàng',
+    notSave: 'Chưa lưu',
+    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
+    notSaveAttribute: 'Chưa lưu đặc tính',
+    silver: 'Bạc',
+    gold: 'Vàng',
+    platinum: 'Bạch kim',
+    cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
+    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm'
   }
 }

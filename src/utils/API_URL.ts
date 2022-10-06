@@ -1,5 +1,6 @@
-import { ERP_DOMAIN } from '../../public/config'
+import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
+export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -46,8 +47,16 @@ export const CUSTOMER_API = {
   GET_GEN_CODE_COLLABORATOR: 'api/v1/Customer/genCodeCollaborator',
   POST_COLLABORATOR_API: 'api/v1/Customer/addCollaborator',
   PUT_COLLABORATOR_API: 'api/v1/Customer/UpdateCollaborator',
-  GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers'
+  GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers',
+  GET_CUSTOMER_RATINGS: '/api/v1/Customer/getCustomerRatings',
+  ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings'
 }
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder'
+}
+export const ADDRESS_API = {
+  CITY: '/api/addr/getAllCity',
+  DISTRICT: '/api/addr/getDistrict',
+  WARD: '/api/addr/getWard',
+  STREET: '/api/addr/getStreet'
 }

@@ -352,11 +352,11 @@ const adminList = [
             },
             children: [
               {
-                path: '${utility}/:id?/:type?',
+                path: `${utility}/:id?/:type?`,
                 component: 'views/Pages/Business/CustomerManagement/AddNewRanking',
                 name: `business.customer-management.customerRatings.${utility}`,
                 meta: {
-                  title: 'reuse.addNewRanking',
+                  title: 'customerList.addNewRanking',
                   noTagsView: true,
                   noCache: true,
                   hidden: true,

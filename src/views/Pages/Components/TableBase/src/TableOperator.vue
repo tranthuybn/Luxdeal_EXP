@@ -96,6 +96,11 @@ const props = defineProps({
   removeButton: {
     type: Boolean,
     default: false
+  },
+  // add exit button to header
+  backButton: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -277,6 +282,9 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
+      } else if (rawFile.name?.length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
       }
     }
     //nếu là 1 list ảnh
@@ -293,6 +301,10 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
+        } else if (file.name?.length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
         }
       })
       return inValid
@@ -389,7 +401,7 @@ const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 </script>
 <template>
-  <ContentWrap :title="props.title">
+  <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />

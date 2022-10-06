@@ -252,7 +252,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
-      onClick: () => getBrandSelectOptions(),
       placeholder: t('reuse.chooseBrand'),
       style: 'width: 100%',
       loading: true,
@@ -267,7 +266,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
-      onClick: () => getUnitSelectOptions(),
       style: 'width: 100%',
       placeholder: t('reuse.chooseUnit'),
       loading: true,
@@ -282,7 +280,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
-      onClick: () => getOriginSelectOptions(),
       placeholder: t('reuse.chooseOrigin'),
       style: 'width: 100%',
       loading: true,
@@ -365,6 +362,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
+      style: 'width: 100%',
       placeholder: 'Hello'
     },
     colProps: {

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { addCustomerRatings } from '@/api/Business'
 import { getCategoryById, deleteCategory } from '@/api/LibraryAndSetting'
+import { useValidator } from '@/hooks/web/useValidator'
+import { FORM_IMAGES } from '@/utils/format'
+import { ElNotification } from 'element-plus'
 import { h, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -13,7 +17,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'rankName',
+    field: 'Name',
     label: t('customerList.rankName'),
     component: 'Input',
     colProps: {
@@ -26,12 +30,13 @@ const schema = reactive<FormSchema[]>([
     hidden: false
   },
   {
-    field: 'ratings',
+    field: 'Rating',
     label: t('customerList.ratings'),
     component: 'Select',
     colProps: {
       span: 12
     },
+    value: 1,
     componentProps: {
       options: [
         {
@@ -52,7 +57,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'name',
+    field: 'Sales',
     component: 'Input',
     colProps: {
       span: 12
@@ -88,7 +93,17 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const rules = [{}]
+const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
+const rules = reactive({
+  Name: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator }
+  ],
+  Rating: [required()],
+  Sales: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }],
+  status: [required()]
+})
 // get data from router
 const router = useRouter()
 const title = router.currentRoute.value.meta.title
@@ -96,7 +111,30 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const formDataCustomize = ref()
-const postData = () => {}
+const customPostData = (data) => {
+  const postCustomerRatings = ref()
+  postCustomerRatings.value = data
+  data.status.length > 0
+    ? (postCustomerRatings.value.isActive = true)
+    : (postCustomerRatings.value.isActive = false)
+  return postCustomerRatings.value
+}
+const postData = async (data) => {
+  data = customPostData(data)
+  await addCustomerRatings(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'error'
+      })
+    )
+}
 const customizeData = () => {}
 const editData = () => {}
 </script>
@@ -115,5 +153,6 @@ const editData = () => {}
     :formDataCustomize="formDataCustomize"
     :delApi="deleteCategory"
     :backButton="true"
+    :multiple-images="false"
   />
 </template>

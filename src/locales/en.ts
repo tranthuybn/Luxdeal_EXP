@@ -1257,8 +1257,11 @@ export default {
     notSave: 'Not save yet',
     checkNameImageLength: 'Image name cant be over 100 characters',
     checkEmoji: 'Cant use emoji',
+    notSaveAttribute: 'Not save attribute yet',
     silver: 'Silver',
     gold: 'Gold',
-    platinum: 'Platinum'
+    platinum: 'Platinum',
+    cantChooseSameProductCode: 'Cant choose the same code for product',
+    cantFindDataOfProduct: 'Cant find data of product'
   }
 }

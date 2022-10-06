@@ -178,10 +178,15 @@ export const useValidator = () => {
     checkDescriptionLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 500) {
-          callback(new Error(t('reuse.checkDescriptionLength')))
+        if (value) {
+          if (value.length > 500) {
+            callback(new Error(t('reuse.checkDescriptionLength')))
+          } else {
+            callback()
+          }
+        } else {
+          callback()
         }
-        callback()
       },
       required: false,
       trigger: 'change'

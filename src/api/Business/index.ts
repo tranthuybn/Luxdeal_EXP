@@ -4,12 +4,33 @@ import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
+const fixedBaseURL = 0
+export const addCustomerRatings = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CUSTOMER_API.ADD_CUSTOMER_RATINGS}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRatings = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMERS}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }
@@ -19,7 +40,7 @@ export const getPotentialCustomerById = async (params: any): Promise<IResponse> 
     {
       url: `${CUSTOMER_API.GET_POTENTIAL_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -30,7 +51,7 @@ export const addNewPotentialCustomer = async (params: any): Promise<IResponse> =
       url: CUSTOMER_API.ADD_POTENTIAL_CUSTOMER,
       data: params
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }
@@ -41,7 +62,7 @@ export const updatePotentialCustomer = async (params: any): Promise<IResponse> =
       url: CUSTOMER_API.UPDATE_POTENTIAL_CUSTOMER,
       data: params
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }
@@ -52,7 +73,7 @@ export const UpdatePotentialCustomerHistory = async (params: any): Promise<IResp
       url: CUSTOMER_API.UPDATE_POTENTIAL_CUSTOMER_HISTORY,
       data: params
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }
@@ -62,7 +83,7 @@ export const deletePotentialCustomer = async (params): Promise<IResponse> => {
     {
       url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -72,7 +93,7 @@ export const deletePotentialCustomerHistory = async (params): Promise<IResponse>
     {
       url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER_HISTORY}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -82,7 +103,7 @@ export const deletePotentialCustomerHistoryOfSale = async (params): Promise<IRes
     {
       url: `${CUSTOMER_API.DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -92,7 +113,7 @@ export const getCustomer = async (params): Promise<IResponse> => {
     {
       url: `${CUSTOMER_API.ALL_CUSTOMER}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -115,7 +136,7 @@ export const getProductsList = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -126,7 +147,7 @@ export const getCollaboratorsInOrderList = async (params: any): Promise<IRespons
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_COLLABORATORS}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -137,7 +158,7 @@ export const getAllCustomer = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_ALL_CUSTOMER}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -148,7 +169,7 @@ export const getPromotionsList = async (params: any): Promise<IResponse> => {
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PROMOTIONS}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -158,7 +179,7 @@ export const getCustomerList = async (params: any): Promise<IResponse> => {
     {
       url: `${CUSTOMER_API.GET_LIST_CUSTOMER}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data
 }
@@ -169,7 +190,7 @@ export const getSellOrderList = async (params: any): Promise<IResponse> => {
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -179,7 +200,7 @@ export const getRentalorderList = async (params: any): Promise<IResponse> => {
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -189,7 +210,7 @@ export const getOrderDepositList = async (params: any): Promise<IResponse> => {
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -199,7 +220,7 @@ export const getOrderPawnList = async (params: any): Promise<IResponse> => {
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -209,7 +230,7 @@ export const getOrderSpaList = async (params: any): Promise<IResponse> => {
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res && res.data
 }
@@ -219,7 +240,7 @@ export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
     {
       url: `${CUSTOMER_API.GET_COLLABORATOR_API}?${objectToQueryParams(params)}`
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data
 }

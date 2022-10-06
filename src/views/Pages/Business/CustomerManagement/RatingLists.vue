@@ -3,7 +3,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { filterRankCustomer } from '@/utils/filters'
 import { reactive } from 'vue'
 import TableDataBase from '../../Components/TableDataBase.vue'
-import { getCustomerList } from '@/api/Business'
+import { getCustomerRatings } from '@/api/Business'
 const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
@@ -57,5 +57,9 @@ const columns = reactive<TableColumn[]>([
 </script>
 
 <template>
-  <TableDataBase :columns="columns" :api="getCustomerList" :is-operator-column-customize="true" />
+  <TableDataBase
+    :columns="columns"
+    :api="getCustomerRatings"
+    :is-operator-column-customize="true"
+  />
 </template>

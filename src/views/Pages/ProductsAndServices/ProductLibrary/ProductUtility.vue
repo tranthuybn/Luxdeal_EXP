@@ -643,6 +643,10 @@ const customizeData = async (formData) => {
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
   setFormData.Description = formData.description
+  setFormData.VerificationInfo = formData.verificationInfo
+  setFormData.HireInventoryStatus = formData.hireInventoryStatus
+  setFormData.SellInventoryStatus = formData.sellInventoryStatus
+  setFormData.ProductStatus = formData.productStatus
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
@@ -705,7 +709,7 @@ const openSpaTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: t('reuse.notSave'),
+      message: t('reuse.notSaveAttribute'),
       type: 'warning'
     })
   } else {
@@ -766,7 +770,7 @@ const openPawnTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: t('reuse.notSave'),
+      message: t('reuse.notSaveAttribute'),
       type: 'warning'
     })
   } else {
@@ -800,7 +804,7 @@ const openDepositTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: t('reuse.notSave'),
+      message: t('reuse.notSaveAttribute'),
       type: 'warning'
     })
   } else {
@@ -831,7 +835,7 @@ const openRentTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: t('reuse.notSave'),
+      message: t('reuse.notSaveAttribute'),
       type: 'warning'
     })
   } else {
@@ -867,7 +871,7 @@ const openSellTable = async (scope) => {
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
-      message: t('reuse.notSave'),
+      message: t('reuse.notSaveAttribute'),
       type: 'warning'
     })
   } else {

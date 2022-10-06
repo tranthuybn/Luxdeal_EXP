@@ -55,7 +55,7 @@ const props = defineProps({
       return [1, 2, 3, 4, 5].includes(value)
     },
     descriptions:
-      'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: sửa, xóa (icon))'
+      'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: xem, sửa (icon))'
   },
   paginationType: {
     type: Boolean,
@@ -386,8 +386,8 @@ const updateTableColumn = () => {
           <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         </div>
         <div v-if="customOperator === 5">
+          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
           <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-          <ElButton @click="delData(row, false)" :icon="trashIcon" />
         </div>
       </template>
       <template #switch="data">

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { reactive, ref } from 'vue'
+import { h, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import TableOperatorPaymentRequest from './TableOperatorPaymentRequest.vue'
 const { t } = useI18n()
 
 //get data from router
@@ -16,43 +17,89 @@ const formVirtualWallet = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'customerCode',
-    label: t('reuse.customerCode'),
-    component: 'Input',
-    colProps: { span: 13 }
+    field: 'customer',
+    label: t('formDemo.chooseACustomer'),
+    colProps: { span: 24 }
   },
   {
-    field: 'customerName',
-    label: t('reuse.customerName'),
-    component: 'Input',
-    colProps: { span: 13 }
-  },
-  {
-    field: 'phoneNumber',
-    label: t('reuse.phoneNumber'),
-    component: 'Input',
-    colProps: { span: 13 }
-  },
-  { field: 'email', label: t('reuse.email'), component: 'Input', colProps: { span: 13 } },
-  {
-    field: 'Divider2',
-    label: t('reuse.statusPoint'),
+    field: 'Divider',
+    label: t('reuse.withdrawalRequest'),
     component: 'Divider'
   },
   {
-    field: 'status',
-    label: t('reuse.status'),
-    component: 'Radio',
-    colProps: { span: 13 },
+    field: 'codeRequest',
+    label: t('reuse.codeRequest'),
+    colProps: { span: 24 }
+  },
+  {
+    field: 'amountOfMoney',
+    label: t('reuse.amountOfMoney'),
+    component: 'Input',
+    colProps: { span: 24 },
     componentProps: {
+      placeholder: t('formDemo.enterPrice'),
+      suffixIcon: h('div', 'đ')
+    }
+  },
+  {
+    field: 'receiptOrPayment',
+    label: t('formDemo.receiptOrPayment'),
+    component: 'Select',
+    colProps: { span: 20 },
+    componentProps: {
+      placeholder: t('reuse.chooseReceiptAndPayment'),
+      style: 'width: 100%',
       options: [
         { label: t('reuse.using'), value: true },
         { label: t('reuse.lockPoint'), value: false }
       ]
     }
+  },
+  {
+    field: 'buttonReceiptOrPayment',
+    colProps: { span: 4 },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'paymentProposal',
+    label: t('router.paymentProposal'),
+    component: 'Select',
+    colProps: { span: 20 },
+    componentProps: {
+      placeholder: t('reuse.choosePaymentProposal'),
+      style: 'width: 100%',
+      options: [
+        { label: t('reuse.using'), value: true },
+        { label: t('reuse.lockPoint'), value: false }
+      ]
+    }
+  },
+  {
+    field: 'buttonPaymentProposal',
+    colProps: { span: 4 },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    value: [],
+    component: 'Checkbox',
+    colProps: { span: 13 },
+    componentProps: {
+      options: [{ label: t('reuse.using'), value: true }]
+    }
   }
 ])
 </script>
 <template>
-  <div></div>
+  <TableOperatorPaymentRequest
+    :id="id"
+    :type="type"
+    :schema="formVirtualWallet"
+    :title="t('reuse.detailVirtualWalletRequest')"
+  />
 </template>

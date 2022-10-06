@@ -1,0 +1,493 @@
+<script setup lang="ts">
+import { Form } from '@/components/Form'
+import { useForm } from '@/hooks/web/useForm'
+import { PropType, watch, ref, unref } from 'vue'
+import { TableData } from '@/api/table/types'
+import {
+  ElRow,
+  ElCol,
+  ElUpload,
+  ElButton,
+  ElDialog,
+  UploadUserFile,
+  UploadProps,
+  ElMessage,
+  ElMessageBox,
+  ElNotification,
+  ElDivider,
+  ElSelect,
+  ElOption
+} from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useI18n } from '@/hooks/web/useI18n'
+import { ContentWrap } from '@/components/ContentWrap'
+import type { UploadFile } from 'element-plus'
+import { TableResponse } from '../../Components/Type'
+import { useRouter } from 'vue-router'
+import { API_URL } from '@/utils/API_URL'
+
+const { t } = useI18n()
+
+const props = defineProps({
+  // api lấy dữ liệu sản phẩm
+  apiId: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  // api xpas dữ liệu sản phẩm
+  delApi: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  //schema cho form
+  schema: {
+    type: Array as PropType<FormSchema[]>,
+    default: () => []
+  },
+  hasImage: {
+    type: Boolean,
+    default: true
+  },
+  multipleImages: {
+    type: Boolean,
+    default: true
+  },
+  // tiêu đề hiện trên đầu của bảng
+  title: {
+    type: String,
+    default: ''
+  },
+  //tiêu đề khi hỏi xóa
+  deleteTitle: {
+    type: String,
+    default: 'Warning'
+  },
+  //id của sản phẩm
+  id: {
+    type: Number,
+    default: NaN
+  },
+  //type = 'add' || 'detail' || 'edit'
+  //có sự kiện watch để bắt xem đang ở type nào
+  type: {
+    type: String,
+    default: ''
+  },
+  //rules để validate
+  rules: {
+    type: Object,
+    default: () => {}
+  },
+  //limitUpload ảnh
+  limitUpload: {
+    type: Number,
+    default: 10
+  },
+  //truyền params cho api nếu cần
+  params: {
+    type: Object,
+    default: () => {}
+  },
+  //dữ liệu đã được xử lí được gửi sau khi emit lên component cha
+  formDataCustomize: {
+    type: Object,
+    default: () => {}
+  },
+  // remove the button at the end of the component
+  removeButton: {
+    type: Boolean,
+    default: false
+  },
+  // add exit button to header
+  backButton: {
+    type: Boolean,
+    default: false
+  }
+})
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
+const formValue = ref()
+
+//get data from table
+const getTableValue = async () => {
+  if (!isNaN(props.id)) {
+    const res = await props.apiId({ ...props.params, id: props.id })
+    if (res) {
+      if (res.data?.list !== undefined) {
+        formValue.value = res.data.list[0]
+      } else {
+        formValue.value = res.data
+      }
+      await setFormValue()
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+}
+// eslint-disable-next-line vue/no-setup-props-destructure
+const schema = props.schema
+const { register, methods, elFormRef } = useForm({
+  schema
+})
+let fileList = ref<UploadUserFile[]>([])
+
+//formValue lay tu api
+const customizeData = async () => {
+  emit('customize-form-data', formValue.value)
+}
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const imageUrl = ref()
+//set data for form edit and detail
+const setFormValue = async () => {
+  //neu can xu li du lieu thi emit len component de tu xu li du lieu
+  await customizeData()
+  const { setValues } = methods
+  if (props.formDataCustomize !== undefined) {
+    setValues(props.formDataCustomize)
+    if (props.hasImage && !props.multipleImages) {
+      imageUrl.value = props.formDataCustomize.imageurl
+    }
+    if (props.hasImage && props.multipleImages) {
+      // Images tao tu formDataCustomize
+      props.formDataCustomize?.Images.map((image) =>
+        fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
+      )
+    }
+  } else {
+    setValues(formValue.value)
+  }
+}
+//Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
+watch(
+  () => props.type,
+  () => {
+    if (props.type === 'detail') {
+      const { setProps } = methods
+      setProps({
+        disabled: true
+      })
+    }
+    if (props.type === 'detail' || props.type === 'edit') {
+      getTableValue()
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+defineExpose({
+  elFormRef,
+  getFormData: methods.getFormData
+})
+
+const loading = ref(false)
+
+//doc du lieu tu bang roi emit len goi API
+const { go } = useRouter()
+const save = async (type) => {
+  await unref(elFormRef)!.validate(async (isValid) => {
+    //validate image
+    let validateFile = false
+    if (props.hasImage) {
+      if (props.multipleImages) {
+        validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
+      } else {
+        validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
+      }
+    } else {
+      validateFile = true
+    }
+    if (isValid && validateFile) {
+      loading.value = true
+      const { getFormData } = methods
+      let data = (await getFormData()) as TableData
+      props.multipleImages
+        ? (data.Images = ListFileUpload.value
+            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+            : null)
+        : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
+      //callback cho hàm emit
+      if (type == 'add') {
+        emit('post-data', data, go(-1))
+        loading.value = false
+      }
+      if (type == 'saveAndAdd') {
+        emit('post-data', data)
+        unref(elFormRef)!.resetFields()
+        loading.value = false
+      }
+      if (type == 'edit') {
+        data.Id = props.id
+        // fix cung theo api (nen theo 1 quy tac)
+        data.NewPhotos = fileList.value
+        data.DeleteFileIds = DeleteFileIds
+        data.Imageurl = data.Image ? null : imageUrl.value
+        emit('edit-data', data, go(-1))
+        loading.value = false
+      }
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+    }
+  })
+}
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+
+//if schema has image then split screen
+let fullSpan = ref<number>()
+let rawUploadFile = ref<UploadFile>()
+props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
+//set Title
+let title = ref(props.title)
+if (props.title == 'undefined') {
+  title.value = 'Category'
+}
+
+let DeleteFileIds: any = []
+const handleRemove = (file: UploadFile) => {
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
+  // remove image when edit data
+  if (props.formDataCustomize.Images.length > 0) {
+    let imageRemove = props.formDataCustomize?.Images.find(
+      (image) => `${API_URL}${image.path}` === file.url
+    )
+    if (imageRemove) {
+      DeleteFileIds.push(imageRemove?.id)
+    }
+  }
+}
+
+//validate Ảnh
+const beforeAvatarUpload = async (_rawFile, __type) => {
+  return true
+}
+//chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
+const { push } = useRouter()
+const router = useRouter()
+const edit = () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: { id: props.id, type: 'edit' }
+  })
+}
+//xóa dữ liệu sản phẩm
+const delAction = async () => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'ElButton--danger'
+    })
+      .then(() => {
+        const res = props.delApi({ Id: props.id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          }),
+            go(-1)
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
+}
+const cancel = () => {
+  go(-1)
+}
+//xử lí ảnh
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
+  if (!props.multipleImages) {
+    const validImage = await beforeAvatarUpload(uploadFile, 'single')
+    if (validImage) {
+      rawUploadFile.value = uploadFile
+      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    } else {
+    }
+  } else {
+    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
+    ListFileUpload.value = uploadFiles
+    if (!validImage) {
+      uploadFiles.map((file) => {
+        file.raw ? handleRemove(file) : ''
+      })
+    }
+  }
+}
+const previewImage = () => {
+  dialogVisible.value = true
+  dialogImageUrl.value = imageUrl.value
+}
+const removeImage = () => {
+  rawUploadFile.value = undefined
+  imageUrl.value = undefined
+}
+type ListImages = 'text' | 'picture' | 'picture-card'
+const listType = ref<ListImages>('text')
+listType.value = 'text'
+
+const options = [
+  {
+    value: 'Option1',
+    label: 'Option1'
+  },
+  {
+    value: 'Option2',
+    label: 'Option2'
+  },
+  {
+    value: 'Option3',
+    label: 'Option3'
+  },
+  {
+    value: 'Option4',
+    label: 'Option4'
+  },
+  {
+    value: 'Option5',
+    label: 'Option5'
+  }
+]
+</script>
+<template>
+  <ContentWrap :title="props.title" :back-button="props.backButton">
+    <ElRow :gutter="20" justify="space-between">
+      <ElCol :span="fullSpan">
+        <Form :rules="rules" @register="register">
+          <template #customer="form">
+            <el-select v-model="form['customer']" class="w-full" clearable>
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </template>
+          <template #codeRequest><div>ABHSLK2001</div></template>
+          <template #buttonReceiptOrPayment
+            ><el-button :icon="addIcon" class="w-full">{{
+              t('reuse.newCreate')
+            }}</el-button></template
+          >
+          <template #buttonPaymentProposal
+            ><el-button :icon="addIcon" class="w-full">{{
+              t('reuse.newCreate')
+            }}</el-button></template
+          >
+        </Form>
+      </ElCol>
+      <ElCol
+        :span="hasImage ? 8 : 0"
+        v-if="hasImage"
+        class="max-h-400px overflow-y-auto shadow-inner p-1"
+      >
+        <ElDivider class="text-center font-bold">{{ t('formDemo.attachments') }}</ElDivider>
+        <el-upload
+          action="#"
+          :disabled="props.type === 'detail'"
+          :auto-upload="false"
+          v-model:file-list="fileList"
+          :limit="limitUpload"
+          :on-change="handleChange"
+          :multiple="multipleImages"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+        >
+          <div class="about-image mr-4">
+            <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
+            <p style="color: orange">{{ t('formDemo.lessThanTenProfiles') }}</p>
+          </div>
+          <ElButton :icon="addIcon" class="border-1 border-blue-500">{{
+            t('formDemo.addPhotosOrFiles')
+          }}</ElButton>
+        </el-upload>
+        <div
+          class="w-250px flex justify-center"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          v-if="imageUrl"
+        >
+          <ElButton :icon="viewIcon" @click="previewImage" />
+          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+        </div>
+        <el-dialog width="80%" v-model="dialogVisible">
+          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+        </el-dialog>
+      </ElCol>
+    </ElRow>
+    <template #under v-if="!removeButton">
+      <div v-if="props.type === 'add' || isNaN(props.id)">
+        <ElButton type="primary" :loading="loading" @click="save('add')">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+          {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+      </div>
+      <div v-if="props.type === 'detail'">
+        <ElButton :loading="loading" @click="edit">
+          {{ t('reuse.edit') }}
+        </ElButton>
+        <ElButton type="danger" :loading="loading" @click="delAction">
+          {{ t('reuse.delete') }}
+        </ElButton>
+      </div>
+      <div v-if="props.type === 'edit'">
+        <ElButton type="primary" :loading="loading" @click="save('edit')">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="cancel">
+          {{ t('reuse.cancel') }}
+        </ElButton>
+        <ElButton type="danger" :loading="loading" @click="delAction">
+          {{ t('reuse.delete') }}
+        </ElButton>
+      </div>
+    </template>
+  </ContentWrap>
+</template>
+<style scoped>
+.avatar-uploader .avatar {
+  padding-bottom: 1rem;
+  width: 250px;
+  display: block;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.avatar-uploader-icon {
+  width: 178px;
+  height: 178px;
+}
+.one-avatar-uploader {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+</style>

@@ -1353,6 +1353,11 @@ export default {
     gold: 'Vàng',
     platinum: 'Bạch kim',
     cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
-    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm'
+    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
+    newCreate: 'Tạo mới',
+    chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    choosePaymentProposal: 'Chọn đè',
+    addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
+    detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo'
   }
 }

@@ -1264,6 +1264,11 @@ export default {
     gold: 'Gold',
     platinum: 'Platinum',
     cantChooseSameProductCode: 'Cant choose the same code for product',
-    cantFindDataOfProduct: 'Cant find data of product'
+    cantFindDataOfProduct: 'Cant find data of product',
+    newCreate: 'New create',
+    chooseReceiptAndPayment: 'Choose receipt and payment',
+    choosePaymentProposal: 'Choose payment proposal',
+    addNewVirtualWalletRequest: 'Add new virtual wallet request',
+    detailVirtualWalletRequest: 'Detail virtual wallet request'
   }
 }

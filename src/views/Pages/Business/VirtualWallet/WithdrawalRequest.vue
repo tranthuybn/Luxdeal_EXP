@@ -3,7 +3,7 @@ import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCustomerVirtualEWalletList } from '@/api/Business'
-import { filterPaymentWalletStatus } from '@/utils/filters'
+import { filterPaymentCheckbox, filterPaymentWalletStatus } from '@/utils/filters'
 import { ElCheckbox } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -35,26 +35,24 @@ const columns = reactive<TableColumn[]>([
     field: 'attachments',
     label: t('formDemo.attachments'),
     minWidth: '150',
-    align: 'left',
-    sortable: true
+    align: 'left'
   },
   {
     field: 'receiptOrPayment',
     label: t('formDemo.receiptOrPayment'),
-    minWidth: '150',
-    align: 'center'
+    minWidth: '150'
   },
   {
     field: 'paymentProposal',
     label: t('router.paymentProposal'),
-    minWidth: '150',
-    align: 'center'
+    minWidth: '150'
   },
   {
     field: 'alreadyPaidForTt',
     label: t('formDemo.alreadyPaidForTt'),
     minWidth: '150',
     align: 'center',
+    filters: filterPaymentCheckbox,
     formatter: (_record: Recordable, __column: TableColumn, cellValue: boolean) => {
       return h(ElCheckbox, {
         style: { margin: 'auto' },
@@ -66,12 +64,12 @@ const columns = reactive<TableColumn[]>([
     field: 'updatedAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'left',
+    align: 'center',
     sortable: true
   },
   {
     field: 'creator',
-    label: t('reuse.createDate'),
+    label: t('reuse.creator'),
     minWidth: '150',
     align: 'left',
     headerFilter: 'Name'
@@ -88,7 +86,6 @@ const columns = reactive<TableColumn[]>([
   <tableDatetimeFilterBasicVue
     :columns="columns"
     :api="getCustomerVirtualEWalletList"
-    :customOperator="2"
-    :removeHeaderFilterSlot="true"
+    :customOperator="5"
   />
 </template>

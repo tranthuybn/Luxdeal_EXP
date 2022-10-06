@@ -609,7 +609,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/WithdrawalRequest',
             meta: {
               title: 'router.withDrawalRequest'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                name: `business.virtual-wallet.with-drewal-request.${utility}`,
+                component: 'views/Pages/Business/VirtualWallet/WithdrawalRequestUtility',
+                meta: {
+                  title: 'reuse.addNewVirtualWalletRequest',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'settings',

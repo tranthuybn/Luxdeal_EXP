@@ -1337,6 +1337,9 @@ export default {
     collectionDetail: 'Thông tin bộ sưu tập',
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
-    selectBank: 'Chọn ngân hàng'
+    selectBank: 'Chọn ngân hàng',
+    moneyPaymentCode: 'Mã gói nạp tiền',
+    alreadyPaid: 'Đã thanh toán',
+    notPaid: 'Chưa thanh toán'
   }
 }

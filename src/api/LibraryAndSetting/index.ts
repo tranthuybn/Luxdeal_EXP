@@ -1,8 +1,9 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
-const fixedBaseURL = true
+
 const request = useAxios()
+const fixedBaseURL = 0
 export const getSpaProductCategories = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/SpaProduct/List', params })
   return res && res.data

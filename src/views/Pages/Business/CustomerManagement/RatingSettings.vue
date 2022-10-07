@@ -162,6 +162,6 @@ const columns = reactive<TableColumn[]>([
 </template>
 <style scoped>
 :deep(.el-card__body) {
-  height: 69vh;
+  max-height: 66vh;
 }
 </style>

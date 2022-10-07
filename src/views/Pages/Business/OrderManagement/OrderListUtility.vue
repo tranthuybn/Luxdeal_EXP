@@ -428,7 +428,6 @@ const changeAddressCustomer = (data) => {
     customerAddress.value = ''
     deliveryMethod.value = ''
   }
-  console.log('infoCompany: ', infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -569,6 +568,7 @@ const removeListProductsSale = (index) => {
   }
 }
 
+const checkDisabled = ref(false)
 // tạo đơn hàng
 
 const postData = () => {
@@ -691,11 +691,22 @@ const editData = async () => {
       ruleForm.discount = res.data[0].collaboratorCode
       ruleForm.customerName = res.data[0].userName
       ruleForm.orderNotes = res.data[0].description
+
+      if (res.data[0].customer.isOrganization) {
+        infoCompany.name = res.data[0].customer.name
+        infoCompany.taxCode = res.data[0].customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
+        infoCompany.email = 'Email: ' + res.data[0].customer.email
+      } else {
+        infoCompany.name = res.data[0].customer.name + ' | ' + res.data[0].customer.taxCode
+        infoCompany.taxCode = res.data[0].customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
+        infoCompany.email = 'Email: ' + res.data[0].customer.email
+      }
     }
   }
 }
 
-const checkDisabled = ref(false)
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
@@ -1014,8 +1025,6 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <!-- <el-form-item :label="t('formDemo.chooseShipping')" prop="region" width="100%"> -->
-
                   <el-form-item label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
@@ -1038,7 +1047,6 @@ onBeforeMount(() => {
                       </div>
                     </div>
                   </el-form-item>
-                  <!-- </el-form-item> -->
                 </div>
               </div>
               <div class="flex w-[100%] gap-6">
@@ -1170,8 +1178,12 @@ onBeforeMount(() => {
                   </p>
                 </div>
               </div>
-              <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="ruleForm.customerName !== ''">
+              <el-form-item
+                v-if="ruleForm.customerName !== ''"
+                class="poi-self"
+                :label="t('reuse.customerInfo')"
+              >
+                <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div v-if="infoCompany.taxCode !== null">

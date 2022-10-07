@@ -1143,8 +1143,12 @@ onBeforeMount(() => {
                   </p>
                 </div>
               </div>
-              <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="ruleForm.customerName !== ''">
+              <el-form-item
+                v-if="ruleForm.customerName !== ''"
+                class="poi-self"
+                :label="t('reuse.customerInfo')"
+              >
+                <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div v-if="infoCompany.taxCode !== null">

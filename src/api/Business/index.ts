@@ -174,6 +174,17 @@ export const getPromotionsList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách dịch vụ Spa
+export const getSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -182,6 +193,17 @@ export const getCustomerList = async (params: any): Promise<IResponse> => {
     fixedBaseURL
   )
   return res.data && res.data
+}
+// post đơn hàng spa
+export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: PRODUCTS_AND_SERVICES_API.POST_SPA_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
 }
 
 // Lấy danh sách đơn hàng

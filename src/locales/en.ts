@@ -364,7 +364,8 @@ export default {
     enterAccountName: 'Enter account name',
     provinceAndCity: 'Province/city',
     countyAndDistrict: 'Country/district',
-    wards: 'Wards'
+    wards: 'Wards',
+    totalFeePayable: 'Total fee payable'
   },
   button: {
     add: 'Add quick',

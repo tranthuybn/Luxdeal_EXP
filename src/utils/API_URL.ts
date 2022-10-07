@@ -52,7 +52,8 @@ export const CUSTOMER_API = {
   ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings'
 }
 export const ORDER_API = {
-  GET_ORDER_LIST: '/api/v1/Order/GetOrder'
+  GET_ORDER_LIST: '/api/v1/Order/GetOrder',
+  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'
 }
 export const ADDRESS_API = {
   CITY: '/api/addr/getAllCity',

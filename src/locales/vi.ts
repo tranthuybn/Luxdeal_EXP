@@ -211,7 +211,7 @@ export default {
     spent: 'Đã chi',
     unpaidDebt: 'Công nợ tồn',
     chooseWarehouse: 'Chọn kho',
-    intoMoney: 'Thành tiền',
+    intoMoney: 'Thành tiền phí',
     doesNotIncludeVAT: 'Không bao gồm VAT',
     choosePromotion: 'Chọn khuyến mãi',
     statusAndManipulation: 'Trạng thái & thao tác',
@@ -368,7 +368,10 @@ export default {
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
     countyAndDistrict: 'Quận/huyện',
-    wards: 'Phường/xã'
+    wards: 'Phường/xã',
+    condition: 'Điều kiện',
+    comboGetFree: 'Combo nhận miễn phí',
+    totalFeePayable: 'Tổng tiền phí phải thu'
   },
   button: {
     add: 'Thêm nhanh',

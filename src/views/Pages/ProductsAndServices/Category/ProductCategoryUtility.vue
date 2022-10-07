@@ -28,6 +28,8 @@ const schema = reactive<FormSchema[]>([
     field: 'rankCategory',
     label: t('reuse.chooseRankCategory'),
     component: 'Select',
+    modelValue: 1,
+    value: 1,
     colProps: {
       span: 20
     },

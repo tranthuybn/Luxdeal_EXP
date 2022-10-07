@@ -389,7 +389,21 @@ const adminList = [
             component: 'views/Pages/Business/Collaborators/Collaborators',
             meta: {
               title: 'router.collaboratorsList'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                name: `business.collaborators.collaboratorsList.${utility}`,
+                component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
+                meta: {
+                  title: 'router.collaboratorsAdd',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'paymentRequest',
@@ -609,7 +623,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/WithdrawalRequest',
             meta: {
               title: 'router.withDrawalRequest'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                name: `business.virtual-wallet.with-drewal-request.${utility}`,
+                component: 'views/Pages/Business/VirtualWallet/WithdrawalRequestUtility',
+                meta: {
+                  title: 'reuse.addNewVirtualWalletRequest',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'settings',
@@ -617,7 +645,21 @@ const adminList = [
             component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWallet',
             meta: {
               title: 'router.settingsvirtualWallet'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWalletUtility',
+                name: `business.virtual-wallet.settings.${utility}`,
+                meta: {
+                  title: 'reuse.addNewMoneyPaymentCode',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       },

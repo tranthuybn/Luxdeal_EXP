@@ -244,7 +244,35 @@ export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
   )
   return res.data && res.data
 }
-
+export const getCollaboratorsById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COLLABORATOR_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+export const getGenCodeCollaborators = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_GEN_CODE_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+export const addNewCollaborators = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCollaborators = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
+  return res && res.data
+}
 export const getFlashSaleList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/flash-sale/List', params })
   return res && res.data

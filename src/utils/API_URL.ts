@@ -42,7 +42,11 @@ export const CUSTOMER_API = {
   DELETE_POTENTIAL_CUSTOMER: '/api/v1/Customer/deletePotentialCustomers',
   DELETE_POTENTIAL_CUSTOMER_HISTORY: 'api/v1/Customer/deletePotentialCustomerHistory',
   DELETE_POTENTIAL_CUSTOMER_HISTORY_CHILD: 'api/v1/Customer/deletePotentialCustomerHistoryOfSale',
-  GET_COLLABORATOR_API: '/api/v1/Customer/GetCollaborator',
+  GET_COLLABORATOR_API: 'api/v1/Customer/GetCollaborator',
+  GET_COLLABORATOR_BY_ID: 'api/v1/Customer/getCollaboratorById',
+  GET_GEN_CODE_COLLABORATOR: 'api/v1/Customer/genCodeCollaborator',
+  POST_COLLABORATOR_API: 'api/v1/Customer/addCollaborator',
+  PUT_COLLABORATOR_API: 'api/v1/Customer/UpdateCollaborator',
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers',
   GET_CUSTOMER_RATINGS: '/api/v1/Customer/getCustomerRatings',
   ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings'

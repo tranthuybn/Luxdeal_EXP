@@ -294,7 +294,7 @@ const adminList = [
             }
           },
           {
-            path: '${utility}/:id?/:type?',
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
@@ -332,11 +332,11 @@ const adminList = [
             }
           },
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
-              title: 'reuse.createANewUtility',
+              title: 'reuse.createANewCustomer',
               noTagsView: true,
               noCache: true,
               hidden: true,
@@ -440,7 +440,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
             name: `business.promotion-strategy.flash-sale.${utility}`,
             meta: {
@@ -460,7 +460,7 @@ const adminList = [
             }
           },
           {
-            path: `collection${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/CollectionUtility',
             name: `business.promotion-strategy.collection.${utility}`,
             meta: {
@@ -480,7 +480,7 @@ const adminList = [
             }
           },
           {
-            path: `new-product${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
             name: `business.promotion-strategy.new-product.${utility}`,
             meta: {
@@ -500,7 +500,7 @@ const adminList = [
             }
           },
           {
-            path: `voucher${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
@@ -520,7 +520,7 @@ const adminList = [
             }
           },
           {
-            path: `combo${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
             name: `business.promotion-strategy.combo.${utility}`,
             meta: {
@@ -540,7 +540,7 @@ const adminList = [
             }
           },
           {
-            path: `auction${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
             name: `business.promotion-strategy.auction.${utility}`,
             meta: {

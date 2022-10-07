@@ -149,6 +149,7 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
+  rankCategory: [required()],
   name: [
     required(),
     { validator: notSpecialCharacters },

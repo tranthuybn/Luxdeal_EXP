@@ -1,5 +1,6 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+const utility = 'Utility'
 const { t } = useI18n()
 export default {
   path: '/business',
@@ -134,7 +135,21 @@ export default {
           component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
           meta: {
             title: t('router.collaboratorsList')
-          }
+          },
+          children: [
+            {
+              path: `${utility}/:id?/:type?`,
+              name: `business.collaborators.collaboratorsList.${utility}`,
+              component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
+              meta: {
+                title: t('router.collaboratorsAdd'),
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         },
         {
           path: 'paymentRequest',
@@ -142,6 +157,14 @@ export default {
           component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
           meta: {
             title: t('router.paymentRequest')
+          }
+        },
+        {
+          path: 'collaboratorsAdd',
+          name: 'business.collaborators.collaboratorsAdd',
+          component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd')
           }
         },
         {

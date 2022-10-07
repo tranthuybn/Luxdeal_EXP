@@ -54,12 +54,12 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'photos[0]?.path',
+    field: 'photos',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+    formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.photos[0]?.path)
   },
   {
     field: 'createdAt',

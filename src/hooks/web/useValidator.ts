@@ -227,7 +227,7 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkMoney: {
-      validator: (value, callback) => {
+      validator: (_rule, value, callback) => {
         if (value === '') callback(new Error(t('reuse.required')))
         else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
         else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))

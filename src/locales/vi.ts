@@ -211,7 +211,7 @@ export default {
     spent: 'Đã chi',
     unpaidDebt: 'Công nợ tồn',
     chooseWarehouse: 'Chọn kho',
-    intoMoney: 'Thành tiền',
+    intoMoney: 'Thành tiền phí',
     doesNotIncludeVAT: 'Không bao gồm VAT',
     choosePromotion: 'Chọn khuyến mãi',
     statusAndManipulation: 'Trạng thái & thao tác',
@@ -368,7 +368,10 @@ export default {
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
     countyAndDistrict: 'Quận/huyện',
-    wards: 'Phường/xã'
+    wards: 'Phường/xã',
+    condition: 'Điều kiện',
+    comboGetFree: 'Combo nhận miễn phí',
+    totalFeePayable: 'Tổng tiền phí phải thu'
   },
   button: {
     add: 'Thêm nhanh',
@@ -1331,6 +1334,9 @@ export default {
     moneyDeposit: 'Số tiền nạp',
     moneyUsed: 'Số tiền sử dụng',
     statusPoint: 'Trạng thái điểm',
+    codeRequest: 'Mã yêu cầu',
+    waitingConfirm: 'Chờ xác nhận',
+    confirmed: 'Đã xác nhận',
     Points: 'Số điểm',
     exchangedMoney: 'Số tiền quy đổi',
     comboDetail: 'Thông tin combo',
@@ -1341,6 +1347,9 @@ export default {
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
+    moneyPaymentCode: 'Mã gói nạp tiền',
+    alreadyPaid: 'Đã thanh toán',
+    notPaid: 'Chưa thanh toán',
     notSave: 'Chưa lưu',
     checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
     notSaveAttribute: 'Chưa lưu đặc tính',
@@ -1348,6 +1357,12 @@ export default {
     gold: 'Vàng',
     platinum: 'Bạch kim',
     cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
-    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm'
+    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
+    newCreate: 'Tạo mới',
+    chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    choosePaymentProposal: 'Chọn đè',
+    addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
+    detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền'
   }
 }

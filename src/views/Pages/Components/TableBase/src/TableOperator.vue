@@ -468,8 +468,8 @@ const listType = ref<ListImages>('text')
           <ElButton :icon="viewIcon" @click="previewImage" />
           <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog width="80%" v-model="dialogVisible">
-          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+        <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
     </ElRow>
@@ -531,5 +531,11 @@ const listType = ref<ListImages>('text')
   display: flex;
   justify-content: center;
   margin: 0 auto;
+}
+:deep(.el-dialog__body) {
+  max-height: 85vh;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
 }
 </style>

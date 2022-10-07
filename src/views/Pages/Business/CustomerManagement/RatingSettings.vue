@@ -7,7 +7,6 @@ import { useRouter } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
 import { getCustomerRatings } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
-import TableDataBase from '../../Components/TableDataBase.vue'
 import { filterProductStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import {
@@ -16,6 +15,7 @@ import {
   moneyFormat,
   productStatusTransferToText
 } from '@/utils/format'
+import TableDataBase from '../../Components/TableDataBase.vue'
 
 const { t } = useI18n()
 
@@ -159,3 +159,8 @@ const columns = reactive<TableColumn[]>([
     </el-collapse>
   </div>
 </template>
+<style scoped>
+:deep(.el-card__body) {
+  height: 69vh;
+}
+</style>

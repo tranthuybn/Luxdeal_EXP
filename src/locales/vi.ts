@@ -383,7 +383,7 @@ export default {
     negotiablePrice: 'Giá đàm phán',
     depositFee: 'Phí ký gửi',
     payableFees: 'Thành tiền phí phải thu',
-    pawnFeePaymentTime: 'Kỳ hạn phí cầm đồ',
+    pawnFeePaymentTime: 'Kỳ thanh toán phí cầm đồ',
     businessManagement: 'Quản lý kinh doanh',
     pawnFeeDebt: 'Công nợ phí cầm đồ',
     numberOfTimesRented: 'Số lần đã cho thuê',

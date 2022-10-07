@@ -27,13 +27,10 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { useForm } from '@/hooks/web/useForm'
-import { Form } from '@/components/Form'
+import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { useRouter } from 'vue-router'
-import { FORM_IMAGES } from '@/utils/format'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -42,98 +39,13 @@ import {
   getSpaList,
   addNewSpaOrders
 } from '@/api/Business'
-import { useValidator } from '@/hooks/web/useValidator'
-const { required, ValidService } = useValidator()
 
 const { t } = useI18n()
 
-const schema = reactive<FormSchema[]>([
-  {
-    field: 'orderInformation',
-    label: t('formDemo.orderInformation'),
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'orderCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterOrderCode')
-    }
-  },
-  {
-    field: 'deliveryDate',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placehoder: t('formDemo.enterDate')
-    }
-  },
-  {
-    field: 'collaborators',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
-    }
-  },
-  {
-    field: 'orderNotes',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
-    }
-  }
-])
-
-const newList = reactive<FormSchema[]>([
-  {
-    field: 'customer',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'customerName',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'debtAndAddress',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'companyInformation',
-    component: 'Input',
-    colProps: {
-      span: 12
-    }
-  }
-])
 // const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
-
-const { register } = useForm()
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -241,19 +153,6 @@ interface ListOfProductsForSaleType {
   alreadyPaidForTt: string
   edited: boolean
 }
-
-// interface spaOdersInfo {
-//   name: string
-//   productCode: string
-//   id: string
-//   code: string
-//   customerInfo: string | undefined
-//   dram: string
-//   unitPrice: string
-//   intoMoney: string
-//   paymentType: string
-//   alreadyPaidForTt: string
-// }
 
 const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
   {
@@ -434,7 +333,6 @@ const radioVAT = ref(false)
 // Call api danh sách khách hàng
 let customerAddress = ref('')
 
-const customersValue = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -466,7 +364,6 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-const valueDate = ref('')
 const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
@@ -525,7 +422,6 @@ const handleTotal = (scope) => {
 }
 
 // Call api danh sách cộng tác viên
-const collaboratorsValue = ref()
 const listCollaborators = ref()
 const optionsCollaborators = ref()
 let optionCallCollaborators = 0
@@ -659,48 +555,8 @@ const removeListProductsSale = (index) => {
 }
 const dialogFormSettingServiceSpa = ref(false)
 
-//lay du lieu tu router
-// const router = useRouter()
-// const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
-const collaboratorCommission = ref('')
-// // post data form
-
-// const postData = () => {
-//   const payload = {
-//     ServiceType: 5,
-//     OrderCode: inputCode.value,
-//     PromotionCode: 'test',
-//     deliveryDate: valueDate.value,
-//     CollaboratorId: collaboratorsValue.value,
-//     CollaboratorCommission: CollaboratorCommission.value,
-//     Description: 'desc',
-//     CustomerId: 1,
-//     DeliveryOptionId: 1,
-//     ProvinceId: 1,
-//     DistrictId: 3,
-//     WardId: 2,
-//     Address: 'HN',
-//     OrderDetail: {
-//       productPropertyId: 2,
-//       quantity: 1,
-//       warehouseId: 6,
-//       isPaid: true,
-//       accessory: 'Dây túi xách'
-//     },
-//     CampaignId: 1,
-//     VAT: 2,
-//     Status: 1
-//   }
-//   const formDataPayload = FORM_IMAGES(payload)
-//   addNewSpaOrders(formDataPayload)
-//   console.log('pay', payload)
-//   addNewSpaOrders(payload)
-// }
-
 // tạo đơn hàng
 
-const inputDiscount = ref()
 const postData = () => {
   // let productPayment = reactive<
   //   Array<{
@@ -713,77 +569,78 @@ const postData = () => {
   //     accessory: String
   //   }>
   // >([])
+  submitForm(ruleFormRef.value, ruleFormRef2.value)
+  if (checkValidateForm.value) {
+    const productPayment = JSON.stringify([
+      {
+        ProductPropertyId: 2,
+        Quantity: 1,
+        ProductPrice: 10000,
+        SoldPrice: 10000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory1'
+      },
+      {
+        ProductPropertyId: 3,
+        Quantity: 1,
+        ProductPrice: 90000,
+        SoldPrice: 80000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory2'
+      }
+    ])
+    // if (ListOfProductsForSale.length > 0) {
+    // ListOfProductsForSale.forEach((element) => {
+    // if (element && Array.isArray(element) && element.length > 0)
+    // element.forEach(() => {
+    // productPayment.push(
+    //   // {
+    //   //   ProductPropertyId: 2,
+    //   //   Quantity: 1,
+    //   //   ProductPrice: 10000,
+    //   //   SoldPrice: 10000,
+    //   //   WarehouseId: 1,
+    //   //   IsPaid: true,
+    //   //   Accessory: 'Accessory1'
+    //   // },
+    //   {
+    //     ProductPropertyId: 3,
+    //     Quantity: 1,
+    //     ProductPrice: 90000,
+    //     SoldPrice: 80000,
+    //     WarehouseId: 1,
+    //     IsPaid: true,
+    //     Accessory: 'Accessory2'
+    //   }
+    // )
+    // })
+    // })
+    // }
 
-  const productPayment = JSON.stringify([
-    {
-      ProductPropertyId: 2,
-      Quantity: 1,
-      ProductPrice: 10000,
-      SoldPrice: 10000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory1'
-    },
-    {
-      ProductPropertyId: 3,
-      Quantity: 1,
-      ProductPrice: 90000,
-      SoldPrice: 80000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory2'
+    const payload = {
+      ServiceType: 1,
+      OrderCode: ruleForm.orderCode,
+      PromotionCode: 'AA12',
+      CollaboratorId: ruleForm.collaborators,
+      CollaboratorCommission: ruleForm.collaboratorCommission,
+      Description: ruleForm.orderNotes,
+      CustomerId: 2,
+      DeliveryOptionId: 1,
+      ProvinceId: 1,
+      DistrictId: 1,
+      WardId: 1,
+      Address: 'trieu khuc',
+      OrderDetail: productPayment,
+      CampaignId: 2,
+      VAT: 1,
+      Status: 1
     }
-  ])
-  // if (ListOfProductsForSale.length > 0) {
-  // ListOfProductsForSale.forEach((element) => {
-  // if (element && Array.isArray(element) && element.length > 0)
-  // element.forEach(() => {
-  // productPayment.push(
-  //   // {
-  //   //   ProductPropertyId: 2,
-  //   //   Quantity: 1,
-  //   //   ProductPrice: 10000,
-  //   //   SoldPrice: 10000,
-  //   //   WarehouseId: 1,
-  //   //   IsPaid: true,
-  //   //   Accessory: 'Accessory1'
-  //   // },
-  //   {
-  //     ProductPropertyId: 3,
-  //     Quantity: 1,
-  //     ProductPrice: 90000,
-  //     SoldPrice: 80000,
-  //     WarehouseId: 1,
-  //     IsPaid: true,
-  //     Accessory: 'Accessory2'
-  //   }
-  // )
-  // })
-  // })
-  // }
-
-  const inputCode = ref('DHB039423')
-
-  const payload = {
-    ServiceType: 1,
-    OrderCode: inputCode.value,
-    PromotionCode: 'AA12',
-    CollaboratorId: 1,
-    CollaboratorCommission: inputDiscount.value,
-    Description: 'sadasd',
-    CustomerId: 2,
-    DeliveryOptionId: 1,
-    ProvinceId: 1,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 'trieu khuc',
-    OrderDetail: productPayment,
-    CampaignId: 2,
-    VAT: 1
+    const formDataPayLoad = FORM_IMAGES(payload)
+    console.log('postData', payload)
+    addNewSpaOrders(formDataPayLoad)
   }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  console.log('postData', payload)
-  addNewSpaOrders(formDataPayLoad)
 }
 
 interface User {
@@ -815,51 +672,35 @@ const chooseDelivery = [
 ]
 
 const ruleFormRef = ref<FormInstance>()
+const ruleFormRef2 = ref<FormInstance>()
 
 const ruleForm = reactive({
-  name: 'MS53623',
+  orderCode: 'DHB039423',
   collaborators: '',
+  dateOfReturn: '',
   collaboratorCommission: '',
   orderNotes: '',
   customersValue: '',
-  count: '',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  desc: ''
+  delivery: ''
 })
 
 const rules = reactive<FormRules>({
-  name: [{ required: true, message: 'Please input Activity name', trigger: 'blur' }],
+  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
   collaborators: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+    {
+      required: true,
+      message: 'Please select Activity zone',
+      trigger: 'change'
+    }
   ],
   collaboratorCommission: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
-  ],
-  orderNotes: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
-  ],
-  count: [
     {
       required: true,
       message: 'Please select Activity count',
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
-  customersValue: [
-    {
-      required: true,
-      message: 'Please select Activity count',
-      trigger: 'change'
-    }
-  ],
-  date1: [
+  dateOfReturn: [
     {
       type: 'date',
       required: true,
@@ -867,37 +708,32 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  date2: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a time',
-      trigger: 'change'
-    }
-  ],
-  type: [
-    {
-      type: 'array',
-      required: true,
-      message: 'Please select at least one activity type',
-      trigger: 'change'
-    }
-  ],
-  resource: [
+  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
+  customersValue: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  delivery: [
     {
       required: true,
       message: 'Please select activity resource',
       trigger: 'change'
     }
-  ],
-  desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
+  ]
 })
 
 const deliveryMethod = ref(chooseDelivery[0].value)
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
+let checkValidateForm = ref(false)
+const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+  console.log('ruleForm:', ruleForm)
+  if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      console.log('submit!')
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+  await formEl2.validate((valid, fields) => {
+    if (valid) {
+      checkValidateForm.value = true
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -931,19 +767,18 @@ const submitForm = async (formEl: FormInstance | undefined) => {
               status-icon
             >
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
-              <el-button @click="submitForm(ruleFormRef)">fawf</el-button>
-              <el-form-item :label="t('formDemo.orderCode')" prop="name">
+              <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  v-model="ruleForm.name"
+                  v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.deliveryDate')" prop="date1" required>
+              <el-form-item :label="t('formDemo.deliveryDate')" prop="dateOfReturn" required>
                 <div class="custom-date">
                   <el-date-picker
-                    v-model="ruleForm.date1"
+                    v-model="ruleForm.dateOfReturn"
                     type="date"
                     format="DD/MM/YYYY"
                     :placeholder="t('formDemo.returnDate')"
@@ -1050,7 +885,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         <div class="flex w-[100%]">
           <div class="w-[100%]">
             <el-form
-              ref="ruleFormRef"
+              ref="ruleFormRef2"
               :model="ruleForm"
               :rules="rules"
               label-width="165px"
@@ -1068,26 +903,24 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                 <div class="flex gap-6">
                   <div class="flex w-[50%]">
                     <div class="flex w-[100%] gap-4 items-center">
-                      <div class="flex items-center w-[79%] gap-4">
-                        <div class="flex w-[100%] gap-2 bg-transparent">
-                          <el-select
-                            v-model="ruleForm.customersValue"
-                            filterable
-                            :clearable="true"
-                            placeholder="Select"
-                            @change="changeAddressCustomer"
-                          >
-                            <el-option
-                              v-for="item in optionsCustomerApi"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                          <el-button @click="dialogAddQuick = true"
-                            >+ {{ t('button.add') }}</el-button
-                          >
-                        </div>
+                      <div class="flex w-[100%] gap-2">
+                        <el-select
+                          v-model="ruleForm.customersValue"
+                          filterable
+                          :clearable="true"
+                          placeholder="Select"
+                          @change="changeAddressCustomer"
+                        >
+                          <el-option
+                            v-for="item in optionsCustomerApi"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                        <el-button @click="dialogAddQuick = true"
+                          >+ {{ t('button.add') }}</el-button
+                        >
                       </div>
 
                       <el-dialog
@@ -1267,12 +1100,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
               <div class="flex w-[100%] gap-6">
                 <div class="w-[50%] pl-[8%]">
                   <p
-                    v-if="customersValue !== ''"
+                    v-if="ruleForm.customersValue !== ''"
                     class="max-w-[698.39px] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]"
                     >{{ t('formDemo.noDebt') }}</p
                   >
                 </div>
-                <div class="flex w-[50%] gap-4" v-if="customersValue !== ''">
+                <div class="flex w-[50%] gap-4" v-if="ruleForm.customersValue !== ''">
                   <p class="w-[16%] ml-2 text-[#828387] text-right">{{
                     t('formDemo.deliveryAddress')
                   }}</p>
@@ -1377,7 +1210,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
               </div>
 
               <el-form-item :label="t('reuse.customerInfo')">
-                <div class="w-[100%]" v-if="customersValue !== ''">
+                <div class="w-[100%]" v-if="ruleForm.customersValue !== ''">
                   <div class="leading-6 mt-2">
                     <div>nguyễn phương linh</div>
                     <div>Số điện thoại: 094345355</div>

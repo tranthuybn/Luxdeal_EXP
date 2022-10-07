@@ -13,83 +13,28 @@ import {
   ElButton,
   ElDropdown,
   ElDropdownItem,
-  ElDropdownMenu
+  ElDropdownMenu,
+  FormRules,
+  ElForm,
+  ElFormItem,
+  ElInput
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
-import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useForm } from '@/hooks/web/useForm'
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const { t } = useI18n()
 
-const schema = reactive<FormSchema[]>([
-  {
-    field: 'information',
-    label: t('router.analysis'),
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'discountCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'promotion',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'duration',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'desc',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('reuse.descriptions')
-    }
-  },
-  {
-    field: 'applicableObject',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'selectObject',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  }
-])
-
-const { register } = useForm()
-
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 const collapse: Array<Collapse> = [
   {
@@ -159,6 +104,51 @@ const tableData = [
   }
 ]
 
+const ruleForm = reactive({
+  orderCode: 'DHB039423',
+  collaborators: '',
+  dateOfReturn: '',
+  collaboratorCommission: '',
+  orderNotes: '',
+  customersValue: '',
+  delivery: ''
+})
+
+const rules = reactive<FormRules>({
+  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  collaborators: [
+    {
+      required: true,
+      message: 'Please select Activity zone',
+      trigger: 'change'
+    }
+  ],
+  collaboratorCommission: [
+    {
+      required: true,
+      message: 'Please select Activity count',
+      trigger: 'blur'
+    }
+  ],
+  dateOfReturn: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Please pick a date',
+      trigger: 'change'
+    }
+  ],
+  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
+  customersValue: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  delivery: [
+    {
+      required: true,
+      message: 'Please select activity resource',
+      trigger: 'change'
+    }
+  ]
+})
+
 const radioOptionCustomer = ref('2')
 
 const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
@@ -177,29 +167,25 @@ const awesome = ref(true)
 
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
-            <Form
-              :schema="schema"
-              label-position="top"
-              hide-required-asterisk
-              size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
-              @register="register"
+            <el-form
+              ref="ruleFormRef"
+              :model="ruleForm"
+              :rules="rules"
+              label-width="165px"
+              class="demo-ruleForm"
+              status-icon
             >
-              <template #discountCode>
-                <div class="discountCode">
-                  <p
-                    >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
-                  >
-                </div>
-              </template>
-              <template #promotion>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] leading-5 text-right" for=""
-                    >{{ t('formDemo.promotions') }} <span style="color: red">*</span>
-                  </label>
+              <el-divider content-position="left">{{ t('router.analysis') }}</el-divider>
+              <div class="discountCode">
+                <p
+                  >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
+                >
+              </div>
 
-                  <div class="flex w-[80%] gap-2">
-                    <div class="w-[50%] items-center border-1 rounded">
+              <el-form-item :label="t('formDemo.promotions')">
+                <div class="flex items-center w-[100%] gap-2">
+                  <el-form-item style="flex: 1">
+                    <div class="w-[100%] items-center items-center border-1 rounded leading-7">
                       <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
                           <span
@@ -253,17 +239,19 @@ const awesome = ref(true)
                         </template>
                       </el-dropdown>
                     </div>
-                    <div class="flex items-center w-[50%] border-1 rounded">
-                      <input
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
-                        type="text"
-                        :placeholder="t('formDemo.enterPercent')"
-                      />
-                      <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
-                    </div>
-                  </div>
+                  </el-form-item>
+
+                  <el-form-item style="flex: 1">
+                    <el-input
+                      type="text"
+                      :placeholder="t('formDemo.enterPercent')"
+                      style="width: 100%"
+                      :suffix-icon="percentIcon"
+                    />
+                  </el-form-item>
                 </div>
-              </template>
+              </el-form-item>
+
               <template #duration>
                 <div class="flex items-center w-[100%] gap-4">
                   <label class="w-[15%] leading-5 text-right" for=""
@@ -394,7 +382,7 @@ const awesome = ref(true)
                   </div>
                 </div>
               </template>
-            </Form>
+            </el-form>
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -483,6 +471,13 @@ const awesome = ref(true)
 ::v-deep(.el-select) {
   width: 100%;
 }
+
+::v-deep(.custom-date .el-input__wrapper) {
+  width: 100%;
+}
+::v-deep(.custom-date .el-date-editor) {
+  width: 100%;
+}
 ::v-deep(.el-table .cell) {
   word-break: break-word;
 }
@@ -505,6 +500,10 @@ const awesome = ref(true)
   display: block;
 }
 
+::v-deep(.el-input) {
+  width: auto;
+  height: fit-content;
+}
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
     max-width: 100%;

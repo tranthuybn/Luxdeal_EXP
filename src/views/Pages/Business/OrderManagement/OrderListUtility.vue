@@ -34,7 +34,8 @@ import {
   getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
-  addNewOrderList
+  addNewOrderList,
+  getSellOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -43,6 +44,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 const { t } = useI18n()
 
 const ruleFormRef = ref<FormInstance>()
+const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
@@ -79,12 +81,22 @@ const rules = reactive<FormRules>({
   ]
 })
 
-const submitForm = async (formEl: FormInstance | undefined) => {
+let checkValidate = ref(false)
+
+const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   console.log('ruleForm:', ruleForm)
-  if (!formEl) return
+  if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
       console.log('submit!')
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+  await formEl2.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+      checkValidate.value = true
     } else {
       console.log('error submit!', fields)
     }
@@ -135,6 +147,24 @@ const collapse: Array<Collapse> = [
     icon: plusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  },
+  {
+    icon: plusIcon,
+    name: 'debtHistory',
+    title: t('formDemo.debtHistory'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -398,7 +428,7 @@ const changeAddressCustomer = (data) => {
     customerAddress.value = ''
     deliveryMethod.value = ''
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
+  console.log('infoCompany: ', infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -539,18 +569,7 @@ const removeListProductsSale = (index) => {
   }
 }
 
-//lay du lieu tu router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
-console.log('id: ', id)
-console.log('type: ', type)
-
 // tạo đơn hàng
-
-// const inputDiscount = ref()
-// const inputOrderNotes = ref()
 
 const postData = () => {
   // let productPayment = reactive<
@@ -564,75 +583,77 @@ const postData = () => {
   //     accessory: String
   //   }>
   // >([])
-
-  const productPayment = JSON.stringify([
-    {
-      ProductPropertyId: 2,
-      Quantity: 1,
-      ProductPrice: 10000,
-      SoldPrice: 10000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory1'
-    },
-    {
-      ProductPropertyId: 3,
-      Quantity: 1,
-      ProductPrice: 90000,
-      SoldPrice: 80000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory2'
+  submitForm(ruleFormRef.value, ruleFormRef2.value)
+  if (checkValidate.value) {
+    const productPayment = JSON.stringify([
+      {
+        ProductPropertyId: 2,
+        Quantity: 1,
+        ProductPrice: 10000,
+        SoldPrice: 10000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory1'
+      },
+      {
+        ProductPropertyId: 3,
+        Quantity: 1,
+        ProductPrice: 90000,
+        SoldPrice: 80000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory2'
+      }
+    ])
+    // if (ListOfProductsForSale.length > 0) {
+    // ListOfProductsForSale.forEach((element) => {
+    // if (element && Array.isArray(element) && element.length > 0)
+    // element.forEach(() => {
+    // productPayment.push(
+    //   // {
+    //   //   ProductPropertyId: 2,
+    //   //   Quantity: 1,
+    //   //   ProductPrice: 10000,
+    //   //   SoldPrice: 10000,
+    //   //   WarehouseId: 1,
+    //   //   IsPaid: true,
+    //   //   Accessory: 'Accessory1'
+    //   // },
+    //   {
+    //     ProductPropertyId: 3,
+    //     Quantity: 1,
+    //     ProductPrice: 90000,
+    //     SoldPrice: 80000,
+    //     WarehouseId: 1,
+    //     IsPaid: true,
+    //     Accessory: 'Accessory2'
+    //   }
+    // )
+    // })
+    // })
+    // }
+    const payload = {
+      ServiceType: 1,
+      OrderCode: ruleForm.orderCode,
+      PromotionCode: 'AA12',
+      CollaboratorId: ruleForm.collaborators,
+      CollaboratorCommission: ruleForm.discount,
+      Description: ruleForm.orderNotes,
+      CustomerId: ruleForm.customerName,
+      DeliveryOptionId: 1,
+      ProvinceId: 1,
+      DistrictId: 1,
+      WardId: 1,
+      Address: 'trieu khuc',
+      OrderDetail: productPayment,
+      CampaignId: 2,
+      VAT: 1,
+      Status: 1
     }
-  ])
-  // if (ListOfProductsForSale.length > 0) {
-  // ListOfProductsForSale.forEach((element) => {
-  // if (element && Array.isArray(element) && element.length > 0)
-  // element.forEach(() => {
-  // productPayment.push(
-  //   // {
-  //   //   ProductPropertyId: 2,
-  //   //   Quantity: 1,
-  //   //   ProductPrice: 10000,
-  //   //   SoldPrice: 10000,
-  //   //   WarehouseId: 1,
-  //   //   IsPaid: true,
-  //   //   Accessory: 'Accessory1'
-  //   // },
-  //   {
-  //     ProductPropertyId: 3,
-  //     Quantity: 1,
-  //     ProductPrice: 90000,
-  //     SoldPrice: 80000,
-  //     WarehouseId: 1,
-  //     IsPaid: true,
-  //     Accessory: 'Accessory2'
-  //   }
-  // )
-  // })
-  // })
-  // }
-  const payload = {
-    ServiceType: 1,
-    OrderCode: ruleForm.orderCode,
-    PromotionCode: 'AA12',
-    CollaboratorId: ruleForm.collaborators,
-    CollaboratorCommission: ruleForm.discount,
-    Description: ruleForm.orderNotes,
-    CustomerId: 2,
-    DeliveryOptionId: 1,
-    ProvinceId: 1,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 'trieu khuc',
-    OrderDetail: productPayment,
-    CampaignId: 2,
-    VAT: 1,
-    Status: 1
+    const formDataPayLoad = FORM_IMAGES(payload)
+    console.log('postData', payload)
+    addNewOrderList(formDataPayLoad)
   }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  console.log('postData', payload)
-  addNewOrderList(formDataPayLoad)
 }
 
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -651,14 +672,36 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-// const wardChange = async (value) => {
-//   street.value = await getStreet(value)
-// }
+//lay du lieu tu router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+console.log('id: ', id)
+console.log('type: ', type)
+
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  console.log('checkDisabled: ', checkDisabled.value)
+  if (type == 'edit' || type == 'detail') {
+    const res = await getSellOrderList({ Id: id })
+    console.log(res.data)
+    if (res.data) {
+      ruleForm.orderCode = res.data[0].code
+      ruleForm.collaborators = res.data[0].collaboratorCode
+      ruleForm.discount = res.data[0].collaboratorCode
+      ruleForm.customerName = res.data[0].userName
+      ruleForm.orderNotes = res.data[0].description
+    }
+  }
+}
+
+const checkDisabled = ref(false)
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
   callApiCity()
+  editData()
 })
 </script>
 
@@ -671,7 +714,6 @@ onBeforeMount(() => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
-      <el-button @click="submitForm(ruleFormRef)">Check</el-button>
       <!-- Dialog thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -817,15 +859,22 @@ onBeforeMount(() => {
               status-icon
             >
               <div class="text-sm text-[#303133] font-medium pb-4 pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.orderInformation')
+                }}</el-divider>
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input style="width: 100%" v-model="ruleForm.orderCode" />
+                <el-input
+                  :disabled="checkDisabled"
+                  style="width: 100%"
+                  v-model="ruleForm.orderCode"
+                />
               </el-form-item>
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
@@ -843,6 +892,7 @@ onBeforeMount(() => {
                   <el-form-item prop="discount" label-width="0">
                     <div class="flex items-center">
                       <el-input
+                        :disabled="checkDisabled"
                         v-model="ruleForm.discount"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
@@ -853,7 +903,11 @@ onBeforeMount(() => {
                 </div>
               </div>
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input v-model="ruleForm.orderNotes" :placeholder="t('formDemo.addNotes')" />
+                <el-input
+                  :disabled="checkDisabled"
+                  v-model="ruleForm.orderNotes"
+                  :placeholder="t('formDemo.addNotes')"
+                />
               </el-form-item>
             </el-form>
           </div>
@@ -869,7 +923,12 @@ onBeforeMount(() => {
                 }}</div>
               </div>
               <div class="pl-4">
-                <el-upload action="#" list-type="picture-card" :auto-upload="false">
+                <el-upload
+                  action="#"
+                  list-type="picture-card"
+                  :disabled="checkDisabled"
+                  :auto-upload="false"
+                >
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -910,7 +969,7 @@ onBeforeMount(() => {
         <div class="flex w-[100%]">
           <div class="w-[100%]">
             <el-form
-              ref="ruleFormRef"
+              ref="ruleFormRef2"
               :model="ruleForm"
               status-icon
               :rules="rules"
@@ -932,6 +991,7 @@ onBeforeMount(() => {
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
+                            :disabled="checkDisabled"
                             v-model="ruleForm.customerName"
                             filterable
                             :clearable="true"
@@ -945,7 +1005,7 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
-                          <el-button @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -963,6 +1023,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
+                          :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
@@ -1113,7 +1174,7 @@ onBeforeMount(() => {
                 <div class="flex" v-if="ruleForm.customerName !== ''">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== undefined">
+                    <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
@@ -1399,7 +1460,51 @@ onBeforeMount(() => {
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </el-table-column>
         </el-table>
-        <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
+
+        <div class="w-[100%]">
+          <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
+        </div>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[84%] pl-1">
+            <el-radio-group v-model="radio1" class="ml-4">
+              <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio>
+              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
+              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
+              <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
+              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio>
+            </el-radio-group>
+          </div>
+        </div>
+        <div class="flex gap-2 pb-8">
+          <div class="w-[11%]"></div>
+          <div class="w-[89%]"
+            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
+              t('formDemo.changedUnitPriceIsWaitingForPriceApproval')
+            }}</span>
+          </div>
+        </div>
+
+        <div class="w-[100%] flex gap-2">
+          <div class="w-[12%]"></div>
+          <div class="w-[100%] flex ml-1 gap-4">
+            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
+            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
+            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
+              t('formDemo.complete')
+            }}</el-button>
+            <el-button type="danger" class="min-w-42 min-h-11">{{
+              t('button.cancelOrder')
+            }}</el-button>
+          </div>
+        </div>
+      </el-collapse-item>
+      <el-collapse-item :name="collapse[2].name">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[2].icon" link />
+          <span class="text-center text-xl">{{ collapse[2].title }}</span>
+        </template>
         <el-table :data="debtTable" border>
           <el-table-column
             prop="dateOfPayment"
@@ -1487,63 +1592,33 @@ onBeforeMount(() => {
               <el-checkbox v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="90" align="center">
+          <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="150" align="center">
             <template #default="scope">
-              <button
-                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                @click.prevent="deleteRowDebtTable(scope.$index)"
-              >
-                {{ t('reuse.delete') }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+                >
+                  {{ t('reuse.detail') }}
+                </button>
+                <button
+                  class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
+                  @click.prevent="deleteRowDebtTable(scope.$index)"
+                >
+                  {{ t('reuse.delete') }}
+                </button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
         <el-button class="ml-4 mt-4" @click="onAddDebtTableItem"
           >+ {{ t('formDemo.add') }}</el-button
         >
-        <div class="w-[100%]">
-          <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
-        </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
-          <div class="w-[84%] pl-1">
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio>
-              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
-              <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio>
-            </el-radio-group>
-          </div>
-        </div>
-        <div class="flex gap-2 pb-8">
-          <div class="w-[11%]"></div>
-          <div class="w-[89%]"
-            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-              t('formDemo.changedUnitPriceIsWaitingForPriceApproval')
-            }}</span>
-          </div>
-        </div>
-
-        <div class="w-[100%] flex gap-2">
-          <div class="w-[12%]"></div>
-          <div class="w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.complete')
-            }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
-              t('button.cancelOrder')
-            }}</el-button>
-          </div>
-        </div>
       </el-collapse-item>
-      <el-collapse-item :name="collapse[2].name">
+
+      <el-collapse-item :name="collapse[3].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[2].icon" link />
-          <span class="text-center text-xl">{{ collapse[2].title }}</span>
+          <el-button class="header-icon" :icon="collapse[3].icon" link />
+          <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
           <el-divider content-position="left">{{
@@ -1582,7 +1657,7 @@ onBeforeMount(() => {
               />
             </el-table-column>
 
-            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
+            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="150" />
             <el-table-column prop="dram" :label="`${t('reuse.dram')}`" align="center" width="120" />
 
             <el-table-column

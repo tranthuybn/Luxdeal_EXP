@@ -371,7 +371,8 @@ export default {
     wards: 'Phường/xã',
     condition: 'Điều kiện',
     comboGetFree: 'Combo nhận miễn phí',
-    totalFeePayable: 'Tổng tiền phí phải thu'
+    totalFeePayable: 'Tổng tiền phí phải thu',
+    debtHistory: 'Lịch sử công nợ'
   },
   button: {
     add: 'Thêm nhanh',

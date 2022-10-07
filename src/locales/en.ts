@@ -365,7 +365,8 @@ export default {
     provinceAndCity: 'Province/city',
     countyAndDistrict: 'Country/district',
     wards: 'Wards',
-    totalFeePayable: 'Total fee payable'
+    totalFeePayable: 'Total fee payable',
+    debtHistory: 'Debt history'
   },
   button: {
     add: 'Add quick',

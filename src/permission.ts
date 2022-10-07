@@ -48,7 +48,7 @@ router.beforeEach(async (to, from, next) => {
       const roleRouters = wsCache.get('roleRouters') || []
       const userInfo = wsCache.get(appStore.getUserInfo)
 
-      await permissionStore.generateRoutes(userInfo.role, roleRouters as AppCustomRouteRecordRaw[])
+      await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')
 
       permissionStore.getAddRouters.forEach((route) => {
         router.addRoute(route as unknown as RouteRecordRaw) // Dynamic adding accessible routing table

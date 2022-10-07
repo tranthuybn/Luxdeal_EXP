@@ -1252,6 +1252,9 @@ export default {
     moneyDeposit: 'Money deposit',
     moneyUsed: 'Money used',
     statusPoint: 'Status point',
+    codeRequest: 'Code request',
+    waitingConfirm: 'Waiting confirm',
+    confirmed: 'Confirmed',
     bank: 'Bank',
     selectBank: 'Select bank',
     notSave: 'Not save yet',
@@ -1262,6 +1265,15 @@ export default {
     gold: 'Gold',
     platinum: 'Platinum',
     cantChooseSameProductCode: 'Cant choose the same code for product',
-    cantFindDataOfProduct: 'Cant find data of product'
+    cantFindDataOfProduct: 'Cant find data of product',
+    newCreate: 'New create',
+    chooseReceiptAndPayment: 'Choose receipt and payment',
+    choosePaymentProposal: 'Choose payment proposal',
+    addNewVirtualWalletRequest: 'Add new virtual wallet request',
+    detailVirtualWalletRequest: 'Detail virtual wallet request',
+    addNewMoneyPaymentCode: 'Add new money payment code',
+    moneyPaymentCode: 'Money payment code',
+    alreadyPaid: 'Already paid',
+    notPaid: 'Not paid'
   }
 }

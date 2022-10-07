@@ -5,6 +5,16 @@ interface Filter {
   text: string
   value: any
 }
+export const filterPaymentCheckbox: Array<Filter> = [
+  { text: t('reuse.alreadyPaid'), value: true },
+  { text: t('reuse.notPaid'), value: false }
+]
+export const filterPaymentWalletStatus: Array<Filter> = [
+  { text: t('reuse.waitingConfirm'), value: 1 },
+  { text: t('reuse.confirmed'), value: 2 },
+  { text: t('common.doneLabel'), value: 3 },
+  { text: t('reuse.cancelled'), value: 4 }
+]
 export const filterStatusCustomerRatings: Array<Filter> = [
   { text: t('reuse.active'), value: 1 },
   { text: t('reuse.inactive'), value: 2 },
@@ -94,6 +104,10 @@ export const filterAuctionResult: Array<Filter> = [
 export const filterProductStatus: Array<Filter> = [
   { text: t('reuse.active'), value: true },
   { text: t('reuse.inactive'), value: false }
+]
+export const filterPending: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 }
 ]
 export const filterTableStatus: Array<Filter> = [
   { text: t('reuse.active'), value: 1 },

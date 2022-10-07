@@ -269,6 +269,40 @@ export const addNewCollaborators = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getCustomerRanking = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RANKING}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRatingsById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RAINGS_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCustomerRatings = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${CUSTOMER_API.UPDATE_CUSTOMER_RATINGS}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteCustomerRating = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CUSTOMER_API.DELETE_CUSTOMER_RATING}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const updateCollaborators = async (data): Promise<IResponse> => {
   const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data

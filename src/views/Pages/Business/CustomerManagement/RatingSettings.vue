@@ -5,7 +5,7 @@ import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
-import { getCustomerRatings } from '@/api/Business'
+import { getCustomerRatings, deleteCustomerRating } from '@/api/Business'
 import { Collapse } from '../../Components/Type'
 import { filterProductStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
@@ -148,6 +148,7 @@ const columns = reactive<TableColumn[]>([
           :columns="columns"
           :api="getCustomerRatings"
           :selection="false"
+          :delApi="deleteCustomerRating"
           :remove-drawer="true"
           :remove-header-filter="true"
           :pagination="false"

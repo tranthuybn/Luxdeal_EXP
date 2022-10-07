@@ -109,7 +109,7 @@ const formValue = ref()
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
-    const res = await props.apiId({ ...props.params, id: props.id })
+    const res = await props.apiId({ ...props.params, Id: props.id })
     if (res) {
       if (res.data?.list !== undefined) {
         formValue.value = res.data.list[0]

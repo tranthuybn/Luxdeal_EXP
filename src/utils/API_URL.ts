@@ -49,7 +49,11 @@ export const CUSTOMER_API = {
   PUT_COLLABORATOR_API: 'api/v1/Customer/UpdateCollaborator',
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers',
   GET_CUSTOMER_RATINGS: '/api/v1/Customer/getCustomerRatings',
-  ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings'
+  ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings',
+  GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
+  UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
+  GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
+  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings'
 }
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',

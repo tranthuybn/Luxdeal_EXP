@@ -980,6 +980,7 @@ export default {
     byYear: 'Theo năm',
     receiveConsignmentGoodsAtCounter: 'Nhận hàng ký gửi gửi tại quầy',
     receivePawnGoodsAtCounter: 'Nhận hàng cầm đồ tại quầy',
+    receivePawn: 'Nhận hàng cầm đồ',
     receiveConsignment: 'Nhận hàng ký gửi',
     pawnMoney: 'Tiền gốc cầm đồ',
     pawnfeeMoney: 'Tiền phí cầm đồ',

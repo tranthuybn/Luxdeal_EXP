@@ -656,101 +656,6 @@ const rules = reactive<FormRules>({
                 />
               </el-form-item>
             </el-form>
-
-            <!-- <Form
-              :schema="schema"
-              label-position="top"
-              hide-required-asterisk
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-transparent"
-              @register="register"
-            >
-              <template #orderCode>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
-                  <input
-                    v-model="inputCode"
-                    class="w-[80%] border-1 w-[100%] outline-none pl-2 rounded"
-                    type="text"
-                    :placeholder="`${t('formDemo.enterOrderCode')}`"
-                  />
-                </div>
-              </template>
-              <template #depositTerm>
-                <div class="flex items-center w-[100%] gap-4">
-                  <div class="w-[15%] ml-2 text-right leading-5">
-                    <label class="w-[15%] leading-5" for="">{{ t('formDemo.depositTerm') }}</label>
-                    <p class="text-[#FECB80]">{{ t('formDemo.atLeast14Days') }}</p>
-                  </div>
-
-                  <div class="flex w-[80%] gap-2">
-                    <el-date-picker
-                      v-model="dateTime"
-                      type="daterange"
-                      :start-placeholder="t('formDemo.startDay')"
-                      :end-placeholder="t('formDemo.endDay')"
-                      format="DD/MM/YYYY"
-                    />
-                  </div>
-                </div>
-              </template>
-              <template #collaborators>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.collaborators') }}</label>
-                  <div class="flex w-[80%] gap-2">
-                    <div class="w-[50%] input-width">
-                      <el-select
-                        v-model="collaboratorsValue"
-                        :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
-                        filterable
-                      >
-                        <el-option
-                          v-for="(item, index) in optionsCollaborators"
-                          :key="index"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                    </div>
-                    <div class="flex items-center w-[50%] border-1 rounded">
-                      <input
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent rounded"
-                        type="text"
-                        :placeholder="`${t('formDemo.enterDiscount')}`"
-                      />
-                      <Icon class="mr-3" icon="material-symbols:percent" :size="16" />
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <template #orderNotes>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right leading-5" for="">{{
-                    t('formDemo.orderNotes')
-                  }}</label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 rounded"
-                    type="text"
-                    :placeholder="`${t('formDemo.addNotes')}`"
-                  />
-                </div>
-              </template>
-              <template #customerName>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[16%] text-right" for="">{{ t('formDemo.customerName') }}</label>
-                  <div class="flex w-[84%] gap-2">
-                    <input class="w-[80%] border-1 outline-none pl-2 rounded" type="text" />
-                  </div>
-                </div>
-              </template>
-
-              <template #debt>
-                <div class="flex items-center w-[100%]">
-                  <div class="ml-[17%] w-[80%] bg-[#f4f8fd] dark:bg-[#3B3B3B] text-blue-500">
-                    <p class="ml-2">{{ t('formDemo.noDebt') }}</p>
-                  </div>
-                </div>
-              </template>
-            </Form> -->
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -1025,12 +930,12 @@ const rules = reactive<FormRules>({
               <div class="flex w-[100%] gap-6">
                 <div class="w-[50%] pl-[8%]">
                   <p
-                    v-if="ruleForm.customersValue !== ''"
+                    v-if="ruleForm.collaborators !== ''"
                     class="max-w-[698.39px] bg-[#F4F8FD] ml-3 pl-2 text-blue-500 dark:bg-[#3B3B3B]"
                     >{{ t('formDemo.noDebt') }}</p
                   >
                 </div>
-                <div class="flex w-[50%] gap-4" v-if="ruleForm.customersValue !== ''">
+                <div class="flex w-[50%] gap-4" v-if="ruleForm.collaborators !== ''">
                   <p class="w-[16%] ml-2 text-[#828387] text-right">{{
                     t('formDemo.deliveryAddress')
                   }}</p>
@@ -1135,7 +1040,7 @@ const rules = reactive<FormRules>({
               </div>
 
               <el-form-item :label="t('reuse.customerInfo')">
-                <div class="w-[100%]" v-if="ruleForm.customersValue !== ''">
+                <div class="w-[100%]" v-if="ruleForm.collaborators !== ''">
                   <div class="leading-6 mt-2">
                     <div>nguyễn phương linh</div>
                     <div>Số điện thoại: 094345355</div>

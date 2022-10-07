@@ -680,7 +680,7 @@ export default {
     result: 'Result',
     receiveConsignmentGoodsAtCounter: 'Receive consignment good at counter',
     receivePawnGoodsAtCounter: 'Receive pawn good at counter',
-
+    receivePawn: 'Receive pawn',
     receiveConsignment: 'Receive consignment',
     order: 'Order',
     feedBack: 'Feedback',

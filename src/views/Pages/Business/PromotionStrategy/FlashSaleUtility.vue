@@ -154,6 +154,21 @@ const radioOptionCustomer = ref('2')
 const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
 const valueSwitch = ref(true)
 const awesome = ref(true)
+const promotionValue = ref(t('formDemo.decreaseByPercent'))
+const optionPromotion = [
+  {
+    value: t('formDemo.decreaseByPercent'),
+    label: t('formDemo.decreaseByPercent')
+  },
+  {
+    value: t('formDemo.decreaseByAmount'),
+    label: t('formDemo.decreaseByAmount')
+  },
+  {
+    value: t('formDemo.noPromotion'),
+    label: t('formDemo.noPromotion')
+  }
+]
 </script>
 
 <template>
@@ -186,7 +201,15 @@ const awesome = ref(true)
                 <div class="flex items-center w-[100%] gap-2">
                   <el-form-item style="flex: 1">
                     <div class="w-[100%] items-center items-center border-1 rounded leading-7">
-                      <el-dropdown trigger="click" class="w-[100%] h-[100%]">
+                      <el-select v-model="promotionValue" clearable placeholder="Select">
+                        <el-option
+                          v-for="item in optionPromotion"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                      <!-- <el-dropdown trigger="click" class="w-[100%] h-[100%]">
                         <div class="flex justify-between w-[100%] items-center black-color">
                           <span
                             class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold dark:text-light-50 ml-2"
@@ -237,7 +260,7 @@ const awesome = ref(true)
                             </el-dropdown-item>
                           </el-dropdown-menu>
                         </template>
-                      </el-dropdown>
+                      </el-dropdown> -->
                     </div>
                   </el-form-item>
 

@@ -351,7 +351,7 @@ let infoCompany = reactive({
 
 let customerAddress = ref('')
 // Call api danh sách khách hàng
-const customersValue = ref('')
+// const ruleForm.customerName = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -984,13 +984,13 @@ onBeforeMount(() => {
                 <div class="w-[50%]">
                   <el-form-item>
                     <p
-                      v-if="customersValue !== ''"
+                      v-if="ruleForm.customerName !== ''"
                       class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
                 </div>
-                <div class="flex w-[50%] gap-2 items-center" v-if="customersValue !== ''">
+                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
                   <p class="w-[150px] ml-2 text-[#828387] text-right">{{
                     t('formDemo.deliveryAddress')
                   }}</p>
@@ -1110,7 +1110,7 @@ onBeforeMount(() => {
                 </div>
               </div>
               <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="customersValue !== ''">
+                <div class="flex" v-if="ruleForm.customerName !== ''">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div v-if="infoCompany.taxCode !== undefined">

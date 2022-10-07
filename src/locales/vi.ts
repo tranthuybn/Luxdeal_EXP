@@ -1363,6 +1363,8 @@ export default {
     choosePaymentProposal: 'Chọn đè',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
     detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
-    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền'
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
+    authorized: 'Tài khoản chưa được phân quyền',
+    accountInfo: 'Không có thông tin tài khoản '
   }
 }

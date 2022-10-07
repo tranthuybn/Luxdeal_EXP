@@ -1275,6 +1275,8 @@ export default {
     addNewMoneyPaymentCode: 'Add new money payment code',
     moneyPaymentCode: 'Money payment code',
     alreadyPaid: 'Already paid',
-    notPaid: 'Not paid'
+    notPaid: 'Not paid',
+    authorized: 'Account is not authorized',
+    accountInfo: 'Have no clue about account'
   }
 }

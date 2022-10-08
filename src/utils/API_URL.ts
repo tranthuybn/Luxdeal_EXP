@@ -30,7 +30,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_TAGS: '/api/v1/Product/GetTag',
   GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
-  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers'
+  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
+  POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

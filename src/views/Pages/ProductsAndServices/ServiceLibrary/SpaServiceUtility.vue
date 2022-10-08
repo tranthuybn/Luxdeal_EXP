@@ -9,11 +9,17 @@ import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-pl
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
 import moment from 'moment'
+import { FORM_IMAGES } from '@/utils/format'
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+// get data from router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',
@@ -126,7 +132,7 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('formDemo.status'),
     component: 'Checkbox',
-    value: [],
+    disabled: type === 'add',
     colProps: {
       span: 18
     },
@@ -157,11 +163,13 @@ const rules = reactive({
   shortDescription: [
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkNameLength.validator },
+    { validator: notSpecialCharacters },
     required()
   ],
   description: [
     { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkNameLength.validator }
+    { validator: ValidService.checkNameLength.validator },
+    required()
   ],
   cost: [
     { validator: ValidService.checkSpace.validator },
@@ -209,16 +217,9 @@ const addFormSchema = async (timesCallAPI) => {
   }
 }
 
-// get data from router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
-  console.log('formData', formData)
-
   formDataCustomize.value.Images = formData.photos
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -241,7 +242,7 @@ type FormDataPost = {
   Photo?: any
   UpdatedBy: string
   CreatedBy: string
-  IsActive: boolean
+  IsActive?: boolean
   IsApproved: boolean
   UpdatedAt: string
   CreatedAt: string
@@ -268,8 +269,15 @@ const customPostData = (data) => {
   customData.CreatedBy = 'anle'
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
-  data.status.includes('active') ? (customData.IsActive = true) : (customData.IsActive = false)
-  data.status.includes('') ? (customData.IsActive = false) : (customData.IsActive = true)
+  if (type === 'add') {
+    customData.IsActive = true
+  } else {
+    data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
+    data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
+  }
+
+  // data.status.includes(['active']) ? (customData.IsActive = true) : (customData.IsActive = false)
+  // data.status.includes([]) ? (customData.IsActive = false) : (customData.IsActive = true)
   customData.IsApproved = true
   return customData
 }
@@ -280,6 +288,7 @@ const editData = async (data) => {
     DeletedImages: data.DeleteFileIds.toString(),
     NewPhotos: data.Images
   }
+  console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
     .then(() =>
       ElNotification({
@@ -295,12 +304,8 @@ const editData = async (data) => {
     )
 }
 const postData = async (data) => {
-  console.log(data)
-
   data = customPostData(data)
-  console.log(data)
-
-  await postSpa(data)
+  await postSpa(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
         message: t('reuse.addSuccess'),
@@ -365,7 +370,6 @@ const activeName = ref('information')
           <span class="text-center">{{ item.title }}</span>
         </template>
         <TableOperator
-          ref="formRef"
           :apiId="getSpaById"
           :schema="schema"
           :title="item.title"

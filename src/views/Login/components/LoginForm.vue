@@ -2,9 +2,9 @@
 import { reactive, ref, unref, watch } from 'vue'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElCheckbox, ElLink } from 'element-plus'
+import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
-import { loginApi, getTestRoleApi, getAdminRoleApi } from '@/api/login'
+import { loginApi, getRoutesAsRolesApi } from '@/api/login'
 import { useCache } from '@/hooks/web/useCache'
 import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
@@ -54,7 +54,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'password',
     label: t('login.password'),
-    value: 'admin',
+    value: '123456',
     component: 'InputPassword',
     colProps: {
       span: 24
@@ -127,9 +127,8 @@ const signIn = async () => {
 
       try {
         const res = await loginApi(formData)
-
         if (res) {
-          wsCache.set(appStore.getUserInfo, res.data)
+          await wsCache.set(appStore.getUserInfo, res.data)
           getRole()
         }
       } finally {
@@ -141,30 +140,35 @@ const signIn = async () => {
 
 // Get role information
 const getRole = async () => {
-  const { getFormData } = methods
-  const formData = await getFormData<UserType>()
-  const params = {
-    roleName: formData.username
-  }
-  // admin - Simulation rear filter menu
-  // test - Simulate front -end filter menu
-  const res =
-    formData.username === 'admin' ? await getAdminRoleApi(params) : await getTestRoleApi(params)
-  if (res) {
-    const { wsCache } = useCache()
-    const routers = res.data || []
-    wsCache.set('roleRouters', routers)
+  // get role will return all router's names
+  const userInfo = wsCache.get(appStore.getUserInfo)
+  if (Array.isArray(userInfo.role) && userInfo.role.length > 0) {
+    // get role list
+    const res = await getRoutesAsRolesApi({ roleName: userInfo?.role })
+    if (res && res.data) {
+      const { wsCache } = useCache()
+      // save roles in local storage
+      const routers = res.data
+      wsCache.set('roleRouters', routers)
+      //  generate router by roles
+      await permissionStore.generateRoutes(routers, 'client').catch(() => {})
 
-    formData.username === 'admin'
-      ? await permissionStore.generateRoutes('admin', routers).catch(() => {})
-      : await permissionStore.generateRoutes('test', routers).catch(() => {})
-
-    permissionStore.getAddRouters.forEach((route) => {
-      addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
+      permissionStore.getAddRouters.forEach((route) => {
+        addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
+      })
+      permissionStore.setIsAddRouters(true)
+      push({ path: redirect.value || permissionStore.addRouters[0].path })
+    } else {
+      ElNotification({
+        message: t('reuse.authorized'),
+        type: 'error'
+      })
+    }
+  } else
+    ElNotification({
+      message: t('reuse.accountInfo'),
+      type: 'error'
     })
-    permissionStore.setIsAddRouters(true)
-    push({ path: redirect.value || permissionStore.addRouters[0].path })
-  }
 }
 
 // Go to register a page

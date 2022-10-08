@@ -1313,7 +1313,8 @@ export default [
       const { roleName } = query
       return {
         code: result_code,
-        data: roleName === 'admin' ? adminList : testList
+        // data: roleName === 'admin' ? adminList : testList
+        data: testList
       }
     }
   }

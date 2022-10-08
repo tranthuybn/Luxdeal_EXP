@@ -3,7 +3,28 @@ import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_
 import { objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
-const fixedBaseURL = true
+
+const fixedBaseURL = 0
+export const addCustomerRatings = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CUSTOMER_API.ADD_CUSTOMER_RATINGS}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRatings = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -118,6 +139,19 @@ export const addNewCustomer = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Tạo mới đơn hàng
+export const addNewOrderList = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_NEW_ORDER,
+      data: params
+    },
+    0
+  )
+  return res.data && res.data.data
+}
+
+// Lấy danh sách đơn hàng
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -231,7 +265,35 @@ export const getCollaboratorsList = async (params: any): Promise<IResponse> => {
   )
   return res.data && res.data
 }
-
+export const getCollaboratorsById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COLLABORATOR_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+export const getGenCodeCollaborators = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_GEN_CODE_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+export const addNewCollaborators = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCollaborators = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
+  return res && res.data
+}
 export const getFlashSaleList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/flash-sale/List', params })
   return res && res.data

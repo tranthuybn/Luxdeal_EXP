@@ -115,7 +115,12 @@ export default {
     creator: 'Người tạo',
     addNewRatings: 'Thêm mới xếp hạng',
     ratingInformation: 'Thông tin xếp hạng',
-    enterSales: 'Nhập doanh số'
+    enterSales: 'Nhập doanh số',
+    addRanking: 'Thêm xếp hạng',
+    addNewRanking: 'Thêm mới xếp hạng',
+    enterNameRanking: 'Nhập tên hạng',
+    byQuarter: 'Theo quý',
+    byYear: 'Theo năm'
   },
   formDemo: {
     generalServiceInformation: 'Thông tin chung dịch vụ',
@@ -206,7 +211,7 @@ export default {
     spent: 'Đã chi',
     unpaidDebt: 'Công nợ tồn',
     chooseWarehouse: 'Chọn kho',
-    intoMoney: 'Thành tiền',
+    intoMoney: 'Thành tiền phí',
     doesNotIncludeVAT: 'Không bao gồm VAT',
     choosePromotion: 'Chọn khuyến mãi',
     statusAndManipulation: 'Trạng thái & thao tác',
@@ -363,7 +368,10 @@ export default {
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
     countyAndDistrict: 'Quận/huyện',
-    wards: 'Phường/xã'
+    wards: 'Phường/xã',
+    condition: 'Điều kiện',
+    comboGetFree: 'Combo nhận miễn phí',
+    totalFeePayable: 'Tổng tiền phí phải thu'
   },
   button: {
     add: 'Thêm nhanh',
@@ -468,6 +476,7 @@ export default {
     flashsale: 'Flash Sale',
     collaboratorsList: 'Danh sách cộng tác viên',
     paymentRequest: 'Yêu cầu thanh toán hoa hồng',
+    paymentRequests: 'Yêu cầu thanh toán',
     collaboratorsAdd: 'Thêm mới cộng tác viên',
     customerList: 'Danh sách khách hàng',
     customerRatings: 'Xếp hạng khách hàng',
@@ -665,6 +674,7 @@ export default {
     order: 'Đơn hàng',
     feedBack: 'Phản hồi CSKH',
     status: 'Trạng thái',
+    approval: 'Chờ duyệt',
     operator: 'Thao tác',
     createDate: 'Ngày tạo',
     customerName: 'Tên khách hàng',
@@ -1193,6 +1203,7 @@ export default {
     positiveNumber: 'Vui lòng chỉ nhập số dương',
     integerNumber: 'Vui lòng chỉ nhập số nguyên',
     checkNameLength: 'Không được nhập quá 50 ký tự',
+    checkDiscount: 'vui lòng nhập giá trị nhỏ hơn 100',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkNameServiceLength: 'Không được nhập quá 255 ký tự',
     checkCodeServiceLength: 'Không được nhập quá 20 ký tự',
@@ -1302,7 +1313,7 @@ export default {
     removeProductProperty: 'Xóa thuộc tính sản phẩm',
     clickEditForEditing: 'Ấn nút chỉnh sửa để Bật/Tắt cài đặt',
     addPricesBeforeTurningOnSetting: 'Phải thêm giá trước khi bật cài đặt',
-    fillAllAttribute: 'Điền đủ thuộc tính',
+    fillAllAttribute: 'Chưa điền đủ thuộc tính',
     cantChooseMultipleValueForOneAttribute: 'Không thể chọn nhiều giá trị cho một thuộc tính',
     //image
     onlyAcceptValidImageType: 'Chỉ chấp nhận file ảnh PNG, JPG',
@@ -1325,6 +1336,9 @@ export default {
     moneyDeposit: 'Số tiền nạp',
     moneyUsed: 'Số tiền sử dụng',
     statusPoint: 'Trạng thái điểm',
+    codeRequest: 'Mã yêu cầu',
+    waitingConfirm: 'Chờ xác nhận',
+    confirmed: 'Đã xác nhận',
     Points: 'Số điểm',
     exchangedMoney: 'Số tiền quy đổi',
     comboDetail: 'Thông tin combo',
@@ -1338,6 +1352,24 @@ export default {
     //Short Key
     mst: 'MST',
     sdt: 'SDT',
-    enterFacebookZaloLink: 'Nhập link facebook/zalo...'
+    enterFacebookZaloLink: 'Nhập link facebook/zalo...',
+    moneyPaymentCode: 'Mã gói nạp tiền',
+    alreadyPaid: 'Đã thanh toán',
+    notPaid: 'Chưa thanh toán',
+    notSave: 'Chưa lưu',
+    checkNameImageLength: 'Tên ảnh không thể vượt quá 100 kí tự',
+    notSaveAttribute: 'Chưa lưu đặc tính',
+    silver: 'Bạc',
+    gold: 'Vàng',
+    platinum: 'Bạch kim',
+    cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
+    cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
+    newCreate: 'Tạo mới',
+    chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    choosePaymentProposal: 'Chọn đè',
+    addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
+    detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
+    createNew: 'tạo mới'
   }
 }

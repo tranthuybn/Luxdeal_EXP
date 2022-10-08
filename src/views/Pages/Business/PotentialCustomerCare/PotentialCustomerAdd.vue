@@ -18,6 +18,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import moment from 'moment'
 import {
+  ElInputNumber,
   ElCollapse,
   ElCollapseItem,
   ElButton,
@@ -163,12 +164,11 @@ const collapseChangeEvent = (val) => {
     })
 }
 const activeName = ref('collapse[0].name')
-
-const handleEdit = async (row) => {
-  row.edited = !row.edited
-
+const handleSave = async (row) => {
+  row.edited = false
   if (type == 'edit') {
     row = customPostDataHistory(row)
+    row.percentageOfSales = Number(row.percentageOfSales)
     await UpdatePotentialCustomerHistory({ ...row })
       .then(() =>
         ElNotification({
@@ -183,6 +183,9 @@ const handleEdit = async (row) => {
         })
       )
   }
+}
+const handleEdit = async (row) => {
+  row.edited = true
 }
 let isLastChild = false
 let lastChildContent = ref('')
@@ -741,7 +744,7 @@ const customPostData = (data) => {
 
 const customPostDataHistory = (data) => {
   const customDataHistory = {} as potentialCustomerHistoryInfo
-  customDataHistory.id = id
+  customDataHistory.id = data.id
   customDataHistory.staffId = data.staffId
   customDataHistory.content = data.content
   customDataHistory.percentageOfSales = data.percentageOfSales
@@ -954,10 +957,11 @@ watch(
                       :prop="'dataList.' + data.$index + '.name'"
                       :rules="[]"
                     >
-                      <ElInput
-                        type="Number"
-                        step="5"
-                        min="0"
+                      <el-input-number
+                        controls-position="right"
+                        :step="5"
+                        :min="0"
+                        :max="100"
                         v-model="data.row.percentageOfSales"
                         v-if="data.row.edited"
                       />
@@ -971,7 +975,7 @@ watch(
                       v-if="scope.row.edited"
                       type="primary"
                       size="default"
-                      @click.prevent="handleEdit(scope.row)"
+                      @click.prevent="handleSave(scope.row)"
                     >
                       {{ t('reuse.save') }}
                     </el-button>

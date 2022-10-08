@@ -14,14 +14,15 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage,
-  ElDivider
+  ElDivider,
+  ElSelect,
+  ElOption
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
-import { TableResponse } from '../../Type'
+import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 
@@ -138,7 +139,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref()
 //set data for form edit and detail
 const setFormValue = async () => {
@@ -263,65 +263,9 @@ const handleRemove = (file: UploadFile) => {
   }
 }
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 //validate Ảnh
-const validImageType = ['jpeg', 'png']
-const beforeAvatarUpload = async (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  } else {
-    //báo lỗi nếu ko có ảnh
-    if (type === 'list' && fileList.value.length > 0) {
-      return true
-    }
-    if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-      return true
-    } else {
-      ElMessage.warning(t('reuse.notHaveImage'))
-      return false
-    }
-  }
+const beforeAvatarUpload = async (_rawFile, __type) => {
+  return true
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
@@ -395,70 +339,76 @@ const removeImage = () => {
   rawUploadFile.value = undefined
   imageUrl.value = undefined
 }
-
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
-!props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
+listType.value = 'text'
+
+const options = [
+  {
+    value: 1,
+    label: 'Ngô Quang Trường'
+  },
+  {
+    value: 2,
+    label: 'Ngô Trường'
+  },
+  {
+    value: 3,
+    label: 'Trường Ngô'
+  }
+]
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register">
+          <template #customer="form">
+            <el-select v-model="form['customer']" class="w-full" clearable>
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </template>
+          <template #codeRequest><div>ABHSLK2001</div></template>
+          <template #buttonReceiptOrPayment
+            ><el-button :icon="addIcon" class="w-full">{{
+              t('reuse.newCreate')
+            }}</el-button></template
+          >
+          <template #buttonPaymentProposal
+            ><el-button :icon="addIcon" class="w-full">{{
+              t('reuse.newCreate')
+            }}</el-button></template
+          >
+        </Form>
       </ElCol>
       <ElCol
         :span="hasImage ? 8 : 0"
         v-if="hasImage"
         class="max-h-400px overflow-y-auto shadow-inner p-1"
       >
-        <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
+        <ElDivider class="text-center font-bold">{{ t('formDemo.attachments') }}</ElDivider>
         <el-upload
           action="#"
           :disabled="props.type === 'detail'"
           :auto-upload="false"
-          :show-file-list="multipleImages"
           v-model:file-list="fileList"
-          :list-type="listType"
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
           :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
         >
-          <div v-if="!multipleImages" class="one-avatar-uploader">
-            <div
-              v-if="imageUrl"
-              style="width: 148px; height: 148px; border-radius: 4px"
-              class="flex justify-center relative mb-2"
-            >
-              <ElImage fit="contain" :src="imageUrl" class="avatar" />
-            </div>
-            <ElButton
-              v-else
-              :icon="addIcon"
-              style="border: dashed 1px #e5e7eb"
-              class="avatar-uploader-icon"
-            />
+          <div class="about-image mr-4">
+            <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
+            <p style="color: orange">{{ t('formDemo.lessThanTenProfiles') }}</p>
           </div>
-          <div v-else>
-            <ElButton :icon="addIcon" />
-          </div>
-          <template #file="{ file }">
-            <div>
-              <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
-              <span class="el-upload-list__item-actions">
-                <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                  <ElButton :icon="viewIcon" />
-                </span>
-                <span
-                  v-if="!disabled"
-                  class="el-upload-list__item-delete"
-                  @click="handleRemove(file)"
-                >
-                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" />
-                </span>
-              </span>
-            </div>
-          </template>
+          <ElButton :icon="addIcon" class="border-1 border-blue-500">{{
+            t('formDemo.addPhotosOrFiles')
+          }}</ElButton>
         </el-upload>
         <div
           class="w-250px flex justify-center"
@@ -524,8 +474,8 @@ const listType = ref<ListImages>('text')
 }
 
 .avatar-uploader-icon {
-  width: 148px;
-  height: 148px;
+  width: 178px;
+  height: 178px;
 }
 .one-avatar-uploader {
   display: flex;

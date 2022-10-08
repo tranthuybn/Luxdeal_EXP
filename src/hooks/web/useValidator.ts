@@ -178,10 +178,15 @@ export const useValidator = () => {
     checkDescriptionLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 500) {
-          callback(new Error(t('reuse.checkDescriptionLength')))
+        if (value) {
+          if (value.length > 500) {
+            callback(new Error(t('reuse.checkDescriptionLength')))
+          } else {
+            callback()
+          }
+        } else {
+          callback()
         }
-        callback()
       },
       required: false,
       trigger: 'change'
@@ -222,7 +227,7 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkMoney: {
-      validator: (value, callback) => {
+      validator: (_rule, value, callback) => {
         if (value === '') callback(new Error(t('reuse.required')))
         else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
         else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))

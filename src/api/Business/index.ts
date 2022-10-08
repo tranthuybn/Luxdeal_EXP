@@ -1,10 +1,11 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
 import { objectToQueryParams } from '@/utils/format'
+import { API_URL } from '@/utils/API_URL'
 
 const request = useAxios()
 
-const fixedBaseURL = 0
+const fixedBaseURL = API_URL
 export const addCustomerRatings = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
@@ -125,7 +126,7 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
       url: ORDER_API.ADD_NEW_ORDER,
       data: params
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }

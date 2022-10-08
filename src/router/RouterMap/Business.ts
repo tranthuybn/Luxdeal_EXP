@@ -67,7 +67,7 @@ export default {
         },
         {
           path: 'order-management',
-          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
+          component: () => import('@/views/Pages/Business/OrderManagement/OrderListUtility.vue'),
           name: `business.order-management.order-list-add`,
           meta: {
             title: 'reuse.createANewOrder',

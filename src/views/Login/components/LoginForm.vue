@@ -54,7 +54,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'password',
     label: t('login.password'),
-    value: 'admin',
+    value: '123456',
     component: 'InputPassword',
     colProps: {
       span: 24
@@ -142,9 +142,9 @@ const signIn = async () => {
 const getRole = async () => {
   // get role will return all router's names
   const userInfo = wsCache.get(appStore.getUserInfo)
-  if (userInfo.role) {
+  if (Array.isArray(userInfo.role) && userInfo.role.length > 0) {
     // get role list
-    const res = await getRoutesAsRolesApi({ roleName: userInfo.role })
+    const res = await getRoutesAsRolesApi({ roleName: userInfo?.role })
     if (res && res.data) {
       const { wsCache } = useCache()
       // save roles in local storage

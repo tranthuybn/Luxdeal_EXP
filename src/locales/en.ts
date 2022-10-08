@@ -1277,6 +1277,7 @@ export default {
     addNewMoneyPaymentCode: 'Add new money payment code',
     moneyPaymentCode: 'Money payment code',
     alreadyPaid: 'Already paid',
-    notPaid: 'Not paid'
+    notPaid: 'Not paid',
+    createNew: 'Create new'
   }
 }

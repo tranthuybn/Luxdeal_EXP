@@ -555,7 +555,7 @@ const activeName = ref('1')
                   />
                 </el-select>
                 <el-button :icon="plusIcon" style="padding: 8px 34px">{{
-                  t('formDemo.change')
+                  t('reuse.createNew')
                 }}</el-button>
               </ElFormItem>
               <ElFormItem :label="t('router.paymentProposal')">
@@ -572,7 +572,7 @@ const activeName = ref('1')
                   />
                 </el-select>
                 <el-button :icon="plusIcon" style="padding: 8px 34px">{{
-                  t('formDemo.change')
+                  t('reuse.createNew')
                 }}</el-button>
               </ElFormItem>
               <ElFormItem :label="t('reuse.status')" style="align-items: flex-start">

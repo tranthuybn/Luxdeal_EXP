@@ -1,469 +1,318 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount } from 'vue'
+import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import {
-  ElUpload,
-  ElButton,
-  ElDivider,
-  ElTable,
-  ElTableColumn,
-  ElRadioGroup,
-  ElRadio,
-  ElDialog,
-  UploadUserFile,
-  ElDatePicker
-} from 'element-plus'
-import type { UploadFile } from 'element-plus'
-import { useForm } from '@/hooks/web/useForm'
-import { Form } from '@/components/Form'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { ContentWrap } from '@/components/ContentWrap'
+import { Table } from '@/components/Table'
+import { collaboratorStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { HeaderFiler } from '../../Components/HeaderFilter'
+import { TableExtension } from '../../Components/TableBase'
+import { getCollaboratorsList } from '@/api/Business'
+import { filterStatusCustomer } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
-import { getProductsList } from '@/api/Business'
-
-const plusIcon = useIcon({ icon: 'akar-icons:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+import { useAppStore } from '@/store/modules/app'
+import { useRouter, useRoute } from 'vue-router'
+import {
+  dynamicApi,
+  dynamicColumns,
+  addOperatorColumn,
+  getTotalRecord,
+  getSelectedRecord,
+  fnGetTotalRecord,
+  fnGetSelectedRecord
+} from '../../Components/TablesReusabilityFunction'
+import { TableData } from '@/api/table/types'
+import { useTable } from '@/hooks/web/useTable'
+import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 const { t } = useI18n()
-const { register } = useForm()
-// upload image
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-const radio1 = ref('1')
-let fileList = ref<UploadUserFile[]>([])
-const ListFileUpload = ref()
-const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
-}
+const columns = reactive<TableColumn[]>([
+  {
+    field: 'index',
+    label: t('reuse.index'),
+    type: 'index',
+    align: 'center'
+  },
+  {
+    field: 'code',
+    label: t('reuse.collaboratorsCode'),
+    minWidth: '100'
+  },
+  {
+    field: 'accountName',
+    label: t('reuse.collaboratorsName'),
+    minWidth: '150'
+  },
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-
-const schema = reactive<FormSchema[]>([
   {
-    field: 'generalInformation',
-    label: t('formDemo.generalInformation'),
-    component: 'Divider',
-    colProps: {
-      span: 12
+    field: 'contact',
+    label: t('reuse.contact'),
+    minWidth: '250'
+  },
+  {
+    field: 'account',
+    label: t('reuse.account'),
+    minWidth: '200'
+  },
+  {
+    field: 'totalMoney',
+    label: t('reuse.totalMoney'),
+    minWidth: '150',
+    align: 'right',
+    sortable: true
+  },
+  {
+    field: 'createdAt',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
     }
   },
   {
-    field: 'packageAccumulatePointsCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
+    field: 'createdBy',
+    label: t('reuse.creator'),
+    minWidth: '130',
+    headerFilter: 'Name'
   },
   {
-    field: 'type',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
-    }
-  },
-  {
-    field: 'points',
-    component: 'Input',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'duration',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
-    }
-  },
-  {
-    field: 'shortDescription',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
+    field: 'status',
+    label: t('reuse.accountStatus'),
+    minWidth: '200',
+    filters: filterStatusCustomer,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', collaboratorStatusTransferToText(cellValue))
     }
   }
 ])
 
-// Value date
-const pickdate = ref('')
+const createIcon = useIcon({ icon: 'uil:create-dashboard' })
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 
-const forceRemove = ref(false)
-// remove row table
-const removeListProductsSale = (index) => {
-  if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
-    forceRemove.value = true
-    console.log('index:', index)
-    ListOfProductsForSale.splice(index, 1)
-  }
-}
-
-// Table data
-interface ListOfProductsForSaleType {
-  name: string
-  productCode: string
-  id: string
-  code: string
-  quantity: number | undefined
-  selfImportAccessories: string | undefined
-  dram: string
-  unitPrice: string
-  intoMoney: string
-  paymentType: string
-  alreadyPaidForTt: string
-  edited: boolean
-}
-
-const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
-  {
-    name: '',
-    productCode: '',
-    id: '',
-    code: '',
-    quantity: 1,
-    selfImportAccessories: '',
-    dram: t('formDemo.psc'),
-    unitPrice: 'đ',
-    intoMoney: 'đ',
-    paymentType: '',
-    alreadyPaidForTt: '',
-    edited: true
-  }
-])
-
-// Call api danh sách sản phẩm
-let listProductsTable = ref()
-const listProducts = ref()
-const optionsApi = ref()
-
-let optionCallAPi = 0
-const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList({ ProductId: 1 })
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id.toString(),
-      value: product.id.toString(),
-      name: product.name,
-      price: product.price.toString()
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
-  }
-}
-// select MSP đổi tên thông tin sản phẩm
-const changeName = (optionID, scope) => {
-  const option = optionsApi.value.find((option) => option.name == optionID)
-  scope.row.name = option.name
-  scope.row.unitPrice = option.price
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
-}
-
-// check button save or edit
-const checkButton = ref(false)
-
-// open or close change combo dialog
-const openChangeComboDialog = ref(false)
-
-// table change combo
-const tableChangeCombo = [
-  {
-    radioComboTable: '1',
-    condition: 'Combo nhận miễn phí',
-    enterCondition: ''
+// using table's function
+const { register, tableObject, methods } = useTable<TableData>({
+  getListApi: getCollaboratorsList,
+  response: {
+    list: '',
+    total: 'count'
   },
-  {
-    radioComboTable: '2',
-    condition: 'Đổi bằng điểm',
-    enterCondition: '500 điểm'
-  },
-  {
-    radioComboTable: '3',
-    condition: 'Mua bằng tiền ảo',
-    enterCondition: '200,000 đ'
+  props: {
+    columns: columns,
+    headerAlign: 'center'
   }
-]
-
-// radio condition combo
-const radioCondition = ref(false)
-
-onBeforeMount(() => {
-  callApiProductList()
 })
+//add operator for every table
+onBeforeMount(() => {
+  dynamicApi.value = getCollaboratorsList
+  dynamicColumns.value = columns
+  addOperatorColumn(dynamicColumns.value)
+  getData()
+})
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const route = useRoute()
+const { push } = useRouter()
+// get data from router
+const router = useRouter()
+
+const pushAdd = () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
+    params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
+  })
+}
+const showingColumnList = ref<Array<string>>(
+  columns.length > 0 ? columns.map((el) => el.field)?.filter((el) => el) : []
+)
+const showingColumn =
+  columns.length > 0
+    ? columns.map((el) => ({ value: el.field, label: el.label }))?.filter((el) => el.value)
+    : []
+// operation colum toggle
+const { setColumn } = methods
+function operatorColumnToggle(param) {
+  setColumn([
+    {
+      field: 'operator',
+      path: 'fixed',
+      value: param
+    }
+  ])
+}
+const { getSelections } = methods
+async function getTableSelected() {
+  await getSelections()
+    .then((res) => {
+      fnGetSelectedRecord(res)
+    })
+    .catch(() => {})
+}
+const { setSearchParams } = methods
+const filterChange = (filterValue) => {
+  if (filterValue && typeof unref(filterValue) === 'object')
+    for (let key in filterValue) {
+      if (typeof unref(filterValue[key]) === 'object')
+        filterValue[key] = Object.values(filterValue[key]).toString()
+    }
+  setSearchParams(filterValue)
+}
+const action = (row: TableData, type: string) => {
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type }
+    })
+  }
+}
+const getData = (data = {}) => {
+  methods.setSearchParams({ ...data })
+}
+const drawer = ref(false)
+// execute pagination
+let paginationObj = ref<Pagination>()
+watch(
+  () => tableObject.tableList,
+  () => {
+    paginationObj.value = {
+      total: tableObject.total
+    }
+    fnGetTotalRecord(tableObject.tableList.length)
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 <template>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%]">
-      <Form
-        :schema="schema"
-        label-position="top"
-        hide-required-asterisk
-        size="large"
-        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
-        @register="register"
+  <HeaderFiler @get-data="getData" @refresh-data="getData">
+    <template #headerFilterSlot>
+      <el-button type="primary" :icon="createIcon" @click="pushAdd">
+        {{ t('reuse.newInitialization') }}</el-button
       >
-        <template #packageAccumulatePointsCode>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{
-              t('router.packageAccumulatePointsCode')
-            }}</label>
-            <div class="font-bold">CB3452323</div>
-          </div>
-        </template>
-        <template #duration>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('formDemo.duration') }}</label>
-            <div class="flex w-[80%] gap-2 demo-date-picker">
-              <el-date-picker
-                v-model="pickdate"
-                type="daterange"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-                format="DD/MM/YYYY"
-              />
-            </div>
-          </div>
-        </template>
-        <template #points>
-          <div class="flex gap-4 w-[100%]">
-            <label class="w-[33%] text-right">{{ t('reuse.Points') }}</label>
-            <div class="leading-6 mt-2 ml-2">
-              <div>500 Điểm</div>
-            </div>
-          </div>
-          <div class="flex gap-4 w-[100%]"
-            ><label class="w-[33%] text-right">{{ t('reuse.exchangedMoney') }}</label>
-            <div class="leading-6 ml-2 mt-2">
-              <div>300,000 đ</div>
-            </div></div
-          >
-        </template>
-        <template #shortDescription>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{ t('formDemo.shortDescription') }}</label>
-            <input
-              class="w-[80%] border-1 outline-none pl-2 bg-transparent rounded dark:border-"
-              type="text"
-              :placeholder="`${t('formDemo.enterShortDescription')}`"
-            />
-          </div>
-        </template>
-
-        <template #type>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('reuse.type') }}</label>
-            <div class="w-[80%] bg-transparent flex items-center gap-4">
-              <input
-                type="text"
-                class="border-1 w-[80%] outline-none rounded bg-transparent pl-2"
-                :placeholder="`${t('router.buyPointsPackage')}`"
-              />
-              <el-button
-                @click="openChangeComboDialog = true"
-                :icon="plusIcon"
-                style="padding: 8px 34px"
-                >{{ t('formDemo.change') }}</el-button
-              >
-            </div>
-          </div>
-        </template>
-      </Form>
-    </div>
-    <div class="w-[50%]">
-      <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-        <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
-      </div>
-      <div class="flex">
-        <div class="pl-4">
-          <el-upload
-            :icon="plusIcon"
-            action="#"
-            list-type="picture-card"
-            :auto-upload="false"
-            :limit="1"
-            class="relative"
-          >
-            <ElButton :icon="plusIcon" />
-            <template #file="{ file }">
-              <div>
-                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                <span class="el-upload-list__item-actions">
-                  <span
-                    class="el-upload-list__item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <ElButton :icon="viewIcon" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
-                    <ElButton :icon="deleteIcon" />
-                  </span>
-                </span>
-              </div>
-            </template>
-          </el-upload>
-          <el-dialog width="80%" v-model="dialogVisible">
-            <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
-          </el-dialog>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%] pl-2">
-      <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
-      <div class="mb-2 flex items-center text-sm">
-        <el-radio-group v-model="radio1" class="ml-4">
-          <el-radio label="1" size="large">
-            <div class="text-[#303133] font-normal dark:text-white">{{
-              t('reuse.allCustomer')
-            }}</div></el-radio
-          >
-          <el-radio label="2" size="large"
-            ><div class="text-[#303133] font-normal dark:text-white">{{
-              t('formDemo.chooseCustomerDetail')
-            }}</div></el-radio
-          >
-        </el-radio-group>
-      </div>
-      <el-table
-        :data="ListOfProductsForSale"
-        border
-        :class="[
-          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-        ]"
-      >
-        <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
-          <template #default="props">
-            <MultipleOptionsBox
-              :fields="[
-                t('reuse.customerCode'),
-                t('reuse.phoneNumber'),
-                t('formDemo.customerName')
-              ]"
-              filterable
-              :items="listProductsTable"
-              :valueKey="'name'"
-              :labelKey="'id'"
-              :hiddenKey="['id']"
-              :placeHolder="'Chọn mã sản phẩm'"
-              :clearable="false"
-              @change="(option) => changeName(option, props)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
-        <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
-          <template #default="scope">
-            <button
-              @click.prevent="removeListProductsSale(scope.$index)"
-              class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-              >Xóa</button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="w-[50%]"> </div>
-  </div>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%] pl-2">
-      <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
-      <div class="flex gap-4 items-center pt-4 pb-6">
-        <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
-        <span class="border-1 bg-[#FD9800] text-light-50 pl-2 pr-22 dark:border-transparent">{{
-          t('formDemo.pending')
-        }}</span>
-      </div>
-      <div class="flex gap-4 items-center h-12">
-        <span class="w-[16%]"></span>
-        <div v-if="checkButton">
-          <el-button
-            class="min-w-[142px]"
-            @click.prevent="checkButton = !checkButton"
-            type="primary"
-            size="large"
-            >{{ t('button.saveAndWaitApproval') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large">{{ t('button.cancel') }}</el-button>
-        </div>
-        <div v-else>
-          <el-button
-            class="min-w-[142px]"
-            size="large"
-            @click.prevent="checkButton = !checkButton"
-            >{{ t('button.edit') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large" type="danger">{{
-            t('button.cancelVoucher')
-          }}</el-button>
-        </div>
-      </div>
-    </div>
-    <div class="w-[50%]"></div>
-  </div>
-
-  <!-- Dialog change combo -->
-  <el-dialog
-    v-model="openChangeComboDialog"
-    :title="t('formDemo.inventoryInformation')"
-    width="35%"
-    align-center
-    class="z-50"
-  >
-    <el-divider />
-    <el-table :data="tableChangeCombo" border>
-      <el-table-column prop="radioComboTable" width="90" align="center">
-        <template #default="props">
-          <el-radio-group v-model="radioCondition" class="ml-4">
-            <el-radio :label="props.row.radioComboTable" size="large" />
-          </el-radio-group>
-        </template>
-      </el-table-column>
-      <el-table-column prop="condition" :label="t('formDemo.condition')" width="360" />
-      <el-table-column prop="enterCondition" :label="t('formDemo.enterCondition')" />
-    </el-table>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button class="w-[150px]" type="primary" @click="openChangeComboDialog = false"
-          >{{ t('reuse.save') }}
-        </el-button>
-        <el-button class="w-[150px]" @click="openChangeComboDialog = false">{{
-          t('reuse.exit')
-        }}</el-button>
-      </span>
     </template>
-  </el-dialog>
+  </HeaderFiler>
+  <TableExtension :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord" />
+  <ContentWrap class="relative">
+    <div
+      class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
+      id="rabbit-ear"
+      @click="drawer = !drawer"
+    >
+      <Icon icon="ic:baseline-keyboard-double-arrow-down" />
+    </div>
+    <ElDrawer v-model="drawer" direction="ttb" size="30%">
+      <template #header>
+        <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
+      </template>
+      <template #default>
+        <ElCheckboxGroup v-model="showingColumnList" fill="var(--el-color-primary)">
+          <ElCheckboxButton
+            v-for="(item, index) in showingColumn"
+            :key="index"
+            :label="item.value"
+            size="small"
+            >{{ item.label }}</ElCheckboxButton
+          >
+        </ElCheckboxGroup>
+      </template>
+    </ElDrawer>
+    <Table
+      ref="tableRef"
+      v-model:pageSize="tableObject.pageSize"
+      v-model:currentPage="tableObject.currentPage"
+      :data="tableObject.tableList"
+      :loading="tableObject.loading"
+      :pagination="paginationObj"
+      :showOverflowTooltip="false"
+      maxHeight="69vh"
+      @total-record="fnGetTotalRecord"
+      @selected-record="fnGetSelectedRecord"
+      @mouseenter="operatorColumnToggle('right')"
+      @mouseleave="operatorColumnToggle(false)"
+      @select="getTableSelected"
+      @select-all="getTableSelected"
+      @register="register"
+      @filter-change="filterChange"
+    >
+      <template #contact="data">
+        <div>Mst: {{ data.row.customer?.taxCode }}</div>
+        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div>
+        <div>Email: {{ data.row.customer?.email }}</div>
+        <div>Địa chỉ: {{ data.row.customer?.address }}</div>
+      </template>
+      <template #account="data">
+        <div>STK: {{ data.row.accountNumber }}</div>
+        <div>Tên TK: {{ data.row.accountName }}</div>
+        <div>NH: {{ data.row.bank.name }}</div>
+      </template>
+      <template #operator="{ row }">
+        <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
+        <ElButton @click="action(row, 'edit')" :icon="editIcon" />
+      </template>
+    </Table>
+  </ContentWrap>
 </template>
-
-<style scoped>
-::v-deep(.el-divider__text.is-left) {
-  font-size: 16px !important;
+<style lang="less" scoped>
+::v-deep(.el-overlay) {
+  position: absolute !important;
 }
 
-::v-deep(.el-radio.el-radio--large .el-radio__label) {
-  color: transparent;
+::v-deep(.el-drawer__body) {
+  padding: 3px !important;
+
+  &::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+    /* width of vertical scrollbar */
+    background-color: var(--top-tool-border-color);
+    height: 10px;
+    /* height of horizontal scrollbar ← You're missing this */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--el-color-primary);
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0px 0px 1px var(--el-color-info);
+    box-shadow: inset 0px 0px 1px var(--el-color-info);
+    background-color: var(--el-color-primary);
+  }
 }
 
-.fix-padding {
+::v-deep(.el-drawer__header) {
+  margin-bottom: 0;
   padding: 0;
 }
-/* ::v-deep(.el-select-dropdown__item) {
-    padding: 0 !important;
-  } */
+
+::v-deep(.el-checkbox-group) {
+  margin: auto;
+  display: flex;
+  width: max-content;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#rabbit-ear {
+  width: 132px;
+  text-align: center;
+  z-index: 28;
+  border-radius: 0 0 5px 5px;
+  border: 1px solid var(--tags-view-border-color);
+  background-color: var(--logo-title-text-color);
+  box-shadow: 0px 0px 2px 1px var(--left-menu-text-color);
+  top: -10px;
+  height: 24px;
+  right: calc(50% - 66px);
+
+  &:hover {
+    top: 0;
+    border: 0px 1px 1px 1px solid var(--el-color-primary);
+    box-shadow: 0px 0px 2px 1px var(--el-color-primary);
+    color: var(--el-color-primary);
+  }
+}
 </style>

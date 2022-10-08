@@ -595,7 +595,20 @@ const adminList = [
             component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
             meta: {
               title: 'router.installPoints'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:id?/:type?`,
+                component: 'views/Pages/Business/AccumulatePoints/SettingsPointsAdd',
+                name: `business.accumulate-points.settings-points.${utility}`,
+                meta: {
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           }
         ]
       },

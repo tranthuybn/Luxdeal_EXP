@@ -107,7 +107,7 @@ export const FORM_DATA = (object) => {
 }
 export const FORM_IMAGES = (data) => {
   return Object.keys(data).reduce((form, key) => {
-    if (data[key]) {
+    if (data[key] != null && typeof data[key] != 'undefined') {
       form.append(key, data[key])
       if (Array.isArray(data[key]) && data[key].length > 0)
         data[key].forEach((el) => {

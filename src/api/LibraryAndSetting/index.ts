@@ -179,7 +179,6 @@ export const deleteSpa = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const postSpa = async (data): Promise<IResponse> => {
-  data = FORM_IMAGES(data)
   const res = await request.post(
     { url: `${PRODUCTS_AND_SERVICES_API.POST_SPA}`, data },
     fixedBaseURL

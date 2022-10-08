@@ -502,6 +502,7 @@ export default {
     flashsale: 'Flash Sale',
     collaboratorsList: 'Danh sách cộng tác viên',
     paymentRequest: 'Yêu cầu thanh toán hoa hồng',
+    paymentRequests: 'Yêu cầu thanh toán',
     collaboratorsAdd: 'Thêm mới cộng tác viên',
     customerList: 'Danh sách khách hàng',
     customerRatings: 'Xếp hạng khách hàng',
@@ -1233,6 +1234,7 @@ export default {
     positiveNumber: 'Vui lòng chỉ nhập số dương',
     integerNumber: 'Vui lòng chỉ nhập số nguyên',
     checkNameLength: 'Không được nhập quá 50 ký tự',
+    checkDiscount: 'vui lòng nhập giá trị nhỏ hơn 100',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkNameServiceLength: 'Không được nhập quá 255 ký tự',
     checkCodeServiceLength: 'Không được nhập quá 20 ký tự',
@@ -1394,6 +1396,7 @@ export default {
     choosePaymentProposal: 'Chọn đè',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
     detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
-    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền'
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
+    createNew: 'tạo mới'
   }
 }

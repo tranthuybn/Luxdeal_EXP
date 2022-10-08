@@ -136,7 +136,22 @@ export default {
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
             title: t('router.customerRatings')
-          }
+          },
+          children: [
+            {
+              path: `${utility}/:id?/:type?`,
+              component: () =>
+                import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
+              name: `business.customer-management.customerRatings.${utility}`,
+              meta: {
+                title: t('customerList.addNewRanking'),
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         },
         {
           path: 'customerRatings-utility/:id?/:type?',
@@ -315,8 +330,8 @@ export default {
     },
     {
       path: 'service-survey',
-      name: 'business.service-survey',
       component: () => import('@/views/Pages/Business/ServiceSurvey.vue'),
+      name: 'business.service-survey',
       meta: {
         title: t('router.serviceSurvey')
       }
@@ -361,7 +376,22 @@ export default {
           component: () => import('@/views/Pages/Business/VirtualWallet/CustomerVirtualWallet.vue'),
           meta: {
             title: t('router.customervirtualWallet')
-          }
+          },
+          children: [
+            {
+              path: `${utility}/:id?/:type?`,
+              component: () =>
+                import('@/views/Pages/Business/VirtualWallet/VirtualWalletUtility.vue'),
+              name: `business.virtual-wallet.customer.${utility}`,
+              meta: {
+                title: t('reuse.VirtualWalletUtility'),
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         },
         {
           path: 'customer-utility/:id?/:type?',
@@ -382,7 +412,22 @@ export default {
           component: () => import('@/views/Pages/Business/VirtualWallet/WithdrawalRequest.vue'),
           meta: {
             title: t('router.withDrawalRequest')
-          }
+          },
+          children: [
+            {
+              path: `${utility}/:id?/:type?`,
+              name: `business.virtual-wallet.with-drewal-request.${utility}`,
+              component: () =>
+                import('@/views/Pages/Business/VirtualWallet/WithdrawalRequestUtility.vue'),
+              meta: {
+                title: t('reuse.addNewVirtualWalletRequest'),
+                noTagsView: true,
+                noCache: true,
+                hidden: true,
+                showMainRoute: true
+              }
+            }
+          ]
         },
         {
           path: 'with-drewal-request-utility/:id?/:type?',

@@ -522,9 +522,10 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  Description: [{ validator: ValidService.checkDescriptionLength.validator }],
+  Description: [{ validator: ValidService.checkDescriptionLength.validator }, required()],
   HireInventoryStatus: [required()],
-  SellInventoryStatus: [required()]
+  SellInventoryStatus: [required()],
+  ProductStatus: [required()]
 })
 const ruleSEO = reactive({
   SeoTitle: [

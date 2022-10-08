@@ -148,7 +148,6 @@ const postData = (data) => {
     total: 1,
     potentialCustomerHistorys: customerHistory
   }
-  console.log('pay', payload)
   addNewPotentialCustomer(payload)
 }
 

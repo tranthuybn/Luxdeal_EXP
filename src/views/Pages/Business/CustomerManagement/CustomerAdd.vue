@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
   ElUpload,
   ElDivider,
-  ElRadio,
-  ElRadioGroup,
   ElButton,
-  ElDropdown,
-  ElDropdownItem,
-  ElDropdownMenu,
   ElCheckbox,
   ElDialog,
   ElOption,
   ElSelect,
-  ElDatePicker
+  ElDatePicker,
+  ElNotification,
+  ElInput
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Collapse } from '../../Components/Type'
@@ -24,6 +21,9 @@ import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import router from '@/router'
+import { getCustomerById } from '@/api/Business'
+import { useRouter } from 'vue-router'
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -35,6 +35,8 @@ const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 
 const schema = reactive<FormSchema[]>([
   {
@@ -199,7 +201,32 @@ const schema2 = reactive<FormSchema[]>([
     }
   }
 ])
-
+const formValue = ref()
+//get data from table
+const getTableValue = async () => {
+  if (!isNaN(id)) {
+    const res = await getCustomerById({ id: id })
+    if (res) {
+      if (res.data?.list !== undefined) {
+        formValue.value = res.data.list[0]
+      } else {
+        formValue.value = res.data
+      }
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+}
+const { push } = useRouter()
+const editPage = async () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: { id: id, type: 'edit' }
+  })
+}
 const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -255,8 +282,6 @@ const handlePictureCardPreview = (file: UploadFile) => {
 
 const businessClassification = ref('Cá nhân')
 const customerClassification = ref('Khách hàng')
-const awesome = ref(true)
-const fix = ref(false)
 const statusActive = ref(true)
 const value = ref('Nam')
 const valueProvince = ref('')
@@ -320,12 +345,63 @@ const district = [
     label: 'Nha Trang'
   }
 ]
+
+const classify = [
+  {
+    value: 'Cá nhân',
+    label: 'Cá nhân'
+  },
+  {
+    value: 'Doanh nghiệp',
+    label: 'Doanh nghiệp'
+  }
+]
+
+const classify2 = [
+  {
+    value: 'Khách hàng',
+    label: 'Khách hàng'
+  },
+  {
+    value: 'Nhà cung cấp',
+    label: 'Nhà cung cấp'
+  },
+  {
+    value: 'Chung',
+    label: 'Chung'
+  }
+]
+let disableData = false
+watch(
+  () => type,
+  () => {
+    if (type === 'detail') {
+      disableData = true
+    }
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+const change = () => {
+  console.log('type: ', type)
+  if (type == 'detail') {
+    disableData = true
+  }
+}
+onBeforeMount(() => {
+  change()
+})
 </script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item :name="collapse[0].name">
+      <el-collapse-item :name="collapse[0].name" :disabled="disableData">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
@@ -334,11 +410,11 @@ const district = [
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
             <Form
+              :disabled="disableData"
               :schema="schema"
               label-position="top"
               hide-required-asterisk
-              size="large"
-              class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+              class="flex border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
               @register="register"
             >
               <template #customerCode>
@@ -355,8 +431,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for="">{{
                     t('reuse.referralCode')
                   }}</label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.referralCode')"
                   />
@@ -365,109 +441,38 @@ const district = [
 
               <template #classify>
                 <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] leading-5 text-right" for=""
+                  <label class="w-[15%] leading-5 text-right max-w-[119.63px]"
                     >{{ t('formDemo.classify') }}<span style="color: red">*</span>
                   </label>
 
-                  <div class="flex w-[80%] gap-2">
-                    <div class="w-[50%] items-center border-1 rounded">
-                      <el-dropdown trigger="click" class="w-[100%] h-[100%]">
-                        <div class="flex justify-between w-[100%] items-center black-color">
-                          <span
-                            class="el-dropdown-link cursor-pointer w-[100%] font-bold dark:text-light-50 ml-2"
-                          >
-                            {{ businessClassification }}
-                          </span>
-                          <Icon
-                            icon="material-symbols:keyboard-arrow-down"
-                            :size="16"
-                            class="mr-2"
-                          />
-                        </div>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item>
-                              <el-radio-group v-model="businessClassification" class="flex-col">
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="`Cá nhân`"
-                                    size="large"
-                                    >Cá nhân</el-radio
-                                  >
-                                </div>
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="`Doanh nghiệp`"
-                                    size="large"
-                                    >Doanh nghiệp</el-radio
-                                  >
-                                </div>
-                              </el-radio-group>
-                            </el-dropdown-item>
-                            <el-dropdown-item divided>
-                              <div style="width: 100%; text-align: center"> Confirm </div>
-                            </el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
+                  <div class="flex w-[85%] gap-4">
+                    <div class="w-[50%] items-center outline-none">
+                      <el-select
+                        v-model="businessClassification"
+                        class="min-h-[34px] cursor-pointer w-[100%] font-bold"
+                        placeholder="Select"
+                      >
+                        <el-option
+                          v-for="item in classify"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
                     </div>
-                    <div class="w-[50%] items-center border-1 rounded">
-                      <el-dropdown trigger="click" class="w-[100%] h-[100%]">
-                        <div class="flex justify-between w-[100%] items-center black-color">
-                          <span
-                            class="el-dropdown-link cursor-pointer w-[100%] font-bold dark:text-light-50 ml-2"
-                          >
-                            {{ customerClassification }}
-                          </span>
-                          <Icon
-                            icon="material-symbols:keyboard-arrow-down"
-                            :size="16"
-                            class="mr-2"
-                          />
-                        </div>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item>
-                              <el-radio-group v-model="customerClassification" class="flex-col">
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="` Khách hàng`"
-                                    size="large"
-                                    >Khách hàng</el-radio
-                                  >
-                                </div>
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="` Nhà cung cấp`"
-                                    size="large"
-                                    >Nhà cung cấp</el-radio
-                                  >
-                                </div>
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="`Chung`"
-                                    size="large"
-                                    >Chung</el-radio
-                                  >
-                                </div>
-                              </el-radio-group>
-                            </el-dropdown-item>
-                            <el-dropdown-item divided>
-                              <div style="width: 100%; text-align: center"> Confirm </div>
-                            </el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
+                    <div class="w-[50%] items-center">
+                      <el-select
+                        v-model="customerClassification"
+                        class="min-h-[34px] cursor-pointer w-[100%] font-bold"
+                        placeholder="Select"
+                      >
+                        <el-option
+                          v-for="item in classify2"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
                     </div>
                   </div>
                 </div>
@@ -478,8 +483,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('formDemo.customerName') }}<span style="color: red"> *</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterCustomerName')"
                   />
@@ -489,8 +494,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('reuse.phoneNumber') }}<span style="color: red"> *</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
                   />
@@ -498,51 +503,43 @@ const district = [
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.email') }} </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterEmail')"
                   />
                 </div>
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">CCCD/CMND </label>
-                  <input
-                    class="w-[25%] border-1 outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.enterCCCD')"
-                  />
-                  <!-- <input
-                    class="w-[26%] border-1 outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.supplyDate')"
-                  /> -->
-                  <el-date-picker
-                    v-model="value2"
-                    type="date"
-                    :placeholder="t('formDemo.supplyDate')"
-                    :disabled-date="disabledDate"
-                    :size="size"
-                    format="DD/MM/YYYY"
-                    value-format="YYYY-MM-DD"
-                  />
-                  <input
-                    class="w-[25%] border-1 outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.supplyAddress')"
-                  />
+                  <label class="w-[15%] max-w-[111.63px] text-right leading-5">CCCD/CMND </label>
+                  <div class="flex gap-2 w-[85%]">
+                    <el-input
+                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.enterCCCD')"
+                    />
+                    <el-date-picker
+                      v-model="value2"
+                      type="date"
+                      :placeholder="t('formDemo.supplyDate')"
+                      :disabled-date="disabledDate"
+                      :size="size"
+                      format="DD/MM/YYYY"
+                      value-format="YYYY-MM-DD"
+                      class="w-[25%] min-w-[203px] outline-none pl-2 dark:bg-transparent"
+                    />
+                    <el-input
+                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.supplyAddress')"
+                    />
+                  </div>
                 </div>
 
                 <div class="flex items-center w-[100%] gap-4 mt-5 custom-select-w38">
-                  <label class="w-[15%] text-right leading-5" for="">{{
+                  <label class="w-[15%] max-w-[111.63px] text-right leading-5" for="">{{
                     t('reuse.dateOfBirthAnGender')
                   }}</label>
-
-                  <!-- <input
-                    class="w-[40%] border-1 outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('reuse.dateOfBirth')"
-                  /> -->
                   <el-date-picker
                     v-model="value1"
                     type="date"
@@ -551,6 +548,7 @@ const district = [
                     :size="size"
                     format="DD/MM/YYYY"
                     value-format="YYYY-MM-DD"
+                    class="ml-4"
                   />
                   <el-select v-model="value" class="w-[38%]" clearable placeholder="Select">
                     <el-option
@@ -564,8 +562,8 @@ const district = [
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }} </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
@@ -577,8 +575,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('reuse.companyName') }}<span style="color: red"> *</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterDescription')"
                   />
@@ -588,8 +586,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('reuse.taxCode') }}<span style="color: red"> *</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterTaxCode')"
                   />
@@ -599,8 +597,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('formDemo.representative') }}
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterRepresentativeName')"
                   />
@@ -610,8 +608,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('reuse.phoneNumber') }}<span style="color: red">*</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
                   />
@@ -619,8 +617,8 @@ const district = [
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for=""> {{ t('reuse.email') }}</label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterEmail')"
                   />
@@ -628,8 +626,8 @@ const district = [
 
                 <div class="flex items-center w-[100%] gap-4 mt-5">
                   <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }}</label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
@@ -647,8 +645,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('formDemo.userName') }}<span style="color: red">*</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterUserName')"
                   />
@@ -660,8 +658,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('login.password') }}<span style="color: red">*</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterPassword')"
                   />
@@ -673,8 +671,8 @@ const district = [
                   <label class="w-[15%] text-right leading-5" for=""
                     >{{ t('formDemo.confirmPassword') }}<span style="color: red">*</span>
                   </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                  <el-input
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.confirmPassword')"
                   />
@@ -686,46 +684,67 @@ const district = [
                   <p class="option-select text-center w-[15%] text-right leading-5"
                     >{{ t('formDemo.status') }}
                   </p>
-                  <el-checkbox
-                    v-model="statusActive"
-                    :label="t('formDemo.isActive')"
-                    size="large"
-                  />
-                </div>
-
-                <div class="option-page mt-5">
-                  <div v-if="awesome" class="flex justify-center option-1">
-                    <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
-                      >Lưu</el-button
-                    >
-                    <el-button type="primary" class="min-w-42 min-h-11">{{
-                      t('reuse.saveAndAdd')
-                    }}</el-button>
-
-                    <el-button type="danger" class="min-w-42 min-h-11">{{
-                      t('reuse.cancel')
-                    }}</el-button>
-                  </div>
-                  <div v-else class="flex justify-center option-1">
-                    <el-button @click="fix = !fix" type="primary" class="min-w-42 min-h-11"
-                      >Sửa</el-button
-                    >
-                    <el-button type="danger" class="min-w-42 min-h-11">{{
-                      t('formDemo.cancelAccount')
-                    }}</el-button>
-                  </div>
-
-                  <div v-if="fix" class="flex justify-center option-1">
-                    <el-button type="primary" class="min-w-42 min-h-11">{{
-                      t('reuse.save')
-                    }}</el-button>
-                    <el-button type="danger" class="min-w-42 min-h-11">{{
-                      t('reuse.cancel')
-                    }}</el-button>
-                  </div>
+                  <el-checkbox v-model="statusActive" :label="t('formDemo.isActive')" />
                 </div>
               </template>
             </Form>
+            <div class="option-page mt-5">
+              <div v-if="type === 'detail'" class="flex justify-center">
+                <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.fix')
+                }}</el-button>
+                <el-button type="danger" class="min-w-42 min-h-11">{{
+                  t('formDemo.cancelAccount')
+                }}</el-button>
+              </div>
+              <div v-else-if="type === 'edit'" class="flex justify-center">
+                <el-button type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.save')
+                }}</el-button>
+                <el-button type="danger" class="min-w-42 min-h-11">{{
+                  t('reuse.cancel')
+                }}</el-button>
+              </div>
+              <div v-else class="flex justify-center">
+                <el-button type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.save')
+                }}</el-button>
+                <el-button type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.saveAndAdd')
+                }}</el-button>
+
+                <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
+              </div>
+              <!-- <div v-if="awesome" class="flex justify-center option-1">
+                <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
+                  >Lưu</el-button
+                >
+                <el-button type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.saveAndAdd')
+                }}</el-button>
+
+                <el-button type="danger" class="min-w-42 min-h-11">{{
+                  t('reuse.cancel')
+                }}</el-button>
+              </div>
+              <div v-else class="flex justify-center option-1">
+                <el-button @click="fix = !fix" type="primary" class="min-w-42 min-h-11"
+                  >Sửa</el-button
+                >
+                <el-button type="danger" class="min-w-42 min-h-11">{{
+                  t('formDemo.cancelAccount')
+                }}</el-button>
+              </div>
+
+              <div v-if="fix" class="flex justify-center option-1">
+                <el-button type="primary" class="min-w-42 min-h-11">{{
+                  t('reuse.save')
+                }}</el-button>
+                <el-button type="danger" class="min-w-42 min-h-11">{{
+                  t('reuse.cancel')
+                }}</el-button>
+              </div> -->
+            </div>
           </div>
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -773,11 +792,11 @@ const district = [
               <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
 
               <Form
+                :disabled="disableData"
                 :schema="schema2"
                 label-position="top"
                 hide-required-asterisk
-                size="large"
-                class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+                class="flex border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
                 @register="register"
               >
                 <template #placeCustomer>
@@ -826,7 +845,7 @@ const district = [
                       >{{ t('formDemo.wards') }}
                     </label>
                     <input
-                      class="w-[80%] border-1 outline-none pl-2"
+                      class="w-[80%] outline-none pl-2"
                       type="text"
                       :placeholder="`Chọn Phường/xã `"
                     />
@@ -838,7 +857,7 @@ const district = [
                       t('formDemo.detailedAddress')
                     }}</label>
                     <input
-                      class="w-[80%] border-1 outline-none pl-2"
+                      class="w-[80%] outline-none pl-2"
                       type="text"
                       :placeholder="t('formDemo.enterDetailAddress')"
                     />
@@ -850,8 +869,8 @@ const district = [
                     <label class="w-[15%] text-right leading-5" for="">{{
                       t('userDemo.username')
                     }}</label>
-                    <input
-                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                    <el-input
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterAccountName')"
                     />
@@ -862,8 +881,8 @@ const district = [
                     <label class="w-[15%] text-right leading-5" for=""
                       >{{ t('userDemo.accountNumber') }}
                     </label>
-                    <input
-                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                    <el-input
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterAccountNumber')"
                     />
@@ -872,8 +891,8 @@ const district = [
                 <template #referralCode3>
                   <div class="flex items-center w-[100%] gap-4">
                     <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.bank') }}</label>
-                    <input
-                      class="w-[80%] border-1 outline-none pl-2 dark:bg-transparent"
+                    <el-input
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.selectBank')"
                     />
@@ -999,5 +1018,9 @@ const district = [
   color: var(--el-text-color-secondary);
   font-size: 14px;
   margin-bottom: 20px;
+}
+
+::v-deep(.el-input__wrapper) {
+  height: 34px;
 }
 </style>

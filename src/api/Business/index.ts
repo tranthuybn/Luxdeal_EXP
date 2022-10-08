@@ -97,6 +97,27 @@ export const getCustomer = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getCustomerById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const addNewCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CUSTOMER_API.ADD_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

@@ -3,7 +3,6 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
-import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
@@ -46,52 +45,6 @@ const collapse: Array<Collapse> = [
     icon: minusIcon,
     name: 'information',
     title: t('reuse.customerInfo')
-  },
-  {
-    icon: plusIcon,
-    name: 'information',
-    title: t('reuse.ManageSalesHistoryAndCommissionPayments')
-  }
-]
-const tableColumn = [
-  {
-    field: 'date',
-    label: t('reuse.date'),
-    minWidth: '150'
-  },
-  {
-    field: 'code',
-    label: t('reuse.orderCode') + '/' + t('formDemo.withdrawalRequestCode'),
-    minWidth: '350'
-  },
-  {
-    field: 'discount',
-    label: '%' + t('formDemo.discount'),
-    minWidth: '150'
-  },
-  {
-    field: 'orderSales',
-    label: t('reuse.orderSales'),
-    minWidth: '150',
-    align: 'right'
-  },
-  {
-    field: 'intoDiscountComMoney',
-    label: t('formDemo.intoDiscountComMoney'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'spent',
-    label: t('formDemo.spent'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'cumulativeCom',
-    label: t('formDemo.cumulativeCom'),
-    minWidth: '150',
-    align: 'center'
   }
 ]
 const dialogVisible = ref(false)
@@ -473,6 +426,17 @@ const fix = async () => {
     params: { id: id, type: 'edit' }
   })
 }
+const value = ref('')
+const options = [
+  {
+    value: 'Option1',
+    label: 'Phiếu thu'
+  },
+  {
+    value: 'Option2',
+    label: 'Phiếu chi'
+  }
+]
 const activeName = ref('1')
 </script>
 <template>
@@ -506,18 +470,6 @@ const activeName = ref('1')
               <el-divider content-position="left">{{
                 t('formDemo.profileCollaborator')
               }}</el-divider>
-
-              <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
-                <div>{{ CollaboratorId }}</div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.discountCollaborator')" prop="Discount">
-                <ElInput
-                  v-model="FormData.Discount"
-                  size="default"
-                  :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
-                  :suffixIcon="h('div', '%')"
-                />
-              </ElFormItem>
               <ElFormItem class="mb-4" :label="t('formDemo.chooseACustomer')" prop="customersValue">
                 <ElSelect
                   v-model="FormData.customersValue"
@@ -577,10 +529,54 @@ const activeName = ref('1')
                   <div>{{ infoCompany.bankName }}</div>
                 </div>
               </ElFormItem>
-              <el-divider content-position="left">{{ t('reuse.statusAndAccount') }}</el-divider>
-
+              <el-divider content-position="left">{{ t('router.paymentRequests') }}</el-divider>
+              <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
+                <div>{{ CollaboratorId }}</div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.discountCollaborator')" prop="Discount">
+                <ElInput
+                  v-model="FormData.Discount"
+                  size="default"
+                  :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
+                  :suffixIcon="h('div', 'đ')"
+                />
+              </ElFormItem>
+              <ElFormItem :label="t('router.receiptsAndExpenditures')">
+                <el-select
+                  v-model="value"
+                  placeholder="Select"
+                  style="width: 78%; margin-right: 2%"
+                >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+                <el-button :icon="plusIcon" style="padding: 8px 34px">{{
+                  t('formDemo.change')
+                }}</el-button>
+              </ElFormItem>
+              <ElFormItem :label="t('router.paymentProposal')">
+                <el-select
+                  v-model="value"
+                  placeholder="Select"
+                  style="width: 78%; margin-right: 2%"
+                >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+                <el-button :icon="plusIcon" style="padding: 8px 34px">{{
+                  t('formDemo.change')
+                }}</el-button>
+              </ElFormItem>
               <ElFormItem :label="t('reuse.status')" style="align-items: flex-start">
-                <div class="flex items-center w-[80%] gap-4">
+                <div class="block items-center w-[100%] gap-4">
                   <ElCheckbox
                     v-model="FormData.CollaboratorStatus"
                     :label="t('formDemo.isActive')"
@@ -588,8 +584,8 @@ const activeName = ref('1')
                     :disabled="type === 'add' || type === ''"
                   />
                 </div>
-                <div class="flex gap-2 pb-8">
-                  <div class="w-[80%]"
+                <div class="block gap-2 pb-8">
+                  <div class="w-[100%]"
                     ><span class="pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
                       t('reuse.approval')
                     }}</span>
@@ -644,27 +640,10 @@ const activeName = ref('1')
         </div>
         <div v-else class="flex justify-center">
           <ElButton class="min-w-42" type="primary" @click="save()">
-            {{ t('reuse.saveAndPending') }}
+            {{ t('reuse.save') }}
           </ElButton>
           <ElButton class="min-w-42" @click="cancel()"> {{ t('reuse.cancel') }} </ElButton>
         </div>
-      </el-collapse-item>
-      <el-collapse-item :disabled="disabledTable" name="2">
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[1].icon" link />
-          <span class="text-center text-xl">{{ collapse[1].title }}</span>
-        </template>
-        <TableBase
-          :removeDrawer="false"
-          :expand="false"
-          :customOperator="1"
-          :paginationType="false"
-          ref="tableBase01"
-          :api="''"
-          :maxHeight="'69vh'"
-          :fullColumns="tableColumn"
-          :selection="false"
-        />
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -692,10 +671,6 @@ const activeName = ref('1')
 }
 
 ::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
   display: block;
 }
 

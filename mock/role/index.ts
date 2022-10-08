@@ -414,6 +414,18 @@ const adminList = [
             }
           },
           {
+            path: `${utility}/:id?/:type?`,
+            name: `business.collaborators.paymentRequest.${utility}`,
+            component: 'views/Pages/Business/Collaborators/PaymentRequestAdd',
+            meta: {
+              title: 'router.newInitialization',
+              noTagsView: true,
+              noCache: true,
+              hidden: true,
+              showMainRoute: true
+            }
+          },
+          {
             path: 'collaboratorsAdd',
             name: 'business.collaborators.collaboratorsAdd',
             component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',

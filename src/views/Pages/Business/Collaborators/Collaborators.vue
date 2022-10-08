@@ -43,7 +43,7 @@ const columns = reactive<TableColumn[]>([
   },
 
   {
-    field: 'accountNumber',
+    field: 'contact',
     label: t('reuse.contact'),
     minWidth: '250'
   },
@@ -236,10 +236,10 @@ watch(
       @filter-change="filterChange"
     >
       <template #contact="data">
-        <div>Mst: {{ data.row.customer.taxCode }}</div>
-        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer.phonenumber }}</div>
-        <div>Email: {{ data.row.customer.email }}</div>
-        <div>Địa chỉ: {{ data.row.customer.address }}</div>
+        <div>Mst: {{ data.row.customer?.taxCode }}</div>
+        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div>
+        <div>Email: {{ data.row.customer?.email }}</div>
+        <div>Địa chỉ: {{ data.row.customer?.address }}</div>
       </template>
       <template #account="data">
         <div>STK: {{ data.row.accountNumber }}</div>

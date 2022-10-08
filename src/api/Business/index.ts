@@ -118,6 +118,19 @@ export const getCustomer = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+// Tạo mới đơn hàng
+export const addNewOrderList = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_NEW_ORDER,
+      data: params
+    },
+    0
+  )
+  return res.data && res.data.data
+}
+
+// Lấy danh sách đơn hàng
 export const getProductsList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

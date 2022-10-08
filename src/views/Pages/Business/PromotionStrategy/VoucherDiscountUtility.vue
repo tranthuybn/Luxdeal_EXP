@@ -506,11 +506,6 @@ const radioCondition = ref(false)
                       size="large"
                     />
                   </span>
-                  <span style="color: orange"
-                    >(
-                    {{ t('formDemo.ifNotSelectedVoucherWillOnlyBeSentAfterClickingSubmit') }}
-                    )</span
-                  >
                 </div>
 
                 <div class="option-select text-center"
@@ -519,9 +514,6 @@ const radioCondition = ref(false)
                     t('formDemo.theProgramIsRunning')
                   }}</span>
                   <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
-                  <i class="ml-3" style="color: #3ddf4e"
-                    >{{ t('formDemo.newAndEditVoucherMustHaveSAApprovalInTheBrowsingModule') }}
-                  </i>
                 </div>
 
                 <div class="option-page mt-5">

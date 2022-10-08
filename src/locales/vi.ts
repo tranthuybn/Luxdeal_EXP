@@ -142,6 +142,14 @@ export default {
     pauseActivity: 'Tạm dừng hoạt động',
     enterServiceCode: 'Nhập mã dịch vụ',
     enterServiceName: 'Nhập tên dịch vụ',
+    voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
+    voucherDiscount: 'Voucher giảm giá đơn hàng',
+    voucherDetails: ' Chi tiết voucher',
+    voucherCode: 'Mã voucher',
+    odersApply: 'Đơn hàng áp dụng',
+    appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
+    sendImmediatelyAfterBrowsing: 'Gửi ngay sau khi duyệt',
+    voucherSendingSettings: 'Cài đặt gửi voucher',
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
     enterNumberHours: 'Nhập số giờ',
@@ -568,7 +576,9 @@ export default {
     approveManagement: 'Quản lý duyệt',
     BalanceSheetUtility: 'Thêm mới tài khoản',
     newsList: 'Danh sách tin tức',
-    manageNew: 'Quản lý danh mục tin tức'
+    manageNew: 'Quản lý danh mục tin tức',
+    comboTitle: 'Thông tin Combo',
+    auctionTitle: 'Thông tin đấu giá'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'

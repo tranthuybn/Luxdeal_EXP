@@ -555,7 +555,9 @@ export default {
     paymentsAdd: 'Payments Add',
     departmentDirectory: 'Department Directory',
     newsList: 'News List',
-    manageNew: 'Manage news category'
+    manageNew: 'Manage news category',
+    comboTitle: 'Combo title',
+    auctionTitle: 'Auction title'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'

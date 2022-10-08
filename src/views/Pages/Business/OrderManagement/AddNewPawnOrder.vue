@@ -890,7 +890,7 @@ onBeforeMount(() => {
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[165px] text-right pr-[12px] leading-5">
+                    <div class="w-[20%] max-w-[165px] text-right pr-[12px]">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
                     </div>
 

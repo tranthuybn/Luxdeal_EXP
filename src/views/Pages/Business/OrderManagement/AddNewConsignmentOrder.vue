@@ -685,7 +685,7 @@ onBeforeMount(() => {
               ref="ruleFormRef"
               :model="ruleForm"
               :rules="rules"
-              label-width="165px"
+              label-width="170px"
               class="demo-ruleForm"
               status-icon
             >

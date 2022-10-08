@@ -57,6 +57,10 @@ const props = defineProps({
     descriptions:
       'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: xem, sửa (icon))'
   },
+  tabs: {
+    type: String,
+    default: ''
+  },
   paginationType: {
     type: Boolean,
     default: true
@@ -192,12 +196,14 @@ const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
+console.log('tabs: ', props.tabs)
 let buttonShow = true
+
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type }
+      params: { id: row.id, type: type, tab: props.tabs }
     })
   } else {
     if (buttonShow === true) {

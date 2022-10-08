@@ -11,13 +11,14 @@ import {
   ElTable,
   ElTableColumn,
   ElButton,
-  ElDropdown,
-  ElDropdownItem,
-  ElDropdownMenu,
+  ElOption,
   FormRules,
   ElForm,
+  ElDialog,
   ElFormItem,
-  ElInput
+  ElInput,
+  ElSelect,
+  ElDatePicker
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { Collapse } from '../../Components/Type'
@@ -151,9 +152,23 @@ const rules = reactive<FormRules>({
 
 const radioOptionCustomer = ref('2')
 
-const radioOptionPromotion = ref(t('formDemo.decreaseByPercent'))
 const valueSwitch = ref(true)
 const awesome = ref(true)
+const promotionValue = ref(t('formDemo.decreaseByPercent'))
+const optionPromotion = [
+  {
+    value: t('formDemo.decreaseByPercent'),
+    label: t('formDemo.decreaseByPercent')
+  },
+  {
+    value: t('formDemo.decreaseByAmount'),
+    label: t('formDemo.decreaseByAmount')
+  },
+  {
+    value: t('formDemo.noPromotion'),
+    label: t('formDemo.noPromotion')
+  }
+]
 </script>
 
 <template>
@@ -186,58 +201,14 @@ const awesome = ref(true)
                 <div class="flex items-center w-[100%] gap-2">
                   <el-form-item style="flex: 1">
                     <div class="w-[100%] items-center items-center border-1 rounded leading-7">
-                      <el-dropdown trigger="click" class="w-[100%] h-[100%]">
-                        <div class="flex justify-between w-[100%] items-center black-color">
-                          <span
-                            class="el-dropdown-link text-blue-500 cursor-pointer w-[100%] font-bold dark:text-light-50 ml-2"
-                          >
-                            {{ radioOptionPromotion }}
-                          </span>
-                          <Icon
-                            icon="material-symbols:keyboard-arrow-down"
-                            :size="16"
-                            class="mr-2"
-                          />
-                        </div>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item>
-                              <el-radio-group v-model="radioOptionPromotion" class="flex-col">
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="t('formDemo.decreaseByPercent')"
-                                    size="large"
-                                    >{{ t('formDemo.decreaseByPercent') }}</el-radio
-                                  >
-                                </div>
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="t('formDemo.decreaseByAmount')"
-                                    size="large"
-                                    >{{ t('formDemo.decreaseByAmount') }}</el-radio
-                                  >
-                                </div>
-                                <div style="width: 100%">
-                                  <el-radio
-                                    class="text-left"
-                                    style="color: blue"
-                                    :label="t('formDemo.noPromotion')"
-                                    size="large"
-                                    >{{ t('formDemo.noPromotion') }}</el-radio
-                                  >
-                                </div>
-                              </el-radio-group>
-                            </el-dropdown-item>
-                            <el-dropdown-item divided>
-                              <div style="width: 100%; text-align: center"> Confirm </div>
-                            </el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
+                      <el-select v-model="promotionValue" clearable placeholder="Select">
+                        <el-option
+                          v-for="item in optionPromotion"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
                     </div>
                   </el-form-item>
 
@@ -252,47 +223,31 @@ const awesome = ref(true)
                 </div>
               </el-form-item>
 
-              <template #duration>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] leading-5 text-right" for=""
-                    >Thời hạn <span style="color: red">*</span>
-                  </label>
-
-                  <div class="flex w-[80%] gap-2">
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('reuse.startDate')}`"
-                    />
-                    <input
-                      class="w-[50%] border-1 outline-none pl-2"
-                      type="text"
-                      :placeholder="`${t('reuse.endDate')}`"
-                    />
-                  </div>
-                </div>
-              </template>
-              <template #desc>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.shortDescription') }}<span style="color: red">*</span>
-                  </label>
-                  <input
-                    class="w-[80%] border-1 outline-none pl-2"
-                    type="text"
-                    :placeholder="t('formDemo.enterDescription')"
+              <el-form-item :label="t('formDemo.duration')" required>
+                <div class="custom-date">
+                  <el-date-picker
+                    type="daterange"
+                    :start-placeholder="t('formDemo.startDay')"
+                    :end-placeholder="t('formDemo.endDay')"
+                    format="DD/MM/YYYY"
                   />
                 </div>
-              </template>
+              </el-form-item>
 
-              <template #applicableObject>
-                <div class="flex w-[100%]">
-                  <el-divider content-position="left">{{
-                    t('reuse.subjectsOfApplication')
-                  }}</el-divider>
-                </div>
-              </template>
-              <template #selectObject>
+              <el-form-item :label="t('formDemo.shortDescription')">
+                <el-input
+                  v-model="ruleForm.orderNotes"
+                  style="width: 100%"
+                  type="text"
+                  :placeholder="`${t('formDemo.enterDescription')}`"
+                />
+              </el-form-item>
+
+              <el-divider content-position="left">{{
+                t('reuse.subjectsOfApplication')
+              }}</el-divider>
+
+              <div class="container">
                 <div class="my-2 flex items-center text-sm">
                   <el-radio-group v-model="radioOptionCustomer" class="ml-4">
                     <el-radio label="1">{{ t('reuse.allCustomer') }}</el-radio>
@@ -381,7 +336,7 @@ const awesome = ref(true)
                     }}</el-button>
                   </div>
                 </div>
-              </template>
+              </div>
             </el-form>
           </div>
           <div class="w-[50%]">

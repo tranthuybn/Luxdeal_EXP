@@ -34,10 +34,12 @@ import {
   getAllCustomer,
   getPromotionsList,
   getProductsList,
-  addNewOrderList
+  addNewOrderList,
+  getSellOrderList
 } from '@/api/Business'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -661,12 +663,46 @@ const optionsRentalPaymentPeriod = [
   }
 ]
 
+const checkDisabled = ref(false)
+
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  console.log('checkDisabled: ', checkDisabled.value)
+  if (type == 'edit' || type == 'detail') {
+    const res = await getSellOrderList({ Id: id })
+    if (res.data) {
+      ruleForm.orderCode = res.data[0].code
+      ruleForm.collaborators = res.data[0].collaboratorCode
+      ruleForm.discount = res.data[0].collaboratorCode
+      ruleForm.customerName = res.data[0].userName
+      ruleForm.orderNotes = res.data[0].description
+
+      if (res.data[0].customer.isOrganization) {
+        infoCompany.name = res.data[0].customer.name
+        infoCompany.taxCode = res.data[0].customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
+        infoCompany.email = 'Email: ' + res.data[0].customer.email
+      } else {
+        infoCompany.name = res.data[0].customer.name + ' | ' + res.data[0].customer.taxCode
+        infoCompany.taxCode = res.data[0].customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
+        infoCompany.email = 'Email: ' + res.data[0].customer.email
+      }
+    }
+  }
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callPromoApi()
   callApiProductList()
   callApiCity()
+  editData()
 })
 </script>
 

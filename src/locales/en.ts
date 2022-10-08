@@ -384,7 +384,9 @@ export default {
     pawnFeeDebt: 'Pawn fee debt',
     numberOfTimesRented: 'Number of times rented',
     totalFeePayable: 'Total fee payable',
-    debtHistory: 'Debt history'
+    debtHistory: 'Debt history',
+    browsePriceChanges: 'Browse price changes',
+    waitingDelivery: 'Waiting for delivery'
   },
   button: {
     add: 'Add quick',
@@ -681,7 +683,7 @@ export default {
     result: 'Result',
     receiveConsignmentGoodsAtCounter: 'Receive consignment good at counter',
     receivePawnGoodsAtCounter: 'Receive pawn good at counter',
-
+    receivePawn: 'Receive pawn',
     receiveConsignment: 'Receive consignment',
     order: 'Order',
     feedBack: 'Feedback',

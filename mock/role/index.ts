@@ -294,7 +294,7 @@ const adminList = [
             }
           },
           {
-            path: '${utility}/:id?/:type?',
+            path: '${utility}/:id?/:type/:tab?',
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {

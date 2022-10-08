@@ -21,12 +21,13 @@ import {
   ElDropdownItem,
   ElDatePicker,
   ElForm,
-  ElFormItem
+  ElFormItem,
+  ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
@@ -82,23 +83,26 @@ const rules = reactive<FormRules>({
 })
 
 let checkValidate = ref(false)
+let checkValidateForm = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
+      checkValidateForm.value = true
     } else {
-      console.log('error submit!', fields)
+      console.log('form1 error submit!', fields)
+      checkValidateForm.value = false
     }
   })
-  await formEl2.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      ElMessage.success(t('reuse.addSuccess'))
       checkValidate.value = true
     } else {
-      console.log('error submit!', fields)
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -229,6 +233,9 @@ const input = ref('')
 interface ListOfProductsForSaleType {
   name: string
   productCode: string
+  productName: string
+  productPropertyCode: string
+  productPropertyName: string
   id: string
   code: string
   quantity: number | undefined
@@ -240,10 +247,13 @@ interface ListOfProductsForSaleType {
   edited: boolean
 }
 
-const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
+let ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
   {
     name: '',
     productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    productPropertyName: '',
     id: '',
     code: '',
     quantity: 1,
@@ -255,6 +265,7 @@ const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
     edited: true
   }
 ])
+
 const tableData2 = [
   {
     name: '',
@@ -399,35 +410,12 @@ const callCustomersApi = async () => {
         name: product.name,
         taxCode: product.taxCode,
         phone: product.phonenumber,
-        email: product.email
+        email: product.email,
+        id: product.id
       }))
     }
   }
   optionCallCustomerAPi++
-}
-
-const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
-  } else {
-    customerAddress.value = ''
-    deliveryMethod.value = ''
-  }
 }
 
 // Call api danh sách sản phẩm
@@ -479,31 +467,6 @@ const callApiCollaborators = async () => {
   optionCallCollaborators++
 }
 
-// Call api danh sách mã giảm giá
-let promoTable = ref()
-const promoLoading = ref(true)
-const listPromotions = ref()
-const optionPromotions = ref()
-let optionCallPromoAPi = 0
-const callPromoApi = async () => {
-  if (optionCallPromoAPi == 0) {
-    const res = await getPromotionsList('')
-    let count = 0
-    listPromotions.value = res.data
-    optionPromotions.value = listPromotions.value.map((product) => ({
-      radio: count++,
-      label: product.code,
-      value: product.name,
-      name: product.description,
-      discount: product.reduce,
-      min: product.minimumPriceToGetReduce,
-      max: product.maximumReduce
-    }))
-    optionCallPromoAPi++
-    promoTable.value = optionPromotions.value
-  }
-}
-
 // phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref('individual')
 const optionsClassify = [
@@ -530,6 +493,9 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.push({
     name: '',
     productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    productPropertyName: '',
     id: '',
     code: '',
     quantity: undefined,
@@ -559,6 +525,16 @@ watch(
   },
   { deep: true }
 )
+watch(
+  () => checkValidate.value,
+  () => {
+    if (checkValidate.value === true) {
+      postData()
+    }
+  }
+)
+
+let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
   if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
@@ -569,8 +545,8 @@ const removeListProductsSale = (index) => {
 }
 
 const checkDisabled = ref(false)
-// tạo đơn hàng
 
+// tạo đơn hàng
 const postData = () => {
   // let productPayment = reactive<
   //   Array<{
@@ -584,6 +560,7 @@ const postData = () => {
   //   }>
   // >([])
   submitForm(ruleFormRef.value, ruleFormRef2.value)
+  console.log('checkValidate: ', checkValidate.value)
   if (checkValidate.value) {
     const productPayment = JSON.stringify([
       {
@@ -676,34 +653,97 @@ const districtChange = async (value) => {
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const route = useRoute()
+const tab = String(route.params.tab)
 console.log('id: ', id)
 console.log('type: ', type)
+console.log('tab: ', tab)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  console.log('checkDisabled: ', checkDisabled.value)
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
-    console.log(res.data)
+    const orderObj = { ...res.data[0] }
+    console.log('orderObj: ', orderObj)
     if (res.data) {
-      ruleForm.orderCode = res.data[0].code
-      ruleForm.collaborators = res.data[0].collaboratorCode
-      ruleForm.discount = res.data[0].collaboratorCode
-      ruleForm.customerName = res.data[0].userName
-      ruleForm.orderNotes = res.data[0].description
+      ruleForm.orderCode = orderObj.code
+      ruleForm.collaborators = orderObj.collaborator.name
+      ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.customerName = orderObj.customer.isOrganization
+        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.orderNotes = orderObj.description
 
-      if (res.data[0].customer.isOrganization) {
-        infoCompany.name = res.data[0].customer.name
-        infoCompany.taxCode = res.data[0].customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
-        infoCompany.email = 'Email: ' + res.data[0].customer.email
+      ListOfProductsForSale = [...orderObj.orderDetails]
+      console.log('ListOfProductsForSale: ', ListOfProductsForSale)
+
+      customerAddress.value = orderObj.address
+      ruleForm.delivery = orderObj.deliveryOptionName
+      customerIdPromo.value = orderObj.customerId
+      if (orderObj.customer.isOrganization) {
+        infoCompany.name = orderObj.customer.name
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
-        infoCompany.name = res.data[0].customer.name + ' | ' + res.data[0].customer.taxCode
-        infoCompany.taxCode = res.data[0].customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + res.data[0].customer.phone
-        infoCompany.email = 'Email: ' + res.data[0].customer.email
+        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
+  }
+}
+
+// Call api danh sách mã giảm giá
+let promoTable = ref()
+const promoLoading = ref(true)
+const listPromotions = ref()
+const optionPromotions = ref()
+let optionCallPromoAPi = 0
+const callPromoApi = async () => {
+  if (optionCallPromoAPi == 0) {
+    const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
+    let count = 0
+    listPromotions.value = res.data
+    optionPromotions.value = listPromotions.value.map((product) => ({
+      radio: count++,
+      label: product.code,
+      value: product.name,
+      name: product.description,
+      discount: product.reduce,
+      min: product.minimumPriceToGetReduce,
+      max: product.maximumReduce
+    }))
+    optionCallPromoAPi++
+    promoTable.value = optionPromotions.value
+  }
+}
+
+const changeAddressCustomer = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsCustomerApi.value.find((e) => e.value == data)
+    optionCallPromoAPi = 0
+    customerIdPromo.value = result.id
+    callPromoApi()
+    console.log('result: ', result)
+    if (result.isOrganization) {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    } else {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    }
+  } else {
+    customerAddress.value = ''
+    deliveryMethod.value = ''
   }
 }
 
@@ -1067,6 +1107,7 @@ onBeforeMount(() => {
                   <p>
                     <el-button
                       class="hover:bg-transparent; focus:bg-transparent"
+                      :disabled="checkDisabled"
                       text
                       @click="dialogFormVisible = true"
                       ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
@@ -1323,6 +1364,21 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
+          <!-- <el-table-column
+            prop="productCode"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          />
+          <el-table-column
+            prop="productName"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          />
+          <el-table-column
+            prop="quantity"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          /> -->
           <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="620">
             <!-- <template #default="props">
               <MultipleOptionsBox
@@ -1344,7 +1400,9 @@ onBeforeMount(() => {
           </el-table-column>
           <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
             <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.selfImportAccessories }}</div>
               <el-input
+                v-else
                 class="max-w-[150px]"
                 v-model="data.row.selfImportAccessories"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
@@ -1416,6 +1474,7 @@ onBeforeMount(() => {
             <div class="text-blue-500 cursor-pointer">
               <el-button
                 text
+                :disabled="checkDisabled"
                 @click="
                   () => {
                     openDialogChoosePromotion = true
@@ -1427,7 +1486,7 @@ onBeforeMount(() => {
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
-            <el-dropdown trigger="click">
+            <el-dropdown trigger="click" :disabled="checkDisabled">
               <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                 {{ t('formDemo.doesNotIncludeVAT') }}
                 <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
@@ -1480,12 +1539,19 @@ onBeforeMount(() => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio>
-              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
-              <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio>
+              <!-- <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio> -->
+              <el-radio :disabled="checkDisabled" label="1">{{
+                t('formDemo.waitingDelivery')
+              }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="3">{{
+                t('reuse.successfulDelivery')
+              }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="4">{{
+                t('reuse.deliveryFailed')
+              }}</el-radio>
+              <!-- <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
+              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio> -->
             </el-radio-group>
           </div>
         </div>
@@ -1493,7 +1559,7 @@ onBeforeMount(() => {
           <div class="w-[11%]"></div>
           <div class="w-[89%]"
             ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-              t('formDemo.changedUnitPriceIsWaitingForPriceApproval')
+              t('formDemo.browsePriceChanges')
             }}</span>
           </div>
         </div>
@@ -1501,12 +1567,20 @@ onBeforeMount(() => {
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <div class="w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.complete')
+            <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
+              t('formDemo.printSalesSlip')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
+            <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
+              t('formDemo.temporaryStorage')
+            }}</el-button>
+            <el-button
+              :disabled="checkDisabled"
+              @click="postData"
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.complete') }}</el-button
+            >
+            <el-button :disabled="checkDisabled" type="danger" class="min-w-42 min-h-11">{{
               t('button.cancelOrder')
             }}</el-button>
           </div>

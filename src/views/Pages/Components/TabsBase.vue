@@ -115,7 +115,7 @@ const pushAdd = () => {
               </div>
               <div v-if="customHeaderButton === 'Base'">
                 <el-button type="primary" :icon="createIcon" @click="pushAdd">
-                  {{ t(`${item.titleAdd}`) }}
+                  {{ t(`${item.titleAdd}`) ?? '' }}
                 </el-button>
               </div>
             </template>
@@ -131,7 +131,7 @@ const pushAdd = () => {
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
             :delApi="item.delApi"
-            :tab="item.name"
+            :tabs="item.name"
           />
         </div>
       </el-tab-pane>

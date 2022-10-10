@@ -9,13 +9,10 @@ import {
   ElDivider,
   ElTable,
   ElTableColumn,
-  ElRadioGroup,
-  ElRadio,
   ElDialog,
   ElDatePicker,
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
+  ElSelect,
+  ElOption,
   ElSwitch
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
@@ -238,7 +235,7 @@ const changeName = (optionID, scope) => {
 const checkButton = ref(false)
 
 // setPriceFloor radio
-const setPriceFloor = ref(false)
+const setPriceFloor = ref()
 
 // check button huy
 let countCancel = 1
@@ -286,6 +283,7 @@ const tableData = ref([
     permissionPurchase: false
   }
 ])
+
 // delete row table
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
@@ -293,6 +291,21 @@ const deleteRow = (index: number) => {
 
 // check cho phép mua hàng
 // const checkPermissionPurchase = ref()
+
+const optionsSetPrice = [
+  {
+    value: 'Giảm theo %',
+    label: 'Giảm theo %'
+  },
+  {
+    value: 'Giảm theo số tiền',
+    label: 'Giảm theo số tiền'
+  },
+  {
+    value: 'Không khuyến mại',
+    label: 'Không khuyến mại'
+  }
+]
 
 onBeforeMount(() => {
   callApiProductList()
@@ -317,7 +330,6 @@ onBeforeMount(() => {
             :schema="schema"
             label-position="top"
             hide-required-asterisk
-            size="large"
             class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
             @register="register"
           >
@@ -333,36 +345,15 @@ onBeforeMount(() => {
                   t('formDemo.floorPriceSettingPriceStep')
                 }}</label>
                 <div class="flex w-[80%] gap-4">
-                  <div class="w-[50%] border-1 flex items-center">
-                    <el-dropdown trigger="click" class="w-[100%]">
-                      <span class="el-dropdown-link pl-2">
-                        {{ t('formDemo.setPriceFloor')
-                        }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                      </span>
-                      <template #dropdown>
-                        <el-dropdown-menu>
-                          <el-dropdown-item>
-                            <el-radio-group v-model="setPriceFloor">
-                              <el-radio label="1" size="large" />
-                            </el-radio-group>
-                            Giảm theo %
-                          </el-dropdown-item>
-                          <el-dropdown-item>
-                            <el-radio-group v-model="setPriceFloor">
-                              <el-radio label="2" size="large" />
-                            </el-radio-group>
-                            Giảm theo số tiền
-                          </el-dropdown-item>
-                          <el-dropdown-item>
-                            <el-radio-group v-model="setPriceFloor">
-                              <el-radio label="3" size="large" />
-                            </el-radio-group>
-                            Không khuyến mại
-                          </el-dropdown-item>
-                          <el-dropdown-item divided>Confirm</el-dropdown-item>
-                        </el-dropdown-menu>
-                      </template>
-                    </el-dropdown>
+                  <div class="w-[50%] flex items-center">
+                    <el-select v-model="setPriceFloor" placeholder="Select">
+                      <el-option
+                        v-for="item in optionsSetPrice"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
                   </div>
                   <div class="flex w-[50%] border-1">
                     <input
@@ -530,21 +521,17 @@ onBeforeMount(() => {
                   }
                 "
                 type="primary"
-                size="large"
                 >{{ t('button.saveAndWaitApproval') }}</el-button
               >
-              <el-button v-if="countCancel !== 1" class="min-w-[142px]" size="large">{{
+              <el-button v-if="countCancel !== 1" class="min-w-[142px]">{{
                 t('button.cancel')
               }}</el-button>
             </div>
             <div v-else>
-              <el-button
-                class="min-w-[142px]"
-                size="large"
-                @click.prevent="checkButton = !checkButton"
-                >{{ t('button.edit') }}</el-button
-              >
-              <el-button class="min-w-[142px]" size="large" type="danger">{{
+              <el-button class="min-w-[142px]" @click.prevent="checkButton = !checkButton">{{
+                t('button.edit')
+              }}</el-button>
+              <el-button class="min-w-[142px]" type="danger">{{
                 t('button.cancelVoucher')
               }}</el-button>
             </div>
@@ -583,7 +570,7 @@ onBeforeMount(() => {
         </el-table-column>
         <el-table-column fixed="right" :label="t('reuse.operator')" width="120">
           <template #default="scope">
-            <el-button type="danger" size="large" @click.prevent="deleteRow(scope.$index)">
+            <el-button type="danger" @click.prevent="deleteRow(scope.$index)">
               {{ t('button.cancelResult') }}
             </el-button>
           </template>
@@ -605,7 +592,8 @@ onBeforeMount(() => {
 .fix-padding {
   padding: 0;
 }
-/* ::v-deep(.el-select-dropdown__item) {
-      padding: 0 !important;
-    } */
+
+::v-deep(.el-select) {
+  width: 100%;
+}
 </style>

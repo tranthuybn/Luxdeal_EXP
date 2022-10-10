@@ -1466,7 +1466,7 @@ const testList: string[] = [
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory/${utility}/:id?/:type?`
+  `/human-resource-management/department-directory-utility/:id?/:type?`
 ]
 
 export default [

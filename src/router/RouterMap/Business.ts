@@ -49,6 +49,58 @@ export default {
         }
       ]
     },
+    // {
+    //   path: 'order-management',
+    //   name: 'business.order-management',
+    //   redirect: { name: 'business.order-management.order-list' },
+    //   meta: {
+    //     title: t('router.orderManagement')
+    //   },
+    //   children: [
+    //     {
+    //       path: 'order-list',
+    //       name: 'business.order-management.order-list',
+    //       component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
+    //       meta: {
+    //         title: t('router.orderList')
+    //       }
+    //     },
+    //     {
+    //       path: `order-list-utility/:id?/:type?/:tab?`,
+    //       component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
+    //       name: `business.order-management.order-list.${utility}`,
+    //       meta: {
+    //         title: t('router.createANewOrder'),
+    //         // noTagsView: true,
+    //         noCache: true,
+    //         // canTo: true,
+    //         // hidden: true,
+    //         showMainRoute: true
+    //       }
+    //     }
+    //     // {
+    //     //   path: 'order-list-add',
+    //     //   component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
+    //     //   name: `business.order-management.order-list.${utility}`,
+    //     //   meta: {
+    //     //     title: t('router.createANewOrder'),
+    //     //     noTagsView: true,
+    //     //     noCache: true,
+    //     //     hidden: true,
+    //     //     canTo: true,
+    //     //     showMainRoute: true
+    //     //   }
+    //     // },
+    //     // {
+    //     //   path: 'create-new-order',
+    //     //   name: 'business.order-management.create-new-order',
+    //     //   component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
+    //     //   meta: {
+    //     //     title: t('router.createANewOrder')
+    //     //   }
+    //     // }
+    //   ]
+    // },
     {
       path: 'order-management',
       name: 'business.order-management',
@@ -66,36 +118,13 @@ export default {
           }
         },
         {
-          path: 'customerList-add',
+          path: 'order-list-add/:id?/:type?/:tab?',
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
             title: t('router.createANewOrder'),
-            noTagsView: true,
             noCache: true,
-            hidden: true,
-            canTo: true,
             showMainRoute: true
-          }
-        },
-        {
-          path: `utility/:id?/:type?`,
-          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
-          name: `business.order-management.order-list.${utility}`,
-          meta: {
-            title: t('router.createANewOrder'),
-            noTagsView: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
-          }
-        },
-        {
-          path: 'create-new-order',
-          name: 'business.order-management.create-new-order',
-          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
-          meta: {
-            title: t('router.createANewOrder')
           }
         }
       ]

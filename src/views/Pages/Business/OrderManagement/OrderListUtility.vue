@@ -21,12 +21,13 @@ import {
   ElDropdownItem,
   ElDatePicker,
   ElForm,
-  ElFormItem
+  ElFormItem,
+  ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
@@ -34,7 +35,8 @@ import {
   getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
-  addNewOrderList
+  addNewOrderList,
+  getSellOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -43,6 +45,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 const { t } = useI18n()
 
 const ruleFormRef = ref<FormInstance>()
+const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
@@ -79,14 +82,27 @@ const rules = reactive<FormRules>({
   ]
 })
 
-const submitForm = async (formEl: FormInstance | undefined) => {
+let checkValidate = ref(false)
+let checkValidateForm = ref(false)
+
+const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   console.log('ruleForm:', ruleForm)
-  if (!formEl) return
+  if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
+      checkValidateForm.value = true
     } else {
-      console.log('error submit!', fields)
+      console.log('form1 error submit!', fields)
+      checkValidateForm.value = false
+    }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      ElMessage.success(t('reuse.addSuccess'))
+      checkValidate.value = true
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -151,6 +167,24 @@ const collapse: Array<Collapse> = [
   },
   {
     icon: plusIcon,
+    name: 'debtHistory',
+    title: t('formDemo.debtHistory'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  },
+  {
+    icon: plusIcon,
     name: 'productImportHistory',
     title: t('formDemo.productImportHistory'),
     columns: [],
@@ -199,6 +233,9 @@ const input = ref('')
 interface ListOfProductsForSaleType {
   name: string
   productCode: string
+  productName: string
+  productPropertyCode: string
+  productPropertyName: string
   id: string
   code: string
   quantity: number | undefined
@@ -210,10 +247,13 @@ interface ListOfProductsForSaleType {
   edited: boolean
 }
 
-const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
+let ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
   {
     name: '',
     productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    productPropertyName: '',
     id: '',
     code: '',
     quantity: 1,
@@ -225,6 +265,7 @@ const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
     edited: true
   }
 ])
+
 const tableData2 = [
   {
     name: '',
@@ -351,7 +392,7 @@ let infoCompany = reactive({
 
 let customerAddress = ref('')
 // Call api danh sách khách hàng
-const customersValue = ref('')
+// const ruleForm.customerName = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -369,36 +410,12 @@ const callCustomersApi = async () => {
         name: product.name,
         taxCode: product.taxCode,
         phone: product.phonenumber,
-        email: product.email
+        email: product.email,
+        id: product.id
       }))
     }
   }
   optionCallCustomerAPi++
-}
-
-const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
-  } else {
-    customerAddress.value = ''
-    deliveryMethod.value = ''
-  }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -450,31 +467,6 @@ const callApiCollaborators = async () => {
   optionCallCollaborators++
 }
 
-// Call api danh sách mã giảm giá
-let promoTable = ref()
-const promoLoading = ref(true)
-const listPromotions = ref()
-const optionPromotions = ref()
-let optionCallPromoAPi = 0
-const callPromoApi = async () => {
-  if (optionCallPromoAPi == 0) {
-    const res = await getPromotionsList('')
-    let count = 0
-    listPromotions.value = res.data
-    optionPromotions.value = listPromotions.value.map((product) => ({
-      radio: count++,
-      label: product.code,
-      value: product.name,
-      name: product.description,
-      discount: product.reduce,
-      min: product.minimumPriceToGetReduce,
-      max: product.maximumReduce
-    }))
-    optionCallPromoAPi++
-    promoTable.value = optionPromotions.value
-  }
-}
-
 // phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref('individual')
 const optionsClassify = [
@@ -501,6 +493,9 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.push({
     name: '',
     productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    productPropertyName: '',
     id: '',
     code: '',
     quantity: undefined,
@@ -530,6 +525,16 @@ watch(
   },
   { deep: true }
 )
+watch(
+  () => checkValidate.value,
+  () => {
+    if (checkValidate.value === true) {
+      postData()
+    }
+  }
+)
+
+let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
   if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
@@ -539,19 +544,9 @@ const removeListProductsSale = (index) => {
   }
 }
 
-//lay du lieu tu router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
-console.log('id: ', id)
-console.log('type: ', type)
+const checkDisabled = ref(false)
 
 // tạo đơn hàng
-
-// const inputDiscount = ref()
-// const inputOrderNotes = ref()
-
 const postData = () => {
   // let productPayment = reactive<
   //   Array<{
@@ -564,75 +559,78 @@ const postData = () => {
   //     accessory: String
   //   }>
   // >([])
-
-  const productPayment = JSON.stringify([
-    {
-      ProductPropertyId: 2,
-      Quantity: 1,
-      ProductPrice: 10000,
-      SoldPrice: 10000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory1'
-    },
-    {
-      ProductPropertyId: 3,
-      Quantity: 1,
-      ProductPrice: 90000,
-      SoldPrice: 80000,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: 'Accessory2'
+  submitForm(ruleFormRef.value, ruleFormRef2.value)
+  console.log('checkValidate: ', checkValidate.value)
+  if (checkValidate.value) {
+    const productPayment = JSON.stringify([
+      {
+        ProductPropertyId: 2,
+        Quantity: 1,
+        ProductPrice: 10000,
+        SoldPrice: 10000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory1'
+      },
+      {
+        ProductPropertyId: 3,
+        Quantity: 1,
+        ProductPrice: 90000,
+        SoldPrice: 80000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory2'
+      }
+    ])
+    // if (ListOfProductsForSale.length > 0) {
+    // ListOfProductsForSale.forEach((element) => {
+    // if (element && Array.isArray(element) && element.length > 0)
+    // element.forEach(() => {
+    // productPayment.push(
+    //   // {
+    //   //   ProductPropertyId: 2,
+    //   //   Quantity: 1,
+    //   //   ProductPrice: 10000,
+    //   //   SoldPrice: 10000,
+    //   //   WarehouseId: 1,
+    //   //   IsPaid: true,
+    //   //   Accessory: 'Accessory1'
+    //   // },
+    //   {
+    //     ProductPropertyId: 3,
+    //     Quantity: 1,
+    //     ProductPrice: 90000,
+    //     SoldPrice: 80000,
+    //     WarehouseId: 1,
+    //     IsPaid: true,
+    //     Accessory: 'Accessory2'
+    //   }
+    // )
+    // })
+    // })
+    // }
+    const payload = {
+      ServiceType: 1,
+      OrderCode: ruleForm.orderCode,
+      PromotionCode: 'AA12',
+      CollaboratorId: ruleForm.collaborators,
+      CollaboratorCommission: ruleForm.discount,
+      Description: ruleForm.orderNotes,
+      CustomerId: ruleForm.customerName,
+      DeliveryOptionId: 1,
+      ProvinceId: 1,
+      DistrictId: 1,
+      WardId: 1,
+      Address: 'trieu khuc',
+      OrderDetail: productPayment,
+      CampaignId: 2,
+      VAT: 1,
+      Status: 1
     }
-  ])
-  // if (ListOfProductsForSale.length > 0) {
-  // ListOfProductsForSale.forEach((element) => {
-  // if (element && Array.isArray(element) && element.length > 0)
-  // element.forEach(() => {
-  // productPayment.push(
-  //   // {
-  //   //   ProductPropertyId: 2,
-  //   //   Quantity: 1,
-  //   //   ProductPrice: 10000,
-  //   //   SoldPrice: 10000,
-  //   //   WarehouseId: 1,
-  //   //   IsPaid: true,
-  //   //   Accessory: 'Accessory1'
-  //   // },
-  //   {
-  //     ProductPropertyId: 3,
-  //     Quantity: 1,
-  //     ProductPrice: 90000,
-  //     SoldPrice: 80000,
-  //     WarehouseId: 1,
-  //     IsPaid: true,
-  //     Accessory: 'Accessory2'
-  //   }
-  // )
-  // })
-  // })
-  // }
-  const payload = {
-    ServiceType: 1,
-    OrderCode: ruleForm.orderCode,
-    PromotionCode: 'AA12',
-    CollaboratorId: ruleForm.collaborators,
-    CollaboratorCommission: ruleForm.discount,
-    Description: ruleForm.orderNotes,
-    CustomerId: 2,
-    DeliveryOptionId: 1,
-    ProvinceId: 1,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 'trieu khuc',
-    OrderDetail: productPayment,
-    CampaignId: 2,
-    VAT: 1,
-    Status: 1
+    const formDataPayLoad = FORM_IMAGES(payload)
+    console.log('postData', payload)
+    addNewOrderList(formDataPayLoad)
   }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  console.log('postData', payload)
-  addNewOrderList(formDataPayLoad)
 }
 
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -651,14 +649,110 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-// const wardChange = async (value) => {
-//   street.value = await getStreet(value)
-// }
+//lay du lieu tu router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const route = useRoute()
+const tab = String(route.params.tab)
+console.log('id: ', id)
+console.log('type: ', type)
+console.log('tab: ', tab)
+
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  if (type == 'edit' || type == 'detail') {
+    const res = await getSellOrderList({ Id: id })
+    const orderObj = { ...res.data[0] }
+    console.log('orderObj: ', orderObj)
+    if (res.data) {
+      ruleForm.orderCode = orderObj.code
+      ruleForm.collaborators = orderObj.collaborator.name
+      ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.customerName = orderObj.customer.isOrganization
+        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.orderNotes = orderObj.description
+
+      ListOfProductsForSale = [...orderObj.orderDetails]
+      console.log('ListOfProductsForSale: ', ListOfProductsForSale)
+
+      customerAddress.value = orderObj.address
+      ruleForm.delivery = orderObj.deliveryOptionName
+      customerIdPromo.value = orderObj.customerId
+      if (orderObj.customer.isOrganization) {
+        infoCompany.name = orderObj.customer.name
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      } else {
+        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      }
+    }
+  }
+}
+
+// Call api danh sách mã giảm giá
+let promoTable = ref()
+const promoLoading = ref(true)
+const listPromotions = ref()
+const optionPromotions = ref()
+let optionCallPromoAPi = 0
+const callPromoApi = async () => {
+  if (optionCallPromoAPi == 0) {
+    const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
+    let count = 0
+    listPromotions.value = res.data
+    optionPromotions.value = listPromotions.value.map((product) => ({
+      radio: count++,
+      label: product.code,
+      value: product.name,
+      name: product.description,
+      discount: product.reduce,
+      min: product.minimumPriceToGetReduce,
+      max: product.maximumReduce
+    }))
+    optionCallPromoAPi++
+    promoTable.value = optionPromotions.value
+  }
+}
+
+const changeAddressCustomer = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsCustomerApi.value.find((e) => e.value == data)
+    optionCallPromoAPi = 0
+    customerIdPromo.value = result.id
+    callPromoApi()
+    console.log('result: ', result)
+    if (result.isOrganization) {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    } else {
+      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+      infoCompany.name = result.name
+      infoCompany.taxCode = result.taxCode
+      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.email = 'Email: ' + result.email
+    }
+  } else {
+    customerAddress.value = ''
+    deliveryMethod.value = ''
+  }
+}
+
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
   callApiCity()
+  editData()
 })
 </script>
 
@@ -671,7 +765,6 @@ onBeforeMount(() => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
-      <el-button @click="submitForm(ruleFormRef)">Check</el-button>
       <!-- Dialog thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -817,15 +910,22 @@ onBeforeMount(() => {
               status-icon
             >
               <div class="text-sm text-[#303133] font-medium pb-4 pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+                <el-divider content-position="left">{{
+                  t('formDemo.orderInformation')
+                }}</el-divider>
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input style="width: 100%" v-model="ruleForm.orderCode" />
+                <el-input
+                  :disabled="checkDisabled"
+                  style="width: 100%"
+                  v-model="ruleForm.orderCode"
+                />
               </el-form-item>
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
@@ -843,6 +943,7 @@ onBeforeMount(() => {
                   <el-form-item prop="discount" label-width="0">
                     <div class="flex items-center">
                       <el-input
+                        :disabled="checkDisabled"
                         v-model="ruleForm.discount"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
@@ -853,7 +954,11 @@ onBeforeMount(() => {
                 </div>
               </div>
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input v-model="ruleForm.orderNotes" :placeholder="t('formDemo.addNotes')" />
+                <el-input
+                  :disabled="checkDisabled"
+                  v-model="ruleForm.orderNotes"
+                  :placeholder="t('formDemo.addNotes')"
+                />
               </el-form-item>
             </el-form>
           </div>
@@ -869,7 +974,12 @@ onBeforeMount(() => {
                 }}</div>
               </div>
               <div class="pl-4">
-                <el-upload action="#" list-type="picture-card" :auto-upload="false">
+                <el-upload
+                  action="#"
+                  list-type="picture-card"
+                  :disabled="checkDisabled"
+                  :auto-upload="false"
+                >
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -910,7 +1020,7 @@ onBeforeMount(() => {
         <div class="flex w-[100%]">
           <div class="w-[100%]">
             <el-form
-              ref="ruleFormRef"
+              ref="ruleFormRef2"
               :model="ruleForm"
               status-icon
               :rules="rules"
@@ -932,6 +1042,7 @@ onBeforeMount(() => {
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
+                            :disabled="checkDisabled"
                             v-model="ruleForm.customerName"
                             filterable
                             :clearable="true"
@@ -945,7 +1056,7 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
-                          <el-button @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -954,8 +1065,6 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <!-- <el-form-item :label="t('formDemo.chooseShipping')" prop="region" width="100%"> -->
-
                   <el-form-item label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
@@ -963,6 +1072,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
+                          :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
@@ -977,20 +1087,19 @@ onBeforeMount(() => {
                       </div>
                     </div>
                   </el-form-item>
-                  <!-- </el-form-item> -->
                 </div>
               </div>
               <div class="flex w-[100%] gap-6">
                 <div class="w-[50%]">
                   <el-form-item>
                     <p
-                      v-if="customersValue !== ''"
+                      v-if="ruleForm.customerName !== ''"
                       class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
                 </div>
-                <div class="flex w-[50%] gap-2 items-center" v-if="customersValue !== ''">
+                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
                   <p class="w-[150px] ml-2 text-[#828387] text-right">{{
                     t('formDemo.deliveryAddress')
                   }}</p>
@@ -998,6 +1107,7 @@ onBeforeMount(() => {
                   <p>
                     <el-button
                       class="hover:bg-transparent; focus:bg-transparent"
+                      :disabled="checkDisabled"
                       text
                       @click="dialogFormVisible = true"
                       ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
@@ -1109,11 +1219,15 @@ onBeforeMount(() => {
                   </p>
                 </div>
               </div>
-              <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="customersValue !== ''">
+              <el-form-item
+                v-if="ruleForm.customerName !== ''"
+                class="poi-self"
+                :label="t('reuse.customerInfo')"
+              >
+                <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== undefined">
+                    <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
@@ -1250,6 +1364,21 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
+          <!-- <el-table-column
+            prop="productCode"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          />
+          <el-table-column
+            prop="productName"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          />
+          <el-table-column
+            prop="quantity"
+            :label="t('formDemo.productInformation')"
+            min-width="200"
+          /> -->
           <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="620">
             <!-- <template #default="props">
               <MultipleOptionsBox
@@ -1271,7 +1400,9 @@ onBeforeMount(() => {
           </el-table-column>
           <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
             <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.selfImportAccessories }}</div>
               <el-input
+                v-else
                 class="max-w-[150px]"
                 v-model="data.row.selfImportAccessories"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
@@ -1343,6 +1474,7 @@ onBeforeMount(() => {
             <div class="text-blue-500 cursor-pointer">
               <el-button
                 text
+                :disabled="checkDisabled"
                 @click="
                   () => {
                     openDialogChoosePromotion = true
@@ -1354,7 +1486,7 @@ onBeforeMount(() => {
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
-            <el-dropdown trigger="click">
+            <el-dropdown trigger="click" :disabled="checkDisabled">
               <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                 {{ t('formDemo.doesNotIncludeVAT') }}
                 <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
@@ -1399,7 +1531,66 @@ onBeforeMount(() => {
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </el-table-column>
         </el-table>
-        <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
+
+        <div class="w-[100%]">
+          <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
+        </div>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[84%] pl-1">
+            <el-radio-group v-model="radio1" class="ml-4">
+              <!-- <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio> -->
+              <el-radio :disabled="checkDisabled" label="1">{{
+                t('formDemo.waitingDelivery')
+              }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="3">{{
+                t('reuse.successfulDelivery')
+              }}</el-radio>
+              <el-radio :disabled="checkDisabled" label="4">{{
+                t('reuse.deliveryFailed')
+              }}</el-radio>
+              <!-- <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
+              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio> -->
+            </el-radio-group>
+          </div>
+        </div>
+        <div class="flex gap-2 pb-8">
+          <div class="w-[11%]"></div>
+          <div class="w-[89%]"
+            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
+              t('formDemo.browsePriceChanges')
+            }}</span>
+          </div>
+        </div>
+
+        <div class="w-[100%] flex gap-2">
+          <div class="w-[12%]"></div>
+          <div class="w-[100%] flex ml-1 gap-4">
+            <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
+              t('formDemo.printSalesSlip')
+            }}</el-button>
+            <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
+              t('formDemo.temporaryStorage')
+            }}</el-button>
+            <el-button
+              :disabled="checkDisabled"
+              @click="postData"
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.complete') }}</el-button
+            >
+            <el-button :disabled="checkDisabled" type="danger" class="min-w-42 min-h-11">{{
+              t('button.cancelOrder')
+            }}</el-button>
+          </div>
+        </div>
+      </el-collapse-item>
+      <el-collapse-item :name="collapse[2].name">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[2].icon" link />
+          <span class="text-center text-xl">{{ collapse[2].title }}</span>
+        </template>
         <el-table :data="debtTable" border>
           <el-table-column
             prop="dateOfPayment"
@@ -1487,63 +1678,33 @@ onBeforeMount(() => {
               <el-checkbox v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="90" align="center">
+          <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="150" align="center">
             <template #default="scope">
-              <button
-                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                @click.prevent="deleteRowDebtTable(scope.$index)"
-              >
-                {{ t('reuse.delete') }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+                >
+                  {{ t('reuse.detail') }}
+                </button>
+                <button
+                  class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
+                  @click.prevent="deleteRowDebtTable(scope.$index)"
+                >
+                  {{ t('reuse.delete') }}
+                </button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
         <el-button class="ml-4 mt-4" @click="onAddDebtTableItem"
           >+ {{ t('formDemo.add') }}</el-button
         >
-        <div class="w-[100%]">
-          <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
-        </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
-          <div class="w-[84%] pl-1">
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio>
-              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
-              <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio>
-            </el-radio-group>
-          </div>
-        </div>
-        <div class="flex gap-2 pb-8">
-          <div class="w-[11%]"></div>
-          <div class="w-[89%]"
-            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-              t('formDemo.changedUnitPriceIsWaitingForPriceApproval')
-            }}</span>
-          </div>
-        </div>
-
-        <div class="w-[100%] flex gap-2">
-          <div class="w-[12%]"></div>
-          <div class="w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.complete')
-            }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
-              t('button.cancelOrder')
-            }}</el-button>
-          </div>
-        </div>
       </el-collapse-item>
-      <el-collapse-item :name="collapse[2].name">
+
+      <el-collapse-item :name="collapse[3].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[2].icon" link />
-          <span class="text-center text-xl">{{ collapse[2].title }}</span>
+          <el-button class="header-icon" :icon="collapse[3].icon" link />
+          <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
           <el-divider content-position="left">{{
@@ -1582,7 +1743,7 @@ onBeforeMount(() => {
               />
             </el-table-column>
 
-            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
+            <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="150" />
             <el-table-column prop="dram" :label="`${t('reuse.dram')}`" align="center" width="120" />
 
             <el-table-column

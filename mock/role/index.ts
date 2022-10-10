@@ -277,6 +277,44 @@ const adminList = [
           }
         ]
       },
+      // {
+      //   path: 'order-management',
+      //   name: 'business.order-management',
+      //   redirect: { name: 'business.order-management.order-list' },
+      //   meta: {
+      //     title: 'router.orderManagement'
+      //   },
+      //   children: [
+      //     {
+      //       path: 'order-list',
+      //       name: 'business.order-management.order-list',
+      //       component: 'views/Pages/Business/OrderManagement/OrderList',
+      //       meta: {
+      //         title: 'router.orderList'
+      //       }
+      //     },
+      //     {
+      //       path: '${utility}/:id?/:type/:tab?',
+      //       component: 'views/Pages/Business/OrderManagement/index',
+      //       name: `business.order-management.order-list.${utility}`,
+      //       meta: {
+      //         title: 'reuse.createANewOrder',
+      //         noTagsView: true,
+      //         noCache: true,
+      //         hidden: true,
+      //         showMainRoute: true
+      //       }
+      //     },
+      //     {
+      //       path: 'create-new-order',
+      //       name: 'business.order-management.create-new-order',
+      //       component: 'views/Pages/Business/OrderManagement/index',
+      //       meta: {
+      //         title: 'router.createANewOrder'
+      //       }
+      //     }
+      //   ]
+      // },
       {
         path: 'order-management',
         name: 'business.order-management',
@@ -294,7 +332,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: '${utility}/:id?/:type/:tab?',
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
@@ -1349,10 +1387,16 @@ const testList: string[] = [
   '/business/potential-customer-care/potential-customer-list',
   `/business/potential-customer-care/${utility}/:id?/:type?`,
   '/business/potential-customer-care/manage-chat',
+
+  // '/business/order-management',
+  // '/business/order-management/order-list',
+  // '/business/order-management/order-list-utility/:id?/:type?/:tab?',
+  // '/business/order-management/oder-list-add',
+  // '/business/order-management/create-new-order',
   '/business/order-management',
   '/business/order-management/order-list',
-  '/business/order-management/customerList-add',
-  '/business/order-management/create-new-order',
+  '/business/order-management/order-list-add/:id?/:type?/:tab?',
+
   '/business/customer-management',
   '/business/customer-management/customerList',
   '/business/customer-management/customerList-add',

@@ -423,28 +423,12 @@ const fakeTableCustomerData = reactive([
     name: 'Tom'
   }
 ])
-const fakeTableProductData = reactive([
-  {
-    code: '2016-05-03',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-02',
-    name: 'Tom',
-    switch: false
-  },
-  {
-    code: '2016-05-04',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-01',
-    name: 'Tom',
-    switch: false
-  }
-])
+type Product = {
+  code: string
+  name: string
+  switch: boolean
+}
+const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: false }])
 const forceRemove = ref(false)
 watch(
   () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
@@ -461,12 +445,20 @@ watch(
   { deep: true }
 )
 watch(
+  () => fakeTableProductData.length,
+  () => {
+    if (fakeTableProductData.length == 0) {
+      addLastIndexProductTable()
+    }
+  }
+)
+watch(
   () => fakeTableProductData[fakeTableProductData.length - 1],
   () => {
     if (
       fakeTableProductData.length < 1 ||
-      (fakeTableProductData[fakeTableProductData.length - 1].code !== '' &&
-        fakeTableProductData[fakeTableProductData.length - 1].name !== '' &&
+      (fakeTableProductData[fakeTableProductData.length - 1]['code'] !== '' &&
+        fakeTableProductData[fakeTableProductData.length - 1]['name'] !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -503,6 +495,9 @@ const removeProduct = (scope) => {
   forceRemove.value = true
   fakeTableProductData.splice(scope.$index, 1)
 }
+const getValueOfSelected = (...value) => {
+  console.log('value', ...value)
+}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -528,6 +523,7 @@ const removeProduct = (scope) => {
                     :placeHolder="t('reuse.chooseCustomerCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="getValueOfSelected"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>

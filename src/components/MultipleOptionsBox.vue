@@ -123,11 +123,11 @@ const appearsEvent = () => {
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey, labelKey } = propsObj
-
     // find label
     const obj = items.find((el) => {
       if (el) el[valueKey] === val
     })
+    console.log('obj', obj)
     if (obj) emit('updateValue', val, obj[labelKey] ?? '')
   }
 }

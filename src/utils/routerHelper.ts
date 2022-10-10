@@ -38,14 +38,13 @@ export const getRawRoute = (route: RouteLocationNormalized): RouteLocationNormal
   }
 }
 
-// Front -end control route generation
+// Front-end control route generation
 export const generateRoutesFn1 = (
   routes: AppRouteRecordRaw[],
   keys: string[],
   basePath = '/'
 ): AppRouteRecordRaw[] => {
   const res: AppRouteRecordRaw[] = []
-
   for (const route of routes) {
     const meta = route.meta as RouteMeta
     // skip some route

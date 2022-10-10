@@ -294,7 +294,7 @@ const adminList = [
             }
           },
           {
-            path: '${utility}/:id?/:type?',
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
@@ -332,11 +332,11 @@ const adminList = [
             }
           },
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
-              title: 'reuse.createANewUtility',
+              title: 'reuse.createANewCustomer',
               noTagsView: true,
               noCache: true,
               hidden: true,
@@ -452,7 +452,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
             name: `business.promotion-strategy.flash-sale.${utility}`,
             meta: {
@@ -472,7 +472,7 @@ const adminList = [
             }
           },
           {
-            path: `collection${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/CollectionUtility',
             name: `business.promotion-strategy.collection.${utility}`,
             meta: {
@@ -492,7 +492,7 @@ const adminList = [
             }
           },
           {
-            path: `new-product${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
             name: `business.promotion-strategy.new-product.${utility}`,
             meta: {
@@ -512,7 +512,7 @@ const adminList = [
             }
           },
           {
-            path: `voucher${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
@@ -532,7 +532,7 @@ const adminList = [
             }
           },
           {
-            path: `combo${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
             name: `business.promotion-strategy.combo.${utility}`,
             meta: {
@@ -552,7 +552,7 @@ const adminList = [
             }
           },
           {
-            path: `auction${utility}`,
+            path: `${utility}/:id?/:type?`,
             component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
             name: `business.promotion-strategy.auction.${utility}`,
             meta: {
@@ -1325,7 +1325,144 @@ const testList: string[] = [
   '/error',
   '/error/404-demo',
   '/error/403-demo',
-  '/error/500-demo'
+  '/error/500-demo',
+  '/products-services',
+  '/products-services/product-library',
+  '/products-services/product-library/products',
+  `/products-services/product-library/products/${utility}/:id?/:type?`,
+  '/products-services/service-library',
+  '/products-services/service-library/spa-service',
+  `/products-services/service-library/spa-service/${utility}/:id?/:type?`,
+  '/products-services/product-property',
+  '/products-services/product-property/product-category',
+  `/products-services/product-property/product-category/${utility}/:id?/:type?`,
+  '/products-services/product-property/attribute-category',
+  `/products-services/product-property/attribute-category/${utility}/:id?/:type?/:tab?`,
+  '/products-services/product-property/unit-category',
+  `/products-services/product-property/unit-category/${utility}/:id?/:type?`,
+  '/products-services/product-property/brand-category',
+  `/products-services/product-property/brand-category/${utility}/:id?/:type?`,
+  '/products-services/product-property/origin-category',
+  `/products-services/product-property/origin-category/${utility}/:id?/:type?`,
+  '/business',
+  '/business/potential-customer-care',
+  '/business/potential-customer-care/potential-customer-list',
+  `/business/potential-customer-care/${utility}/:id?/:type?`,
+  '/business/potential-customer-care/manage-chat',
+  '/business/order-management',
+  '/business/order-management/order-list',
+  '/business/order-management/customerList-add',
+  '/business/order-management/create-new-order',
+  '/business/customer-management',
+  '/business/customer-management/customerList',
+  '/business/customer-management/customerList-add',
+  '/business/customer-management/customerRatings',
+  `/business/customer-management/customerRatings-utility/:id?/:type?`,
+  '/business/customer-management/customerAdd',
+  '/business/collaborators',
+  '/business/collaborators/collaboratorsList',
+  '/business/collaborators/paymentRequest',
+  '/business/collaborators/collaboratorsAdd/:id?/:type?',
+  '/business/promotion-strategy',
+  '/business/promotion-strategy/flash-sale',
+  `/business/promotion-strategy/flash-sale-utility`,
+  '/business/promotion-strategy/collection',
+  `/business/promotion-strategy/collection-utility`,
+  '/business/promotion-strategy/new-product',
+  `/business/promotion-strategy/new-product-utility`,
+  '/business/promotion-strategy/voucher',
+  `/business/promotion-strategy/voucher-utility`,
+  '/business/promotion-strategy/combo',
+  `/business/promotion-strategy/combo-utility`,
+  '/business/promotion-strategy/auction',
+  `/business/promotion-strategy/auction-utility`,
+  '/business/service-survey',
+  '/business/accumulate-points',
+  '/business/accumulate-points/customer-points',
+  '/business/accumulate-points/settings-points',
+  '/business/virtual-wallet',
+  '/business/virtual-wallet/customer',
+  '/business/virtual-wallet/customer-utility/:id?/:type?',
+  '/business/virtual-wallet/with-drewal-request',
+  '/business/virtual-wallet/with-drewal-request-utility/:id?/:type?',
+  '/business/virtual-wallet/settings',
+  '/business/virtual-wallet/settings-utility/:id?/:type?',
+  '/business/employee-management',
+  '/business/employee-management/employeeList',
+  '/business/employee-management/employeeRatings',
+  '/business/business-report',
+  '/business/business-report/growth',
+  '/business/business-report/sales',
+  '/business/business-report/debt',
+  '/business/business-report/turnover',
+
+  '/purchase',
+  '/purchase/business-purchases',
+  '/purchase/business-purchases/purchase-order-list',
+  '/purchase/business-purchases/purchase-order-add',
+
+  '/inventory-management',
+  '/inventory-management/business-product-warehouse',
+  '/inventory-management/business-product-warehouse/inventory-tracking',
+  '/inventory-management/business-product-warehouse/ware-house',
+  '/inventory-management/business-product-warehouse/export',
+  '/inventory-management/create-repository-directory',
+  '/inventory-management/create-repository-directory/product-storage',
+  `/inventory-management/create-repository-directory/product-storage/product-storage-utility/:id?/:type?`,
+
+  '/accountant',
+  '/accountant/payment-proposal',
+  '/accountant/payment-proposal/payment-proposal-list',
+  '/accountant/payment-proposal/payment-proposal-add',
+  '/accountant/receipts-expenditures',
+  '/accountant/receipts-expenditures/receipts-expenditures-list',
+  '/accountant/receipts-expenditures/receipts-add',
+  '/accountant/receipts-expenditures/payment-add',
+  '/accountant/balanceSheet',
+  `/accountant/balanceSheet-utility`,
+
+  '/approve',
+  '/approve/products-approval',
+  '/approve/products-approval/newly-initialized',
+  '/approve/products-approval/edit',
+  '/approve/orders-approval',
+  '/approve/orders-approval/oders-new',
+  '/approve/orders-approval/oders-cancel',
+  '/approve/payment-approval',
+  '/approve/payment-approval/proposal',
+  '/approve/payment-approval/receipts-and-expenditures',
+
+  '/approve/accounts-approval',
+  '/approve/accounts-approval/user-account',
+  '/approve/accounts-approval/collaborator-account',
+  '/approve/accounts-approval/internal-account',
+  '/approve/approve-promotion-strategy',
+  '/approve/approve-promotion-strategy/approve-flashsale',
+  '/approve/approve-promotion-strategy/approve-collection',
+  '/approve/approve-promotion-strategy/approve-newproduct',
+  '/approve/approve-promotion-strategy/approve-voucher',
+  '/approve/approve-promotion-strategy/approve-combo',
+  '/approve/approve-promotion-strategy/approve-auction',
+  '/approve/approve-promotion-strategy/approve-advertisingBanner',
+  '/approve/approve-management',
+  '/new-and-advertisement',
+
+  '/new-and-advertisement/notify',
+  '/new-and-advertisement/forum',
+  '/new-and-advertisement/banner-advertisement',
+  '/new-and-advertisement/news-site',
+  '/new-and-advertisement/news-site/news-list',
+  '/new-and-advertisement/news-site/manage-news',
+  '/new-and-advertisement/profile-admin',
+  '/new-and-advertisement/profile-admin/policies-guidelines',
+  '/new-and-advertisement/profile-admin/about-us',
+  '/new-and-advertisement/profile-admin/contact',
+  '/new-and-advertisement/profile-admin/transaction-point',
+
+  '/human-resource-management',
+  '/human-resource-management/personnel-accounts',
+  '/human-resource-management/department-directory',
+  `/human-resource-management/department-directory/${utility}/:id?/:type?`
 ]
 
 export default [
@@ -1338,7 +1475,8 @@ export default [
       const { roleName } = query
       return {
         code: result_code,
-        data: roleName === 'admin' ? adminList : testList
+        // data: roleName === 'admin' ? adminList : testList
+        data: testList
       }
     }
   }

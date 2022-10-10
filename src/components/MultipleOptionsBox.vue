@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, watchEffect, ref, watch } from 'vue'
+import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 const propsObj = defineProps({
   // columns name
   fields: {
@@ -123,6 +123,15 @@ const valueChangeEvent = (val) => {
     if (obj) emit('updateValue', val, obj[labelKey] ?? '')
   }
 }
+const handleScroll = (...val) => {
+  console.log(val)
+}
+onBeforeMount(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 <template>
   <ElSelect

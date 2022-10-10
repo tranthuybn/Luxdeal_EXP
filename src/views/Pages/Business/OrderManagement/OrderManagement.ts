@@ -194,6 +194,18 @@ export const rentalorder = [
     }
   },
   {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
     field: 'totalQuantity',
     label: t('reuse.rentingNumber'),
     minWidth: '200',

@@ -81,23 +81,23 @@ export default {
     {
       path: 'balanceSheet',
       name: 'accountant.balanceSheet',
+      component: () => import('@/views/Pages/Accountant/BalanceSheet.vue'),
       meta: {
         title: t('router.balanceSheet')
-      },
-      children: [
-        {
-          path: `${utility}`,
-          component: () => import('@/views/Pages/Accountant/BalanceSheetUtility.vue'),
-          name: `accountant.balanceSheet.${utility}`,
-          meta: {
-            title: t('reuse.addNewAccount'),
-            noTagsView: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
-          }
-        }
-      ]
+      }
+    },
+    {
+      path: 'balanceSheet-utility',
+      component: () => import('@/views/Pages/Accountant/BalanceSheetUtility.vue'),
+      name: `accountant.balanceSheet.${utility}`,
+      meta: {
+        title: t('reuse.addNewAccount'),
+        noTagsView: true,
+        noCache: true,
+        canTo: true,
+        hidden: true,
+        showMainRoute: true
+      }
     }
   ]
 }

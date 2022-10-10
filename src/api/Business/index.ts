@@ -1,10 +1,10 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
+import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API, API_URL } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
-const fixedBaseURL = 0
+const fixedBaseURL = API_URL
 export const addCustomerRatings = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
@@ -125,7 +125,7 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
       url: ORDER_API.ADD_NEW_ORDER,
       data: params
     },
-    0
+    fixedBaseURL
   )
   return res.data && res.data.data
 }
@@ -174,6 +174,17 @@ export const getPromotionsList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách dịch vụ Spa
+export const getSpaList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${PRODUCTS_AND_SERVICES_API.GET_SPA}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -182,6 +193,17 @@ export const getCustomerList = async (params: any): Promise<IResponse> => {
     fixedBaseURL
   )
   return res.data && res.data
+}
+// post đơn hàng spa
+export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: PRODUCTS_AND_SERVICES_API.POST_SPA_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
 }
 
 // Lấy danh sách đơn hàng
@@ -265,6 +287,40 @@ export const getGenCodeCollaborators = async (params: any): Promise<IResponse> =
 export const addNewCollaborators = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRanking = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RANKING}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCustomerRatingsById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_RAINGS_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateCustomerRatings = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${CUSTOMER_API.UPDATE_CUSTOMER_RATINGS}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deleteCustomerRating = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CUSTOMER_API.DELETE_CUSTOMER_RATING}?${objectToQueryParams(params)}`
+    },
     fixedBaseURL
   )
   return res && res.data

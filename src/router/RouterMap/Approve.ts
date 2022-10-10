@@ -17,7 +17,7 @@ export default {
       redirect: { name: 'approve.products-approval.newly-initialized' },
       name: 'approve.products-approval',
       meta: {
-        title: t('router.products')
+        title: t('router.approveProducts')
       },
       children: [
         {
@@ -43,7 +43,7 @@ export default {
       redirect: { name: 'approve.orders-approval.oders-new' },
       name: 'approve.orders-approval',
       meta: {
-        title: t('router.orders')
+        title: t('router.approveOrders')
       },
       children: [
         {
@@ -69,7 +69,7 @@ export default {
       redirect: { name: 'approve.payment-approval.proposal' },
       name: 'approve.payment-approval',
       meta: {
-        title: t('router.payments')
+        title: t('router.approvePayments')
       },
       children: [
         {
@@ -95,7 +95,7 @@ export default {
       redirect: { name: 'approve.accounts-approval.user-account' },
       name: 'approve.accounts-approval',
       meta: {
-        title: t('router.accounts')
+        title: t('router.approveAccounts')
       },
       children: [
         {

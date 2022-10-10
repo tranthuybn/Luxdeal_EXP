@@ -456,21 +456,7 @@ const save = async () => {
     const data = customPostData(FormData)
     console.log('1', data)
 
-    if (type === 'add') {
-      await addNewCollaborators(FORM_IMAGES(data))
-        .then(() =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          })
-        )
-        .catch((error) =>
-          ElNotification({
-            message: error,
-            type: 'warning'
-          })
-        )
-    } else if (type === 'edit') {
+    if (type === 'edit') {
       const payload = {
         id: id,
         FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
@@ -489,6 +475,20 @@ const save = async () => {
         .catch(() =>
           ElNotification({
             message: t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
+    } else {
+      await addNewCollaborators(FORM_IMAGES(data))
+        .then(() =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          })
+        )
+        .catch((error) =>
+          ElNotification({
+            message: error,
             type: 'warning'
           })
         )

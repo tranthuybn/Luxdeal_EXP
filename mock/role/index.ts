@@ -1347,7 +1347,7 @@ const testList: string[] = [
   '/business',
   '/business/potential-customer-care',
   '/business/potential-customer-care/potential-customer-list',
-  `/business/potential-customer-care/${utility}/:id?/:type?`,
+  `/business/potential-customer-care/potential-utility/:id?/:type?`,
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',

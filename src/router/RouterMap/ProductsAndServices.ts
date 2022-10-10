@@ -66,7 +66,8 @@ export default {
         },
         {
           path: `spa-service-utility/:id?/:type?`,
-          component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
           name: `products-services.ServiceLibrarySpaService.${utility}`,
           meta: {
             title: t('reuse.addNewSpaService'),

@@ -816,6 +816,7 @@ export default {
     categoryUnitTitle: 'Thông tin đơn vị tính',
     categoryBrandTitle: 'Thông tin thương hiệu',
     categoryOriginTitle: 'Thông tin xuất xứ',
+    VirtualWalletUtility: 'Tiện ích ví ảo',
     bag: 'Túi',
     wallet: 'Ví',
     balo: 'Balo',

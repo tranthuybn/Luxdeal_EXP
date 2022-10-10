@@ -1396,8 +1396,7 @@ const testList: string[] = [
   '/business/customer-management/customerList',
   '/business/customer-management/customer-add/:id?/:type?',
   '/business/customer-management/customerRatings',
-  `/business/customer-management/customer-utility/:id?/:type?`,
-  '/business/customer-management/customerAdd',
+  `/business/customer-management/customerRatings-utility/:id?/:type?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
@@ -1417,9 +1416,12 @@ const testList: string[] = [
   '/business/promotion-strategy/auction',
   `/business/promotion-strategy/auction-utility`,
   '/business/service-survey',
+
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
   '/business/accumulate-points/settings-points',
+  '/business/accumulate-points/settings-points-utility/:id?/type?',
+
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',
   '/business/virtual-wallet/customer-utility/:id?/:type?',

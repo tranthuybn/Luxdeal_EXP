@@ -343,7 +343,6 @@ const changeAddressCustomer = (data) => {
     customerAddress.value = ''
     deliveryMethod.value = ''
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
 
 // Call api danh sách sản phẩm
@@ -386,7 +385,6 @@ const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
-    console.log('api', listCollaborators)
 
     optionsCollaborators.value = listCollaborators.value.map((product) => ({
       label: product.name,
@@ -437,10 +435,8 @@ const callApiServicesSpa = async () => {
       name: product.name
     }))
     optionCallAPiServicesSpa++
-    console.log('optionsApi', optionsApiServicesSpa.value)
   }
   callApiTable.value = optionsApiServicesSpa.value
-  console.log('table: ', callApiTable.value)
 }
 
 const checked1 = ref(true)
@@ -585,6 +581,8 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
+
+const checkDisabled = ref(false)
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -830,7 +828,7 @@ onBeforeMount(() => {
               ref="ruleFormRef"
               :model="ruleForm"
               :rules="rules"
-              label-width="165px"
+              label-width="170px"
               class="demo-ruleForm"
               status-icon
             >
@@ -957,26 +955,25 @@ onBeforeMount(() => {
               :model="ruleForm"
               status-icon
               :rules="rules"
-              label-width="165px"
+              label-width="170px"
               class="demo-ruleForm"
             >
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                <el-divider content-position="left">{{
-                  t('formDemo.methodOfDeliverySpa')
-                }}</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
               </div>
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[165px] text-right pr-[12px]">
+                    <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
+                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
-
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
+                            :disabled="checkDisabled"
                             v-model="ruleForm.customerName"
                             filterable
                             :clearable="true"
@@ -990,7 +987,7 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
-                          <el-button @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -999,8 +996,6 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <!-- <el-form-item :label="t('formDemo.chooseShipping')" prop="region" width="100%"> -->
-
                   <el-form-item label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
@@ -1008,6 +1003,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
+                          :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
@@ -1153,11 +1149,15 @@ onBeforeMount(() => {
                   </p>
                 </div>
               </div>
-              <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="ruleForm.customerName !== ''">
+              <el-form-item
+                v-if="ruleForm.customerName !== ''"
+                class="poi-self"
+                :label="t('reuse.customerInfo')"
+              >
+                <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== undefined">
+                    <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
@@ -1680,7 +1680,7 @@ onBeforeMount(() => {
             <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="120" />
             <el-table-column prop="dram" :label="`${t('reuse.dram')}`" align="center" width="120" />
 
-            <el-table-column :label="`${t('formDemo.deliveryNote')}`" align="right" width="200">
+            <el-table-column :label="`${t('formDemo.deliveryNotes')}`" align="right" width="200">
               <div class="flex w-[100%] items-center">
                 <div class="flex-1">
                   <span class="text-blue-500"> MADKAW</span>

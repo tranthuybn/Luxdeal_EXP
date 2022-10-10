@@ -31,7 +31,7 @@ export default {
           }
         },
         {
-          path: `${utility}/:id?/:type?`,
+          path: `potential-utility/:id?/:type?`,
           component: () =>
             import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd.vue'),
           name: `business.potential-customer-care.potential-customer-list.${utility}`,

@@ -443,7 +443,6 @@ const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -461,7 +460,6 @@ const changeAddressCustomer = (data) => {
     customerAddress.value = ''
     deliveryMethod.value = ''
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
 
 // Call api promo list
@@ -620,7 +618,6 @@ const postData = () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postData', payload)
     addNewOrderList(formDataPayLoad)
   }
 }
@@ -671,7 +668,6 @@ const type = String(router.currentRoute.value.params.type)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  console.log('checkDisabled: ', checkDisabled.value)
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
     if (res.data) {

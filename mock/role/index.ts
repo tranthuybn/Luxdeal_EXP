@@ -277,44 +277,6 @@ const adminList = [
           }
         ]
       },
-      // {
-      //   path: 'order-management',
-      //   name: 'business.order-management',
-      //   redirect: { name: 'business.order-management.order-list' },
-      //   meta: {
-      //     title: 'router.orderManagement'
-      //   },
-      //   children: [
-      //     {
-      //       path: 'order-list',
-      //       name: 'business.order-management.order-list',
-      //       component: 'views/Pages/Business/OrderManagement/OrderList',
-      //       meta: {
-      //         title: 'router.orderList'
-      //       }
-      //     },
-      //     {
-      //       path: '${utility}/:id?/:type/:tab?',
-      //       component: 'views/Pages/Business/OrderManagement/index',
-      //       name: `business.order-management.order-list.${utility}`,
-      //       meta: {
-      //         title: 'reuse.createANewOrder',
-      //         noTagsView: true,
-      //         noCache: true,
-      //         hidden: true,
-      //         showMainRoute: true
-      //       }
-      //     },
-      //     {
-      //       path: 'create-new-order',
-      //       name: 'business.order-management.create-new-order',
-      //       component: 'views/Pages/Business/OrderManagement/index',
-      //       meta: {
-      //         title: 'router.createANewOrder'
-      //       }
-      //     }
-      //   ]
-      // },
       {
         path: 'order-management',
         name: 'business.order-management',

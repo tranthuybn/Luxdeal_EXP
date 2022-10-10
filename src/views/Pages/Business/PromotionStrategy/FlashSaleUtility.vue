@@ -106,32 +106,21 @@ const tableData = [
 ]
 
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
-  collaborators: '',
-  dateOfReturn: '',
-  collaboratorCommission: '',
-  orderNotes: '',
-  customersValue: '',
-  delivery: ''
+  dateFlashSale: '',
+  promotionPercent: '',
+
+  descShort: ''
 })
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: 'Please select Activity zone',
-      trigger: 'change'
-    }
-  ],
-  collaboratorCommission: [
+  descShort: [
     {
       required: true,
       message: 'Please select Activity count',
       trigger: 'blur'
     }
   ],
-  dateOfReturn: [
+  dateFlashSale: [
     {
       type: 'date',
       required: true,
@@ -139,13 +128,11 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customersValue: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
-  delivery: [
+  promotionPercent: [
     {
       required: true,
       message: 'Please select activity resource',
-      trigger: 'change'
+      trigger: 'blur'
     }
   ]
 })
@@ -197,11 +184,15 @@ const optionPromotion = [
                 >
               </div>
 
-              <el-form-item :label="t('formDemo.promotions')">
+              <el-form-item :label="t('formDemo.promotions')" required>
                 <div class="flex items-center w-[100%] gap-2">
                   <el-form-item style="flex: 1">
                     <div class="w-[100%] items-center items-center border-1 rounded leading-7">
-                      <el-select v-model="promotionValue" clearable placeholder="Select">
+                      <el-select
+                        clearable
+                        :placeholder="t('formDemo.decreaseByPercent')"
+                        v-model="promotionValue"
+                      >
                         <el-option
                           v-for="item in optionPromotion"
                           :key="item.value"
@@ -212,8 +203,9 @@ const optionPromotion = [
                     </div>
                   </el-form-item>
 
-                  <el-form-item style="flex: 1">
+                  <el-form-item style="flex: 1" prop="promotionPercent">
                     <el-input
+                      v-model="ruleForm.promotionPercent"
                       type="text"
                       :placeholder="t('formDemo.enterPercent')"
                       style="width: 100%"
@@ -223,9 +215,10 @@ const optionPromotion = [
                 </div>
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.duration')" required>
+              <el-form-item :label="t('formDemo.duration')" required prop="dateFlashSale">
                 <div class="custom-date">
                   <el-date-picker
+                    v-model="ruleForm.dateFlashSale"
                     type="daterange"
                     :start-placeholder="t('formDemo.startDay')"
                     :end-placeholder="t('formDemo.endDay')"
@@ -234,9 +227,9 @@ const optionPromotion = [
                 </div>
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.shortDescription')">
+              <el-form-item :label="t('formDemo.shortDescription')" prop="descShort">
                 <el-input
-                  v-model="ruleForm.orderNotes"
+                  v-model="ruleForm.descShort"
                   style="width: 100%"
                   type="text"
                   :placeholder="`${t('formDemo.enterDescription')}`"

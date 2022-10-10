@@ -474,6 +474,7 @@ export default {
     flashsale: 'Flash Sale',
     collaboratorsList: 'Collaborators List',
     paymentRequest: 'Payment Request',
+    paymentRequests: 'Payment Request',
     collaboratorsAdd: 'Collaborators Add',
     customerList: 'Customer List',
     customerRatings: 'Customer Ratings',
@@ -558,7 +559,9 @@ export default {
     paymentsAdd: 'Payments Add',
     departmentDirectory: 'Department Directory',
     newsList: 'News List',
-    manageNew: 'Manage news category'
+    manageNew: 'Manage news category',
+    comboTitle: 'Combo title',
+    auctionTitle: 'Auction title'
   },
   permission: {
     hasPermission: 'Please set the operation permission value'
@@ -1137,6 +1140,7 @@ export default {
     positiveNumber: 'Please just enter positive number',
     integerNumber: 'Please just enter integer number',
     checkNameLength: 'Do not enter more than 50 character',
+    checkDiscount: 'Please enter a value less than 100',
     checkDescriptionLength: 'Do not enter more than 500 character',
     checkStartDateTime: 'Date starts before current time',
     enterOrSelectCustomerName: 'Enter or select customer name',
@@ -1302,6 +1306,9 @@ export default {
     addNewMoneyPaymentCode: 'Add new money payment code',
     moneyPaymentCode: 'Money payment code',
     alreadyPaid: 'Already paid',
-    notPaid: 'Not paid'
+    notPaid: 'Not paid',
+    authorized: 'Account is not authorized',
+    accountInfo: 'Have no clue about account',
+    createNew: 'Create new'
   }
 }

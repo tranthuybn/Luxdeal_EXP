@@ -13,6 +13,20 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatRankingCustomer = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.silver')
+    case 2:
+      return t('reuse.gold')
+    case 3:
+      return t('reuse.platinum')
+    case 4:
+      return 'Titan'
+    default:
+      return t('reuse.silver')
+  }
+}
 export const formatCustomerRatings = (val) => {
   switch (val) {
     case 1:
@@ -107,7 +121,7 @@ export const FORM_DATA = (object) => {
 }
 export const FORM_IMAGES = (data) => {
   return Object.keys(data).reduce((form, key) => {
-    if (data[key]) {
+    if (data[key] != null && typeof data[key] != 'undefined') {
       form.append(key, data[key])
       if (Array.isArray(data[key]) && data[key].length > 0)
         data[key].forEach((el) => {

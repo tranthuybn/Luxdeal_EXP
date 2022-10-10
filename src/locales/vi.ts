@@ -142,6 +142,14 @@ export default {
     pauseActivity: 'Tạm dừng hoạt động',
     enterServiceCode: 'Nhập mã dịch vụ',
     enterServiceName: 'Nhập tên dịch vụ',
+    voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
+    voucherDiscount: 'Voucher giảm giá đơn hàng',
+    voucherDetails: ' Chi tiết voucher',
+    voucherCode: 'Mã voucher',
+    odersApply: 'Đơn hàng áp dụng',
+    appliesToOrdersFrom: 'Áp dụng cho đơn hàng từ',
+    sendImmediatelyAfterBrowsing: 'Gửi ngay sau khi duyệt',
+    voucherSendingSettings: 'Cài đặt gửi voucher',
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
     enterNumberHours: 'Nhập số giờ',
@@ -497,6 +505,7 @@ export default {
     flashsale: 'Flash Sale',
     collaboratorsList: 'Danh sách cộng tác viên',
     paymentRequest: 'Yêu cầu thanh toán hoa hồng',
+    paymentRequests: 'Yêu cầu thanh toán',
     collaboratorsAdd: 'Thêm mới cộng tác viên',
     customerList: 'Danh sách khách hàng',
     customerRatings: 'Xếp hạng khách hàng',
@@ -571,7 +580,9 @@ export default {
     approveManagement: 'Quản lý duyệt',
     BalanceSheetUtility: 'Thêm mới tài khoản',
     newsList: 'Danh sách tin tức',
-    manageNew: 'Quản lý danh mục tin tức'
+    manageNew: 'Quản lý danh mục tin tức',
+    comboTitle: 'Thông tin Combo',
+    auctionTitle: 'Thông tin đấu giá'
   },
   permission: {
     hasPermission: 'Vui lòng đặt giới hạn cơ quan điều hành'
@@ -1226,6 +1237,7 @@ export default {
     positiveNumber: 'Vui lòng chỉ nhập số dương',
     integerNumber: 'Vui lòng chỉ nhập số nguyên',
     checkNameLength: 'Không được nhập quá 50 ký tự',
+    checkDiscount: 'vui lòng nhập giá trị nhỏ hơn 100',
     checkDescriptionLength: 'Không được nhập quá 500 ký tự',
     checkNameServiceLength: 'Không được nhập quá 255 ký tự',
     checkCodeServiceLength: 'Không được nhập quá 20 ký tự',
@@ -1384,9 +1396,12 @@ export default {
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
-    choosePaymentProposal: 'Chọn đè',
+    choosePaymentProposal: 'Chọn đề nghị thanh toán',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
     detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
-    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền'
+    addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
+    authorized: 'Tài khoản chưa được phân quyền',
+    accountInfo: 'Không có thông tin tài khoản ',
+    createNew: 'tạo mới'
   }
 }

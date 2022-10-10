@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { addCustomerRatings } from '@/api/Business'
-import { getCategoryById, deleteCategory } from '@/api/LibraryAndSetting'
+import { getCustomerRatingsById, updateCustomerRatings, deleteCustomerRating } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ElNotification } from 'element-plus'
@@ -8,6 +8,7 @@ import { h, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
@@ -17,7 +18,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Name',
+    field: 'name',
     label: t('customerList.rankName'),
     component: 'Input',
     colProps: {
@@ -30,7 +31,7 @@ const schema = reactive<FormSchema[]>([
     hidden: false
   },
   {
-    field: 'Rating',
+    field: 'rating',
     label: t('customerList.ratings'),
     component: 'Select',
     colProps: {
@@ -57,7 +58,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'Sales',
+    field: 'sales',
     component: 'Input',
     colProps: {
       span: 12
@@ -76,7 +77,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -95,14 +96,18 @@ const schema = reactive<FormSchema[]>([
 ])
 const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
 const rules = reactive({
-  Name: [
+  name: [
     required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator }
   ],
-  Rating: [required()],
-  Sales: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }],
-  status: [required()]
+  rating: [required()],
+  sales: [
+    required(),
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: notSpace }
+  ]
+  // isActive: [required()]
 })
 // get data from router
 const router = useRouter()
@@ -110,7 +115,6 @@ const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const formDataCustomize = ref()
 const customPostData = (data) => {
   const postCustomerRatings = ref()
   postCustomerRatings.value = data
@@ -135,8 +139,52 @@ const postData = async (data) => {
       })
     )
 }
-const customizeData = () => {}
-const editData = () => {}
+const formDataCustomize = ref()
+const customizeData = async (formData) => {
+  console.log('formData', formData)
+  formDataCustomize.value = formData
+  formData.isActive == true
+    ? (formDataCustomize.value.isActive = [1])
+    : (formDataCustomize.value.isActive = [])
+  formDataCustomize.value.imageurl = `${API_URL}${formData.imageUrl}`
+}
+type FormDataUpdate = {
+  Id: number
+  Name: string
+  Rating: number
+  Sales: number
+  isActive: boolean
+  Image: any
+  ImageUrl: any
+}
+const customUpdateData = (data) => {
+  console.log(data)
+  const customUpdate = {} as FormDataUpdate
+  customUpdate.Id = data.id
+  customUpdate.Name = data.name
+  customUpdate.Rating = data.rating
+  customUpdate.Sales = data.sales
+  customUpdate.ImageUrl = data.imageurl.replace(`${API_URL}`, '')
+  customUpdate.Image = data.Image
+  data.isActive.includes(1) ? (customUpdate.isActive = true) : (customUpdate.isActive = false)
+  return customUpdate
+}
+const editData = async (data) => {
+  data = customUpdateData(data)
+  await updateCustomerRatings(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
 </script>
 <template>
   <TableOperator
@@ -147,11 +195,11 @@ const editData = () => {}
     :title="title"
     @post-data="postData"
     :rules="rules"
-    :apiId="getCategoryById"
+    :apiId="getCustomerRatingsById"
     @customize-form-data="customizeData"
     @edit-data="editData"
     :formDataCustomize="formDataCustomize"
-    :delApi="deleteCategory"
+    :delApi="deleteCustomerRating"
     :backButton="true"
     :multiple-images="false"
   />

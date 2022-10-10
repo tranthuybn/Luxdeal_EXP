@@ -64,6 +64,18 @@ export default {
           meta: {
             title: t('router.ServiceLibrarySpaService')
           }
+        },
+        {
+          path: `${utility}/:id?/:type?`,
+          component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
+          name: `products-services.ServiceLibrarySpaService.${utility}`,
+          meta: {
+            title: t('reuse.addNewSpaService'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
         }
       ]
     },
@@ -83,7 +95,7 @@ export default {
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
               name: `products-services.ProductCategory.${utility}`,
@@ -106,7 +118,7 @@ export default {
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?/:tab?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/Category/AttributeCategoryUtility.vue'),
               name: `products-services.AttributeCategory.${utility}`,
@@ -129,7 +141,7 @@ export default {
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/Category/UnitCategoryUtility.vue'),
               name: `products-services.UnitCategory.${utility}`,
@@ -152,7 +164,7 @@ export default {
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/Category/BrandCategoryUtility.vue'),
               name: `products-services.BrandCategory.${utility}`,
@@ -175,7 +187,7 @@ export default {
           },
           children: [
             {
-              path: `${utility}`,
+              path: `${utility}/:id?/:type?`,
               component: () =>
                 import('@/views/Pages/ProductsAndServices/Category/OriginCategoryUtility.vue'),
               name: `products-services.OriginCategory.${utility}`,

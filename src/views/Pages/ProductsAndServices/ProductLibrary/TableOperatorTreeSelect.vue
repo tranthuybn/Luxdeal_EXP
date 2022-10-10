@@ -715,8 +715,8 @@ const changeTreeData = (data) => {
           <el-button :icon="viewIcon" @click="previewImage" />
           <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog v-model="dialogVisible">
-          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+        <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
     </ElRow>
@@ -789,5 +789,11 @@ const changeTreeData = (data) => {
 .avatar-uploader-icon {
   width: 178px;
   height: 178px;
+}
+:deep(.el-dialog__body) {
+  max-height: 85vh;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
 }
 </style>

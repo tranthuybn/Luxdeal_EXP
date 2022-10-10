@@ -25,7 +25,7 @@ export const sellOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true

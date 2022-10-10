@@ -483,6 +483,7 @@ const optionsCustomer = [
   }
 ]
 
+const checkDisabled = ref(false)
 const postData = () => {
   // let productPayment = reactive<
   //   Array<{
@@ -746,7 +747,7 @@ onBeforeMount(() => {
               ref="ruleFormRef"
               :model="ruleForm"
               :rules="rules"
-              label-width="170px"
+              label-width="180px"
               class="de,p-ruleForm"
               status-icon
             >
@@ -880,24 +881,25 @@ onBeforeMount(() => {
               :model="ruleForm"
               status-icon
               :rules="rules"
-              label-width="165px"
+              label-width="180px"
               class="demo-ruleForm"
             >
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                <el-divider content-position="left">{{ t('reuse.receivePawn') }}</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
               </div>
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[165px] text-right pr-[12px]">
+                    <div class="w-[25%] max-w-[180px] text-right pr-[12px] leading-5">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
+                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
-
-                    <el-form-item label-width="0" prop="customerName" width="100%">
+                    <el-form-item label-width="0" prop="customerName" width="79%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
+                            :disabled="checkDisabled"
                             v-model="ruleForm.customerName"
                             filterable
                             :clearable="true"
@@ -911,7 +913,7 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
-                          <el-button @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -920,8 +922,6 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <!-- <el-form-item :label="t('formDemo.chooseShipping')" prop="region" width="100%"> -->
-
                   <el-form-item label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
@@ -929,6 +929,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
+                          :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
@@ -1074,11 +1075,15 @@ onBeforeMount(() => {
                   </p>
                 </div>
               </div>
-              <el-form-item class="poi-self" :label="t('reuse.customerInfo')">
-                <div class="flex" v-if="ruleForm.customerName !== ''">
+              <el-form-item
+                v-if="ruleForm.customerName !== ''"
+                class="poi-self"
+                :label="t('reuse.customerInfo')"
+              >
+                <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== undefined">
+                    <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
@@ -1231,7 +1236,7 @@ onBeforeMount(() => {
             <div class="dark:text-[#fff] text-right">Tổng tiền đàm phán ký gửi phải trả</div>
             <div class="dark:text-[#fff] text-right">Tổng tiền phí ký gửi phải thu</div>
             <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ phải thu</div>
-            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ}</div>
+            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ</div>
           </el-table-column>
 
           <el-table-column align="right" min-width="100">
@@ -1413,12 +1418,6 @@ onBeforeMount(() => {
 ::v-deep(.el-select) {
   width: 100%;
 }
-::v-deep(.custom-date .el-input__wrapper) {
-  width: 100%;
-}
-::v-deep(.custom-date .el-date-editor) {
-  width: 100%;
-}
 
 ::v-deep(.el-textarea__inner) {
   box-shadow: none;
@@ -1436,17 +1435,10 @@ onBeforeMount(() => {
   border: 1px solid #409eff;
 }
 
-.fix-width > .el-form-item {
-  width: 80%;
-}
-
 ::v-deep(.d-block > .el-row) {
   display: block;
 }
-::v-deep(.el-input) {
-  width: auto;
-  height: fit-content;
-}
+
 ::v-deep(.el-form-item__content) {
   display: block;
 }
@@ -1456,9 +1448,7 @@ onBeforeMount(() => {
     max-width: 100%;
   }
 }
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
+
 ::v-deep(label) {
   color: #828387;
 }
@@ -1469,5 +1459,74 @@ onBeforeMount(() => {
 
 ::v-deep(.el-divider__text) {
   font-size: 16px;
+}
+
+.el-button--text {
+  margin-right: 15px;
+}
+
+::v-deep(.el-input) {
+  width: 100%;
+  height: fit-content;
+}
+
+.dialog-footer button:first-child {
+  margin-right: 10px;
+}
+
+::v-deep(.el-dialog__body) {
+  padding-top: 0;
+}
+
+::v-deep(.el-dialog__header) {
+  padding-bottom: 0;
+}
+
+::v-deep(.el-table th.el-table__cell) {
+  padding: 0 !important;
+}
+
+.example-showcase .el-dropdown-link {
+  cursor: pointer;
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: center;
+}
+
+::v-deep(.el-dropdown-menu__item) {
+  padding: 5px 30px;
+}
+
+::v-deep(.el-table .cell) {
+  word-break: break-word;
+}
+
+::v-deep(.el-select .el-input) {
+  width: 100% !important;
+}
+
+::v-deep(.el-button--large) {
+  padding: 12px 18px;
+}
+
+.fix-label-color > .el-radio {
+  color: transparent;
+}
+
+::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
+  color: transparent;
+}
+
+.fix-width > .el-form-item {
+  width: 80%;
+}
+
+::v-deep(.poi-self > .el-form-item__label) {
+  margin-top: 2px;
+  align-self: start;
+}
+
+::v-deep(.el-input__wrapper) {
+  width: 100%;
 }
 </style>

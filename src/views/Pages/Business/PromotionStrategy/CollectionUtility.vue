@@ -57,7 +57,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'duration',
+    field: 'date',
     label: t('formDemo.duration'),
     component: 'DatePicker',
     colProps: {
@@ -92,7 +92,9 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 24
     },
+    value: 2,
     componentProps: {
+      onChange: (data) => hideTableCustomer(data),
       options: [
         { label: t('reuse.allCustomer'), value: 1 },
         { label: t('formDemo.chooseCustomerDetail'), value: 2 }
@@ -105,6 +107,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'tableCustomer',
     component: 'Input',
+    hidden: false,
     colProps: {
       span: 24
     },
@@ -147,7 +150,9 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-
+const hideTableCustomer = (data) => {
+  data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
+}
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const collapse: Array<Collapse> = [

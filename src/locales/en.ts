@@ -726,6 +726,7 @@ export default {
     requestStatus: 'Request Status',
     accountStatus: 'Account Status',
     sellOrderList: 'Sell orders',
+    VirtualWalletUtility: 'Virtual Wallet Utility',
     leaseOrderList: 'Lease orders',
     depositOrderList: 'Deposit orders',
     mortgageOrderList: 'Mortgage orders',

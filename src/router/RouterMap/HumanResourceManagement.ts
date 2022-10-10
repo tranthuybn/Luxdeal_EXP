@@ -28,22 +28,20 @@ export default {
       component: () => import('@/views/Pages/HumanResourceManagement/DepartmentDirectory.vue'),
       meta: {
         title: t('router.departmentDirectory')
-      },
-      children: [
-        {
-          path: `${utility}`,
-          component: () =>
-            import('@/views/Pages/HumanResourceManagement/DepartmentDirectoryUtility.vue'),
-          name: `human-resource-management.department-directory.${utility}`,
-          meta: {
-            title: t('reuse.addNewBranch'),
-            noTagsView: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
-          }
-        }
-      ]
+      }
+    },
+    {
+      path: `department-directory-utility/:id?/:type?`,
+      component: () =>
+        import('@/views/Pages/HumanResourceManagement/DepartmentDirectoryUtility.vue'),
+      name: `human-resource-management.department-directory.${utility}`,
+      meta: {
+        title: t('reuse.addNewBranch'),
+        noTagsView: true,
+        noCache: true,
+        hidden: true,
+        showMainRoute: true
+      }
     }
   ]
 }

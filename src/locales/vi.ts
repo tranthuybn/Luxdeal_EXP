@@ -400,7 +400,13 @@ export default {
     totalFeePayable: 'Tổng tiền phí phải thu',
     debtHistory: 'Lịch sử công nợ',
     browsePriceChanges: 'Duyệt giá thay đổi',
-    waitingDelivery: 'Chờ giao hàng'
+    waitingDelivery: 'Chờ giao hàng',
+    quicklyAddProducts: 'Thêm nhanh sản phẩm',
+    productCharacteristics: 'Đặc tính sản phẩm',
+    AddSelectProductCode: 'Thêm hoặc chọn mã sản phẩm',
+    addManagementCode: 'Thêm mã quản lý',
+    EnterNameDescription: 'Nhập tên/Mô tả',
+    selectFeature: 'Chọn đặc tính'
   },
   button: {
     add: 'Thêm nhanh',

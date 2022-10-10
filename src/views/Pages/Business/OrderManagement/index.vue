@@ -10,10 +10,6 @@ import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
 import { useRoute } from 'vue-router'
 const { t } = useI18n()
 
-//lay du lieu tu router
-// const router = useRouter()
-// const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)

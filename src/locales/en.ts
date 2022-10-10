@@ -386,7 +386,13 @@ export default {
     totalFeePayable: 'Total fee payable',
     debtHistory: 'Debt history',
     browsePriceChanges: 'Browse price changes',
-    waitingDelivery: 'Waiting for delivery'
+    waitingDelivery: 'Waiting for delivery',
+    quicklyAddProducts: 'Quickly add products',
+    productCharacteristics: 'Product characteristics',
+    AddSelectProductCode: 'Add or select product code',
+    addManagementCode: 'Add management code',
+    EnterNameDescription: 'Enter a name/description',
+    selectFeature: 'Select feature'
   },
   button: {
     add: 'Add quick',

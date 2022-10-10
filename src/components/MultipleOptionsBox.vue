@@ -50,6 +50,10 @@ const propsObj = defineProps({
   clearable: {
     type: Boolean,
     default: true
+  },
+  width: {
+    type: String,
+    default: '100%'
   }
 })
 
@@ -149,6 +153,7 @@ onUnmounted(() => {
   >
     <!-- value is tje first object when click on title -->
     <ElOption
+      :style="`width: ${width}`"
       :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
@@ -169,6 +174,7 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <ElOption
+      :style="`width: ${width}`"
       v-for="(item, index) in options"
       :key="index"
       :value="item[identifyKey]"

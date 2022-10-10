@@ -1310,6 +1310,9 @@ export default {
     notPaid: 'Not paid',
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
-    createNew: 'Create new'
+    createNew: 'Create new',
+    //BST
+    chooseCustomerCode: 'Choose customer code',
+    chooseProductCode: 'Choose product code'
   }
 }

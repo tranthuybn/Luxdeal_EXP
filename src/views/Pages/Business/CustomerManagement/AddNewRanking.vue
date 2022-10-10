@@ -116,9 +116,10 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const customPostData = (data) => {
+  console.log('data', data)
   const postCustomerRatings = ref()
   postCustomerRatings.value = data
-  data.status.length > 0
+  data.isActive.length > 0
     ? (postCustomerRatings.value.isActive = true)
     : (postCustomerRatings.value.isActive = false)
   return postCustomerRatings.value

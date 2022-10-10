@@ -27,6 +27,7 @@ export const getRoutesAsRolesApi = async (
   params: RoleParams
 ): Promise<IResponse<AppCustomRouteRecordRaw[]>> => {
   const res = await request.get(
+    // { url: '/role/list', params }
     { url: 'api/v1/Authorization/GetRouterOfEachRole', params },
     API_URL
   )

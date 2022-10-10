@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip, ElButton } from 'element-plus'
 import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+
 const propsObj = defineProps({
   // columns name
   fields: {
@@ -53,7 +54,7 @@ const propsObj = defineProps({
   }
 })
 
-const emit = defineEmits(['updateValue'])
+const emit = defineEmits(['updateValue', 'addnewproduct'])
 
 let selected = ref<string>('')
 const options = ref<Array<any>>([])
@@ -107,6 +108,9 @@ const filter = (str) => {
       return true
     }
   })
+}
+const dialogAddQuick = () => {
+  emit('addnewproduct')
 }
 const appearsEvent = () => {
   const { items } = propsObj
@@ -190,6 +194,9 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
+    <span class="block h-1 w-[100%] border-t-1 mt-4"></span>
+    <el-button text @click="dialogAddQuick">+ Thêm nhanh sản phẩm</el-button>
+    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
   </ElSelect>
 </template>
 <style lang="css" scoped>

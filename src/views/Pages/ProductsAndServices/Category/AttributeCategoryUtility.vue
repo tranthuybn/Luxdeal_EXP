@@ -44,6 +44,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       style: 'width: 100%',
+      clearable: false,
       disabled: !hierarchical,
       placeholder: t('reuse.selectLevelAttribute'),
       options: [

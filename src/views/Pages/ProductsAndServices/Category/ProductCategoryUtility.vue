@@ -37,6 +37,7 @@ const schema = reactive<FormSchema[]>([
       style: 'width: 100%',
       placeholder: t('reuse.chooseRankCategory'),
       disabled: false,
+      clearable: false,
       options: [
         {
           label: t('reuse.rank1Category'),
@@ -48,6 +49,7 @@ const schema = reactive<FormSchema[]>([
         }
       ],
       onChange: (value) => {
+        rules
         if (value == 1 || value == '') {
           removeFormSchema()
         }

@@ -120,9 +120,7 @@ export default {
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
           name: `business.customer-management.customerList.${utility}`,
           meta: {
-            title: t('router.customerAdd'),
-            noCache: true,
-            showMainRoute: true
+            title: t('router.customerAdd')
           }
         }
       ]
@@ -178,7 +176,7 @@ export default {
           }
         },
         {
-          path: 'flash-sale-utility',
+          path: 'flash-sale-utility/:id?/:type?',
           name: `business.promotion-strategy.flash-sale.${utility}`,
           component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSaleUtility.vue'),
           meta: {
@@ -196,7 +194,7 @@ export default {
           }
         },
         {
-          path: 'collection-utility',
+          path: 'collection-utility/:id?/:type?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/CollectionUtility.vue'),
           name: `business.promotion-strategy.collection.${utility}`,
           meta: {
@@ -214,7 +212,7 @@ export default {
           }
         },
         {
-          path: 'new-product-utility',
+          path: 'new-product-utility/:id?/:type?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/NewProductUtility.vue'),
           name: `business.promotion-strategy.new-product.${utility}`,
           meta: {
@@ -232,7 +230,7 @@ export default {
           }
         },
         {
-          path: 'voucher-utility',
+          path: 'voucher-utility/:id?/:type?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
           name: `business.promotion-strategy.voucher.${utility}`,
           meta: {
@@ -250,7 +248,7 @@ export default {
           }
         },
         {
-          path: 'combo-utility',
+          path: 'combo-utility/:id?/:type?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/ComboUtility.vue'),
           name: `business.promotion-strategy.combo.${utility}`,
           meta: {
@@ -268,7 +266,7 @@ export default {
           }
         },
         {
-          path: 'auction-utility',
+          path: 'auction-utility/:id?/:type?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/AuctionUtility.vue'),
           name: `business.promotion-strategy.auction.${utility}`,
           meta: {

@@ -60,21 +60,19 @@ export default {
           path: 'spa-service',
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaService.vue'),
-          name: 'products-services.ServiceLibrarySpaService',
+          name: 'products-services.ServiceLibrary.SpaService',
           meta: {
             title: t('router.ServiceLibrarySpaService')
           }
         },
         {
-          path: `${utility}/:id?/:type?`,
-          component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
-          name: `products-services.ServiceLibrarySpaService.${utility}`,
+          path: 'spaServiceAdd/:id?/:type?',
+          name: `products-services.ServiceLibrary.SpaService.${utility}`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
           meta: {
-            title: t('reuse.addNewSpaService'),
-            noTagsView: true,
-            noCache: true,
             hidden: true,
-            showMainRoute: true
+            canto: true
           }
         }
       ]
@@ -92,22 +90,21 @@ export default {
           name: 'products-services.ProductCategory',
           meta: {
             title: t('router.productCategoryProducts')
-          },
-          children: [
-            {
-              path: `${utility}/:id?/:type?`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
-              name: `products-services.ProductCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewCategory'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `${utility}/:id?/:type?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
+          name: `products-services.ProductCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewCategory'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            canto: true,
+            showMainRoute: true
+          }
         },
         {
           path: 'attribute-category',

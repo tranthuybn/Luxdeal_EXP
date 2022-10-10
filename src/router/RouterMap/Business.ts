@@ -66,36 +66,13 @@ export default {
           }
         },
         {
-          path: 'customerList-add',
+          path: 'order-list-add/:id?/:type?/:tab?',
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
             title: t('router.createANewOrder'),
-            noTagsView: true,
             noCache: true,
-            hidden: true,
-            canTo: true,
             showMainRoute: true
-          }
-        },
-        {
-          path: `utility/:id?/:type?`,
-          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
-          name: `business.order-management.order-list.${utility}`,
-          meta: {
-            title: t('router.createANewOrder'),
-            noTagsView: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
-          }
-        },
-        {
-          path: 'create-new-order',
-          name: 'business.order-management.create-new-order',
-          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
-          meta: {
-            title: t('router.createANewOrder')
           }
         }
       ]

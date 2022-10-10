@@ -420,22 +420,22 @@ const callCustomersApi = async () => {
 
 // Call api danh sách sản phẩm
 let listProductsTable = ref()
-const listProducts = ref()
 const optionsApi = ref()
 
 let optionCallAPi = 0
 const callApiProductList = async () => {
   if (optionCallAPi == 0) {
     const res = await getProductsList({ ProductId: 1 })
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id.toString(),
-      value: product.id.toString(),
-      name: product.name,
-      price: product.price.toString()
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
+    if (Array.isArray(res.data) && res.data.length > 0) {
+      optionsApi.value = res.data.map((product) => ({
+        label: product.id.toString(),
+        value: product.id.toString(),
+        name: product.name,
+        price: product.price.toString()
+      }))
+      optionCallAPi++
+      listProductsTable.value = optionsApi.value
+    }
   }
 }
 
@@ -1364,7 +1364,7 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
-          <!-- <el-table-column
+          <el-table-column
             prop="productCode"
             :label="t('formDemo.productInformation')"
             min-width="200"
@@ -1378,7 +1378,7 @@ onBeforeMount(() => {
             prop="quantity"
             :label="t('formDemo.productInformation')"
             min-width="200"
-          /> -->
+          />
           <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="620">
             <!-- <template #default="props">
               <MultipleOptionsBox

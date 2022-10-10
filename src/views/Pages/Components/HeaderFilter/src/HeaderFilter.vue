@@ -19,7 +19,7 @@ import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 import { useValidator } from '@/hooks/web/useValidator'
 
-const { ValidService, required } = useValidator()
+const { ValidService } = useValidator()
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
@@ -89,8 +89,8 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rule = reactive({
-  startDate: [{ validator: checkEndDate, trigger: 'change' }, required()],
-  endDate: [{ validator: checkStartDate, trigger: 'change' }, required()]
+  startDate: [{ validator: checkEndDate, trigger: 'change' }],
+  endDate: [{ validator: checkStartDate, trigger: 'change' }]
 })
 const periodFilter = reactive([
   { value: '3', label: 'Hôm qua' },

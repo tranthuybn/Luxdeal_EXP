@@ -509,7 +509,7 @@ const rules = reactive({
   ProductCode: [
     { validator: notSpace },
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkCodeServiceLength.validator },
     required()
   ],
   Name: [

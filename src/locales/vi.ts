@@ -397,7 +397,10 @@ export default {
     numberOfTimesRented: 'Số lần đã cho thuê',
     condition: 'Điều kiện',
     comboGetFree: 'Combo nhận miễn phí',
-    totalFeePayable: 'Tổng tiền phí phải thu'
+    totalFeePayable: 'Tổng tiền phí phải thu',
+    debtHistory: 'Lịch sử công nợ',
+    browsePriceChanges: 'Duyệt giá thay đổi',
+    waitingDelivery: 'Chờ giao hàng'
   },
   button: {
     add: 'Thêm nhanh',

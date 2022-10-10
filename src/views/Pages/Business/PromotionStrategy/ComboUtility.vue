@@ -15,19 +15,71 @@ import {
   ElRadio,
   ElDialog,
   ElDatePicker,
-  ElCheckbox
+  ElInput,
+  ElCheckbox,
+  ElForm,
+  ElFormItem
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useForm } from '@/hooks/web/useForm'
-import { Form } from '@/components/Form'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-
+import type { FormInstance, FormRules } from 'element-plus'
 import { getProductsList } from '@/api/Business'
 
 const { t } = useI18n()
-const { register } = useForm()
+
+const ruleFormRef = ref<FormInstance>()
+const ruleForm = reactive({
+  orderCode: 'CB3452323',
+  collaborators: '',
+  duration: '',
+  discount: '',
+  shortDescription: '',
+  customerName: '',
+  delivery: ''
+})
+
+const rules = reactive<FormRules>({
+  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  collaborators: [
+    {
+      required: true,
+      message: 'Please select Activity zone',
+      trigger: 'change'
+    }
+  ],
+  discount: [
+    {
+      required: true,
+      message: 'Please select Activity count',
+      trigger: 'blur'
+    }
+  ],
+  shortDescription: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
+  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  delivery: [
+    {
+      required: true,
+      message: 'Please select activity resource',
+      trigger: 'change'
+    }
+  ]
+})
+
+// let checkValidate = ref(false)
+
+// const submitForm = async (formEl: FormInstance | undefined) => {
+//   console.log('ruleForm:', ruleForm)
+//   if (!formEl) return
+//   await formEl.validate((valid, fields) => {
+//     if (valid) {
+//       console.log('submit!')
+//     } else {
+//       console.log('error submit!', fields)
+//     }
+//   })
+// }
 // upload image
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -72,57 +124,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const schema = reactive<FormSchema[]>([
-  {
-    field: 'generalInformation',
-    label: t('formDemo.generalInformation'),
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'orderCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterOrderCode')
-    }
-  },
-  {
-    field: 'duration',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
-    }
-  },
-  {
-    field: 'shortDescription',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
-    }
-  },
-  {
-    field: 'condition',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
-    }
-  }
-])
-
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -138,7 +139,7 @@ const collapseChangeEvent = (val) => {
 const activeName = ref(collapse[0].name)
 
 // Value date
-const pickdate = ref('')
+// const pickdate = ref('')
 
 const forceRemove = ref(false)
 // remove row table
@@ -266,6 +267,8 @@ const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
+const checkDisabled = ref(false)
+
 onBeforeMount(() => {
   callApiProductList()
 })
@@ -285,63 +288,45 @@ onBeforeMount(() => {
       </template>
       <div class="flex w-[100%] gap-6">
         <div class="w-[50%]">
-          <Form
-            :schema="schema"
-            label-position="top"
-            hide-required-asterisk
-            size="large"
-            class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
-            @register="register"
+          <el-form
+            ref="ruleFormRef"
+            :model="ruleForm"
+            :rules="rules"
+            label-width="170px"
+            class="demo-ruleForm"
+            status-icon
           >
-            <template #orderCode>
-              <div class="flex items-center w-[100%] gap-4">
-                <label class="w-[16%] text-right" for="">{{ t('formDemo.orderCode') }}</label>
-                <div class="font-bold">CB3452323</div>
+            <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
+              <el-input
+                :disabled="checkDisabled"
+                style="width: 100%; border: none"
+                v-model="ruleForm.orderCode"
+              />
+            </el-form-item>
+            <el-form-item :label="t('formDemo.duration')" prop="duration">
+              <el-date-picker
+                v-model="ruleForm.duration"
+                type="daterange"
+                :start-placeholder="t('formDemo.startDay')"
+                :end-placeholder="t('formDemo.endDay')"
+                format="DD/MM/YYYY"
+              />
+            </el-form-item>
+            <el-form-item :label="t('formDemo.shortDescription')" prop="shortDescription">
+              <el-input
+                v-model="ruleForm.shortDescription"
+                :placeholder="t('formDemo.enterShortDescription')"
+              />
+            </el-form-item>
+            <el-form-item :label="t('formDemo.condition')">
+              <div class="flex gap-2 w-[100%]">
+                <el-input :placeholder="t('formDemo.comboGetFree')" />
+                <el-button @click="openChangeComboDialog = true" style="padding: 8px 34px">{{
+                  t('formDemo.change')
+                }}</el-button>
               </div>
-            </template>
-            <template #duration>
-              <div class="flex items-center w-[100%] gap-4">
-                <label class="w-[16%] text-right">{{ t('formDemo.duration') }}</label>
-                <div class="flex w-[80%] gap-2 demo-date-picker">
-                  <el-date-picker
-                    v-model="pickdate"
-                    type="daterange"
-                    start-placeholder="Start date"
-                    end-placeholder="End date"
-                    format="DD/MM/YYYY"
-                  />
-                </div>
-              </div>
-            </template>
-            <template #shortDescription>
-              <div class="flex items-center w-[100%] gap-4">
-                <label class="w-[16%] text-right" for="">{{
-                  t('formDemo.shortDescription')
-                }}</label>
-                <input
-                  class="w-[80%] border-1 outline-none pl-2 bg-transparent rounded dark:border-"
-                  type="text"
-                  :placeholder="`${t('formDemo.enterShortDescription')}`"
-                />
-              </div>
-            </template>
-
-            <template #condition>
-              <div class="flex items-center w-[100%] gap-4">
-                <label class="w-[16%] text-right">{{ t('formDemo.condition') }}</label>
-                <div class="w-[80%] bg-transparent flex items-center gap-4">
-                  <input
-                    type="text"
-                    class="border-1 w-[80%] outline-none rounded bg-transparent pl-2"
-                    :placeholder="`${t('formDemo.comboGetFree')}`"
-                  />
-                  <el-button @click="openChangeComboDialog = true" style="padding: 8px 34px">{{
-                    t('formDemo.change')
-                  }}</el-button>
-                </div>
-              </div>
-            </template>
-          </Form>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="w-[50%]">
           <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -366,7 +351,6 @@ onBeforeMount(() => {
                         class="el-upload-list__item-delete"
                         @click="handleDownload(file)"
                       >
-                        <el-icon><Download /></el-icon>
                       </span>
                       <span
                         v-if="!disabled"
@@ -470,7 +454,7 @@ onBeforeMount(() => {
           <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
           <div class="flex gap-4 items-center">
             <label class="w-[16%] text-right">{{ t('formDemo.comboSendingSettings') }}</label>
-            <el-checkbox v-model="checkboxSending" size="large" />
+            <el-checkbox v-model="checkboxSending" />
             <div class="text-[#303133] font-normal dark:text-white">{{
               t('formDemo.sentImmediatelyAfterBrowsing')
             }}</div>
@@ -487,21 +471,21 @@ onBeforeMount(() => {
             <div v-if="checkButton">
               <el-button
                 class="min-w-[142px]"
-                @click.prevent="checkButton = !checkButton"
+                @click.prevent="
+                  () => {
+                    checkButton = !checkButton
+                  }
+                "
                 type="primary"
-                size="large"
                 >{{ t('button.saveAndWaitApproval') }}</el-button
               >
-              <el-button class="min-w-[142px]" size="large">{{ t('button.cancel') }}</el-button>
+              <el-button class="min-w-[142px]">{{ t('button.cancel') }}</el-button>
             </div>
             <div v-else>
-              <el-button
-                class="min-w-[142px]"
-                size="large"
-                @click.prevent="checkButton = !checkButton"
-                >{{ t('button.edit') }}</el-button
-              >
-              <el-button class="min-w-[142px]" size="large" type="danger">{{
+              <el-button class="min-w-[142px]" @click.prevent="checkButton = !checkButton">{{
+                t('button.edit')
+              }}</el-button>
+              <el-button class="min-w-[142px]" type="danger">{{
                 t('button.cancelVoucher')
               }}</el-button>
             </div>
@@ -525,7 +509,7 @@ onBeforeMount(() => {
       <el-table-column prop="radioComboTable" width="90" align="center">
         <template #default="props">
           <el-radio-group v-model="radioCondition" class="ml-4">
-            <el-radio :label="props.row.radioComboTable" size="large" />
+            <el-radio :label="props.row.radioComboTable" />
           </el-radio-group>
         </template>
       </el-table-column>

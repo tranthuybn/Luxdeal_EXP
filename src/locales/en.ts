@@ -383,7 +383,10 @@ export default {
     businessManagement: 'Business management',
     pawnFeeDebt: 'Pawn fee debt',
     numberOfTimesRented: 'Number of times rented',
-    totalFeePayable: 'Total fee payable'
+    totalFeePayable: 'Total fee payable',
+    debtHistory: 'Debt history',
+    browsePriceChanges: 'Browse price changes',
+    waitingDelivery: 'Waiting for delivery'
   },
   button: {
     add: 'Add quick',

@@ -13,6 +13,20 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatRankingCustomer = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.silver')
+    case 2:
+      return t('reuse.gold')
+    case 3:
+      return t('reuse.platinum')
+    case 4:
+      return 'Titan'
+    default:
+      return t('reuse.silver')
+  }
+}
 export const formatCustomerRatings = (val) => {
   switch (val) {
     case 1:

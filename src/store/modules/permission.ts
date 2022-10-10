@@ -39,21 +39,20 @@ export const usePermissionStore = defineStore({
   },
   actions: {
     generateRoutes(
-      type: 'admin' | 'test' | 'none',
-      routers?: AppCustomRouteRecordRaw[] | string[]
+      routers?: AppCustomRouteRecordRaw[] | string[],
+      type = 'server' || 'client'
     ): Promise<unknown> {
       return new Promise<void>((resolve) => {
         let routerMap: AppRouteRecordRaw[] = []
-        if (type === 'admin') {
-          // Simulation rear filter menu
-          routerMap = generateRoutesFn2(routers as AppCustomRouteRecordRaw[])
-        } else if (type === 'test') {
-          // Simulate front -end filter menu
+
+        // Simulation rear filter menu
+        if (type === 'server') routerMap = generateRoutesFn2(routers as AppCustomRouteRecordRaw[])
+        // Simulate front -end filter menu
+        else if (type === 'client')
           routerMap = generateRoutesFn1(cloneDeep(asyncRouterMap), routers as string[])
-        } else {
-          // Read the static routing table directly
-          routerMap = cloneDeep(asyncRouterMap)
-        }
+        // Read the static routing table directly
+        else routerMap = cloneDeep(asyncRouterMap)
+
         // Dynamic route, 404 must be placed to the end
         this.addRouters = routerMap.concat([
           {

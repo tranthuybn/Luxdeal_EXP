@@ -261,7 +261,6 @@ const customPostData = (data) => {
   return customData
 }
 const editData = async (data) => {
-  console.log(data)
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
     .then(() =>

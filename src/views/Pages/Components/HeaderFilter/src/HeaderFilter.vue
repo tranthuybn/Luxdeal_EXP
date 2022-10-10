@@ -171,39 +171,51 @@ function reLoadEvent() {
   emit('refreshData', { Keyword: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
-  let inputValid = false
+  //if there is value it will validate and return value, if not valid == null
+  let inputValid: any = null
+  if (validateHeaderInput.searchingKey !== '') {
+    const formEl = unref(formRef)
+    await formEl?.validate((valid) => {
+      if (valid) {
+        inputValid = true
+      } else {
+        inputValid = false
+      }
+    })
+  }
+  let dateValid: any = null
+  const dateFormData = await getFormData()
+  if (dateFormData?.startDate !== '' || dateFormData?.endDate !== '') {
+    const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+    await elFormRef?.validate((valid) => {
+      if (valid) {
+        dateValid = true
+      } else {
+        dateValid = false
+      }
+    })
+  }
 
-  const formEl = unref(formRef)
-  formEl?.validate((valid) => {
-    if (valid) {
-      inputValid = true
-    } else {
-      inputValid = false
-    }
-  })
-
-  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
-  elFormRef?.validate((valid) => {
-    if (valid && inputValid) {
-      dateTimeDisable.value = false
-      disableChooseDate.value = false
-      forceDisable.value = true
-      getFormData()
-        .then((res) => {
-          res?.endDate
-            ? (res['endDate'] = moment(res?.endDate)
-                .set('hour', 23)
-                .set('minute', 59)
-                .set('second', 59)
-                .format('YYYY-MM-DD HH:mm:ss'))
-            : ''
-          emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-    }
-  })
+  //if not false then run ( false when there is a value and is inValid)
+  if (inputValid !== false && dateValid !== false) {
+    dateTimeDisable.value = false
+    disableChooseDate.value = false
+    forceDisable.value = true
+    getFormData()
+      .then((res) => {
+        res?.endDate
+          ? (res['endDate'] = moment(res?.endDate)
+              .set('hour', 23)
+              .set('minute', 59)
+              .set('second', 59)
+              .format('YYYY-MM-DD HH:mm:ss'))
+          : ''
+        emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
 }
 
 //validate input header

@@ -30,7 +30,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_TAGS: '/api/v1/Product/GetTag',
   GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
-  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers'
+  GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
+  POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
@@ -50,6 +51,10 @@ export const CUSTOMER_API = {
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers',
   GET_CUSTOMER_RATINGS: '/api/v1/Customer/getCustomerRatings',
   ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings',
+  GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
+  UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
+  GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
+  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer'
 }

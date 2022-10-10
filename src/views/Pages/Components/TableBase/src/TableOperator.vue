@@ -229,6 +229,8 @@ const save = async (type) => {
         emit('edit-data', data, go(-1))
         loading.value = false
       }
+      fileList.value = []
+      imageUrl.value = undefined
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }

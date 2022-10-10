@@ -234,7 +234,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, _fields) => {
     if (valid) {
-      console.log('submit!')
       checkValidate.value = true
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -277,6 +276,7 @@ watch(
     }
   }
 )
+
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -307,7 +307,9 @@ const customPostData = (FormData) => {
   customData.AccountNumber = infoCompany.accountNumber
   customData.AccountName = infoCompany.accountName
   customData.BankId = parseInt(infoCompany.bankId)
-  customData.Files = ListFileUpload.value.map((file) => file.raw)
+  customData.Files = ListFileUpload.value
+    .map((file) => file.raw)
+    .filter((file) => file !== undefined)
   FormData.CollaboratorStatus ? (customData.Status = 1) : (customData.Status = 0)
   return customData
 }
@@ -317,23 +319,11 @@ const cancel = async () => {
     params: { backRoute: 'business.collaborators.collaboratorsList' }
   })
 }
-
 // const cancel = () => {
 //   go(-1)
 // }
 const ListFileUpload = ref<UploadUserFile[]>([])
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-}
-onBeforeMount(() => {
-  callCustomersApi()
-})
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`).then(
-    () => true,
-    () => false
-  )
-}
+
 const setFormValue = async () => {
   const { setValues } = methods
   console.log('formValue', formValue.value)
@@ -342,7 +332,8 @@ const setFormValue = async () => {
       if (element.file !== null) {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName
+          name: element?.file?.fileName,
+          id: element?.file?.id
         })
       }
     })
@@ -377,7 +368,39 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+}
+onBeforeMount(() => {
+  callCustomersApi()
+})
+let FileDeleteIds: any = []
+const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      console.log('uploadFile', uploadFile.id)
+      let imageRemove = uploadFile.id
+      console.log('imageRemove')
 
+      FileDeleteIds.push(imageRemove)
+      console.log('FileDeleteIds', FileDeleteIds)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
+}
 const rules = reactive<FormRules>({
   Discount: [
     {
@@ -431,6 +454,8 @@ const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
     const data = customPostData(FormData)
+    console.log('1', data)
+
     if (type === 'add') {
       await addNewCollaborators(FORM_IMAGES(data))
         .then(() =>
@@ -446,7 +471,15 @@ const save = async () => {
           })
         )
     } else if (type === 'edit') {
-      await updateCollaborators(FORM_IMAGES(data))
+      const payload = {
+        id: id,
+        FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
+        Files: data.Files.filter((file) => file !== undefined)
+      }
+      console.log('2', payload)
+      console.log('3', { ...payload, ...data })
+
+      await updateCollaborators({ ...payload, ...data })
         .then(() =>
           ElNotification({
             message: t('reuse.updateSuccess'),
@@ -523,7 +556,7 @@ const activeName = ref('1')
                   v-model="FormData.customersValue"
                   filterable
                   @clear="clear()"
-                  :clearable="true"
+                  :clearable="false"
                   size="default"
                   :placeholder="t('formDemo.chooseACustomer')"
                   @change="changeAddressCustomer"

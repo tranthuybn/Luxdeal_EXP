@@ -1,6 +1,6 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
-import { objectToQueryParams } from '@/utils/format'
+import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
@@ -270,6 +270,7 @@ export const addNewCollaborators = async (data): Promise<IResponse> => {
   return res && res.data
 }
 export const updateCollaborators = async (data): Promise<IResponse> => {
+  data = FORM_IMAGES(data)
   const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data
 }

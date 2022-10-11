@@ -566,6 +566,41 @@ const changeVoucherCondition = () => {}
               </el-table-column>
             </el-table>
           </template>
+
+          <template #tableProductOfAuction>
+            <el-table :data="fakeTableProductData" border>
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+                ><template #default="scope">
+                  <MultipleOptionsBox
+                    :fields="[
+                      t('reuse.productCode'),
+                      t('reuse.managementCode'),
+                      t('reuse.productInformation')
+                    ]"
+                    filterable
+                    width="500px"
+                    :items="listProductsTable"
+                    valueKey="value"
+                    labelKey="value"
+                    :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')"
+                    :clearable="false"
+                    :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
+                    @change="(option) => changeName(option, scope)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="700" />
+              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                    t('reuse.delete')
+                  }}</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
           <template #voucherButton>
             <el-button @click="changeVoucherCondition" :icon="addIcon" style="width: 100%">{{
               t('formDemo.change')

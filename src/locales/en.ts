@@ -123,6 +123,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
     serviceName: 'Service name',

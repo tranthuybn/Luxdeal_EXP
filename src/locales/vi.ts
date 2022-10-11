@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
     serviceName: 'Tên dịch vụ',

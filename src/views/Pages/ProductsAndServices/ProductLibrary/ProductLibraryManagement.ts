@@ -12,7 +12,7 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 
@@ -234,6 +234,7 @@ export const customPostData = async (data) => {
   }
 }
 export { originSelect, unitSelect, brandSelect }
+
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Divider',
@@ -362,8 +363,8 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
-      style: 'width: 100%',
-      placeholder: 'Hello'
+      height: '1000px',
+      style: 'width: 100%'
     },
     colProps: {
       span: 24

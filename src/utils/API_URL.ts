@@ -56,7 +56,8 @@ export const CUSTOMER_API = {
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
   DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
-  ADD_CUSTOMER: '/api/v1/Customer/addCustomer'
+  ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer'
 }
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',

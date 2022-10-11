@@ -37,7 +37,10 @@ export const CustomerList = [
     field: 'sex',
     label: t('reuse.gender'),
     minWidth: '100',
-    filters: filterGender
+    filters: filterGender,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return cellValue ? h('div', 'Nam') : h('div', 'Nữ')
+    }
   },
   {
     field: 'contact',

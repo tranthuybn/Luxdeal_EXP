@@ -1310,6 +1310,11 @@ export default {
     notPaid: 'Not paid',
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
-    createNew: 'Create new'
+    createNew: 'Create new',
+    cmnd: 'CMND/CCCD',
+    changePassword: 'Change password',
+    newPassword: 'New password',
+    enterNewPassword: 'Enter new password',
+    confirmPassword: 'Confirm password'
   }
 }

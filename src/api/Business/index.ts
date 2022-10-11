@@ -128,6 +128,17 @@ export const getCustomerById = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getGenCodeCustomers = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_GEN_CODE_CUSTOMER}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const addNewCustomer = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {

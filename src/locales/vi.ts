@@ -1387,6 +1387,7 @@ export default {
     //Short Key
     mst: 'MST',
     sdt: 'SDT',
+    cmnd: 'CMND/CCCD',
     enterFacebookZaloLink: 'Nhập link facebook/zalo...',
     moneyPaymentCode: 'Mã gói nạp tiền',
     alreadyPaid: 'Đã thanh toán',
@@ -1407,6 +1408,10 @@ export default {
     addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
     authorized: 'Tài khoản chưa được phân quyền',
     accountInfo: 'Không có thông tin tài khoản ',
-    createNew: 'tạo mới'
+    createNew: 'tạo mới',
+    changePassword: 'Đổi mật khẩu',
+    newPassword: 'Mật khẩu mới',
+    enterNewPassword: 'Nhập mật khẩu mới',
+    confirmPassword: 'Xác nhận mật khẩu'
   }
 }

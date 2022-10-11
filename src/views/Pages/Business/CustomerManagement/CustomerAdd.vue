@@ -6,206 +6,125 @@ import {
   ElUpload,
   ElDivider,
   ElButton,
-  ElCheckbox,
+  ElRadio,
   ElDialog,
   ElOption,
   ElSelect,
   ElDatePicker,
   ElNotification,
-  ElInput
+  ElInput,
+  ElFormItem,
+  ElForm,
+  ElRadioGroup
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
+import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
-import { Form } from '@/components/Form'
+// import { Form } from '@/components/Form'
+import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
-import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+// import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import router from '@/router'
-import { getCustomerById } from '@/api/Business'
+import { getCustomerById, addNewCustomer, getGenCodeCustomers } from '@/api/Business'
 import { useRouter } from 'vue-router'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const { t } = useI18n()
-const value1 = ref('')
-const value2 = ref('')
 const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const customerClassification = ref('Khách hàng')
+const valueProvince = ref('')
+const valueDistrict = ref('')
 
-const schema = reactive<FormSchema[]>([
+const options = [
   {
-    field: 'customerCode',
-    label: 'Mã khách hàng',
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
+    value: true,
+    label: 'Nam'
   },
   {
-    field: 'customerCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'referralCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'information',
-    label: t('router.analysis'),
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'classify',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'companyInfo',
-    colProps: {
-      span: 24
-    }
-  },
-
-  {
-    field: 'customerName',
-    colProps: {
-      span: 24
-    }
-  },
-
-  {
-    field: 'selectObject',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'userInfo',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'password',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'confirmPassword',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'optionForm',
-    colProps: {
-      span: 24
-    }
+    value: false,
+    label: 'Nữ'
   }
-])
+]
 
-const schema2 = reactive<FormSchema[]>([
+const classify = [
   {
-    field: 'placeCustomer',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
+    value: false,
+    label: 'Cá nhân'
   },
   {
-    field: 'placeCustomer2',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'placeCustomer3',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'placeCustomer4',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'bankAccount',
-    label: t('reuse.accountBank'),
-    component: 'Divider',
-    colProps: {
-      span: 24
-    }
-  },
-
-  {
-    field: 'referralCode',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'referralCode2',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'referralCode3',
-    component: 'Input',
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'information',
-    label: t('formDemo.codeQR'),
-    component: 'Divider',
-    colProps: {
-      span: 12
-    }
-  },
-  {
-    field: 'QRcode',
-    component: 'Input',
-    colProps: {
-      span: 12
-    }
+    value: true,
+    label: 'Doanh nghiệp'
   }
-])
+]
+
+const classify2 = [
+  {
+    value: 'Khách hàng',
+    label: 'Khách hàng'
+  },
+  {
+    value: 'Nhà cung cấp',
+    label: 'Nhà cung cấp'
+  },
+  {
+    value: 'Chung',
+    label: 'Chung'
+  }
+]
+
+const bankList = [
+  {
+    value: 499,
+    label: 'Ngân hàng đầu tư và phát triển Việt Nam'
+  },
+  {
+    value: 500,
+    label: 'Ngân hàng công thương Việt Nam'
+  },
+  {
+    value: 501,
+    label: 'Ngân hàng quốc tế'
+  }
+]
+
+// let customerCode = ref()
+let ruleForm = reactive({
+  customerCode: '',
+  referralCode: '',
+  businessClassification: false,
+  name: '',
+  customerName: '',
+  representative: '',
+  accountName: '',
+  accountNumber: '',
+  bankName: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  email: '',
+  link: '',
+  phonenumber: '',
+  sex: true,
+  taxCode: '',
+  doB: '',
+  userName: '',
+  isActive: true
+})
 const formValue = ref()
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(id)) {
-    const res = await getCustomerById({ id: id })
+    const res = await getCustomerById({ Id: id })
     if (res) {
       if (res.data?.list !== undefined) {
         formValue.value = res.data.list[0]
@@ -219,12 +138,50 @@ const getTableValue = async () => {
       })
     }
   }
+  if (type == 'detail' || type == 'edit') {
+    ruleForm.isActive = formValue.value.isActive
+    ruleForm.customerCode = formValue.value.code
+    ruleForm.referralCode = formValue.value.referralCode
+    if (formValue.value.isOrganization) {
+      ruleForm.businessClassification = true
+    } else {
+      ruleForm.businessClassification = false
+    }
+    if (formValue.value.sex) {
+      ruleForm.sex = true
+    } else {
+      ruleForm.sex = false
+    }
+    ruleForm.name = formValue.value.name
+    ruleForm.representative = formValue.value.representative
+    ruleForm.accountName = formValue.value.accountName
+    ruleForm.cccd = formValue.value.cccd
+    ruleForm.cccdCreateAt = formValue.value.cccdCreateAt
+    ruleForm.cccdPlaceOfGrant = formValue.value.cccdPlaceOfGrant
+    ruleForm.email = formValue.value.email
+    ruleForm.phonenumber = formValue.value.phonenumber
+    ruleForm.link = formValue.value.link
+    ruleForm.bankName = formValue.value.bank.name
+    ruleForm.accountNumber = formValue.value.accountNumber
+    ruleForm.doB = formValue.value.doB
+    ruleForm.taxCode = formValue.value.taxCode
+    ruleForm.userName = formValue.value.userName
+  }
+  console.log('formvalue: ', formValue)
 }
+
 const { push } = useRouter()
 const editPage = async () => {
   push({
     name: `${String(router.currentRoute.value.name)}`,
     params: { id: id, type: 'edit' }
+  })
+}
+
+const cancel = async () => {
+  push({
+    name: 'business.customer-management.customerList',
+    params: { backRoute: 'business.customer-management.customerList' }
   })
 }
 const { register } = useForm()
@@ -256,6 +213,17 @@ const collapse: Array<Collapse> = [
   }
 ]
 
+const getGenCodeCustomer = async () => {
+  await getGenCodeCustomers({})
+    .then((res) => {
+      console.log('res', res)
+      ruleForm.customerCode = res.toString()
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  ruleForm.customerCode
+}
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -268,9 +236,8 @@ const collapseChangeEvent = (val) => {
     })
 }
 const activeName = ref(collapse[0].name)
-
-const customerCode = ref('KH3452323')
 //upload image
+
 const handleRemove = (file: UploadFile) => {
   console.log(file)
 }
@@ -279,98 +246,77 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
+// address
 
-const businessClassification = ref('Cá nhân')
-const customerClassification = ref('Khách hàng')
-const statusActive = ref(true)
-const value = ref('Nam')
-const valueProvince = ref('')
-const valueDistrict = ref('')
+const cities = ref()
+const district = ref()
+const ward = ref()
+const street = ref()
+const valueCommune = ref('')
+const enterdetailAddress = ref([])
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
 
-const options = [
-  {
-    value: 'Nam',
-    label: 'Nam'
-  },
-  {
-    value: 'Nữ',
-    label: 'Nữ'
-  },
-  {
-    value: 'Khác',
-    label: 'Khác'
-  }
-]
-const province = [
-  {
-    value: 'HN',
-    label: 'HN'
-  },
-  {
-    value: 'TP.HCM',
-    label: 'TP.HCM'
-  },
-  {
-    value: 'ĐN',
-    label: 'ĐN'
-  },
-  {
-    value: 'Vinh',
-    label: 'Vinh'
-  },
-  {
-    value: 'Nha Trang',
-    label: 'Nha Trang'
-  }
-]
-const district = [
-  {
-    value: 'Thanh Xuan',
-    label: 'Thanh Xuan'
-  },
-  {
-    value: 'Hai Ba Trung',
-    label: 'Hai Ba Trung'
-  },
-  {
-    value: 'Dong Da',
-    label: 'Dong Da'
-  },
-  {
-    value: 'Vinh',
-    label: 'Vinh'
-  },
-  {
-    value: 'Nha Trang',
-    label: 'Nha Trang'
-  }
-]
+const CityChange = async (value) => {
+  district.value = await getDistrict(value)
+}
 
-const classify = [
-  {
-    value: 'Cá nhân',
-    label: 'Cá nhân'
-  },
-  {
-    value: 'Doanh nghiệp',
-    label: 'Doanh nghiệp'
-  }
-]
+const districtChange = async (value) => {
+  ward.value = await getWard(value)
+}
 
-const classify2 = [
-  {
-    value: 'Khách hàng',
-    label: 'Khách hàng'
-  },
-  {
-    value: 'Nhà cung cấp',
-    label: 'Nhà cung cấp'
-  },
-  {
-    value: 'Chung',
-    label: 'Chung'
+const postData = async () => {
+  const payload = {
+    UserName: 'Hung',
+    Code: ruleForm.customerCode,
+    ReferralCode: ruleForm.referralCode,
+    Name: ruleForm.name,
+    TaxCode: ruleForm.taxCode,
+    IsOrganization: ruleForm.businessClassification,
+    Representative: ruleForm.representative,
+    Phonenumber: ruleForm.phonenumber,
+    Email: ruleForm.email,
+    DoB: ruleForm.doB,
+    DistrictId: 1,
+    WardId: 1,
+    Address: 'trieu khuc',
+    CCCD: ruleForm.cccd,
+    CCCDCreateAt: ruleForm.cccdCreateAt,
+    CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
+    Sex: ruleForm.sex,
+    Link: ruleForm.link,
+    ImageId: 1,
+    isActive: true,
+    CustomerType: 1,
+    AccountName: ruleForm.accountName,
+    AccountNumber: ruleForm.accountNumber,
+    BankId: ruleForm.bankName
   }
-]
+  const formDataPayLoad = FORM_IMAGES(payload)
+  console.log('postData', payload)
+
+  await addNewCustomer(formDataPayLoad)
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
+  push({
+    name: 'business.customer-management.customerList',
+    params: { backRoute: 'business.customer-management.customerList' }
+  })
+}
+
+const centerDialogVisible = ref(false)
+
 let disableData = false
 watch(
   () => type,
@@ -395,6 +341,9 @@ const change = () => {
 }
 onBeforeMount(() => {
   change()
+  callApiCity()
+  getTableValue()
+  getGenCodeCustomer()
 })
 </script>
 
@@ -409,52 +358,48 @@ onBeforeMount(() => {
 
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
-            <Form
-              :disabled="disableData"
-              :schema="schema"
-              label-position="top"
+            <ElForm
+              ref="ruleFormRef"
+              :model="ruleForm"
               hide-required-asterisk
-              class="flex border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
+              label-width="170px"
               @register="register"
+              status-icon
+              :disabled="disableData"
             >
-              <template #customerCode>
-                <div class="customerCode flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for="">{{
-                    t('reuse.customerCode')
-                  }}</label>
-                  <strong>{{ customerCode }}</strong>
+              <el-divider content-position="left">{{ t('reuse.customerCode') }}</el-divider>
+              <ElFormItem
+                class="w-[80%] outline-none dark:bg-transparent"
+                :label="t('reuse.customerCode')"
+                prop="customerCode"
+                ><div class="pl-2">
+                  {{ ruleForm.customerCode }}
                 </div>
-              </template>
+              </ElFormItem>
+              <ElFormItem :label="t('reuse.referralCode')" prop="referralCode">
+                <el-input
+                  v-model="ruleForm.referralCode"
+                  class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                  type="text"
+                  :placeholder="t('reuse.referralCode')"
+              /></ElFormItem>
 
-              <template #referralCode>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for="">{{
-                    t('reuse.referralCode')
-                  }}</label>
-                  <el-input
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('reuse.referralCode')"
-                  />
-                </div>
-              </template>
-
-              <template #classify>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] leading-5 text-right max-w-[119.63px]"
-                    >{{ t('formDemo.classify') }}<span style="color: red">*</span>
-                  </label>
-
-                  <div class="flex w-[85%] gap-4">
+              <el-divider content-position="left">{{
+                t('formDemo.generalInformation')
+              }}</el-divider>
+              <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.classify')">
+                <div class="flex w-[100%]">
+                  <div class="flex gap-2 pl-2 w-[100%]">
                     <div class="w-[50%] items-center outline-none">
                       <el-select
-                        v-model="businessClassification"
+                        prop="IsOrganization"
+                        v-model="ruleForm.businessClassification"
                         class="min-h-[34px] cursor-pointer w-[100%] font-bold"
                         placeholder="Select"
                       >
                         <el-option
                           v-for="item in classify"
-                          :key="item.value"
+                          :key="item.label"
                           :label="item.label"
                           :value="item.value"
                         />
@@ -462,6 +407,7 @@ onBeforeMount(() => {
                     </div>
                     <div class="w-[50%] items-center">
                       <el-select
+                        prop="CustomerType"
                         v-model="customerClassification"
                         class="min-h-[34px] cursor-pointer w-[100%] font-bold"
                         placeholder="Select"
@@ -476,50 +422,63 @@ onBeforeMount(() => {
                     </div>
                   </div>
                 </div>
-              </template>
+              </ElFormItem>
 
-              <template #customerName v-if="businessClassification == 'Cá nhân'">
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.customerName') }}<span style="color: red"> *</span>
-                  </label>
+              <div v-if="ruleForm.businessClassification === false">
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  :label="t('formDemo.customerName')"
+                  prop="name"
+                >
                   <el-input
+                    v-model="ruleForm.name"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterCustomerName')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('reuse.phoneNumber') }}<span style="color: red"> *</span>
-                  </label>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.phoneNumber')"
+                  prop="phonenumber"
+                >
                   <el-input
+                    v-model="ruleForm.phonenumber"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.email') }} </label>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.email')"
+                  prop="email"
+                >
                   <el-input
+                    v-model="ruleForm.email"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterEmail')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] max-w-[111.63px] text-right leading-5">CCCD/CMND </label>
-                  <div class="flex gap-2 w-[85%]">
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.cmnd')"
+                  prop="cccd"
+                >
+                  <div class="flex gap-2 w-[100%]">
                     <el-input
+                      v-model="ruleForm.cccd"
                       class="w-[25%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterCCCD')"
                     />
                     <el-date-picker
-                      v-model="value2"
+                      prop="cccdCreateAt"
+                      v-model="ruleForm.cccdCreateAt"
                       type="date"
                       :placeholder="t('formDemo.supplyDate')"
                       :disabled-date="disabledDate"
@@ -529,165 +488,225 @@ onBeforeMount(() => {
                       class="w-[25%] min-w-[203px] outline-none pl-2 dark:bg-transparent"
                     />
                     <el-input
+                      prop="cccdPlaceOfGrant"
+                      v-model="ruleForm.cccdPlaceOfGrant"
                       class="w-[25%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.supplyAddress')"
                     />
                   </div>
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5 custom-select-w38">
-                  <label class="w-[15%] max-w-[111.63px] text-right leading-5" for="">{{
-                    t('reuse.dateOfBirthAnGender')
-                  }}</label>
-                  <el-date-picker
-                    v-model="value1"
-                    type="date"
-                    :placeholder="t('reuse.dateOfBirth')"
-                    :disabled-date="disabledDate"
-                    :size="size"
-                    format="DD/MM/YYYY"
-                    value-format="YYYY-MM-DD"
-                    class="ml-4"
-                  />
-                  <el-select v-model="value" class="w-[38%]" clearable placeholder="Select">
-                    <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5 custom-select-w38"
+                  :label="t('reuse.dateOfBirthAnGender')"
+                >
+                  <div class="flex gap-2 w-[100%]">
+                    <div class="flex-1 pl-2 fix-width">
+                      <el-date-picker
+                        prop="doB"
+                        v-model="ruleForm.doB"
+                        type="date"
+                        :placeholder="t('reuse.dateOfBirth')"
+                        :disabled-date="disabledDate"
+                        :size="size"
+                        format="DD/MM/YYYY"
+                        value-format="YYYY-MM-DD"
+                      />
+                    </div>
+                    <div class="flex-1">
+                      <el-select v-model="ruleForm.sex" clearable placeholder="Select" prop="sex">
+                        <el-option
+                          v-for="item in options"
+                          :key="item.label"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
+                  </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }} </label>
+                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.link')">
                   <el-input
+                    prop="link"
+                    v-model="ruleForm.link"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
-                </div>
-              </template>
+                </ElFormItem>
+              </div>
 
-              <template #companyInfo v-if="businessClassification == 'Doanh nghiệp'">
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('reuse.companyName') }}<span style="color: red"> *</span>
-                  </label>
+              <div v-if="ruleForm.businessClassification === true">
+                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.companyName')">
                   <el-input
+                    prop="name"
+                    v-model="ruleForm.name"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
-                    :placeholder="t('formDemo.enterDescription')"
+                    :placeholder="t('formDemo.enterCompanyName')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('reuse.taxCode') }}<span style="color: red"> *</span>
-                  </label>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.taxCode')"
+                  prop="taxCode"
+                >
                   <el-input
+                    v-model="ruleForm.taxCode"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterTaxCode')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.representative') }}
-                  </label>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('formDemo.representative')"
+                  prop="representative"
+                >
                   <el-input
+                    v-model="ruleForm.representative"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterRepresentativeName')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('reuse.phoneNumber') }}<span style="color: red">*</span>
-                  </label>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.phoneNumber')"
+                  prop="phonenumber"
+                >
                   <el-input
+                    v-model="ruleForm.phonenumber"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for=""> {{ t('reuse.email') }}</label>
+                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.email')">
                   <el-input
+                    prop="email"
+                    v-model="ruleForm.email"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterEmail')"
                   />
-                </div>
+                </ElFormItem>
 
-                <div class="flex items-center w-[100%] gap-4 mt-5">
-                  <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.link') }}</label>
+                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.link')">
                   <el-input
+                    prop="link"
+                    v-model="ruleForm.link"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                   />
-                </div>
-              </template>
+                </ElFormItem>
+              </div>
 
-              <template #selectObject>
-                <el-divider content-position="left">{{
-                  t('formDemo.accountAndStatus')
-                }}</el-divider>
-              </template>
+              <el-divider content-position="left">{{ t('formDemo.accountAndStatus') }}</el-divider>
+              <ElFormItem
+                class="flex items-center w-[100%]"
+                :label="t('formDemo.userName')"
+                prop="userName"
+              >
+                <el-input
+                  v-model="ruleForm.userName"
+                  class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                  type="text"
+                  :placeholder="t('formDemo.enterUserName')"
+                />
+              </ElFormItem>
 
-              <template #userInfo>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.userName') }}<span style="color: red">*</span>
-                  </label>
-                  <el-input
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.enterUserName')"
-                  />
-                </div>
-              </template>
+              <div v-if="type == 'detail' || type == 'edit'">
+                <ElFormItem class="flex items-center w-[100%]" :label="t('login.password')">
+                  <div class="flex">
+                    <el-input
+                      class="w-[50%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.enterPassword')"
+                    />
 
-              <template #password>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('login.password') }}<span style="color: red">*</span>
-                  </label>
+                    <el-button
+                      @click="centerDialogVisible = true"
+                      class="w-[50%] outline-none min-h-9 pl-2 ml-3 dark:bg-transparent"
+                      >{{ t('reuse.changePassword') }}</el-button
+                    >
+                    <el-dialog
+                      v-model="centerDialogVisible"
+                      :title="t('reuse.changePassword')"
+                      width="30%"
+                      align-center
+                      class="font-semibold"
+                    >
+                      <ElFormItem
+                        class="flex items-center w-[100%] mb-3 font-normal"
+                        :label="t('reuse.newPassword')"
+                      >
+                        <el-input
+                          class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('reuse.enterNewPassword')"
+                        />
+                      </ElFormItem>
+
+                      <ElFormItem
+                        class="flex items-center w-[100%] font-normal mt-5"
+                        :label="t('reuse.confirmPassword')"
+                      >
+                        <el-input
+                          class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('reuse.confirmPassword')"
+                        />
+                      </ElFormItem>
+                      <template #footer>
+                        <span class="dialog-footer">
+                          <el-button
+                            type="primary"
+                            @click="centerDialogVisible = false"
+                            class="min-w-36 min-h-10"
+                            >{{ t('reuse.save') }}</el-button
+                          >
+                          <el-button
+                            @click="centerDialogVisible = false"
+                            class="min-w-36 min-h-10"
+                            >{{ t('reuse.exit') }}</el-button
+                          >
+                        </span>
+                      </template>
+                    </el-dialog>
+                  </div>
+                </ElFormItem>
+              </div>
+              <div v-else>
+                <ElFormItem class="flex items-center w-[100%]" :label="t('login.password')">
                   <el-input
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterPassword')"
                   />
-                </div>
-              </template>
+                </ElFormItem>
 
-              <template #confirmPassword>
-                <div class="flex items-center w-[100%] gap-4">
-                  <label class="w-[15%] text-right leading-5" for=""
-                    >{{ t('formDemo.confirmPassword') }}<span style="color: red">*</span>
-                  </label>
+                <ElFormItem class="flex items-center w-[100%]" :label="t('reuse.confirmPassword')">
                   <el-input
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
-                    :placeholder="t('formDemo.confirmPassword')"
+                    :placeholder="t('reuse.confirmPassword')"
                   />
-                </div>
-              </template>
-
-              <template #optionForm>
-                <div class="flex items-center w-[100%] gap-4">
-                  <p class="option-select text-center w-[15%] text-right leading-5"
-                    >{{ t('formDemo.status') }}
-                  </p>
-                  <el-checkbox v-model="statusActive" :label="t('formDemo.isActive')" />
-                </div>
-              </template>
-            </Form>
+                </ElFormItem>
+              </div>
+              <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.status')">
+                <el-radio-group v-model="ruleForm.isActive" class="ml-4">
+                  <el-radio :label="true" class="pl-2">{{ t('formDemo.isActive') }}</el-radio>
+                </el-radio-group>
+              </ElFormItem>
+            </ElForm>
             <div class="option-page mt-5">
               <div v-if="type === 'detail'" class="flex justify-center">
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
@@ -701,208 +720,215 @@ onBeforeMount(() => {
                 <el-button type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
-                <el-button type="danger" class="min-w-42 min-h-11">{{
+                <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
                   t('reuse.cancel')
                 }}</el-button>
               </div>
               <div v-else class="flex justify-center">
-                <el-button type="primary" class="min-w-42 min-h-11">{{
+                <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
                 <el-button type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.saveAndAdd')
                 }}</el-button>
 
-                <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
-              </div>
-              <!-- <div v-if="awesome" class="flex justify-center option-1">
-                <el-button type="primary" @click="awesome = !awesome" class="min-w-42 min-h-11"
-                  >Lưu</el-button
-                >
-                <el-button type="primary" class="min-w-42 min-h-11">{{
-                  t('reuse.saveAndAdd')
-                }}</el-button>
-
-                <el-button type="danger" class="min-w-42 min-h-11">{{
+                <el-button @click="cancel()" class="min-w-42 min-h-11">{{
                   t('reuse.cancel')
                 }}</el-button>
               </div>
-              <div v-else class="flex justify-center option-1">
-                <el-button @click="fix = !fix" type="primary" class="min-w-42 min-h-11"
-                  >Sửa</el-button
-                >
-                <el-button type="danger" class="min-w-42 min-h-11">{{
-                  t('formDemo.cancelAccount')
-                }}</el-button>
-              </div>
-
-              <div v-if="fix" class="flex justify-center option-1">
-                <el-button type="primary" class="min-w-42 min-h-11">{{
-                  t('reuse.save')
-                }}</el-button>
-                <el-button type="danger" class="min-w-42 min-h-11">{{
-                  t('reuse.cancel')
-                }}</el-button>
-              </div> -->
             </div>
           </div>
+
           <div class="w-[50%]">
-            <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-              <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
-              <div class="flex gap-4">
-                <div class="about-image">
-                  <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
-                  <p style="color: orange">{{ t('formDemo.lessThanTenProfiles') }}</p>
-                </div>
-                <div class="upload-image">
-                  <el-upload action="#" list-type="picture-card" :auto-upload="false">
-                    <ElButton :icon="addIcon" class="avatar-uploader-icon" />
+            <ElForm
+              ref="ruleFormRef"
+              hide-required-asterisk
+              label-width="170px"
+              @register="register"
+              status-icon
+              :disabled="disableData"
+            >
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+                <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
+                <div class="flex gap-4">
+                  <div class="about-image">
+                    <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
+                    <p style="color: orange">{{ t('formDemo.lessThanTenProfiles') }}</p>
+                  </div>
+                  <div class="upload-image ml-10">
+                    <el-upload
+                      action="#"
+                      list-type="picture-card"
+                      :auto-upload="false"
+                      prop="Files"
+                    >
+                      <ElButton :icon="addIcon" class="avatar-uploader-icon mx-2" />
+                      <span>{{ t('formDemo.addPhotosOrFiles') }}</span>
+                      <template #file="{ file }">
+                        <div>
+                          <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                          <span class="el-upload-list__item-actions">
+                            <span
+                              class="el-upload-list__item-preview"
+                              @click="handlePictureCardPreview(file)"
+                            >
+                              <ElButton :icon="viewIcon" />
+                            </span>
 
-                    <template #file="{ file }">
-                      <div>
-                        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                        <span class="el-upload-list__item-actions">
-                          <span
-                            class="el-upload-list__item-preview"
-                            @click="handlePictureCardPreview(file)"
-                          >
-                            <ElButton :icon="viewIcon" />
+                            <span
+                              v-if="!disabled"
+                              class="el-upload-list__item-delete"
+                              @click="handleRemove(file)"
+                            >
+                              <ElButton :icon="deleteIcon" />
+                            </span>
                           </span>
+                        </div>
+                      </template>
+                    </el-upload>
 
-                          <span
-                            v-if="!disabled"
-                            class="el-upload-list__item-delete"
-                            @click="handleRemove(file)"
-                          >
-                            <ElButton :icon="deleteIcon" />
-                          </span>
-                        </span>
-                      </div>
-                    </template>
-                  </el-upload>
-
-                  <el-dialog v-model="dialogVisible">
-                    <img w-full :src="dialogImageUrl" />
-                  </el-dialog>
+                    <el-dialog v-model="dialogVisible">
+                      <img w-full :src="dialogImageUrl" />
+                    </el-dialog>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
-              <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+                <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
 
-              <Form
-                :disabled="disableData"
-                :schema="schema2"
-                label-position="top"
-                hide-required-asterisk
-                class="flex border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue bg-white dark:bg-[#141414]"
-                @register="register"
-              >
-                <template #placeCustomer>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[14%] text-right leading-5" for="">{{
-                      t('formDemo.provinceAndCity')
-                    }}</label>
-                    <el-select
-                      v-model="valueProvince"
-                      style="width: 80%"
-                      class="m-2 fix-full-width"
-                      placeholder="Chọn tỉnh/thành phố"
-                    >
-                      <el-option
-                        v-for="item in province"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                </template>
-                <template #placeCustomer2>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[14%] text-right leading-5" for="">{{
-                      t('formDemo.countyAndDistrict')
-                    }}</label>
-                    <el-select
-                      v-model="valueDistrict"
-                      style="width: 80%"
-                      class="m-2 fix-full-width"
-                      placeholder="Chọn quận/huyện"
-                    >
-                      <el-option
-                        v-for="item in district"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                </template>
-                <template #placeCustomer3>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for=""
-                      >{{ t('formDemo.wards') }}
-                    </label>
-                    <input
-                      class="w-[80%] outline-none pl-2"
-                      type="text"
-                      :placeholder="`Chọn Phường/xã `"
+                <ElFormItem
+                  class="flex w-[100%] items-center"
+                  :label="t('formDemo.provinceOrCity')"
+                >
+                  <el-select
+                    v-model="valueProvince"
+                    style="width: 96%"
+                    class="m-2 fix-full-width"
+                    placeholder="Select"
+                    @change="(data) => CityChange(data)"
+                  >
+                    <el-option
+                      v-for="item in cities"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                  </div>
-                </template>
-                <template #placeCustomer4>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">{{
-                      t('formDemo.detailedAddress')
-                    }}</label>
-                    <input
-                      class="w-[80%] outline-none pl-2"
-                      type="text"
-                      :placeholder="t('formDemo.enterDetailAddress')"
+                  </el-select>
+                </ElFormItem>
+                <ElFormItem
+                  class="flex w-[100%] items-center"
+                  :label="t('formDemo.countyOrDistrict')"
+                >
+                  <el-select
+                    v-model="valueDistrict"
+                    style="width: 96%"
+                    class="m-2 fix-full-width"
+                    placeholder="Select"
+                    @change="(data) => districtChange(data)"
+                  >
+                    <el-option
+                      v-for="item in district"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                  </div>
-                </template>
+                  </el-select>
+                </ElFormItem>
+                <ElFormItem class="flex w-[100%] items-center" :label="t('formDemo.wardOrCommune')">
+                  <el-select
+                    v-model="valueCommune"
+                    style="width: 96%"
+                    class="m-2 fix-full-width"
+                    placeholder="Select"
+                  >
+                    <el-option
+                      v-for="item in ward"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </ElFormItem>
+                <ElFormItem
+                  class="flex w-[100%] items-center"
+                  :label="t('formDemo.detailedAddress')"
+                >
+                  <el-select
+                    v-model="enterdetailAddress"
+                    style="width: 96%"
+                    class="m-2 fix-full-width"
+                    placeholder="Select"
+                    clearable
+                    filterable
+                    allow-create
+                  >
+                    <el-option
+                      v-for="item in street"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </ElFormItem>
+              </div>
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+                <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
 
-                <template #referralCode>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">{{
-                      t('userDemo.username')
-                    }}</label>
-                    <el-input
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterAccountName')"
+                <ElFormItem
+                  class="flex items-center w-[98%]"
+                  :label="t('userDemo.username')"
+                  prop="accountName"
+                >
+                  <el-input
+                    v-model="ruleForm.accountName"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterAccountName')"
+                  />
+                </ElFormItem>
+
+                <ElFormItem
+                  class="flex items-center w-[98%]"
+                  :label="t('userDemo.accountNumber')"
+                  prop="accountNumber"
+                >
+                  <el-input
+                    v-model="ruleForm.accountNumber"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterAccountNumber')"
+                  />
+                </ElFormItem>
+
+                <ElFormItem
+                  class="flex items-center w-[98%]"
+                  :label="t('reuse.bank')"
+                  prop="bankName"
+                >
+                  <el-select
+                    v-model="ruleForm.bankName"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('reuse.selectBank')"
+                  >
+                    <el-option
+                      v-for="item in bankList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                  </div>
-                </template>
-                <template #referralCode2>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for=""
-                      >{{ t('userDemo.accountNumber') }}
-                    </label>
-                    <el-input
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterAccountNumber')"
-                    />
-                  </div>
-                </template>
-                <template #referralCode3>
-                  <div class="flex items-center w-[100%] gap-4">
-                    <label class="w-[15%] text-right leading-5" for="">{{ t('reuse.bank') }}</label>
-                    <el-input
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('reuse.selectBank')"
-                    />
-                  </div>
-                </template>
-                <template #QRcode>
+                  </el-select>
+                </ElFormItem>
+              </div>
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+                <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
+                <div v-if="type == 'add'">
                   <Qrcode />
-                </template>
-              </Form>
-            </div>
+                </div>
+                <div v-else> call api qr code </div>
+              </div>
+            </ElForm>
           </div>
         </div>
       </el-collapse-item>
@@ -1021,6 +1047,14 @@ onBeforeMount(() => {
 }
 
 ::v-deep(.el-input__wrapper) {
+  width: 100%;
   height: 34px;
+}
+
+::v-deep(.fix-width > .el-input) {
+  width: 100%;
+}
+.dialog-footer button:first-child {
+  margin-right: 10px;
 }
 </style>

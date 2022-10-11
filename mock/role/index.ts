@@ -329,21 +329,7 @@ const adminList = [
             component: 'views/Pages/Business/CustomerManagement/CustomerList',
             meta: {
               title: 'router.customerList'
-            },
-            children: [
-              {
-                path: `${utility}/:id?/:type?`,
-                component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
-                name: `business.customer-management.customerList.${utility}`,
-                meta: {
-                  title: 'reuse.createANewUtility',
-                  noTagsView: true,
-                  noCache: true,
-                  hidden: true,
-                  showMainRoute: true
-                }
-              }
-            ]
+            }
           },
           {
             path: `${utility}/:id?/:type?`,

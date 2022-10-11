@@ -18,7 +18,8 @@ import {
   ElDivider,
   ElTable,
   ElTableColumn,
-  ElSwitch
+  ElSwitch,
+  ElCheckbox
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -407,44 +408,16 @@ const listType = ref<ListImages>('text')
 //this is fake data if has api should do form['tableCustomer'] same for product
 const fakeTableCustomerData = reactive([
   {
-    code: '2016-05-03',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-02',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-04',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-01',
-    name: 'Tom'
+    code: '',
+    name: ''
   }
 ])
-const fakeTableProductData = reactive([
-  {
-    code: '2016-05-03',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-02',
-    name: 'Tom',
-    switch: false
-  },
-  {
-    code: '2016-05-04',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-01',
-    name: 'Tom',
-    switch: false
-  }
-])
+type Product = {
+  code: string
+  name: string
+  switch: boolean
+}
+const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: false }])
 const forceRemove = ref(false)
 watch(
   () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
@@ -461,12 +434,20 @@ watch(
   { deep: true }
 )
 watch(
+  () => fakeTableProductData.length,
+  () => {
+    if (fakeTableProductData.length == 0) {
+      addLastIndexProductTable()
+    }
+  }
+)
+watch(
   () => fakeTableProductData[fakeTableProductData.length - 1],
   () => {
     if (
       fakeTableProductData.length < 1 ||
-      (fakeTableProductData[fakeTableProductData.length - 1].code !== '' &&
-        fakeTableProductData[fakeTableProductData.length - 1].name !== '' &&
+      (fakeTableProductData[fakeTableProductData.length - 1]['code'] !== '' &&
+        fakeTableProductData[fakeTableProductData.length - 1]['name'] !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -475,10 +456,10 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  fakeTableCustomerData.push({ code: '', name: 'Tom' })
+  fakeTableCustomerData.push({ code: '', name: '' })
 }
 const addLastIndexProductTable = () => {
-  fakeTableProductData.push({ code: '', name: 'Tom', switch: false })
+  fakeTableProductData.push({ code: '', name: '', switch: false })
 }
 //fake option
 const listProductsTable = reactive([
@@ -498,11 +479,16 @@ const changeName = (data, scope) => {
 const removeCustomer = (scope) => {
   forceRemove.value = true
   fakeTableCustomerData.splice(scope.$index, 1)
+  console.log('fakeTableCustomerData', fakeTableCustomerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
   fakeTableProductData.splice(scope.$index, 1)
 }
+const getValueOfSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
+}
+const changeVoucherCondition = () => {}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -528,6 +514,7 @@ const removeProduct = (scope) => {
                     :placeHolder="t('reuse.chooseCustomerCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>
@@ -556,11 +543,12 @@ const removeProduct = (scope) => {
                     width="500px"
                     :items="listProductsTable"
                     valueKey="value"
-                    :labelKey="'id'"
+                    labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>
@@ -577,6 +565,21 @@ const removeProduct = (scope) => {
                 </template>
               </el-table-column>
             </el-table>
+          </template>
+          <template #voucherButton>
+            <el-button @click="changeVoucherCondition" :icon="addIcon" style="width: 100%">{{
+              t('formDemo.change')
+            }}</el-button>
+          </template>
+          <template #statusVoucher="form">
+            <el-checkbox v-model="form['statusVoucher']" size="large"
+              ><template #default
+                ><span>{{ t('formDemo.sendImmediatelyAfterBrowsing') }} </span
+                ><span style="color: orange"
+                  >({{ t('reuse.voucherStatusExplain') }})</span
+                ></template
+              ></el-checkbox
+            >
           </template>
           <template #statusValue="form">
             <div

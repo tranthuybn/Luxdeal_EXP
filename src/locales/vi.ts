@@ -1406,6 +1406,7 @@ export default {
     createNew: 'tạo mới',
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
-    chooseProductCode: 'Chọn mã sản phẩm'
+    chooseProductCode: 'Chọn mã sản phẩm',
+    voucherStatusExplain: 'Nếu không lựa chọn, Voucher chỉ được gửi khi bấm nút "Gửi"'
   }
 }

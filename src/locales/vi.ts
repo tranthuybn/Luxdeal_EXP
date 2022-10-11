@@ -1403,6 +1403,8 @@ export default {
     addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
     authorized: 'Tài khoản chưa được phân quyền',
     accountInfo: 'Không có thông tin tài khoản ',
-    createNew: 'tạo mới'
+    createNew: 'tạo mới',
+    CheckCode: 'Vui lòng nhập đúng định dạng mã',
+    checkDecimal: 'Vui lòng không nhập số thập phân'
   }
 }

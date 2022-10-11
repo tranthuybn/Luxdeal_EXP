@@ -326,7 +326,6 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 
 const setFormValue = async () => {
   const { setValues } = methods
-  console.log('formValue', formValue.value)
   if (formValue.value) {
     formValue.value?.collaboratorFiles.map((element) => {
       if (element.file !== null) {
@@ -352,7 +351,6 @@ const setFormValue = async () => {
     infoCompany.bankId = formValue.value.bankId
     infoCompany.CustomerId = formValue.value.customerId
 
-    console.log('ListFileUpload', ListFileUpload.value)
     if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = true
     } else if (formValue.value.status === 0) {
@@ -364,7 +362,6 @@ const setFormValue = async () => {
     }
     setValues(formValue.value)
   } else {
-    console.log('FormData', FormData)
     setValues(formValue.value)
   }
 }
@@ -387,12 +384,9 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      console.log('uploadFile', uploadFile.id)
       let imageRemove = uploadFile.id
-      console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -454,17 +448,12 @@ const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
     const data = customPostData(FormData)
-    console.log('1', data)
-
     if (type === 'edit') {
       const payload = {
         id: id,
         FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
         Files: data.Files.filter((file) => file !== undefined)
       }
-      console.log('2', payload)
-      console.log('3', { ...payload, ...data })
-
       await updateCollaborators({ ...payload, ...data })
         .then(() =>
           ElNotification({

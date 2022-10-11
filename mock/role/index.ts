@@ -1,8 +1,7 @@
 import { config } from '@/config/axios/config'
 import { MockMethod } from 'vite-plugin-mock'
-
-const utility = 'Utility'
 const { result_code } = config
+const utility = 'Utility'
 
 const timeout = 1000
 
@@ -414,7 +413,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `paymentRequestAdd/:id?/:type?`,
             name: `business.collaborators.paymentRequest.${utility}`,
             component: 'views/Pages/Business/Collaborators/PaymentRequestAdd',
             meta: {
@@ -1362,8 +1361,10 @@ const testList: string[] = [
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
-  '/business/collaborators/paymentRequest',
   '/business/collaborators/collaboratorsAdd/:id?/:type?',
+  '/business/collaborators/paymentRequest',
+  '/business/collaborators/paymentRequestAdd/:id?/:type?',
+
   '/business/promotion-strategy',
   '/business/promotion-strategy/flash-sale',
   `/business/promotion-strategy/flash-sale-utility/:id?/:type?`,

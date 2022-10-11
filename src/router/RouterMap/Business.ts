@@ -104,8 +104,8 @@ export default {
         },
         {
           path: 'customerRatings-utility/:id?/:type?',
-          component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           name: `business.customer-management.customerRatings.${utility}`,
+          component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('customerList.addNewRanking'),
             noTagsView: true,
@@ -130,7 +130,8 @@ export default {
       name: 'business.collaborators',
       redirect: { name: 'business.collaborators.collaboratorsList' },
       meta: {
-        title: t('router.collaborators')
+        title: t('router.collaborators'),
+        alwaysShow: true
       },
       children: [
         {
@@ -147,6 +148,16 @@ export default {
           component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
           meta: {
             title: t('router.paymentRequest')
+          }
+        },
+        {
+          path: 'paymentRequestAdd/:id?/:type?',
+          name: `business.collaborators.paymentRequest.${utility}`,
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
+          meta: {
+            title: t('reuse.newInitialization'),
+            hidden: true,
+            canto: true
           }
         },
         {

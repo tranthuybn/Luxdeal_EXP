@@ -5,13 +5,7 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { Table } from '@/components/Table'
 import { collaboratorStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import { HeaderFiler } from '../../Components/HeaderFilter'
-import {
-  TableExtension,
-  InputMoneyRange,
-  InputDateRange,
-  InputNumberRange,
-  InputName
-} from '../../Components/TableBase'
+import { TableExtension } from '../../Components/TableBase'
 import { getCollaboratorsList } from '@/api/Business'
 import { filterStatusCustomer } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -28,14 +22,7 @@ import {
 } from '../../Components/TablesReusabilityFunction'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import {
-  ElMessageBox,
-  ElNotification,
-  ElDrawer,
-  ElButton,
-  ElCheckboxGroup,
-  ElCheckboxButton
-} from 'element-plus'
+import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -45,18 +32,19 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'customerId',
+    field: 'code',
     label: t('reuse.collaboratorsCode'),
     minWidth: '100'
   },
   {
-    field: 'customer.name',
+    field: 'accountName',
     label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
+
   {
     field: 'contact',
-    label: t('reuse.amountOfMoney'),
+    label: t('reuse.contact'),
     minWidth: '250'
   },
   {
@@ -88,7 +76,7 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
-    field: 'collaboratorStatus',
+    field: 'status',
     label: t('reuse.accountStatus'),
     minWidth: '200',
     filters: filterStatusCustomer,
@@ -101,14 +89,13 @@ const columns = reactive<TableColumn[]>([
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: getCollaboratorsList,
   response: {
-    list: 'list',
-    total: 'total'
+    list: '',
+    total: 'count'
   },
   props: {
     columns: columns,
@@ -126,7 +113,9 @@ const appStore = useAppStore()
 const Utility = appStore.getUtility
 const route = useRoute()
 const { push } = useRouter()
+// get data from router
 const router = useRouter()
+
 const pushAdd = () => {
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
@@ -159,7 +148,7 @@ async function getTableSelected() {
     })
     .catch(() => {})
 }
-const { setSearchParams, clearSearchParams } = methods
+const { setSearchParams } = methods
 const filterChange = (filterValue) => {
   if (filterValue && typeof unref(filterValue) === 'object')
     for (let key in filterValue) {
@@ -174,56 +163,6 @@ const action = (row: TableData, type: string) => {
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
       params: { id: row.id, type: type }
     })
-  }
-}
-const delData = async (row: TableData | null, multiple: boolean) => {
-  {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'Xóa', {
-      confirmButtonText: t('reuse.delete'),
-      cancelButtonText: t('reuse.exit'),
-      type: 'warning',
-      confirmButtonClass: 'el-button--danger'
-    })
-      .then(async () => {
-        console.log('row', row, multiple)
-        if (row !== null) {
-          // change this to delApi
-          const res = await getCollaboratorsList({ Id: row.id })
-            .then(() =>
-              ElNotification({
-                message: t('reuse.deleteSuccess'),
-                type: 'success'
-              })
-            )
-            .catch((error) =>
-              ElNotification({
-                message: error,
-                type: 'warning'
-              })
-            )
-          if (res) {
-            getData()
-          }
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
-      .catch((error) => {
-        if (error == 'cancel') {
-          ElNotification({
-            type: 'info',
-            message: t('reuse.deleteCancel')
-          })
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
   }
 }
 const getData = (data = {}) => {
@@ -244,17 +183,6 @@ watch(
     immediate: true
   }
 )
-const ColumnsHaveHeaderFilter = columns.filter((col) => col.headerFilter)
-//value is an object, get called when filter range(to-from) value
-const confirm = (value) => {
-  setSearchParams(value)
-}
-const cancel = (field) => {
-  clearSearchParams(field)
-}
-const filterSelect = (value) => {
-  setSearchParams(value)
-}
 </script>
 <template>
   <HeaderFiler @get-data="getData" @refresh-data="getData">
@@ -308,10 +236,10 @@ const filterSelect = (value) => {
       @filter-change="filterChange"
     >
       <template #contact="data">
-        <div>Mst: {{ data.row.customer.taxCode }}</div>
-        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer.phonenumber }}</div>
-        <div>Email: {{ data.row.customer.email }}</div>
-        <div>Địa chỉ: {{ data.row.customer.address }}</div>
+        <div>Mst: {{ data.row.customer?.taxCode }}</div>
+        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div>
+        <div>Email: {{ data.row.customer?.email }}</div>
+        <div>Địa chỉ: {{ data.row.customer?.address }}</div>
       </template>
       <template #account="data">
         <div>STK: {{ data.row.accountNumber }}</div>
@@ -321,38 +249,6 @@ const filterSelect = (value) => {
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-        <ElButton @click="delData(row, false)" :icon="trashIcon" />
-      </template>
-      <template
-        v-for="(header, index) in ColumnsHaveHeaderFilter"
-        #[`${header.field}-header`]
-        :key="index"
-      >
-        {{ header.label }}
-        <InputMoneyRange
-          v-if="header.headerFilter === 'Money'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputDateRange
-          v-if="header.headerFilter === 'Date'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputNumberRange
-          v-if="header.headerFilter === 'Number'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputName
-          v-if="header.headerFilter === 'Name'"
-          :field="header.field"
-          @filter-select="filterSelect"
-          @cancel="cancel"
-        />
       </template>
     </Table>
   </ContentWrap>

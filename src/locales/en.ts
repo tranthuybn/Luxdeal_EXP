@@ -1310,6 +1310,7 @@ export default {
     notPaid: 'Not paid',
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
-    createNew: 'Create new'
+    createNew: 'Create new',
+    CheckCode: 'Please enter the correct code format'
   }
 }

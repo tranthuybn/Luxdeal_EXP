@@ -150,6 +150,16 @@ export default {
           }
         },
         {
+          path: 'paymentRequestAdd/:id?/:type?',
+          name: `business.collaborators.paymentRequest.${utility}`,
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
           path: 'collaboratorsAdd/:id?/:type?',
           name: `business.collaborators.collaboratorsList.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),

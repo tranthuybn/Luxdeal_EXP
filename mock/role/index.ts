@@ -1322,10 +1322,6 @@ const testList: string[] = [
   '/dashboard',
   '/dashboard/analysis',
   '/dashboard/workplace',
-  '/error',
-  '/error/404-demo',
-  '/error/403-demo',
-  '/error/500-demo',
   '/products-services',
   '/products-services/product-library',
   '/products-services/product-library/products',
@@ -1362,8 +1358,10 @@ const testList: string[] = [
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
-  '/business/collaborators/paymentRequest',
   '/business/collaborators/collaboratorsAdd/:id?/:type?',
+  '/business/collaborators/paymentRequest',
+  '/business/collaborators/paymentRequestAdd/:id?/:type?',
+
   '/business/promotion-strategy',
   '/business/promotion-strategy/flash-sale',
   `/business/promotion-strategy/flash-sale-utility/:id?/:type?`,

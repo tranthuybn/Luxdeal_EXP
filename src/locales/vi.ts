@@ -217,7 +217,7 @@ export default {
     debtTrackingSheet: 'Bảng theo dõi công nợ',
     dateOfPayment: 'Ngày thanh toán',
     receiptOrPayment: 'Phiếu thu/chi',
-    paymentOrder: 'Đề nghị tt',
+    paymentOrder: 'Đề nghị thanh toán',
     collected: ' Đã thu',
     spent: 'Đã chi',
     unpaidDebt: 'Công nợ tồn',
@@ -406,7 +406,24 @@ export default {
     AddSelectProductCode: 'Thêm hoặc chọn mã sản phẩm',
     addManagementCode: 'Thêm mã quản lý',
     EnterNameDescription: 'Nhập tên/Mô tả',
-    selectFeature: 'Chọn đặc tính'
+    selectFeature: 'Chọn đặc tính',
+    certificateInformation: 'Thông tin chứng từ',
+    statusAccountingEntry: 'Trạng thái bút toán',
+    informationReceipts: 'Thông tin phiếu thu',
+    documentsAttached: 'Chứng từ kèm theo',
+    receiptsCode: 'Mã phiếu thu',
+    recharger: 'Người nộp tiền',
+    reasonCollectingMoney: 'Lý do thu tiền',
+    enterReasonCollectingMoney: 'Nhập lý do thu tiền',
+    writtenWords: 'Viết bằng chữ',
+    formPayment: 'Hình thức thanh toán',
+    saveRecordDebts: 'Lưu & ghi sổ công nợ',
+    informationPaymentRequestForm: 'Thông tin phiếu đề nghị thanh toán',
+    PaymentRequestCode: 'Mã đề nghị thanh toán',
+    proponent: 'Người đề nghị',
+    reasonsSpendMoney: 'Lý do chi tiền',
+    enterReasonPaymentRequest: 'Nhập lý do đề nghị thanh toán',
+    billingInformation: 'Thông tin thanh toán'
   },
   button: {
     add: 'Thêm nhanh',
@@ -415,7 +432,8 @@ export default {
     edit: 'Sửa',
     cancelVoucher: 'Hủy voucher',
     cancelResult: 'Hủy kết quả',
-    cancelOrder: 'Hủy đơn hàng'
+    cancelOrder: 'Hủy đơn hàng',
+    print: 'In phiếu'
   },
   router: {
     login: 'Đăng nhập',

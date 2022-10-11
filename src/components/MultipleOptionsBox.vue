@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip, ElButton } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
 import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
@@ -51,12 +51,16 @@ const propsObj = defineProps({
   clearable: {
     type: Boolean,
     default: true
+  },
+  width: {
+    type: String,
+    default: '100%'
   }
 })
 
 const emit = defineEmits(['updateValue', 'addnewproduct'])
 
-let selected = ref<string>('')
+let selected = ref()
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
@@ -87,7 +91,13 @@ watchEffect(() => {
 watch(
   () => propsObj.defaultValue,
   (val) => {
-    if (val) selected.value = val.toString()
+    console.log('run here', propsObj.defaultValue)
+    if (val) {
+      selected.value = val.toString()
+    }
+    if (val == '') {
+      selected.value = null
+    }
   }
 )
 
@@ -109,22 +119,21 @@ const filter = (str) => {
     }
   })
 }
-const dialogAddQuick = () => {
-  emit('addnewproduct')
-}
 const appearsEvent = () => {
   const { items } = propsObj
   options.value = items
 }
 const valueChangeEvent = (val) => {
   if (val) {
-    const { items, valueKey, labelKey } = propsObj
-
+    const { items, valueKey } = propsObj
     // find label
     const obj = items.find((el) => {
-      if (el) el[valueKey] === val
+      if (el) {
+        return el[valueKey] === val
+      }
     })
-    if (obj) emit('updateValue', val, obj[labelKey] ?? '')
+    console.log('obj', obj)
+    if (obj) emit('updateValue', val, obj ?? '')
   }
 }
 const handleScroll = (...val) => {
@@ -153,6 +162,7 @@ onUnmounted(() => {
   >
     <!-- value is tje first object when click on title -->
     <ElOption
+      :style="`width: ${width}`"
       :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
@@ -173,6 +183,7 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <ElOption
+      :style="`width: ${width}`"
       v-for="(item, index) in options"
       :key="index"
       :value="item[identifyKey]"
@@ -194,8 +205,7 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <span class="block h-1 w-[100%] border-t-1 mt-4"></span>
-    <el-button text @click="dialogAddQuick">+ Thêm nhanh sản phẩm</el-button>
+    <slot name="underButton"> </slot>
     <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
   </ElSelect>
 </template>

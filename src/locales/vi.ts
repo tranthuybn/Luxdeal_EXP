@@ -1427,6 +1427,9 @@ export default {
     addNewMoneyPaymentCode: 'Thêm mới gói nạp tiền',
     authorized: 'Tài khoản chưa được phân quyền',
     accountInfo: 'Không có thông tin tài khoản ',
-    createNew: 'tạo mới'
+    createNew: 'tạo mới',
+    //BST
+    chooseCustomerCode: 'Chọn mã khách hàng',
+    chooseProductCode: 'Chọn mã sản phẩm'
   }
 }

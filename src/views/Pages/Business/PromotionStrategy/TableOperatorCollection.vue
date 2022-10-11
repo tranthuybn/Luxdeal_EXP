@@ -467,10 +467,10 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  fakeTableCustomerData.push({ code: '', name: 'Tom' })
+  fakeTableCustomerData.push({ code: '', name: '' })
 }
 const addLastIndexProductTable = () => {
-  fakeTableProductData.push({ code: '', name: 'Tom', switch: false })
+  fakeTableProductData.push({ code: '', name: '', switch: false })
 }
 //fake option
 const listProductsTable = reactive([
@@ -490,13 +490,14 @@ const changeName = (data, scope) => {
 const removeCustomer = (scope) => {
   forceRemove.value = true
   fakeTableCustomerData.splice(scope.$index, 1)
+  console.log('fakeTableCustomerData', fakeTableCustomerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
   fakeTableProductData.splice(scope.$index, 1)
 }
-const getValueOfSelected = (...value) => {
-  console.log('value', ...value)
+const getValueOfSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
 }
 </script>
 <template>
@@ -523,7 +524,7 @@ const getValueOfSelected = (...value) => {
                     :placeHolder="t('reuse.chooseCustomerCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
-                    @update-value="getValueOfSelected"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>
@@ -552,11 +553,12 @@ const getValueOfSelected = (...value) => {
                     width="500px"
                     :items="listProductsTable"
                     valueKey="value"
-                    :labelKey="'id'"
+                    labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>

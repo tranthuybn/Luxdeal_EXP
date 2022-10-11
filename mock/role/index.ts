@@ -277,44 +277,6 @@ const adminList = [
           }
         ]
       },
-      // {
-      //   path: 'order-management',
-      //   name: 'business.order-management',
-      //   redirect: { name: 'business.order-management.order-list' },
-      //   meta: {
-      //     title: 'router.orderManagement'
-      //   },
-      //   children: [
-      //     {
-      //       path: 'order-list',
-      //       name: 'business.order-management.order-list',
-      //       component: 'views/Pages/Business/OrderManagement/OrderList',
-      //       meta: {
-      //         title: 'router.orderList'
-      //       }
-      //     },
-      //     {
-      //       path: '${utility}/:id?/:type/:tab?',
-      //       component: 'views/Pages/Business/OrderManagement/index',
-      //       name: `business.order-management.order-list.${utility}`,
-      //       meta: {
-      //         title: 'reuse.createANewOrder',
-      //         noTagsView: true,
-      //         noCache: true,
-      //         hidden: true,
-      //         showMainRoute: true
-      //       }
-      //     },
-      //     {
-      //       path: 'create-new-order',
-      //       name: 'business.order-management.create-new-order',
-      //       component: 'views/Pages/Business/OrderManagement/index',
-      //       meta: {
-      //         title: 'router.createANewOrder'
-      //       }
-      //     }
-      //   ]
-      // },
       {
         path: 'order-management',
         name: 'business.order-management',
@@ -1391,25 +1353,25 @@ const testList: string[] = [
   '/products-services',
   '/products-services/product-library',
   '/products-services/product-library/products',
-  `/products-services/product-library/products/${utility}/:id?/:type?`,
+  `/products-services/product-library/products-utility/:id?/:type?`,
   '/products-services/service-library',
   '/products-services/service-library/spa-service',
-  `/products-services/service-library/spa-service/${utility}/:id?/:type?`,
+  `/products-services/service-library/spa-service-utility/:id?/:type?`,
   '/products-services/product-property',
   '/products-services/product-property/product-category',
-  `/products-services/product-property/product-category/${utility}/:id?/:type?`,
+  `/products-services/product-property/product-category-utility/:id?/:type?`,
   '/products-services/product-property/attribute-category',
-  `/products-services/product-property/attribute-category/${utility}/:id?/:type?/:tab?`,
+  `/products-services/product-property/attribute-category-utility/:id?/:type?/:tab?`,
   '/products-services/product-property/unit-category',
-  `/products-services/product-property/unit-category/${utility}/:id?/:type?`,
+  `/products-services/product-property/unit-category-utility/:id?/:type?`,
   '/products-services/product-property/brand-category',
-  `/products-services/product-property/brand-category/${utility}/:id?/:type?`,
+  `/products-services/product-property/brand-category-utility/:id?/:type?`,
   '/products-services/product-property/origin-category',
-  `/products-services/product-property/origin-category/${utility}/:id?/:type?`,
+  `/products-services/product-property/origin-category-utility/:id?/:type?`,
   '/business',
   '/business/potential-customer-care',
   '/business/potential-customer-care/potential-customer-list',
-  `/business/potential-customer-care/${utility}/:id?/:type?`,
+  `/business/potential-customer-care/potential-utility/:id?/:type?`,
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',
@@ -1420,8 +1382,7 @@ const testList: string[] = [
   '/business/customer-management/customerList',
   '/business/customer-management/customer-add/:id?/:type?',
   '/business/customer-management/customerRatings',
-  `/business/customer-management/customer-utility/:id?/:type?`,
-  '/business/customer-management/customerAdd',
+  `/business/customer-management/customerRatings-utility/:id?/:type?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
@@ -1429,21 +1390,24 @@ const testList: string[] = [
   '/business/collaborators/collaboratorsAdd/:id?/:type?',
   '/business/promotion-strategy',
   '/business/promotion-strategy/flash-sale',
-  `/business/promotion-strategy/flash-sale-utility`,
+  `/business/promotion-strategy/flash-sale-utility/:id?/:type?`,
   '/business/promotion-strategy/collection',
-  `/business/promotion-strategy/collection-utility`,
+  `/business/promotion-strategy/collection-utility/:id?/:type?`,
   '/business/promotion-strategy/new-product',
-  `/business/promotion-strategy/new-product-utility`,
+  `/business/promotion-strategy/new-product-utility/:id?/:type?`,
   '/business/promotion-strategy/voucher',
-  `/business/promotion-strategy/voucher-utility`,
+  `/business/promotion-strategy/voucher-utility/:id?/:type?`,
   '/business/promotion-strategy/combo',
-  `/business/promotion-strategy/combo-utility`,
+  `/business/promotion-strategy/combo-utility/:id?/:type?`,
   '/business/promotion-strategy/auction',
-  `/business/promotion-strategy/auction-utility`,
+  `/business/promotion-strategy/auction-utility/:id?/:type?`,
   '/business/service-survey',
+
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
   '/business/accumulate-points/settings-points',
+  '/business/accumulate-points/settings-points-utility/:id?/type?',
+
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',
   '/business/virtual-wallet/customer-utility/:id?/:type?',
@@ -1526,7 +1490,7 @@ const testList: string[] = [
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory/${utility}/:id?/:type?`
+  `/human-resource-management/department-directory-utility/:id?/:type?`
 ]
 
 export default [

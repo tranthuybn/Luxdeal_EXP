@@ -7,18 +7,15 @@ import { TabsPaneContext, ElTabs, ElTabPane } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import OrderListUtility from './OrderListUtility.vue'
 import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 const { t } = useI18n()
 
 //lay du lieu tu router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+// const router = useRouter()
+// const id = Number(router.currentRoute.value.params.id)
+// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
-const tab = String(route.params.tab)
-console.log('id: ', id)
-console.log('type: ', type)
-console.log('tab: ', tab)
+const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {

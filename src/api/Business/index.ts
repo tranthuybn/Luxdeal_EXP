@@ -1,7 +1,6 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
-import { objectToQueryParams } from '@/utils/format'
-import { API_URL } from '@/utils/API_URL'
+import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API, API_URL } from '@/utils/API_URL'
+import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 
@@ -348,6 +347,7 @@ export const deleteCustomerRating = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const updateCollaborators = async (data): Promise<IResponse> => {
+  data = FORM_IMAGES(data)
   const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data
 }

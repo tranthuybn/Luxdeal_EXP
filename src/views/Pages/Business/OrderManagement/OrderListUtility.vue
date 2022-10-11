@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -27,7 +27,7 @@ import {
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
@@ -86,13 +86,11 @@ let checkValidate = ref(false)
 let checkValidateForm = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
-      console.log('form1 error submit!', fields)
       checkValidateForm.value = false
     }
   })
@@ -246,26 +244,23 @@ interface ListOfProductsForSaleType {
   paymentType: string
   edited: boolean
 }
-
-let ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
-  {
-    name: '',
-    productCode: '',
-    productName: '',
-    productPropertyCode: '',
-    productPropertyName: '',
-    id: '',
-    code: '',
-    quantity: 1,
-    selfImportAccessories: '',
-    dram: t('formDemo.psc'),
-    unitPrice: 'đ',
-    intoMoney: 'đ',
-    paymentType: '',
-    edited: true
-  }
-])
-
+const productForSale = reactive<ListOfProductsForSaleType>({
+  name: '',
+  productCode: '',
+  productName: '',
+  productPropertyCode: '',
+  productPropertyName: '',
+  id: '',
+  code: '',
+  quantity: 1,
+  selfImportAccessories: '',
+  dram: t('formDemo.psc'),
+  unitPrice: 'đ',
+  intoMoney: 'đ',
+  paymentType: '',
+  edited: true
+})
+let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 const tableData2 = [
   {
     name: '',
@@ -315,7 +310,7 @@ const deleteRow = (index: number) => {
 // Dialog change address
 
 const dialogFormVisible = ref(false)
-const dialogAddQuick = ref(false)
+let dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
 const valueProvince = ref('')
@@ -490,35 +485,21 @@ const optionsCustomer = [
 
 const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
-  ListOfProductsForSale.push({
-    name: '',
-    productCode: '',
-    productName: '',
-    productPropertyCode: '',
-    productPropertyName: '',
-    id: '',
-    code: '',
-    quantity: undefined,
-    selfImportAccessories: undefined,
-    dram: t('formDemo.psc'),
-    unitPrice: 'đ',
-    intoMoney: 'đ',
-    paymentType: '',
-    edited: true
-  })
+  ListOfProductsForSale.value.push({ ...productForSale })
 }
 
 const initialRadio = ref(false)
 
 //add row to the end of table if fill all table
 watch(
-  () => ListOfProductsForSale[ListOfProductsForSale.length - 1],
+  () => ListOfProductsForSale,
   () => {
     if (
-      ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories !== undefined &&
-      ListOfProductsForSale[ListOfProductsForSale.length - 1].name !== undefined &&
-      ListOfProductsForSale[ListOfProductsForSale.length - 1].quantity !== undefined &&
-      forceRemove.value == false
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].selfImportAccessories &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].name &&
+      forceRemove.value == false &&
+      type !== 'detail'
     ) {
       addLastIndexSellTable()
     }
@@ -537,15 +518,16 @@ watch(
 let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
-  if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].selfImportAccessories) {
     forceRemove.value = true
-    console.log('index:', index)
-    ListOfProductsForSale.splice(index, 1)
+    ListOfProductsForSale.value.splice(index, 1)
   }
 }
 
 const checkDisabled = ref(false)
-
+const addnewproduct = () => {
+  dialogAddQuick.value = true
+}
 // tạo đơn hàng
 const postData = () => {
   // let productPayment = reactive<
@@ -560,7 +542,6 @@ const postData = () => {
   //   }>
   // >([])
   submitForm(ruleFormRef.value, ruleFormRef2.value)
-  console.log('checkValidate: ', checkValidate.value)
   if (checkValidate.value) {
     const productPayment = JSON.stringify([
       {
@@ -628,7 +609,6 @@ const postData = () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postData', payload)
     addNewOrderList(formDataPayLoad)
   }
 }
@@ -653,18 +633,14 @@ const districtChange = async (value) => {
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const route = useRoute()
-const tab = String(route.params.tab)
-console.log('id: ', id)
-console.log('type: ', type)
-console.log('tab: ', tab)
+// const route = useRoute()
+// const tab = String(route.params.tab)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
     const orderObj = { ...res.data[0] }
-    console.log('orderObj: ', orderObj)
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaborator.name
@@ -673,10 +649,9 @@ const editData = async () => {
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
-
-      ListOfProductsForSale = [...orderObj.orderDetails]
-      console.log('ListOfProductsForSale: ', ListOfProductsForSale)
-
+      if (ListOfProductsForSale.value.length > 0)
+        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
+      ListOfProductsForSale.value = orderObj.orderDetails
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -692,6 +667,8 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
+  } else if (type === 'add') {
+    ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
 
@@ -727,7 +704,6 @@ const changeAddressCustomer = (data) => {
     optionCallPromoAPi = 0
     customerIdPromo.value = result.id
     callPromoApi()
-    console.log('result: ', result)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -752,7 +728,9 @@ onBeforeMount(() => {
   callApiCollaborators()
   callApiProductList()
   callApiCity()
-  editData()
+})
+onMounted(async () => {
+  await editData()
 })
 </script>
 
@@ -1361,6 +1339,7 @@ onBeforeMount(() => {
                 :placeHolder="'Chọn mã sản phẩm'"
                 :clearable="false"
                 @change="(option) => changeName(option, props)"
+                @addnewproduct="addnewproduct"
               />
             </template>
           </el-table-column>
@@ -1371,11 +1350,6 @@ onBeforeMount(() => {
           />
           <el-table-column
             prop="productName"
-            :label="t('formDemo.productInformation')"
-            min-width="200"
-          />
-          <el-table-column
-            prop="quantity"
             :label="t('formDemo.productInformation')"
             min-width="200"
           />

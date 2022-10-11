@@ -66,7 +66,7 @@ export default {
           }
         },
         {
-          path: 'order-list-add/:id?/:type?/:tab?',
+          path: 'order-list-add/:type?/:tab?/:id?',
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
@@ -99,7 +99,9 @@ export default {
           component: () =>
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
-            title: t('router.customerRatings')
+            title: t('router.customerRatings'),
+            breadcrumb: true,
+            noTagsView: true
           }
         },
         {

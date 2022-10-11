@@ -1,5 +1,11 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API, API_URL } from '@/utils/API_URL'
+import {
+  CUSTOMER_API,
+  PRODUCTS_AND_SERVICES_API,
+  ORDER_API,
+  API_URL,
+  CAMPAIGN_API
+} from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
@@ -358,8 +364,11 @@ export const getCustomerVirtualEWalletList = async (params: any): Promise<IRespo
   const res = await request.get({ url: '/customervirtualWallet', params })
   return res && res.data
 }
-export const getVoucherList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/voucher', params })
+export const getCampaignList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    { url: `${CAMPAIGN_API.GET_VOUCHER}?${objectToQueryParams(params)}` },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getComboList = async (params: any): Promise<IResponse> => {

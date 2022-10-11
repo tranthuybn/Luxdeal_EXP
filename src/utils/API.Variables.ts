@@ -45,3 +45,9 @@ export const PRODUCTS_AND_SERVICES = [
     label: 'Xuất xứ'
   }
 ]
+
+export const typeOfPeople = {
+  1: 'Khách hàng',
+  2: 'Cộng tác viên',
+  3: 'Nhân viên'
+}

@@ -379,6 +379,15 @@ export const getPaymentList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/payment', params })
   return res && res.data
 }
+export const getPaymentRequestList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_PAYMENT_REQUEST_LIST_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/receipts-expenditures', params })
   return res && res.data

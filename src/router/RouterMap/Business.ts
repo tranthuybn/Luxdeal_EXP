@@ -155,9 +155,9 @@ export default {
           name: `business.collaborators.paymentRequest.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
           meta: {
-            title: t('reuse.newInitialization'),
-            hidden: true,
-            canto: true
+            title: t('router.collaboratorsAdd'),
+            canTo: true,
+            hidden: true
           }
         },
         {

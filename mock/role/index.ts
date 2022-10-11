@@ -1321,10 +1321,6 @@ const testList: string[] = [
   '/dashboard',
   '/dashboard/analysis',
   '/dashboard/workplace',
-  '/error',
-  '/error/404-demo',
-  '/error/403-demo',
-  '/error/500-demo',
   '/products-services',
   '/products-services/product-library',
   '/products-services/product-library/products',
@@ -1425,7 +1421,6 @@ const testList: string[] = [
   '/accountant/receipts-expenditures/payment-add',
   '/accountant/balanceSheet',
   `/accountant/balanceSheet-utility`,
-
   '/approve',
   '/approve/products-approval',
   '/approve/products-approval/newly-initialized',
@@ -1451,7 +1446,6 @@ const testList: string[] = [
   '/approve/approve-promotion-strategy/approve-advertisingBanner',
   '/approve/approve-management',
   '/new-and-advertisement',
-
   '/new-and-advertisement/notify',
   '/new-and-advertisement/forum',
   '/new-and-advertisement/banner-advertisement',
@@ -1463,7 +1457,6 @@ const testList: string[] = [
   '/new-and-advertisement/profile-admin/about-us',
   '/new-and-advertisement/profile-admin/contact',
   '/new-and-advertisement/profile-admin/transaction-point',
-
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',

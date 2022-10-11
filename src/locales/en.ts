@@ -1311,6 +1311,9 @@ export default {
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
     createNew: 'Create new',
+    //BST
+    chooseCustomerCode: 'Choose customer code',
+    chooseProductCode: 'Choose product code',
     CheckCode: 'Please enter the correct code format'
   }
 }

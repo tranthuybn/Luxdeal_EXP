@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -15,15 +15,19 @@ import {
   ElMessageBox,
   ElNotification,
   ElImage,
-  ElDivider
+  ElDivider,
+  ElTable,
+  ElTableColumn,
+  ElSwitch
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
-import { TableResponse } from '../../Type'
+import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 
 const { t } = useI18n()
 
@@ -160,48 +164,15 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-const editorConfig = Object.assign({
-  readOnly: true,
-  customAlert: (s: string, t: string) => {
-    switch (t) {
-      case 'success':
-        ElMessage.success(s)
-        break
-      case 'info':
-        ElMessage.info(s)
-        break
-      case 'warning':
-        ElMessage.warning(s)
-        break
-      case 'error':
-        ElMessage.error(s)
-        break
-      default:
-        ElMessage.info(s)
-        break
-    }
-  },
-  autoFocus: false,
-  scroll: true,
-  uploadImgShowBase64: true
-})
-
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps, setSchema } = methods
+      const { setProps } = methods
       setProps({
         disabled: true
       })
-      setSchema([
-        {
-          field: 'description',
-          path: 'componentProps.editorConfig',
-          value: editorConfig
-        }
-      ])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -262,8 +233,6 @@ const save = async (type) => {
         emit('edit-data', data, go(-1))
         loading.value = false
       }
-      fileList.value = []
-      imageUrl.value = undefined
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
@@ -434,12 +403,193 @@ const removeImage = () => {
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
+
+//this is fake data if has api should do form['tableCustomer'] same for product
+const fakeTableCustomerData = reactive([
+  {
+    code: '2016-05-03',
+    name: 'Tom'
+  },
+  {
+    code: '2016-05-02',
+    name: 'Tom'
+  },
+  {
+    code: '2016-05-04',
+    name: 'Tom'
+  },
+  {
+    code: '2016-05-01',
+    name: 'Tom'
+  }
+])
+const fakeTableProductData = reactive([
+  {
+    code: '2016-05-03',
+    name: 'Tom',
+    switch: true
+  },
+  {
+    code: '2016-05-02',
+    name: 'Tom',
+    switch: false
+  },
+  {
+    code: '2016-05-04',
+    name: 'Tom',
+    switch: true
+  },
+  {
+    code: '2016-05-01',
+    name: 'Tom',
+    switch: false
+  }
+])
+const forceRemove = ref(false)
+watch(
+  () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
+  () => {
+    if (
+      fakeTableCustomerData.length < 1 ||
+      (fakeTableCustomerData[fakeTableCustomerData.length - 1].code !== '' &&
+        fakeTableCustomerData[fakeTableCustomerData.length - 1].name !== '' &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexCustomerTable()
+    }
+  },
+  { deep: true }
+)
+watch(
+  () => fakeTableProductData[fakeTableProductData.length - 1],
+  () => {
+    if (
+      fakeTableProductData.length < 1 ||
+      (fakeTableProductData[fakeTableProductData.length - 1].code !== '' &&
+        fakeTableProductData[fakeTableProductData.length - 1].name !== '' &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexProductTable()
+    }
+  },
+  { deep: true }
+)
+const addLastIndexCustomerTable = () => {
+  fakeTableCustomerData.push({ code: '', name: 'Tom' })
+}
+const addLastIndexProductTable = () => {
+  fakeTableProductData.push({ code: '', name: 'Tom', switch: false })
+}
+//fake option
+const listProductsTable = reactive([
+  { value: '11', label: '1', name: '111', id: 1 },
+  { value: '22', label: '2', name: '222', id: 2 },
+  { value: '33', label: '3', name: '333', id: 3 }
+])
+
+//process logic data when click select
+const changeName = (data, scope) => {
+  forceRemove.value = false
+  //change data of code
+  scope.row.code = data
+  // need a function to find the name of the option selected
+  //then scope.row.name = result find
+}
+const removeCustomer = (scope) => {
+  forceRemove.value = true
+  fakeTableCustomerData.splice(scope.$index, 1)
+}
+const removeProduct = (scope) => {
+  forceRemove.value = true
+  fakeTableProductData.splice(scope.$index, 1)
+}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register">
+          <template #tableCustomer>
+            <el-table :data="fakeTableCustomerData" border>
+              <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
+                ><template #default="scope">
+                  <MultipleOptionsBox
+                    :fields="[
+                      t('reuse.customerCode'),
+                      t('reuse.phoneNumber'),
+                      t('formDemo.customerName')
+                    ]"
+                    filterable
+                    width="500px"
+                    :items="listProductsTable"
+                    valueKey="value"
+                    labelKey="value"
+                    :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseCustomerCode')"
+                    :clearable="false"
+                    :defaultValue="scope.row.code"
+                    @change="(option) => changeName(option, scope)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="500" />
+              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
+                    t('reuse.delete')
+                  }}</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #tableProduct>
+            <el-table :data="fakeTableProductData" border>
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+                ><template #default="scope">
+                  <MultipleOptionsBox
+                    :fields="[
+                      t('reuse.productCode'),
+                      t('reuse.managementCode'),
+                      t('reuse.productInformation')
+                    ]"
+                    filterable
+                    width="500px"
+                    :items="listProductsTable"
+                    valueKey="value"
+                    :labelKey="'id'"
+                    :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')"
+                    :clearable="false"
+                    :defaultValue="scope.row.code"
+                    @change="(option) => changeName(option, scope)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
+              <el-table-column :label="t('formDemo.joinTheProgram')" width="200">
+                <template #default="scope"><el-switch v-model="scope.row.switch" /></template
+              ></el-table-column>
+              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                    t('reuse.delete')
+                  }}</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #statusValue="form">
+            <div
+              v-if="form['statusValue'] == 0"
+              class="backgroundAroundLetter"
+              style="background: orange"
+              >{{ t('reuse.pending') }}</div
+            >
+            <div v-else class="backgroundAroundLetter" style="background: blue">{{
+              t('formDemo.theProgramIsRunning')
+            }}</div>
+          </template>
+        </Form>
       </ElCol>
       <ElCol
         :span="hasImage ? 8 : 0"
@@ -572,5 +722,16 @@ const listType = ref<ListImages>('text')
   overflow: auto;
   display: flex;
   justify-content: center;
+}
+.widthOption {
+  min-width: 500px;
+}
+:deep(.cell) {
+  word-break: break-word;
+}
+.backgroundAroundLetter {
+  color: white;
+  padding-right: 5rem;
+  padding-left: 1rem;
 }
 </style>

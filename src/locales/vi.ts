@@ -136,6 +136,7 @@ export default {
     servicePriceAndExecutionTime: 'Giá dịch vụ và thời gian thực hiện',
     statusAndFunctional: 'Trạng thái và chức năng',
     status: 'Trạng thái',
+    statusPayment: 'Trạng thái thanh toán',
     pending: 'Chờ duyệt',
     saveAndPending: 'Lưu và chờ duyệt',
     isActive: 'Đang hoạt động',
@@ -717,6 +718,7 @@ export default {
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
+    collaboratorsSelect: 'Chọn cộng tác viên',
     account: 'Tài Khoản',
     totalMoney: 'Tổng tiền Com',
     debtCom: 'Công nợ Com',
@@ -1397,6 +1399,7 @@ export default {
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    receiptAndPayment: 'Thu/chi',
     choosePaymentProposal: 'Chọn đề nghị thanh toán',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
     detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
@@ -1405,6 +1408,9 @@ export default {
     accountInfo: 'Không có thông tin tài khoản ',
     createNew: 'tạo mới',
     CheckCode: 'Vui lòng nhập đúng định dạng mã',
-    checkDecimal: 'Vui lòng không nhập số thập phân'
+    checkDecimal: 'Vui lòng không nhập số thập phân',
+    //BST
+    chooseCustomerCode: 'Chọn mã khách hàng',
+    chooseProductCode: 'Chọn mã sản phẩm'
   }
 }

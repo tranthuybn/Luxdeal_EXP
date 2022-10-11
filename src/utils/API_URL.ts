@@ -54,7 +54,8 @@ export const CUSTOMER_API = {
   GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
   UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
-  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings'
+  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
+  GET_PAYMENT_REQUEST_LIST_API: '/api/v1/Accountant/GetPaymentRequestList'
 }
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',

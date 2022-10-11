@@ -512,6 +512,24 @@ const getSpaOptions = async () => {
     callSpaApi++
   }
 }
+const selectSpaService = ref([])
+const optionsSpaService = [
+  {
+    name: 'SP3542',
+    value: 'Kiểm tra',
+    label: 'Kiểm tra'
+  },
+  {
+    name: 'SP35423',
+    value: 'Vệ sinh',
+    label: 'Vệ sinh'
+  },
+  {
+    name: 'SP35424',
+    value: 'Khử mùi nano',
+    label: 'Khử mùi nano'
+  }
+]
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -615,6 +633,72 @@ const getSpaOptions = async () => {
                 </template>
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="700" />
+              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                    t('reuse.delete')
+                  }}</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+
+          <template #tableProductOfCombo>
+            <el-table :data="fakeTableProductData" border>
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+                ><template #default="scope">
+                  <MultipleOptionsBox
+                    :fields="[
+                      t('reuse.productCode'),
+                      t('reuse.managementCode'),
+                      t('reuse.productInformation')
+                    ]"
+                    filterable
+                    width="500px"
+                    :items="listProductsTable"
+                    valueKey="value"
+                    labelKey="value"
+                    :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')"
+                    :clearable="false"
+                    :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
+                    @change="(option) => changeName(option, scope)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
+              <el-table-column
+                prop="selfImportAccessories"
+                :label="t('reuse.spaService')"
+                width="320"
+                ><template #default>
+                  <el-select
+                    v-model="selectSpaService"
+                    multiple
+                    placeholder="Select"
+                    style="width: 300px"
+                  >
+                    <div class="flex gap-4">
+                      <div class="flex-1 font-bold pl-5 h-[34px]">Mã dịch vụ</div>
+                      <div class="flex-1 font-bold pl-5 h-[34px]">Thông tin dịch vụ</div>
+                    </div>
+                    <el-option
+                      v-for="item in optionsSpaService"
+                      :key="item.value"
+                      :label="item.label"
+                      :name="item.name"
+                      :value="item.name"
+                      class="fix-padding"
+                    >
+                      <div class="flex gap-4">
+                        <div class="flex-1 pl-5">{{ item.name }}</div>
+                        <div class="flex-1 pl-5">{{ item.value }}</div>
+                      </div>
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
@@ -845,7 +929,10 @@ const getSpaOptions = async () => {
 .widthOption {
   min-width: 500px;
 }
-:deep(.cell) {
+.fix-padding {
+  padding: 0;
+}
+::v-deep(.cell) {
   word-break: break-word;
 }
 .backgroundAroundLetter {

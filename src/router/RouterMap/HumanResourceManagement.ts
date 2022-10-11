@@ -31,7 +31,7 @@ export default {
       }
     },
     {
-      path: `department-directory-utility/:id?/:type?`,
+      path: `department-directory-utility/:type?/:id?`,
       component: () =>
         import('@/views/Pages/HumanResourceManagement/DepartmentDirectoryUtility.vue'),
       name: `human-resource-management.department-directory.${utility}`,

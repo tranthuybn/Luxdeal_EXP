@@ -1313,6 +1313,7 @@ export default {
     createNew: 'Create new',
     //BST
     chooseCustomerCode: 'Choose customer code',
-    chooseProductCode: 'Choose product code'
+    chooseProductCode: 'Choose product code',
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"'
   }
 }

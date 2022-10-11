@@ -18,7 +18,8 @@ import {
   ElDivider,
   ElTable,
   ElTableColumn,
-  ElSwitch
+  ElSwitch,
+  ElCheckbox
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -407,20 +408,8 @@ const listType = ref<ListImages>('text')
 //this is fake data if has api should do form['tableCustomer'] same for product
 const fakeTableCustomerData = reactive([
   {
-    code: '2016-05-03',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-02',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-04',
-    name: 'Tom'
-  },
-  {
-    code: '2016-05-01',
-    name: 'Tom'
+    code: '',
+    name: ''
   }
 ])
 type Product = {
@@ -499,6 +488,7 @@ const removeProduct = (scope) => {
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
+const changeVoucherCondition = () => {}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -575,6 +565,21 @@ const getValueOfSelected = (_value, obj, scope) => {
                 </template>
               </el-table-column>
             </el-table>
+          </template>
+          <template #voucherButton>
+            <el-button @click="changeVoucherCondition" :icon="addIcon" style="width: 100%">{{
+              t('formDemo.change')
+            }}</el-button>
+          </template>
+          <template #statusVoucher="form">
+            <el-checkbox v-model="form['statusVoucher']" size="large"
+              ><template #default
+                ><span>{{ t('formDemo.sendImmediatelyAfterBrowsing') }} </span
+                ><span style="color: orange"
+                  >({{ t('reuse.voucherStatusExplain') }})</span
+                ></template
+              ></el-checkbox
+            >
           </template>
           <template #statusValue="form">
             <div

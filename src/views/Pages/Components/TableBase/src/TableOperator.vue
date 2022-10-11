@@ -160,31 +160,6 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-const editorConfig = Object.assign({
-  readOnly: true,
-  customAlert: (s: string, t: string) => {
-    switch (t) {
-      case 'success':
-        ElMessage.success(s)
-        break
-      case 'info':
-        ElMessage.info(s)
-        break
-      case 'warning':
-        ElMessage.warning(s)
-        break
-      case 'error':
-        ElMessage.error(s)
-        break
-      default:
-        ElMessage.info(s)
-        break
-    }
-  },
-  autoFocus: false,
-  scroll: true,
-  uploadImgShowBase64: true
-})
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
@@ -194,13 +169,7 @@ watch(
       setProps({
         disabled: true
       })
-      setSchema([
-        {
-          field: 'description',
-          path: 'componentProps.editorConfig',
-          value: editorConfig
-        }
-      ])
+      setSchema([{ field: 'description', path: 'componentProps.disabled', value: true }])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()

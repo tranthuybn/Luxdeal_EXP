@@ -119,7 +119,8 @@ const props = defineProps({
     type: Object as PropType<IEditorConfig>,
     default: () => undefined
   },
-  modelValue: propTypes.string.def('')
+  modelValue: propTypes.string.def(''),
+  disabled: propTypes.bool.def(false)
 })
 
 const emit = defineEmits(['change', 'update:modelValue'])
@@ -155,7 +156,7 @@ const handleCreated = (editor: IDomEditor) => {
 const editorConfig = computed((): IEditorConfig => {
   return Object.assign(
     {
-      readOnly: false,
+      readOnly: props.disabled,
       customAlert: (s: string, t: string) => {
         switch (t) {
           case 'success':

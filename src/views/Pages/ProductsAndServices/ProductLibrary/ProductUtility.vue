@@ -519,10 +519,9 @@ const rules = reactive({
   ],
   ShortDescription: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameLength.validator }
   ],
-  Description: [{ validator: ValidService.checkDescriptionLength.validator }, required()],
+  Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()],
   ProductStatus: [required()]

@@ -165,10 +165,11 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps } = methods
+      const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -600,6 +601,7 @@ const changeTreeData = (data) => {
               :remote-method="remoteProductCode"
               default-first-option
               @change="(data) => fillAllInformation(data)"
+              popper-class="max-w-600px"
             >
               <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
                 <div ref="divRef" class="whereisthis"> -->
@@ -631,6 +633,7 @@ const changeTreeData = (data) => {
               remote
               :remote-method="remoteProductName"
               default-first-option
+              popper-class="max-w-600px"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"

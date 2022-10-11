@@ -1407,6 +1407,7 @@ export default {
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
     chooseProductCode: 'Chọn mã sản phẩm',
-    voucherStatusExplain: 'Nếu không lựa chọn, Voucher chỉ được gửi khi bấm nút "Gửi"'
+    voucherStatusExplain: 'Nếu không lựa chọn, Voucher chỉ được gửi khi bấm nút "Gửi"',
+    chooseAtleast1SpaService: 'Chọn ít nhất 1 dịch vụ Spa'
   }
 }

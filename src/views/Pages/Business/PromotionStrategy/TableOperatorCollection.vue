@@ -19,7 +19,9 @@ import {
   ElTable,
   ElTableColumn,
   ElSwitch,
-  ElCheckbox
+  ElCheckbox,
+  ElSelect,
+  ElOption
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -29,6 +31,7 @@ import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { getSpaLibrary } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
 
@@ -417,7 +420,13 @@ type Product = {
   name: string
   switch: boolean
 }
+type SpaProduct = {
+  code: string
+  name: string
+  service: Array<string>
+}
 const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: false }])
+const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
   () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
@@ -489,6 +498,20 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
 const changeVoucherCondition = () => {}
+const SpaSelectOptions = ref()
+let callSpaApi = 0
+const getSpaOptions = async () => {
+  if (callSpaApi == 0) {
+    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
+      (res) =>
+        (SpaSelectOptions.value = res.data.map((spa) => ({
+          label: spa.name,
+          value: spa.id
+        })))
+    )
+    callSpaApi++
+  }
+}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -556,6 +579,64 @@ const changeVoucherCondition = () => {}
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="200">
                 <template #default="scope"><el-switch v-model="scope.row.switch" /></template
+              ></el-table-column>
+              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                    t('reuse.delete')
+                  }}</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #spaProduct>
+            <el-table :data="fakeSpaProductData" border>
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+                ><template #default="scope">
+                  <MultipleOptionsBox
+                    :fields="[
+                      t('reuse.productCode'),
+                      t('reuse.managementCode'),
+                      t('reuse.productInformation')
+                    ]"
+                    filterable
+                    width="500px"
+                    :items="listProductsTable"
+                    valueKey="value"
+                    labelKey="value"
+                    :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')"
+                    :clearable="false"
+                    :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
+                    @change="(option) => changeName(option, scope)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
+              <el-table-column width="200">
+                <template #header
+                  >{{ t('reuse.spaService')
+                  }}<span style="color: orange">{{
+                    t('reuse.chooseAtleast1SpaService')
+                  }}</span></template
+                >
+                <template #default="scope">
+                  <el-select
+                    @click="getSpaOptions"
+                    multiple
+                    clearable
+                    v-model="scope.row.service"
+                    class="m-2"
+                    placeholder="Select"
+                    size="large"
+                  >
+                    <el-option
+                      v-for="item in SpaSelectOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    /> </el-select></template
               ></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">

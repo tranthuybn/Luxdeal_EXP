@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -26,68 +26,6 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'promotion',
-    label: t('reuse.promotion'),
-    component: 'Select',
-    colProps: {
-      span: 14
-    },
-    componentProps: {
-      placeholder: t('formDemo.choosePromotion'),
-      style: 'width: 100%',
-      options: [
-        { label: t('formDemo.decreaseByPercent'), value: 1 },
-        { label: t('formDemo.decreaseByAmount'), value: 2 },
-        { label: t('formDemo.noPromotion'), value: 3 }
-      ]
-    }
-  },
-  {
-    field: 'duration',
-    component: 'Input',
-    colProps: {
-      span: 10
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterPercent'),
-      suffixIcon: h('div', '%')
-    },
-    formItemProps: {
-      labelWidth: '0px'
-    }
-  },
-  {
-    field: 'order',
-    label: t('formDemo.odersApply'),
-    component: 'Select',
-    colProps: {
-      span: 14
-    },
-    componentProps: {
-      placeholder: t('formDemo.choosePromotion'),
-      style: 'width: 100%',
-      options: [
-        { label: t('reuse.sellOrderList'), value: 1 },
-        { label: t('reuse.leaseOrderList'), value: 2 },
-        { label: t('reuse.spaOrderList'), value: 3 }
-      ]
-    }
-  },
-  {
-    field: 'orderInput',
-    component: 'Input',
-    colProps: {
-      span: 10
-    },
-    componentProps: {
-      placeholder: t('formDemo.appliesToOrdersFrom'),
-      suffixIcon: h('div', 'đ')
-    },
-    formItemProps: {
-      labelWidth: '0px'
-    }
-  },
-  {
     field: 'date',
     label: t('formDemo.duration'),
     component: 'DatePicker',
@@ -107,27 +45,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterShortDescription')
-    }
-  },
-  {
-    field: 'condition',
-    component: 'Input',
-    label: t('formDemo.condition'),
-    colProps: {
-      span: 20
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterCondition')
-    }
-  },
-  {
-    field: 'voucherButton',
-    component: 'Input',
-    colProps: {
-      span: 4
-    },
-    formItemProps: {
-      labelWidth: '0px'
     }
   },
   {
@@ -168,11 +85,21 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'status',
-    label: t('reuse.status'),
+    field: 'SpaApplicationProduct',
+    label: t('formDemo.ApplicableSpaProductsServices'),
     component: 'Divider',
     colProps: {
       span: 24
+    }
+  },
+  {
+    field: 'spaProduct',
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      labelWidth: '0px'
     }
   },
   {
@@ -193,6 +120,14 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
+    field: 'status',
+    label: t('reuse.status'),
+    component: 'Divider',
+    colProps: {
+      span: 24
+    }
+  },
+  {
     field: 'statusValue',
     label: t('reuse.status'),
     component: 'Input',
@@ -202,7 +137,7 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const hideTableCustomer = (data) => {
-  data == 1 ? (schema[12].hidden = true) : (schema[12].hidden = false)
+  data == 1 ? (schema[6].hidden = true) : (schema[6].hidden = false)
 }
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })

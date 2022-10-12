@@ -1352,7 +1352,7 @@ const testList: string[] = [
 
   '/business/order-management',
   '/business/order-management/order-list',
-  '/business/order-management/order-list-add/:id?/:type?/:tab?',
+  '/business/order-management/order-list-add/:type?/:tab?/:id?',
 
   '/business/customer-management',
   '/business/customer-management/customerList',

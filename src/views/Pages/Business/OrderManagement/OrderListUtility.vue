@@ -27,7 +27,7 @@ import {
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
@@ -293,9 +293,9 @@ const collapseChangeEvent = (val) => {
 const activeName = ref(collapse[0].name)
 
 //add row table
-const deleteRowDebtTable = (index: number) => {
-  debtTable.value.splice(index, 1)
-}
+// const deleteRowDebtTable = (index: number) => {
+//   debtTable.value.splice(index, 1)
+// }
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
@@ -436,7 +436,8 @@ const callApiProductList = async () => {
         label: product.id.toString(),
         value: product.id.toString(),
         name: product.name,
-        price: product.price.toString()
+        price: product.price.toString(),
+        id: product.id
       }))
       optionCallAPi++
       listProductsTable.value = optionsApi.value
@@ -444,13 +445,15 @@ const callApiProductList = async () => {
   }
 }
 
-const changeName = (optionID, scope) => {
-  const option = optionsApi.value.find((option) => option.name == optionID)
-  scope.row.name = option.name
-  scope.row.unitPrice = option.price
+const getValueOfSelected = (_value, obj, scope) => {
+  console.log('obj: ', obj)
+  console.log('scope: ', scope)
+  scope.row.code = obj.label
+  scope.row.productCode = obj.value
+  scope.row.productName = obj.name
+  scope.row.unitPrice = obj.price
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
-
 const handleTotal = (scope) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
@@ -507,7 +510,7 @@ watch(
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].selfImportAccessories &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].name &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -575,6 +578,8 @@ const postData = () => {
         Accessory: 'Accessory2'
       }
     ])
+
+    console.log('productPayment: ', ListOfProductsForSale.value)
     // if (ListOfProductsForSale.length > 0) {
     // ListOfProductsForSale.forEach((element) => {
     // if (element && Array.isArray(element) && element.length > 0)
@@ -644,9 +649,9 @@ const districtChange = async (value) => {
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-// const route = useRoute()
-// const tab = String(route.params.tab)
+// const type = String(router.currentRoute.value.params.type)
+const route = useRoute()
+const type = String(route.params.type)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -661,6 +666,7 @@ const editData = async () => {
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
@@ -776,10 +782,10 @@ const optionsCharacteristic = [
   }
 ]
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
-  callApiProductList()
+  await callApiProductList()
   callApiCity()
 })
 onMounted(async () => {
@@ -1240,12 +1246,21 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="dialogIPRForm = false">Cancel</el-button>
-            <el-button type="primary" @click="dialogIPRForm = false">Confirm</el-button>
-          </span>
+          <div class="flex justify-between">
+            <el-button @click="dialogIPRForm = false">{{ t('button.print') }}</el-button>
+            <div>
+              <span class="dialog-footer">
+                <el-button type="primary" @click="dialogIPRForm = false">{{
+                  t('formDemo.saveRecordDebts')
+                }}</el-button>
+                <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
+              </span>
+            </div>
+          </div>
         </template>
       </el-dialog>
+
+      <!--  -->
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -1693,11 +1708,7 @@ onMounted(async () => {
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
         >
-          <el-table-column
-            :label="`${t('formDemo.productManagementCode')}`"
-            min-width="250"
-            prop="code"
-          >
+          <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="code">
             <template #default="props">
               <MultipleOptionsBox
                 :fields="[
@@ -1707,27 +1718,26 @@ onMounted(async () => {
                 ]"
                 filterable
                 :items="listProductsTable"
-                :valueKey="'name'"
-                :labelKey="'id'"
+                valueKey="id"
+                labelKey="label"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :clearable="false"
-                @change="(option) => changeName(option, props)"
-                @addnewproduct="addnewproduct"
-              />
+                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
+                ><template #underButton>
+                  <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
+                  <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
+                    >+ {{ t('formDemo.quicklyAddProducts') }}</div
+                  >
+                </template></MultipleOptionsBox
+              >
             </template>
           </el-table-column>
           <el-table-column
-            prop="productCode"
-            :label="t('formDemo.productInformation')"
-            min-width="200"
-          />
-          <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="200"
-          />
-          <el-table-column prop="name" :label="t('formDemo.productInformation')" min-width="620">
+            min-width="620"
+          >
             <!-- <template #default="props">
               <MultipleOptionsBox
                 :fields="[
@@ -1737,13 +1747,19 @@ onMounted(async () => {
                 ]"
                 filterable
                 :items="listProductsTable"
-                :valueKey="'name'"
-                :labelKey="'id'"
+                valueKey="id"
+                labelKey="label"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :clearable="false"
-                @change="(option) => changeName(option, props)"
-              />
+                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
+                ><template #underButton>
+                  <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
+                  <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
+                    >+ {{ t('formDemo.quicklyAddProducts') }}</div
+                  >
+                </template></MultipleOptionsBox
+              >
             </template> -->
           </el-table-column>
           <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
@@ -1939,6 +1955,9 @@ onMounted(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
+        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
+        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu chi</el-button>
+        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -2041,17 +2060,18 @@ onMounted(async () => {
             prop="alreadyPaidForTt"
             :label="`${t('formDemo.alreadyPaidForTt')}`"
             align="center"
-            min-width="55"
+            min-width="70"
           >
             <template #default="scope">
               <el-checkbox v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="120" align="center">
-            <template #default="scope">
+            <template #default>
               <div class="flex">
+                <!-- @click.prevent="deleteRowDebtTable(scope.$index)" -->
+                <!-- @click="centerDialogVisible = true" -->
                 <button
-                  @click.prevent="deleteRowDebtTable(scope.$index)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
@@ -2097,7 +2117,7 @@ onMounted(async () => {
                   :placeHolder="'Chọn mã sản phẩm'"
                   @focus="callApiProductList()"
                   :clearable="false"
-                  @change="(option) => changeName(option, props)"
+                  @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 />
               </template>
             </el-table-column>

@@ -121,8 +121,8 @@ export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.balo'), value: 3 }
 ]
 export const filtersReceiptExpenditure: Array<Filter> = [
-  { text: t('reuse.haveToCollect'), value: true },
-  { text: t('reuse.havetoPay'), value: false }
+  { text: t('reuse.haveToCollect'), value: 1 },
+  { text: t('reuse.havetoPay'), value: 0 }
 ]
 export const filtersCustomerType: Array<Filter> = [
   { text: t('reuse.customerName'), value: 1 },

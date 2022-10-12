@@ -132,7 +132,6 @@ const valueChangeEvent = (val) => {
         return el[valueKey] === val
       }
     })
-    console.log('obj', obj)
     if (obj) emit('updateValue', val, obj ?? '')
   }
 }
@@ -206,7 +205,6 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <slot name="underButton"> </slot>
-    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
   </ElSelect>
 </template>
 <style lang="css" scoped>

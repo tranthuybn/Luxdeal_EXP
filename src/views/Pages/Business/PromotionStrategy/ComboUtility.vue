@@ -48,22 +48,30 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'receivingConditions',
-    component: 'Input',
+    field: 'condition',
+    component: 'Select',
     label: t('formDemo.condition'),
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('formDemo.comboGetFree')
+      style: 'width: 100%',
+      disabled: true,
+      options: [
+        { label: t('reuse.freeReceiveCombo'), value: 1 },
+        { label: t('reuse.exchangeByPoints'), value: 2 },
+        { label: t('reuse.buyByVirtualWallet'), value: 3 }
+      ]
     }
   },
   {
-    field: 'OptionReceivingConditions',
-    component: 'Button',
-    label: t('formDemo.change'),
+    field: 'comboButton',
+    component: 'Input',
     colProps: {
       span: 4
+    },
+    formItemProps: {
+      labelWidth: '0px'
     }
   },
   {

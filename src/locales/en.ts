@@ -1315,6 +1315,8 @@ export default {
     changePassword: 'Change password',
     newPassword: 'New password',
     enterNewPassword: 'Enter new password',
-    confirmPassword: 'Confirm password'
+    confirmPassword: 'Confirm password',
+    loginAppWebUser: 'Login App/web user',
+    useToReferralCode: '(Use to referral code)'
   }
 }

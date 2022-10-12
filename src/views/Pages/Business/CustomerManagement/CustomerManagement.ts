@@ -48,11 +48,6 @@ export const CustomerList = [
     minWidth: '400',
     formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
       return h('ul', [
-        // h('li', [
-        //   h('span', [t('reuse.mst'), ':']),
-        //   h('span', { style: { paddingLeft: '3px' } }, Recordable['taxCode']),
-        //   console.log('taxCode', Recordable['taxCode'])
-        // ]),
         h('li', [
           Recordable['taxCode']
             ? h('li', [
@@ -77,7 +72,7 @@ export const CustomerList = [
     }
   },
   {
-    field: 'accountType',
+    field: 'customerType',
     label: t('reuse.accountType'),
     minWidth: '150',
     filters: filterAccount
@@ -99,9 +94,12 @@ export const CustomerList = [
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '120',
-    filters: filterStatusCustomer
+    minWidth: '150',
+    filters: filterStatusCustomer,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Ngừng hoạt động')
+    }
   }
 ]

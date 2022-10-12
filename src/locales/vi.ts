@@ -1412,6 +1412,8 @@ export default {
     changePassword: 'Đổi mật khẩu',
     newPassword: 'Mật khẩu mới',
     enterNewPassword: 'Nhập mật khẩu mới',
-    confirmPassword: 'Xác nhận mật khẩu'
+    confirmPassword: 'Xác nhận mật khẩu',
+    loginAppWebUser: 'Đăng nhập App/web user',
+    useToReferralCode: '(Sử dụng làm mã giới thiệu)'
   }
 }

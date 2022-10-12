@@ -386,7 +386,30 @@ export default {
     totalFeePayable: 'Total fee payable',
     debtHistory: 'Debt history',
     browsePriceChanges: 'Browse price changes',
-    waitingDelivery: 'Waiting for delivery'
+    waitingDelivery: 'Waiting for delivery',
+    quicklyAddProducts: 'Quickly add products',
+    productCharacteristics: 'Product characteristics',
+    AddSelectProductCode: 'Add or select product code',
+    addManagementCode: 'Add management code',
+    EnterNameDescription: 'Enter a name/description',
+    selectFeature: 'Select feature',
+    certificateInformation: 'Certificate information',
+    statusAccountingEntry: 'Status accounting entry',
+    informationReceipts: 'Information about receipts',
+    documentsAttached: 'Documents attached',
+    receiptsCode: 'Receipts code',
+    recharger: 'Recharger',
+    reasonCollectingMoney: 'Reason for collecting money',
+    enterReasonCollectingMoney: 'Enter reason of collectingMoney',
+    writtenWords: 'Writen in words',
+    formPayment: 'Form of payment',
+    saveRecordDebts: 'Save and record debts',
+    informationPaymentRequestForm: 'Information of the payment request form',
+    PaymentRequestCode: 'Payment request code',
+    proponent: 'Proponent',
+    reasonsSpendMoney: 'Reasons to spend money',
+    enterReasonPaymentRequest: 'Enter the reason for the payment request',
+    billingInformation: 'Billing Information'
   },
   button: {
     add: 'Add quick',
@@ -395,7 +418,8 @@ export default {
     edit: 'Edit',
     cancelVoucher: 'Cancel voucher',
     cancelResult: 'Cancel result',
-    cancelOrder: 'Cancel order'
+    cancelOrder: 'Cancel order',
+    print: 'Print'
   },
   router: {
     login: 'Login',

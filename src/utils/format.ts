@@ -49,6 +49,12 @@ export const collaboratorStatusTransferToText = (val) => {
   else if (val == 2) return `${t('reuse.inactive')}`
   return `${t('reuse.lock')}`
 }
+export const commissionPaymentStatusTransferToText = (val) => {
+  if (val == 1) return `${t('reuse.waitingForProcessing')}`
+  else if (val == 2) return `${t('reuse.inUse')}`
+  else if (val == 3) return `${t('reuse.used')}`
+  return `${t('reuse.cancelled')}`
+}
 export const formatPotentialCustomerStatusIdToText = (val) => {
   switch (val) {
     case 1:

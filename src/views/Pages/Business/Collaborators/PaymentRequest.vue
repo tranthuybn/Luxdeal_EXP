@@ -3,10 +3,10 @@ import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table } from '@/components/Table'
-import { collaboratorStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { commissionPaymentStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import { HeaderFiler } from '../../Components/HeaderFilter'
 import { TableExtension } from '../../Components/TableBase'
-import { getCollaboratorsList } from '@/api/Business'
+import { getCommissionPaymentList } from '@/api/Business'
 import { filterStatusCustomer } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
@@ -37,27 +37,45 @@ const columns = reactive<TableColumn[]>([
     minWidth: '100'
   },
   {
-    field: 'accountName',
+    field: 'code',
     label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
 
   {
-    field: 'contact',
-    label: t('reuse.contact'),
-    minWidth: '250'
+    field: 'price',
+    label: t('reuse.amountOfMoney'),
+    minWidth: '250',
+    align: 'right'
   },
   {
     field: 'account',
-    label: t('reuse.account'),
+    label: t('reuse.codeRequest'),
     minWidth: '200'
   },
   {
-    field: 'totalMoney',
-    label: t('reuse.totalMoney'),
+    field: 'isFile',
+    label: t('formDemo.attachments'),
     minWidth: '150',
-    align: 'right',
-    sortable: true
+    align: 'center'
+  },
+  {
+    field: 'receiptOrPaymentVoucherId',
+    label: t('router.receiptsAndExpenditures'),
+    minWidth: '150',
+    align: 'right'
+  },
+  {
+    field: 'paymentOrder',
+    label: t('router.paymentProposal'),
+    minWidth: '150',
+    align: 'right'
+  },
+  {
+    field: 'isFile',
+    label: t('reuse.alreadyPaid'),
+    minWidth: '150',
+    align: 'right'
   },
   {
     field: 'createdAt',
@@ -72,16 +90,17 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '130',
-    headerFilter: 'Name'
+    minWidth: '130'
   },
   {
-    field: 'status',
-    label: t('reuse.accountStatus'),
+    field: 'CommissionPaymentStatus',
+    label: t('reuse.status'),
     minWidth: '200',
+    align: 'center',
+
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', collaboratorStatusTransferToText(cellValue))
+      return h('div', commissionPaymentStatusTransferToText(cellValue))
     }
   }
 ])
@@ -92,7 +111,7 @@ const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 
 // using table's function
 const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getCollaboratorsList,
+  getListApi: getCommissionPaymentList,
   response: {
     list: '',
     total: 'count'
@@ -104,7 +123,7 @@ const { register, tableObject, methods } = useTable<TableData>({
 })
 //add operator for every table
 onBeforeMount(() => {
-  dynamicApi.value = getCollaboratorsList
+  dynamicApi.value = getCommissionPaymentList
   dynamicColumns.value = columns
   addOperatorColumn(dynamicColumns.value)
   getData()
@@ -188,7 +207,7 @@ watch(
   <HeaderFiler @get-data="getData" @refresh-data="getData">
     <template #headerFilterSlot>
       <el-button type="primary" :icon="createIcon" @click="pushAdd">
-        {{ t('reuse.addCategory') }}</el-button
+        {{ t('reuse.newInitialization') }}</el-button
       >
     </template>
   </HeaderFiler>
@@ -235,17 +254,6 @@ watch(
       @register="register"
       @filter-change="filterChange"
     >
-      <template #contact="data">
-        <div>Mst: {{ data.row.customer?.taxCode }}</div>
-        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div>
-        <div>Email: {{ data.row.customer?.email }}</div>
-        <div>Địa chỉ: {{ data.row.customer?.address }}</div>
-      </template>
-      <template #account="data">
-        <div>STK: {{ data.row.accountNumber }}</div>
-        <div>Tên TK: {{ data.row.accountName }}</div>
-        <div>NH: {{ data.row.bank.name }}</div>
-      </template>
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="action(row, 'edit')" :icon="editIcon" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip, ElButton } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
 import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
@@ -60,7 +60,7 @@ const propsObj = defineProps({
 
 const emit = defineEmits(['updateValue', 'addnewproduct'])
 
-let selected = ref<string>('')
+let selected = ref()
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
@@ -91,7 +91,13 @@ watchEffect(() => {
 watch(
   () => propsObj.defaultValue,
   (val) => {
-    if (val) selected.value = val.toString()
+    console.log('run here', propsObj.defaultValue)
+    if (val) {
+      selected.value = val.toString()
+    }
+    if (val == '') {
+      selected.value = null
+    }
   }
 )
 
@@ -113,22 +119,20 @@ const filter = (str) => {
     }
   })
 }
-const dialogAddQuick = () => {
-  emit('addnewproduct')
-}
 const appearsEvent = () => {
   const { items } = propsObj
   options.value = items
 }
 const valueChangeEvent = (val) => {
   if (val) {
-    const { items, valueKey, labelKey } = propsObj
-
+    const { items, valueKey } = propsObj
     // find label
     const obj = items.find((el) => {
-      if (el) el[valueKey] === val
+      if (el) {
+        return el[valueKey] === val
+      }
     })
-    if (obj) emit('updateValue', val, obj[labelKey] ?? '')
+    if (obj) emit('updateValue', val, obj ?? '')
   }
 }
 const handleScroll = (...val) => {
@@ -165,7 +169,7 @@ onUnmounted(() => {
       <div>
         <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
           <ElCol
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-blue-900"
@@ -191,7 +195,7 @@ onUnmounted(() => {
             v-for="(key, i) in acceptKey(item)"
             :key="i"
             class="text-ellipsis text-center"
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>
@@ -200,9 +204,7 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <span class="block h-1 w-[100%] border-t-1 mt-4"></span>
-    <el-button text @click="dialogAddQuick">+ Thêm nhanh sản phẩm</el-button>
-    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
+    <slot name="underButton"> </slot>
   </ElSelect>
 </template>
 <style lang="css" scoped>

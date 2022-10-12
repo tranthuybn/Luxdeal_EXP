@@ -50,5 +50,5 @@ const tabs: Array<Tab> = [
 ]
 </script>
 <template>
-  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" />
+  <tableDatetimeFilterBasicVue :selection="true" title="orderList" :tabs="tabs" />
 </template>

@@ -423,28 +423,12 @@ const fakeTableCustomerData = reactive([
     name: 'Tom'
   }
 ])
-const fakeTableProductData = reactive([
-  {
-    code: '2016-05-03',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-02',
-    name: 'Tom',
-    switch: false
-  },
-  {
-    code: '2016-05-04',
-    name: 'Tom',
-    switch: true
-  },
-  {
-    code: '2016-05-01',
-    name: 'Tom',
-    switch: false
-  }
-])
+type Product = {
+  code: string
+  name: string
+  switch: boolean
+}
+const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: false }])
 const forceRemove = ref(false)
 watch(
   () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
@@ -461,12 +445,20 @@ watch(
   { deep: true }
 )
 watch(
+  () => fakeTableProductData.length,
+  () => {
+    if (fakeTableProductData.length == 0) {
+      addLastIndexProductTable()
+    }
+  }
+)
+watch(
   () => fakeTableProductData[fakeTableProductData.length - 1],
   () => {
     if (
       fakeTableProductData.length < 1 ||
-      (fakeTableProductData[fakeTableProductData.length - 1].code !== '' &&
-        fakeTableProductData[fakeTableProductData.length - 1].name !== '' &&
+      (fakeTableProductData[fakeTableProductData.length - 1]['code'] !== '' &&
+        fakeTableProductData[fakeTableProductData.length - 1]['name'] !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -475,10 +467,10 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  fakeTableCustomerData.push({ code: '', name: 'Tom' })
+  fakeTableCustomerData.push({ code: '', name: '' })
 }
 const addLastIndexProductTable = () => {
-  fakeTableProductData.push({ code: '', name: 'Tom', switch: false })
+  fakeTableProductData.push({ code: '', name: '', switch: false })
 }
 //fake option
 const listProductsTable = reactive([
@@ -498,10 +490,14 @@ const changeName = (data, scope) => {
 const removeCustomer = (scope) => {
   forceRemove.value = true
   fakeTableCustomerData.splice(scope.$index, 1)
+  console.log('fakeTableCustomerData', fakeTableCustomerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
   fakeTableProductData.splice(scope.$index, 1)
+}
+const getValueOfSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
 }
 </script>
 <template>
@@ -528,6 +524,7 @@ const removeProduct = (scope) => {
                     :placeHolder="t('reuse.chooseCustomerCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>
@@ -556,11 +553,12 @@ const removeProduct = (scope) => {
                     width="500px"
                     :items="listProductsTable"
                     valueKey="value"
-                    :labelKey="'id'"
+                    labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>

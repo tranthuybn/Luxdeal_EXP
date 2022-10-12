@@ -340,6 +340,7 @@ export const getFlashSaleList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/flash-sale/List', params })
   return res && res.data
 }
+
 export const getcollectionList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/collection/List', params })
   return res && res.data
@@ -366,11 +367,12 @@ export const getCustomerVirtualEWalletList = async (params: any): Promise<IRespo
 }
 export const getCampaignList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
-    { url: `${CAMPAIGN_API.GET_VOUCHER}?${objectToQueryParams(params)}` },
+    { url: `${CAMPAIGN_API.GET_CAMPAIGN}?${objectToQueryParams(params)}` },
     fixedBaseURL
   )
   return res && res.data
 }
+
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data

@@ -178,7 +178,6 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'statusVoucher',
     label: t('formDemo.voucherSendingSettings'),
-    value: [],
     component: 'Checkbox',
     colProps: {
       span: 24

@@ -21,7 +21,9 @@ import {
   ElSwitch,
   ElCheckbox,
   ElSelect,
-  ElOption
+  ElOption,
+  ElRadio,
+  ElInput
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -148,11 +150,11 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref()
+const { setValues } = methods
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
-  const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     if (props.hasImage && !props.multipleImages) {
@@ -497,7 +499,10 @@ const removeProduct = (scope) => {
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
-const changeVoucherCondition = () => {}
+const conditionVoucherVisible = ref(false)
+const changeVoucherCondition = () => {
+  conditionVoucherVisible.value = true
+}
 const SpaSelectOptions = ref()
 let callSpaApi = 0
 const getSpaOptions = async () => {
@@ -530,6 +535,40 @@ const optionsSpaService = [
     label: 'Khử mùi nano'
   }
 ]
+const conditionVoucherTable = reactive([
+  {
+    id: 1,
+    condition: t('reuse.freeRecievedVoucher'),
+    explainCondition: t('reuse.explainFreeRecievedVoucher'),
+    enterCondition: ''
+  },
+  {
+    id: 2,
+    condition: t('reuse.voucherAffiliate'),
+    explainCondition: t('reuse.explainVoucherAffiliate'),
+    enterCondition: ''
+  },
+  {
+    id: 3,
+    condition: t('reuse.exchangeByPoints'),
+    explainCondition: t('reuse.explainExchangeByPoints'),
+    enterCondition: 500
+  },
+  {
+    id: 4,
+    condition: t('reuse.buyByVirtualWallet'),
+    explainCondition: t('reuse.explainBuyByVirtualWallet'),
+    enterCondition: 200
+  }
+])
+const currentRow = ref()
+const singleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleCurrentChangeSelection = (val) => {
+  currentRow.value = val
+  radioSelected.value = val.id
+  setValues({ condition: radioSelected.value })
+}
+const radioSelected = ref()
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -890,9 +929,51 @@ const optionsSpaService = [
         </ElButton>
       </div>
     </template>
+    <el-dialog
+      v-model="conditionVoucherVisible"
+      :title="t('reuse.settingVoucherCondition')"
+      width="900px"
+    >
+      <el-table
+        ref="singleTableRef"
+        :data="conditionVoucherTable"
+        highlight-current-row
+        style="width: 100%"
+        :border="true"
+        @current-change="handleCurrentChangeSelection"
+      >
+        <el-table-column label="" width="70">
+          <template #default="scope">
+            <el-radio
+              v-model="radioSelected"
+              :label="scope.$index + 1"
+              style="color: #fff; margin-right: -25px"
+              ><span></span
+            ></el-radio>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('reuse.condition')" width="500">
+          <template #default="scope"
+            ><div>{{ scope.row.condition }}</div
+            ><div class="explainText">({{ scope.row.explainCondition }})</div></template
+          ></el-table-column
+        >
+        <el-table-column :label="t('reuse.enterCondition')" width="300"
+          ><template #default="scope">
+            <div v-if="scope.row.enterCondition !== ''" class="w-full">
+              <el-input v-model="scope.row.enterCondition" />
+            </div> </template
+        ></el-table-column>
+      </el-table>
+    </el-dialog>
   </ContentWrap>
 </template>
 <style scoped>
+.explainText {
+  color: orange;
+  font-size: 14px;
+  font-style: italic;
+}
 .avatar-uploader .avatar {
   padding-bottom: 1rem;
   width: 250px;

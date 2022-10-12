@@ -111,13 +111,21 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'condition',
-    component: 'Input',
+    component: 'Select',
     label: t('formDemo.condition'),
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('formDemo.enterCondition')
+      style: 'width: 100%',
+      disabled: true,
+      placeholder: t('formDemo.enterCondition'),
+      options: [
+        { label: t('reuse.freeRecievedVoucher'), value: 1 },
+        { label: t('reuse.voucherAffiliate'), value: 2 },
+        { label: t('reuse.exchangeByPoints'), value: 3 },
+        { label: t('reuse.buyByVirtualWallet'), value: 4 }
+      ]
     }
   },
   {
@@ -178,7 +186,6 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'statusVoucher',
     label: t('formDemo.voucherSendingSettings'),
-    value: [],
     component: 'Checkbox',
     colProps: {
       span: 24

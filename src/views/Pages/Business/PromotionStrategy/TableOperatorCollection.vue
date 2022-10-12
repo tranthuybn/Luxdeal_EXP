@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, reactive } from 'vue'
+import { PropType, watch, ref, unref, reactive, onBeforeMount } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -25,6 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
+import { getAllCustomer } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -115,7 +116,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
-
+const dataTable = reactive({ customerData: [{ id: -1, code: '', name: '' }] })
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
@@ -157,12 +158,14 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
+    dataTable.customerData = props.formDataCustomize.customers
+    console.log('fakeTableCustomerData', dataTable.customerData)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
-      props.formDataCustomize?.Images.map((image) =>
+      props.formDataCustomize?.Images?.map((image) =>
         fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
       )
     }
@@ -411,12 +414,6 @@ const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
 //this is fake data if has api should do form['tableCustomer'] same for product
-const fakeTableCustomerData = reactive([
-  {
-    code: '',
-    name: ''
-  }
-])
 type Product = {
   code: string
   name: string
@@ -431,12 +428,12 @@ const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: 
 const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
-  () => fakeTableCustomerData[fakeTableCustomerData.length - 1],
+  () => dataTable.customerData[dataTable.customerData.length - 1],
   () => {
     if (
-      fakeTableCustomerData.length < 1 ||
-      (fakeTableCustomerData[fakeTableCustomerData.length - 1].code !== '' &&
-        fakeTableCustomerData[fakeTableCustomerData.length - 1].name !== '' &&
+      dataTable.customerData.length < 1 ||
+      (dataTable.customerData[dataTable.customerData.length - 1].code !== '' &&
+        dataTable.customerData[dataTable.customerData.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
@@ -467,17 +464,32 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  fakeTableCustomerData.push({ code: '', name: '' })
+  let idTable = dataTable.customerData.length
+  dataTable.customerData.push({ id: idTable, code: '', name: '' })
 }
 const addLastIndexProductTable = () => {
   fakeTableProductData.push({ code: '', name: '', switch: false })
 }
 //fake option
 const listProductsTable = reactive([
-  { value: '11', label: '1', name: '111', id: 1 },
+  { value: 'dev1', label: '1', name: '111', id: 1 },
   { value: '22', label: '2', name: '222', id: 2 },
   { value: '33', label: '3', name: '333', id: 3 }
 ])
+
+const listCustomer = ref()
+//get list customer
+const callAPICustomer = async () => {
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
+  if (res.data && res.data.length > 0) {
+    listCustomer.value = res.data.map((customer) => ({
+      value: customer.code,
+      label: customer.phonenumber,
+      name: customer.name,
+      id: customer.id
+    }))
+  }
+}
 
 //process logic data when click select
 const changeName = (data, scope) => {
@@ -489,8 +501,8 @@ const changeName = (data, scope) => {
 }
 const removeCustomer = (scope) => {
   forceRemove.value = true
-  fakeTableCustomerData.splice(scope.$index, 1)
-  console.log('fakeTableCustomerData', fakeTableCustomerData)
+  dataTable.customerData.splice(scope.$index, 1)
+  console.log('fakeTableCustomerData', dataTable.customerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
@@ -569,6 +581,10 @@ const handleCurrentChangeSelection = (val) => {
   setValues({ condition: radioSelected.value })
 }
 const radioSelected = ref()
+
+onBeforeMount(() => {
+  callAPICustomer()
+})
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -576,7 +592,7 @@ const radioSelected = ref()
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
           <template #tableCustomer>
-            <el-table :data="fakeTableCustomerData" border>
+            <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -587,7 +603,7 @@ const radioSelected = ref()
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
+                    :items="listCustomer"
                     valueKey="value"
                     labelKey="value"
                     :hiddenKey="['id']"
@@ -599,7 +615,9 @@ const radioSelected = ref()
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="500" />
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="500"
+                ><template #default="scope">{{ scope.row.name }}</template></el-table-column
+              >
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{

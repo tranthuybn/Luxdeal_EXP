@@ -634,6 +634,8 @@ const customSeoData = (formData) => {
 }
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
+  console.log(formData)
+
   productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value

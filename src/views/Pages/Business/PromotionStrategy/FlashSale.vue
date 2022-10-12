@@ -11,6 +11,7 @@ const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 provide('parameters', {
   params
 })
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',

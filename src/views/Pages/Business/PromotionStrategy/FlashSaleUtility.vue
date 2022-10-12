@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
+import { getCampaignList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 const { t } = useI18n()
+
+const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -18,7 +22,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'discountCode',
+    field: 'code',
     label: t('formDemo.flashSaleCode'),
     component: 'Input',
     colProps: {
@@ -43,7 +47,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'duration',
+    field: 'reduce',
     component: 'Input',
     colProps: {
       span: 10
@@ -198,7 +202,27 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = () => {}
-const customizeData = () => {}
+
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  shortDescription: string
+  customers: any
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+
+const customizeData = async (data) => {
+  console.log('data here', data)
+  setFormData.code = data[0].code
+  setFormData.promotion = 2
+  setFormData.reduce = data[0].reduce
+  setFormData.shortDescription = data[0].shortDescription
+  setFormData.customers = data[0].customers
+
+  console.log('setFormData', setFormData)
+}
 const editData = () => {}
 </script>
 
@@ -215,9 +239,12 @@ const editData = () => {}
           :schema="schema"
           :type="type"
           :id="id"
+          :apiId="getCampaignList"
           @post-data="postData"
+          :params="params"
           :rules="rules"
           @customize-form-data="customizeData"
+          :formDataCustomize="setFormData"
           @edit-data="editData"
         />
       </el-collapse-item>

@@ -58,7 +58,8 @@ export const CUSTOMER_API = {
 }
 
 export const CAMPAIGN_API = {
-  GET_VOUCHER: '/api/v1/Campaign/GetCampaign'
+  GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign'
 }
 
 export const ORDER_API = {

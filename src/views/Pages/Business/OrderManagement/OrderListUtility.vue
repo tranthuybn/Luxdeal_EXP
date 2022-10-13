@@ -214,15 +214,15 @@ const choosePayment = [
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 0,
     label: t('formDemo.selfDelivery')
   },
   {
-    value: 'deliveryToYourPlace',
+    value: 1,
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-const deliveryMethod = ref(chooseDelivery[0].value)
+// const deliveryMethod = ref(chooseDelivery[0].value)
 
 const radio1 = ref('')
 
@@ -235,12 +235,12 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  code: string
+  productPropertyId: string
   quantity: number | undefined
   selfImportAccessories: string | undefined
-  dram: string
-  unitPrice: string
-  intoMoney: string
+  unitName: string
+  price: string
+  finalPrice: string
   paymentType: string
   edited: boolean
 }
@@ -251,12 +251,12 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  code: '',
+  productPropertyId: '',
   quantity: 1,
   selfImportAccessories: '',
-  dram: t('formDemo.psc'),
-  unitPrice: 'đ',
-  intoMoney: 'đ',
+  unitName: '',
+  price: 'đ',
+  finalPrice: 'đ',
   paymentType: '',
   edited: true
 })
@@ -349,10 +349,6 @@ const tableWarehouse = [
   }
 ]
 
-// const checkDiscount = ref(false)
-
-// handle input
-
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<tableDataType[]>([])
 
@@ -370,7 +366,6 @@ let infoCompany = reactive({
 
 let customerAddress = ref('')
 // Call api danh sách khách hàng
-// const ruleForm.customerName = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -406,7 +401,7 @@ const callApiProductList = async () => {
     const res = await getProductsList({ ProductId: 1 })
     if (Array.isArray(res.data) && res.data.length > 0) {
       optionsApi.value = res.data.map((product) => ({
-        label: product.id.toString(),
+        productPropertyId: product.id.toString(),
         value: product.id.toString(),
         name: product.name,
         price: product.price.toString(),
@@ -414,25 +409,24 @@ const callApiProductList = async () => {
       }))
       optionCallAPi++
       listProductsTable.value = optionsApi.value
+      console.log('listProductsTable', listProductsTable)
     }
   }
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
-  console.log('obj: ', obj)
-  console.log('scope: ', scope)
-  scope.row.code = obj.label
+  console.log('value selected: ', _value, obj, scope)
+  scope.row.productPropertyId = obj.label
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
-  scope.row.unitPrice = obj.price
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+  scope.row.price = obj.price
+  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
 const handleTotal = (scope) => {
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
 
 // Call api danh sách cộng tác viên
-// const collaboratorsValue = ref()
 const listCollaborators = ref()
 const optionsCollaborators = ref()
 let optionCallCollaborators = 0
@@ -516,6 +510,7 @@ const dialogAddProduct = ref(false)
 const addnewproduct = () => {
   dialogAddProduct.value = true
 }
+
 // tạo đơn hàng
 const postData = () => {
   // let productPayment = reactive<
@@ -588,7 +583,7 @@ const postData = () => {
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
       CustomerId: ruleForm.customerName,
-      DeliveryOptionId: 1,
+      DeliveryOptionId: ruleForm.delivery,
       ProvinceId: 1,
       DistrictId: 1,
       WardId: 1,
@@ -643,6 +638,7 @@ const editData = async () => {
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      console.log('ListOfProductsForSale: ', ListOfProductsForSale)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -710,7 +706,7 @@ const changeAddressCustomer = (data) => {
     }
   } else {
     customerAddress.value = ''
-    deliveryMethod.value = ''
+    // deliveryMethod.value = ''
   }
 }
 
@@ -1228,8 +1224,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1331,8 +1333,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1486,8 +1494,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1609,8 +1623,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1752,8 +1772,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1862,8 +1888,14 @@ onMounted(async () => {
         <div>
           <div class="flex gap-4 pt-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -1982,8 +2014,14 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <span class="border-1 pl-2 pr-2">Khởi tạo & ghi sổ</span>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
             </div>
           </div>
         </div>
@@ -2455,7 +2493,11 @@ onMounted(async () => {
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
         >
-          <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="code">
+          <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productPropertyId"
+          >
             <template #default="props">
               <MultipleOptionsBox
                 :fields="[
@@ -2466,9 +2508,10 @@ onMounted(async () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="id"
-                labelKey="label"
+                labelKey="productPropertyId"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
+                :defaultValue="props.row.productPropertyId"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 ><template #underButton>
@@ -2527,29 +2570,32 @@ onMounted(async () => {
             width="90"
           >
             <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.quantity }}
+              </div>
               <el-input
+                v-else
                 v-model="data.row.quantity"
                 @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
           </el-table-column>
           <el-table-column
-            prop="dram"
+            prop="unitName"
             :label="`${t('reuse.dram')}`"
             align="center"
             min-width="100"
           />
           <el-table-column
-            prop="unitPrice"
+            prop="price"
             :label="`${t('reuse.unitPrice')}`"
             align="right"
             width="180"
           />
 
           <el-table-column
-            prop="intoMoney"
+            prop="finalPrice"
             :label="`${t('formDemo.intoMoney')}`"
             align="right"
             width="180"
@@ -3030,5 +3076,31 @@ onMounted(async () => {
 
 .break-w {
   word-break: break-word;
+}
+
+.box {
+  padding: 0 10px 0 20px;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+}
+
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -10px;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 10px solid #ccc;
 }
 </style>

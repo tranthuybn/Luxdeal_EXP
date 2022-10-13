@@ -118,7 +118,7 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
-  productData: [{ id: -1, code: '', name: undefined, switch: false }]
+  productData: [{ id: -1, code: '', name: null, isActive: false }]
 })
 //get data from table
 const getTableValue = async () => {
@@ -423,14 +423,14 @@ const listType = ref<ListImages>('text')
 type Product = {
   code: string
   name: string | undefined
-  switch: boolean
+  isActive: boolean
 }
 type SpaProduct = {
   code: string
   name: string
   service: Array<string>
 }
-const fakeTableProductData = reactive<Product[]>([{ code: '', name: undefined, switch: false }])
+const fakeTableProductData = reactive<Product[]>([{ code: '', name: undefined, isActive: false }])
 const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
@@ -476,7 +476,7 @@ const addLastIndexCustomerTable = () => {
 }
 const addLastIndexProductTable = () => {
   let idTable2 = dataTable.productData.length
-  dataTable.productData.push({ id: idTable2, code: '', name: null })
+  dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
 }
 //fake option
 const listProductsTable = reactive([

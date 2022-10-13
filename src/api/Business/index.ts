@@ -373,6 +373,18 @@ export const getCampaignList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// post campaign
+export const addNewCampaign = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CAMPAIGN_API.POST_CAMPAIGN,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data

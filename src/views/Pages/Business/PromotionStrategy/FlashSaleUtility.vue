@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
-import { getCampaignList } from '@/api/Business'
+import { getCampaignList, addNewCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -68,6 +69,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD',
       type: 'daterange'
     }
   },
@@ -217,20 +220,43 @@ type FormDataPost = {
   TargetType: number
   ServiceType: number
   Files: string
+  CampaignType: number
 }
 
-const postData = (data) => {
-  console.log(data)
+const customPostDataFlashSale = (data) => {
   const customData = {} as FormDataPost
-
   customData.Code = data.code
-  customData.Name = data.name
+  customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.ReducePercent = data.reduce
+  customData.ReducePercent = Number(data.reduce)
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 1
+  customData.TargetType = 2
+  customData.ServiceType = 1
+  customData.Files = data.Images
+  customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  customData.ProductPropertyIdJson = JSON.stringify(data.products)
+  console.log('sendData:', customData)
+  return customData
+}
 
-  customData.ServiceType = data.name
-  customData.Files = data.name
-  console.log('data', data.code)
+const postData = async (data) => {
+  console.log('data', data)
+  data = customPostDataFlashSale(data)
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
 }
 
 type SetFormData = {

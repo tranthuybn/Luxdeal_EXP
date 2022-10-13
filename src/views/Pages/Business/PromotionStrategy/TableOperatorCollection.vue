@@ -116,7 +116,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
-const dataTable = reactive({ customerData: [{ id: -1, code: '', name: null }], productData: [{}] })
+const dataTable = reactive({
+  customerData: [{ id: -1, code: '', name: null }],
+  productData: [{ id: -1, code: '', name: undefined, switch: false }]
+})
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
@@ -224,6 +227,8 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
+      data.customers = dataTable.customerData
+      data.products = dataTable.productData
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -455,9 +460,9 @@ watch(
   () => dataTable.productData[dataTable.productData.length - 1],
   () => {
     if (
-      dataTable.customerData.length < 1 ||
-      (dataTable.customerData[dataTable.customerData.length - 1].code !== '' &&
-        dataTable.customerData[dataTable.customerData.length - 1].name !== '' &&
+      dataTable.productData.length < 1 ||
+      (dataTable.productData[dataTable.productData.length - 1].code !== '' &&
+        dataTable.productData[dataTable.productData.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -470,8 +475,8 @@ const addLastIndexCustomerTable = () => {
   dataTable.customerData.push({ id: idTable, code: '', name: null })
 }
 const addLastIndexProductTable = () => {
-  let idTable2 = dataTable.customerData.length
-  dataTable.customerData.push({ id: idTable2, code: '', name: null })
+  let idTable2 = dataTable.productData.length
+  dataTable.productData.push({ id: idTable2, code: '', name: null })
 }
 //fake option
 const listProductsTable = reactive([
@@ -527,6 +532,11 @@ const removeProduct = (scope) => {
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
+}
+const getCustomerSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
+  scope.row.id = obj.id
+  scope.row.code = obj.value
 }
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
@@ -655,7 +665,7 @@ const getSpaSelected = (spaServices) => {
                     :placeHolder="t('reuse.chooseCustomerCode')"
                     :clearable="false"
                     :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
+                    @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>

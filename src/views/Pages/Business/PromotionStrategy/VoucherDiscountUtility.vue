@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
+import { getCampaignList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 const { t } = useI18n()
+
+const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -18,7 +22,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'discountCode',
+    field: 'code',
     label: t('formDemo.voucherCode'),
     component: 'Input',
     colProps: {
@@ -43,7 +47,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'duration',
+    field: 'reduce',
     component: 'Input',
     colProps: {
       span: 10
@@ -111,13 +115,21 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'condition',
-    component: 'Input',
+    component: 'Select',
     label: t('formDemo.condition'),
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('formDemo.enterCondition')
+      style: 'width: 100%',
+      disabled: true,
+      placeholder: t('formDemo.enterCondition'),
+      options: [
+        { label: t('reuse.freeRecievedVoucher'), value: 1 },
+        { label: t('reuse.voucherAffiliate'), value: 2 },
+        { label: t('reuse.exchangeByPoints'), value: 3 },
+        { label: t('reuse.buyByVirtualWallet'), value: 4 }
+      ]
     }
   },
   {
@@ -246,9 +258,31 @@ const rules = reactive({})
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-
 const postData = () => {}
-const customizeData = () => {}
+
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+
+  shortDescription: string
+  customers: any
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+console.log('setFormData_beforeChange: ', setFormData)
+const customizeData = async (data) => {
+  console.log('data here', data)
+  setFormData.code = data[0].code
+  setFormData.promotion = 2
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.reduce = data[0].reduce
+  setFormData.shortDescription = data[0].shortDescription
+  setFormData.customers = data[0].customers
+  console.log('setFormDataAfterChange: ', setFormData)
+}
+
 const editData = () => {}
 </script>
 
@@ -265,8 +299,11 @@ const editData = () => {}
           :schema="schema"
           :type="type"
           :id="id"
+          :params="params"
+          :apiId="getCampaignList"
           @post-data="postData"
           :rules="rules"
+          :formDataCustomize="setFormData"
           @customize-form-data="customizeData"
           @edit-data="editData"
         />

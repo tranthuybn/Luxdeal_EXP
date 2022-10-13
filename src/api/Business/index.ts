@@ -137,7 +137,7 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-export const getProductsList = async (params: any): Promise<IResponse> => {
+export const getProductsList = async (params?: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`

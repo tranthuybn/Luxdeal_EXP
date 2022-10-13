@@ -21,9 +21,11 @@ import {
   ElSwitch,
   ElCheckbox,
   ElSelect,
-  ElOption
+  ElOption,
+  ElRadio,
+  ElInput
 } from 'element-plus'
-import { getAllCustomer } from '@/api/Business'
+import { getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -114,7 +116,8 @@ const props = defineProps({
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
-const dataTable = reactive({ customerData: [{ id: -1, code: '', name: '' }] })
+const dataTable = reactive({ customerData: [{ id: -1, code: '', name: '' }], productData: [{}] })
+
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
@@ -149,15 +152,16 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref()
+const { setValues } = methods
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
-  const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers
-    console.log('fakeTableCustomerData', dataTable.customerData)
+    dataTable.productData = props.formDataCustomize.products
+    console.log('dataTable1111', dataTable.customerData)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -422,7 +426,11 @@ type SpaProduct = {
   name: string
   service: Array<string>
 }
-const fakeTableProductData = reactive<Product[]>([{ code: '', name: '', switch: false }])
+const fakeTableProductData = reactive<Product[]>([
+  { code: 'CH-WS-123', name: '', switch: false },
+  { code: 'CH-WS-124', name: '', switch: false },
+  { code: 'CH-WS-125', name: '', switch: false }
+])
 const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
@@ -440,20 +448,21 @@ watch(
   { deep: true }
 )
 watch(
-  () => fakeTableProductData.length,
+  () => dataTable.productData.length,
   () => {
-    if (fakeTableProductData.length == 0) {
+    if (dataTable.productData.length == 0) {
       addLastIndexProductTable()
     }
   }
 )
+
 watch(
-  () => fakeTableProductData[fakeTableProductData.length - 1],
+  () => dataTable.productData[dataTable.productData.length - 1],
   () => {
     if (
-      fakeTableProductData.length < 1 ||
-      (fakeTableProductData[fakeTableProductData.length - 1]['code'] !== '' &&
-        fakeTableProductData[fakeTableProductData.length - 1]['name'] !== '' &&
+      dataTable.customerData.length < 1 ||
+      (dataTable.customerData[dataTable.customerData.length - 1].code !== '' &&
+        dataTable.customerData[dataTable.customerData.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -466,7 +475,8 @@ const addLastIndexCustomerTable = () => {
   dataTable.customerData.push({ id: idTable, code: '', name: '' })
 }
 const addLastIndexProductTable = () => {
-  fakeTableProductData.push({ code: '', name: '', switch: false })
+  let idTable2 = dataTable.customerData.length
+  dataTable.customerData.push({ id: idTable2, code: '', name: '' })
 }
 //fake option
 const listProductsTable = reactive([
@@ -475,8 +485,8 @@ const listProductsTable = reactive([
   { value: '33', label: '3', name: '333', id: 3 }
 ])
 
-const listCustomer = ref()
 //get list customer
+const listCustomer = ref()
 const callAPICustomer = async () => {
   const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
   if (res.data && res.data.length > 0) {
@@ -485,6 +495,20 @@ const callAPICustomer = async () => {
       label: customer.phonenumber,
       name: customer.name,
       id: customer.id
+    }))
+  }
+}
+
+//get list product
+const listProducts = ref()
+const callAPIProduct = async () => {
+  const res = await getProductsList()
+  if (res.data && res.data.length > 0) {
+    listProducts.value = res.data.map((product) => ({
+      value: product.code,
+      label: product.storeCode,
+      name: product.name,
+      id: product.id
     }))
   }
 }
@@ -504,12 +528,15 @@ const removeCustomer = (scope) => {
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
-  fakeTableProductData.splice(scope.$index, 1)
+  dataTable.productData.splice(scope.$index, 1)
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
-const changeVoucherCondition = () => {}
+const conditionVoucherVisible = ref(false)
+const changeVoucherCondition = () => {
+  conditionVoucherVisible.value = true
+}
 const SpaSelectOptions = ref()
 let callSpaApi = 0
 const getSpaOptions = async () => {
@@ -542,9 +569,44 @@ const optionsSpaService = [
     label: 'Khử mùi nano'
   }
 ]
+const conditionVoucherTable = reactive([
+  {
+    id: 1,
+    condition: t('reuse.freeRecievedVoucher'),
+    explainCondition: t('reuse.explainFreeRecievedVoucher'),
+    enterCondition: ''
+  },
+  {
+    id: 2,
+    condition: t('reuse.voucherAffiliate'),
+    explainCondition: t('reuse.explainVoucherAffiliate'),
+    enterCondition: ''
+  },
+  {
+    id: 3,
+    condition: t('reuse.exchangeByPoints'),
+    explainCondition: t('reuse.explainExchangeByPoints'),
+    enterCondition: 500
+  },
+  {
+    id: 4,
+    condition: t('reuse.buyByVirtualWallet'),
+    explainCondition: t('reuse.explainBuyByVirtualWallet'),
+    enterCondition: 200
+  }
+])
+const currentRow = ref()
+const singleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleCurrentChangeSelection = (val) => {
+  currentRow.value = val
+  radioSelected.value = val.id
+  setValues({ condition: radioSelected.value })
+}
+const radioSelected = ref()
 
 onBeforeMount(() => {
   callAPICustomer()
+  callAPIProduct()
 })
 </script>
 <template>
@@ -576,7 +638,7 @@ onBeforeMount(() => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="500"
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="700"
                 ><template #default="scope">{{ scope.row.name }}</template></el-table-column
               >
               <el-table-column :label="t('reuse.operator')" fixed="right">
@@ -589,10 +651,11 @@ onBeforeMount(() => {
             </el-table>
           </template>
           <template #tableProduct>
-            <el-table :data="fakeTableProductData" border>
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+            <el-table :data="dataTable.productData" border>
+              <el-table-column :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
+                    :defaultValue="scope.row.code"
                     :fields="[
                       t('reuse.productCode'),
                       t('reuse.managementCode'),
@@ -600,13 +663,12 @@ onBeforeMount(() => {
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
+                    :items="listProducts"
                     valueKey="value"
                     labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
-                    :defaultValue="scope.row.code"
                     @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
@@ -614,7 +676,7 @@ onBeforeMount(() => {
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="200">
-                <template #default="scope"><el-switch v-model="scope.row.switch" /></template
+                <template #default="scope"><el-switch v-model="scope.row.isActive" /></template
               ></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
@@ -630,6 +692,7 @@ onBeforeMount(() => {
             <el-table :data="fakeTableProductData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
+                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.productCode'),
@@ -638,7 +701,7 @@ onBeforeMount(() => {
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
+                    :items="listProducts"
                     valueKey="value"
                     labelKey="value"
                     :hiddenKey="['id']"
@@ -908,9 +971,51 @@ onBeforeMount(() => {
         </ElButton>
       </div>
     </template>
+    <el-dialog
+      v-model="conditionVoucherVisible"
+      :title="t('reuse.settingVoucherCondition')"
+      width="900px"
+    >
+      <el-table
+        ref="singleTableRef"
+        :data="conditionVoucherTable"
+        highlight-current-row
+        style="width: 100%"
+        :border="true"
+        @current-change="handleCurrentChangeSelection"
+      >
+        <el-table-column label="" width="70">
+          <template #default="scope">
+            <el-radio
+              v-model="radioSelected"
+              :label="scope.$index + 1"
+              style="color: #fff; margin-right: -25px"
+              ><span></span
+            ></el-radio>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('reuse.condition')" width="500">
+          <template #default="scope"
+            ><div>{{ scope.row.condition }}</div
+            ><div class="explainText">({{ scope.row.explainCondition }})</div></template
+          ></el-table-column
+        >
+        <el-table-column :label="t('reuse.enterCondition')" width="300"
+          ><template #default="scope">
+            <div v-if="scope.row.enterCondition !== ''" class="w-full">
+              <el-input v-model="scope.row.enterCondition" />
+            </div> </template
+        ></el-table-column>
+      </el-table>
+    </el-dialog>
   </ContentWrap>
 </template>
 <style scoped>
+.explainText {
+  color: orange;
+  font-size: 14px;
+  font-style: italic;
+}
 .avatar-uploader .avatar {
   padding-bottom: 1rem;
   width: 250px;

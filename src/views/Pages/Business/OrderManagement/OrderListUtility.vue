@@ -294,6 +294,12 @@ const historyTable = ref([
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
+      // switch(val){
+      //   case 'orderSell':{
+      //     call api
+      //     break;
+      //   }
+      // }
       if (val.includes(el.name)) el.icon = minusIcon
       else if (el.icon == minusIcon) el.icon = plusIcon
     })
@@ -394,18 +400,17 @@ const callCustomersApi = async () => {
 // Call api danh sách sản phẩm
 let listProductsTable = ref()
 const optionsApi = ref()
-
 let optionCallAPi = 0
 const callApiProductList = async () => {
   if (optionCallAPi == 0) {
     const res = await getProductsList({ ProductId: 1 })
     if (Array.isArray(res.data) && res.data.length > 0) {
       optionsApi.value = res.data.map((product) => ({
-        productPropertyId: product.id.toString(),
-        value: product.id.toString(),
-        name: product.name,
+        productCode: product.code,
+        value: product.productStoreCode,
+        name: product.name ?? '',
         price: product.price.toString(),
-        id: product.id
+        productPropertyId: product.id.toString()
       }))
       optionCallAPi++
       listProductsTable.value = optionsApi.value
@@ -2281,7 +2286,7 @@ onMounted(async () => {
                             v-model="valueProvince"
                             style="width: 96%"
                             class="m-2 fix-full-width"
-                            placeholder="Select"
+                            :placeholder="t('formDemo.selectProvinceCity')"
                             @change="(data) => CityChange(data)"
                           >
                             <el-option
@@ -2301,7 +2306,7 @@ onMounted(async () => {
                             v-model="valueDistrict"
                             style="width: 96%"
                             class="m-2 fix-full-width"
-                            placeholder="Select"
+                            :placeholder="t('formDemo.selectDistrict')"
                             @change="(data) => districtChange(data)"
                           >
                             <el-option
@@ -2321,7 +2326,7 @@ onMounted(async () => {
                             v-model="valueCommune"
                             style="width: 96%"
                             class="m-2 fix-full-width"
-                            placeholder="Select"
+                            :placeholder="t('formDemo.chooseWard')"
                           >
                             <el-option
                               v-for="item in ward"
@@ -2340,7 +2345,7 @@ onMounted(async () => {
                             v-model="enterdetailAddress"
                             style="width: 96%"
                             class="m-2 fix-full-width"
-                            placeholder="Select"
+                            :placeholder="t('formDemo.enterDetailAddress')"
                             clearable
                             filterable
                             allow-create
@@ -2507,8 +2512,8 @@ onMounted(async () => {
                 ]"
                 filterable
                 :items="listProductsTable"
-                valueKey="id"
-                labelKey="productPropertyId"
+                valueKey="productPropertyId"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -3102,5 +3107,9 @@ onMounted(async () => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 10px solid #ccc;
+}
+
+::v-deep(.el-table td.el-table__cell div) {
+  width: 100%;
 }
 </style>

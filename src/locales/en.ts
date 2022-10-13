@@ -432,7 +432,10 @@ export default {
     fullyIntegrated: 'Fully integrated product information',
     unitPriceWarehouse: 'Unit price warehouse',
     intoMoneyWarehouse: 'Into money warehouse',
-    accountingEntryAdditional: 'Accounting entry additional'
+    accountingEntryAdditional: 'Accounting entry additional',
+    selectProvinceCity: 'Select province or city',
+    selectDistrict: 'Select District or District',
+    chooseWard: 'Choose a ward'
   },
   button: {
     add: 'Add quick',

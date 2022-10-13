@@ -446,7 +446,10 @@ export default {
     fullyIntegrated: 'Thông tin sản phẩm nhập hoàn',
     unitPriceWarehouse: 'Đơn giá nhập kho',
     intoMoneyWarehouse: 'Thành tiền nhập kho',
-    accountingEntryAdditional: 'Bút toán bổ sung'
+    accountingEntryAdditional: 'Bút toán bổ sung',
+    selectProvinceCity: 'Chọn Tỉnh/Thành phố',
+    selectDistrict: 'Chọn Quận/Huyện',
+    chooseWard: 'Chọn Phường/Xã'
   },
   button: {
     add: 'Thêm nhanh',

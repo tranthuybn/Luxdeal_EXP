@@ -1,47 +1,172 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import {
-  ElCollapse,
-  ElCollapseItem,
-  ElUpload,
-  ElDivider,
-  ElSwitch,
-  ElRadio,
-  ElRadioGroup,
-  ElTable,
-  ElTableColumn,
-  ElButton,
-  ElOption,
-  FormRules,
-  ElForm,
-  ElDialog,
-  ElFormItem,
-  ElInput,
-  ElSelect,
-  ElDatePicker
-} from 'element-plus'
-import type { UploadFile } from 'element-plus'
+import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
+import { getCampaignList, addNewCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
+import TableOperatorCollection from './TableOperatorCollection.vue'
+import { useRouter } from 'vue-router'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
+const params = { CampaignType: PROMOTION_STRATEGY[0].key }
+
+const schema = reactive<FormSchema[]>([
+  {
+    field: 'collectionInfo',
+    label: t('router.analysis'),
+    component: 'Divider',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'code',
+    label: t('formDemo.flashSaleCode'),
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'promotion',
+    label: t('reuse.promotion'),
+    component: 'Select',
+    colProps: {
+      span: 14
+    },
+    componentProps: {
+      placeholder: t('formDemo.choosePromotion'),
+      style: 'width: 100%',
+      options: [
+        { label: t('formDemo.decreaseByPercent'), value: 1 },
+        { label: t('formDemo.decreaseByAmount'), value: 2 },
+        { label: t('formDemo.noPromotion'), value: 3 }
+      ]
+    }
+  },
+  {
+    field: 'reduce',
+    component: 'Input',
+    colProps: {
+      span: 10
+    },
+    componentProps: {
+      placeholder: t('formDemo.enterPercent'),
+      suffixIcon: h('div', '%')
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'date',
+    label: t('formDemo.duration'),
+    component: 'DatePicker',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD',
+      type: 'daterange'
+    }
+  },
+  {
+    field: 'shortDescription',
+    component: 'Input',
+    label: t('reuse.shortDescription'),
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      placeholder: t('formDemo.enterShortDescription')
+    }
+  },
+  {
+    field: 'subjectsOfApplication',
+    label: t('reuse.subjectsOfApplication'),
+    component: 'Divider',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'target',
+    component: 'Radio',
+    colProps: {
+      span: 24
+    },
+    value: 2,
+    componentProps: {
+      onChange: (data) => hideTableCustomer(data),
+      options: [
+        { label: t('reuse.allCustomer'), value: 1 },
+        { label: t('formDemo.chooseCustomerDetail'), value: 2 }
+      ]
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'tableCustomer',
+    component: 'Input',
+    hidden: false,
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'applicationProduct',
+    label: t('formDemo.applicationProduct'),
+    component: 'Divider',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'tableProduct',
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    }
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    component: 'Divider',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'statusValue',
+    label: t('reuse.status'),
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  }
+])
+const hideTableCustomer = (data) => {
+  data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
+}
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const addIcon = useIcon({ icon: 'uil:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
-const percentIcon = useIcon({ icon: 'material-symbols:percent' })
-
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.detailsOfFlashSaleProgram'),
+    title: t('formDemo.collectionProgramDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -69,106 +194,96 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
 
-const discountCode = ref('FS3452323')
 //upload image
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
+
+const activeName = ref(collapse[0].name)
+const rules = reactive({})
+
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
+//post data api
+
+type FormDataPost = {
+  Id: number
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number
+  ReduceCash?: number
+  CustomerIds: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Files: string
+  CampaignType: number
 }
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
+const customPostDataFlashSale = (data) => {
+  const customData = {} as FormDataPost
+  customData.Code = data.code
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.ReducePercent = Number(data.reduce)
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 1
+  customData.TargetType = 2
+  customData.ServiceType = 1
+  customData.Files = data.Images
+  customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  customData.ProductPropertyIdJson = JSON.stringify(data.products)
+  console.log('sendData:', customData)
+  return customData
 }
 
-const tableData = [
-  {
-    idCustomer: 1,
-    codeCustomer: 'KH012',
-    nameCustomer: 'Kat'
-  },
-  {
-    idCustomer: 2,
-    codeCustomer: 'KH012',
-    nameCustomer: 'Kat'
-  },
-  {
-    idCustomer: 3,
-    codeCustomer: 'KH012',
-    nameCustomer: 'Kat'
-  },
-  {
-    idCustomer: 4,
-    codeCustomer: 'KH012',
-    nameCustomer: 'Kat'
-  }
-]
+const postData = async (data) => {
+  console.log('data', data)
+  data = customPostDataFlashSale(data)
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
+}
 
-const ruleForm = reactive({
-  orderCode: 'DHB039423',
-  collaborators: '',
-  dateOfReturn: '',
-  collaboratorCommission: '',
-  orderNotes: '',
-  customersValue: '',
-  delivery: ''
-})
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+  shortDescription: string
+  customers: any
+  products: any
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
 
-const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: 'Please select Activity zone',
-      trigger: 'change'
-    }
-  ],
-  collaboratorCommission: [
-    {
-      required: true,
-      message: 'Please select Activity count',
-      trigger: 'blur'
-    }
-  ],
-  dateOfReturn: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a date',
-      trigger: 'change'
-    }
-  ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customersValue: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
-  delivery: [
-    {
-      required: true,
-      message: 'Please select activity resource',
-      trigger: 'change'
-    }
-  ]
-})
+const customizeData = async (data) => {
+  console.log('data here', data)
+  setFormData.code = data[0].code
+  setFormData.promotion = 2
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.reduce = data[0].reduce
+  setFormData.shortDescription = data[0].shortDescription
+  setFormData.customers = data[0].customers
+  setFormData.products = data[0].productProperties
 
-const radioOptionCustomer = ref('2')
-
-const valueSwitch = ref(true)
-const awesome = ref(true)
-const promotionValue = ref(t('formDemo.decreaseByPercent'))
-const optionPromotion = [
-  {
-    value: t('formDemo.decreaseByPercent'),
-    label: t('formDemo.decreaseByPercent')
-  },
-  {
-    value: t('formDemo.decreaseByAmount'),
-    label: t('formDemo.decreaseByAmount')
-  },
-  {
-    value: t('formDemo.noPromotion'),
-    label: t('formDemo.noPromotion')
-  }
-]
+  console.log('setFormData', setFormData)
+}
+const editData = () => {}
 </script>
 
 <template>
@@ -179,297 +294,20 @@ const optionPromotion = [
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-
-        <div class="flex w-[100%] gap-6">
-          <div class="w-[50%]">
-            <el-form
-              ref="ruleFormRef"
-              :model="ruleForm"
-              :rules="rules"
-              label-width="165px"
-              class="demo-ruleForm"
-              status-icon
-            >
-              <el-divider content-position="left">{{ t('router.analysis') }}</el-divider>
-              <div class="discountCode">
-                <p
-                  >{{ t('formDemo.flashSaleCode') }} <strong>{{ discountCode }}</strong></p
-                >
-              </div>
-
-              <el-form-item :label="t('formDemo.promotions')">
-                <div class="flex items-center w-[100%] gap-2">
-                  <el-form-item style="flex: 1">
-                    <div class="w-[100%] items-center items-center border-1 rounded leading-7">
-                      <el-select v-model="promotionValue" clearable placeholder="Select">
-                        <el-option
-                          v-for="item in optionPromotion"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                    </div>
-                  </el-form-item>
-
-                  <el-form-item style="flex: 1">
-                    <el-input
-                      type="text"
-                      :placeholder="t('formDemo.enterPercent')"
-                      style="width: 100%"
-                      :suffix-icon="percentIcon"
-                    />
-                  </el-form-item>
-                </div>
-              </el-form-item>
-
-              <el-form-item :label="t('formDemo.duration')" required>
-                <div class="custom-date">
-                  <el-date-picker
-                    type="daterange"
-                    :start-placeholder="t('formDemo.startDay')"
-                    :end-placeholder="t('formDemo.endDay')"
-                    format="DD/MM/YYYY"
-                  />
-                </div>
-              </el-form-item>
-
-              <el-form-item :label="t('formDemo.shortDescription')">
-                <el-input
-                  v-model="ruleForm.orderNotes"
-                  style="width: 100%"
-                  type="text"
-                  :placeholder="`${t('formDemo.enterDescription')}`"
-                />
-              </el-form-item>
-
-              <el-divider content-position="left">{{
-                t('reuse.subjectsOfApplication')
-              }}</el-divider>
-
-              <div class="container">
-                <div class="my-2 flex items-center text-sm">
-                  <el-radio-group v-model="radioOptionCustomer" class="ml-4">
-                    <el-radio label="1">{{ t('reuse.allCustomer') }}</el-radio>
-                    <el-radio label="2">{{ t('formDemo.chooseCustomerDetail') }}</el-radio>
-                  </el-radio-group>
-                </div>
-
-                <el-table
-                  v-if="radioOptionCustomer == '2'"
-                  :data="tableData"
-                  border
-                  stripe
-                  style="width: 100%"
-                >
-                  <el-table-column
-                    prop="codeCustomer"
-                    :label="t('reuse.customerCode')"
-                    width="150"
-                  />
-                  <el-table-column
-                    prop="nameCustomer"
-                    :label="t('reuse.customerName')"
-                    width="600"
-                  />
-                  <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-                  </el-table-column>
-                </el-table>
-
-                <el-divider content-position="left">{{
-                  t('formDemo.applicableProducts')
-                }}</el-divider>
-
-                <el-table :data="tableData" border stripe style="width: 100%">
-                  <el-table-column
-                    prop="codeCustomer"
-                    :label="t('formDemo.productManagementCode')"
-                    width="150"
-                  />
-                  <el-table-column
-                    prop="nameCustomer"
-                    :label="t('formDemo.productInfomation')"
-                    width="500"
-                  />
-                  <el-table-column prop="valueSw" :label="t('formDemo.joinTheProgram')" width="100">
-                    <el-switch
-                      v-model="valueSwitch"
-                      inline-prompt
-                      size="large"
-                      width="50px"
-                      active-text="ON"
-                      inactive-text="OFF"
-                    />
-                  </el-table-column>
-                  <el-table-column :label="t('formDemo.manipulation')" align="center" width="auto">
-                    <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-                  </el-table-column>
-                </el-table>
-
-                <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
-
-                <p class="option-select text-center"
-                  >{{ t('formDemo.status') }}
-                  <span v-if="awesome" class="option-1 ml-2">{{
-                    t('formDemo.theProgramIsRunning')
-                  }}</span>
-                  <span v-else class="option-2">{{ t('formDemo.pending') }}</span>
-                </p>
-
-                <div class="option-page mt-5">
-                  <div v-if="awesome" class="flex justify-center option-1">
-                    <el-button
-                      type="primary"
-                      @click="awesome = !awesome"
-                      class="min-w-42 min-h-11"
-                      >{{ t('formDemo.saveAndPending') }}</el-button
-                    >
-                    <el-button class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
-                  </div>
-                  <div class="flex justify-center option-2" v-else>
-                    <el-button @click="awesome = !awesome" plain class="min-w-42 min-h-11">{{
-                      t('reuse.fix')
-                    }}</el-button>
-                    <el-button type="danger" class="min-w-42 min-h-11">{{
-                      t('formDemo.cancelTheProgram')
-                    }}</el-button>
-                  </div>
-                </div>
-              </div>
-            </el-form>
-          </div>
-          <div class="w-[50%]">
-            <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-              <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
-              <div class="upload-image">
-                <el-upload action="#" list-type="picture-card" :auto-upload="false">
-                  <ElButton :icon="addIcon" class="avatar-uploader-icon" />
-
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <ElButton :icon="viewIcon" />
-                        </span>
-
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                          <ElButton :icon="deleteIcon" />
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                </el-upload>
-
-                <el-dialog v-model="dialogVisible">
-                  <img w-full :src="dialogImageUrl" />
-                </el-dialog>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TableOperatorCollection
+          ref="formRef"
+          :schema="schema"
+          :type="type"
+          :id="id"
+          :apiId="getCampaignList"
+          @post-data="postData"
+          :params="params"
+          :rules="rules"
+          @customize-form-data="customizeData"
+          :formDataCustomize="setFormData"
+          @edit-data="editData"
+        />
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
-
-<style scoped>
-.option-select > .option-1 {
-  background-color: #409eff;
-  color: #ffffff;
-  padding: 5px;
-}
-.option-select > .option-2 {
-  background-color: #f56918;
-  color: #ffffff;
-  padding: 5px;
-}
-.black-color {
-  color: #000000;
-}
-
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
-
-::v-deep(.el-select) {
-  width: 100%;
-}
-
-::v-deep(.custom-date .el-input__wrapper) {
-  width: 100%;
-}
-::v-deep(.custom-date .el-date-editor) {
-  width: 100%;
-}
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
-}
-
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: block;
-}
-
-::v-deep(.el-input) {
-  width: auto;
-  height: fit-content;
-}
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-</style>

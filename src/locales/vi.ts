@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
     serviceName: 'Tên dịch vụ',
@@ -1452,6 +1453,28 @@ export default {
     createNew: 'tạo mới',
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
-    chooseProductCode: 'Chọn mã sản phẩm'
+    chooseProductCode: 'Chọn mã sản phẩm',
+    voucherStatusExplain: 'Nếu không lựa chọn, Voucher chỉ được gửi khi bấm nút "Gửi"',
+    chooseAtleast1SpaService: 'Chọn ít nhất 1 dịch vụ Spa',
+    settingVoucherCondition: 'Cài đặt điều kiện nhận voucher',
+    //voucher
+    freeRecievedVoucher: 'Nhận voucher miễn phí',
+    voucherAffiliate: 'Voucher affiliate',
+    exchangeByPoints: 'Đổi bằng điểm',
+    buyByVirtualWallet: 'Mua bằng tiền ảo',
+    explainFreeRecievedVoucher: 'Nhận miễn phí ngay sau khi voucher được gửi',
+    explainVoucherAffiliate: 'Nhận miễn phí ngay sau khi khởi tạo tài khoản afiliate thành công',
+    explainExchangeByPoints: 'Phải đổi bằng điểm để có thể sử dụng',
+    explainBuyByVirtualWallet: 'Phải mua bằng tiền trong ví ảo để có thể sử dụng',
+    condition: 'Điều kiện',
+    enterCondition: 'Nhập điều kiện',
+    points: 'Điểm',
+    //combo
+    freeReceiveCombo: 'Nhận combo miễn phí',
+    explainFreeRecievedCombo: 'Nhận miễn phí ngay sau khi combo được gửi',
+    chooseAtleast2SpaService: 'Chọn ít nhất 2 dịch vụ Spa',
+    totalRealSpaMoney: 'Thành tiền gói spa thực',
+    enterComboSpaMoney: 'Đặt tiền gói spa',
+    explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực'
   }
 }

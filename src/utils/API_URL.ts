@@ -56,6 +56,13 @@ export const CUSTOMER_API = {
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
   DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings'
 }
+
+export const CAMPAIGN_API = {
+  GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
+  GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign'
+}
+
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'

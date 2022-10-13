@@ -201,14 +201,46 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const postData = () => {}
+//post data api
+
+type FormDataPost = {
+  Id: number
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number
+  ReduceCash?: number
+  CustomerIds: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Files: string
+}
+
+const postData = (data) => {
+  console.log(data)
+  const customData = {} as FormDataPost
+
+  customData.Code = data.code
+  customData.Name = data.name
+  customData.Description = data.shortDescription
+  customData.ReducePercent = data.reduce
+
+  customData.ServiceType = data.name
+  customData.Files = data.name
+  console.log('data', data.code)
+}
 
 type SetFormData = {
   code: string
   promotion: number
   reduce: number
+  date: any
   shortDescription: string
   customers: any
+  products: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -217,9 +249,11 @@ const customizeData = async (data) => {
   console.log('data here', data)
   setFormData.code = data[0].code
   setFormData.promotion = 2
+  setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
+  setFormData.products = data[0].productProperties
 
   console.log('setFormData', setFormData)
 }

@@ -59,6 +59,7 @@ export const CUSTOMER_API = {
 
 export const CAMPAIGN_API = {
   GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign'
 }
 

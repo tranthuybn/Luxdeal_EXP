@@ -88,14 +88,15 @@ watchEffect(() => {
     // set options for select box
     options.value = propsObj.items
 })
+console.log('propsObj.defaultValue', propsObj.defaultValue)
 watch(
   () => propsObj.defaultValue,
-  (val) => {
+  () => {
     console.log('run here', propsObj.defaultValue)
-    if (val) {
-      selected.value = val.toString()
+    if (propsObj.defaultValue) {
+      selected.value = propsObj.defaultValue.toString()
     }
-    if (val == '') {
+    if (propsObj.defaultValue == '') {
       selected.value = null
     }
   }

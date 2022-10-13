@@ -1429,6 +1429,7 @@ export default {
     chooseAtleast2SpaService: 'Chọn ít nhất 2 dịch vụ Spa',
     totalRealSpaMoney: 'Thành tiền gói spa thực',
     enterComboSpaMoney: 'Đặt tiền gói spa',
-    explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực'
+    explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực',
+    freeReceive: 'Nhận miễn phí'
   }
 }

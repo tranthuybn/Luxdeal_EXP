@@ -303,7 +303,6 @@ const editData = () => {}
           :apiId="getCampaignList"
           @post-data="postData"
           :rules="rules"
-          :formDataCustomize="setFormData"
           @customize-form-data="customizeData"
           @edit-data="editData"
         />

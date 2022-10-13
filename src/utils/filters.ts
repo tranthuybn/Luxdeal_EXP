@@ -208,9 +208,22 @@ export const filterPromotionPrice: Array<Filter> = [
   { text: t('reuse.mix'), value: 3 }
 ]
 export const filterVoucherType: Array<Filter> = [
-  { text: t('reuse.voucherCart'), value: 1 },
-  { text: t('reuse.voucherSpa'), value: 2 },
-  { text: 'Affiliate', value: 3 }
+  { text: t('formDemo.voucherDiscount'), value: 1 },
+  { text: t('formDemo.voucherGiftSpa'), value: 2 }
+]
+
+export const filterVoucherStatus: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.closedTheOrder'), value: 2 },
+  { text: t('reuse.finishPending'), value: 3 },
+  { text: t('common.doneLabel'), value: 4 },
+  { text: t('reuse.cancelled'), value: 5 }
+]
+export const filterVoucherCondition: Array<Filter> = [
+  { text: t('reuse.freeReceive'), value: 1 },
+  { text: t('reuse.exchangeByPoints'), value: 2 },
+  { text: 'Affiliate', value: 3 },
+  { text: t('reuse.buyByVirtualWallet'), value: 4 }
 ]
 export const filterAuctionStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },

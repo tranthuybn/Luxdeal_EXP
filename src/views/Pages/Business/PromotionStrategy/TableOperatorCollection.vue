@@ -272,7 +272,7 @@ const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value?.filter((image) => image.url !== file.url)
   ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
   // remove image when edit data
-  if (props.formDataCustomize.Images.length > 0) {
+  if (props.formDataCustomize.Images?.length > 0) {
     let imageRemove = props.formDataCustomize?.Images.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -331,7 +331,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     return true
   } else {
     //báo lỗi nếu ko có ảnh
-    if (type === 'list' && fileList.value.length > 0) {
+    if (type === 'list' && fileList.value?.length > 0) {
       return true
     }
     if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
@@ -434,12 +434,12 @@ const fakeTableProductData = reactive<Product[]>([{ code: '', name: undefined, i
 const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
-  () => dataTable.customerData[dataTable.customerData.length - 1],
+  () => dataTable.customerData[dataTable.customerData?.length - 1],
   () => {
     if (
-      dataTable.customerData.length < 1 ||
-      (dataTable.customerData[dataTable.customerData.length - 1].code !== '' &&
-        dataTable.customerData[dataTable.customerData.length - 1].name !== '' &&
+      dataTable.customerData?.length < 1 ||
+      (dataTable.customerData[dataTable.customerData?.length - 1].code !== '' &&
+        dataTable.customerData[dataTable.customerData?.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
@@ -448,21 +448,21 @@ watch(
   { deep: true }
 )
 watch(
-  () => dataTable.productData.length,
+  () => dataTable.productData?.length,
   () => {
-    if (dataTable.productData.length == 0) {
+    if (dataTable.productData?.length == 0) {
       addLastIndexProductTable()
     }
   }
 )
 
 watch(
-  () => dataTable.productData[dataTable.productData.length - 1],
+  () => dataTable.productData[dataTable.productData?.length - 1],
   () => {
     if (
-      dataTable.productData.length < 1 ||
-      (dataTable.productData[dataTable.productData.length - 1].code !== '' &&
-        dataTable.productData[dataTable.productData.length - 1].name !== '' &&
+      dataTable.productData?.length < 1 ||
+      (dataTable.productData[dataTable.productData?.length - 1].code !== '' &&
+        dataTable.productData[dataTable.productData?.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -471,11 +471,11 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  let idTable = dataTable.customerData.length
+  let idTable = dataTable.customerData?.length
   dataTable.customerData.push({ id: idTable, code: '', name: null })
 }
 const addLastIndexProductTable = () => {
-  let idTable2 = dataTable.productData.length
+  let idTable2 = dataTable.productData?.length
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
 }
 //fake option
@@ -489,7 +489,7 @@ const listProductsTable = reactive([
 const listCustomer = ref()
 const callAPICustomer = async () => {
   const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-  if (res.data && res.data.length > 0) {
+  if (res.data && res.data?.length > 0) {
     listCustomer.value = res.data.map((customer) => ({
       value: customer.code,
       label: customer.phonenumber,
@@ -503,7 +503,7 @@ const callAPICustomer = async () => {
 const listProducts = ref()
 const callAPIProduct = async () => {
   const res = await getProductsList()
-  if (res.data && res.data.length > 0) {
+  if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       value: product.code,
       label: product.storeCode,

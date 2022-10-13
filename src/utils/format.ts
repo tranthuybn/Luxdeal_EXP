@@ -146,6 +146,9 @@ export const FORM_IMAGES = (data) => {
 export const moneyFormat = (money) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
 }
+export const moneyToNumber = (currency) => {
+  return Number(currency.replace(/[^0-9.-]+/g, ''))
+}
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
@@ -154,6 +157,7 @@ export default {
   FORM_IMAGES,
   objectToQueryParams,
   formatMoneyInput,
+  moneyToNumber,
   formatDateTime,
   productStatusTransferToText,
   businessStatusTransferToText,

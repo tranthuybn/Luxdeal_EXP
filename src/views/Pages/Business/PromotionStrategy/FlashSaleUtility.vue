@@ -8,7 +8,7 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -38,6 +38,7 @@ const schema = reactive<FormSchema[]>([
       span: 14
     },
     componentProps: {
+      onChange: (data) => changeSuffixIcon(data),
       placeholder: t('formDemo.choosePromotion'),
       style: 'width: 100%',
       options: [
@@ -54,8 +55,8 @@ const schema = reactive<FormSchema[]>([
       span: 10
     },
     componentProps: {
-      placeholder: t('formDemo.enterPercent'),
-      suffixIcon: h('div', '%')
+      placeholder: t('reuse.enterPercentOrMoney'),
+      suffixIcon: h('span', '')
     },
     formItemProps: {
       labelWidth: '0px'
@@ -161,7 +162,20 @@ const schema = reactive<FormSchema[]>([
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
   data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
-  valueRadioOjbApply = data
+  valueRadioOjbApply.value = data
+}
+const changeSuffixIcon = (data) => {
+  if (schema[3].componentProps) {
+    if (data == 1) {
+      schema[3].componentProps.suffixIcon = h('span', '%')
+    }
+    if (data == 2) {
+      schema[3].componentProps.suffixIcon = h('span', 'đ')
+    }
+    if (data == 3) {
+      schema[3].componentProps.suffixIcon = h('span', '')
+    }
+  }
 }
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -318,10 +332,16 @@ const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
 
 const customizeData = async (data) => {
+  if (data[0].reduce) {
+    const moneyType = data[0].reduce.split(' ')
+    moneyType[1] == '%' ? (setFormData.promotion = 1) : (setFormData.promotion = 2)
+  } else {
+    setFormData.promotion = 3
+  }
+  changeSuffixIcon(setFormData.promotion)
   setFormData.code = data[0].code
-  setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.reduce = data[0].reduce
+  setFormData.reduce = moneyToNumber(data[0].reduce)
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties

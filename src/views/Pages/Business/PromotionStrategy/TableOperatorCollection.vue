@@ -163,7 +163,6 @@ const setFormValue = async () => {
     setValues(props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers
     dataTable.productData = props.formDataCustomize.products
-    console.log('dataTable1111', dataTable.customerData)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -524,7 +523,6 @@ const changeName = (data, scope) => {
 const removeCustomer = (scope) => {
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
-  console.log('fakeTableCustomerData', dataTable.customerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
@@ -638,7 +636,6 @@ const getSpaSelected = (spaServices) => {
   spaCost.value = spaObj.reduce(function (accumulator, curValue) {
     return accumulator + curValue.cost
   }, 0)
-  console.log('data', spaServices, spaObj)
 }
 </script>
 <template>

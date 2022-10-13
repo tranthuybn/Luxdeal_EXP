@@ -1430,6 +1430,7 @@ export default {
     totalRealSpaMoney: 'Thành tiền gói spa thực',
     enterComboSpaMoney: 'Đặt tiền gói spa',
     explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực',
-    freeReceive: 'Nhận miễn phí'
+    freeReceive: 'Nhận miễn phí',
+    enterPercentOrMoney: 'Nhập số % hoặc số tiền'
   }
 }

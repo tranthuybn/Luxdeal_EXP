@@ -91,15 +91,13 @@ watchEffect(() => {
 console.log('propsObj.defaultValue', propsObj.defaultValue)
 watch(
   () => propsObj.defaultValue,
-  () => {
-    console.log('run here', propsObj.defaultValue)
-    if (propsObj.defaultValue) {
-      selected.value = propsObj.defaultValue.toString()
+  (val) => {
+    console.log('run here', propsObj.defaultValue, val)
+    if (val && val !== null) {
+      selected.value = val.toString()
     }
-    if (propsObj.defaultValue == '') {
-      selected.value = null
-    }
-  }
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -154,6 +152,7 @@ onUnmounted(() => {
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
+    remote
     class="el-select-custom"
     @visible-change="appearsEvent"
     @change="valueChangeEvent"

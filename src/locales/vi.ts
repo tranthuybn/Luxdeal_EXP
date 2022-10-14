@@ -1480,6 +1480,7 @@ export default {
     enterComboSpaMoney: 'Đặt tiền gói spa',
     explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực',
     freeReceive: 'Nhận miễn phí',
-    enterPercentOrMoney: 'Nhập số % hoặc số tiền'
+    enterPercentOrMoney: 'Nhập số % hoặc số tiền',
+    maxPercent: 'Không thể nhập quá 100%'
   }
 }

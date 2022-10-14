@@ -719,6 +719,7 @@ const getSpaSelected = (spaServices) => {
                     :items="listProducts"
                     valueKey="value"
                     labelKey="value"
+                    :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
                     @update-value="(value, obj) => getProductSelected(value, obj, scope)"

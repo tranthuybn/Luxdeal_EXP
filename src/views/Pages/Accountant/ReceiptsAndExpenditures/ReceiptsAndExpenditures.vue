@@ -1,54 +1,62 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getReceiptsExpendituresList } from '@/api/Business'
+import { PAYMENT, ATTACH_DOCUMENT, STATUS_TYPE } from '@/utils/API.Variables'
 import {
   filtersReceiptExpenditure,
   filterStatusRevenueExpenditure,
   filterReciprocalProfile
 } from '@/utils/filters'
+import { dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
-    field: 'index',
+    field: 'id',
     label: t('reuse.index'),
     type: 'index',
     align: 'center'
   },
   {
-    field: 'formCode',
+    field: 'code',
     label: t('reuse.formCode'),
     minWidth: '150'
   },
   {
-    field: 'contentDescriptions',
+    field: 'description',
     label: t('reuse.contentDescriptions'),
     minWidth: '150'
   },
   {
-    field: 'amountOfMoney',
+    field: 'totalMoney',
     label: t('reuse.amountOfMoney'),
     minWidth: '100',
     sortable: true
   },
   {
-    field: 'revenueAndExpenditure',
+    field: 'paymentType',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '100',
-    filters: filtersReceiptExpenditure
+    filters: filtersReceiptExpenditure,
+    formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
+      return h(cellValue ? h('div', PAYMENT[0].label) : h('div', PAYMENT[1].label))
+    }
   },
   {
-    field: 'subject',
+    field: 'peopleName',
     label: t('reuse.subject'),
     minWidth: '200',
     headerFilter: 'Name'
   },
   {
-    field: 'reciprocalProfile',
+    field: 'attachDocument',
     label: t('reuse.reciprocalProfile'),
     minWidth: '150',
-    filters: filterReciprocalProfile
+    filters: filterReciprocalProfile,
+    formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
+      return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
+    }
   },
   {
     field: 'accountCode',
@@ -69,13 +77,16 @@ const columns = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
     headerFilter: 'Name'
@@ -84,7 +95,16 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterStatusRevenueExpenditure
+    filters: filterStatusRevenueExpenditure,
+    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
+      if (record.pepopleType == 0) {
+        return h('div', STATUS_TYPE[0].label)
+      } else if (record.pepopleType == 1) {
+        return h('div', STATUS_TYPE[1].label)
+      } else {
+        return h('div', STATUS_TYPE[2].label)
+      }
+    }
   }
 ])
 </script>

@@ -9,6 +9,7 @@ import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { formatMoneyInput, FORM_IMAGES, moneyToNumber, parseMoneyInput } from '@/utils/format'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -54,11 +55,13 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 10
     },
+    value: '',
     componentProps: {
       formatter: null,
       parser: null,
       placeholder: t('reuse.enterPercentOrMoney'),
-      suffixIcon: h('span', '')
+      suffixIcon: h('span', ''),
+      max: 100
     },
     formItemProps: {
       labelWidth: '0px'
@@ -160,6 +163,12 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
+const rules = reactive({
+  code: [{ validator: ValidService.checkCodeServiceLength.validator }],
+  promotion: required(),
+  reduce: [{ validator: ValidService.checkPositiveNumber.validator }]
+})
 
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
@@ -170,17 +179,16 @@ const hideTableCustomer = (data) => {
 const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
     if (data == 1) {
+      schema[3].hidden = false
       schema[3].componentProps.suffixIcon = h('span', '%')
+      rules.reduce = [{ validator: ValidService.maxPercent.validator }]
     }
     if (data == 2) {
+      schema[3].hidden = false
       schema[3].componentProps.suffixIcon = h('span', 'đ')
-
-      schema[3].componentProps.formatter = (value) => formatMoneyInput(value)
-
-      schema[3].componentProps.parser = (value) => parseMoneyInput(value)
-      console.log('gt:', schema[3].componentProps.formatter.value)
     }
     if (data == 3) {
+      schema[3].hidden = true
       schema[3].componentProps.suffixIcon = h('span', '')
     }
   }
@@ -223,7 +231,6 @@ const collapseChangeEvent = (val) => {
 //upload image
 
 const activeName = ref(collapse[0].name)
-const rules = reactive({})
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
@@ -353,7 +360,7 @@ type SetFormData = {
   shortDescription: string
   customers: any
   products: any
-  Image: any
+  Images: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -372,6 +379,7 @@ const customizeData = async (data) => {
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
+  setFormData.Images = data[0].images
 }
 
 const editData = async (data) => {

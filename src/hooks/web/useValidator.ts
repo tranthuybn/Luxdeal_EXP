@@ -238,6 +238,19 @@ export const useValidator = () => {
       required: true,
       trigger: 'blur'
     },
+    maxPercent: {
+      validator: (_rule, value, callback) => {
+        if (value === '') callback(new Error(t('reuse.required')))
+        else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+        else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        else if (value % 1 !== 0) callback(new Error(t('reuse.integerNumber')))
+        else if (value > 100) callback(new Error(t('reuse.maxPercent')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
     checkOrderCode: {
       type: 'string',
       validator: (val, callback) => {

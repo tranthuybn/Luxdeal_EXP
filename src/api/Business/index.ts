@@ -4,6 +4,7 @@ import {
   PRODUCTS_AND_SERVICES_API,
   ORDER_API,
   API_URL,
+  ACCOUNTANT_API,
   CAMPAIGN_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
@@ -404,12 +405,25 @@ export const getEmployeeList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách đề nghị thanh toán
 export const getPaymentList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/payment', params })
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
+
+// Lấy danh sách phiếu thu chi
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/receipts-expenditures', params })
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 

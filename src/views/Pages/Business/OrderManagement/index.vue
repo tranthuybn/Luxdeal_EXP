@@ -10,10 +10,6 @@ import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
 import { useRoute } from 'vue-router'
 const { t } = useI18n()
 
-//lay du lieu tu router
-// const router = useRouter()
-// const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)
@@ -24,19 +20,19 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 </script>
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs" @tab-click="handleClick">
-    <ElTabPane :label="`${t('formDemo.addNewSalesOrders')}`" name="orderSell"
+    <ElTabPane lazy :label="`${t('formDemo.addNewSalesOrders')}`" name="orderSell"
       ><OrderListUtility
     /></ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewRentalOrders')}`" name="orderRental"
+    <ElTabPane lazy :label="`${t('formDemo.addNewRentalOrders')}`" name="orderRental"
       ><AddNewRentalOrdersUtility
     /></ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewConsignmentOrders')}`" name="orderDeposit">
+    <ElTabPane lazy :label="`${t('formDemo.addNewConsignmentOrders')}`" name="orderDeposit">
       <AddNewConsignment />
     </ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewPawnOrders')}`" name="orderPawn">
+    <ElTabPane lazy :label="`${t('formDemo.addNewPawnOrders')}`" name="orderPawn">
       <AddNewPawn />
     </ElTabPane>
-    <ElTabPane :label="`${t('formDemo.addNewSpaOrders')}`" name="orderSpa">
+    <ElTabPane lazy :label="`${t('formDemo.addNewSpaOrders')}`" name="orderSpa">
       <AddNewSpa />
     </ElTabPane>
   </ElTabs>

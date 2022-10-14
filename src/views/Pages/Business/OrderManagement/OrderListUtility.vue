@@ -22,7 +22,8 @@ import {
   ElDatePicker,
   ElForm,
   ElFormItem,
-  ElMessage
+  ElMessage,
+  ElNotification
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -237,7 +238,7 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   quantity: number | undefined
-  selfImportAccessories: string | undefined
+  accessory: string | undefined
   unitName: string
   price: string
   finalPrice: string
@@ -253,7 +254,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   productPropertyId: '',
   quantity: 1,
-  selfImportAccessories: '',
+  accessory: '',
   unitName: '',
   price: 'đ',
   finalPrice: 'đ',
@@ -410,17 +411,16 @@ const callApiProductList = async () => {
         value: product.productStoreCode,
         name: product.name ?? '',
         price: product.price.toString(),
-        productPropertyId: product.id.toString()
+        productPropertyId: product.id.toString(),
+        productPropertyCode: product.productPropertyCode
       }))
       optionCallAPi++
       listProductsTable.value = optionsApi.value
-      console.log('listProductsTable', listProductsTable)
     }
   }
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
-  console.log('value selected: ', _value, obj, scope)
   scope.row.productPropertyId = obj.label
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
@@ -480,7 +480,7 @@ watch(
   () => ListOfProductsForSale,
   () => {
     if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].selfImportAccessories &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
       forceRemove.value == false &&
@@ -503,7 +503,7 @@ watch(
 let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].selfImportAccessories) {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
     forceRemove.value = true
     ListOfProductsForSale.value.splice(index, 1)
   }
@@ -517,7 +517,7 @@ const addnewproduct = () => {
 }
 
 // tạo đơn hàng
-const postData = () => {
+const postData = async () => {
   // let productPayment = reactive<
   //   Array<{
   //     productPropertyId: number | string
@@ -537,6 +537,7 @@ const postData = () => {
         Quantity: 1,
         ProductPrice: 10000,
         SoldPrice: 10000,
+        accessory: 'todo',
         WarehouseId: 1,
         IsPaid: true,
         Accessory: 'Accessory1'
@@ -546,13 +547,14 @@ const postData = () => {
         Quantity: 1,
         ProductPrice: 90000,
         SoldPrice: 80000,
+        accessory: 'todo',
         WarehouseId: 1,
         IsPaid: true,
         Accessory: 'Accessory2'
       }
     ])
-
-    console.log('productPayment: ', ListOfProductsForSale.value)
+    const { push } = useRouter()
+    console.log('ListOfProductsForSale-post: ', ListOfProductsForSale.value)
     // if (ListOfProductsForSale.length > 0) {
     // ListOfProductsForSale.forEach((element) => {
     // if (element && Array.isArray(element) && element.length > 0)
@@ -599,7 +601,25 @@ const postData = () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    addNewOrderList(formDataPayLoad)
+    await addNewOrderList(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.collaborators.collaboratorsList',
+            params: { backRoute: 'business.collaborators.collaboratorsList' }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.updateFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 
@@ -618,6 +638,9 @@ const CityChange = async (value) => {
 const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
+
+// total order
+let totalOrder = ref(0)
 
 //lay du lieu tu router
 const router = useRouter()
@@ -640,10 +663,10 @@ const editData = async () => {
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
 
+      totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
-      console.log('ListOfProductsForSale: ', ListOfProductsForSale)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -879,7 +902,7 @@ const optionsCharacteristic = [
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
-  await callApiProductList()
+  callApiProductList()
   callApiCity()
 })
 onMounted(async () => {
@@ -1394,7 +1417,7 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="value" placeholder="Chọn người đề nghị">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2435,7 +2458,7 @@ onMounted(async () => {
       <!-- DialogPromotion -->
       <el-dialog
         v-model="openDialogChoosePromotion"
-        title="Warning"
+        :title="t('formDemo.choosePromotion')"
         width="35%"
         align-center
         class="z-50"
@@ -2504,19 +2527,23 @@ onMounted(async () => {
             prop="productPropertyId"
           >
             <template #default="props">
+              <div v-if="type == 'detail'">
+                {{ props.row.productPropertyCode }}
+              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
+                v-else
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyId"
+                :defaultValue="props.row.productPropertyCode"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 ><template #underButton>
@@ -2557,13 +2584,13 @@ onMounted(async () => {
               >
             </template> -->
           </el-table-column>
-          <el-table-column prop="selfImportAccessories" :label="t('reuse.accessory')" width="180">
+          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ data.row.selfImportAccessories }}</div>
+              <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
               <el-input
                 v-else
                 class="max-w-[150px]"
-                v-model="data.row.selfImportAccessories"
+                v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </template>
@@ -2648,7 +2675,7 @@ onMounted(async () => {
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
-            <el-dropdown trigger="click" :disabled="checkDisabled">
+            <el-dropdown class="justify-end" trigger="click" :disabled="checkDisabled">
               <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                 {{ t('formDemo.doesNotIncludeVAT') }}
                 <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
@@ -2683,7 +2710,7 @@ onMounted(async () => {
             <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
           </el-table-column>
           <el-table-column align="right" width="180">
-            <div class="dark:text-[#fff]">190,000,000 đ</div>
+            <div class="dark:text-[#fff]">{{ totalOrder }} đ</div>
             <div class="dark:text-[#fff]">-95,000,000 đ</div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="dark:text-[#fff]">95,000,000 đ</div>
@@ -2719,10 +2746,16 @@ onMounted(async () => {
         </div>
         <div class="flex gap-2 pb-8">
           <div class="w-[11%]"></div>
-          <div class="w-[89%]"
-            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-              t('formDemo.browsePriceChanges')
-            }}</span>
+          <div class="w-[89%]">
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box_2 text-[#FEB951] dark:text-black">
+                {{ t('formDemo.browsePriceChanges') }}
+                <span class="triangle-right_2"> </span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -3091,6 +3124,26 @@ onMounted(async () => {
   display: flex;
   width: fit-content;
   align-items: center;
+}
+
+.box_2 {
+  padding: 0 10px 0 20px;
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+}
+
+.triangle-right_2 {
+  position: absolute;
+  right: -10px;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 10px solid #fff0d9;
 }
 
 .triangle-left {

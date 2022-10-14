@@ -228,7 +228,7 @@ export default {
     intoMoney: 'Thành tiền',
     intoMoneyPawn: 'Thành tiền phí cầm đồ',
     doesNotIncludeVAT: 'Không bao gồm VAT',
-    choosePromotion: 'Chọn khuyến mãi',
+    choosePromotion: 'Chọn khuyến mại',
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hoàn',

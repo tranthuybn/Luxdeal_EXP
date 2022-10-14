@@ -74,3 +74,6 @@ export const ADDRESS_API = {
   WARD: '/api/addr/getWard',
   STREET: '/api/addr/getStreet'
 }
+export const ACCOUNTANT_API = {
+  PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList'
+}

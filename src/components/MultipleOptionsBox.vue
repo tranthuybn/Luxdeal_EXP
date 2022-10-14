@@ -163,7 +163,7 @@ onUnmounted(() => {
       <div>
         <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
           <ElCol
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-blue-900"
@@ -189,7 +189,7 @@ onUnmounted(() => {
             v-for="(key, i) in acceptKey(item)"
             :key="i"
             class="text-ellipsis text-center"
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>
@@ -199,7 +199,6 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <slot name="underButton"> </slot>
-    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
   </ElSelect>
 </template>
 <style lang="css" scoped>

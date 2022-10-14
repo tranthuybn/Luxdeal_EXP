@@ -8,7 +8,7 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { formatMoneyInput, FORM_IMAGES, moneyToNumber, parseMoneyInput } from '@/utils/format'
+import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
@@ -109,7 +109,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       onChange: (data) => hideTableCustomer(data),
       options: [
-        { label: t('reuse.allCustomer'), value: 1 },
+        { label: t('reuse.allCustomer'), value: 3 },
         { label: t('formDemo.chooseCustomerDetail'), value: 2 }
       ]
     },
@@ -163,7 +163,7 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
+const { required, ValidService } = useValidator()
 const rules = reactive({
   code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
   promotion: required(),
@@ -173,7 +173,7 @@ const rules = reactive({
 
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
+  data == 3 ? (schema[8].hidden = true) : (schema[8].hidden = false)
   valueRadioOjbApply.value = data
 }
 
@@ -189,11 +189,13 @@ const changeSuffixIcon = (data) => {
       schema[3].hidden = false
       schema[2].colProps!.span = 18
       schema[3].componentProps.suffixIcon = h('span', 'đ')
+      rules.reduce = [{ validator: ValidService.checkPositiveNumber.validator }]
     }
     if (data == 3) {
       schema[3].hidden = true
       schema[2].colProps!.span = 24
       schema[3].componentProps.suffixIcon = h('span', '')
+      rules.reduce = []
     }
   }
 }
@@ -365,6 +367,7 @@ type SetFormData = {
   customers: any
   products: any
   Images: any
+  target: number
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -384,6 +387,8 @@ const customizeData = async (data) => {
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
   setFormData.Images = data[0].images
+  setFormData.target = data[0].targetType
+  hideTableCustomer(data[0].targetType)
 }
 
 const editData = async (data) => {

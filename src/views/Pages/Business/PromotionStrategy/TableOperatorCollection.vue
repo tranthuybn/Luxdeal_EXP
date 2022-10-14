@@ -224,13 +224,12 @@ const save = async (type) => {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
+      console.log('data', data)
       props.multipleImages
         ? (data.Images = ListFileUpload.value
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-
-      let validateTable = false
       if (dataTable.customerData.length > 1) {
         if (
           dataTable.customerData[dataTable.customerData.length - 1].name == null ||
@@ -239,8 +238,10 @@ const save = async (type) => {
           dataTable.customerData.pop()
         }
         data.customers = dataTable.customerData
+      }
+      if (data.target == 1) {
+        data.customers = null
       } else {
-        validateTable = true
         ElNotification({
           message: t('reuse.tableCustomerNotFillInformation'),
           type: 'info'
@@ -257,7 +258,6 @@ const save = async (type) => {
         }
         data.products = dataTable.productData
       } else {
-        validateTable = true
         ElNotification({
           message: t('reuse.tableProductNotFillInformation'),
           type: 'info'

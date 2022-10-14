@@ -36,7 +36,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.promotion'),
     component: 'Select',
     colProps: {
-      span: 14
+      span: 18
     },
     componentProps: {
       onChange: (data) => changeSuffixIcon(data),
@@ -53,7 +53,7 @@ const schema = reactive<FormSchema[]>([
     field: 'reduce',
     component: 'Input',
     colProps: {
-      span: 10
+      span: 6
     },
     value: '',
     componentProps: {
@@ -175,6 +175,7 @@ const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
     if (data == 1) {
       schema[3].hidden = false
+      schema[2].colProps!.span = 18
       schema[3].componentProps.suffixIcon = h('span', '%')
       rules.reduce = [{ validator: ValidService.maxPercent.validator }]
       schema[3].componentProps.formatter = (value) => value
@@ -182,6 +183,7 @@ const changeSuffixIcon = (data) => {
     }
     if (data == 2) {
       schema[3].hidden = false
+      schema[2].colProps!.span = 18
       schema[3].componentProps.suffixIcon = h('span', 'đ')
       schema[3].componentProps.formatter = (value) =>
         `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -189,6 +191,7 @@ const changeSuffixIcon = (data) => {
     }
     if (data == 3) {
       schema[3].hidden = true
+      schema[2].colProps!.span = 24
       schema[3].componentProps.suffixIcon = h('span', '')
       schema[3].componentProps.formatter = (value) => value
       schema[3].componentProps.parser = (value) => value

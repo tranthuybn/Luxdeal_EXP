@@ -169,7 +169,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.collectionProgramDetails'),
+    title: t('formDemo.detailsOfFlashSaleProgram'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -221,7 +221,7 @@ type FormDataPost = {
   EndDate: string
   TargetType: number
   ServiceType: number
-  Files: string
+  Image: any
   CampaignType: number
 }
 
@@ -237,7 +237,7 @@ const customPostDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.TargetType = 2
   customData.ServiceType = 1
-  customData.Files = data.Images
+  customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
     customData.CustomerIds = ''
   } else {
@@ -261,7 +261,7 @@ type FormDataEdit = {
   EndDate: string
   TargetType: number
   ServiceType: number
-  Files: string
+  Image: any
   CampaignType: number
 }
 
@@ -278,7 +278,7 @@ const customEditDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.TargetType = 2
   customData.ServiceType = 1
-  customData.Files = data.Images
+  customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
     customData.CustomerIdsAdd = ''
   } else {
@@ -313,6 +313,7 @@ type SetFormData = {
   shortDescription: string
   customers: any
   products: any
+  Image: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)

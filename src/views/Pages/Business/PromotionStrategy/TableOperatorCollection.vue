@@ -1180,6 +1180,10 @@ const getSpaSelected = (spaServices) => {
   justify-content: center;
   margin: 0 auto;
 }
+
+::v-deep(.el-form-item--default .el-form-item__content) {
+  line-height: 24px;
+}
 :deep(.el-dialog__body) {
   max-height: 85vh;
   overflow: auto;

@@ -386,6 +386,12 @@ export const addNewCampaign = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+//UPDATE CAMPAIGN
+export const updateCampaign = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${CAMPAIGN_API.UPDATE_CAMPAIGN}`, data }, fixedBaseURL)
+  return res && res.data
+}
+
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data

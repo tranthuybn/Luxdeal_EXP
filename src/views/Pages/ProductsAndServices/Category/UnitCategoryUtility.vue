@@ -265,6 +265,7 @@ const editData = async (data) => {
         type: 'warning'
       })
     )
+  console.log('data edit', data)
 }
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 </script>

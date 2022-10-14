@@ -24,7 +24,19 @@ export const formatRankingCustomer = (val) => {
     case 4:
       return 'Titan'
     default:
-      return t('reuse.silver')
+      return ''
+  }
+}
+export const formatSubjectVoucher = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.allCustomer')
+    case 2:
+      return t('reuse.groupCustomer')
+    case 3:
+      return t('reuse.onlyCustomer')
+    default:
+      return ''
   }
 }
 export const formatCustomerRatings = (val) => {
@@ -36,7 +48,7 @@ export const formatCustomerRatings = (val) => {
     case 3:
       return t('customerList.byYear')
     default:
-      return t('reuse.byMonth')
+      return ''
   }
 }
 export const productStatusTransferToText = (val) => {
@@ -134,6 +146,9 @@ export const FORM_IMAGES = (data) => {
 export const moneyFormat = (money) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
 }
+export const moneyToNumber = (currency) => {
+  return Number(currency.replace(/[^0-9.-]+/g, ''))
+}
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
@@ -142,6 +157,7 @@ export default {
   FORM_IMAGES,
   objectToQueryParams,
   formatMoneyInput,
+  moneyToNumber,
   formatDateTime,
   productStatusTransferToText,
   businessStatusTransferToText,

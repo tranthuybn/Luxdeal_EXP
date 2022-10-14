@@ -67,7 +67,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
                 name: `products-services.productLibrary.Products.${utility}`,
                 meta: {
@@ -98,7 +98,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
             name: `products-services.ServiceLibrarySpaService.${utility}`,
             meta: {
@@ -127,7 +127,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/ProductsAndServices/Category/ProductCategoryUtility',
                 name: `products-services.ProductCategory.${utility}`,
                 meta: {
@@ -149,7 +149,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?/:tab?`,
+                path: `${utility}/:type?/:id?/:tab?`,
                 component: 'views/Pages/ProductsAndServices/Category/AttributeCategoryUtility',
                 name: `products-services.AttributeCategory.${utility}`,
                 meta: {
@@ -171,7 +171,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/ProductsAndServices/Category/UnitCategoryUtility',
                 name: `products-services.UnitCategory.${utility}`,
                 meta: {
@@ -193,7 +193,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/ProductsAndServices/Category/BrandCategoryUtility',
                 name: `products-services.BrandCategory.${utility}`,
                 meta: {
@@ -215,7 +215,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/ProductsAndServices/Category/OriginCategoryUtility',
                 name: `products-services.OriginCategory.${utility}`,
                 meta: {
@@ -260,7 +260,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd',
             name: `business.potential-customer-care.potential-customer-list.${utility}`,
             meta: {
@@ -332,7 +332,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
@@ -352,7 +352,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/Business/CustomerManagement/AddNewRanking',
                 name: `business.customer-management.customerRatings.${utility}`,
                 meta: {
@@ -402,7 +402,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 name: `business.collaborators.collaboratorsList.${utility}`,
                 component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
                 meta: {
@@ -424,7 +424,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             name: `business.collaborators.paymentRequest.${utility}`,
             component: 'views/Pages/Business/Collaborators/PaymentRequestAdd',
             meta: {
@@ -462,7 +462,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/FlashSaleUtility',
             name: `business.promotion-strategy.flash-sale.${utility}`,
             meta: {
@@ -482,7 +482,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/CollectionUtility',
             name: `business.promotion-strategy.collection.${utility}`,
             meta: {
@@ -502,7 +502,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/NewProductUtility',
             name: `business.promotion-strategy.new-product.${utility}`,
             meta: {
@@ -522,7 +522,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
@@ -542,7 +542,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/ComboUtility',
             name: `business.promotion-strategy.combo.${utility}`,
             meta: {
@@ -562,7 +562,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/PromotionStrategy/AuctionUtility',
             name: `business.promotion-strategy.auction.${utility}`,
             meta: {
@@ -608,7 +608,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/Business/AccumulatePoints/SettingsPointsAdd',
                 name: `business.accumulate-points.settings-points.${utility}`,
                 meta: {
@@ -639,7 +639,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/Business/VirtualWallet/VirtualWalletUtility',
                 name: `business.virtual-wallet.customer.${utility}`,
                 meta: {
@@ -661,7 +661,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 name: `business.virtual-wallet.with-drewal-request.${utility}`,
                 component: 'views/Pages/Business/VirtualWallet/WithdrawalRequestUtility',
                 meta: {
@@ -683,7 +683,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/Business/VirtualWallet/SettingsVirtualWalletUtility',
                 name: `business.virtual-wallet.settings.${utility}`,
                 meta: {
@@ -869,7 +869,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:id?/:type?`,
+                path: `${utility}/:type?/:id?`,
                 component: 'views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility',
                 name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
                 meta: {
@@ -965,7 +965,7 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Accountant/BalanceSheetUtility',
             name: `accountant.balanceSheet.${utility}`,
             meta: {
@@ -1311,7 +1311,7 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
             name: `human-resource-management.department-directory.${utility}`,
             meta: {
@@ -1332,61 +1332,59 @@ const testList: string[] = [
   '/dashboard',
   '/dashboard/analysis',
   '/dashboard/workplace',
-  '/error',
-  '/error/404-demo',
-  '/error/403-demo',
-  '/error/500-demo',
   '/products-services',
   '/products-services/product-library',
   '/products-services/product-library/products',
-  `/products-services/product-library/products-utility/:id?/:type?`,
+  `/products-services/product-library/products-utility/:type?/:id?`,
   '/products-services/service-library',
   '/products-services/service-library/spa-service',
-  `/products-services/service-library/spa-service-utility/:id?/:type?`,
+  `/products-services/service-library/spa-service-utility/:type?/:id?`,
   '/products-services/product-property',
   '/products-services/product-property/product-category',
-  `/products-services/product-property/product-category-utility/:id?/:type?`,
+  `/products-services/product-property/product-category-utility/:type?/:id?`,
   '/products-services/product-property/attribute-category',
-  `/products-services/product-property/attribute-category-utility/:id?/:type?/:tab?`,
+  `/products-services/product-property/attribute-category-utility/:type?/:id?/:tab?`,
   '/products-services/product-property/unit-category',
-  `/products-services/product-property/unit-category-utility/:id?/:type?`,
+  `/products-services/product-property/unit-category-utility/:type?/:id?`,
   '/products-services/product-property/brand-category',
-  `/products-services/product-property/brand-category-utility/:id?/:type?`,
+  `/products-services/product-property/brand-category-utility/:type?/:id?`,
   '/products-services/product-property/origin-category',
-  `/products-services/product-property/origin-category-utility/:id?/:type?`,
+  `/products-services/product-property/origin-category-utility/:type?/:id?`,
   '/business',
   '/business/potential-customer-care',
   '/business/potential-customer-care/potential-customer-list',
-  `/business/potential-customer-care/potential-utility/:id?/:type?`,
+  `/business/potential-customer-care/potential-utility/:type?/:id?`,
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',
   '/business/order-management/order-list',
-  '/business/order-management/order-list-add/:id?/:type?/:tab?',
+  '/business/order-management/order-list-add/:type?/:tab?/:id?',
 
   '/business/customer-management',
   '/business/customer-management/customerList',
-  '/business/customer-management/customer-add/:id?/:type?',
+  '/business/customer-management/customer-add/:type?/:id?',
   '/business/customer-management/customerRatings',
-  `/business/customer-management/customerRatings-utility/:id?/:type?`,
+  `/business/customer-management/customerRatings-utility/:type?/:id?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
+  '/business/collaborators/collaboratorsAdd/:type?/:id?',
   '/business/collaborators/paymentRequest',
-  '/business/collaborators/collaboratorsAdd/:id?/:type?',
+  '/business/collaborators/paymentRequestAdd/:type?/:id?',
+
   '/business/promotion-strategy',
   '/business/promotion-strategy/flash-sale',
-  `/business/promotion-strategy/flash-sale-utility/:id?/:type?`,
+  `/business/promotion-strategy/flash-sale-utility/:type?/:id?`,
   '/business/promotion-strategy/collection',
-  `/business/promotion-strategy/collection-utility/:id?/:type?`,
+  `/business/promotion-strategy/collection-utility/:type?/:id?`,
   '/business/promotion-strategy/new-product',
-  `/business/promotion-strategy/new-product-utility/:id?/:type?`,
+  `/business/promotion-strategy/new-product-utility/:type?/:id?`,
   '/business/promotion-strategy/voucher',
-  `/business/promotion-strategy/voucher-utility/:id?/:type?`,
+  `/business/promotion-strategy/voucher-utility/:type?/:id?`,
   '/business/promotion-strategy/combo',
-  `/business/promotion-strategy/combo-utility/:id?/:type?`,
+  `/business/promotion-strategy/combo-utility/:type?/:id?`,
   '/business/promotion-strategy/auction',
-  `/business/promotion-strategy/auction-utility/:id?/:type?`,
+  `/business/promotion-strategy/auction-utility/:type?/:id?`,
   '/business/service-survey',
 
   '/business/accumulate-points',
@@ -1396,11 +1394,11 @@ const testList: string[] = [
 
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',
-  '/business/virtual-wallet/customer-utility/:id?/:type?',
+  '/business/virtual-wallet/customer-utility/:type?/:id?',
   '/business/virtual-wallet/with-drewal-request',
-  '/business/virtual-wallet/with-drewal-request-utility/:id?/:type?',
+  '/business/virtual-wallet/with-drewal-request-utility/:type?/:id?',
   '/business/virtual-wallet/settings',
-  '/business/virtual-wallet/settings-utility/:id?/:type?',
+  '/business/virtual-wallet/settings-utility/:type?/:id?',
   '/business/employee-management',
   '/business/employee-management/employeeList',
   '/business/employee-management/employeeRatings',
@@ -1422,7 +1420,7 @@ const testList: string[] = [
   '/inventory-management/business-product-warehouse/export',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
-  `/inventory-management/create-repository-directory/product-storage/product-storage-utility/:id?/:type?`,
+  `/inventory-management/create-repository-directory/product-storage/product-storage-utility/:type?/:id?`,
 
   '/accountant',
   '/accountant/payment-proposal',
@@ -1434,7 +1432,6 @@ const testList: string[] = [
   '/accountant/receipts-expenditures/payment-add',
   '/accountant/balanceSheet',
   `/accountant/balanceSheet-utility`,
-
   '/approve',
   '/approve/products-approval',
   '/approve/products-approval/newly-initialized',
@@ -1460,7 +1457,6 @@ const testList: string[] = [
   '/approve/approve-promotion-strategy/approve-advertisingBanner',
   '/approve/approve-management',
   '/new-and-advertisement',
-
   '/new-and-advertisement/notify',
   '/new-and-advertisement/forum',
   '/new-and-advertisement/banner-advertisement',
@@ -1472,11 +1468,10 @@ const testList: string[] = [
   '/new-and-advertisement/profile-admin/about-us',
   '/new-and-advertisement/profile-admin/contact',
   '/new-and-advertisement/profile-admin/transaction-point',
-
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory-utility/:id?/:type?`
+  `/human-resource-management/department-directory-utility/:type?/:id?`
 ]
 
 export default [

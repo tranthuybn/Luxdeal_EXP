@@ -28,7 +28,12 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useForm } from '@/hooks/web/useForm'
 // import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import router from '@/router'
-import { getCustomerById, addNewCustomer, getGenCodeCustomers } from '@/api/Business'
+import {
+  getCustomerById,
+  addNewCustomer,
+  getGenCodeCustomers,
+  addNewAuthRegister
+} from '@/api/Business'
 import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -181,7 +186,9 @@ let ruleForm = reactive({
   taxCode: '',
   doB: '',
   userName: '',
-  isActive: true
+  isActive: true,
+  password: '',
+  confirmPassword: ''
 })
 const formValue = ref()
 //get data from table
@@ -352,17 +359,32 @@ const clear = async () => {
 const postData = async () => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    await postAdd()
-    push({
-      name: 'business.customer-management.customerList',
-      params: { backRoute: 'business.customer-management.customerList' }
-    })
+    await postAdd().then(() =>
+      push({
+        name: 'business.customer-management.customerList',
+        params: { backRoute: 'business.customer-management.customerList' }
+      })
+    )
   }
 }
 
-const postAdd = async () => {
+const postAccount = () => {
   const payload = {
-    UserName: 'Hung',
+    fullName: ruleForm.name,
+    email: ruleForm.email,
+    password: ruleForm.password,
+    confirmPassword: ruleForm.confirmPassword,
+    userName: ruleForm.userName,
+    phoneNumber: null
+  }
+  addNewAuthRegister(JSON.stringify(payload))
+  console.log('truoc')
+}
+
+const postAdd = async () => {
+  await postAccount()
+  const payload = {
+    UserName: ruleForm.userName,
     Code: ruleForm.customerCode,
     ReferralCode: ruleForm.referralCode,
     Name: ruleForm.name,
@@ -404,6 +426,7 @@ const postAdd = async () => {
       })
     )
   clear()
+  console.log('sau')
 }
 
 const centerDialogVisible = ref(false)
@@ -835,6 +858,7 @@ onBeforeMount(() => {
                       {{ t('login.password') }} <span class="text-red-600">*</span>
                     </label>
                     <el-input
+                      v-model="ruleForm.password"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterPassword')"
@@ -848,6 +872,7 @@ onBeforeMount(() => {
                       {{ t('reuse.confirmPassword') }} <span class="text-red-600">*</span>
                     </label>
                     <el-input
+                      v-model="ruleForm.confirmPassword"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.confirmPassword')"

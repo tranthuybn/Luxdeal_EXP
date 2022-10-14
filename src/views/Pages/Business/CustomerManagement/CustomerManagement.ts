@@ -5,6 +5,7 @@ import {
   filtersCustomerType,
   filterStatusCustomer
 } from '@/utils/filters'
+import { CUSTOMER_TYPE } from '@/utils/API.Variables'
 import { dateTimeFormat } from '@/utils/format'
 import { h } from 'vue'
 const { t } = useI18n()
@@ -75,7 +76,16 @@ export const CustomerList = [
     field: 'customerType',
     label: t('reuse.accountType'),
     minWidth: '150',
-    filters: filterAccount
+    filters: filterAccount,
+    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
+      if (record.customerType == 1) {
+        return h('div', CUSTOMER_TYPE[0].label)
+      } else if (record.customerType == 1) {
+        return h('div', CUSTOMER_TYPE[1].label)
+      } else {
+        return h('div', CUSTOMER_TYPE[2].label)
+      }
+    }
   },
   {
     field: 'createdAt',
@@ -99,7 +109,7 @@ export const CustomerList = [
     minWidth: '150',
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Ngừng hoạt động')
+      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Đã hủy')
     }
   }
 ]

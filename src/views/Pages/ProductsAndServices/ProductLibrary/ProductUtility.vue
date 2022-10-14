@@ -519,10 +519,9 @@ const rules = reactive({
   ],
   ShortDescription: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameLength.validator }
   ],
-  Description: [{ validator: ValidService.checkDescriptionLength.validator }, required()],
+  Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()],
   ProductStatus: [required()]
@@ -635,6 +634,8 @@ const customSeoData = (formData) => {
 }
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
+  console.log(formData)
+
   productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value

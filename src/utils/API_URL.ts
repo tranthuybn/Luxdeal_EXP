@@ -57,8 +57,16 @@ export const CUSTOMER_API = {
   DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
-  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer'
+  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  POST_AUTH_REGISTER: '/api/auth/register'
 }
+
+export const CAMPAIGN_API = {
+  GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
+  GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign'
+}
+
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'
@@ -68,4 +76,7 @@ export const ADDRESS_API = {
   DISTRICT: '/api/addr/getDistrict',
   WARD: '/api/addr/getWard',
   STREET: '/api/addr/getStreet'
+}
+export const ACCOUNTANT_API = {
+  PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList'
 }

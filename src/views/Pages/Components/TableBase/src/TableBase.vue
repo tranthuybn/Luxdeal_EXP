@@ -196,7 +196,6 @@ const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
-console.log('tabs: ', props.tabs)
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {

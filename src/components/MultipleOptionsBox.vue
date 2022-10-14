@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip, ElButton } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
 import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
@@ -51,12 +51,16 @@ const propsObj = defineProps({
   clearable: {
     type: Boolean,
     default: true
+  },
+  width: {
+    type: String,
+    default: '100%'
   }
 })
 
 const emit = defineEmits(['updateValue', 'addnewproduct'])
 
-let selected = ref<string>('')
+let selected = ref()
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
@@ -84,11 +88,16 @@ watchEffect(() => {
     // set options for select box
     options.value = propsObj.items
 })
+console.log('propsObj.defaultValue', propsObj.defaultValue)
 watch(
   () => propsObj.defaultValue,
   (val) => {
-    if (val) selected.value = val.toString()
-  }
+    console.log('run here', propsObj.defaultValue, val)
+    if (val && val !== null) {
+      selected.value = val.toString()
+    }
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -109,22 +118,20 @@ const filter = (str) => {
     }
   })
 }
-const dialogAddQuick = () => {
-  emit('addnewproduct')
-}
 const appearsEvent = () => {
   const { items } = propsObj
   options.value = items
 }
 const valueChangeEvent = (val) => {
   if (val) {
-    const { items, valueKey, labelKey } = propsObj
-
+    const { items, valueKey } = propsObj
     // find label
     const obj = items.find((el) => {
-      if (el) el[valueKey] === val
+      if (el) {
+        return el[valueKey] === val
+      }
     })
-    if (obj) emit('updateValue', val, obj[labelKey] ?? '')
+    if (obj) emit('updateValue', val, obj ?? '')
   }
 }
 const handleScroll = (...val) => {
@@ -144,6 +151,7 @@ onUnmounted(() => {
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
+    remote
     class="el-select-custom"
     @visible-change="appearsEvent"
     @change="valueChangeEvent"
@@ -153,6 +161,7 @@ onUnmounted(() => {
   >
     <!-- value is tje first object when click on title -->
     <ElOption
+      :style="`width: ${width}`"
       :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
@@ -160,7 +169,7 @@ onUnmounted(() => {
       <div>
         <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
           <ElCol
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-blue-900"
@@ -173,6 +182,7 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <ElOption
+      :style="`width: ${width}`"
       v-for="(item, index) in options"
       :key="index"
       :value="item[identifyKey]"
@@ -185,7 +195,7 @@ onUnmounted(() => {
             v-for="(key, i) in acceptKey(item)"
             :key="i"
             class="text-ellipsis text-center"
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>
@@ -194,9 +204,7 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <span class="block h-1 w-[100%] border-t-1 mt-4"></span>
-    <el-button text @click="dialogAddQuick">+ Thêm nhanh sản phẩm</el-button>
-    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
+    <slot name="underButton"> </slot>
   </ElSelect>
 </template>
 <style lang="css" scoped>

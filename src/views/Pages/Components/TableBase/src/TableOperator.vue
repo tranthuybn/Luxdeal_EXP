@@ -165,10 +165,11 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps } = methods
+      const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      setSchema([{ field: 'description', path: 'componentProps.disabled', value: true }])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()

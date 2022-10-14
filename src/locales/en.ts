@@ -123,6 +123,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
     serviceName: 'Service name',
@@ -386,7 +387,55 @@ export default {
     totalFeePayable: 'Total fee payable',
     debtHistory: 'Debt history',
     browsePriceChanges: 'Browse price changes',
-    waitingDelivery: 'Waiting for delivery'
+    waitingDelivery: 'Waiting for delivery',
+    quicklyAddProducts: 'Quickly add products',
+    productCharacteristics: 'Product characteristics',
+    AddSelectProductCode: 'Add or select product code',
+    addManagementCode: 'Add management code',
+    EnterNameDescription: 'Enter a name/description',
+    selectFeature: 'Select feature',
+    certificateInformation: 'Certificate information',
+    statusAccountingEntry: 'Status accounting entry',
+    informationReceipts: 'Information about receipts',
+    documentsAttached: 'Documents attached',
+    receiptsCode: 'Receipts code',
+    recharger: 'Recharger',
+    reasonCollectingMoney: 'Reason for collecting money',
+    enterReasonCollectingMoney: 'Enter reason of collectingMoney',
+    writtenWords: 'Writen in words',
+    formPayment: 'Form of payment',
+    saveRecordDebts: 'Save and record debts',
+    informationPaymentRequestForm: 'Information of the payment request form',
+    PaymentRequestCode: 'Payment request code',
+    proponent: 'Proponent',
+    reasonsSpendMoney: 'Reasons to spend money',
+    enterReasonPaymentRequest: 'Enter the reason for the payment request',
+    billingInformation: 'Billing Information',
+    salesSlipInformation: 'Sales slip information',
+    productInformationSale: 'Product information for sale',
+    commodityName: 'Commodity name',
+    paymentSlip: 'Payment slip',
+    depositSlipAdvance: 'Deposit slip or advance',
+    depositSlipAdvanceinformation: 'Deposit slip or advance information',
+    paymentVoucherInformation: 'Payment voucher information',
+    detailedListExpenses: 'Detailed list of expenses',
+    numberVouchers: 'Number of vouchers',
+    dayVouchers: 'Day vouchers',
+    spendFor: 'Spend for',
+    sl: 'Quantity',
+    amountSpent: 'Amount spent',
+    inventoryStatus: 'Inventory status',
+    informationWarehouseReceipt: 'Information of warehouse receipt, exchange or return',
+    receiptCode: 'Receipt code',
+    warehouser: 'Warehouser',
+    ReasonExchangeReturn: 'Reason for exchange or return',
+    fullyIntegrated: 'Fully integrated product information',
+    unitPriceWarehouse: 'Unit price warehouse',
+    intoMoneyWarehouse: 'Into money warehouse',
+    accountingEntryAdditional: 'Accounting entry additional',
+    selectProvinceCity: 'Select province or city',
+    selectDistrict: 'Select District or District',
+    chooseWard: 'Choose a ward'
   },
   button: {
     add: 'Add quick',
@@ -395,7 +444,8 @@ export default {
     edit: 'Edit',
     cancelVoucher: 'Cancel voucher',
     cancelResult: 'Cancel result',
-    cancelOrder: 'Cancel order'
+    cancelOrder: 'Cancel order',
+    print: 'Print'
   },
   router: {
     login: 'Login',
@@ -1317,6 +1367,10 @@ export default {
     enterNewPassword: 'Enter new password',
     confirmPassword: 'Confirm password',
     loginAppWebUser: 'Login App/web user',
-    useToReferralCode: '(Use to referral code)'
+    useToReferralCode: '(Use to referral code)',
+    //BST
+    chooseCustomerCode: 'Choose customer code',
+    chooseProductCode: 'Choose product code',
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"'
   }
 }

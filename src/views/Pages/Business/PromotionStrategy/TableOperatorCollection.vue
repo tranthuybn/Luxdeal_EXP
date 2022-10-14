@@ -551,6 +551,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
 const getProductSelected = (_value, obj, scope) => {
+  console.log('value', _value)
   scope.row.name = obj.name
   scope.row.id = obj.id
   scope.row.code = obj.value
@@ -745,7 +746,6 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="fakeTableProductData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
-                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.productCode'),

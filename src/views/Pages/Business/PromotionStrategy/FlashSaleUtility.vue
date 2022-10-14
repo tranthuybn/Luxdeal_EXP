@@ -345,6 +345,7 @@ type SetFormData = {
   shortDescription: string
   customers: any
   products: any
+  Images: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -363,6 +364,7 @@ const customizeData = async (data) => {
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
+  setFormData.Images = data[0].images
 }
 
 const editData = async (data) => {

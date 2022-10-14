@@ -164,7 +164,11 @@ const hideTableCustomer = (data) => {
   data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
   valueRadioOjbApply.value = data
 }
+
+let promotionValueSelected = ref(1)
 const changeSuffixIcon = (data) => {
+  promotionValueSelected.value = data
+
   if (schema[3].componentProps) {
     if (data == 1) {
       schema[3].componentProps.suffixIcon = h('span', '%')
@@ -242,10 +246,19 @@ type FormDataPost = {
 const customPostDataFlashSale = (data) => {
   const customData = {} as FormDataPost
 
+  if (promotionValueSelected.value == 1) {
+    customData.ReducePercent = data.reduce
+    customData.ReduceCash = 0
+  } else if (promotionValueSelected.value == 2) {
+    customData.ReduceCash = data.reduce
+    customData.ReducePercent = 0
+  } else {
+    customData.ReducePercent = 0
+    customData.ReduceCash = 0
+  }
   customData.Code = data.code
   customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.ReducePercent = data.reduce
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
@@ -253,7 +266,7 @@ const customPostDataFlashSale = (data) => {
   customData.ServiceType = 1
   customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
-    customData.CustomerIds = ''
+    customData.CustomerIds = '0'
   } else {
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
@@ -284,8 +297,16 @@ const customEditDataFlashSale = (data) => {
   customData.Id = id
   customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.ReducePercent = data.reduce
-  customData.ReduceCash = 30
+  if (promotionValueSelected.value == 1) {
+    customData.ReducePercent = data.reduce
+    customData.ReduceCash = 0
+  } else if (promotionValueSelected.value == 2) {
+    customData.ReduceCash = data.reduce
+    customData.ReducePercent = 0
+  } else {
+    customData.ReducePercent = 0
+    customData.ReduceCash = 0
+  }
   customData.CustomerIdsDelete = '2,3'
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]

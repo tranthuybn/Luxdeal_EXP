@@ -229,13 +229,13 @@ type FormDataPost = {
   Description?: string
   ReducePercent?: number
   ReduceCash?: number
-  CustomerIds: string
+  CustomerIds: string | null
   ProductPropertyIdJson: string
   StartDate: string
   EndDate: string
   TargetType: number
   ServiceType: number
-  Files: string
+  Image: any
   CampaignType: number
 }
 
@@ -249,12 +249,13 @@ const customPostDataFlashSale = (data) => {
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
-  customData.TargetType = 2
   customData.ServiceType = 1
-  customData.Files = data.Images
+  customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
-    customData.CustomerIds = ''
+    customData.CustomerIds = null
+    customData.TargetType = 3
   } else {
+    customData.TargetType = 2
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = JSON.stringify(data.products)
@@ -275,7 +276,7 @@ type FormDataEdit = {
   EndDate: string
   TargetType: number
   ServiceType: number
-  Files: string
+  Image: any
   CampaignType: number
 }
 
@@ -292,7 +293,7 @@ const customEditDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.TargetType = 2
   customData.ServiceType = 1
-  customData.Files = data.Images
+  customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
     customData.CustomerIdsAdd = ''
   } else {

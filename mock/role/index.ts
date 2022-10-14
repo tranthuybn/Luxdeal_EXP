@@ -1370,7 +1370,7 @@ const testList: string[] = [
   '/business/promotion-strategy/new-product',
   `/business/promotion-strategy/new-product-utility/:type?/:id?`,
   '/business/promotion-strategy/voucher',
-  `/business/promotion-strategy/voucher-utility/:type?/:id?`,
+  `/business/promotion-strategy/voucher-utility/:type?/:tab?/:id?`,
   '/business/promotion-strategy/combo',
   `/business/promotion-strategy/combo-utility/:type?/:id?`,
   '/business/promotion-strategy/auction',

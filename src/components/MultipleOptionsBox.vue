@@ -88,11 +88,9 @@ watchEffect(() => {
     // set options for select box
     options.value = propsObj.items
 })
-console.log('propsObj.defaultValue', propsObj.defaultValue)
 watch(
   () => propsObj.defaultValue,
   (val) => {
-    console.log('run here', propsObj.defaultValue, val)
     if (val && val !== null) {
       selected.value = val.toString()
     }
@@ -131,7 +129,6 @@ const valueChangeEvent = (val) => {
         return el[valueKey] === val
       }
     })
-    console.log('obj', obj)
     if (obj) emit('updateValue', val, obj ?? '')
   }
 }

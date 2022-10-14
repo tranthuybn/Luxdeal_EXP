@@ -8,7 +8,7 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
+import { formatMoneyInput, FORM_IMAGES, moneyToNumber, parseMoneyInput } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
@@ -57,6 +57,8 @@ const schema = reactive<FormSchema[]>([
     },
     value: '',
     componentProps: {
+      formatter: null,
+      parser: null,
       placeholder: t('reuse.enterPercentOrMoney'),
       suffixIcon: h('span', ''),
       max: 100
@@ -163,7 +165,10 @@ const schema = reactive<FormSchema[]>([
 ])
 const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
 const rules = reactive({
-  reduce: [{ validator: ValidService.checkPositiveNumber.validator }, required()]
+  code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
+  promotion: required(),
+  date: required(),
+  reduce: [{ validator: ValidService.checkPositiveNumber.validator }]
 })
 
 let valueRadioOjbApply = ref(2)
@@ -171,6 +176,7 @@ const hideTableCustomer = (data) => {
   data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
   valueRadioOjbApply.value = data
 }
+
 const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
     if (data == 1) {
@@ -178,23 +184,16 @@ const changeSuffixIcon = (data) => {
       schema[2].colProps!.span = 18
       schema[3].componentProps.suffixIcon = h('span', '%')
       rules.reduce = [{ validator: ValidService.maxPercent.validator }]
-      schema[3].componentProps.formatter = (value) => value
-      schema[3].componentProps.parser = (value) => value
     }
     if (data == 2) {
       schema[3].hidden = false
       schema[2].colProps!.span = 18
       schema[3].componentProps.suffixIcon = h('span', 'đ')
-      schema[3].componentProps.formatter = (value) =>
-        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      schema[3].componentProps.parser = (value) => value.replace(/\$\s?|(,*)/g, '')
     }
     if (data == 3) {
       schema[3].hidden = true
       schema[2].colProps!.span = 24
       schema[3].componentProps.suffixIcon = h('span', '')
-      schema[3].componentProps.formatter = (value) => value
-      schema[3].componentProps.parser = (value) => value
     }
   }
 }
@@ -204,7 +203,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.collectionProgramDetails'),
+    title: t('formDemo.detailsOfFlashSaleProgram'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -247,8 +246,8 @@ type FormDataPost = {
   Code: string
   Name: string
   Description?: string
-  ReducePercent?: number
-  ReduceCash?: number
+  ReducePercent?: number | null
+  ReduceCash?: number | null
   CustomerIds: string | null
   ProductPropertyIdJson: string
   StartDate: string
@@ -262,10 +261,19 @@ type FormDataPost = {
 const customPostDataFlashSale = (data) => {
   const customData = {} as FormDataPost
 
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.reduce
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.reduce
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
   customData.Code = data.code
   customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.ReducePercent = data.reduce
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
@@ -305,8 +313,16 @@ const customEditDataFlashSale = (data) => {
   customData.Id = id
   customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.ReducePercent = data.reduce
-  customData.ReduceCash = 30
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.reduce
+    customData.ReduceCash = 0
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.reduce
+    customData.ReducePercent = 0
+  } else {
+    customData.ReducePercent = 0
+    customData.ReduceCash = 0
+  }
   customData.CustomerIdsDelete = '2,3'
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
@@ -332,9 +348,9 @@ const postData = async (data) => {
         type: 'success'
       })
     )
-    .catch((error) =>
+    .catch(() =>
       ElNotification({
-        message: error,
+        message: t('reuse.addFail'),
         type: 'warning'
       })
     )

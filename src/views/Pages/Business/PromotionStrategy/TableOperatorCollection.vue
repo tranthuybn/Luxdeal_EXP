@@ -162,6 +162,7 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
+
     dataTable.customerData = props.formDataCustomize.customers
     dataTable.productData = props.formDataCustomize.products
     console.log('dataTable', dataTable)
@@ -228,6 +229,8 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
+
+      let validateTable = false
       if (dataTable.customerData.length > 1) {
         if (
           dataTable.customerData[dataTable.customerData.length - 1].name == null ||
@@ -236,6 +239,14 @@ const save = async (type) => {
           dataTable.customerData.pop()
         }
         data.customers = dataTable.customerData
+      } else {
+        validateTable = true
+        ElNotification({
+          message: t('reuse.tableCustomerNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
       }
       if (dataTable.productData.length > 1) {
         if (
@@ -245,7 +256,16 @@ const save = async (type) => {
           dataTable.productData.pop()
         }
         data.products = dataTable.productData
+      } else {
+        validateTable = true
+        ElNotification({
+          message: t('reuse.tableProductNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
       }
+
       console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
@@ -1200,6 +1220,10 @@ const getSpaSelected = (spaServices) => {
   display: flex;
   justify-content: center;
   margin: 0 auto;
+}
+
+::v-deep(.el-form-item--default .el-form-item__content) {
+  line-height: 24px;
 }
 :deep(.el-dialog__body) {
   max-height: 85vh;

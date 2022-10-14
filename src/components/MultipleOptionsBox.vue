@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -83,19 +83,16 @@ const identifyLabel = computed(() => {
 })
 
 // set value for multiple select if defaultValue available
-watchEffect(() => {
-  if (propsObj.items?.length > 0)
-    // set options for select box
-    options.value = propsObj.items
-})
+// watchEffect(() => {
+//   if (propsObj.items?.length > 0)
+//     // set options for select box
+//     options.value = propsObj.items
+// })
 watch(
   () => propsObj.defaultValue,
-  (val) => {
-    if (val && val !== null) {
-      selected.value = val.toString()
-    }
-  },
-  { immediate: true }
+  () => {
+    selected.value = propsObj.defaultValue
+  }
 )
 
 const acceptKey = (item) => {
@@ -104,18 +101,19 @@ const acceptKey = (item) => {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
-const filter = (str) => {
-  const { items } = propsObj
-  const searchingKey = str.toLowerCase()
-  options.value = items.filter((item) => {
-    if (
-      item != null &&
-      Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
-    ) {
-      return true
-    }
-  })
-}
+// const filter = (str) => {
+//   const { items } = propsObj
+//   const searchingKey = str.toLowerCase()
+//   console.log('searchingKey', searchingKey, 'selected', selected.value)
+//   options.value = items.filter((item) => {
+//     if (
+//       item != null &&
+//       Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
+//     ) {
+//       return true
+//     }
+//   })
+// }
 const appearsEvent = () => {
   const { items } = propsObj
   options.value = items
@@ -149,11 +147,9 @@ onUnmounted(() => {
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
-    remote
     class="el-select-custom"
     @visible-change="appearsEvent"
-    @change="valueChangeEvent"
-    :filter-method="filter"
+    @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
     :disabled="disabled"
   >

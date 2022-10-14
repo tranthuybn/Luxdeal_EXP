@@ -131,6 +131,7 @@ const getTableValue = async () => {
         formValue.value = res.data
       }
       await setFormValue()
+      console.log('res', res.data)
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -161,11 +162,10 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-    console.log('props.formDataCustomize', props.formDataCustomize)
-    console.log('dataTable.customerData', dataTable.customerData)
 
     dataTable.customerData = props.formDataCustomize.customers
     dataTable.productData = props.formDataCustomize.products
+    console.log('dataTable', dataTable)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -229,8 +229,25 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      data.customers = dataTable.customerData
-      data.products = dataTable.productData
+      if (dataTable.customerData.length > 1) {
+        if (
+          dataTable.customerData[dataTable.customerData.length - 1].name == null ||
+          dataTable.customerData[dataTable.customerData.length - 1].code == ''
+        ) {
+          dataTable.customerData.pop()
+        }
+        data.customers = dataTable.customerData
+      }
+      if (dataTable.productData.length > 1) {
+        if (
+          dataTable.productData[dataTable.productData.length - 1].name == null ||
+          dataTable.productData[dataTable.productData.length - 1].code == ''
+        ) {
+          dataTable.productData.pop()
+        }
+        data.products = dataTable.productData
+      }
+      console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -473,11 +490,11 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  let idTable = dataTable.customerData?.length
+  let idTable = Date.now()
   dataTable.customerData.push({ id: idTable, code: '', name: null })
 }
 const addLastIndexProductTable = () => {
-  let idTable2 = dataTable.productData?.length
+  let idTable2 = Date.now()
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
 }
 //fake option
@@ -533,6 +550,11 @@ const removeProduct = (scope) => {
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
+}
+const getProductSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
+  scope.row.id = obj.id
+  scope.row.code = obj.value
 }
 const getCustomerSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
@@ -701,7 +723,7 @@ const getSpaSelected = (spaServices) => {
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
+                    @update-value="(value, obj) => getProductSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)"
                   />
                 </template>

@@ -8,7 +8,7 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
+import { formatMoneyInput, FORM_IMAGES, moneyToNumber, parseMoneyInput } from '@/utils/format'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -55,6 +55,8 @@ const schema = reactive<FormSchema[]>([
       span: 10
     },
     componentProps: {
+      formatter: null,
+      parser: null,
       placeholder: t('reuse.enterPercentOrMoney'),
       suffixIcon: h('span', '')
     },
@@ -165,16 +167,18 @@ const hideTableCustomer = (data) => {
   valueRadioOjbApply.value = data
 }
 
-let promotionValueSelected = ref(1)
 const changeSuffixIcon = (data) => {
-  promotionValueSelected.value = data
-
   if (schema[3].componentProps) {
     if (data == 1) {
       schema[3].componentProps.suffixIcon = h('span', '%')
     }
     if (data == 2) {
       schema[3].componentProps.suffixIcon = h('span', 'đ')
+
+      schema[3].componentProps.formatter = (value) => formatMoneyInput(value)
+
+      schema[3].componentProps.parser = (value) => parseMoneyInput(value)
+      console.log('gt:', schema[3].componentProps.formatter.value)
     }
     if (data == 3) {
       schema[3].componentProps.suffixIcon = h('span', '')
@@ -231,9 +235,9 @@ type FormDataPost = {
   Code: string
   Name: string
   Description?: string
-  ReducePercent?: number
-  ReduceCash?: number
-  CustomerIds: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds: string | null
   ProductPropertyIdJson: string
   StartDate: string
   EndDate: string
@@ -246,15 +250,15 @@ type FormDataPost = {
 const customPostDataFlashSale = (data) => {
   const customData = {} as FormDataPost
 
-  if (promotionValueSelected.value == 1) {
+  if (data.promotion == 1) {
     customData.ReducePercent = data.reduce
-    customData.ReduceCash = 0
-  } else if (promotionValueSelected.value == 2) {
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
     customData.ReduceCash = data.reduce
-    customData.ReducePercent = 0
+    customData.ReducePercent = null
   } else {
-    customData.ReducePercent = 0
-    customData.ReduceCash = 0
+    customData.ReducePercent = null
+    customData.ReduceCash = null
   }
   customData.Code = data.code
   customData.Name = data.code
@@ -262,12 +266,13 @@ const customPostDataFlashSale = (data) => {
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
-  customData.TargetType = 2
   customData.ServiceType = 1
   customData.Image = data.Images
   if (valueRadioOjbApply.value == 1) {
-    customData.CustomerIds = '0'
+    customData.CustomerIds = null
+    customData.TargetType = 3
   } else {
+    customData.TargetType = 2
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = JSON.stringify(data.products)
@@ -297,10 +302,10 @@ const customEditDataFlashSale = (data) => {
   customData.Id = id
   customData.Name = data.code
   customData.Description = data.shortDescription
-  if (promotionValueSelected.value == 1) {
+  if (data.promotion == 1) {
     customData.ReducePercent = data.reduce
     customData.ReduceCash = 0
-  } else if (promotionValueSelected.value == 2) {
+  } else if (data.promotion == 2) {
     customData.ReduceCash = data.reduce
     customData.ReducePercent = 0
   } else {

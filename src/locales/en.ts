@@ -895,6 +895,8 @@ export default {
     lockMoney: 'Lock money',
     official: 'Official',
     unofficial: 'Unofficial',
+    tableCustomerNotFillInformation: 'Table customer not fill information',
+    tableProductNotFillInformation: 'Table product not fill information',
     employee: 'Employee',
     boss: 'Boss',
     administrative: 'Administrative',

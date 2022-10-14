@@ -92,7 +92,8 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-  }
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {

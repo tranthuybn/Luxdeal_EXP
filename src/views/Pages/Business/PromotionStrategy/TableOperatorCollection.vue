@@ -229,6 +229,8 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
+
+      let validateTable = false
       if (dataTable.customerData.length > 1) {
         if (
           dataTable.customerData[dataTable.customerData.length - 1].name == null ||
@@ -237,6 +239,14 @@ const save = async (type) => {
           dataTable.customerData.pop()
         }
         data.customers = dataTable.customerData
+      } else {
+        validateTable = true
+        ElNotification({
+          message: t('reuse.tableCustomerNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
       }
       if (dataTable.productData.length > 1) {
         if (
@@ -246,7 +256,16 @@ const save = async (type) => {
           dataTable.productData.pop()
         }
         data.products = dataTable.productData
+      } else {
+        validateTable = true
+        ElNotification({
+          message: t('reuse.tableProductNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
       }
+
       console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
@@ -552,6 +571,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
 const getProductSelected = (_value, obj, scope) => {
+  console.log('value', _value)
   scope.row.name = obj.name
   scope.row.id = obj.id
   scope.row.code = obj.value
@@ -746,7 +766,6 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="fakeTableProductData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
-                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.productCode'),

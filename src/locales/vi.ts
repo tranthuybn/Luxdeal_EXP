@@ -934,6 +934,8 @@ export default {
     lockMoney: 'Khóa tiền',
     official: 'Chính thức',
     unofficial: 'Không chính thức',
+    tableCustomerNotFillInformation: 'Bảng khách hàng chưa có thông tin',
+    tableProductNotFillInformation: 'Bảng sản phẩm chưa có thông tin',
     employee: 'Nhân viên',
     boss: 'Sếp',
     administrative: 'Hành chính',

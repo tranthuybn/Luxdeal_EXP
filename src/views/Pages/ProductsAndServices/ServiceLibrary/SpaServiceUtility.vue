@@ -293,30 +293,37 @@ const editData = async (data) => {
   }
   console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
-    .then(() =>
-      ElNotification({
-        message: t('reuse.updateSuccess'),
-        type: 'success'
-      })
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    ),
-    push({
-      name: `${String(router.currentRoute)}`
-    })
+    )
 }
 const postData = async (data) => {
   data = customPostData(data)
   await postSpa(FORM_IMAGES(data))
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch((error) =>
       ElNotification({

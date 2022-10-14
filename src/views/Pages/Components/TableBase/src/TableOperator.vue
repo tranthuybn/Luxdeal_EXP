@@ -245,7 +245,7 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {

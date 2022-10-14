@@ -398,6 +398,15 @@ export const addNewPaymentRequest = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const updateCommissionPayment = async (data): Promise<IResponse> => {
+  data = FORM_IMAGES(data)
+  const res = await request.put(
+    { url: `${ACCOUNTANT_API.PUT_COMMISSION_PAYMENT_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const getReceiptPaymentList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

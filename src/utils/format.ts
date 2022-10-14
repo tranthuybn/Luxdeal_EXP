@@ -39,6 +39,9 @@ export const formatCustomerRatings = (val) => {
       return t('reuse.byMonth')
   }
 }
+export const priceTransferToText = (val) => {
+  return `${val + ' đ'}`
+}
 export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
@@ -48,6 +51,14 @@ export const collaboratorStatusTransferToText = (val) => {
   else if (val == 1) return `${t('reuse.active')}`
   else if (val == 2) return `${t('reuse.inactive')}`
   return `${t('reuse.lock')}`
+}
+export const isFileTransferToText = (val) => {
+  if (val == true) return `${t('common.ok')}`
+  else if (val == false) return `${t('reuse.no')}`
+}
+export const paidTransferToText = (val) => {
+  if (val == true) return `${t('formDemo.alreadyPaidForTt')}`
+  else if (val == false) return `${t('reuse.notPaid')}`
 }
 export const commissionPaymentStatusTransferToText = (val) => {
   if (val == 1) return `${t('reuse.waitingForProcessing')}`

@@ -3,7 +3,13 @@ import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table } from '@/components/Table'
-import { commissionPaymentStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import {
+  commissionPaymentStatusTransferToText,
+  dateTimeFormat,
+  isFileTransferToText,
+  paidTransferToText,
+  priceTransferToText
+} from '@/utils/format'
 import { HeaderFiler } from '../../Components/HeaderFilter'
 import { TableExtension } from '../../Components/TableBase'
 import { getCommissionPaymentList } from '@/api/Business'
@@ -32,12 +38,12 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'code',
+    field: 'collaborator.code',
     label: t('reuse.collaboratorsCode'),
     minWidth: '100'
   },
   {
-    field: 'code',
+    field: 'collaborator.accountName',
     label: t('reuse.collaboratorsName'),
     minWidth: '150'
   },
@@ -46,10 +52,13 @@ const columns = reactive<TableColumn[]>([
     field: 'price',
     label: t('reuse.amountOfMoney'),
     minWidth: '250',
-    align: 'right'
+    align: 'right',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', priceTransferToText(cellValue))
+    }
   },
   {
-    field: 'account',
+    field: 'code',
     label: t('reuse.codeRequest'),
     minWidth: '200'
   },
@@ -57,7 +66,10 @@ const columns = reactive<TableColumn[]>([
     field: 'isFile',
     label: t('formDemo.attachments'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', isFileTransferToText(cellValue))
+    }
   },
   {
     field: 'receiptOrPaymentVoucherId',
@@ -72,10 +84,13 @@ const columns = reactive<TableColumn[]>([
     align: 'right'
   },
   {
-    field: 'isFile',
+    field: 'paid',
     label: t('reuse.alreadyPaid'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', paidTransferToText(cellValue))
+    }
   },
   {
     field: 'createdAt',

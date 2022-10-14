@@ -404,7 +404,7 @@ const optionsApi = ref()
 let optionCallAPi = 0
 const callApiProductList = async () => {
   if (optionCallAPi == 0) {
-    const res = await getProductsList({ ProductId: 1 })
+    const res = await getProductsList()
     if (Array.isArray(res.data) && res.data.length > 0) {
       optionsApi.value = res.data.map((product) => ({
         productCode: product.code,
@@ -2952,7 +2952,6 @@ onMounted(async () => {
                   :labelKey="'id'"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
-                  @focus="callApiProductList()"
                   :clearable="false"
                   @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 />

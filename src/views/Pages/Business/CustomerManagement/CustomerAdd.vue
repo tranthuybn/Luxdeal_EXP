@@ -430,6 +430,7 @@ const postAdd = async () => {
 }
 
 const centerDialogVisible = ref(false)
+const centerDialogCancelAccount = ref(false)
 
 let disableData = false
 watch(
@@ -891,9 +892,38 @@ onBeforeMount(() => {
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.fix')
                 }}</el-button>
-                <el-button type="danger" class="min-w-42 min-h-11">{{
-                  t('formDemo.cancelAccount')
-                }}</el-button>
+                <el-button
+                  type="danger"
+                  class="min-w-42 min-h-11"
+                  @click="centerDialogCancelAccount = true"
+                  >{{ t('formDemo.cancelAccount') }}</el-button
+                >
+                <el-dialog
+                  v-model="centerDialogCancelAccount"
+                  :title="t('formDemo.cancelAccount')"
+                  width="30%"
+                  align-center
+                  class="font-semibold"
+                >
+                  <div class="text-red-600">
+                    {{ t('reuse.cancelAccountCheck') }}
+                  </div>
+                  <template #footer>
+                    <span class="dialog-footer">
+                      <el-button
+                        type="danger"
+                        @click="centerDialogCancelAccount = false"
+                        class="min-w-36 min-h-10"
+                        >{{ t('formDemo.cancelAccount') }}</el-button
+                      >
+                      <el-button
+                        @click="centerDialogCancelAccount = false"
+                        class="min-w-36 min-h-10"
+                        >{{ t('reuse.exit') }}</el-button
+                      >
+                    </span>
+                  </template>
+                </el-dialog>
               </div>
               <div v-else-if="type === 'edit'" class="flex justify-center">
                 <el-button type="primary" class="min-w-42 min-h-11">{{
@@ -1241,5 +1271,10 @@ onBeforeMount(() => {
 }
 ::v-deep(.el-form-item--default .el-form-item__error) {
   padding-left: 179px;
+}
+
+::v-deep(.el-dialog__header) {
+  border-bottom: 1px solid rgb(214, 209, 209);
+  margin-right: 0;
 }
 </style>

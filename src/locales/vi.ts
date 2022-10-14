@@ -1489,6 +1489,7 @@ export default {
     enterNewPassword: 'Nhập mật khẩu mới',
     confirmPassword: 'Xác nhận mật khẩu',
     loginAppWebUser: 'Đăng nhập App/web user',
-    useToReferralCode: '(Sử dụng làm mã giới thiệu)'
+    useToReferralCode: '(Sử dụng làm mã giới thiệu)',
+    cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?'
   }
 }

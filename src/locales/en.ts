@@ -1371,6 +1371,7 @@ export default {
     //BST
     chooseCustomerCode: 'Choose customer code',
     chooseProductCode: 'Choose product code',
-    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"'
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
+    cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?'
   }
 }

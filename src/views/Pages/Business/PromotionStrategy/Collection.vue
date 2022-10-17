@@ -4,6 +4,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getcollectionList } from '@/api/Business'
 import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/filters'
+import { formatStatusVoucher } from '@/utils/format'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -66,7 +67,10 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatStatusVoucher(cellValue)
+    }
   }
 ])
 </script>

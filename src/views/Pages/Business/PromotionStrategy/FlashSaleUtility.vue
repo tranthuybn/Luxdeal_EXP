@@ -57,7 +57,7 @@ const schema = reactive<FormSchema[]>([
     },
     value: '',
     componentProps: {
-      placeholder: t('reuse.enterPercentOrMoney'),
+      placeholder: t('formDemo.enterPercent'),
       suffixIcon: h('span', '%')
     },
     formItemProps: {
@@ -73,7 +73,7 @@ const schema = reactive<FormSchema[]>([
     },
     value: '',
     componentProps: {
-      placeholder: t('reuse.enterPercentOrMoney'),
+      placeholder: t('reuse.placeholderMoney'),
       suffixIcon: h('span', 'đ')
     },
     formItemProps: {

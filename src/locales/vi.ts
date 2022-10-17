@@ -1468,7 +1468,7 @@ export default {
     exchangeByPoints: 'Đổi bằng điểm',
     buyByVirtualWallet: 'Mua bằng tiền ảo',
     explainFreeRecievedVoucher: 'Nhận miễn phí ngay sau khi voucher được gửi',
-    explainVoucherAffiliate: 'Nhận miễn phí ngay sau khi khởi tạo tài khoản afiliate thành công',
+    explainVoucherAffiliate: 'Nhận miễn phí ngay sau khi khởi tạo tài khoản affiliate thành công',
     explainExchangeByPoints: 'Phải đổi bằng điểm để có thể sử dụng',
     explainBuyByVirtualWallet: 'Phải mua bằng tiền trong ví ảo để có thể sử dụng',
     condition: 'Điều kiện',

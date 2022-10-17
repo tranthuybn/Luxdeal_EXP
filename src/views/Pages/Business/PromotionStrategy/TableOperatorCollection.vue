@@ -230,25 +230,42 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
+
       if (data.target == 3) {
         data.customers = null
       } else {
-        if (dataTable.productData.length > 1) {
+        if (dataTable.customerData.length > 1) {
           if (
-            dataTable.productData[dataTable.productData.length - 1].name == null ||
-            dataTable.productData[dataTable.productData.length - 1].code == ''
+            dataTable.customerData[dataTable.customerData.length - 1].name == null ||
+            dataTable.customerData[dataTable.customerData.length - 1].code == ''
           ) {
-            dataTable.productData.pop()
+            dataTable.customerData.pop()
           }
-          data.products = dataTable.productData
+          data.customers = dataTable.customerData
         } else {
           ElNotification({
-            message: t('reuse.tableProductNotFillInformation'),
+            message: t('reuse.tableCustomerNotFillInformation'),
             type: 'info'
           })
           loading.value = false
           return
         }
+      }
+      if (dataTable.productData.length > 1) {
+        if (
+          dataTable.productData[dataTable.productData.length - 1].name == null ||
+          dataTable.productData[dataTable.productData.length - 1].code == ''
+        ) {
+          dataTable.productData.pop()
+        }
+        data.products = dataTable.productData
+      } else {
+        ElNotification({
+          message: t('reuse.tableProductNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
       }
 
       console.log('dataTable', dataTable)
@@ -544,6 +561,18 @@ const changeName = (data, scope) => {
   // need a function to find the name of the option selected
   //then scope.row.name = result find
 }
+const changeCustomer = (data, scope) => {
+  forceRemove.value = false
+  const selected = dataTable.customerData.find((customer) => customer.code == data)
+  if (selected !== undefined) {
+    scope.row.code = null
+    console.log('da co')
+  } else {
+    scope.row.code = data
+    console.log('chua co')
+  }
+  console.log('dataTable.customerData', dataTable.customerData, selected, data)
+}
 const removeCustomer = (scope) => {
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
@@ -556,7 +585,6 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
 const getProductSelected = (_value, obj, scope) => {
-  console.log('value', _value)
   scope.row.name = obj.name
   scope.row.id = obj.id
   scope.row.code = obj.value
@@ -564,7 +592,7 @@ const getProductSelected = (_value, obj, scope) => {
 const getCustomerSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
-  scope.row.code = obj.value
+  console.log('obj', obj)
 }
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
@@ -677,6 +705,7 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
+                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.customerCode'),
@@ -693,7 +722,7 @@ const getSpaSelected = (spaServices) => {
                     :clearable="false"
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
+                    @change="(option) => changeCustomer(option, scope)"
                   />
                 </template>
               </el-table-column>

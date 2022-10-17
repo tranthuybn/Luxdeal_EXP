@@ -244,17 +244,18 @@ const type = String(router.currentRoute.value.params.type)
 
 //post data api
 type FormDataPost = {
-  Id: number
   Code: string
   Name: string
   Description?: string
   ReducePercent?: number | null
   ReduceCash?: number | null
-  CustomerIds: string | null
-  ProductPropertyIdJson: string
+  CustomerIds?: string | null
+  ProductPropertyIdJson?: string
   StartDate: string
   EndDate: string
   TargetType: number
+  VoucherType: number
+  ExchangeValue: number
   ServiceType: number
   Image: any
   CampaignType: number
@@ -295,10 +296,11 @@ const customPostDataFlashSale = (data) => {
 //edit data api
 type FormDataEdit = {
   Id: number
-  Name: string
+  Name?: string
   Description?: string
-  ReducePercent?: number
-  ReduceCash?: number
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string
   CustomerIdsAdd?: string
   CustomerIdsDelete?: string
   ProductPropertyIdJson: string
@@ -317,14 +319,15 @@ const customEditDataFlashSale = (data) => {
   customData.Description = data.shortDescription
   if (data.promotion == 1) {
     customData.ReducePercent = data.reduce
-    customData.ReduceCash = 0
+    customData.ReduceCash = null
   } else if (data.promotion == 2) {
     customData.ReduceCash = data.reduce
-    customData.ReducePercent = 0
+    customData.ReducePercent = null
   } else {
-    customData.ReducePercent = 0
-    customData.ReduceCash = 0
+    customData.ReducePercent = null
+    customData.ReduceCash = null
   }
+  customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   customData.CustomerIdsDelete = '2,3'
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
@@ -338,11 +341,15 @@ const customEditDataFlashSale = (data) => {
     customData.CustomerIdsAdd = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = JSON.stringify(data.products)
+  console.log('data edit', data)
+
   return customData
 }
 
 const postData = async (data) => {
   data = customPostDataFlashSale(data)
+  console.log('data post:', data)
+
   await addNewCampaign(FORM_IMAGES(data))
     .then(() =>
       ElNotification({

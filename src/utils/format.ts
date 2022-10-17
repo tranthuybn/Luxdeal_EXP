@@ -29,12 +29,26 @@ export const formatRankingCustomer = (val) => {
 }
 export const formatSubjectVoucher = (val) => {
   switch (val) {
-    case 1:
+    case 3:
       return t('reuse.allCustomer')
     case 2:
       return t('reuse.groupCustomer')
-    case 3:
+    case 1:
       return t('reuse.onlyCustomer')
+    default:
+      return ''
+  }
+}
+export const formatStatusVoucher = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.finishPending')
+    case 2:
+      return t('reuse.inactive')
+    case 3:
+      return t('reuse.active')
     default:
       return ''
   }

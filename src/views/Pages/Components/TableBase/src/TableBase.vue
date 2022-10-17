@@ -328,6 +328,7 @@ const updateTableColumn = () => {
       :loading="tableObject.loading"
       :pagination="paginationObj"
       :showOverflowTooltip="false"
+      reserveIndex
       :maxHeight="maxHeight"
       @mouseenter="operatorColumnToggle('right')"
       @mouseleave="operatorColumnToggle(false)"

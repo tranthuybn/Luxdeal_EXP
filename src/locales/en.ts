@@ -1391,6 +1391,8 @@ export default {
     explainEnterComboSpaMoney: 'Explain enter combo spa money',
     freeReceive: 'Free receive',
     enterPercentOrMoney: 'Enter percent or money',
-    maxPercent: 'Cant be over 100%'
+    maxPercent: 'Cant be over 100%',
+    customerCodeExist: 'Customer code already exist',
+    productCodeExist: 'Product code already exist'
   }
 }

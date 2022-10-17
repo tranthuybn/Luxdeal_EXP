@@ -230,14 +230,26 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      if (dataTable.customerData.length > 1) {
-        if (
-          dataTable.customerData[dataTable.customerData.length - 1].name == null ||
-          dataTable.customerData[dataTable.customerData.length - 1].code == ''
-        ) {
-          dataTable.customerData.pop()
+
+      if (data.target == 3) {
+        data.customers = null
+      } else {
+        if (dataTable.customerData.length > 1) {
+          if (
+            dataTable.customerData[dataTable.customerData.length - 1].name == null ||
+            dataTable.customerData[dataTable.customerData.length - 1].code == ''
+          ) {
+            dataTable.customerData.pop()
+          }
+          data.customers = dataTable.customerData
+        } else {
+          ElNotification({
+            message: t('reuse.tableCustomerNotFillInformation'),
+            type: 'info'
+          })
+          loading.value = false
+          return
         }
-        data.customers = dataTable.customerData
       }
       if (dataTable.productData.length > 1) {
         if (
@@ -467,7 +479,7 @@ watch(
     if (
       dataTable.customerData?.length < 1 ||
       (dataTable.customerData[dataTable.customerData?.length - 1].code !== '' &&
-        dataTable.customerData[dataTable.customerData?.length - 1].name !== '' &&
+        dataTable.customerData[dataTable.customerData?.length - 1].name !== null &&
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
@@ -549,6 +561,34 @@ const changeName = (data, scope) => {
   // need a function to find the name of the option selected
   //then scope.row.name = result find
 }
+const changeProduct = (data, scope) => {
+  forceRemove.value = false
+  const selected = dataTable.productData.find((product) => product.code == data)
+  if (selected !== undefined) {
+    scope.row.code = ''
+    scope.row.name = null
+    ElNotification({
+      message: t('reuse.productCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.code = data
+  }
+}
+const changeCustomer = (data, scope) => {
+  forceRemove.value = false
+  const selected = dataTable.customerData.find((customer) => customer.code == data)
+  if (selected !== undefined) {
+    scope.row.code = ''
+    scope.row.name = null
+    ElNotification({
+      message: t('reuse.customerCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.code = data
+  }
+}
 const removeCustomer = (scope) => {
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
@@ -561,15 +601,12 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
 const getProductSelected = (_value, obj, scope) => {
-  console.log('value', _value)
   scope.row.name = obj.name
   scope.row.id = obj.id
-  scope.row.code = obj.value
 }
 const getCustomerSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
-  scope.row.code = obj.value
 }
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
@@ -682,6 +719,7 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
+                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.customerCode'),
@@ -698,7 +736,7 @@ const getSpaSelected = (spaServices) => {
                     :clearable="false"
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
+                    @change="(option) => changeCustomer(option, scope)"
                   />
                 </template>
               </el-table-column>
@@ -734,7 +772,7 @@ const getSpaSelected = (spaServices) => {
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
                     @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
+                    @change="(option) => changeProduct(option, scope)"
                   />
                 </template>
               </el-table-column>

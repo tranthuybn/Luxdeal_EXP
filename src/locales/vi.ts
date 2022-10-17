@@ -1483,6 +1483,8 @@ export default {
     explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực',
     freeReceive: 'Nhận miễn phí',
     enterPercentOrMoney: 'Nhập số % hoặc số tiền',
-    maxPercent: 'Không thể nhập quá 100%'
+    maxPercent: 'Không thể nhập quá 100%',
+    customerCodeExist: 'Mã khách hàng đã tồn tại',
+    productCodeExist: 'Mã sản phẩm đã tồn tại'
   }
 }

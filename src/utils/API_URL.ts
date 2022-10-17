@@ -66,7 +66,10 @@ export const CAMPAIGN_API = {
 
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
-  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'
+  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
+  CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
+  CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
+  GET_PRODUCT_ID: '/api/v1/Product/GetProduct'
 }
 export const ADDRESS_API = {
   CITY: '/api/addr/getAllCity',

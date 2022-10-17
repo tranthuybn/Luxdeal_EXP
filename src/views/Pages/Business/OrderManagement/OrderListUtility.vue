@@ -23,7 +23,8 @@ import {
   ElForm,
   ElFormItem,
   ElMessage,
-  ElNotification
+  ElNotification,
+  ElTreeSelect
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -31,17 +32,22 @@ import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
   addNewOrderList,
-  getSellOrderList
+  getSellOrderList,
+  createQuickProduct,
+  getCheckProduct,
+  getproductId
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
+import { getCategories } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
 
@@ -204,11 +210,11 @@ const collapse: Array<Collapse> = [
 
 const choosePayment = [
   {
-    value: 'cashPayment',
+    value: 0,
     label: t('formDemo.cashPayment')
   },
   {
-    value: 'cardPayment',
+    value: 1,
     label: t('formDemo.cardPayment')
   }
 ]
@@ -273,20 +279,29 @@ const tableData2 = [
 
 const historyTable = ref([
   {
-    name: 'Droplist & chỉ lấy sản phẩm trong danh sách sản phẩm bán của đơn này',
-    quantity: '',
+    startDay: '02/07/2022',
+    productManagementCode: 'SPB34653',
+    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
+    accessory: '',
+    quantity: '01',
     unit: t('formDemo.psc'),
     inventoryStatus: 'Đã nhập kho'
   },
   {
-    name: '',
-    quantity: '',
+    startDay: '02/07/2022',
+    productManagementCode: 'SPB34653',
+    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
+    accessory: '',
+    quantity: '01',
     unit: t('formDemo.psc'),
     inventoryStatus: 'Chưa nhập kho'
   },
   {
-    name: '',
-    quantity: '',
+    startDay: '02/07/2022',
+    productManagementCode: 'SPB34653',
+    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
+    accessory: '',
+    quantity: '01',
     unit: t('formDemo.psc'),
     inventoryStatus: 'Đã hủy'
   }
@@ -295,12 +310,6 @@ const historyTable = ref([
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
-      // switch(val){
-      //   case 'orderSell':{
-      //     call api
-      //     break;
-      //   }
-      // }
       if (val.includes(el.name)) el.icon = minusIcon
       else if (el.icon == minusIcon) el.icon = plusIcon
     })
@@ -319,7 +328,10 @@ const activeName = ref(collapse[0].name)
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
+    startDay: moment().format('L').toString(),
+    productManagementCode: '',
     name: '',
+    accessory: '',
     quantity: '',
     unit: t('formDemo.psc'),
     inventoryStatus: ''
@@ -400,22 +412,20 @@ const callCustomersApi = async () => {
 
 // Call api danh sách sản phẩm
 let listProductsTable = ref()
-const optionsApi = ref()
 let optionCallAPi = 0
 const callApiProductList = async () => {
   if (optionCallAPi == 0) {
     const res = await getProductsList()
     if (Array.isArray(res.data) && res.data.length > 0) {
-      optionsApi.value = res.data.map((product) => ({
+      listProductsTable.value = res.data.map((product) => ({
         productCode: product.code,
-        value: product.productStoreCode,
+        value: product.productCode,
         name: product.name ?? '',
         price: product.price.toString(),
         productPropertyId: product.id.toString(),
         productPropertyCode: product.productPropertyCode
       }))
       optionCallAPi++
-      listProductsTable.value = optionsApi.value
     }
   }
 }
@@ -516,7 +526,162 @@ const addnewproduct = () => {
   dialogAddProduct.value = true
 }
 
-// tạo đơn hàng
+// Thêm nhanh sản phẩm
+const quickProductCode = ref()
+const quickManagementCode = ref()
+const quickProductName = ref()
+const quickDescription = ref()
+const productCharacteristics = ref()
+const chooseOrigin = ref()
+
+// Danh mục brand unit origin api
+
+const chooseCategory = ref()
+let categorySelect = ref()
+let optionsCategory = ref()
+let callCategoryAPI = 0
+const getCategory = async () => {
+  if (callCategoryAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[0].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    categorySelect.value = res.data
+    optionsCategory.value = categorySelect.value.map((product) => ({
+      label: product.name,
+      value: product.id,
+      id: product.id,
+      children: product.children.map((child) => ({
+        value: child.name,
+        label: child.name,
+        id: child.id
+      }))
+    }))
+  }
+  callCategoryAPI++
+}
+const chooseBrand = ref()
+let brandSelect = ref()
+let optionsBrand = ref()
+let callBrandAPI = 0
+const getBrandSelectOptions = async () => {
+  if (callBrandAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[7].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    brandSelect.value = res.data
+    optionsBrand.value = brandSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callUnitAPI++
+}
+
+const chooseUnit = ref()
+let unitSelect = ref()
+let optionsUnit = ref()
+let callUnitAPI = 0
+const getUnitSelectOptions = async () => {
+  if (callUnitAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[6].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    unitSelect.value = res.data
+    optionsUnit.value = unitSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callUnitAPI++
+}
+
+let originSelect = ref()
+let optionsOrigin = ref()
+let callOriginAPI = 0
+const getOriginSelectOptions = async () => {
+  if (callOriginAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[8].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    originSelect.value = res.data
+    optionsOrigin.value = originSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callOriginAPI++
+}
+
+const postQuickCustomer = async () => {
+  const payload = {
+    serviceType: 1,
+    productCode: quickProductCode.value,
+    productPropertyCode: quickManagementCode.value,
+    name: quickProductName.value,
+    shortDescription: quickDescription.value,
+    productTypeId: 9,
+    brandId: 49,
+    originId: 123,
+    unitId: 121,
+    categories: [
+      {
+        id: 0,
+        key: 'string',
+        value: 'string'
+      }
+    ]
+  }
+  await createQuickProduct(payload)
+}
+
+const handleChangeQuickAddProduct = async (data) => {
+  console.log('data: ', data)
+
+  const dataSelectedObj = listProductsTable.value.find(
+    (product) => product.productPropertyId == data
+  )
+  // quickProductName.value = dataSelectedObj.name
+  console.log('dataSelectedObj: ', dataSelectedObj)
+
+  // call API checkProduct
+  let codeCheckProduct = ref()
+  let checkProductAPI = 0
+  if (checkProductAPI == 0) {
+    const res = await getCheckProduct({ keyWord: dataSelectedObj.value })
+    codeCheckProduct.value = res.data[0]
+    console.log('codeCheckProduct: ', codeCheckProduct)
+  }
+  checkProductAPI++
+
+  // call API getProductId
+  let formProductData = ref()
+  let getProductIdAPI = 0
+  if (getProductIdAPI == 0) {
+    const res = await getproductId({ Id: codeCheckProduct.value.id })
+    formProductData.value = res.data[0]
+
+    console.log('res: ', res.data)
+  }
+  getProductIdAPI++
+
+  // fill data
+  quickProductName.value = formProductData.value.name
+  quickDescription.value = formProductData.value.shortDescription
+  chooseBrand.value = formProductData.value.categories[0]?.id
+  chooseCategory.value = formProductData.value.categories[1]?.value
+  chooseUnit.value = formProductData.value.categories[2]?.id
+  chooseOrigin.value = formProductData.value.categories[3]?.id
+}
+
+// Tạo đơn hàng
 const postData = async () => {
   // let productPayment = reactive<
   //   Array<{
@@ -691,14 +856,13 @@ const editData = async () => {
 let promoTable = ref()
 const promoLoading = ref(true)
 const listPromotions = ref()
-const optionPromotions = ref()
 let optionCallPromoAPi = 0
 const callPromoApi = async () => {
   if (optionCallPromoAPi == 0) {
     const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
     let count = 0
     listPromotions.value = res.data
-    optionPromotions.value = listPromotions.value.map((product) => ({
+    promoTable.value = listPromotions.value.map((product) => ({
       radio: count++,
       label: product.code,
       value: product.name,
@@ -708,7 +872,6 @@ const callPromoApi = async () => {
       max: product.maximumReduce
     }))
     optionCallPromoAPi++
-    promoTable.value = optionPromotions.value
   }
 }
 
@@ -820,7 +983,7 @@ interface tableDataType {
   spent: string
   salesDebt: string
   edited: boolean
-  paymentType: string
+  paymentType: string | number
   alreadyPaidForTt: boolean
   statusAccountingEntry: string
 }
@@ -833,7 +996,7 @@ const debtTable = ref<Array<tableDataType>>([
     spent: '',
     salesDebt: '0 đ',
     edited: true,
-    paymentType: '',
+    paymentType: 0,
     alreadyPaidForTt: false,
     statusAccountingEntry: 'Đã ghi sổ'
   }
@@ -866,7 +1029,6 @@ const tableAccountingEntry = [
 // fake tạm option thêm nhanh sản phẩm
 
 const value = ref('')
-const value1 = ref('')
 const payment = choosePayment[0].value
 
 const options = [
@@ -902,8 +1064,12 @@ const optionsCharacteristic = [
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
-  callApiProductList()
+  await callApiProductList()
   callApiCity()
+  getBrandSelectOptions()
+  getUnitSelectOptions()
+  getOriginSelectOptions()
+  getCategory()
 })
 onMounted(async () => {
   await editData()
@@ -1069,20 +1235,24 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" :placeholder="t('reuse.selectCategory')">
-                <el-option
-                  v-for="item in options"
+              <el-tree-select
+                v-model="chooseCategory"
+                :data="optionsCategory"
+                :placeholder="t('reuse.selectCategory')"
+              >
+                <!-- <el-option
+                  v-for="item in optionsCategory"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
-                />
-              </el-select>
+                /> -->
+              </el-tree-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
-              <el-select v-model="value" :placeholder="t('reuse.chooseBrand')">
+              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsBrand"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -1093,9 +1263,9 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" :placeholder="t('reuse.chooseUnit')">
+              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsUnit"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -1104,9 +1274,9 @@ onMounted(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
-              <el-select v-model="value" :placeholder="t('reuse.chooseOrigin')">
+              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsOrigin"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -1124,12 +1294,18 @@ onMounted(async () => {
             <label class="w-[30%] text-right"
               >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
             >
-            <el-select v-model="value" :placeholder="t('formDemo.AddSelectProductCode')">
+            <el-select
+              filterable
+              allow-create
+              v-model="quickProductCode"
+              :placeholder="t('formDemo.AddSelectProductCode')"
+              @change="(data) => handleChangeQuickAddProduct(data)"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in listProductsTable"
+                :key="item.productPropertyId"
+                :label="item.productCode"
+                :value="item.productPropertyId"
               />
             </el-select>
           </div>
@@ -1137,21 +1313,37 @@ onMounted(async () => {
             <label class="w-[30%] text-right"
               >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.addManagementCode')" />
+            <el-input
+              v-model="quickManagementCode"
+              style="width: 100%"
+              :placeholder="t('formDemo.addManagementCode')"
+            />
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.EnterNameDescription')" />
+            <el-input
+              v-model="quickProductName"
+              style="width: 100%"
+              :placeholder="t('formDemo.EnterNameDescription')"
+            />
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
-            <el-input style="width: 100%" :placeholder="t('formDemo.EnterNameDescription')" />
+            <el-input
+              v-model="quickDescription"
+              style="width: 100%"
+              :placeholder="t('formDemo.EnterNameDescription')"
+            />
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <el-select v-model="value1" multiple :placeholder="t('formDemo.selectFeature')">
+            <el-select
+              v-model="productCharacteristics"
+              multiple
+              :placeholder="t('formDemo.selectFeature')"
+            >
               <el-option
                 v-for="item in optionsCharacteristic"
                 :key="item.value"
@@ -1163,9 +1355,17 @@ onMounted(async () => {
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="btn" type="primary" @click="dialogAddProduct = false">{{
-              t('button.edit')
-            }}</el-button>
+            <el-button
+              class="btn"
+              type="primary"
+              @click="
+                () => {
+                  dialogAddProduct = false
+                  postQuickCustomer()
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button class="btn" @click="dialogAddProduct = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -2643,7 +2843,7 @@ onMounted(async () => {
             </div>
           </el-table-column>
 
-          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
+          <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <button
                 @click.prevent="removeListProductsSale(scope.$index)"
@@ -2749,7 +2949,7 @@ onMounted(async () => {
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
               <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
               ></span>
               <span class="box_2 text-[#FEB951] dark:text-black">
                 {{ t('formDemo.browsePriceChanges') }}
@@ -2802,7 +3002,7 @@ onMounted(async () => {
           style="width: 100%"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="50" align="center" />
+          <el-table-column type="selection" width="40" align="center" />
           <el-table-column
             prop="dateOfPayment"
             :label="`${t('formDemo.dateOfPayment')}`"
@@ -2812,10 +3012,12 @@ onMounted(async () => {
             <template #default="data">
               <el-date-picker
                 v-model="data.row.dateOfPayment"
+                v-if="type != 'detail'"
                 type="date"
                 placeholder="Pick a day"
                 format="DD/MM/YYYY"
               />
+              <div v-else>{{ data.row.dateOfPayment }}</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -2824,7 +3026,8 @@ onMounted(async () => {
             min-width="240"
           >
             <template #default="data">
-              <el-input v-model="data.row.content" v-if="data.row.edited" style="width: 100%" />
+              <el-input v-model="data.row.content" v-if="type != 'detail'" style="width: 100%" />
+              <div v-else>{{ data.row.content }}</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -2846,25 +3049,27 @@ onMounted(async () => {
             <template #default="data">
               <el-input
                 v-model="data.row.collected"
-                v-if="data.row.edited"
+                v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
+              <div v-else>{{ data.row.collected }}</div>
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.spent')}`" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.spent"
-                v-if="data.row.edited"
+                v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
+              <div v-else>{{ data.row.spent }}</div>
             </template>
           </el-table-column>
           <el-table-column prop="salesDebt" :label="t('formDemo.salesDebt')" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.salesDebt"
-                v-if="type == 'edit'"
+                v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
               <div v-else class="text-right">
@@ -2877,7 +3082,7 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column prop="paymentType" :label="t('formDemo.choosePayment')" min-width="180">
             <template #default="props">
-              <el-select v-model="props.row.paymentType" class="m-2">
+              <el-select v-if="type != 'detail'" v-model="props.row.paymentType" class="m-2">
                 <el-option
                   v-for="(item, index) in choosePayment"
                   :key="index"
@@ -2885,6 +3090,7 @@ onMounted(async () => {
                   :value="item.value"
                 />
               </el-select>
+              <div v-else>{{ props.row.paymentType }}</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -2900,7 +3106,7 @@ onMounted(async () => {
             min-width="70"
           >
             <template #default="scope">
-              <el-checkbox v-model="scope.row.alreadyPaidForTt" />
+              <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="120" align="center">
@@ -2909,10 +3115,12 @@ onMounted(async () => {
                 <!-- @click.prevent="deleteRowDebtTable(scope.$index)" -->
                 <button
                   @click="dialogSalesSlipInfomation = true"
+                  v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
                 </button>
+                <div v-else>{{ t('reuse.detail') }}</div>
                 <!-- <button
                   class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                   @click.prevent="deleteRowDebtTable(scope.$index)"
@@ -2923,7 +3131,10 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="dialogAccountingEntryAdditional = true"
+        <el-button
+          :disabled="checkDisabled"
+          class="ml-4 mt-4"
+          @click="dialogAccountingEntryAdditional = true"
           >+ {{ t('formDemo.add') }}</el-button
         >
       </el-collapse-item>
@@ -2938,8 +3149,28 @@ onMounted(async () => {
             t('formDemo.completeEntryTrackingSheet')
           }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
-            <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-              <template #default="props">
+            <el-table-column
+              prop="startDay"
+              :label="t('formDemo.productInformation')"
+              min-width="150"
+            >
+              <template #default="data">
+                <el-date-picker
+                  v-model="data.row.startDay"
+                  v-if="type != 'detail'"
+                  type="date"
+                  placeholder="Pick a day"
+                  format="DD/MM/YYYY"
+                />
+                <div v-else>{{ data.row.startDay }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="productManagementCode"
+              :label="t('formDemo.productManagementCode')"
+              width="150"
+            >
+              <!-- <template #default="props">
                 <MultipleOptionsBox
                   :fields="[
                     t('reuse.productCode'),
@@ -2955,18 +3186,22 @@ onMounted(async () => {
                   :clearable="false"
                   @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 />
-              </template>
+              </template> -->
             </el-table-column>
             <el-table-column
               prop="name"
               :label="`${t('formDemo.productInformation')}`"
               min-width="720"
             />
-            <el-table-column :label="`${t('reuse.accessory')}`" width="180">
-              <el-input
-                :v-model="input"
-                :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-              />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
+              <template #default="data">
+                <el-input
+                  :v-model="data.row.accessory"
+                  v-if="type != 'detail'"
+                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
+                />
+                <div v-else>{{ data.row.accessory }}</div>
+              </template>
             </el-table-column>
 
             <el-table-column prop="quantity" :label="`${t('formDemo.amount')}`" width="150" />
@@ -2979,9 +3214,12 @@ onMounted(async () => {
             >
               <div @click="informationWarehouseReceipt = true" class="text-blue-500"> NK3424 </div>
             </el-table-column>
-            <el-table-column :label="t('formDemo.inventoryStatus')" align="left" width="200">
-              <div> Đã nhập kho </div>
-            </el-table-column>
+            <el-table-column
+              prop="inventoryStatus"
+              :label="t('formDemo.inventoryStatus')"
+              align="left"
+              width="200"
+            />
           </el-table>
           <el-button class="ml-4 mt-4" @click="onAddHistoryTableItem"
             >+ {{ t('formDemo.add') }}</el-button
@@ -3137,12 +3375,12 @@ onMounted(async () => {
 
 .triangle-right_2 {
   position: absolute;
-  right: -10px;
+  right: -12px;
   width: 0;
   height: 0;
-  border-top: 12px solid transparent;
+  border-top: 13px solid transparent;
   border-bottom: 12px solid transparent;
-  border-left: 10px solid #fff0d9;
+  border-left: 11px solid #fff0d9;
 }
 
 .triangle-left {

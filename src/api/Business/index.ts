@@ -137,6 +137,39 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Thêm nhanh sản phẩm
+export const createQuickProduct = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.CREATE_QUICK_PRODUCT,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// check product
+export const getCheckProduct = async (params?: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.CHECK_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy tất cả thuộc tính sản phẩm theo check product
+export const getproductId = async (params?: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_PRODUCT_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 // Lấy danh sách đơn hàng
 export const getProductsList = async (params?: any): Promise<IResponse> => {
   const res = await request.get(

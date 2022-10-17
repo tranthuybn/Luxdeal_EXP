@@ -239,16 +239,6 @@ const save = async (type) => {
         }
         data.customers = dataTable.customerData
       }
-      if (data.target == 1) {
-        data.customers = null
-      } else {
-        ElNotification({
-          message: t('reuse.tableCustomerNotFillInformation'),
-          type: 'info'
-        })
-        loading.value = false
-        return
-      }
       if (dataTable.productData.length > 1) {
         if (
           dataTable.productData[dataTable.productData.length - 1].name == null ||

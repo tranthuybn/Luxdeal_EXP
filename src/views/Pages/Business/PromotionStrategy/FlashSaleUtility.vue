@@ -50,22 +50,36 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'reduce',
+    field: 'percent',
     component: 'Input',
     colProps: {
       span: 6
     },
     value: '',
     componentProps: {
-      formatter: null,
-      parser: null,
       placeholder: t('reuse.enterPercentOrMoney'),
-      suffixIcon: h('span', ''),
-      max: 100
+      suffixIcon: h('span', '%')
     },
     formItemProps: {
       labelWidth: '0px'
-    }
+    },
+    hidden: false
+  },
+  {
+    field: 'money',
+    component: 'Input',
+    colProps: {
+      span: 6
+    },
+    value: '',
+    componentProps: {
+      placeholder: t('reuse.enterPercentOrMoney'),
+      suffixIcon: h('span', 'đ')
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    },
+    hidden: true
   },
   {
     field: 'date',
@@ -168,12 +182,13 @@ const rules = reactive({
   code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
   promotion: required(),
   date: required(),
-  reduce: [{ validator: ValidService.checkPositiveNumber.validator }]
+  percent: [{ validator: ValidService.maxPercent.validator }],
+  money: [{ validator: ValidService.checkPositiveNumber.validator }]
 })
 
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  data == 3 ? (schema[8].hidden = true) : (schema[8].hidden = false)
+  data == 3 ? (schema[9].hidden = true) : (schema[9].hidden = false)
   valueRadioOjbApply.value = data
 }
 
@@ -181,21 +196,18 @@ const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
     if (data == 1) {
       schema[3].hidden = false
+      schema[4].hidden = true
       schema[2].colProps!.span = 18
-      schema[3].componentProps.suffixIcon = h('span', '%')
-      rules.reduce = [{ validator: ValidService.maxPercent.validator }]
     }
     if (data == 2) {
-      schema[3].hidden = false
+      schema[3].hidden = true
+      schema[4].hidden = false
       schema[2].colProps!.span = 18
-      schema[3].componentProps.suffixIcon = h('span', 'đ')
-      rules.reduce = [{ validator: ValidService.checkPositiveNumber.validator }]
     }
     if (data == 3) {
       schema[3].hidden = true
+      schema[4].hidden = true
       schema[2].colProps!.span = 24
-      schema[3].componentProps.suffixIcon = h('span', '')
-      rules.reduce = []
     }
   }
 }
@@ -265,10 +277,10 @@ const customPostDataFlashSale = (data) => {
   const customData = {} as FormDataPost
 
   if (data.promotion == 1) {
-    customData.ReducePercent = data.reduce
+    customData.ReducePercent = data.percent
     customData.ReduceCash = null
   } else if (data.promotion == 2) {
-    customData.ReduceCash = data.reduce
+    customData.ReduceCash = data.money
     customData.ReducePercent = null
   } else {
     customData.ReducePercent = null
@@ -282,7 +294,7 @@ const customPostDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.ServiceType = 1
   customData.Image = data.Images
-  if (valueRadioOjbApply.value == 1) {
+  if (valueRadioOjbApply.value == 3) {
     customData.CustomerIds = null
     customData.TargetType = 3
   } else {
@@ -300,7 +312,7 @@ type FormDataEdit = {
   Description?: string
   ReducePercent?: number | null
   ReduceCash?: number | null
-  CustomerIds?: string
+  CustomerIds?: string | null
   CustomerIdsAdd?: string
   CustomerIdsDelete?: string
   ProductPropertyIdJson: string
@@ -318,30 +330,31 @@ const customEditDataFlashSale = (data) => {
   customData.Name = data.code
   customData.Description = data.shortDescription
   if (data.promotion == 1) {
-    customData.ReducePercent = data.reduce
+    customData.ReducePercent = data.percent
     customData.ReduceCash = null
   } else if (data.promotion == 2) {
-    customData.ReduceCash = data.reduce
+    customData.ReduceCash = data.money
     customData.ReducePercent = null
   } else {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
-  customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
-  customData.CustomerIdsDelete = '2,3'
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
-  customData.TargetType = 2
   customData.ServiceType = 1
   customData.Image = data.Images
-  if (valueRadioOjbApply.value == 1) {
-    customData.CustomerIdsAdd = ''
+  if (data.target == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
   } else {
-    customData.CustomerIdsAdd = data.customers.map((customer) => customer.id).toString()
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
-  customData.ProductPropertyIdJson = JSON.stringify(data.products)
-  console.log('data edit', data)
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+  )
+  console.log('data edit', data, customData)
 
   return customData
 }
@@ -375,6 +388,8 @@ type SetFormData = {
   products: any
   Images: any
   target: number
+  percent: number
+  money: number
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -382,14 +397,15 @@ const setFormData = reactive(emptyFormData)
 const customizeData = async (data) => {
   if (data[0].reduce) {
     const moneyType = data[0].reduce.split(' ')
-    moneyType[1] == '%' ? (setFormData.promotion = 1) : (setFormData.promotion = 2)
+    moneyType[1] == '%'
+      ? ((setFormData.promotion = 1), (setFormData.percent = moneyToNumber(data[0].reduce)))
+      : ((setFormData.promotion = 2), (setFormData.money = moneyToNumber(data[0].reduce)))
   } else {
     setFormData.promotion = 3
   }
   changeSuffixIcon(setFormData.promotion)
   setFormData.code = data[0].code
   setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.reduce = moneyToNumber(data[0].reduce)
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties

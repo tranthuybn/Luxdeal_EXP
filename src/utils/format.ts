@@ -148,6 +148,18 @@ export const FORM_IMAGES = (data) => {
     return form
   }, new FormData())
 }
+export const FORM_DATA1 = (data) => {
+  return Object.keys(data).reduce((form, key) => {
+    if (data[key] != null && typeof data[key] != 'undefined') {
+      form.append(key, data[key])
+      if (Array.isArray(data[key]) && data[key].length > 0)
+        data[key].forEach((el) => {
+          form.append(key, el)
+        })
+    }
+    return form
+  }, new FormData())
+}
 export const moneyFormat = (money) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
 }

@@ -6,7 +6,7 @@ import {
   API_URL,
   ACCOUNTANT_API
 } from '@/utils/API_URL'
-import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
+import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
 const request = useAxios()
 
@@ -332,7 +332,7 @@ export const deleteCustomerRating = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const updateCollaborators = async (data): Promise<IResponse> => {
-  data = FORM_IMAGES(data)
+  data = FORM_DATA1(data)
   const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data
 }

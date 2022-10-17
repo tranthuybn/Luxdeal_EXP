@@ -32,7 +32,7 @@ import {
   ElFormItem,
   ElMessage
 } from 'element-plus'
-import { FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES, FORM_DATA1 } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const { t } = useI18n()
@@ -385,7 +385,6 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
         message: 'Delete completed'
       })
       let imageRemove = uploadFile.id
-
       FileDeleteIds.push(imageRemove)
     })
     .catch(() => {
@@ -482,10 +481,10 @@ const save = async () => {
           })
         )
     }
-    push({
-      name: 'business.collaborators.collaboratorsList',
-      params: { backRoute: 'business.collaborators.collaboratorsList' }
-    })
+    // push({
+    //   name: 'business.collaborators.collaboratorsList',
+    //   params: { backRoute: 'business.collaborators.collaboratorsList' }
+    // })
   }
 }
 const utility = 'Utility'

@@ -52,11 +52,11 @@ const type = String(router.currentRoute.value.params.type)
 const customerClassification = ref('Khách hàng')
 const valueProvince = ref('')
 const valueDistrict = ref('')
-const { ValidService } = useValidator()
+const { ValidService, notSpace } = useValidator()
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  name: [{ required: true, message: 'Please input name', trigger: 'blur' }],
+  name: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   businessClassification: [
     {
       required: true,
@@ -87,7 +87,13 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     ValidService.checkPhone
-  ]
+  ],
+  userName: [
+    { required: true, message: t('common.required'), trigger: 'blur' },
+    { validator: notSpace }
+  ],
+  password: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  confirmPassword: [{ required: true, message: t('common.required'), trigger: 'blur' }]
 })
 
 let checkValidate = ref(false)
@@ -368,7 +374,7 @@ const postData = async () => {
   }
 }
 
-const postAccount = () => {
+const postAccount = async () => {
   const payload = {
     fullName: ruleForm.name,
     email: ruleForm.email,
@@ -377,56 +383,61 @@ const postAccount = () => {
     userName: ruleForm.userName,
     phoneNumber: null
   }
-  addNewAuthRegister(JSON.stringify(payload))
-  console.log('truoc')
+  const res = await addNewAuthRegister(JSON.stringify(payload))
+  if (res) {
+    const payload = {
+      UserName: ruleForm.userName,
+      Code: ruleForm.customerCode,
+      ReferralCode: ruleForm.referralCode,
+      Name: ruleForm.name,
+      TaxCode: ruleForm.taxCode,
+      IsOrganization: ruleForm.businessClassification,
+      Representative: ruleForm.representative,
+      Phonenumber: ruleForm.phonenumber,
+      Email: ruleForm.email,
+      DoB: ruleForm.doB,
+      DistrictId: 1,
+      WardId: 1,
+      Address: 'trieu khuc',
+      CCCD: ruleForm.cccd,
+      CCCDCreateAt: ruleForm.cccdCreateAt,
+      CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
+      Sex: ruleForm.sex,
+      Link: ruleForm.link,
+      ImageId: 1,
+      isActive: true,
+      CustomerType: 1,
+      AccountName: ruleForm.accountName,
+      AccountNumber: ruleForm.accountNumber,
+      BankId: ruleForm.bankName
+    }
+    const formDataPayLoad = FORM_IMAGES(payload)
+    console.log('postAdd', payload)
+
+    await addNewCustomer(formDataPayLoad)
+      .then(() =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+      )
+      .catch((error) =>
+        ElNotification({
+          message: error,
+          type: 'warning'
+        })
+      )
+    clear()
+  } else {
+    ElNotification({
+      message: t('reuse.failCreateAccount'),
+      type: 'success'
+    })
+  }
 }
 
 const postAdd = async () => {
   await postAccount()
-  const payload = {
-    UserName: ruleForm.userName,
-    Code: ruleForm.customerCode,
-    ReferralCode: ruleForm.referralCode,
-    Name: ruleForm.name,
-    TaxCode: ruleForm.taxCode,
-    IsOrganization: ruleForm.businessClassification,
-    Representative: ruleForm.representative,
-    Phonenumber: ruleForm.phonenumber,
-    Email: ruleForm.email,
-    DoB: ruleForm.doB,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 'trieu khuc',
-    CCCD: ruleForm.cccd,
-    CCCDCreateAt: ruleForm.cccdCreateAt,
-    CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
-    Sex: ruleForm.sex,
-    Link: ruleForm.link,
-    ImageId: 1,
-    isActive: true,
-    CustomerType: 1,
-    AccountName: ruleForm.accountName,
-    AccountNumber: ruleForm.accountNumber,
-    BankId: ruleForm.bankName
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  console.log('postAdd', payload)
-
-  await addNewCustomer(formDataPayLoad)
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-    )
-    .catch((error) =>
-      ElNotification({
-        message: error,
-        type: 'warning'
-      })
-    )
-  clear()
-  console.log('sau')
 }
 
 const centerDialogVisible = ref(false)
@@ -805,6 +816,7 @@ onBeforeMount(() => {
                       <ElFormItem
                         class="flex items-center w-[100%] mb-3 font-normal"
                         label-width="0"
+                        prop="password"
                       >
                         <div class="flex">
                           <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
@@ -821,6 +833,7 @@ onBeforeMount(() => {
                       <ElFormItem
                         class="flex items-center w-[100%] font-normal mt-5"
                         label-width="0"
+                        prop="confirmPassword"
                       >
                         <div class="flex">
                           <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
@@ -829,7 +842,7 @@ onBeforeMount(() => {
                           <el-input
                             class="w-[80%] outline-none pl-2 dark:bg-transparent"
                             type="text"
-                            :placeholder="t('reuse.enterNewPassword')"
+                            :placeholder="t('reuse.confirmPassword')"
                           />
                         </div>
                       </ElFormItem>
@@ -853,7 +866,7 @@ onBeforeMount(() => {
                 </ElFormItem>
               </div>
               <div class="w-[100%]" v-else>
-                <ElFormItem class="flex items-center w-[100%]" label-width="0">
+                <ElFormItem prop="password" class="flex items-center w-[100%]" label-width="0">
                   <div class="flex">
                     <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
                       {{ t('login.password') }} <span class="text-red-600">*</span>
@@ -867,7 +880,11 @@ onBeforeMount(() => {
                   </div>
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%]" label-width="0">
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  label-width="0"
+                  prop="confirmPassword"
+                >
                   <div class="flex">
                     <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
                       {{ t('reuse.confirmPassword') }} <span class="text-red-600">*</span>

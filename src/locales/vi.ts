@@ -1490,6 +1490,7 @@ export default {
     confirmPassword: 'Xác nhận mật khẩu',
     loginAppWebUser: 'Đăng nhập App/web user',
     useToReferralCode: '(Sử dụng làm mã giới thiệu)',
-    cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?'
+    cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?',
+    failCreateAccount: 'Tạo tài khoản thất bại, Vui lòng thử lại'
   }
 }

@@ -1366,6 +1366,31 @@ export default {
     //BST
     chooseCustomerCode: 'Choose customer code',
     chooseProductCode: 'Choose product code',
-    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"'
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
+    chooseAtleast1SpaService: 'Choose atleast 1 spa service',
+    settingVoucherCondition: 'Setting voucher condition',
+    //voucher
+    freeRecievedVoucher: 'Free recieved voucher',
+    voucherAffiliate: 'Voucher affiliate',
+    exchangeByPoints: 'Exchange by points',
+    buyByVirtualWallet: 'Buy by virtual wallet',
+    explainFreeRecievedVoucher: 'Free right after voucher is sent',
+    explainVoucherAffiliate:
+      'Get it for free right after successfully creating an affiliate account',
+    explainExchangeByPoints: 'Must redeem with points to be able to use',
+    explainBuyByVirtualWallet: 'Must buy with money in virtual wallet to be able to use',
+    condition: 'Condition',
+    enterCondition: 'Enter condition',
+    points: 'Points',
+    //combo
+    freeReceiveCombo: 'Free receive combo',
+    explainFreeRecievedCombo: 'Get it for free as soon as the combo is sent',
+    chooseAtleast2SpaService: 'Choose atleast 2 spa service',
+    totalRealSpaMoney: 'Total real spa money',
+    enterComboSpaMoney: 'Enter combo spa money',
+    explainEnterComboSpaMoney: 'Explain enter combo spa money',
+    freeReceive: 'Free receive',
+    enterPercentOrMoney: 'Enter percent or money',
+    maxPercent: 'Cant be over 100%'
   }
 }

@@ -3,9 +3,9 @@ import { provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'
-import { filterAuctionResult, filterAuctionStatus } from '@/utils/filters'
+import { filterAuctionResult, filterTableStatus } from '@/utils/filters'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, formatStatusVoucher } from '@/utils/format'
 
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
@@ -107,7 +107,10 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterAuctionStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatStatusVoucher(cellValue)
+    }
   }
 ])
 </script>

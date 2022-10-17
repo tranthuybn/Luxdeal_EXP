@@ -86,5 +86,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" :customOperator="5" />
 </template>

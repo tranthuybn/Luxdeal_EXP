@@ -47,7 +47,12 @@ router.beforeEach(async (to, from, next) => {
       // Developers can modify it according to the actual situation
       const roleRouters = wsCache.get('roleRouters') || []
       const userInfo = wsCache.get(appStore.getUserInfo)
-
+      //1666066392653 = 18/10/2022
+      if (userInfo.loginDate < 1666066392653) {
+        wsCache.clear()
+        next({ path: '/' })
+        return
+      }
       await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')
 
       permissionStore.getAddRouters.forEach((route) => {

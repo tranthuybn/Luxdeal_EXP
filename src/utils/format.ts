@@ -131,6 +131,8 @@ export const campaignType = (val) => {
       return t('router.voucher')
     case 5:
       return t('router.combo')
+    default:
+      return t('router.flashsale')
   }
 }
 
@@ -142,6 +144,8 @@ export const TargetType = (val) => {
       return t('reuse.groupCustomer')
     case 3:
       return t('reuse.allCustomer')
+    default:
+      return t('reuse.customer')
   }
 }
 
@@ -155,19 +159,8 @@ export const VoucherType = (val) => {
       return t('reuse.redeemGiftVouchersWithPoints')
     case 4:
       return t('reuse.voucherExchangedForVirtualCurrency')
-  }
-}
-
-export const VoucherConditionType = (val) => {
-  switch (val) {
-    case 1:
+    default:
       return t('reuse.freeVouchers')
-    case 2:
-      return t('reuse.voucherAffiliate')
-    case 3:
-      return t('reuse.redeemGiftVouchersWithPoints')
-    case 4:
-      return t('reuse.voucherExchangedForVirtualCurrency')
   }
 }
 
@@ -230,6 +223,9 @@ export default {
   businessIventoryStatusTransferToText,
   dateTimeFormat,
   collaboratorStatusTransferToText,
+  campaignType,
+  TargetType,
+  VoucherType,
   valueDateFormat,
   dateFormType,
   dateTimeDisable

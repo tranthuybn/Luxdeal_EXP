@@ -123,6 +123,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
     serviceName: 'Service name',
@@ -409,7 +410,32 @@ export default {
     proponent: 'Proponent',
     reasonsSpendMoney: 'Reasons to spend money',
     enterReasonPaymentRequest: 'Enter the reason for the payment request',
-    billingInformation: 'Billing Information'
+    billingInformation: 'Billing Information',
+    salesSlipInformation: 'Sales slip information',
+    productInformationSale: 'Product information for sale',
+    commodityName: 'Commodity name',
+    paymentSlip: 'Payment slip',
+    depositSlipAdvance: 'Deposit slip or advance',
+    depositSlipAdvanceinformation: 'Deposit slip or advance information',
+    paymentVoucherInformation: 'Payment voucher information',
+    detailedListExpenses: 'Detailed list of expenses',
+    numberVouchers: 'Number of vouchers',
+    dayVouchers: 'Day vouchers',
+    spendFor: 'Spend for',
+    sl: 'Quantity',
+    amountSpent: 'Amount spent',
+    inventoryStatus: 'Inventory status',
+    informationWarehouseReceipt: 'Information of warehouse receipt, exchange or return',
+    receiptCode: 'Receipt code',
+    warehouser: 'Warehouser',
+    ReasonExchangeReturn: 'Reason for exchange or return',
+    fullyIntegrated: 'Fully integrated product information',
+    unitPriceWarehouse: 'Unit price warehouse',
+    intoMoneyWarehouse: 'Into money warehouse',
+    accountingEntryAdditional: 'Accounting entry additional',
+    selectProvinceCity: 'Select province or city',
+    selectDistrict: 'Select District or District',
+    chooseWard: 'Choose a ward'
   },
   button: {
     add: 'Add quick',
@@ -1335,9 +1361,19 @@ export default {
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
     createNew: 'Create new',
+    cmnd: 'CMND/CCCD',
+    changePassword: 'Change password',
+    newPassword: 'New password',
+    enterNewPassword: 'Enter new password',
+    confirmPassword: 'Confirm password',
+    loginAppWebUser: 'Login App/web user',
+    useToReferralCode: '(Use to referral code)',
     //BST
     chooseCustomerCode: 'Choose customer code',
     chooseProductCode: 'Choose product code',
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
+    cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
+    failCreateAccount: 'Fail to create account, please retry',
     CheckCode: 'Please enter the correct code format'
   }
 }

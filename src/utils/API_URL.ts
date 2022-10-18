@@ -57,8 +57,19 @@ export const CUSTOMER_API = {
   DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
   GET_PAYMENT_REQUEST_LIST_API: '/api/v1/Accountant/GetPaymentRequestList',
   GET_COMMISSION_PAYMENT_API: 'api/v1/Customer/getCommissionPayment',
-  GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById'
+  GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
+  GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
+  ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  POST_AUTH_REGISTER: '/api/auth/register'
 }
+
+export const CAMPAIGN_API = {
+  GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
+  GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign'
+}
+
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'

@@ -31,7 +31,7 @@ export default {
           }
         },
         {
-          path: `potential-utility/:id?/:type?`,
+          path: `potential-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd.vue'),
           name: `business.potential-customer-care.potential-customer-list.${utility}`,
@@ -93,18 +93,33 @@ export default {
             title: t('router.customerList')
           }
         },
+
+        {
+          path: 'customer-add/:id?/:type?',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          name: `business.customer-management.customerList.${utility}`,
+          meta: {
+            title: t('router.customerAdd'),
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
+          }
+        },
+
         {
           path: 'customerRatings',
           name: 'business.customer-management.customerRatings',
           component: () =>
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
-            title: t('router.customerRatings')
+            title: t('router.customerRatings'),
+            breadcrumb: true,
+            noTagsView: true
           }
         },
         {
-          path: 'customerRatings-utility/:id?/:type?',
-          name: `business.customer-management.customerRatings.${utility}`,
+          path: 'customerRatings-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('customerList.addNewRanking'),
@@ -116,7 +131,7 @@ export default {
           }
         },
         {
-          path: 'customer-add/:id?/:type?',
+          path: 'customer-add/:type?/:id?',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
           name: `business.customer-management.customerList.${utility}`,
           meta: {
@@ -151,7 +166,7 @@ export default {
           }
         },
         {
-          path: 'paymentRequestAdd/:id?/:type?',
+          path: 'paymentRequestAdd/:type?/:id?',
           name: `business.collaborators.paymentRequest.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
           meta: {
@@ -161,7 +176,7 @@ export default {
           }
         },
         {
-          path: 'collaboratorsAdd/:id?/:type?',
+          path: 'collaboratorsAdd/:type?/:id?',
           name: `business.collaborators.collaboratorsList.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
           meta: {
@@ -187,7 +202,7 @@ export default {
           }
         },
         {
-          path: 'flash-sale-utility/:id?/:type?',
+          path: 'flash-sale-utility/:type?/:id?',
           name: `business.promotion-strategy.flash-sale.${utility}`,
           component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSaleUtility.vue'),
           meta: {
@@ -205,7 +220,7 @@ export default {
           }
         },
         {
-          path: 'collection-utility/:id?/:type?',
+          path: 'collection-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/CollectionUtility.vue'),
           name: `business.promotion-strategy.collection.${utility}`,
           meta: {
@@ -223,7 +238,7 @@ export default {
           }
         },
         {
-          path: 'new-product-utility/:id?/:type?',
+          path: 'new-product-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/NewProductUtility.vue'),
           name: `business.promotion-strategy.new-product.${utility}`,
           meta: {
@@ -241,7 +256,7 @@ export default {
           }
         },
         {
-          path: 'voucher-utility/:id?/:type?',
+          path: 'voucher-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
           name: `business.promotion-strategy.voucher.${utility}`,
           meta: {
@@ -259,7 +274,7 @@ export default {
           }
         },
         {
-          path: 'combo-utility/:id?/:type?',
+          path: 'combo-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/ComboUtility.vue'),
           name: `business.promotion-strategy.combo.${utility}`,
           meta: {
@@ -277,7 +292,7 @@ export default {
           }
         },
         {
-          path: 'auction-utility/:id?/:type?',
+          path: 'auction-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/AuctionUtility.vue'),
           name: `business.promotion-strategy.auction.${utility}`,
           meta: {
@@ -350,7 +365,7 @@ export default {
           }
         },
         {
-          path: 'customer-utility/:id?/:type?',
+          path: 'customer-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/VirtualWallet/VirtualWalletUtility.vue'),
           name: `business.virtual-wallet.customer.${utility}`,
           meta: {
@@ -371,7 +386,7 @@ export default {
           }
         },
         {
-          path: 'with-drewal-request-utility/:id?/:type?',
+          path: 'with-drewal-request-utility/:type?/:id?',
           name: `business.virtual-wallet.with-drewal-request.${utility}`,
           component: () =>
             import('@/views/Pages/Business/VirtualWallet/WithdrawalRequestUtility.vue'),
@@ -393,7 +408,7 @@ export default {
           }
         },
         {
-          path: 'settings-utility/:id?/:type?',
+          path: 'settings-utility/:type?/:id?',
           component: () =>
             import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWalletUtility.vue'),
           name: `business.virtual-wallet.settings.${utility}`,

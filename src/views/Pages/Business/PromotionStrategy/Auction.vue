@@ -1,25 +1,31 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getAuctionList } from '@/api/Business'
+import { getCampaignList } from '@/api/Business'
 import { filterAuctionResult, filterAuctionStatus } from '@/utils/filters'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
+const params = { CampaignType: PROMOTION_STRATEGY[3].key }
+provide('parameters', {
+  params
+})
 const columns = reactive<TableColumn[]>([
   {
-    field: 'index',
+    field: 'id',
     label: t('reuse.index'),
     type: 'index',
     align: 'center'
   },
   {
-    field: 'auctionCode',
+    field: 'code',
     label: t('reuse.auctionCode'),
     minWidth: '130'
   },
   {
-    field: 'descriptions',
+    field: 'description',
     label: t('reuse.descriptions'),
     minWidth: '250'
   },
@@ -62,25 +68,34 @@ const columns = reactive<TableColumn[]>([
     filters: filterAuctionResult
   },
   {
-    field: 'start',
+    field: 'fromDate',
     label: t('reuse.start'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'doneLabel',
+    field: 'toDate',
     label: t('common.doneLabel'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'creator',
@@ -97,5 +112,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getAuctionList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />
 </template>

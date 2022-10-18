@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    day: 'Ngày',
     generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
     serviceName: 'Tên dịch vụ',
@@ -426,7 +427,32 @@ export default {
     proponent: 'Người đề nghị',
     reasonsSpendMoney: 'Lý do chi tiền',
     enterReasonPaymentRequest: 'Nhập lý do đề nghị thanh toán',
-    billingInformation: 'Thông tin thanh toán'
+    billingInformation: 'Thông tin thanh toán',
+    salesSlipInformation: 'Thông tin phiếu bán hàng',
+    productInformationSale: 'Thông tin sản phẩm bán',
+    commodityName: 'Tên hàng hóa',
+    paymentSlip: 'Phiếu thanh toán',
+    depositSlipAdvance: 'Phiếu đặt cọc/Tạm ứng',
+    depositSlipAdvanceinformation: 'Thông tin phiếu đặt cọc/Tạm ứng',
+    paymentVoucherInformation: 'Thông tin phiếu chi',
+    detailedListExpenses: 'Bảng kê chi tiết các khoản chi(Nếu có)',
+    numberVouchers: 'Số chứng từ',
+    dayVouchers: 'Ngày chứng từ',
+    spendFor: 'Nội dung chi',
+    sl: 'SL',
+    amountSpent: 'Số tiền chi',
+    inventoryStatus: 'Trạng thái nhập kho',
+    informationWarehouseReceipt: 'Thông tin phiếu nhập kho hoàn hàng đổi/trả',
+    receiptCode: 'Mã phiếu nhập kho',
+    warehouser: 'Người nhập kho',
+    ReasonExchangeReturn: 'Lý do đổi/Trả',
+    fullyIntegrated: 'Thông tin sản phẩm nhập hoàn',
+    unitPriceWarehouse: 'Đơn giá nhập kho',
+    intoMoneyWarehouse: 'Thành tiền nhập kho',
+    accountingEntryAdditional: 'Bút toán bổ sung',
+    selectProvinceCity: 'Chọn Tỉnh/Thành phố',
+    selectDistrict: 'Chọn Quận/Huyện',
+    chooseWard: 'Chọn Phường/Xã'
   },
   button: {
     add: 'Thêm nhanh',
@@ -1414,6 +1440,11 @@ export default {
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
+    //Short Key
+    mst: 'MST',
+    sdt: 'SDT',
+    cmnd: 'CMND/CCCD',
+    enterFacebookZaloLink: 'Nhập link facebook/zalo...',
     moneyPaymentCode: 'Mã gói nạp tiền',
     alreadyPaid: 'Đã thanh toán',
     notPaid: 'Chưa thanh toán',
@@ -1439,7 +1470,6 @@ export default {
     checkDecimal: 'Vui lòng không nhập số thập phân',
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
-    chooseProductCode: 'Chọn mã sản phẩm',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang sử lí',
     used: 'Đã sử lí'

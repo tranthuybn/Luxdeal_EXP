@@ -88,17 +88,16 @@ watchEffect(() => {
     // set options for select box
     options.value = propsObj.items
 })
+console.log('propsObj.defaultValue', propsObj.defaultValue)
 watch(
   () => propsObj.defaultValue,
   (val) => {
-    console.log('run here', propsObj.defaultValue)
-    if (val) {
+    console.log('run here', propsObj.defaultValue, val)
+    if (val && val !== null) {
       selected.value = val.toString()
     }
-    if (val == '') {
-      selected.value = null
-    }
-  }
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -152,6 +151,7 @@ onUnmounted(() => {
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
+    remote
     class="el-select-custom"
     @visible-change="appearsEvent"
     @change="valueChangeEvent"

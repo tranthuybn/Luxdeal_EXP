@@ -4,6 +4,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getNewProductList } from '@/api/Business'
 import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/filters'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -40,21 +41,30 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.start'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'doneLabel',
     label: t('common.doneLabel'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createDate',
     label: t('reuse.createDate'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'creator',

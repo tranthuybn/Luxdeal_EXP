@@ -137,6 +137,18 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Thêm nhanh khách hàng
+export const addQuickCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_QUICK_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Thêm nhanh sản phẩm
 export const createQuickProduct = async (params: any): Promise<IResponse> => {
   const res = await request.post(

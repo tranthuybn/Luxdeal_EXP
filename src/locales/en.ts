@@ -435,7 +435,8 @@ export default {
     accountingEntryAdditional: 'Accounting entry additional',
     selectProvinceCity: 'Select province or city',
     selectDistrict: 'Select District or District',
-    chooseWard: 'Choose a ward'
+    chooseWard: 'Choose a ward',
+    joint: 'Joint'
   },
   button: {
     add: 'Add quick',

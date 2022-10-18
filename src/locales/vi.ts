@@ -449,7 +449,8 @@ export default {
     accountingEntryAdditional: 'Bút toán bổ sung',
     selectProvinceCity: 'Chọn Tỉnh/Thành phố',
     selectDistrict: 'Chọn Quận/Huyện',
-    chooseWard: 'Chọn Phường/Xã'
+    chooseWard: 'Chọn Phường/Xã',
+    joint: 'Chung'
   },
   button: {
     add: 'Thêm nhanh',

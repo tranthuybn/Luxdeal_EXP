@@ -1055,6 +1055,7 @@ export default {
     quantitySold: 'Quantity Sold',
     numberOfTimesRented: 'Number Of Times Rented',
     numberOfTimesDeposited: 'Number Of Times Deposited',
+    freeVouchers: ' Free voucher',
     numberOfTimesPawn: 'Number Of Times Pawn',
     numberOfTimesSpa: 'number Of Times Spa',
     setInventoryForSale: 'Set Inventory For Sale',
@@ -1374,11 +1375,14 @@ export default {
     voucherAffiliate: 'Voucher affiliate',
     exchangeByPoints: 'Exchange by points',
     buyByVirtualWallet: 'Buy by virtual wallet',
+    voucherExchangedForVirtualCurrency: 'Voucher exchanged for virtual currency',
+
     explainFreeRecievedVoucher: 'Free right after voucher is sent',
     explainVoucherAffiliate:
       'Get it for free right after successfully creating an affiliate account',
     explainExchangeByPoints: 'Must redeem with points to be able to use',
     explainBuyByVirtualWallet: 'Must buy with money in virtual wallet to be able to use',
+    redeemGiftVouchersWithPoints: 'Redeem gift vouchers with points',
     condition: 'Condition',
     enterCondition: 'Enter condition',
     points: 'Points',

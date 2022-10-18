@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { useI18n } from '@/hooks/web/useI18n'
+import FlashSaleUtilityVue from '@/views/Pages/Business/PromotionStrategy/FlashSaleUtility.vue'
 const { t } = useI18n()
 export const formatMoneyInput = (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 export const parseMoneyInput = (value) => value.replace(/\$\s?|(,*)/g, '')
@@ -117,6 +118,58 @@ export const businessStatusTransferToText = (val) => {
   else if (val == 1) return `${t('reuse.pending')}`
   else if (val == 2) return `${t('reuse.finishPending')}`
   return `${t('reuse.inactive')}`
+}
+
+export const campaignType = (val) => {
+  switch (val) {
+    case 1:
+      return t('router.flashsale')
+    case 2:
+      return t('router.collection')
+    case 3:
+      return t('router.newproduct')
+    case 4:
+      return t('router.voucher')
+    case 5:
+      return t('router.combo')
+  }
+}
+
+export const TargetType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.customer')
+    case 2:
+      return t('reuse.groupCustomer')
+    case 3:
+      return t('reuse.allCustomer')
+  }
+}
+
+export const VoucherType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.freeVouchers')
+    case 2:
+      return t('reuse.voucherAffiliate')
+    case 3:
+      return t('reuse.redeemGiftVouchersWithPoints')
+    case 4:
+      return t('reuse.voucherExchangedForVirtualCurrency')
+  }
+}
+
+export const VoucherConditionType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.freeVouchers')
+    case 2:
+      return t('reuse.voucherAffiliate')
+    case 3:
+      return t('reuse.redeemGiftVouchersWithPoints')
+    case 4:
+      return t('reuse.voucherExchangedForVirtualCurrency')
+  }
 }
 
 export const dateTimeFormat = (val) => {

@@ -54,7 +54,11 @@ export const CUSTOMER_API = {
   GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
   UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
-  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings'
+  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
+  GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
+  ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  POST_AUTH_REGISTER: '/api/auth/register'
 }
 
 export const CAMPAIGN_API = {

@@ -1362,9 +1362,18 @@ export default {
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
     createNew: 'Create new',
+    cmnd: 'CMND/CCCD',
+    changePassword: 'Change password',
+    newPassword: 'New password',
+    enterNewPassword: 'Enter new password',
+    confirmPassword: 'Confirm password',
+    loginAppWebUser: 'Login App/web user',
+    useToReferralCode: '(Use to referral code)',
     //BST
     chooseCustomerCode: 'Choose customer code',
     chooseProductCode: 'Choose product code',
-    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"'
+    voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
+    cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
+    failCreateAccount: 'Fail to create account, please retry'
   }
 }

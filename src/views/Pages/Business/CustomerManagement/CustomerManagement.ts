@@ -5,7 +5,9 @@ import {
   filtersCustomerType,
   filterStatusCustomer
 } from '@/utils/filters'
+import { CUSTOMER_TYPE } from '@/utils/API.Variables'
 import { dateTimeFormat } from '@/utils/format'
+import { h } from 'vue'
 const { t } = useI18n()
 
 export const CustomerList = [
@@ -18,7 +20,7 @@ export const CustomerList = [
   {
     field: 'code',
     label: t('reuse.customerCode'),
-    minWidth: '250'
+    minWidth: '150'
   },
   {
     field: 'name',
@@ -33,21 +35,57 @@ export const CustomerList = [
     sortable: true
   },
   {
-    field: 'gender',
+    field: 'sex',
     label: t('reuse.gender'),
     minWidth: '100',
-    filters: filterGender
+    filters: filterGender,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return cellValue ? h('div', 'Nam') : h('div', 'Nữ')
+    }
   },
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '250'
+    minWidth: '400',
+    formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
+      return h('ul', [
+        h('li', [
+          Recordable['taxCode']
+            ? h('li', [
+                h('span', [t('reuse.mst'), ':']),
+                h('span', { style: { paddingLeft: '3px' } }, Recordable['taxCode'])
+              ])
+            : h('span')
+        ]),
+        h('li', [
+          h('span', [t('reuse.sdt'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['phonenumber'])
+        ]),
+        h('li', [
+          h('span', [t('reuse.email'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['email'])
+        ]),
+        h('li', [
+          h('span', [t('formDemo.address'), ':']),
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['address'])
+        ])
+      ])
+    }
   },
   {
-    field: 'accountType',
+    field: 'customerType',
     label: t('reuse.accountType'),
-    minWidth: '100',
-    filters: filterAccount
+    minWidth: '150',
+    filters: filterAccount,
+    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
+      if (record.customerType == 1) {
+        return h('div', CUSTOMER_TYPE[0].label)
+      } else if (record.customerType == 1) {
+        return h('div', CUSTOMER_TYPE[1].label)
+      } else {
+        return h('div', CUSTOMER_TYPE[2].label)
+      }
+    }
   },
   {
     field: 'createdAt',
@@ -60,15 +98,18 @@ export const CustomerList = [
     }
   },
   {
-    field: 'updatedBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '120',
-    filters: filterStatusCustomer
+    minWidth: '150',
+    filters: filterStatusCustomer,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Đã hủy')
+    }
   }
 ]

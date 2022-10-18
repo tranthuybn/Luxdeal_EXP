@@ -93,6 +93,20 @@ export default {
             title: t('router.customerList')
           }
         },
+
+        {
+          path: 'customer-add/:id?/:type?',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          name: `business.customer-management.customerList.${utility}`,
+          meta: {
+            title: t('router.customerAdd'),
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
+          }
+        },
+
         {
           path: 'customerRatings',
           name: 'business.customer-management.customerRatings',

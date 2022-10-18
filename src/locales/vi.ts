@@ -1435,6 +1435,11 @@ export default {
     flashSaleDetail: 'Thông tin flash sale',
     bank: 'Ngân hàng',
     selectBank: 'Chọn ngân hàng',
+    //Short Key
+    mst: 'MST',
+    sdt: 'SDT',
+    cmnd: 'CMND/CCCD',
+    enterFacebookZaloLink: 'Nhập link facebook/zalo...',
     moneyPaymentCode: 'Mã gói nạp tiền',
     alreadyPaid: 'Đã thanh toán',
     notPaid: 'Chưa thanh toán',
@@ -1481,6 +1486,14 @@ export default {
     enterComboSpaMoney: 'Đặt tiền gói spa',
     explainEnterComboSpaMoney: 'Phải nhỏ hơn gói spa thực',
     freeReceive: 'Nhận miễn phí',
-    enterPercentOrMoney: 'Nhập số % hoặc số tiền'
+    enterPercentOrMoney: 'Nhập số % hoặc số tiền',
+    changePassword: 'Đổi mật khẩu',
+    newPassword: 'Mật khẩu mới',
+    enterNewPassword: 'Nhập mật khẩu mới',
+    confirmPassword: 'Xác nhận mật khẩu',
+    loginAppWebUser: 'Đăng nhập App/web user',
+    useToReferralCode: '(Sử dụng làm mã giới thiệu)',
+    cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?',
+    failCreateAccount: 'Tạo tài khoản thất bại, Vui lòng thử lại'
   }
 }

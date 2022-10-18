@@ -37,7 +37,7 @@ export const useValidator = () => {
   }
   const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
-    if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
+    if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
       callback(new Error(t('reuse.notSpecialCharacters')))
     } else if (
       /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
@@ -49,7 +49,14 @@ export const useValidator = () => {
       callback()
     }
   }
-
+  const checkCode = (_, val: any, callback: Callback) => {
+    // The password cannot be a special character
+    if (!/^[a-zA-Z0-9]*$/.test(val)) {
+      callback(new Error(t('reuse.CheckCode')))
+    } else {
+      callback()
+    }
+  }
   // Whether the two string wants to wait
   const isEqual = (val1: string, val2: string, callback: Callback) => {
     if (val1 === val2) {
@@ -136,6 +143,16 @@ export const useValidator = () => {
       validator: (_rule: any, value: any, callback: any) => {
         if (/^\s+$/.test(value)) {
           callback(new Error(t('reuse.notSpaceAfter')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    },
+    checkDecimal: {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (!/^[0-9]+$/.test(value)) {
+          callback(new Error(t('reuse.checkDecimal')))
         }
         callback()
       },
@@ -290,6 +307,7 @@ export const useValidator = () => {
     notSpace,
     notSpecialCharacters,
     isEqual,
+    checkCode,
     ValidService
   }
 }

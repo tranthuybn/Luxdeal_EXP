@@ -8,7 +8,7 @@ import {
   CAMPAIGN_API,
   LOGIN_API_URL
 } from '@/utils/API_URL'
-import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
+import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
 const request = useAxios()
 
@@ -377,7 +377,7 @@ export const deleteCustomerRating = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const updateCollaborators = async (data): Promise<IResponse> => {
-  data = FORM_IMAGES(data)
+  data = FORM_DATA1(data)
   const res = await request.put({ url: `${CUSTOMER_API.PUT_COLLABORATOR_API}`, data }, fixedBaseURL)
   return res && res.data
 }
@@ -459,8 +459,49 @@ export const getPaymentList = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const addNewPaymentRequest = async (data): Promise<IResponse> => {
+  const res = await request.post(
+    { url: `${ACCOUNTANT_API.POST_COMMISSION_PAYMENT_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
-// Lấy danh sách phiếu thu chi
+export const updateCommissionPayment = async (data): Promise<IResponse> => {
+  data = FORM_IMAGES(data)
+  const res = await request.put(
+    { url: `${ACCOUNTANT_API.PUT_COMMISSION_PAYMENT_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getReceiptPaymentList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.GET_RECEIPT_PAYMENT_BY_ID_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getCommissionPaymentList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COMMISSION_PAYMENT_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
+export const getCommissionPaymentByIdList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COMMISSION_PAYMENT_BY_ID_API}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

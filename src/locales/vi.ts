@@ -137,6 +137,7 @@ export default {
     servicePriceAndExecutionTime: 'Giá dịch vụ và thời gian thực hiện',
     statusAndFunctional: 'Trạng thái và chức năng',
     status: 'Trạng thái',
+    statusPayment: 'Trạng thái thanh toán',
     pending: 'Chờ duyệt',
     saveAndPending: 'Lưu và chờ duyệt',
     isActive: 'Đang hoạt động',
@@ -203,6 +204,7 @@ export default {
     orderStatus: 'Trạng thái đơn hàng',
     paymenAndDelivery: 'Sản phẩm & thanh toán',
     chooseACustomer: 'Chọn khách hàng',
+    chooseASeller: 'Chọn người bán',
     chooseCustomerDetail: 'Chọn khách hàng chi tiết',
     delivery: 'Giao hàng',
     chooseDelivery: 'Chọn giao vận',
@@ -232,6 +234,7 @@ export default {
     statusAndManipulation: 'Trạng thái & thao tác',
     temporaryStorage: 'Lưu tạm',
     productImportHistory: 'Lịch sử nhập hoàn',
+    returnHistory: 'Lịch sử nhập hoàn',
     consignmentReturnHistoryForCustomers: 'Lịch sử hoàn trả lại hàng ký gửi cho khách hàng',
     orderReceiptsGoods: 'Đơn nhập hàng',
     brandName: 'Tên Thương hiệu',
@@ -756,6 +759,8 @@ export default {
     feedBack: 'Phản hồi CSKH',
     status: 'Trạng thái',
     approval: 'Chờ duyệt',
+    approveCondition: 'Điều kiện duyệt',
+    approveOrNot: 'Duyệt(ON)/không duyệt(OFF)',
     operator: 'Thao tác',
     createDate: 'Ngày tạo',
     customerName: 'Tên khách hàng',
@@ -767,6 +772,7 @@ export default {
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
+    collaboratorsSelect: 'Chọn cộng tác viên',
     account: 'Tài Khoản',
     totalMoney: 'Tổng tiền Com',
     debtCom: 'Công nợ Com',
@@ -1455,6 +1461,7 @@ export default {
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    receiptAndPayment: 'Thu/chi',
     choosePaymentProposal: 'Chọn đề nghị thanh toán',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
     detailVirtualWalletRequest: 'Chi tiết yêu cầu rút ví ảo',
@@ -1462,6 +1469,8 @@ export default {
     authorized: 'Tài khoản chưa được phân quyền',
     accountInfo: 'Không có thông tin tài khoản ',
     createNew: 'tạo mới',
+    CheckCode: 'Vui lòng nhập đúng định dạng mã',
+    checkDecimal: 'Vui lòng không nhập số thập phân',
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
     chooseProductCode: 'Chọn mã sản phẩm',
@@ -1501,6 +1510,9 @@ export default {
     enterPercentOrMoney: 'Nhập số % hoặc số tiền',
     maxPercent: 'Không thể nhập quá 100%',
     customerCodeExist: 'Mã khách hàng đã tồn tại',
-    productCodeExist: 'Mã sản phẩm đã tồn tại'
+    productCodeExist: 'Mã sản phẩm đã tồn tại',
+    waitingForProcessing: 'Chờ xử lí',
+    inUse: 'Đang sử lí',
+    used: 'Đã sử lí'
   }
 }

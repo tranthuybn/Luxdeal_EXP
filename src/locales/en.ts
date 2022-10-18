@@ -1404,6 +1404,9 @@ export default {
     enterPercentOrMoney: 'Enter percent or money',
     maxPercent: 'Cant be over 100%',
     customerCodeExist: 'Customer code already exist',
-    productCodeExist: 'Product code already exist'
+    productCodeExist: 'Product code already exist',
+    cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
+    failCreateAccount: 'Fail to create account, please retry',
+    CheckCode: 'Please enter the correct code format'
   }
 }

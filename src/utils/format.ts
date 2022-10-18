@@ -65,6 +65,9 @@ export const formatCustomerRatings = (val) => {
       return ''
   }
 }
+export const priceTransferToText = (val) => {
+  return `${val + ' đ'}`
+}
 export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
@@ -74,6 +77,20 @@ export const collaboratorStatusTransferToText = (val) => {
   else if (val == 1) return `${t('reuse.active')}`
   else if (val == 2) return `${t('reuse.inactive')}`
   return `${t('reuse.lock')}`
+}
+export const isFileTransferToText = (val) => {
+  if (val == true) return `${t('common.ok')}`
+  else if (val == false) return `${t('reuse.no')}`
+}
+export const paidTransferToText = (val) => {
+  if (val == true) return `${t('formDemo.alreadyPaidForTt')}`
+  else if (val == false) return `${t('reuse.notPaid')}`
+}
+export const commissionPaymentStatusTransferToText = (val) => {
+  if (val == 1) return `${t('reuse.waitingForProcessing')}`
+  else if (val == 2) return `${t('reuse.inUse')}`
+  else if (val == 3) return `${t('reuse.used')}`
+  return `${t('reuse.cancelled')}`
 }
 export const formatPotentialCustomerStatusIdToText = (val) => {
   switch (val) {
@@ -191,6 +208,18 @@ export const FORM_DATA = (object) => {
   return formData
 }
 export const FORM_IMAGES = (data) => {
+  return Object.keys(data).reduce((form, key) => {
+    if (data[key] != null && typeof data[key] != 'undefined') {
+      form.append(key, data[key])
+      if (Array.isArray(data[key]) && data[key].length > 0)
+        data[key].forEach((el) => {
+          form.append(key, el)
+        })
+    }
+    return form
+  }, new FormData())
+}
+export const FORM_DATA1 = (data) => {
   return Object.keys(data).reduce((form, key) => {
     if (data[key] != null && typeof data[key] != 'undefined') {
       form.append(key, data[key])

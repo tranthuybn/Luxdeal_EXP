@@ -154,3 +154,9 @@ export const PROMOTION_STRATEGY = [
     label: 'Đấu giá'
   }
 ]
+
+export const typeOfPeople = {
+  1: 'Khách hàng',
+  2: 'Cộng tác viên',
+  3: 'Nhân viên'
+}

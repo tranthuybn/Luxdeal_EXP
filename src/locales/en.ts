@@ -1364,6 +1364,13 @@ export default {
     authorized: 'Account is not authorized',
     accountInfo: 'Have no clue about account',
     createNew: 'Create new',
+    cmnd: 'CMND/CCCD',
+    changePassword: 'Change password',
+    newPassword: 'New password',
+    enterNewPassword: 'Enter new password',
+    confirmPassword: 'Confirm password',
+    loginAppWebUser: 'Login App/web user',
+    useToReferralCode: '(Use to referral code)',
     //BST
     chooseCustomerCode: 'Choose customer code',
     chooseProductCode: 'Choose product code',

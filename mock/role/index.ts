@@ -372,6 +372,16 @@ const adminList = [
             meta: {
               title: 'router.customerAdd'
             }
+          },
+          {
+            path: `${utility}/:id?/:type?`,
+            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+            name: `business.customer-management.customerList.${utility}`,
+            meta: {
+              title: 'router.customerAdd',
+              hidden: true,
+              canto: true
+            }
           }
         ]
       },

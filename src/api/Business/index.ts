@@ -1,5 +1,13 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { CUSTOMER_API, PRODUCTS_AND_SERVICES_API, ORDER_API, API_URL } from '@/utils/API_URL'
+import {
+  CUSTOMER_API,
+  PRODUCTS_AND_SERVICES_API,
+  ORDER_API,
+  API_URL,
+  ACCOUNTANT_API,
+  CAMPAIGN_API,
+  LOGIN_API_URL
+} from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
@@ -118,6 +126,49 @@ export const getCustomer = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getCustomerById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_CUSTOMER_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getGenCodeCustomers = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_GEN_CODE_CUSTOMER}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const addNewCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CUSTOMER_API.ADD_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const addNewAuthRegister = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CUSTOMER_API.POST_AUTH_REGISTER,
+      data: params
+    },
+    LOGIN_API_URL
+  )
+  return res.data && res.data.data
+}
+
 // Tạo mới đơn hàng
 export const addNewOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.post(
@@ -131,7 +182,7 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-export const getProductsList = async (params: any): Promise<IResponse> => {
+export const getProductsList = async (params?: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${PRODUCTS_AND_SERVICES_API.GET_PRODUCTS}?${objectToQueryParams(params)}`
@@ -334,6 +385,7 @@ export const getFlashSaleList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/flash-sale/List', params })
   return res && res.data
 }
+
 export const getcollectionList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/collection/List', params })
   return res && res.data
@@ -358,10 +410,26 @@ export const getCustomerVirtualEWalletList = async (params: any): Promise<IRespo
   const res = await request.get({ url: '/customervirtualWallet', params })
   return res && res.data
 }
-export const getVoucherList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/voucher', params })
+export const getCampaignList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    { url: `${CAMPAIGN_API.GET_CAMPAIGN}?${objectToQueryParams(params)}` },
+    fixedBaseURL
+  )
   return res && res.data
 }
+
+// post campaign
+export const addNewCampaign = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: CAMPAIGN_API.POST_CAMPAIGN,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data
@@ -375,12 +443,25 @@ export const getEmployeeList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách đề nghị thanh toán
 export const getPaymentList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/payment', params })
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
+
+// Lấy danh sách phiếu thu chi
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/receipts-expenditures', params })
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 

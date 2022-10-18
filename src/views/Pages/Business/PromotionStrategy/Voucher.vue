@@ -2,73 +2,95 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getVoucherList } from '@/api/Business'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { getCampaignList } from '@/api/Business'
+import { provide } from 'vue'
 import {
   filterPromotionPrice,
   filterTableStatus,
   filterSubject,
   filterVoucherType
 } from '@/utils/filters'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
+const params = { CampaignType: PROMOTION_STRATEGY[3].key }
+provide('parameters', {
+  params
+})
 const columns = reactive<TableColumn[]>([
   {
-    field: 'index',
+    field: 'id',
     label: t('reuse.index'),
     type: 'index',
     align: 'center'
   },
   {
-    field: 'voucherCode',
+    field: 'code',
     label: t('router.voucherCode'),
     minWidth: '130'
   },
   {
-    field: 'descriptions',
+    field: 'description',
     label: t('reuse.descriptions'),
     minWidth: '250'
   },
   {
-    field: 'type',
+    field: 'targetType',
     label: t('reuse.type'),
     minWidth: '200',
     filters: filterVoucherType
   },
   {
-    field: 'subject',
+    field: 'targetType',
+    label: t('formDemo.condition'),
+    minWidth: '200',
+    filters: filterVoucherType
+  },
+  {
+    field: 'targetType',
     label: t('reuse.subject'),
     minWidth: '130',
     filters: filterSubject
   },
   {
-    field: 'promotion',
+    field: 'reduce',
     label: t('reuse.promotion'),
     minWidth: '150',
     filters: filterPromotionPrice
   },
   {
-    field: 'start',
+    field: 'fromDate',
     label: t('reuse.start'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'doneLabel',
+    field: 'toDate',
     label: t('common.doneLabel'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
     headerFilter: 'Name'
@@ -82,5 +104,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getVoucherList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />
 </template>

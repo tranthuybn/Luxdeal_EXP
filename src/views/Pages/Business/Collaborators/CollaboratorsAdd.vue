@@ -11,6 +11,7 @@ import {
   addNewCollaborators,
   updateCollaborators
 } from '@/api/Business'
+import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { getAllCustomer } from '@/api/Business'
 import { API_URL } from '@/utils/API_URL'
@@ -34,6 +35,7 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES, FORM_DATA1 } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
+const { required, ValidService, notSpecialCharacters } = useValidator()
 
 const { t } = useI18n()
 
@@ -145,7 +147,7 @@ const callCustomersApi = async () => {
         bankId: product.bankId,
         accountName: product.accountName,
         accountNumber: product.accountNumber,
-        bankName: product.bank.name,
+        bankName: product.bank?.name,
         CustomerId: product.id
       }))
     }
@@ -396,20 +398,9 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
 }
 const rules = reactive<FormRules>({
   Discount: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-        callback()
-      },
-      required: true,
-      trigger: 'blur'
-    },
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkPositiveNumber.validator },
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (value > 100) {
@@ -421,13 +412,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  customersValue: [
-    {
-      required: true,
-      message: t('common.selectText'),
-      trigger: 'blur'
-    }
-  ]
+  customersValue: [required()]
 })
 const clear = async () => {
   ;(infoCompany.name = ''),
@@ -531,7 +516,7 @@ const activeName = ref('1')
               <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
                 <div>{{ CollaboratorId }}</div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.discountCollaborator')" prop="Discount">
+              <ElFormItem class="mb-5" :label="t('formDemo.discountCollaborator')" prop="Discount">
                 <ElInput
                   v-model="FormData.Discount"
                   size="default"
@@ -539,6 +524,7 @@ const activeName = ref('1')
                   :suffixIcon="h('div', '%')"
                 />
               </ElFormItem>
+              <el-divider content-position="left">{{ t('reuse.customerInfo') }}</el-divider>
               <ElFormItem class="mb-4" :label="t('formDemo.chooseACustomer')" prop="customersValue">
                 <ElSelect
                   v-model="FormData.customersValue"
@@ -642,8 +628,8 @@ const activeName = ref('1')
                   :disabled="disabledForm"
                 >
                   <el-dialog v-model="dialogVisible">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
                     >
                   </el-dialog>
                 </el-upload>

@@ -152,7 +152,9 @@ export const useValidator = () => {
     checkDecimal: {
       validator: (_rule: any, value: any, callback: any) => {
         if (!/^[0-9]+$/.test(value)) {
-          callback(new Error(t('reuse.checkDecimal')))
+          if (value != null) {
+            callback(new Error(t('reuse.checkDecimal')))
+          }
         }
         callback()
       },

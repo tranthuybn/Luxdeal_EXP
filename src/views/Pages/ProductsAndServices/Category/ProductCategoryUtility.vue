@@ -229,10 +229,11 @@ const postData = async (data) => {
 }
 // get data from router
 const router = useRouter()
-const title = router.currentRoute.value.meta.title
+// const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[0].key }
+let title = ref()
 
 const formDataCustomize = ref()
 //custom data before set Value to Form

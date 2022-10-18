@@ -1373,6 +1373,7 @@ export default {
     chooseProductCode: 'Choose product code',
     voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
     cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
-    failCreateAccount: 'Fail to create account, please retry'
+    failCreateAccount: 'Fail to create account, please retry',
+    CheckCode: 'Please enter the correct code format'
   }
 }

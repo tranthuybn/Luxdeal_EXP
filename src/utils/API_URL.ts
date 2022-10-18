@@ -55,6 +55,9 @@ export const CUSTOMER_API = {
   UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
   DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
+  GET_PAYMENT_REQUEST_LIST_API: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_COMMISSION_PAYMENT_API: 'api/v1/Customer/getCommissionPayment',
+  GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
   GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
@@ -78,5 +81,8 @@ export const ADDRESS_API = {
   STREET: '/api/addr/getStreet'
 }
 export const ACCOUNTANT_API = {
-  PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList'
+  PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
+  POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
+  PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment'
 }

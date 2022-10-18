@@ -163,7 +163,11 @@ const rules = reactive({
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  index: [
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpace }
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -277,6 +281,7 @@ const customPostData = (data) => {
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ ...params, ...data })
@@ -291,7 +296,10 @@ const editData = async (data) => {
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    )
+    ),
+    push({
+      name: `${String(router.currentRoute)}`
+    })
 }
 </script>
 

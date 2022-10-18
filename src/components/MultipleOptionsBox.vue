@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -12,7 +12,7 @@ const propsObj = defineProps({
   },
   // options
   items: {
-    type: Array,
+    type: Array<any>,
     default: () => [],
     require: true,
     description: 'Mảng các giá trị truyền vào để chọn'
@@ -83,19 +83,16 @@ const identifyLabel = computed(() => {
 })
 
 // set value for multiple select if defaultValue available
-watchEffect(() => {
-  if (propsObj.items?.length > 0)
-    // set options for select box
-    options.value = propsObj.items
-})
-console.log('propsObj.defaultValue', propsObj.defaultValue)
+// watchEffect(() => {
+//   if (propsObj.items?.length > 0)
+//     // set options for select box
+//     options.value = propsObj.items
+// })
 watch(
   () => propsObj.defaultValue,
-  (val) => {
-    console.log('run here', propsObj.defaultValue, val)
-    if (val && val !== null) {
-      selected.value = val.toString()
-    }
+  () => {
+    selected.value = propsObj.defaultValue
+    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )
@@ -106,22 +103,25 @@ const acceptKey = (item) => {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
-const filter = (str) => {
-  const { items } = propsObj
-  const searchingKey = str.toLowerCase()
-  options.value = items.filter((item) => {
-    if (
-      item != null &&
-      Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
-    ) {
-      return true
-    }
-  })
-}
-const appearsEvent = () => {
-  const { items } = propsObj
-  options.value = items
-}
+// const filter = (str) => {
+//   const { items } = propsObj
+//   const searchingKey = str.toLowerCase()
+//   console.log('searchingKey', searchingKey, 'selected', selected.value)
+//   options.value = items.filter((item) => {
+//     if (
+//       item != null &&
+//       Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
+//     ) {
+//       return true
+//     }
+//   })
+// }
+const loadOption = ref(false)
+// const appearsEvent = () => {
+//   const { items } = propsObj
+//   options.value = items
+//   loadOption.value = false
+// }
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey } = propsObj
@@ -132,6 +132,9 @@ const valueChangeEvent = (val) => {
       }
     })
     if (obj) emit('updateValue', val, obj ?? '')
+    if (propsObj.defaultValue !== null) {
+      selected.value = propsObj.defaultValue
+    }
   }
 }
 const handleScroll = (...val) => {
@@ -146,23 +149,21 @@ onUnmounted(() => {
 </script>
 <template>
   <ElSelect
+    :loading="loadOption"
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
-    remote
     class="el-select-custom"
-    @visible-change="appearsEvent"
-    @change="valueChangeEvent"
-    :filter-method="filter"
+    @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
     :disabled="disabled"
   >
     <!-- value is tje first object when click on title -->
     <ElOption
       :style="`width: ${width}`"
-      :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
+      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
@@ -183,7 +184,7 @@ onUnmounted(() => {
     </ElOption>
     <ElOption
       :style="`width: ${width}`"
-      v-for="(item, index) in options"
+      v-for="(item, index) in items"
       :key="index"
       :value="item[identifyKey]"
       :label="item[identifyLabel]"

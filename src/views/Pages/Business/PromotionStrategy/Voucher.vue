@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, h, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
@@ -7,17 +7,23 @@ import { getCampaignList } from '@/api/Business'
 import { provide } from 'vue'
 import {
   filterPromotionPrice,
-  filterTableStatus,
   filterSubject,
-  filterVoucherType
+  filterVoucherType,
+  filterVoucherCondition,
+  filterTableStatus
 } from '@/utils/filters'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useRouter } from 'vue-router'
+import { useAppStore } from '@/store/modules/app'
 
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 provide('parameters', {
   params
 })
+const tabName = ref()
 const columns = reactive<TableColumn[]>([
   {
     field: 'id',
@@ -36,22 +42,31 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250'
   },
   {
-    field: 'targetType',
+    field: 'type',
     label: t('reuse.type'),
     minWidth: '200',
-    filters: filterVoucherType
+    filters: filterVoucherType,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatSubjectVoucher(cellValue)
+    }
   },
   {
-    field: 'targetType',
+    field: 'condition',
     label: t('formDemo.condition'),
-    minWidth: '200',
-    filters: filterVoucherType
+    minWidth: '130',
+    filters: filterVoucherCondition,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatSubjectVoucher(cellValue)
+    }
   },
   {
     field: 'targetType',
     label: t('reuse.subject'),
-    minWidth: '130',
-    filters: filterSubject
+    minWidth: '200',
+    filters: filterSubject,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatSubjectVoucher(cellValue)
+    }
   },
   {
     field: 'reduce',
@@ -99,10 +114,41 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatStatusVoucher(cellValue)
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') }),
+        h(ElButton, { icon: trashIcon, onClick: () => action(row, 'delete') })
+      ])
+    }
   }
 ])
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
+const { push } = useRouter()
+const router = useRouter()
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const action = (row: any, type: string) => {
+  console.log('tabName', tabName.value)
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type, tab: row.targetType }
+    })
+  }
+}
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" :customOperator="3" />
 </template>

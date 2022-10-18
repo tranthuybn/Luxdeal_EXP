@@ -131,6 +131,7 @@ const getTableValue = async () => {
         formValue.value = res.data
       }
       await setFormValue()
+      console.log('res', res.data)
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -161,9 +162,10 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
+
     dataTable.customerData = props.formDataCustomize.customers
     dataTable.productData = props.formDataCustomize.products
-    console.log('dataTable1111', dataTable.customerData)
+    console.log('dataTable', dataTable)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -222,13 +224,51 @@ const save = async (type) => {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
+      console.log('data', data)
       props.multipleImages
         ? (data.Images = ListFileUpload.value
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      data.customers = dataTable.customerData
-      data.products = dataTable.productData
+
+      if (data.target == 3) {
+        data.customers = null
+      } else {
+        if (dataTable.customerData.length > 1) {
+          if (
+            dataTable.customerData[dataTable.customerData.length - 1].name == null ||
+            dataTable.customerData[dataTable.customerData.length - 1].code == ''
+          ) {
+            dataTable.customerData.pop()
+          }
+          data.customers = dataTable.customerData
+        } else {
+          ElNotification({
+            message: t('reuse.tableCustomerNotFillInformation'),
+            type: 'info'
+          })
+          loading.value = false
+          return
+        }
+      }
+      if (dataTable.productData.length > 1) {
+        if (
+          dataTable.productData[dataTable.productData.length - 1].name == null ||
+          dataTable.productData[dataTable.productData.length - 1].code == ''
+        ) {
+          dataTable.productData.pop()
+        }
+        data.products = dataTable.productData
+      } else {
+        ElNotification({
+          message: t('reuse.tableProductNotFillInformation'),
+          type: 'info'
+        })
+        loading.value = false
+        return
+      }
+
+      console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data, go(-1))
@@ -272,7 +312,7 @@ const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value?.filter((image) => image.url !== file.url)
   ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
   // remove image when edit data
-  if (props.formDataCustomize.Images.length > 0) {
+  if (props.formDataCustomize.Images?.length > 0) {
     let imageRemove = props.formDataCustomize?.Images.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -331,7 +371,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     return true
   } else {
     //báo lỗi nếu ko có ảnh
-    if (type === 'list' && fileList.value.length > 0) {
+    if (type === 'list' && fileList.value?.length > 0) {
       return true
     }
     if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
@@ -434,12 +474,12 @@ const fakeTableProductData = reactive<Product[]>([{ code: '', name: undefined, i
 const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
-  () => dataTable.customerData[dataTable.customerData.length - 1],
+  () => dataTable.customerData[dataTable.customerData?.length - 1],
   () => {
     if (
-      dataTable.customerData.length < 1 ||
-      (dataTable.customerData[dataTable.customerData.length - 1].code !== '' &&
-        dataTable.customerData[dataTable.customerData.length - 1].name !== '' &&
+      dataTable.customerData?.length < 1 ||
+      (dataTable.customerData[dataTable.customerData?.length - 1].code !== '' &&
+        dataTable.customerData[dataTable.customerData?.length - 1].name !== null &&
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
@@ -448,21 +488,21 @@ watch(
   { deep: true }
 )
 watch(
-  () => dataTable.productData.length,
+  () => dataTable.productData?.length,
   () => {
-    if (dataTable.productData.length == 0) {
+    if (dataTable.productData?.length == 0) {
       addLastIndexProductTable()
     }
   }
 )
 
 watch(
-  () => dataTable.productData[dataTable.productData.length - 1],
+  () => dataTable.productData[dataTable.productData?.length - 1],
   () => {
     if (
-      dataTable.productData.length < 1 ||
-      (dataTable.productData[dataTable.productData.length - 1].code !== '' &&
-        dataTable.productData[dataTable.productData.length - 1].name !== '' &&
+      dataTable.productData?.length < 1 ||
+      (dataTable.productData[dataTable.productData?.length - 1].code !== '' &&
+        dataTable.productData[dataTable.productData?.length - 1].name !== '' &&
         forceRemove.value == false)
     ) {
       addLastIndexProductTable()
@@ -471,11 +511,11 @@ watch(
   { deep: true }
 )
 const addLastIndexCustomerTable = () => {
-  let idTable = dataTable.customerData.length
+  let idTable = Date.now()
   dataTable.customerData.push({ id: idTable, code: '', name: null })
 }
 const addLastIndexProductTable = () => {
-  let idTable2 = dataTable.productData.length
+  let idTable2 = Date.now()
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
 }
 //fake option
@@ -489,7 +529,7 @@ const listProductsTable = reactive([
 const listCustomer = ref()
 const callAPICustomer = async () => {
   const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-  if (res.data && res.data.length > 0) {
+  if (res.data && res.data?.length > 0) {
     listCustomer.value = res.data.map((customer) => ({
       value: customer.code,
       label: customer.phonenumber,
@@ -503,7 +543,7 @@ const callAPICustomer = async () => {
 const listProducts = ref()
 const callAPIProduct = async () => {
   const res = await getProductsList()
-  if (res.data && res.data.length > 0) {
+  if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       value: product.code,
       label: product.storeCode,
@@ -521,10 +561,37 @@ const changeName = (data, scope) => {
   // need a function to find the name of the option selected
   //then scope.row.name = result find
 }
+const changeProduct = (data, scope) => {
+  forceRemove.value = false
+  const selected = dataTable.productData.find((product) => product.code == data)
+  if (selected !== undefined) {
+    scope.row.code = ''
+    scope.row.name = null
+    ElNotification({
+      message: t('reuse.productCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.code = data
+  }
+}
+const changeCustomer = (data, scope) => {
+  forceRemove.value = false
+  const selected = dataTable.customerData.find((customer) => customer.code == data)
+  if (selected !== undefined) {
+    scope.row.code = ''
+    scope.row.name = null
+    ElNotification({
+      message: t('reuse.customerCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.code = data
+  }
+}
 const removeCustomer = (scope) => {
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
-  console.log('fakeTableCustomerData', dataTable.customerData)
 }
 const removeProduct = (scope) => {
   forceRemove.value = true
@@ -533,10 +600,13 @@ const removeProduct = (scope) => {
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
 }
+const getProductSelected = (_value, obj, scope) => {
+  scope.row.name = obj.name
+  scope.row.id = obj.id
+}
 const getCustomerSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
-  scope.row.code = obj.value
 }
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
@@ -638,7 +708,6 @@ const getSpaSelected = (spaServices) => {
   spaCost.value = spaObj.reduce(function (accumulator, curValue) {
     return accumulator + curValue.cost
   }, 0)
-  console.log('data', spaServices, spaObj)
 }
 </script>
 <template>
@@ -650,6 +719,7 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
+                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.customerCode'),
@@ -666,7 +736,7 @@ const getSpaSelected = (spaServices) => {
                     :clearable="false"
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
+                    @change="(option) => changeCustomer(option, scope)"
                   />
                 </template>
               </el-table-column>
@@ -698,10 +768,11 @@ const getSpaSelected = (spaServices) => {
                     :items="listProducts"
                     valueKey="value"
                     labelKey="value"
+                    :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
                     :clearable="false"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
+                    @update-value="(value, obj) => getProductSelected(value, obj, scope)"
+                    @change="(option) => changeProduct(option, scope)"
                   />
                 </template>
               </el-table-column>
@@ -723,7 +794,6 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="fakeTableProductData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
-                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.productCode'),
@@ -1178,6 +1248,10 @@ const getSpaSelected = (spaServices) => {
   display: flex;
   justify-content: center;
   margin: 0 auto;
+}
+
+::v-deep(.el-form-item--default .el-form-item__content) {
+  line-height: 24px;
 }
 :deep(.el-dialog__body) {
   max-height: 85vh;

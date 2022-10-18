@@ -256,7 +256,7 @@ export default {
           }
         },
         {
-          path: 'voucher-utility/:type?/:id?',
+          path: 'voucher-utility/:type?/:tab?/:id?',
           component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
           name: `business.promotion-strategy.voucher.${utility}`,
           meta: {

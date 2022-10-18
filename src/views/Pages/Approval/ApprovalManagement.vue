@@ -4,6 +4,7 @@ import { getApproveManagementList } from '@/api/Approval'
 import TableBase from '@/views/Pages/Components/TableBase/src/TableBase.vue'
 import { ContentWrap } from '@/components/ContentWrap'
 import { h, ref, unref } from 'vue'
+import { ElSwitch } from 'element-plus'
 const { t } = useI18n()
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
@@ -37,7 +38,7 @@ const unitCategories = [
     fixed: false,
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h('ElSwitch', {
+      return h(ElSwitch, {
         style: { margin: 'auto' },
         modelValue: record.approveOrNot,
         onClick: () => seeDetail(record, column, cellValue)

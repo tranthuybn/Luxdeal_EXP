@@ -22,7 +22,7 @@ export default {
       children: [
         {
           path: 'purchase-order-list',
-          component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd.vue'),
+          component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderList.vue'),
           name: 'purchase.business-purchases.purchase-order-list',
           meta: {
             title: t('router.purchaseOrderList')
@@ -30,7 +30,7 @@ export default {
         },
         {
           path: 'purchase-order-add',
-          component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderList.vue'),
+          component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd.vue'),
           name: 'purchase.business-purchases.purchase-order-add',
           meta: {
             title: t('router.purchaseOrderAdd')

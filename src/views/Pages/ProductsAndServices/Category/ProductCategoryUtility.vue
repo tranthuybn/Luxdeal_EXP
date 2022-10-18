@@ -49,7 +49,6 @@ const schema = reactive<FormSchema[]>([
         }
       ],
       onChange: (value) => {
-        rules
         if (value == 1 || value == '') {
           removeFormSchema()
         }
@@ -142,7 +141,7 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const rules = reactive({
+let rules = reactive({
   rankCategory: [required()],
   name: [
     required(),
@@ -156,7 +155,11 @@ const rules = reactive({
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  index: [
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpace }
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -285,9 +288,9 @@ const customPostData = (data) => {
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
-const editData = async (data) => {
-  console.log(data)
+const { push } = useRouter()
 
+const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
@@ -301,7 +304,10 @@ const editData = async (data) => {
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    )
+    ),
+    push({
+      name: `${String(router.currentRoute)}`
+    })
 }
 const deleteOrigin = `${t('reuse.deleteOrigin')}`
 </script>

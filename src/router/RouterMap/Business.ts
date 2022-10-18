@@ -121,7 +121,6 @@ export default {
         {
           path: 'customerRatings-utility/:type?/:id?',
           component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
-          name: `business.customer-management.customerRatings.${utility}`,
           meta: {
             title: t('customerList.addNewRanking'),
             noTagsView: true,
@@ -146,7 +145,8 @@ export default {
       name: 'business.collaborators',
       redirect: { name: 'business.collaborators.collaboratorsList' },
       meta: {
-        title: t('router.collaborators')
+        title: t('router.collaborators'),
+        alwaysShow: true
       },
       children: [
         {

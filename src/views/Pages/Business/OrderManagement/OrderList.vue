@@ -24,7 +24,7 @@ const tabs: Array<Tab> = [
     label: t('reuse.orderRental'),
     api: getRentalorderList,
     column: rentalorder,
-    titleAdd: 'formDemo.addnewRentalOrders'
+    titleAdd: 'formDemo.addNewRentalOrders'
   },
   {
     name: 'orderDeposit',

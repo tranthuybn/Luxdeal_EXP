@@ -452,7 +452,8 @@ export default {
     accountingEntryAdditional: 'Bút toán bổ sung',
     selectProvinceCity: 'Chọn Tỉnh/Thành phố',
     selectDistrict: 'Chọn Quận/Huyện',
-    chooseWard: 'Chọn Phường/Xã'
+    chooseWard: 'Chọn Phường/Xã',
+    joint: 'Chung'
   },
   button: {
     add: 'Thêm nhanh',
@@ -1512,7 +1513,7 @@ export default {
     customerCodeExist: 'Mã khách hàng đã tồn tại',
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
-    inUse: 'Đang sử lí',
-    used: 'Đã sử lí'
+    inUse: 'Đang xử lí',
+    used: 'Đã xử lí'
   }
 }

@@ -328,6 +328,8 @@ export default {
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
     voucherGiftSpa: 'Voucher gift Spa',
+    giftSpa: 'Gift spa',
+    giftDiscount: 'Gift discount',
     appliesToOrdersFrom: 'Applies to orders from',
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',

@@ -46,12 +46,12 @@ const escape = useIcon({ icon: 'quill:escape' })
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
-    name: 'information',
-    title: t('reuse.customerInfo')
+    name: 'customerInfo',
+    title: t('formDemo.detailCollaborator')
   },
   {
     icon: plusIcon,
-    name: 'information',
+    name: 'ManageSalesHistoryAndCommissionPayments',
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
@@ -288,6 +288,7 @@ type FormDataInput = {
   CollaboratorStatus: boolean
   Discount: string
   customersValue: any
+  isActive?: boolean
 }
 type FormDataPost = {
   CustomerId: number
@@ -339,6 +340,7 @@ const setFormValue = async () => {
       }
     })
     FormData.Discount = formValue.value.discount
+    FormData.isActive = formValue.value.isActive
     CollaboratorId.value = formValue.value.code
     infoCompany.name = formValue.value.accountName
 
@@ -359,7 +361,7 @@ const setFormValue = async () => {
       FormData.CollaboratorStatus = false
     }
     FormData.customersValue = {
-      label: formValue.value.accountName + ' | MST ' + formValue.value.customer?.taxCode,
+      label: formValue.value.code + ' | ' + formValue.value.accountName,
       value: formValue.value.id
     }
     setValues(formValue.value)
@@ -479,12 +481,12 @@ const fix = async () => {
     params: { id: id, type: 'edit' }
   })
 }
-const activeName = ref('1')
+const activeName = ref(collapse[0].name)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item :icon="false" name="1">
+      <el-collapse-item :icon="false" :name="collapse[0].name">
         <template #title>
           <div class="flex w-[100%] justify-between">
             <div class="before">
@@ -598,10 +600,19 @@ const activeName = ref('1')
                   />
                 </div>
                 <div class="flex gap-2 pb-8">
-                  <div class="w-[80%]"
-                    ><span class="pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-                      t('reuse.approval')
-                    }}</span>
+                  <div
+                    v-if="type === 'add' || type === ':type' || FormData.isActive == false"
+                    class="w-[80%]"
+                    ><span
+                      class="pl-4 pr-6 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent"
+                      >{{ t('reuse.approval') }}</span
+                    >
+                  </div>
+                  <div v-else class="w-[80%]"
+                    ><span
+                      class="bg-[#1C6DD0] pl-4 pr-6 text-[#FFFFFF] leading-5 dark:bg-transparent"
+                      >{{ t('reuse.confirmed') }}</span
+                    >
                   </div>
                 </div>
               </ElFormItem>
@@ -658,7 +669,7 @@ const activeName = ref('1')
           <ElButton class="min-w-42" @click="cancel()"> {{ t('reuse.cancel') }} </ElButton>
         </div>
       </el-collapse-item>
-      <el-collapse-item :disabled="disabledTable" name="2">
+      <el-collapse-item :disabled="disabledTable" :name="collapse[1].title">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>

@@ -128,6 +128,9 @@ const signIn = async () => {
       try {
         const res = await loginApi(formData)
         if (res) {
+          const now = new Date()
+          const loginDate = { loginDate: now.getTime() }
+          Object.assign(res.data, loginDate)
           await wsCache.set(appStore.getUserInfo, res.data)
           getRole()
         }

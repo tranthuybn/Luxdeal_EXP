@@ -453,7 +453,12 @@ export default {
     selectProvinceCity: 'Chọn Tỉnh/Thành phố',
     selectDistrict: 'Chọn Quận/Huyện',
     chooseWard: 'Chọn Phường/Xã',
-    joint: 'Chung'
+    joint: 'Chung',
+    rentalStartDate: 'Ngày bắt đầu thuê',
+    rentalEndDate: 'Ngày kết thúc thuê',
+    rentalFeePaymentSlip: 'Phiếu thanh toán phí thuê',
+    depositSlip: 'Phiếu đặt cọc',
+    initializationDate: 'Ngày khởi tạo'
   },
   button: {
     add: 'Thêm nhanh',

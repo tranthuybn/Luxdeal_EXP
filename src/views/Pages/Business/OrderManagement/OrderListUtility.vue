@@ -24,13 +24,16 @@ import {
   ElFormItem,
   ElMessage,
   ElNotification,
-  ElTreeSelect
+  ElTreeSelect,
+  UploadUserFile,
+  UploadProps,
+  ElMessageBox
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
+import { dateTimeFormat } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
@@ -61,7 +64,8 @@ const ruleForm = reactive({
   discount: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: '',
+  orderFiles: []
 })
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
@@ -113,21 +117,36 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
 }
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
 }
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
+let FileDeleteIds: any = []
+const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      console.log('uploadFile', uploadFile?.uid)
+      let imageRemove = uploadFile?.uid
+      console.log('imageRemove')
 
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
+      FileDeleteIds.push(imageRemove)
+      console.log('FileDeleteIds', FileDeleteIds)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -269,14 +288,6 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   edited: true
 })
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
-const tableData2 = [
-  {
-    name: '',
-    quantity: '',
-    unitPrice: '',
-    intoMoney: ''
-  }
-]
 
 const historyTable = ref([
   {
@@ -530,7 +541,64 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
-const initialRadio = ref(false)
+// const initialRadio = ref(false)
+
+const currentRow = ref()
+
+let checkPromo = ref(false)
+let promo = ref()
+let promoCode = ref()
+let promoDescription = ref()
+let promoMin = ref()
+let promoDate = ref()
+let promoName = ref()
+let promoActive = ref()
+
+const handleCurrentChange = (val: undefined) => {
+  currentRow.value = val
+  changeRowPromo()
+  checkPromo.value = true
+}
+
+const changeRowPromo = () => {
+  promoCode.value = currentRow.value.label
+  promoDescription.value = currentRow.value.description
+  promoMin.value = currentRow.value.min
+  promoDate.value = currentRow.value.toDate
+  if (currentRow.value.voucherConditionType == 1) {
+    promoName.value = 'Nhận voucher miễn phí'
+  } else if (currentRow.value.voucherConditionType == 2) {
+    promoName.value = 'Affilate'
+  } else if (currentRow.value.voucherConditionType == 2) {
+    promoName.value = `Đổi voucher ${currentRow.value.exchangeValue} điểm, điểm đang có `
+  } else {
+    promoName.value = `Mua voucher ${currentRow.value.exchangeValue} đ Ví đang có  `
+  }
+  promoActive.value = `${promoCode.value} | ${promoDescription.value}`
+}
+
+const handleChangePromo = (data) => {
+  promo.value = promoTable.value.find((e) => e.value == data)
+  changeNamePromo()
+  checkPromo.value = true
+}
+
+const changeNamePromo = () => {
+  promoCode.value = promo.value.label
+  promoDescription.value = promo.value.description
+  promoMin.value = promo.value.min
+  promoDate.value = promo.value.toDate
+  if (currentRow.value.voucherConditionType == 1) {
+    promoName.value = 'Nhận voucher miễn phí'
+  } else if (currentRow.value.voucherConditionType == 2) {
+    promoName.value = 'Affilate'
+  } else if (currentRow.value.voucherConditionType == 2) {
+    promoName.value = `Đổi voucher ${currentRow.value.exchangeValue} điểm, điểm đang có `
+  } else {
+    promoName.value = `Mua voucher ${currentRow.value.exchangeValue} đ Ví đang có  `
+  }
+  promoActive.value = `${promoCode.value} | ${promoDescription.value}`
+}
 
 //add row to the end of table if fill all table
 watch(
@@ -728,21 +796,12 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const { push } = useRouter()
+// const { push } = useRouter()
+const ListFileUpload = ref<UploadUserFile[]>([])
+const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
 // Tạo đơn hàng
 const postData = async () => {
-  // let productPayment = reactive<
-  //   Array<{
-  //     productPropertyId: number | string
-  //     quantity: Number
-  //     ProductPrice: Number
-  //     SoldPrice: Number
-  //     warehouseId: Number
-  //     isPaid: Boolean
-  //     accessory: String
-  //   }>
-  // >([])
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const productPayment = JSON.stringify([
@@ -803,6 +862,7 @@ const postData = async () => {
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
       CustomerId: ruleForm.customerName,
+      Files: Files,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: 1,
       DistrictId: 1,
@@ -818,26 +878,23 @@ const postData = async () => {
       .then(
         () =>
           ElNotification({
-            message: t('reuse.updateSuccess'),
+            message: t('reuse.addSuccess'),
             type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.collaborators.collaboratorsList',
-            params: { backRoute: 'business.collaborators.collaboratorsList' }
           })
+        // () =>
+        //   push({
+        //     name: 'business.collaborators.collaboratorsList',
+        //     params: { backRoute: 'business.collaborators.collaboratorsList' }
+        //   })
       )
       .catch(() =>
         ElNotification({
-          message: t('reuse.updateFail'),
+          message: t('reuse.addFail'),
           type: 'warning'
         })
       )
   }
 }
-
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 const cities = ref()
 const callApiCity = async () => {
@@ -895,6 +952,15 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
+    orderObj.orderFiles.map((element) => {
+      if (element !== null) {
+        ListFileUpload.value.push({
+          url: `${element?.domainUrl}${element?.path}`,
+          name: element?.fileId,
+          uid: element?.id
+        })
+      }
+    })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
@@ -908,16 +974,27 @@ let optionCallPromoAPi = 0
 const callPromoApi = async () => {
   if (optionCallPromoAPi == 0) {
     const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
-    let count = 0
     listPromotions.value = res.data
     promoTable.value = listPromotions.value.map((product) => ({
-      radio: count++,
+      id: product.id,
       label: product.code,
       value: product.name,
-      name: product.description,
+      description: product.description,
       discount: product.reduce,
+      voucherConditionType: product.voucherConditionType,
+      voucherConditionTypeName:
+        product.voucherConditionType == 1
+          ? 'Nhận voucher miễn phí'
+          : product.voucherConditionType == 2
+          ? 'Affilate'
+          : product.voucherConditionType == 3
+          ? `Đổi voucher ${product.exchangeValue} điểm, điểm đang có `
+          : `Mua voucher ${product.exchangeValue} đ Ví đang có  `,
+      exchangeValue: product.exchangeValue,
+      toDate: dateTimeFormat(product.toDate),
       min: product.minimumPriceToGetReduce,
-      max: product.maximumReduce
+      max: product.maximumReduce,
+      isAvailable: product.isAvailable
     }))
     optionCallPromoAPi++
   }
@@ -2436,43 +2513,18 @@ onMounted(async () => {
               </div>
               <div class="pl-4">
                 <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  :disabled="checkDisabled"
+                  ref="upload"
+                  class="upload-demo"
+                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  :limit="10"
+                  :on-change="handleChange"
+                  :before-remove="beforeRemove"
                   :auto-upload="false"
+                  :multiple="true"
+                  v-model:fileList="ListFileUpload"
+                  :disabled="checkDisabled"
                 >
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <ElButton :icon="viewIcon" class="avatar-uploader-icon border-none" />
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                          <ElButton :icon="deleteIcon" class="avatar-uploader-icon border-none" />
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog v-model="dialogVisible">
-                    <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                  </el-dialog>
-                  <div class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}
-                  </div>
+                  <el-button>+ {{ t('formDemo.addPhotosOrFiles') }}</el-button>
                 </el-upload>
               </div>
             </div>
@@ -2536,7 +2588,7 @@ onMounted(async () => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
-                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
                         >
                           <el-option
                             v-for="i in chooseDelivery"
@@ -2740,41 +2792,73 @@ onMounted(async () => {
       <el-dialog
         v-model="openDialogChoosePromotion"
         :title="t('formDemo.choosePromotion')"
-        width="35%"
+        width="40%"
         align-center
         class="z-50"
       >
         <el-divider />
         <div>
           <div class="flex items-center gap-3">
-            <el-input
-              style="width: 100%"
+            <el-select
+              @change="(data) => handleChangePromo(data)"
               v-model="input"
+              filterable
               :placeholder="t('formDemo.enterPromoCode')"
-            />
+            >
+              <el-option
+                v-for="item in promoTable"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
             <el-button class="w-[150px] border-1 border-blue-500" plain>{{
               t('formDemo.apply')
             }}</el-button>
           </div>
-          <div class="bg-[#F4F8FD] mt-2 mb-4 dark:bg-transparent">
-            <div class="ml-2 text-blue-500">FGF3443D</div>
-            <div class="ml-2 text-blue-500">Giảm giá 60% đơn hàng ...</div>
-            <div class="ml-2 text-blue-500">Áp dụng cho đơn hàng từ 300k</div>
+          <div
+            v-if="checkPromo"
+            class="flex bg-[#F4F8FD] items-center mt-2 mb-4 p-2 dark:bg-transparent dark:border-1"
+          >
+            <div class="flex-1">
+              <div class="ml-2">{{ promoCode }}</div>
+              <div class="ml-2">{{ promoDescription }}</div>
+              <div class="ml-2">Áp dụng cho đơn hàng từ {{ promoMin }}</div>
+            </div>
+            <div class="flex flex-1 justify-center">Hết hạn {{ promoDate }}</div>
+            <div class="flex-1 text-blue-500">{{ promoName }}</div>
           </div>
           <div class="flex items-center">
             <h2 class="font-bold text-base w-[40%]">Hoặc chọn mã có sẵn</h2>
             <el-divider />
           </div>
-          <el-table :data="promoTable" border :loading="promoLoading">
-            <el-table-column prop="radio" width="90" align="center">
+          <el-table
+            ref="singleTableRef"
+            :data="promoTable"
+            highlight-current-row
+            :loading="promoLoading"
+            @current-change="handleCurrentChange"
+          >
+            <el-table-column prop="label" min-width="360">
               <template #default="props">
-                <el-radio-group v-model="initialRadio" class="ml-4 fix-label-color">
-                  <el-radio :label="props.row.radio" />
-                </el-radio-group>
+                <div>{{ props.row.label }}</div>
+                <div>{{ props.row.description }}</div>
+                <div>Áp dụng cho đơn hàng từ {{ props.row.min }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="name" />
-            <el-table-column prop="discount" width="120" align="left" />
+            <el-table-column prop="toDate" width="180" align="left">
+              <template #default="props">
+                <div>Hết hạn {{ props.row.toDate }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="voucherConditionTypeName" width="180" align="left">
+              <template #default="props">
+                <div v-if="props.row.isAvailable" class="text-blue-500">{{
+                  props.row.voucherConditionTypeName
+                }}</div>
+                <div v-else class="text-[#FDB240]">{{ props.row.voucherConditionTypeName }}</div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
         <template #footer>
@@ -2799,7 +2883,7 @@ onMounted(async () => {
           :data="ListOfProductsForSale"
           border
           :class="[
-            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+            'bg-[var(--el-color-white)] dark:(text-white-800) border-[var(--el-border-color)] border-1px)'
           ]"
         >
           <el-table-column
@@ -2934,7 +3018,7 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-table :data="tableData2" class="dark:text-[#fff]">
+        <!-- <el-table :data="tableData2" class="dark:text-[#fff]">
           <el-table-column width="250" />
           <el-table-column width="220" />
           <el-table-column width="220" />
@@ -3000,8 +3084,84 @@ onMounted(async () => {
             <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </el-table-column>
-        </el-table>
+        </el-table> -->
+        <div class="flex justify-end pt-4">
+          <div class="w-50">
+            <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
+            <div class="text-blue-500 cursor-pointer">
+              <el-button
+                text
+                :disabled="checkDisabled"
+                @click="
+                  () => {
+                    openDialogChoosePromotion = true
+                    callPromoApi()
+                  }
+                "
+                style="padding: 0"
+              >
+                <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
+              </el-button>
+            </div>
+            <div class="text-blue-500 cursor-pointer">
+              <el-dropdown class="flex justify-end" trigger="click">
+                <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
+                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-radio-group v-model="radioVAT" class="flex-col">
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="1">{{
+                            t('formDemo.VATNotIncluded')
+                          }}</el-radio>
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="2"
+                            >VAT 10%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="3"
+                            >VAT 8%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="4"
+                            >VAT 5%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="5"
+                            >VAT 0%</el-radio
+                          >
+                        </div>
+                      </el-radio-group>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+            <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
+          </div>
 
+          <div class="w-30">
+            <div class="text-right dark:text-[#fff]">{{ totalOrder }} đ</div>
+            <div class="text-right dark:text-[#fff]">-95,000,000 đ</div>
+            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">95,000,000 đ</div>
+          </div>
+
+          <div class="w-60 pl-2">
+            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+              {{ promoActive }}
+            </div>
+            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+          </div>
+        </div>
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -3043,12 +3203,9 @@ onMounted(async () => {
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <div class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              @click="dialogSalesSlipInfomation = true"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.paymentSlip') }}</el-button
-            >
+            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+              t('formDemo.paymentSlip')
+            }}</el-button>
             <el-button
               @click="dialogDepositSlipAdvance = true"
               :disabled="checkDisabled"
@@ -3136,7 +3293,7 @@ onMounted(async () => {
               <div v-else>{{ data.row.collected }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.spent')}`" min-width="150">
+          <el-table-column :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.spent"
@@ -3190,7 +3347,7 @@ onMounted(async () => {
               <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="120" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
             <template #default>
               <div class="flex">
                 <!-- @click.prevent="deleteRowDebtTable(scope.$index)" -->
@@ -3349,10 +3506,6 @@ onMounted(async () => {
   color: #828387;
 }
 
-::v-deep(.cell) {
-  color: #303133;
-}
-
 ::v-deep(.el-divider__text) {
   font-size: 16px;
 }
@@ -3482,5 +3635,9 @@ onMounted(async () => {
 
 ::v-deep(.el-table td.el-table__cell div) {
   width: 100%;
+}
+
+::v-deep(.el-table) {
+  z-index: 0;
 }
 </style>

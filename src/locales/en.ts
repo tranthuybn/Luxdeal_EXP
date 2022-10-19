@@ -359,7 +359,7 @@ export default {
     enterDetailAddress: 'Enter detailed address',
     supplyDate: 'Supply date',
     supplyAddress: 'Suplly address',
-    enterCCCD: 'Enter number...',
+    enterCCCD: 'Enter cccd/cmnd',
     address: 'Address',
     codeQR: 'QR code',
     userName: 'User name',
@@ -1408,6 +1408,11 @@ export default {
     productCodeExist: 'Product code already exist',
     cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
     failCreateAccount: 'Fail to create account, please retry',
+    enterReferralCode: 'Enter referral code',
+    selectProvinceCity: 'Select province/city',
+    selectCountyOrDistrict: 'Select country/district',
+    selectWardOrCommune: 'Select ward/commune',
+    enterDetailedAddress: 'Enter detailed address',
     CheckCode: 'Please enter the correct code format'
   }
 }

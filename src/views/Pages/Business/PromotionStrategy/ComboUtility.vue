@@ -5,8 +5,12 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
+import { getCampaignList } from '@/api/Business'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 const { t } = useI18n()
+
+const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -147,6 +151,22 @@ const collapseChangeEvent = (val) => {
 
 //upload image
 
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+  shortDescription: string
+  customers: any
+  products: any
+  Images: any
+  target: number
+  percent: number
+  money: number
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+
 const activeName = ref(collapse[0].name)
 const rules = reactive({})
 
@@ -155,7 +175,10 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = () => {}
-const customizeData = () => {}
+const customizeData = async (data) => {
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.products = data[0].productProperties
+}
 const editData = () => {}
 </script>
 
@@ -172,7 +195,10 @@ const editData = () => {}
           :schema="schema"
           :type="type"
           :id="id"
+          :params="params"
+          :apiId="getCampaignList"
           @post-data="postData"
+          :formDataCustomize="setFormData"
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"

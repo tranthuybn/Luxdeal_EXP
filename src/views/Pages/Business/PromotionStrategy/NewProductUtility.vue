@@ -5,8 +5,13 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
+import { getCampaignList } from '@/api/Business'
 import { useRouter } from 'vue-router'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { moneyToNumber } from '@/utils/format'
 const { t } = useI18n()
+
+const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -43,18 +48,36 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'duration',
+    field: 'percent',
     component: 'Input',
     colProps: {
-      span: 10
+      span: 6
     },
+    value: '',
     componentProps: {
       placeholder: t('formDemo.enterPercent'),
-      suffixIcon: h('div', '%')
+      suffixIcon: h('span', '%')
     },
     formItemProps: {
       labelWidth: '0px'
-    }
+    },
+    hidden: false
+  },
+  {
+    field: 'money',
+    component: 'Input',
+    colProps: {
+      span: 6
+    },
+    value: '',
+    componentProps: {
+      placeholder: t('reuse.placeholderMoney'),
+      suffixIcon: h('span', 'đ')
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    },
+    hidden: true
   },
   {
     field: 'date',
@@ -150,6 +173,27 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+
+const changeSuffixIcon = (data) => {
+  if (schema[3].componentProps) {
+    if (data == 1) {
+      schema[3].hidden = false
+      schema[4].hidden = true
+      schema[2].colProps!.span = 18
+    }
+    if (data == 2) {
+      schema[3].hidden = true
+      schema[4].hidden = false
+      schema[2].colProps!.span = 18
+    }
+    if (data == 3) {
+      schema[3].hidden = true
+      schema[4].hidden = true
+      schema[2].colProps!.span = 24
+    }
+  }
+}
+
 const hideTableCustomer = (data) => {
   data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
 }
@@ -197,8 +241,42 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+  shortDescription: string
+  customers: any
+  products: any
+  Images: any
+  target: number
+  percent: number
+  money: number
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+
 const postData = () => {}
-const customizeData = () => {}
+const customizeData = async (data) => {
+  if (data[0].reduce) {
+    const moneyType = data[0].reduce.split(' ')
+    moneyType[1] == '%'
+      ? ((setFormData.promotion = 1), (setFormData.percent = moneyToNumber(data[0].reduce)))
+      : ((setFormData.promotion = 2), (setFormData.money = moneyToNumber(data[0].reduce)))
+  } else {
+    setFormData.promotion = 3
+  }
+  changeSuffixIcon(setFormData.promotion)
+  setFormData.code = data[0].code
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.shortDescription = data[0].shortDescription
+  setFormData.customers = data[0].customers
+  setFormData.products = data[0].productProperties
+  setFormData.Images = data[0].images
+  setFormData.target = data[0].targetType
+  hideTableCustomer(data[0].targetType)
+}
 const editData = () => {}
 </script>
 
@@ -213,9 +291,12 @@ const editData = () => {}
         <TableOperatorCollection
           ref="formRef"
           :schema="schema"
+          :apiId="getCampaignList"
           :type="type"
           :id="id"
           @post-data="postData"
+          :params="params"
+          :formDataCustomize="setFormData"
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"

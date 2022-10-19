@@ -3,6 +3,7 @@ import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
+import { getCampaignList } from '@/api/Business'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -13,7 +14,9 @@ import {
 } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 const { t } = useI18n()
+const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -244,8 +247,27 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+  shortDescription: string
+  customers: any
+  products: any
+  Images: any
+  target: number
+  percent: number
+  money: number
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+
 const postData = () => {}
-const customizeData = () => {}
+const customizeData = async (data) => {
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.products = data[0].productProperties
+}
 const editData = () => {}
 </script>
 
@@ -259,10 +281,13 @@ const editData = () => {}
         </template>
         <TableOperatorCollection
           ref="formRef"
+          :apiId="getCampaignList"
           :schema="schema"
           :type="type"
           :id="id"
+          :params="params"
           @post-data="postData"
+          :formDataCustomize="setFormData"
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"

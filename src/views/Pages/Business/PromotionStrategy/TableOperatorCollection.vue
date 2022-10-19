@@ -118,7 +118,9 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
-  productData: [{ id: -1, code: '', name: null, isActive: false }]
+  productData: [{ id: -1, code: '', name: null, isActive: false }],
+  spaData: [{ id: -1, code: '', name: null, service: [] }],
+  auctionData: [{ id: -1, code: '', name: null }]
 })
 //get data from table
 const getTableValue = async () => {
@@ -460,18 +462,14 @@ const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
 //this is fake data if has api should do form['tableCustomer'] same for product
-type Product = {
-  code: string
-  name: string | undefined
-  isActive: boolean
-}
+
 type SpaProduct = {
+  id: number
   code: string
   name: string
   service: Array<string>
 }
-const fakeTableProductData = reactive<Product[]>([{ code: '', name: undefined, isActive: false }])
-const fakeSpaProductData = reactive<SpaProduct[]>([{ code: '', name: '', service: [] }])
+const fakeSpaProductData = reactive<SpaProduct[]>([{ id: -1, code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
   () => dataTable.customerData[dataTable.customerData?.length - 1],
@@ -510,6 +508,37 @@ watch(
   },
   { deep: true }
 )
+
+watch(
+  () => dataTable.spaData[dataTable.spaData?.length - 1],
+  () => {
+    if (
+      dataTable.spaData?.length < 1 ||
+      (dataTable.spaData[dataTable.spaData?.length - 1].code !== '' &&
+        dataTable.spaData[dataTable.spaData?.length - 1].name !== '' &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexProductOfComboTable()
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => dataTable.auctionData[dataTable.auctionData?.length - 1],
+  () => {
+    if (
+      dataTable.auctionData?.length < 1 ||
+      (dataTable.auctionData[dataTable.auctionData?.length - 1].code !== '' &&
+        dataTable.auctionData[dataTable.auctionData?.length - 1].name !== '' &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexProductOfAuctionTable()
+    }
+  },
+  { deep: true }
+)
+
 const addLastIndexCustomerTable = () => {
   let idTable = Date.now()
   dataTable.customerData.push({ id: idTable, code: '', name: null })
@@ -518,6 +547,17 @@ const addLastIndexProductTable = () => {
   let idTable2 = Date.now()
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
 }
+
+const addLastIndexProductOfComboTable = () => {
+  let idTable3 = Date.now()
+  dataTable.spaData.push({ id: idTable3, code: '', name: null, service: [] })
+}
+
+const addLastIndexProductOfAuctionTable = () => {
+  let idTable4 = Date.now()
+  dataTable.auctionData.push({ id: idTable4, code: '', name: null })
+}
+
 //fake option
 const listProductsTable = reactive([
   { value: 'dev1', label: '1', name: '111', id: 1 },
@@ -596,6 +636,15 @@ const removeCustomer = (scope) => {
 const removeProduct = (scope) => {
   forceRemove.value = true
   dataTable.productData.splice(scope.$index, 1)
+}
+const removeSpaProduct = (scope) => {
+  forceRemove.value = true
+  dataTable.spaData.splice(scope.$index, 1)
+}
+
+const removeAuctionProduct = (scope) => {
+  forceRemove.value = true
+  dataTable.auctionData.splice(scope.$index, 1)
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
@@ -791,7 +840,7 @@ const getSpaSelected = (spaServices) => {
           </template>
 
           <template #tableProductOfAuction>
-            <el-table :data="fakeTableProductData" border>
+            <el-table :data="dataTable.auctionData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -817,16 +866,19 @@ const getSpaSelected = (spaServices) => {
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="700" />
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
-                    t('reuse.delete')
-                  }}</el-button>
+                  <el-button
+                    type="danger"
+                    v-if="scope.row.code"
+                    @click="removeAuctionProduct(scope)"
+                    >{{ t('reuse.delete') }}</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
           </template>
 
           <template #tableProductOfCombo>
-            <el-table :data="fakeTableProductData" border>
+            <el-table :data="dataTable.spaData" border>
               <template #append>
                 <div class="pl-750px w-320px"
                   ><div class="w-320px"
@@ -866,7 +918,7 @@ const getSpaSelected = (spaServices) => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="480" />
               <el-table-column width="320"
                 ><template #header
                   >{{ t('reuse.spaService')
@@ -908,7 +960,7 @@ const getSpaSelected = (spaServices) => {
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                  <el-button type="danger" v-if="scope.row.code" @click="removeSpaProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -975,9 +1027,9 @@ const getSpaSelected = (spaServices) => {
                         >{{ item.name }}</span
                       >
                     </el-option>
-                  </el-select></template
-                ></el-table-column
-              >
+                  </el-select>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{

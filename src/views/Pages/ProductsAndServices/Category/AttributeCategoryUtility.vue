@@ -22,9 +22,17 @@ const router = useRouter()
 const route = useRoute()
 const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+let title = ref()
+if (type === 'add') {
+  title.value = router.currentRoute.value.meta.title
+} else if (type === 'detail') {
+  title.value = t('reuse.detailCharacteristic')
+} else if (type === 'edit') {
+  title.value = t('reuse.editCharacteristic')
+}
+
 const params = { TypeName: tab }
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([

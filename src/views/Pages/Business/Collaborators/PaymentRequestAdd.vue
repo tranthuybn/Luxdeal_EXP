@@ -48,7 +48,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: t('reuse.customerInfo')
+    title: t('router.detailPaymentRequest')
   }
 ]
 const dialogVisible = ref(false)
@@ -69,7 +69,7 @@ let requestCode = ref('')
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
+      if (val.includes(el.title)) el.icon = minusIcon
       else if (el.icon == minusIcon) el.icon = plusIcon
     })
   } else
@@ -509,12 +509,12 @@ const fix = async () => {
     params: { id: id, type: 'edit' }
   })
 }
-const activeName = ref('1')
+const activeName = ref(collapse[0].title)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item :icon="false" name="1">
+      <el-collapse-item :icon="false" :name="collapse[0].title">
         <template #title>
           <div class="flex w-[100%] justify-between">
             <div class="before">
@@ -692,7 +692,7 @@ const activeName = ref('1')
                     v-model="FormData.CollaboratorStatus"
                     :label="t('formDemo.alreadyPaidForTt')"
                     size="large"
-                    :disabled="type === 'add' || type === ''"
+                    :disabled="type === 'add' || type == ':type'"
                   />
                 </div>
                 <div class="block gap-2 pb-8">

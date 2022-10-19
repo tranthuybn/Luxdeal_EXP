@@ -204,10 +204,17 @@ const postData = async (data) => {
 }
 // get data from router
 const router = useRouter()
-const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
+let title = ref()
+if (type === 'add') {
+  title.value = router.currentRoute.value.meta.title
+} else if (type === 'detail') {
+  title.value = t('reuse.detailBrand')
+} else if (type === 'edit') {
+  title.value = t('reuse.editBrand')
+}
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {

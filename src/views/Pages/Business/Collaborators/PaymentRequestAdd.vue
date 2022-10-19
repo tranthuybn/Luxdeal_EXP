@@ -692,7 +692,7 @@ const activeName = ref('1')
                     v-model="FormData.CollaboratorStatus"
                     :label="t('formDemo.alreadyPaidForTt')"
                     size="large"
-                    :disabled="type === 'add' || type === ''"
+                    :disabled="type === 'add' || type == ':type'"
                   />
                 </div>
                 <div class="block gap-2 pb-8">

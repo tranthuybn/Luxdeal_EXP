@@ -15,7 +15,7 @@ export const useValidator = () => {
     return {
       required: true,
       message: message || t('common.required'),
-      trigger: 'blur'
+      trigger: 'change'
     }
   }
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {

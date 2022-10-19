@@ -165,8 +165,8 @@ const setFormValue = async () => {
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
 
-    dataTable.customerData = props.formDataCustomize.customers
-    dataTable.productData = props.formDataCustomize.products
+    dataTable.customerData = props.formDataCustomize.customers ?? []
+    dataTable.productData = props.formDataCustomize.products ?? []
     console.log('dataTable', dataTable)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl

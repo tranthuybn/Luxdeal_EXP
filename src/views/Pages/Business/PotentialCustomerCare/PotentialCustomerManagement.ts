@@ -1,9 +1,8 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, unref } from 'vue'
 import TableType01 from '@/views/Pages/Components/TableBase.vue'
-import { h } from 'vue'
-import { ElSwitch } from 'element-plus'
 import { reactive } from 'vue'
+import { getCustomer } from '@/api/Business'
 const tableBase01 = ref<ComponentRef<typeof TableType01>>()
 const seeDetail = (...param) => {
   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
@@ -17,6 +16,17 @@ const seeDetail = (...param) => {
 }
 const { t } = useI18n()
 
+let optionsApi = reactive([])
+export const callApiClassify = async () => {
+  const res = await getCustomer('')
+  if (res.data && res.data.length > 0) {
+    optionsApi = res.data.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+}
+
 export const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'customerInfo',
@@ -24,14 +34,32 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'customerName',
-    label: t('reuse.customerName'),
+    field: 'classify',
+    label: t('reuse.classify'),
     component: 'Select',
     componentProps: {
       allowCreate: true,
       filterable: true,
+      multiple: true,
       style: 'width: 100%',
-      placeholder: 'Nhập hoặc chọn tên khách hàng',
+      placeholder: t('reuse.enterPrise'),
+      options: optionsApi
+    },
+    colProps: {
+      span: 10
+    }
+  },
+
+  {
+    field: 'supplier',
+    label: '',
+    component: 'Select',
+    componentProps: {
+      allowCreate: true,
+      filterable: true,
+      multiple: true,
+      style: 'width: 100%',
+      placeholder: t('reuse.supplier'),
       options: [
         {
           label: 'CustomerName 1',
@@ -43,10 +71,58 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
         }
       ]
     },
+    formItemProps: {
+      labelWidth: '0'
+    },
+    colProps: {
+      span: 10
+    }
+  },
+
+  {
+    field: 'companyName',
+    label: t('reuse.companyName'),
+    component: 'Select',
+    componentProps: {
+      style: 'width: 100%',
+      allowCreate: true,
+      filterable: true,
+      multiple: true,
+      placeholder: t('reuse.enterSelectCompanyName')
+    },
     colProps: {
       span: 20
     }
   },
+
+  {
+    field: 'taxCode',
+    label: t('reuse.taxCode'),
+    component: 'Select',
+    componentProps: {
+      style: 'width: 100%',
+      allowCreate: true,
+      filterable: true,
+      multiple: true,
+      placeholder: t('reuse.enterSelectTaxCode')
+    },
+    colProps: {
+      span: 20
+    }
+  },
+
+  {
+    field: 'representative',
+    label: t('reuse.representative'),
+    component: 'Input',
+    componentProps: {
+      placeholder: t('reuse.enterRepresentativeName')
+    },
+    colProps: {
+      span: 20
+    }
+  },
+
   {
     field: 'phoneNumber',
     label: t('reuse.phoneNumber'),
@@ -92,6 +168,8 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.transactionHistory'),
     component: 'Select',
     componentProps: {
+      allowCreate: true,
+      filterable: true,
       style: 'width: 100%',
       placeholder: t('reuse.firstTime')
     },
@@ -130,6 +208,8 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.approachingChannel'),
     component: 'Select',
     componentProps: {
+      allowCreate: true,
+      filterable: true,
       placeholder: t('reuse.enterSelectOutreachChannel'),
       style: 'width: 100%'
     },
@@ -142,6 +222,8 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.originated'),
     component: 'Select',
     componentProps: {
+      allowCreate: true,
+      filterable: true,
       placeholder: t('reuse.enterSelectSource'),
       style: 'width: 100%'
     },
@@ -245,88 +327,17 @@ export const columnProfileCustomer = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.newData'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.takingCare'),
-          value: '2'
+          value: 2
         },
         {
           label: t('common.doneLabel'),
-          value: '3'
+          value: 3
         }
       ]
-    }
-  }
-])
-
-export const saleHistoryCustomerCare = reactive<TableColumn[]>([
-  {
-    field: 'sale',
-    label: t('reuse.sale'),
-    minWidth: '100'
-  },
-  {
-    field: 'lastContent',
-    label: t('reuse.lastContent'),
-    minWidth: '500'
-  },
-  {
-    field: 'createDate',
-    label: t('reuse.createDate'),
-    minWidth: '150'
-  },
-  {
-    field: 'saleName',
-    label: t('reuse.saleName'),
-    minWidth: '120'
-  },
-  {
-    field: 'orderSalesAssign',
-    label: t('reuse.orderSalesAssign'),
-    minWidth: '100',
-    align: 'right'
-  },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
-    }
-  }
-])
-export const columnsImportExportHistory = reactive<TableColumn[]>([
-  {
-    field: 'customerCareContent',
-    label: t('reuse.customerCareContent'),
-    minWidth: '450',
-    sortable: true
-  },
-  {
-    field: 'importExportCode',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    sortable: true
-  },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '120',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {
-      return h(ElSwitch, {
-        style: { margin: 'auto' },
-        modelValue: record.approveOrNot,
-        onClick: () => seeDetail(record, column, cellValue)
-      })
     }
   }
 ])

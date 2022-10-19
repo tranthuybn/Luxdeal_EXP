@@ -1,6 +1,6 @@
 import Mock from 'mockjs'
 import { config } from '@/config/axios/config'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 
 interface accountBallance {
   id: Number

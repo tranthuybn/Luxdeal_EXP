@@ -67,7 +67,7 @@ export default {
           }
         },
         {
-          path: `${utility}`,
+          path: 'product-storage-utility/:type?/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/CreateStorageCategory/ProductStorageUtility.vue'),
           name: `Inventorymanagement.CreateStorageCategory.ProductStorage.${utility}`,
@@ -76,6 +76,7 @@ export default {
             noTagsView: true,
             noCache: true,
             hidden: true,
+            canTo: true,
             showMainRoute: true
           }
         }

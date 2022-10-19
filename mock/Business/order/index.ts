@@ -5,7 +5,7 @@ import { orderDepositList, orderDepositListMock } from './orderDeposit'
 import { orderPawnList, orderPawnListMock } from './orderPawn'
 import { orderSpaList, orderSpaListMock } from './orderSpa'
 import { SellOrder, SellOrderListMock } from './sellOrder'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../../_reponseStructure'
 const count = 77
 const { result_code } = config
 const timeout = 1000

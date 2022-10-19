@@ -4,8 +4,11 @@ import {
   filtersStatus,
   filterRentTerm,
   filterDeposit,
-  filterSpaService
+  filterSpaService,
+  filtersCustomerType
 } from '@/utils/filters'
+import { h } from 'vue'
+import { dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
 
 //Đơn bán hàng
@@ -17,12 +20,12 @@ export const sellOrder = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -34,38 +37,62 @@ export const sellOrder = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
-    headerFilter: 'Name'
+    filters: filtersCustomerType
   },
   {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
   {
-    field: 'saleNumber',
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
+  },
+  {
+    field: 'totalQuantity',
     label: t('reuse.saleNumber'),
     minWidth: '200',
     align: 'right',
     sortable: true
   },
   {
-    field: 'totalMoney',
+    field: 'totalPrice',
     label: t('reuse.totaMoney'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'debitTotal',
+    field: 'totalDebt',
     label: t('reuse.outstandingDebt'),
     minWidth: '130',
     align: 'right',
@@ -78,20 +105,23 @@ export const sellOrder = [
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'createDate',
+    field: 'createdDate',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'orderStatusName',
     label: t('reuse.status'),
     minWidth: '120',
     filters: filtersStatus
@@ -106,7 +136,7 @@ export const rentalorder = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
@@ -123,24 +153,60 @@ export const rentalorder = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
-    headerFilter: 'Name'
+    filters: filtersCustomerType
   },
   {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
   {
-    field: 'rentingNumber',
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'totalQuantity',
     label: t('reuse.rentingNumber'),
     minWidth: '200',
     align: 'right',
@@ -167,9 +233,11 @@ export const rentalorder = [
     align: 'right',
     sortable: true
   },
+
   {
-    field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    field: 'totalDebt',
+    label: t('reuse.totalRentalFeeDebt'),
+
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -201,13 +269,23 @@ export const rentalorder = [
     sortable: true
   },
   {
-    field: 'creator',
+    field: 'createdDate',
+    label: t('reuse.createDate'),
+    minWidth: '150',
+    align: 'center',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
+  },
+  {
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'orderStatusName',
     label: t('reuse.status'),
     minWidth: '120',
     filters: filtersStatus
@@ -242,18 +320,24 @@ export const orderDeposit = [
     field: 'customer',
     label: t('reuse.customerName'),
     minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    filters: filtersCustomerType
   },
   {
     field: 'explain',
     label: t('reuse.explain'),
     minWidth: '170'
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
   },
   {
     field: 'depositNumber',
@@ -299,28 +383,21 @@ export const orderDeposit = [
   },
   {
     field: 'totalDepositRevenue',
-    label: t('reuse.totalDepositRevenue'),
+    label: t('reuse.totalAmountNegotiationDeposit'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'totalNegotiateMoney',
-    label: t('reuse.totalNegotiateMoney'),
+    label: t('reuse.totalDepositServiceFee'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'totalFeeMoney',
-    label: t('reuse.totalFeeMoney'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    label: t('reuse.totalDebtOnDeposit'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -400,18 +477,24 @@ export const orderPawn = [
     field: 'customer',
     label: t('reuse.customerName'),
     minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    filters: filtersCustomerType
   },
   {
     field: 'explain',
     label: t('reuse.explain'),
     minWidth: '170'
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
   },
   {
     field: 'pawnNumber',
@@ -449,19 +532,20 @@ export const orderPawn = [
     sortable: true
   },
   {
+    field: 'quantityImportedInternalWarehouse',
+    label: t('reuse.quantityImportedInternalWarehouse'),
+    minWidth: '150',
+    align: 'right',
+    sortable: true
+  },
+  {
     field: 'redeemNumber',
     label: t('reuse.redeemNumber'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
-  {
-    field: 'transferToWarehouseNumber',
-    label: t('reuse.transferToWarehouseNumber'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
+
   {
     field: 'totalPawnMoney',
     label: t('reuse.totalPawnMoney'),
@@ -470,29 +554,29 @@ export const orderPawn = [
     sortable: true
   },
   {
-    field: 'totalDepositRevenue',
-    label: t('reuse.totalDepositRevenue'),
+    field: 'totalPawnFee',
+    label: t('reuse.totalPawnFee'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'totalNegotiateMoney',
-    label: t('reuse.totalNegotiateMoney'),
+    field: 'totalAmountNegotiationDeposit',
+    label: t('reuse.totalAmountNegotiationDeposit'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'totalFeeMoney',
-    label: t('reuse.totalFeeMoney'),
+    field: 'totalDepositServiceFee',
+    label: t('reuse.totalDepositServiceFee'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    field: 'totalDebtPawnFees',
+    label: t('reuse.totalDebtPawnFees'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -572,18 +656,24 @@ export const orderSpa = [
     field: 'customer',
     label: t('reuse.customerName'),
     minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'companyInfo',
-    label: t('reuse.companyInfo'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    filters: filtersCustomerType
   },
   {
     field: 'explain',
     label: t('reuse.explain'),
     minWidth: '170'
+  },
+  {
+    field: 'productManagementCode',
+    label: t('formDemo.productManagementCode'),
+    minWidth: '170',
+    headerFilter: 'Name'
+  },
+  {
+    field: 'productInformation',
+    label: t('formDemo.productInformation'),
+    minWidth: '170',
+    headerFilter: 'Name'
   },
   {
     field: 'spaService',
@@ -621,7 +711,7 @@ export const orderSpa = [
   },
   {
     field: 'unpaidDebt',
-    label: t('reuse.unpaidDebt'),
+    label: t('reuse.totalSpaFeeDebt'),
     minWidth: '150',
     align: 'right',
     sortable: true

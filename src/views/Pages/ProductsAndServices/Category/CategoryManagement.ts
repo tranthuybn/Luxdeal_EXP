@@ -3,13 +3,17 @@ const { t } = useI18n()
 import { filterProductStatus } from '@/utils/filters'
 import { productStatusTransferToText, dateTimeFormat, valueDateFormat } from '@/utils/format'
 import { h } from 'vue'
+
+import { setImageDisplayInDOm } from '@/utils/domUtils'
 export const productCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -33,16 +37,21 @@ export const productCategories = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterProductStatus
+    filters: filterProductStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', productStatusTransferToText(cellValue))
+    }
   }
 ]
 export const colorCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryColorTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -77,10 +86,12 @@ export const colorCategories = [
 export const sizeCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categorySizeTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -114,10 +125,12 @@ export const sizeCategories = [
 export const materialCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryMaterialTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -151,10 +164,12 @@ export const materialCategories = [
 export const statusCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryStatusTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -188,10 +203,12 @@ export const statusCategories = [
 export const genderCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryGenderTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -225,10 +242,12 @@ export const genderCategories = [
 export const unitCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryUnitTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -263,10 +282,12 @@ export const unitCategories = [
 export const brandCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryBrandTitle'),
     minWidth: '450',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {
@@ -300,10 +321,12 @@ export const brandCategories = [
 export const originCategories = [
   { field: '', width: '50' },
   {
-    field: 'imgTitle',
+    field: 'imageurl',
     label: t('reuse.categoryOriginTitle'),
     minWidth: '650',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
 
   {

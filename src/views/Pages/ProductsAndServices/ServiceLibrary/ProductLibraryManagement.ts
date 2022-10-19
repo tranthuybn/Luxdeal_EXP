@@ -1,7 +1,9 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { filterTableStatus } from '@/utils/filters'
+import { filterProductStatus } from '@/utils/filters'
 import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import { h } from 'vue'
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -52,10 +54,12 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'imageList',
+    field: 'photos',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.photos[0]?.path)
   },
   {
     field: 'createdAt',
@@ -78,7 +82,7 @@ export const businessProductLibrary = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus,
+    filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', productStatusTransferToText(cellValue))
     }

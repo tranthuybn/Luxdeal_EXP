@@ -1,4 +1,5 @@
 import { config } from '@/config/axios/config'
+import { serviceResponse } from '../_reponseStructure'
 import { MockMethod } from 'vite-plugin-mock'
 
 const { result_code } = config
@@ -25,6 +26,13 @@ const List: {
     role: 'test',
     roleId: '2',
     permissions: ['example:dialog:create', 'example:dialog:delete']
+  },
+  {
+    username: 'NoahKhalifa',
+    password: 'NoahKhalifa',
+    role: 'SuperAdmin',
+    roleId: '3',
+    permissions: ['*.*.*']
   }
 ]
 
@@ -44,12 +52,13 @@ export default [
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )
 
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: mockList.length
+      })
       return {
-        code: result_code,
-        data: {
-          total: mockList.length,
-          list: pageList
-        }
+        ...responseStructure
       }
     }
   },
@@ -64,9 +73,17 @@ export default [
       for (const user of List) {
         if (user.username === data.username && user.password === data.password) {
           hasUser = true
+
+          const responseStructure = new serviceResponse(
+            user,
+            200,
+            true,
+            result_code,
+            'Succeed',
+            null
+          )
           return {
-            code: result_code,
-            data: user
+            ...responseStructure
           }
         }
       }
@@ -84,9 +101,9 @@ export default [
     method: 'get',
     timeout,
     response: () => {
+      const responseStructure = new serviceResponse(null, 200, true, result_code, 'Succeed', null)
       return {
-        code: result_code,
-        data: null
+        ...responseStructure
       }
     }
   }

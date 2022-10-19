@@ -1,4 +1,4 @@
-import { getCategories } from '@/api/LibraryAndSetting'
+import { getCategories, getTags } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
@@ -14,17 +14,8 @@ import {
 } from '@/utils/format'
 import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
-//const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-// const seeDetail = (...param) => {
-//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-//     ? unref(tableBase01)?.tableObject.tableList
-//     : []
-//   if (array && array.length > 0) {
-//     array.forEach((el) => {
-//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-//     })
-//   }
-// }
+import { setImageDisplayInDOm } from '@/utils/domUtils'
+
 const { t } = useI18n()
 export const businessProductLibrary = [
   {
@@ -72,41 +63,6 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.daBan',
-    label: t('reuse.quantitySold'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'numberOfTimesRented',
-    label: t('reuse.numberOfTimesRented'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.kiGui',
-    label: t('reuse.numberOfTimesDeposited'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.camDo',
-    label: t('reuse.numberOfTimesPawn'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'productStat.spa',
-    label: t('reuse.numberOfTimesSpa'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
     field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
     minWidth: '150',
@@ -128,13 +84,15 @@ export const businessProductLibrary = [
     field: 'price',
     label: t('reuse.sellingPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'hirePrice',
     label: t('reuse.rentalPriceFrom'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    sortable: true
   },
   {
     field: 'categories[2].value',
@@ -142,10 +100,12 @@ export const businessProductLibrary = [
     minWidth: '150'
   },
   {
-    field: 'imageProduct',
+    field: 'productImages[0].path',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center'
+    align: 'center',
+    formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.productImages[0].path)
   },
   {
     field: 'businessManagement',
@@ -274,6 +234,7 @@ export const customPostData = async (data) => {
   }
 }
 export { originSelect, unitSelect, brandSelect }
+
 export const columnProfileProduct = reactive<FormSchema[]>([
   {
     field: 'Divider',
@@ -292,7 +253,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryBrand'),
     component: 'Select',
     componentProps: {
-      onClick: () => getBrandSelectOptions(),
       placeholder: t('reuse.chooseBrand'),
       style: 'width: 100%',
       loading: true,
@@ -307,7 +267,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryUnit'),
     component: 'Select',
     componentProps: {
-      onClick: () => getUnitSelectOptions(),
       style: 'width: 100%',
       placeholder: t('reuse.chooseUnit'),
       loading: true,
@@ -322,7 +281,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('router.productCategoryOrigin'),
     component: 'Select',
     componentProps: {
-      onClick: () => getOriginSelectOptions(),
       placeholder: t('reuse.chooseOrigin'),
       style: 'width: 100%',
       loading: true,
@@ -342,6 +300,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.productCode'),
     component: 'Select',
     componentProps: {
+      id: 'hiddenGem',
       placeholder: t('reuse.enterProductCode'),
       style: 'width: 100%',
       loading: true,
@@ -404,7 +363,8 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.descriptions'),
     component: 'Editor',
     componentProps: {
-      placeholder: 'Hello'
+      height: '1000px',
+      style: 'width: 100%'
     },
     colProps: {
       span: 24
@@ -479,6 +439,28 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   }
 ])
+let callTagAPI = 0
+let tagsSelect: ComponentOptions[] = reactive([])
+const getTagsOptions = async () => {
+  if (callTagAPI == 0) {
+    await getTags({})
+      .then((res) => {
+        if (res.data) {
+          tagsSelect = res.data.map((tag) => ({
+            label: tag.key,
+            value: tag.key,
+            id: tag.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callTagAPI++)
+    columnManagementSeo[3].componentProps!.options = tagsSelect
+    columnManagementSeo[3].componentProps!.loading = false
+  }
+}
 export const columnManagementSeo = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -490,7 +472,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.title'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập vị trí hiển thị'
+      placeholder: t('reuse.enterTitle')
     },
     colProps: {
       span: 16
@@ -501,7 +483,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: t('reuse.path'),
     component: 'Input',
     componentProps: {
-      placeholder: 'Nhập đường dẫn'
+      placeholder: t('reuse.enterLink')
     },
     colProps: {
       span: 16
@@ -512,21 +494,14 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     label: 'Tag',
     component: 'Select',
     componentProps: {
+      onClick: () => getTagsOptions(),
       allowCreate: true,
       filterable: true,
+      loading: true,
       multiple: true,
       placeholder: 'Tag',
       style: 'width: 100%',
-      options: [
-        {
-          label: 'Túi hàng hiệu',
-          value: '1'
-        },
-        {
-          label: 'LV',
-          value: '2'
-        }
-      ]
+      options: []
     },
     colProps: {
       span: 16

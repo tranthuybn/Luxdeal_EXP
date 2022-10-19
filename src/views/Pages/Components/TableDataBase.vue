@@ -6,15 +6,7 @@ import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableBase } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
-import {
-  addOperatorColumn,
-  getTotalRecord,
-  getSelectedRecord,
-  fnGetTotalRecord,
-  fnGetSelectedRecord,
-  dynamicApi,
-  dynamicColumns
-} from './TablesReusabilityFunction'
+import { addOperatorColumn, dynamicApi, dynamicColumns } from './TablesReusabilityFunction'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
@@ -83,6 +75,10 @@ const props = defineProps({
   deleteTitle: {
     type: String,
     default: 'Warning'
+  },
+  removeHeaderFilterSlot: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -111,11 +107,21 @@ const pushAdd = () => {
     params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
   })
 }
+
+//declare variables here (not from file) so it will reset when change pages
+const getTotalRecord = ref(0)
+const getSelectedRecord = ref<Array<any>>([])
+function fnGetTotalRecord(val) {
+  getTotalRecord.value = val ?? 0
+}
+function fnGetSelectedRecord(val) {
+  getSelectedRecord.value = val ?? []
+}
 </script>
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
-      <template #headerFilterSlot>
+      <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
         <el-button type="primary" :icon="createIcon" @click="pushAdd">
           {{ t(`${props.titleAdd}`) }}</el-button
         >

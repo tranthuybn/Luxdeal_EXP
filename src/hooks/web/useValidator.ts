@@ -14,7 +14,8 @@ export const useValidator = () => {
   const required = (message?: string) => {
     return {
       required: true,
-      message: message || t('common.required')
+      message: message || t('common.required'),
+      trigger: 'blur'
     }
   }
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
@@ -36,7 +37,7 @@ export const useValidator = () => {
   }
   const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
-    if (/[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/gi.test(val)) {
+    if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
       callback(new Error(t('reuse.notSpecialCharacters')))
     } else if (
       /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
@@ -48,7 +49,14 @@ export const useValidator = () => {
       callback()
     }
   }
-
+  const checkCode = (_, val: any, callback: Callback) => {
+    // The password cannot be a special character
+    if (!/^[a-zA-Z0-9]*$/.test(val)) {
+      callback(new Error(t('reuse.CheckCode')))
+    } else {
+      callback()
+    }
+  }
   // Whether the two string wants to wait
   const isEqual = (val1: string, val2: string, callback: Callback) => {
     if (val1 === val2) {
@@ -59,6 +67,21 @@ export const useValidator = () => {
   }
 
   const ValidService = {
+    checkEmojiValidator: {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (
+          /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+            value
+          )
+        ) {
+          callback(new Error(t('reuse.checkEmoji')))
+        } else {
+          callback()
+        }
+      },
+      required: true,
+      trigger: 'blur'
+    },
     checkPhone: {
       pattern: /((09|03|07|08|05)+([0-9]{8})\b)/g,
       message: t('reuse.phoneNumberFormat'),
@@ -126,6 +149,16 @@ export const useValidator = () => {
       required: false,
       trigger: 'blur'
     },
+    checkDecimal: {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (!/^[0-9]+$/.test(value)) {
+          callback(new Error(t('reuse.checkDecimal')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    },
     checkNameLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
@@ -148,13 +181,29 @@ export const useValidator = () => {
       required: false,
       trigger: 'change'
     },
+    checkPercent: {
+      type: 'number',
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value && value.length > 3) {
+          callback(new Error(t('reuse.checkNameLength')))
+        }
+        callback()
+      },
+      required: false,
+      trigger: 'change'
+    },
     checkDescriptionLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 500) {
-          callback(new Error(t('reuse.checkDescriptionLength')))
+        if (value) {
+          if (value.length > 500) {
+            callback(new Error(t('reuse.checkDescriptionLength')))
+          } else {
+            callback()
+          }
+        } else {
+          callback()
         }
-        callback()
       },
       required: false,
       trigger: 'change'
@@ -162,7 +211,7 @@ export const useValidator = () => {
     checkNameServiceLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value.length > 255) {
+        if (value.length >= 255) {
           callback(new Error(t('reuse.checkNameServiceLength')))
         }
         callback()
@@ -195,12 +244,25 @@ export const useValidator = () => {
       trigger: 'blur'
     },
     checkMoney: {
-      validator: (value, callback) => {
+      validator: (_rule, value, callback) => {
         if (value === '') callback(new Error(t('reuse.required')))
         else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
         else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         else if (value % 1 !== 0) callback(new Error(t('reuse.integerNumber')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
+    maxPercent: {
+      validator: (_rule, value, callback) => {
+        if (value === '') callback(new Error(t('reuse.required')))
+        else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+        else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        else if (value % 1 !== 0) callback(new Error(t('reuse.integerNumber')))
+        else if (value > 100) callback(new Error(t('reuse.maxPercent')))
         callback()
       },
       required: true,
@@ -216,6 +278,26 @@ export const useValidator = () => {
       },
       required: true,
       trigger: 'change'
+    },
+    checkStringSpace: {
+      validator: (_rule, value, callback) => {
+        if (value.toString().trim() === '') {
+          callback(new Error(t('reuse.required')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    },
+    checkSpaceBeforeAndAfter: {
+      validator: (_rule, value, callback) => {
+        if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
+          callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
     }
   }
 
@@ -225,6 +307,7 @@ export const useValidator = () => {
     notSpace,
     notSpecialCharacters,
     isEqual,
+    checkCode,
     ValidService
   }
 }

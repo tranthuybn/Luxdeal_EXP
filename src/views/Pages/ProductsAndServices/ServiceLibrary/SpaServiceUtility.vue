@@ -9,11 +9,17 @@ import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-pl
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
 import moment from 'moment'
-const { required, ValidService, notSpecialCharacters } = useValidator()
+import { FORM_IMAGES } from '@/utils/format'
+const { required, ValidService, notSpecialCharacters, checkCode } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+// get data from router
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',
@@ -61,6 +67,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      style: 'max-width: 100%',
       defaultHtml: ''
     }
   },
@@ -126,7 +133,7 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('formDemo.status'),
     component: 'Checkbox',
-    value: [],
+    disabled: type === 'add',
     colProps: {
       span: 18
     },
@@ -152,12 +159,19 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkCodeServiceLength.validator },
+    { validator: checkCode },
     required()
   ],
   shortDescription: [
+    { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkNameLength.validator },
     required()
+  ],
+  description: [
+    required(),
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkDescriptionLength.validator }
   ],
   cost: [
     { validator: ValidService.checkSpace.validator },
@@ -205,16 +219,9 @@ const addFormSchema = async (timesCallAPI) => {
   }
 }
 
-// get data from router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
-  console.log('formData', formData)
-
   formDataCustomize.value.Images = formData.photos
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -237,7 +244,7 @@ type FormDataPost = {
   Photo?: any
   UpdatedBy: string
   CreatedBy: string
-  IsActive: boolean
+  IsActive?: boolean
   IsApproved: boolean
   UpdatedAt: string
   CreatedAt: string
@@ -264,11 +271,19 @@ const customPostData = (data) => {
   customData.CreatedBy = 'anle'
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
-  data.status.includes('active') ? (customData.IsActive = true) : (customData.IsActive = false)
-  data.status.includes('') ? (customData.IsActive = false) : (customData.IsActive = true)
+  if (type === 'add') {
+    customData.IsActive = false
+  } else {
+    data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
+    data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
+  }
+
+  // data.status.includes(['active']) ? (customData.IsActive = true) : (customData.IsActive = false)
+  // data.status.includes([]) ? (customData.IsActive = false) : (customData.IsActive = true)
   customData.IsApproved = true
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   //  customPostData(data)
   const payload = {
@@ -276,12 +291,18 @@ const editData = async (data) => {
     DeletedImages: data.DeleteFileIds.toString(),
     NewPhotos: data.Images
   }
+  console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
-    .then(() =>
-      ElNotification({
-        message: t('reuse.updateSuccess'),
-        type: 'success'
-      })
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch(() =>
       ElNotification({
@@ -292,12 +313,17 @@ const editData = async (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
-  await postSpa(data)
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+  await postSpa(FORM_IMAGES(data))
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch((error) =>
       ElNotification({
@@ -357,7 +383,6 @@ const activeName = ref('information')
           <span class="text-center">{{ item.title }}</span>
         </template>
         <TableOperator
-          ref="formRef"
           :apiId="getSpaById"
           :schema="schema"
           :title="item.title"

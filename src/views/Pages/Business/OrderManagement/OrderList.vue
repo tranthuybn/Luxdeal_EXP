@@ -16,34 +16,39 @@ const tabs: Array<Tab> = [
     name: 'orderSell',
     label: t('reuse.orderSell'),
     api: getSellOrderList,
-    column: sellOrder
+    column: sellOrder,
+    titleAdd: 'formDemo.addNewSalesOrders'
   },
   {
     name: 'orderRental',
     label: t('reuse.orderRental'),
     api: getRentalorderList,
-    column: rentalorder
+    column: rentalorder,
+    titleAdd: 'formDemo.addNewRentalOrders'
   },
   {
     name: 'orderDeposit',
     label: t('reuse.orderDeposit'),
     api: getOrderDepositList,
-    column: orderDeposit
+    column: orderDeposit,
+    titleAdd: 'formDemo.addNewConsignmentOrders'
   },
   {
     name: 'orderPawn',
     label: t('reuse.orderPawn'),
     api: getOrderPawnList,
-    column: orderPawn
+    column: orderPawn,
+    titleAdd: 'formDemo.addNewPawnOrders'
   },
   {
     name: 'orderSpa',
     label: t('reuse.orderSpa'),
     api: getOrderSpaList,
-    column: orderSpa
+    column: orderSpa,
+    titleAdd: 'formDemo.addNewSpaOrders'
   }
 ]
 </script>
 <template>
-  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" />
+  <tableDatetimeFilterBasicVue :selection="true" title="orderList" :tabs="tabs" />
 </template>

@@ -1,5 +1,6 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+const utility = 'Utility'
 const { t } = useI18n()
 export default {
   path: '/business',
@@ -30,10 +31,10 @@ export default {
           }
         },
         {
-          path: 'potential-customer-add',
+          path: `potential-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerAdd.vue'),
-          name: 'business.potential-customer-care.potential-customer-add',
+          name: `business.potential-customer-care.potential-customer-list.${utility}`,
           meta: {
             title: t('router.potentialCustomerAdd')
           }
@@ -65,23 +66,13 @@ export default {
           }
         },
         {
-          path: 'order-management',
-          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
-          name: `business.order-management.order-list-add`,
+          path: 'order-list-add/:type?/:tab?/:id?',
+          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
+          name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: 'reuse.createANewOrder',
-            noTagsView: true,
+            title: t('router.createANewOrder'),
             noCache: true,
-            hidden: true,
             showMainRoute: true
-          }
-        },
-        {
-          path: 'create-new-order',
-          name: 'business.order-management.create-new-order',
-          component: 'views/Pages/Business/OrderManagement/OrderListUtility',
-          meta: {
-            title: 'router.createANewOrder'
           }
         }
       ]
@@ -102,18 +93,47 @@ export default {
             title: t('router.customerList')
           }
         },
+
+        {
+          path: 'customer-add/:id?/:type?',
+          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          name: `business.customer-management.customerList.${utility}`,
+          meta: {
+            title: t('router.customerAdd'),
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
+          }
+        },
+
         {
           path: 'customerRatings',
           name: 'business.customer-management.customerRatings',
-          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerRatings.vue'),
+          component: () =>
+            import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
-            title: t('router.customerRatings')
+            title: t('router.customerRatings'),
+            breadcrumb: true,
+            noTagsView: true
           }
         },
         {
-          path: 'customerAdd',
-          name: 'business.customer-management.customerAdd',
+          path: 'customerRatings-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
+          meta: {
+            title: t('customerList.addNewRanking'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
+        },
+        {
+          path: 'customer-add/:type?/:id?',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          name: `business.customer-management.customerList.${utility}`,
           meta: {
             title: t('router.customerAdd')
           }
@@ -125,7 +145,8 @@ export default {
       name: 'business.collaborators',
       redirect: { name: 'business.collaborators.collaboratorsList' },
       meta: {
-        title: t('router.collaborators')
+        title: t('router.collaborators'),
+        alwaysShow: true
       },
       children: [
         {
@@ -145,8 +166,18 @@ export default {
           }
         },
         {
-          path: 'collaboratorsAdd',
-          name: 'business.collaborators.collaboratorsAdd',
+          path: 'paymentRequestAdd/:type?/:id?',
+          name: `business.collaborators.paymentRequest.${utility}`,
+          component: () => import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
+          meta: {
+            title: t('router.collaboratorsAdd'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'collaboratorsAdd/:type?/:id?',
+          name: `business.collaborators.collaboratorsList.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
           meta: {
             title: t('router.collaboratorsAdd')
@@ -171,11 +202,31 @@ export default {
           }
         },
         {
+          path: 'flash-sale-utility/:type?/:id?',
+          name: `business.promotion-strategy.flash-sale.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSaleUtility.vue'),
+          meta: {
+            title: t('reuse.flashSaleDetail'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
           path: 'collection',
           name: 'business.promotion-strategy.collection',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Collection.vue'),
           meta: {
             title: t('router.collection')
+          }
+        },
+        {
+          path: 'collection-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/CollectionUtility.vue'),
+          name: `business.promotion-strategy.collection.${utility}`,
+          meta: {
+            title: t('reuse.collectionDetail'),
+            canTo: true,
+            hidden: true
           }
         },
         {
@@ -187,11 +238,31 @@ export default {
           }
         },
         {
+          path: 'new-product-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/NewProductUtility.vue'),
+          name: `business.promotion-strategy.new-product.${utility}`,
+          meta: {
+            title: t('reuse.newProductDetail'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
           path: 'voucher',
           name: 'business.promotion-strategy.voucher',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Voucher.vue'),
           meta: {
             title: t('router.voucher')
+          }
+        },
+        {
+          path: 'voucher-utility/:type?/:tab?/:id?',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
+          name: `business.promotion-strategy.voucher.${utility}`,
+          meta: {
+            title: t('reuse.voucherDetail'),
+            canTo: true,
+            hidden: true
           }
         },
         {
@@ -203,21 +274,49 @@ export default {
           }
         },
         {
+          path: 'combo-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/ComboUtility.vue'),
+          name: `business.promotion-strategy.combo.${utility}`,
+          meta: {
+            title: t('router.comboTitle'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
           path: 'auction',
           name: 'business.promotion-strategy.auction',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Auction.vue'),
           meta: {
             title: t('router.auction')
           }
+        },
+        {
+          path: 'auction-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/PromotionStrategy/AuctionUtility.vue'),
+          name: `business.promotion-strategy.auction.${utility}`,
+          meta: {
+            title: t('router.auctionTitle'),
+            canTo: true,
+            hidden: true
+          }
         }
       ]
     },
     {
       path: 'service-survey',
+      component: () => import('@/views/Pages/Business/ServiceSurvey.vue'),
       name: 'business.service-survey',
-      redirect: { name: 'business.accumulate-points.customer-points' },
       meta: {
         title: t('router.serviceSurvey')
+      }
+    },
+    {
+      path: 'accumulate-points',
+      name: 'business.accumulate-points',
+      redirect: { name: 'business.accumulate-points.customer' },
+      meta: {
+        title: t('router.accumulatePoints')
       },
       children: [
         {
@@ -225,7 +324,7 @@ export default {
           name: 'business.accumulate-points.customer-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/CustomerPoints.vue'),
           meta: {
-            title: 'router.customerPoints'
+            title: t('router.customerPoints')
           }
         },
         {
@@ -233,7 +332,18 @@ export default {
           name: 'business.accumulate-points.settings-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
           meta: {
-            title: 'router.installPoints'
+            title: t('router.installPoints')
+          }
+        },
+        {
+          path: 'settings-points-utility/:id?/type?',
+          name: `business.accumulate-points.settings-points.${utility}`,
+          component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPointsAdd.vue'),
+          meta: {
+            title: t('router.installPoints'),
+            noCache: true,
+            hidden: true,
+            canTo: true
           }
         }
       ]
@@ -255,11 +365,38 @@ export default {
           }
         },
         {
+          path: 'customer-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Business/VirtualWallet/VirtualWalletUtility.vue'),
+          name: `business.virtual-wallet.customer.${utility}`,
+          meta: {
+            title: t('reuse.VirtualWalletUtility'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
+          }
+        },
+        {
           path: 'with-drewal-request',
           name: 'business.virtual-wallet.with-drewal-request',
           component: () => import('@/views/Pages/Business/VirtualWallet/WithdrawalRequest.vue'),
           meta: {
             title: t('router.withDrawalRequest')
+          }
+        },
+        {
+          path: 'with-drewal-request-utility/:type?/:id?',
+          name: `business.virtual-wallet.with-drewal-request.${utility}`,
+          component: () =>
+            import('@/views/Pages/Business/VirtualWallet/WithdrawalRequestUtility.vue'),
+          meta: {
+            title: t('reuse.addNewVirtualWalletRequest'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
           }
         },
         {
@@ -269,31 +406,19 @@ export default {
           meta: {
             title: t('router.settingsvirtualWallet')
           }
-        }
-      ]
-    },
-    {
-      path: 'business-product',
-      name: 'business.business-product',
-      redirect: { name: 'business.business-product.employeeList' },
-      meta: {
-        title: t('router.businessProducts')
-      },
-      children: [
-        {
-          path: 'product-list',
-          name: 'business.business-product.product-list',
-          component: () => import('@/views/Pages/Business/BusinessProducts/ProductList.vue'),
-          meta: {
-            title: t('router.productlist')
-          }
         },
         {
-          path: 'product-add',
-          name: 'business.business-product.product-add',
-          component: () => import('@/views/Pages/Business/BusinessProducts/ProductAdd.vue'),
+          path: 'settings-utility/:type?/:id?',
+          component: () =>
+            import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWalletUtility.vue'),
+          name: `business.virtual-wallet.settings.${utility}`,
           meta: {
-            title: t('router.productadd')
+            title: t('reuse.addNewMoneyPaymentCode'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
           }
         }
       ]

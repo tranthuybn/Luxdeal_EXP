@@ -15,6 +15,7 @@ interface Tab {
   column: TableColumn[]
   params?: string
   delApi?: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
+  titleAdd?: string
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
 
@@ -24,7 +25,7 @@ interface Collapse {
   name: string
   title?: string
   columns?: TableColumn[]
-  api?: apiType | undefined
+  api?: any
   buttonAdd?: string
   typeForm?: string
   typeButton?: string

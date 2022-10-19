@@ -27,23 +27,21 @@ export default {
       name: 'human-resource-management.department-directory',
       component: () => import('@/views/Pages/HumanResourceManagement/DepartmentDirectory.vue'),
       meta: {
-        title: 'router.departmentDirectory'
-      },
-      children: [
-        {
-          path: `${utility}`,
-          component: () =>
-            import('@/views/Pages/HumanResourceManagement/DepartmentDirectoryUtility.vue'),
-          name: `human-resource-management.department-directory.${utility}`,
-          meta: {
-            title: 'reuse.addNewBranch',
-            noTagsView: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
-          }
-        }
-      ]
+        title: t('router.departmentDirectory')
+      }
+    },
+    {
+      path: `department-directory-utility/:type?/:id?`,
+      component: () =>
+        import('@/views/Pages/HumanResourceManagement/DepartmentDirectoryUtility.vue'),
+      name: `human-resource-management.department-directory.${utility}`,
+      meta: {
+        title: t('reuse.addNewBranch'),
+        noTagsView: true,
+        noCache: true,
+        hidden: true,
+        showMainRoute: true
+      }
     }
   ]
 }

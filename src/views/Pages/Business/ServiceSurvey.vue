@@ -29,7 +29,6 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.customerName'),
     minWidth: '150'
   },
-
   {
     field: 'serviceRating',
     label: t('reuse.serviceRating'),

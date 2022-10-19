@@ -13,9 +13,84 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatRankingCustomer = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.silver')
+    case 2:
+      return t('reuse.gold')
+    case 3:
+      return t('reuse.platinum')
+    case 4:
+      return 'Titan'
+    default:
+      return ''
+  }
+}
+export const formatSubjectVoucher = (val) => {
+  switch (val) {
+    case 3:
+      return t('reuse.allCustomer')
+    case 2:
+      return t('reuse.groupCustomer')
+    case 1:
+      return t('reuse.onlyCustomer')
+    default:
+      return ''
+  }
+}
+export const formatStatusVoucher = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.finishPending')
+    case 2:
+      return t('reuse.inactive')
+    case 3:
+      return t('reuse.active')
+    default:
+      return ''
+  }
+}
+export const formatCustomerRatings = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.byMonth')
+    case 2:
+      return t('customerList.byQuarter')
+    case 3:
+      return t('customerList.byYear')
+    default:
+      return ''
+  }
+}
+export const priceTransferToText = (val) => {
+  return `${val + ' đ'}`
+}
 export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`
+}
+export const collaboratorStatusTransferToText = (val) => {
+  if (val == 0) return `${t('reuse.pending')}`
+  else if (val == 1) return `${t('reuse.active')}`
+  else if (val == 2) return `${t('reuse.inactive')}`
+  return `${t('reuse.lock')}`
+}
+export const isFileTransferToText = (val) => {
+  if (val == true) return `${t('common.ok')}`
+  else if (val == false) return `${t('reuse.no')}`
+}
+export const paidTransferToText = (val) => {
+  if (val == true) return `${t('formDemo.alreadyPaidForTt')}`
+  else if (val == false) return `${t('reuse.notPaid')}`
+}
+export const commissionPaymentStatusTransferToText = (val) => {
+  if (val == 1) return `${t('reuse.waitingForProcessing')}`
+  else if (val == 2) return `${t('reuse.inUse')}`
+  else if (val == 3) return `${t('reuse.used')}`
+  return `${t('reuse.cancelled')}`
 }
 export const formatPotentialCustomerStatusIdToText = (val) => {
   switch (val) {
@@ -61,8 +136,53 @@ export const businessStatusTransferToText = (val) => {
   return `${t('reuse.inactive')}`
 }
 
+export const campaignType = (val) => {
+  switch (val) {
+    case 1:
+      return t('router.flashsale')
+    case 2:
+      return t('router.collection')
+    case 3:
+      return t('router.newproduct')
+    case 4:
+      return t('router.voucher')
+    case 5:
+      return t('router.combo')
+    default:
+      return t('router.flashsale')
+  }
+}
+
+export const TargetType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.customer')
+    case 2:
+      return t('reuse.groupCustomer')
+    case 3:
+      return t('reuse.allCustomer')
+    default:
+      return t('reuse.customer')
+  }
+}
+
+export const VoucherType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.freeVouchers')
+    case 2:
+      return t('reuse.voucherAffiliate')
+    case 3:
+      return t('reuse.redeemGiftVouchersWithPoints')
+    case 4:
+      return t('reuse.voucherExchangedForVirtualCurrency')
+    default:
+      return t('reuse.freeVouchers')
+  }
+}
+
 export const dateTimeFormat = (val) => {
-  return moment(val).format('DD-MM-y')
+  return moment(val).format('DD/MM/YYYY')
 }
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'
@@ -89,7 +209,7 @@ export const FORM_DATA = (object) => {
 }
 export const FORM_IMAGES = (data) => {
   return Object.keys(data).reduce((form, key) => {
-    if (data[key]) {
+    if (data[key] != null && typeof data[key] != 'undefined') {
       form.append(key, data[key])
       if (Array.isArray(data[key]) && data[key].length > 0)
         data[key].forEach((el) => {
@@ -99,6 +219,24 @@ export const FORM_IMAGES = (data) => {
     return form
   }, new FormData())
 }
+export const FORM_DATA1 = (data) => {
+  return Object.keys(data).reduce((form, key) => {
+    if (data[key] != null && typeof data[key] != 'undefined') {
+      form.append(key, data[key])
+      if (Array.isArray(data[key]) && data[key].length > 0)
+        data[key].forEach((el) => {
+          form.append(key, el)
+        })
+    }
+    return form
+  }, new FormData())
+}
+export const moneyFormat = (money) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
+}
+export const moneyToNumber = (currency) => {
+  return Number(currency.replace(/[^0-9.-]+/g, ''))
+}
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
@@ -107,11 +245,16 @@ export default {
   FORM_IMAGES,
   objectToQueryParams,
   formatMoneyInput,
+  moneyToNumber,
   formatDateTime,
   productStatusTransferToText,
   businessStatusTransferToText,
   businessIventoryStatusTransferToText,
   dateTimeFormat,
+  collaboratorStatusTransferToText,
+  campaignType,
+  TargetType,
+  VoucherType,
   valueDateFormat,
   dateFormType,
   dateTimeDisable

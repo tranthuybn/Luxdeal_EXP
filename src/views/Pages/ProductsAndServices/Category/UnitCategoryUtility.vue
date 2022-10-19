@@ -127,18 +127,22 @@ const schema = reactive<FormSchema[]>([
 ])
 const rules = reactive({
   name: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
-    { validator: ValidService.checkSpace.validator },
-    required()
+    { validator: ValidService.checkSpace.validator }
   ],
   parentid: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
-    { validator: ValidService.checkSpace.validator },
-    required()
+    { validator: ValidService.checkSpace.validator }
   ],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  index: [
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpace }
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -183,6 +187,7 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
+  console.log('ab', { ...data })
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({
@@ -206,7 +211,6 @@ const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value = formData
   formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
@@ -235,6 +239,7 @@ type FormDataPost = {
   isHide: boolean
   isActive: boolean
   index: number
+  imageurl?: string
 }
 const customPostData = (data) => {
   const customData = {} as FormDataPost
@@ -243,14 +248,15 @@ const customPostData = (data) => {
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
   customData.Image = data.Image
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.index = data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   data = customPostData(data)
-
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({
@@ -263,7 +269,10 @@ const editData = async (data) => {
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    )
+    ),
+    push({
+      name: `${String(router.currentRoute)}`
+    })
 }
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 </script>

@@ -5,7 +5,6 @@ import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { TableResponse } from '../../Type'
 import {
-  ElImage,
   ElButton,
   ElDrawer,
   ElCheckboxGroup,
@@ -21,39 +20,46 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
-import { API_URL } from '@/utils/API_URL'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
 const route = useRoute()
-let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
 const props = defineProps({
   api: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api lấy danh sách dữ liệu của bảng '
   },
   delApi: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: () => Promise<IResponse<TableResponse<TableData>>>,
+    description: 'Api xóa dữ liệu trong bảng'
   },
   fullColumns: {
     type: Array as PropType<TableColumn[]>,
-    default: () => []
+    default: () => [],
+    description: 'Các cột trong bảng'
   },
   selection: { type: Boolean, default: true },
   maxHeight: {
     type: String || Number,
-    default: '69vh'
+    default: '69vh',
+    description: 'Chiều cao của bảng danh sách'
   },
   customOperator: {
     type: Number,
     default: 1,
-    validator(value: number) {
+    validator: (value: number) => {
       // The value must match one of these strings
-      return [1, 2, 3].includes(value)
+      return [1, 2, 3, 4, 5].includes(value)
     },
-    Descriptions: 'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác)'
+    descriptions:
+      'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: xem, sửa (icon))'
+  },
+  tabs: {
+    type: String,
+    default: ''
   },
   paginationType: {
     type: Boolean,
@@ -65,7 +71,8 @@ const props = defineProps({
   },
   removeDrawer: {
     type: Boolean,
-    default: false
+    default: false,
+    Description: 'Bỏ lọc cột '
   },
   titleButtons: {
     type: String,
@@ -73,12 +80,13 @@ const props = defineProps({
   },
   deleteTitle: {
     type: String,
-    default: 'Warning'
+    default: 'Warning',
+    description: 'Tiêu đề thông báo khi ấn nút xóa'
   }
 })
-
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
+const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: props.api,
   response: {
@@ -86,11 +94,12 @@ const { register, tableObject, methods } = useTable<TableData>({
     total: 'count'
   },
   props: {
-    columns: props.fullColumns,
+    columns: temporaryColumn,
     headerAlign: 'center'
   }
 })
 // get api
+let paginationObj = ref<Pagination>()
 
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
@@ -100,14 +109,15 @@ onBeforeMount(() => {
 })
 // execute pagination
 watch(
-  () => tableObject.total,
+  //watch multiple variables (total: run 1 after load page, pageSize/length when click change size)
+  () => [tableObject.total, tableObject.pageSize, tableObject?.tableList?.length],
   () => {
     props.paginationType
       ? (paginationObj.value = {
           total: tableObject.total
         })
       : (paginationObj.value = undefined)
-    emit('TotalRecord', tableObject.tableList.length)
+    emit('TotalRecord', tableObject?.tableList?.length ?? 0)
   },
   {
     immediate: true
@@ -146,21 +156,31 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
-const sortChange = () => {
-  //empty function but dont remove
-}
-//watch sort change function
-const headerClick = (column) => {
-  const sorting = {} as any
-  let valueSort: any = null
+const sortField = ref('')
+const sortValue = ref()
+const sortObj = {}
+const lastSort = ref()
+const sortChange = (column) => {
+  //value of sort : true/false
   if (column.order == 'ascending') {
-    valueSort = true
+    sortValue.value = true
   }
   if (column.order == 'descending') {
-    valueSort = false
+    sortValue.value = false
   }
-  sorting[`${column.property}Sort`] = valueSort
-  setSearchParams(sorting)
+  //sort 1 column at a time
+  //remove search params by making it value = null
+  if (column.prop !== null) {
+    sortField.value = column.prop
+    sortObj[`${sortField.value}Sort`] = sortValue.value
+    if (lastSort.value && lastSort.value !== `${sortField.value}Sort`) {
+      sortObj[lastSort.value] = null
+    }
+    lastSort.value = `${sortField.value}Sort`
+  } else {
+    sortObj[lastSort.value] = null
+  }
+  setSearchParams({ ...sortObj })
 }
 //value is an object, get called when filter range(to-from) value
 const confirm = (value) => {
@@ -177,11 +197,12 @@ const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 let buttonShow = true
+
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type }
+      params: { id: row.id, type: type, tab: props.tabs }
     })
   } else {
     if (buttonShow === true) {
@@ -194,6 +215,7 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, _multiple: boolean) => {
   {
+    console.log('row', row)
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),
@@ -214,7 +236,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
             .catch(() =>
               ElNotification({
                 message: t('reuse.deleteFail'),
-                type: 'warning'
+                type: 'error'
               })
             )
             .finally(() => getData())
@@ -229,7 +251,7 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
-            type: 'warning'
+            type: 'error'
           })
         }
       })
@@ -264,6 +286,11 @@ const handleSizeChange = (size) => {
 const handleCurrentChange = (current: number) => {
   tableObject.currentPage = current
 }
+const updateTableColumn = () => {
+  temporaryColumn.value = props.fullColumns.filter((el) =>
+    showingColumnList.value.includes(el.field)
+  )
+}
 </script>
 <template>
   <ContentWrap class="relative">
@@ -275,7 +302,7 @@ const handleCurrentChange = (current: number) => {
     >
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="15%">
+    <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
@@ -296,10 +323,12 @@ const handleCurrentChange = (current: number) => {
       :expand="expand"
       v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage"
+      row-key="id"
       :data="tableObject.tableList"
       :loading="tableObject.loading"
       :pagination="paginationObj"
       :showOverflowTooltip="false"
+      reserveIndex
       :maxHeight="maxHeight"
       @mouseenter="operatorColumnToggle('right')"
       @mouseleave="operatorColumnToggle(false)"
@@ -308,37 +337,10 @@ const handleCurrentChange = (current: number) => {
       @register="register"
       @filter-change="filterChange"
       @sort-change="sortChange"
-      @header-click="headerClick"
       :selection="selection"
       @update:page-size="handleSizeChange"
       @update:current-page="handleCurrentChange"
     >
-      <template #imgTitle="data">
-        <div class="imageTitle" style="display: flex; align-items: center">
-          <div style="padding-right: 20px">
-            <el-image style="width: 100px; height: 100px" :src="API_URL + data.row.imageurl" />
-          </div>
-          <div>{{ data.row.name }}</div>
-        </div>
-      </template>
-      <template #image="data">
-        <div>
-          <el-image style="width: 180px" :src="API_URL + data.row.image" />
-        </div>
-      </template>
-      <template #imageList="data">
-        <div>
-          <el-image fit="contain" :src="API_URL + data.row.photos[0]?.path" />
-        </div>
-      </template>
-      <template #imageProduct="data">
-        <div>
-          <el-image
-            style="width: 130px; height: 130px"
-            :src="API_URL + data.row.productImages[0]?.path"
-          />
-        </div>
-      </template>
       <template
         v-for="(header, index) in ColumnsHaveHeaderFilter"
         #[`${header.field}-header`]
@@ -385,8 +387,15 @@ const handleCurrentChange = (current: number) => {
           </ElButton>
           <ElButton type="danger" @click="action(row, 'delete')">
             {{ t('reuse.delete') }}
-          </ElButton></div
-        >
+          </ElButton>
+        </div>
+        <div v-if="customOperator === 4">
+          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
+        </div>
+        <div v-if="customOperator === 5">
+          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
+          <ElButton @click="action(row, 'edit')" :icon="editIcon" />
+        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />

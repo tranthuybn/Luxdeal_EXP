@@ -19,7 +19,7 @@ import { spaPrice } from './productLibrary/spaPrice'
 import { inventoryTrading } from './productLibrary/inventoryTrading'
 import { priceByQuantity } from './productLibrary/priceByQuantity'
 import { importAndExportHistory } from './productLibrary/importAndExportHistory'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 
 const { result_code } = config
 const timeout = 1000

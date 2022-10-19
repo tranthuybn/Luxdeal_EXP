@@ -5,6 +5,27 @@ interface Filter {
   text: string
   value: any
 }
+export const filterPaymentCheckbox: Array<Filter> = [
+  { text: t('reuse.alreadyPaid'), value: true },
+  { text: t('reuse.notPaid'), value: false }
+]
+export const filterPaymentWalletStatus: Array<Filter> = [
+  { text: t('reuse.waitingConfirm'), value: 1 },
+  { text: t('reuse.confirmed'), value: 2 },
+  { text: t('common.doneLabel'), value: 3 },
+  { text: t('reuse.cancelled'), value: 4 }
+]
+export const filterStatusCustomerRatings: Array<Filter> = [
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 },
+  { text: t('common.cancel'), value: 3 }
+]
+export const filterRankCustomer: Array<Filter> = [
+  { text: t('reuse.silver'), value: 1 },
+  { text: t('reuse.gold'), value: 2 },
+  { text: t('reuse.platinum'), value: 3 },
+  { text: 'Titan', value: 4 }
+]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
   { text: t('reuse.takingCare'), value: 2 },
@@ -84,11 +105,15 @@ export const filterProductStatus: Array<Filter> = [
   { text: t('reuse.active'), value: true },
   { text: t('reuse.inactive'), value: false }
 ]
+export const filterPending: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 }
+]
 export const filterTableStatus: Array<Filter> = [
-  { text: t('reuse.active'), value: true },
-  { text: t('reuse.inactive'), value: false },
-  { text: t('reuse.pending'), value: 'Chờ duyệt' },
-  { text: t('reuse.finishPending'), value: 'Đã duyệt' }
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 },
+  { text: t('reuse.pending'), value: 3 },
+  { text: t('reuse.finishPending'), value: 4 }
 ]
 export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.bag'), value: 1 },
@@ -96,9 +121,14 @@ export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.balo'), value: 3 }
 ]
 export const filtersReceiptExpenditure: Array<Filter> = [
-  { text: t('reuse.haveToCollect'), value: true },
-  { text: t('reuse.havetoPay'), value: false }
+  { text: t('reuse.haveToCollect'), value: 1 },
+  { text: t('reuse.havetoPay'), value: 0 }
 ]
+export const filtersCustomerType: Array<Filter> = [
+  { text: t('reuse.customerName'), value: 1 },
+  { text: t('formDemo.companyName'), value: 2 }
+]
+
 export const filtersStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.closedTheOrder'), value: 2 },
@@ -178,9 +208,22 @@ export const filterPromotionPrice: Array<Filter> = [
   { text: t('reuse.mix'), value: 3 }
 ]
 export const filterVoucherType: Array<Filter> = [
-  { text: t('reuse.voucherCart'), value: 1 },
-  { text: t('reuse.voucherSpa'), value: 2 },
-  { text: 'Affiliate', value: 3 }
+  { text: t('formDemo.voucherDiscount'), value: 1 },
+  { text: t('formDemo.voucherGiftSpa'), value: 2 }
+]
+
+export const filterVoucherStatus: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.closedTheOrder'), value: 2 },
+  { text: t('reuse.finishPending'), value: 3 },
+  { text: t('common.doneLabel'), value: 4 },
+  { text: t('reuse.cancelled'), value: 5 }
+]
+export const filterVoucherCondition: Array<Filter> = [
+  { text: t('reuse.freeReceive'), value: 1 },
+  { text: t('reuse.exchangeByPoints'), value: 2 },
+  { text: 'Affiliate', value: 3 },
+  { text: t('reuse.buyByVirtualWallet'), value: 4 }
 ]
 export const filterAuctionStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },

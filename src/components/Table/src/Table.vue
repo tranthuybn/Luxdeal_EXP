@@ -127,7 +127,7 @@ export default defineComponent({
           layout: 'sizes, prev, pager, next, jumper, ->, total',
           pageSizes: pageSizes,
           disabled: false,
-          hideOnSinglePage: true,
+          hideOnSinglePage: false,
           total: pageSizes[0]
         },
         unref(getProps).pagination

@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { getTypePersonnelList } from '@/api/HumanResourceManagement'
+import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import {
-  getFeaturesDepositFee,
-  getFeaturesPawnFee,
-  getFeaturesRentalPrice,
-  getSpaLPrice,
   getInventoryTrading,
   postProductLibrary,
   getBusinessProductLibrary,
   updateProductLibrary,
   updateProductSeo,
   getProductProperty,
-  getCategories
+  getCategories,
+  postProductProperty,
+  deleteProductProperty,
+  getPriceProductProperty,
+  changePriceProductProperty,
+  updateProductProperty
 } from '@/api/LibraryAndSetting'
 import {
   ElCollapse,
@@ -28,7 +30,9 @@ import {
   ElFormItem,
   FormInstance,
   ElSelect,
-  ElOption
+  ElOption,
+  ElTree,
+  ElMessageBox
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -37,15 +41,16 @@ import {
   featuresRentalPrice,
   columnManagementSeo
 } from './ProductLibraryManagement'
+import { TableOperator } from '../../Components/TableBase'
 import { Collapse } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { onBeforeMount, reactive, unref, watch } from 'vue'
+import { reactive, unref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
-import { TableOperator } from '../../Components/TableBase'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -54,41 +59,59 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 let colorData = reactive([])
 let sizeData = reactive([])
 let materialData = reactive([])
-onBeforeMount(async () => {
-  await getAttributeData()
-})
+// call api for color, size, material
+// get called when open the second collase
 const getAttributeData = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 100, pageIndex: 1 }).then(
-    (res) => (colorData = res.data.map((color) => ({ label: color.name, value: color.id })))
+    (res) =>
+      (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
   )
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[2].key, pageSize: 100, pageIndex: 1 }).then(
-    (res) => (sizeData = res.data.map((size) => ({ label: size.name, value: size.id })))
+    (res) =>
+      (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
   )
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[3].key, pageSize: 100, pageIndex: 1 }).then(
     (res) =>
-      (materialData = res.data.map((material) => ({ label: material.name, value: material.id })))
+      (materialData = res.data.map((material) => ({
+        label: material.name,
+        value: material.id,
+        parentid: 3
+      })))
   )
   treeSelectData.value[0].children = colorData
   treeSelectData.value[1].children = sizeData
   treeSelectData.value[2].children = materialData
 }
-const attributeTreeValue = (data) => {
-  console.log('treeData', data)
+const unitData = ref()
+const ruleTreeFormRef = ref<FormInstance>()
+const validateTree = (_rule: any, value: any, callback: any) => {
+  if (value.length < 3) {
+    callback(new Error(t('reuse.notFillAllInformation')))
+  } else {
+    callback()
+  }
 }
+const treeRef = ref<InstanceType<typeof ElTree>>()
 const treeSelectData = ref([
   {
     value: 1,
     label: t('reuse.color'),
+    parentid: 0,
+    disabled: true,
     children: []
   },
   {
     value: 2,
     label: t('reuse.size'),
+    parentid: 0,
+    disabled: true,
     children: []
   },
   {
     value: 3,
     label: t('reuse.material'),
+    parentid: 0,
+    disabled: true,
     children: []
   }
 ])
@@ -111,28 +134,28 @@ const collapse: Array<Collapse> = reactive([
     icon: plusIcon,
     name: 'rentalPriceCharacteristics ',
     columns: featuresRentalPrice,
-    api: getFeaturesRentalPrice,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'depositFee',
-    api: getFeaturesDepositFee,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'pawnFee',
-    api: getFeaturesPawnFee,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
   {
     icon: plusIcon,
     name: 'SpaPrice',
-    api: getSpaLPrice,
+    api: getPriceProductProperty,
     tableList: [],
     loading: true
   },
@@ -150,6 +173,13 @@ const collapse: Array<Collapse> = reactive([
     columns: columnManagementSeo,
     api: getTypePersonnelList,
     hasImage: false
+  },
+  {
+    icon: plusIcon,
+    name: 'sellFee',
+    api: getPriceProductProperty,
+    tableList: [],
+    loading: true
   }
 ])
 let nameCollapse = ''
@@ -158,7 +188,8 @@ const collapseChangeEvent = async (val) => {
     const collapseItem = collapse.find(
       (element) => ((nameCollapse = val.slice(-1)), element.name == nameCollapse)
     )
-    if (collapseItem !== undefined) {
+    if (collapseItem !== undefined && collapseItem.name == 'priceCharacteristics') {
+      //call api for priceCharacteristics-collapse
       await callTableApi(collapseItem)
     }
     collapse.forEach((el) => {
@@ -171,6 +202,81 @@ const collapseChangeEvent = async (val) => {
     })
   }
 }
+const addLastRowAttribute = () => {
+  //have id when in edit mode
+  //newId: when click save and add return id
+  const findId = isNaN(id) ? newId.value : id
+  collapse[1].tableList.push({
+    categoriesValue: [],
+    productCode: productData.productCode,
+    productId: findId,
+    code: 'string', //api chua tra/chưa có trường nào để lấy thông tin
+    categories: [
+      {
+        id: null,
+        key: 'Color',
+        value: ''
+      },
+      {
+        id: null,
+        key: 'Material',
+        value: ''
+      },
+      {
+        id: null,
+        key: 'Size',
+        value: ''
+      },
+      {
+        id: 116, //fix cứng chưa có trường nào để lấy thông tin
+        key: 'State',
+        value: 'Small(15.5 - 30.5)'
+      }
+    ],
+    bussinessSetups: [
+      //fix theo api (ko đổi)
+      {
+        id: 1,
+        serviceType: 1,
+        key: 'Ban',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 2,
+        serviceType: 2,
+        key: 'KyGui',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 3,
+        serviceType: 3,
+        key: 'ChoThue',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 4,
+        serviceType: 4,
+        key: 'TheChap',
+        value: false,
+        hasPrice: false
+      },
+      {
+        id: 5,
+        serviceType: 5,
+        key: 'Spa',
+        value: false,
+        hasPrice: false
+      }
+    ],
+    edited: true, //edit data (turn to treeSelect, input ...)
+    newValue: true //check is newValue so dont have to call api
+  })
+}
+// Add mode cant open this Collapse
+const openLastCollapse = ref(false)
 const OpenCollapse = () => {
   if (disabledTabOpen.value == true) {
     ElNotification({
@@ -178,18 +284,218 @@ const OpenCollapse = () => {
       type: 'error'
     })
   }
+  openLastCollapse.value = true
 }
 const activeName = ref(collapse[0].name)
+const handleDeleteRow = async (scope) => {
+  //newValue : newly created (havent post api)
+  scope.row.newValue
+    ? collapse[1].tableList.splice(scope.$index, 1)
+    : ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, t('reuse.removeProductProperty'), {
+        confirmButtonText: t('reuse.delete'),
+        cancelButtonText: t('reuse.exit'),
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      })
+        .then(async () => {
+          await deleteProductProperty({ id: scope.row.id })
+            .then(
+              () =>
+                ElNotification({
+                  message: t('reuse.deleteSuccess'),
+                  type: 'success'
+                }),
+              collapse[1].tableList.splice(scope.$index, 1)
+            )
+            .catch(() =>
+              ElNotification({
+                message: t('reuse.deleteFail'),
+                type: 'error'
+              })
+            )
+        })
+        .catch((error) => {
+          if (error == 'cancel') {
+            ElNotification({
+              type: 'info',
+              message: t('reuse.deleteCancel')
+            })
+          } else {
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'error'
+            })
+          }
+        })
+}
 const handleEditRow = (data) => {
-  data.edited = true
+  data.edited = true //change table cell to tree select
+  data.categoriesValue = []
+  //push data to tree select
+  if (!data.newValue) {
+    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
+  }
 }
-const handleSaveRow = (data) => {
-  console.log('tree', treeSelectData, colorData)
-  data.edited = false
+
+//cannot turn on switch when has no price
+const warningForSwitch = (rowDisabled: boolean) => {
+  if (rowDisabled) {
+    ElNotification({
+      message: t('reuse.clickEditForEditing'),
+      type: 'info'
+    })
+  }
 }
-const localeChange = (show: boolean) => {
-  console.log(show)
+const changeDataSwitch = (scope, dataSwitch) => {
+  scope.row.bussinessSetups![scope.cellIndex - 2]!.hasPrice
+    ? (scope.row.bussinessSetups![scope.cellIndex - 2]!.value = dataSwitch)
+    : ElNotification({
+        message: t('reuse.addPricesBeforeTurningOnSetting'),
+        type: 'warning'
+      })
 }
+const emptyUpdateProductPropertyObj = {} as ProductProperty
+const customUpdateData = reactive(emptyUpdateProductPropertyObj)
+const customUpdate = async (data) => {
+  //return newProductPropertyId when newValue post success
+  customUpdateData.id = data.id ? data.id : newProductPropertyId.value
+  customUpdateData.code = data.code
+  customUpdateData.categories = []
+  customUpdateData.categories[0] = {
+    id: 1
+    //"key": "Gender",
+    //"value": "Túi + Ví"
+  }
+  customUpdateData.categories[1] = { ...data.categories[0] } //color
+  customUpdateData.categories[2] = { ...data.categories[2] } //size
+  customUpdateData.categories[3] = { ...data.categories[1] } //material
+  customUpdateData.categories[4] = {
+    id: 116 //"key": "State",
+    //"value": "New"
+  }
+  customUpdateData.bussinessSetups = data.bussinessSetups
+  return customUpdateData
+}
+
+const newProductPropertyId = ref<number>()
+//check validate then newValue
+const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  //validate for its own row not all table
+  formEl.validateField(`${scope.$index}.categoriesValue`, async (valid) => {
+    if (valid) {
+      scope.row.edited = false
+      //newValue ? post api : update api
+      if (scope.row?.newValue == true) {
+        await postProductProperty(JSON.stringify(scope.row))
+          .then((res) => {
+            ;(scope.row.newValue = false),
+              (newProductPropertyId.value = res.data),
+              ElNotification({
+                message: t('reuse.addSuccess'),
+                type: 'success'
+              })
+          })
+          //chua co xoa row cuoi khi post Fail
+          .catch(() => {
+            collapse[1].tableList.splice(scope.$index, 1)
+            ElNotification({
+              message: t('reuse.addFail'),
+              type: 'error'
+            })
+          })
+      } else {
+        scope.row = await customUpdate(scope.row)
+        await updateProductProperty(JSON.stringify(scope.row))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.updateSuccess'),
+              type: 'success'
+            })
+          })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.updateFail'),
+              type: 'error'
+            })
+          })
+      }
+    } else {
+      ElNotification({
+        message: t('reuse.fillAllAttribute'),
+        type: 'warning'
+      })
+      return false
+    }
+  })
+}
+// only check 1 child node from 1 parent node
+const customCheck = (nodeObj, tree, scope) => {
+  const checkedNodes = tree.checkedNodes
+  const checkedKeys = tree.checkedKeys
+  // let sameParent = false
+  switch (nodeObj.parentid) {
+    //parentid ==0 cap 1
+    // case 0:
+    //   sameParent = true
+    //   break
+    //parentid ==1 color
+    case 1:
+      const nodeBefore = checkedNodes.find((node) => {
+        return node.parentid == 1 && node.value != nodeObj.value
+      })
+      if (nodeBefore) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
+      break
+    //parentid ==2 size
+    case 2:
+      const nodeBefore2 = checkedNodes.find((node) => {
+        return node.parentid == 2 && node.value != nodeObj.value
+      })
+      if (nodeBefore2) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
+      break
+    //parentid ==3 material
+    case 3:
+      const nodeBefore3 = checkedNodes.find((node) => {
+        return node.parentid == 3 && node.value != nodeObj.value
+      })
+      if (nodeBefore3) {
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+      }
+      break
+  }
+  // if (sameParent) {
+  //   ElNotification({
+  //     message: t('reuse.cantChooseMultipleValueForOneAttribute'),
+  //     type: 'warning'
+  //   })
+  //   tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeObj.value), 1)
+  //   // treeRef.value!.setChecked(nodeObj.value, false, false)
+  // }
+
+  //bind value to table data
+  const colorNode = checkedNodes.find((node) => node.parentid == 1)
+  colorNode
+    ? ((scope.row.categories[0].id = colorNode.value),
+      (scope.row.categories[0].value = colorNode.label))
+    : ''
+  const sizeNode = checkedNodes.find((node) => node.parentid == 2)
+  sizeNode
+    ? ((scope.row.categories[2].id = sizeNode.value),
+      (scope.row.categories[2].value = sizeNode.label))
+    : ''
+  const materialNode = checkedNodes.find((node) => node.parentid == 3)
+  materialNode
+    ? ((scope.row.categories[1].id = materialNode.value),
+      (scope.row.categories[1].value = materialNode.label))
+    : ''
+  scope.row.categoriesValue = checkedKeys
+  scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
+}
+//get data from router
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
@@ -202,7 +508,8 @@ const rules = reactive({
   OriginId: [required()],
   ProductCode: [
     { validator: notSpace },
-    { validator: ValidService.checkNameLength.validator },
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkCodeServiceLength.validator },
     required()
   ],
   Name: [
@@ -212,48 +519,77 @@ const rules = reactive({
   ],
   ShortDescription: [
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameLength.validator }
   ],
+  Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
-  SellInventoryStatus: [required()]
+  SellInventoryStatus: [required()],
+  ProductStatus: [required()]
 })
 const ruleSEO = reactive({
-  SeoTitle: [required()],
+  SeoTitle: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameLength.validator }
+  ],
   SeoUrl: [required()],
-  SeoTags: [{ required: true, trigger: 'blur' }],
-  SeoDescription: [required()]
+  SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
+  SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
-let callTableApiTime = 0
+
+//call api for ProductProperty table
+let callProductProperty = 0
 const callTableApi = async (collapseItem) => {
-  //fix cung
-  if (collapseItem.api !== undefined) {
-    if (callTableApiTime == 0) {
-      const res = await collapseItem.api({ pageSize: 10, pageIndex: 1 })
+  if (callProductProperty == 0) {
+    if (collapseItem.api !== undefined) {
+      const findId = isNaN(id) ? newId.value : id
+      const res = await collapseItem.api({ ProductId: findId })
       collapseItem.tableList = res.data
-      callTableApiTime++
+      await getAttributeData()
+      callProductProperty++
     }
   }
   collapseItem.loading = false
 }
 
+//store unitValue so it can be pass to ProductProperty table
+const getUnitValue = async (UnitId) => {
+  let unitSelect = { name: '' }
+  const res = await getCategories({
+    TypeName: PRODUCTS_AND_SERVICES[6].key,
+    pageSize: 100,
+    pageIndex: 1
+  })
+  if (res) {
+    unitSelect = res.data.find((unit) => unit.id == UnitId)
+    unitData.value = unitSelect?.name
+  }
+}
+// if(postSuccess)  api return newId and use this newId to add product property
 const postData = async (data) => {
+  const UnitId = data.UnitId
   await postProductLibrary(FORM_IMAGES(data))
-    .then(() => {
+    .then((res) => {
+      newId.value = res.data
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
       disabledTabOpen.value = false
-      id = data.id
     })
-    .catch((error) =>
+    .catch(() =>
       ElNotification({
-        message: error,
-        type: 'warning'
+        message: t('reuse.addFail'),
+        type: 'error'
       })
     )
+    //maybe use async await
+    .finally(() => {
+      getUnitValue(UnitId)
+    })
 }
+// init reactive type
+// could do better somehow... [key: string]: any
 type CustomFormData = {
   ProductTypeId: string
   BrandId: string
@@ -270,13 +606,37 @@ type CustomFormData = {
 }
 const emptyFormObj = {} as CustomFormData
 const setFormData = reactive(emptyFormObj)
-const SEOdata = reactive({
-  SeoTitle: '2222222222',
-  SeoUrl: '223333333333',
-  SeoTags: '4444444,2,1',
-  SeoDescription: '<p>555555555555</p>'
-})
+type ProductProperty = {
+  [key: string]: any
+}
+const emptyProductPropertyObj = {} as ProductProperty
+
+type seoData = {
+  SeoTitle: string
+  SeoUrl: string
+  SeoTags: Array<string>
+  SeoDescription: string
+}
+const emptySeoObj = {} as seoData
+let productData = reactive(emptyProductPropertyObj)
+
+const SEOdata = reactive(emptySeoObj)
+const customSeoData = (formData) => {
+  formData.seoTitle ? (SEOdata.SeoTitle = formData.seoTitle) : (SEOdata.SeoTitle = '')
+  formData.seoUrl ? (SEOdata.SeoUrl = formData.seoUrl) : (SEOdata.SeoUrl = '')
+  SEOdata.SeoTags = []
+  if (formData.seoTags) {
+    SEOdata.SeoTags = formData.seoTags.map((tag) => tag.key)
+  }
+  formData.seoDescription
+    ? (SEOdata.SeoDescription = formData.seoDescription)
+    : (SEOdata.SeoDescription = '')
+}
+//manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
+  console.log(formData)
+
+  productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
   setFormData.UnitId = formData.categories[2].id
@@ -284,11 +644,13 @@ const customizeData = async (formData) => {
   setFormData.ProductCode = formData.productCode
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
-  setFormData.Description = formData.description
-  SEOdata.SeoTitle = formData.seoTitle
-  SEOdata.SeoUrl = formData.seoUrl
-  SEOdata.SeoTags = formData.seoTags
-  SEOdata.SeoDescription = formData.seoDescription
+  setFormData.Description = formData.description ?? ''
+  setFormData.VerificationInfo = formData.verificationInfo
+  setFormData.HireInventoryStatus = formData.hireInventoryStatus
+  setFormData.SellInventoryStatus = formData.sellInventoryStatus
+  setFormData.ProductStatus = formData.productStatus
+  unitData.value = formData.categories[2].value
+  customSeoData(formData)
 }
 const editData = async (data) => {
   await updateProductLibrary(FORM_IMAGES(data))
@@ -306,6 +668,7 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
     .then(() =>
       ElNotification({
@@ -327,7 +690,7 @@ const handleDeleteRowRent = (scope) => {
   collapse[2].tableList.splice(scope.$index, 1)
 }
 const handleDeleteRowSell = (scope) => {
-  collapse[1].tableList.splice(scope.$index, 1)
+  collapse[8].tableList.splice(scope.$index, 1)
 }
 //table dialog
 const sellTableVisible = ref(false)
@@ -336,78 +699,207 @@ const depositTableVisible = ref(false)
 const pawnTableVisible = ref(false)
 const spaTableVisible = ref(false)
 const warehouseTableVisible = ref(false)
-let callApiRentTable = 0
-let callApiSellTable = 0
-let callApiDepositTable = 0
-let callApiPawnTable = 0
-let callApiSpaTable = 0
 let callApiWarehouseTable = 0
 
+//same logic for table in product property(spa,rent,sell,deposit,pawn)
+// findPropertyId: id of product(father)
+// newProductPropertyId: if property newly created (havent post to api so dont have id)
+// if res.data return empty array [] then push a empty obj to table
 let spaDialogTitle = ref('')
-const openSpaTable = async (dialogTitle) => {
-  spaDialogTitle.value = dialogTitle
-  spaTableVisible.value = true
-  if (callApiSpaTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 10, pageIndex: 1 })
-    collapse[5].tableList = res.data
-    collapse[5].loading = false
-    callApiSpaTable++
+const openSpaTable = async (scope) => {
+  spaDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: t('reuse.notSaveAttribute'),
+      type: 'warning'
+    })
+  } else {
+    spaTableVisible.value = true
+    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
+      (res) =>
+        (SpaSelectOptions.value = res.data.map((spa) => ({
+          label: spa.name,
+          value: spa.id,
+          key: spa.id,
+          time: spa.time
+        })))
+    )
+    const res = collapse[5].api
+      ? await collapse[5].api({ ProductPropertyId: findPropertyId, ServiceType: 5 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[5].tableList = []
+      collapse[5].tableList.push({
+        quantity: 1,
+        prices: [{ price: undefined, SpaServicesSelected: [], spaTotalTime: 0 }]
+      })
+    } else {
+      collapse[5].tableList = []
+      collapse[5].tableList = res.data[0].prices
+      //calculate spa time
+      collapse[5].tableList.map((row) => {
+        ;((row.SpaServicesSelected = []),
+        (row.spaTotalTime = row.spaTime),
+        (row.updateDate = res.data[0].updateDate)),
+          (row.SpaServicesSelected = row.spaServices.map((spa) => spa.id)),
+          (row.spaServices = [])
+      })
+    }
+    collapse[5].tableList.productPropertyId = findPropertyId
+    collapse[5].tableList.serviceType = 5
+    collapse[5].tableList.currentRow = scope.$index
   }
+  collapse[5].loading = false
+  forceRemove.value == false
 }
+//chua co api sau nay se lam
 let warehouseDialogTitle = ref('')
 const openWarehouseTable = async (dialogTitle) => {
   warehouseDialogTitle.value = dialogTitle
   warehouseTableVisible.value = true
   if (callApiWarehouseTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
+    const res = collapse[6].api ? await collapse[6].api({ pageSize: 10, pageIndex: 1 }) : ''
     collapse[6].tableList = res.data
     collapse[6].loading = false
     callApiWarehouseTable++
   }
 }
+//same logic
 let pawnDialogTitle = ref('')
-const openPawnTable = async (dialogTitle) => {
-  pawnDialogTitle.value = dialogTitle
-  pawnTableVisible.value = true
-  if (callApiPawnTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
-    collapse[4].tableList = res.data
-    collapse[4].loading = false
-    callApiPawnTable++
+const openPawnTable = async (scope) => {
+  pawnDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: t('reuse.notSaveAttribute'),
+      type: 'warning'
+    })
+  } else {
+    pawnTableVisible.value = true
+    const res = collapse[4].api
+      ? await collapse[4].api({ ProductPropertyId: findPropertyId, ServiceType: 4 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[4].tableList = []
+      collapse[4].tableList.push({
+        quantity: 1,
+        prices: [
+          { priceType: 4, price: undefined },
+          { priceType: 5, price: undefined }
+        ]
+      })
+    } else {
+      collapse[4].tableList = []
+      collapse[4].tableList = res.data
+    }
+    collapse[4].tableList.productPropertyId = findPropertyId
+    collapse[4].tableList.serviceType = 4
+    collapse[4].tableList.currentRow = scope.$index
   }
+  collapse[4].loading = false
+  forceRemove.value == false
 }
 let depositDialogTitle = ref('')
-const openDepositTable = async (dialogTitle) => {
-  depositDialogTitle.value = dialogTitle
-  depositTableVisible.value = true
-  if (callApiDepositTable == 0) {
-    const res = await getFeaturesDepositFee({ pageSize: 100, pageIndex: 1 })
-    collapse[3].tableList = res.data
-    collapse[3].loading = false
-    callApiDepositTable++
+const openDepositTable = async (scope) => {
+  depositDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: t('reuse.notSaveAttribute'),
+      type: 'warning'
+    })
+  } else {
+    depositTableVisible.value = true
+    const res = collapse[3].api
+      ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 3 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[3].tableList = []
+      collapse[3].tableList.push({
+        quantity: 1,
+        prices: [{ price: undefined }, { price: undefined }]
+      })
+    } else {
+      collapse[3].tableList = []
+      collapse[3].tableList = res.data
+    }
+    collapse[3].tableList.productPropertyId = findPropertyId
+    collapse[3].tableList.serviceType = 3
+    collapse[3].tableList.currentRow = scope.$index
   }
+  collapse[3].loading = false
+  forceRemove.value == false
 }
 let rentDialogTitle = ref('')
-const openRentTable = async (dialogTitle) => {
-  rentDialogTitle.value = dialogTitle
-  rentTableVisible.value = true
-  if (callApiRentTable == 0) {
-    const res = await getFeaturesRentalPrice({ pageSize: 100, pageIndex: 1 })
-    collapse[2].tableList = res.data
-    collapse[2].loading = false
-    callApiRentTable++
+const openRentTable = async (scope) => {
+  rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: t('reuse.notSaveAttribute'),
+      type: 'warning'
+    })
+  } else {
+    rentTableVisible.value = true
+    const res = collapse[2].api
+      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[2].tableList = []
+      collapse[2].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined },
+          { price: undefined },
+          { price: undefined },
+          { price: undefined }
+        ]
+      })
+    } else {
+      collapse[2].tableList = []
+      collapse[2].tableList = res.data
+    }
+    collapse[2].tableList.productPropertyId = findPropertyId
+    collapse[2].tableList.serviceType = 2
+    collapse[2].tableList.currentRow = scope.$index
   }
+  collapse[2].loading = false
+  forceRemove.value == false
 }
 let sellDialogTitle = ref('')
-const openSellTable = async (dialogTitle) => {
-  sellDialogTitle.value = dialogTitle
-  sellTableVisible.value = true
-  if (callApiSellTable == 0) {
-    const res = await getProductProperty({ ProductId: id })
-    collapse[1].tableList = res.data
-    collapse[1].loading = false
-    callApiSellTable++
+const openSellTable = async (scope) => {
+  sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+  if (findPropertyId == undefined) {
+    ElNotification({
+      message: t('reuse.notSaveAttribute'),
+      type: 'warning'
+    })
+  } else {
+    sellTableVisible.value = true
+    const res = collapse[8].api
+      ? await collapse[8].api({ ProductPropertyId: findPropertyId, ServiceType: 1 })
+      : ''
+    if (res.data.length == 0) {
+      collapse[8].tableList = []
+      collapse[8].tableList.push({
+        quantity: undefined,
+        prices: [
+          { price: undefined, priceType: 1 },
+          { price: undefined, priceType: 2 }
+        ]
+      })
+    } else {
+      collapse[8].tableList = []
+      collapse[8].tableList = res.data
+    }
+    collapse[8].tableList.productPropertyId = findPropertyId
+    collapse[8].tableList.serviceType = 1
+    collapse[8].tableList.currentRow = scope.$index
   }
+  collapse[8].loading = false
+  forceRemove.value == false
 }
 const rentForm = ref<FormInstance>()
 const depositForm = ref<FormInstance>()
@@ -416,37 +908,26 @@ const pawnForm = ref<FormInstance>()
 const spaForm = ref<FormInstance>()
 const forceRemove = ref(false)
 
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1'
-  },
-  {
-    value: 'Option2',
-    label: 'Option2'
-  },
-  {
-    value: 'Option3',
-    label: 'Option3'
-  },
-  {
-    value: 'Option4',
-    label: 'Option4'
-  },
-  {
-    value: 'Option5',
-    label: 'Option5'
-  }
-]
+let SpaSelectOptions = ref()
+//calculate spa time
+const updateTimeSpa = (_value, scope) => {
+  scope.row.spaTotalTime = 0
+  let time = 0
+  scope.row.SpaServicesSelected.map(
+    (spa) => (time += SpaSelectOptions.value.find((option) => option.value == spa)?.time)
+  )
+  scope.row.spaTotalTime = time
+}
 //add row to the end of table if fill all table
 watch(
-  () => collapse[1].tableList[collapse[1].tableList.length - 1],
+  () => collapse[8].tableList[collapse[8].tableList.length - 1],
   () => {
     if (
-      collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices !== undefined &&
-      collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice !== undefined &&
-      forceRemove.value == false
+      collapse[8].tableList.length < 1 ||
+      (collapse[8].tableList[collapse[8].tableList.length - 1].quantity !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[0].price !== undefined &&
+        collapse[8].tableList[collapse[8].tableList.length - 1].prices[1].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexSellTable()
     }
@@ -457,10 +938,10 @@ watch(
   () => collapse[5].tableList[collapse[5].tableList.length - 1],
   () => {
     if (
-      collapse[5].tableList[collapse[5].tableList.length - 1].service !== undefined &&
-      collapse[5].tableList[collapse[5].tableList.length - 1].service.length > 0 &&
-      collapse[5].tableList[collapse[5].tableList.length - 1].spaPrices !== undefined &&
-      forceRemove.value == false
+      collapse[5].tableList.length < 1 ||
+      (collapse[5].tableList[collapse[5].tableList.length - 1].price !== undefined &&
+        collapse[5].tableList[collapse[5].tableList.length - 1].SpaServicesSelected.length > 0 &&
+        forceRemove.value == false)
     ) {
       addLastIndexSpaTable()
     }
@@ -471,12 +952,13 @@ watch(
   () => collapse[2].tableList[collapse[2].tableList.length - 1],
   () => {
     if (
-      collapse[2].tableList[collapse[2].tableList.length - 1].quantityTo !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].dayRentalUnitPrice !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].weeklyRent !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].rentDeposit !== undefined &&
-      collapse[2].tableList[collapse[2].tableList.length - 1].monthlyRent !== undefined &&
-      forceRemove.value == false
+      collapse[2].tableList.length < 1 ||
+      (collapse[2].tableList[collapse[2].tableList.length - 1].quantity !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price !== undefined &&
+        collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price !== undefined &&
+        forceRemove.value == false)
     ) {
       addLastIndexRentTable()
     }
@@ -484,45 +966,91 @@ watch(
   { deep: true }
 )
 const addLastIndexSellTable = () => {
-  collapse[1].tableList.push({})
+  collapse[8].tableList.push({
+    quantity: undefined,
+    prices: [{ price: undefined }, { price: undefined }]
+  })
 }
 const addLastIndexRentTable = () => {
-  collapse[2].tableList.push({})
+  collapse[2].tableList.push({
+    quantity: undefined,
+    prices: [{ price: undefined }, { price: undefined }, { price: undefined }, { price: undefined }]
+  })
 }
 const addLastIndexSpaTable = () => {
-  collapse[5].tableList.push({})
+  collapse[5].tableList.push({ price: undefined, SpaServicesSelected: [], spaTotalTime: 0 })
+}
+
+//map value to post spa price
+const customPostSpaPrice = (data) => {
+  const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
+  customPostPriceData.productPropertyPrices = [{}]
+  customPostPriceData.productPropertyPrices[0].quantity = 1
+  customPostPriceData.productPropertyPrices[0].prices = data
+  customPostPriceData.productPropertyId = data.productPropertyId
+  customPostPriceData.serviceType = 5
+  customPostPriceData.productPropertyPrices[0].prices.map((spa) => {
+    spa.spaServices = []
+    spa.spaTime = spa.spaTotalTime
+    spa.SpaServicesSelected.forEach((ele) => {
+      spa.spaServices.push({ id: ele })
+    })
+  })
+  return customPostPriceData
 }
 const saveDataSpaTable = async () => {
   removeLastRowSpa()
   await unref(spaForm)!.validate((valid) => {
     if (valid) {
-      spaTableVisible.value = false
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+      const data = customPostSpaPrice(collapse[5].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.saveSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.saveFail'),
+            type: 'warning'
+          })
+        })
+        .finally(() => (spaTableVisible.value = false))
     } else {
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
+      forceRemove.value = false
     }
   })
 }
+
+//same logic for rent,deposit,pawn,sell
+//remove last row if the last row is empty
+//forceRemove = false so it wont auto add last row because of watch()
 const saveDataRentTable = async () => {
   removeLastRowRent()
   await unref(rentForm)!.validate((valid) => {
     if (valid) {
       rentTableVisible.value = false
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[2].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.saveSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.saveFail'),
+            type: 'warning'
+          })
+        })
     } else {
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
+      forceRemove.value = false
     }
   })
 }
@@ -533,10 +1061,22 @@ const saveDataPawnTable = async () => {
   await unref(pawnForm)!.validate((valid) => {
     if (valid) {
       pawnTableVisible.value = false
-      ElNotification({
-        message: t('reuse.saveSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[4].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[4].tableList.currentRow].bussinessSetups[3].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        })
     } else {
       ElNotification({
         message: t('reuse.saveFail'),
@@ -549,10 +1089,22 @@ const saveDataDepositTable = async () => {
   await unref(depositForm)!.validate((valid) => {
     if (valid) {
       depositTableVisible.value = false
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[3].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[3].tableList.currentRow].bussinessSetups[2].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        })
     } else {
       ElNotification({
         message: t('reuse.addFail'),
@@ -560,43 +1112,63 @@ const saveDataDepositTable = async () => {
       })
     }
   })
+}
+//add few fields so for api/backend
+const customPostPrice = (data) => {
+  const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
+  customPostPriceData.productPropertyId = data.productPropertyId
+  customPostPriceData.serviceType = data.serviceType
+  customPostPriceData.productPropertyPrices = data
+  return customPostPriceData
 }
 const saveDataSellTable = async () => {
   removeLastRowSell()
   await unref(sellForm)!.validate((valid) => {
     if (valid) {
       sellTableVisible.value = false
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+      const data = customPostPrice(collapse[8].tableList)
+      changePriceProductProperty(JSON.stringify(data))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+              true)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        })
     } else {
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
+      forceRemove.value = false
     }
   })
 }
+//same logic
+//check last row only (for performance) because others row already get from api so it cant be undefined
+//forceRemove = false so it wont auto add last row because of watch()
 const removeLastRowSell = () => {
   if (
     //check if all field of last row are empty
-    collapse[1].tableList[collapse[1].tableList.length - 1].quantityTo == undefined &&
-    collapse[1].tableList[collapse[1].tableList.length - 1].unitPrices == undefined &&
-    collapse[1].tableList[collapse[1].tableList.length - 1].promotionPrice == undefined
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.quantity == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[0].price == undefined &&
+    collapse[8].tableList[collapse[8].tableList.length - 1]?.prices[1].price == undefined
   ) {
     //force remove so watch cannot add new row at the last index
     forceRemove.value = true
-    collapse[1].tableList.splice(-1)
+    collapse[8].tableList.splice(-1)
   }
 }
 const removeLastRowRent = () => {
   if (
-    collapse[2].tableList[collapse[2].tableList.length - 1].quantityTo == undefined &&
-    collapse[2].tableList[collapse[2].tableList.length - 1].dayRentalUnitPrice == undefined &&
-    collapse[2].tableList[collapse[2].tableList.length - 1].weeklyRent == undefined &&
-    collapse[2].tableList[collapse[2].tableList.length - 1].rentDeposit == undefined &&
-    collapse[2].tableList[collapse[2].tableList.length - 1].monthlyRent == undefined
+    collapse[2].tableList[collapse[2].tableList.length - 1].quantity == undefined &&
+    collapse[2].tableList[collapse[2].tableList.length - 1].prices[1].price == undefined &&
+    collapse[2].tableList[collapse[2].tableList.length - 1].prices[2].price == undefined &&
+    collapse[2].tableList[collapse[2].tableList.length - 1].prices[3].price == undefined &&
+    collapse[2].tableList[collapse[2].tableList.length - 1].prices[0].price == undefined
   ) {
     forceRemove.value = true
     collapse[2].tableList.splice(-1)
@@ -604,8 +1176,8 @@ const removeLastRowRent = () => {
 }
 const removeLastRowSpa = () => {
   if (
-    collapse[5].tableList[collapse[5].tableList.length - 1].service == undefined &&
-    collapse[5].tableList[collapse[5].tableList.length - 1].spaPrices == undefined
+    collapse[5].tableList[collapse[5].tableList.length - 1].price == undefined &&
+    collapse[5].tableList[collapse[5].tableList.length - 1].SpaServicesSelected.length == 0
   ) {
     forceRemove.value = true
     collapse[5].tableList.splice(-1)
@@ -621,13 +1193,22 @@ const SellTableDialogClose = () => {
   forceRemove.value = false
 }
 
-//handle opentab
+//can only open in detail or edit mode
+//or when click PressAndAdd button
 const disabledTabOpen = ref(false)
+const newId = ref<number>()
+//type == '' && isNaN(id) =true  when refreshing page
 if ((type == '' && isNaN(id)) || type == 'add') {
   disabledTabOpen.value = true
 }
+watch(
+  () => newId,
+  () => {
+    disabledTabOpen.value = false
+  }
+)
+//glhf:)
 </script>
-<!-- <template> <CollapseBase :collapse="collapse" :id="id" :default="'information'" /></template> -->
 <template>
   <el-collapse
     v-model="activeName"
@@ -665,8 +1246,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
       width="70%"
       @close="SellTableDialogClose"
     >
-      <el-form :model="collapse[1].tableList" ref="sellForm">
-        <ElTable :data="collapse[1].tableList" :border="true" v-loading="collapse[1].loading">
+      <el-form :model="collapse[8].tableList" ref="sellForm">
+        <ElTable :data="collapse[8].tableList" :border="true" v-loading="collapse[8].loading">
           <ElTableColumn
             header-align="center"
             align="center"
@@ -675,13 +1256,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.quantityTo`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.quantity`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -692,26 +1270,23 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+            <template #default>
+              <!--get this data from product Api-->
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="right"
             min-width="130"
-            prop="unitPrices"
             :label="t('reuse.unitPrices')"
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.unitPrices`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[0].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.unitPrices" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -725,13 +1300,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.promotionPrice`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[1].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.promotionPrice" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -741,9 +1313,11 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -773,190 +1347,241 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         <el-button class="header-icon" :icon="collapse[1].icon" link :disabled="disabledTabOpen" />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
-      <ElTable
-        :data="collapse[1].tableList"
-        :border="true"
-        v-loading="collapse[1].loading"
-        show-summary
-      >
-        <ElTableColumn
-          header-align="center"
-          min-width="100"
-          prop="productCode"
-          :label="t('reuse.managementCode')"
-        />
-        <ElTableColumn
-          header-align="center"
-          min-width="250"
-          prop="featureGroup"
-          :label="t('reuse.featureGroup')"
+      <el-form ref="ruleTreeFormRef" :model="collapse[1].tableList">
+        <ElTable
+          :data="collapse[1].tableList"
+          :border="true"
+          v-loading="collapse[1].loading"
+          show-summary
         >
-          <template #default="scope">
-            <ElTreeSelect
-              :value="scope.row.categories[2].value"
-              :data="treeSelectData"
-              multiple
-              :render-after-expand="false"
-              v-if="scope.row.edited"
-              @change="(value) => attributeTreeValue(value)"
-            />
-            <span v-else>{{ scope.row.categories[2].value }}</span>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingSale"
-          :label="t('reuse.settingSale')"
-        >
-          <template #default="scope">
-            <div class="flex gap-4">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openSellTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
+          <ElTableColumn
+            header-align="center"
+            min-width="130"
+            prop="productCode"
+            :label="t('reuse.managementCode')"
+          />
+          <ElTableColumn header-align="center" min-width="250" :label="t('reuse.featureGroup')">
+            <template #default="scope">
+              <el-form-item
+                v-if="scope.row.edited"
+                :prop="`${scope.$index}.categoriesValue`"
+                :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
-              <ElSwitch v-model="scope.row.settingSale" @change="localeChange" />
-            </div>
-          </template>
-        </ElTableColumn>
+                <ElTreeSelect
+                  v-model="scope.row.categoriesValue"
+                  :data="treeSelectData"
+                  multiple
+                  accordion
+                  check-strictly
+                  :render-after-expand="false"
+                  ref="treeRef"
+                  show-checkbox
+                  node-key="value"
+                  @check="(nodeObj, tree) => customCheck(nodeObj, tree, scope)"
+                />
+              </el-form-item>
+              <span v-else>{{
+                scope.row.categoriesLabel
+                  ? scope.row.categoriesLabel.toString()
+                  : `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+              }}</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingSale')"
+          >
+            <template #default="scope">
+              <div class="flex gap-4">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  :type="scope.row.bussinessSetups[0].hasPrice ? 'primary' : 'warning'"
+                  @click="openSellTable(scope)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[0]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => changeDataSwitch(scope, data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
 
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingRent"
-          :label="t('reuse.settingRent')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingRent')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
+                  @click="openRentTable(scope)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[1]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => changeDataSwitch(scope, data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingDeposit')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
+                  @click="openDepositTable(scope)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[2]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => changeDataSwitch(scope, data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingPawn')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  :type="scope.row.bussinessSetups[3].hasPrice ? 'primary' : 'warning'"
+                  @click="openPawnTable(scope)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[3]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => changeDataSwitch(scope, data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.settingSpa')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
+                  @click="openSpaTable(scope)"
+                  >{{ t('reuse.addPrice') }}</el-button
+                >
+                <ElSwitch
+                  :model-value="scope.row.bussinessSetups[4]?.value"
+                  :disabled="!scope.row.edited"
+                  size="large"
+                  inline-prompt
+                  active-text="On"
+                  inactive-text="Off"
+                  @click="warningForSwitch(!scope.row.edited)"
+                  @change="(data) => changeDataSwitch(scope, data)"
+                />
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            :label="t('reuse.inventory')"
+          >
+            <template #default="scope">
+              <div class="flex justify-between">
+                <div>{{ scope.row.tonKho }}</div>
+                <el-button
+                  :icon="plusIcon"
+                  link
+                  type="primary"
+                  @click="openWarehouseTable(scope.row.featureGroup)"
+                  >{{ t('reuse.detail') }}</el-button
+                >
+              </div>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.update')"
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updatedAt)
+            }}</template></ElTableColumn
+          >
+          <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.status')"
+            ><template #default="scope">{{
+              productStatusTransferToText(scope.row.isActive)
+            }}</template>
+          </ElTableColumn>
+          <ElTableColumn
+            header-align="center"
+            align="center"
+            min-width="200"
+            fixed="right"
+            :label="t('reuse.operator')"
+          >
+            <template #default="scope">
               <el-button
-                :icon="plusIcon"
-                link
+                v-if="scope.row.edited"
                 type="primary"
-                @click="openRentTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
+                @click="handleSaveRow(scope, ruleTreeFormRef)"
+                >{{ t('reuse.save') }}</el-button
               >
-              <ElSwitch v-model="scope.row.settingRent" @change="localeChange" />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingDeposit"
-          :label="t('reuse.settingDeposit')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openDepositTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch v-model="scope.row.settingDeposit" @change="localeChange" />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingPawn"
-          :label="t('reuse.settingPawn')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openPawnTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch v-model="scope.row.settingPawn" @change="localeChange" />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="settingSpa"
-          :label="t('reuse.settingSpa')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openSpaTable(scope.row.featureGroup)"
-                >{{ t('reuse.addPrice') }}</el-button
-              >
-              <ElSwitch v-model="scope.row.settingSpa" @change="localeChange" />
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          prop="inventory"
-          :label="t('reuse.inventory')"
-        >
-          <template #default="scope">
-            <div class="flex justify-between">
-              <div>{{ scope.row.inventory }} 10</div>
-              <el-button
-                :icon="plusIcon"
-                link
-                type="primary"
-                @click="openWarehouseTable(scope.row.featureGroup)"
-                >{{ t('reuse.detail') }}</el-button
-              >
-            </div>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          width="150"
-          prop="updatedAt"
-          :label="t('reuse.update')"
-        />
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          width="150"
-          prop="approveStatus"
-          :label="t('reuse.status')"
-        />
-        <ElTableColumn
-          header-align="center"
-          align="center"
-          min-width="200"
-          fixed="right"
-          :label="t('reuse.operator')"
-        >
-          <template #default="scope">
-            <el-button v-if="scope.row.edited" type="primary" @click="handleSaveRow(scope.row)">{{
-              t('reuse.save')
-            }}</el-button>
-            <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-              t('reuse.edit')
-            }}</el-button>
-            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-          </template>
-        </ElTableColumn>
-      </ElTable>
-      <el-button class="ml-5 mt-5" :icon="plusIcon">{{
+              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
+                t('reuse.edit')
+              }}</el-button>
+              <el-button type="danger" @click="handleDeleteRow(scope)">{{
+                t('reuse.delete')
+              }}</el-button>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </el-form>
+      <el-button class="ml-5 mt-5" :icon="plusIcon" @click="addLastRowAttribute">{{
         t('reuse.addAttributeAndPrice')
       }}</el-button>
     </el-collapse-item>
@@ -972,18 +1597,15 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="quantityTo"
+            prop="quantity"
             :label="t('reuse.quantityTo')"
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.quantityTo`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.quantity`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -994,8 +1616,9 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+            <template #default>
+              <!--get this data from product Api-->
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1006,16 +1629,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.dayRentalUnitPrice`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[1].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input
-                  v-model.number="scope.row.dayRentalUnitPrice"
-                  type="text"
-                  autocomplete="off"
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1029,13 +1646,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.weeklyRent`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[2].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.weeklyRent" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[2].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1049,13 +1663,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.monthlyRent`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[3].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.monthlyRent" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[3].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1069,13 +1680,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.rentDeposit`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[0].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.rentDeposit" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1085,9 +1693,11 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1125,17 +1735,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             min-width="130"
             :label="t('reuse.quantityTo')"
           >
-            <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.quantityTo`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
-              >
-                <el-input v-model.number="scope.row.quantityTo" type="text" autocomplete="off" />
-              </el-form-item>
-            </template>
+            <template #default> 1 </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
@@ -1144,8 +1744,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1156,13 +1756,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[0].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>%</template></el-input
                 >
               </el-form-item>
@@ -1176,14 +1773,11 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[1].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
-                  ><template #append>%</template></el-input
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1192,9 +1786,11 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1226,17 +1822,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             min-width="130"
             :label="t('reuse.quantity')"
           >
-            <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.quantity`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
-              >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
-              </el-form-item>
-            </template>
+            <template #default> 1 </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
@@ -1245,8 +1831,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1257,16 +1843,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.interestMoneyFor1trPerDay`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[0].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input
-                  v-model.number="scope.row.interestMoneyFor1trPerDay"
-                  type="text"
-                  autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1280,13 +1860,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.depositFee`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.prices[1].price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.depositFee" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1301,7 +1878,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             <template #default="scope">
               <el-form-item>
                 <el-input
-                  :value="scope.row.interestMoneyFor1trPerDay * scope.row.depositFee"
+                  :value="scope.row.prices[0].price + scope.row.prices[1].price"
                   type="text"
                   autocomplete="off"
                   ><template #append>đ</template></el-input
@@ -1313,13 +1890,15 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="50"
+            min-width="100"
             fixed="right"
             :label="t('reuse.operator')"
           />
@@ -1351,17 +1930,18 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.service`"
+                :prop="`${scope.$index}.SpaServicesSelected`"
                 :rules="[{ required: true, trigger: 'blur' }]"
               >
                 <el-select
-                  v-model="scope.row.service"
+                  v-model="scope.row.SpaServicesSelected"
                   multiple
                   placeholder="Select"
                   style="width: 240px"
+                  @change="(data) => updateTimeSpa(data, scope)"
                 >
                   <el-option
-                    v-for="item in options"
+                    v-for="item in SpaSelectOptions"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -1374,18 +1954,16 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="standardTime"
             :label="t('reuse.standardTime')"
           >
             <template #default="scope">
-              <div>{{ scope.row.standardTime }} 20 {{ t('reuse.minute') }}</div>
+              <div>{{ scope.row.spaTotalTime }} {{ t('reuse.minute') }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
             align="center"
             min-width="130"
-            prop="quantityTo"
             :label="t('reuse.quantityTo')"
           >
             <template #default>
@@ -1399,8 +1977,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             prop="unit"
             :label="t('reuse.unit')"
           >
-            <template #default="scope">
-              <div>{{ scope.row.unit }}Chiếc</div>
+            <template #default>
+              <div>{{ unitData }}</div>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1411,13 +1989,10 @@ if ((type == '' && isNaN(id)) || type == 'add') {
           >
             <template #default="scope">
               <el-form-item
-                :prop="`${scope.$index}.spaPrices`"
-                :rules="[
-                  { required: true },
-                  { type: 'number', message: t('reuse.validateEnterNumber') }
-                ]"
+                :prop="`${scope.$index}.price`"
+                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
               >
-                <el-input v-model.number="scope.row.spaPrices" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.price" type="text" autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
               </el-form-item>
@@ -1427,9 +2002,11 @@ if ((type == '' && isNaN(id)) || type == 'add') {
             header-align="center"
             align="center"
             min-width="130"
-            prop="createDate"
             :label="t('reuse.modifyDate')"
-          />
+            ><template #default="scope">{{
+              dateTimeFormat(scope.row.updateDate)
+            }}</template></ElTableColumn
+          >
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1538,6 +2115,7 @@ if ((type == '' && isNaN(id)) || type == 'add') {
         <span class="text-center">{{ collapse[7].title }}</span>
       </template>
       <TableOperator
+        v-if="openLastCollapse"
         :type="type"
         :id="id"
         :rules="ruleSEO"
@@ -1568,5 +2146,8 @@ if ((type == '' && isNaN(id)) || type == 'add') {
 :deep(.el-dialog) {
   height: 70vh;
   overflow: auto;
+}
+:deep(.cell) {
+  word-break: break-word;
 }
 </style>

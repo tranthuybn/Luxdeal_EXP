@@ -1,7 +1,7 @@
 import { config } from '@/config/axios/config'
 import { productStorageList } from './productStorage'
 import { warehouseList } from '../Warehouse/warehouse'
-import { serviceResponse } from 'mock/_reponseStructure'
+import { serviceResponse } from '../_reponseStructure'
 const { result_code } = config
 const timeout = 1000
 export default [

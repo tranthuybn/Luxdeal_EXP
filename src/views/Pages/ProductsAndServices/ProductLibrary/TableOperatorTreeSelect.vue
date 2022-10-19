@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, onBeforeMount } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -28,11 +28,16 @@ import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
-import { getCategories } from '@/api/LibraryAndSetting'
+import { getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSetting'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 import { API_URL } from '@/utils/API_URL'
-import { customPostData } from './ProductLibraryManagement'
+import {
+  customPostData,
+  getBrandSelectOptions,
+  getOriginSelectOptions,
+  getUnitSelectOptions
+} from './ProductLibraryManagement'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -135,11 +140,11 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 const imageUrl = ref('')
 //set data for form edit and detail
+const { setValues } = methods
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
 
-  const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     await customPostData(props.formDataCustomize)
     setValues(props.formDataCustomize)
@@ -197,6 +202,13 @@ const save = async (type) => {
     } else {
       validateFile = true
     }
+    if (sameProductCode.value) {
+      ElNotification({
+        message: t('reuse.cantChooseSameProductCode'),
+        type: 'error'
+      })
+      return
+    }
     if (isValid && validateFile) {
       loading.value = true
       const { getFormData } = methods
@@ -204,10 +216,21 @@ const save = async (type) => {
       if (treeSelectData.value == undefined) {
         await apiTreeSelect()
       }
-      let ProductTypeId = treeSelectData.value.find((tree) =>
-        tree.children.find((child) => child.label == data.ProductTypeId)
-      )
-      ProductTypeId = ProductTypeId.children.find((options) => options.label === data.ProductTypeId)
+      let parentNode = true
+      let ProductTypeId = treeSelectData.value.find((tree) => {
+        if (tree.children.length > 0) {
+          parentNode = false
+          return tree?.children.find((child) => child.label == data.ProductTypeId)
+        } else {
+          parentNode = true
+          return tree.label == data.ProductTypeId
+        }
+      })
+      parentNode
+        ? (ProductTypeId = ProductTypeId)
+        : (ProductTypeId = ProductTypeId.children.find(
+            (options) => options.label === data.ProductTypeId
+          ))
       ProductTypeId
         ? (data.ProductTypeId = ProductTypeId.id)
         : ElNotification({
@@ -226,6 +249,9 @@ const save = async (type) => {
       if (type == 'saveAndAdd') {
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
+        props.multipleImages
+          ? ListFileUpload.value.map((file) => handleRemove(file))
+          : removeImage()
         loading.value = false
       }
       if (type == 'edit') {
@@ -255,8 +281,10 @@ if (props.title == 'undefined') {
 }
 let DeleteFileIds: any = []
 const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  if (formValue.value.productImages) {
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
+  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
+  // remove image when edit data
+  if (formValue.value && formValue.value.productImages) {
     let imageRemove = formValue.value.productImages.find(
       (image) => `${API_URL}${image.path}` === file.url
     )
@@ -271,33 +299,54 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 
+const validImageType = ['jpeg', 'png']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
+    //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
         ElMessage.error(t('reuse.notImageFile'))
         return false
-      } else if (rawFile.raw.size / 1024 / 1024 > 4) {
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
     }
+    //nếu là 1 list ảnh
     if (type === 'list') {
       let inValid = true
       rawFile.map((file) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
           ElMessage.error(t('reuse.notImageFile'))
           inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
+        } else if (file.name?.length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
         }
       })
       return inValid
     }
     return true
   } else {
-    if (fileList.value) {
+    //báo lỗi nếu ko có ảnh
+    if (type === 'list' && fileList.value.length > 0) {
+      return true
+    }
+    if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
       return true
     } else {
       ElMessage.warning(t('reuse.notHaveImage'))
@@ -348,12 +397,21 @@ const cancel = () => {
   go(-1)
 }
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
+const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
-    rawUploadFile.value = uploadFile
-    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    const validImage = await beforeAvatarUpload(uploadFile, 'single')
+    if (validImage) {
+      rawUploadFile.value = uploadFile
+      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    }
   } else {
+    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     ListFileUpload.value = uploadFiles
+    if (!validImage) {
+      uploadFiles.map((file) => {
+        file.raw ? handleRemove(file) : ''
+      })
+    }
   }
 }
 const previewImage = () => {
@@ -392,23 +450,103 @@ const apiTreeSelect = async () => {
   }
 }
 let CodeAndNameSelect = ref()
+let CodeOptions = ref()
 let NameAndCodeSelect = ref()
-let callGetCodeAndNameAPI = 0
 const getCodeAndNameSelect = async () => {
-  if (callGetCodeAndNameAPI == 0) {
-    const res = await getCodeAndNameProductLibrary()
-    CodeAndNameSelect.value = res.data.map((val) => ({
+  const res = await getCodeAndNameProductLibrary()
+  CodeAndNameSelect.value = res.data.map((val) => ({
+    label: val.productCode,
+    value: val.productCode,
+    name: val.name,
+    id: val.id
+  }))
+  NameAndCodeSelect.value = res.data.map((val) => ({
+    label: val.name,
+    value: val.name,
+    productCode: val.productCode
+  }))
+  CodeOptions.value = CodeAndNameSelect.value
+}
+const remoteProductCode = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
+    CodeOptions.value = res.data.map((val) => ({
       label: val.productCode,
       value: val.productCode,
-      name: val.name
+      name: val.name,
+      id: val.id
     }))
+  } else {
+    CodeOptions.value = CodeAndNameSelect.value
+  }
+}
+const remoteProductName = async (query: string) => {
+  if (query) {
+    const res = await getCodeAndNameProductLibrary({ Keyword: query })
     NameAndCodeSelect.value = res.data.map((val) => ({
       label: val.name,
       value: val.name,
       productCode: val.productCode
     }))
-    callGetCodeAndNameAPI++
+  } else {
+    NameAndCodeSelect.value = []
   }
+}
+const sameProductCode = ref(false)
+const fillAllInformation = async (data) => {
+  const codeObj = CodeOptions.value.find((code) => code.value == data)
+  codeObj
+    ? await getBusinessProductLibrary({ Id: codeObj?.id })
+        .then((res) => {
+          if (res.data.length == 0) {
+            ElNotification({
+              message: t('reuse.cantFindData'),
+              type: 'warning'
+            })
+          } else {
+            const fillValue = res.data[0]
+            const BrandId = fillValue.categories[0].id
+            const UnitId = fillValue.categories[2].id
+            const OriginId = fillValue.categories[3].id
+            setValues({
+              ProductTypeId: fillValue.categories[1].value,
+              BrandId: BrandId,
+              UnitId: UnitId,
+              OriginId: OriginId,
+              ShortDescription: fillValue.shortDescription,
+              VerificationInfo: fillValue.verificationInfo,
+              Description: fillValue.description
+            })
+            const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
+            customPostData(checkData)
+          }
+          sameProductCode.value = true
+        })
+        .catch((error) =>
+          ElNotification({
+            message: error,
+            type: 'warning'
+          })
+        )
+    : (sameProductCode.value = false)
+}
+
+const callApiAttribute = async () => {
+  await getUnitSelectOptions(), await getOriginSelectOptions(), await getBrandSelectOptions()
+}
+//for infinite scroll
+// const scrollMethod = () => {
+// console.log('scroll value', scrollTop)
+// console.log('height', divRef.value?.clientHeight)
+// }
+// const divRef = ref<HTMLDivElement>()
+onBeforeMount(() => {
+  callApiAttribute()
+  // console.log('height', divRef.value)
+})
+//key up enter
+const changeTreeData = (data) => {
+  setValues({ ProductTypeId: data })
 }
 </script>
 <template>
@@ -418,10 +556,11 @@ const getCodeAndNameSelect = async () => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
-              v-model="form['ProductTypeId']"
+              :modelValue="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
               style="width: 100%"
+              @change="(data) => changeTreeData(data)"
             />
           </template>
           <template #HireInventoryStatus-label>
@@ -452,49 +591,56 @@ const getCodeAndNameSelect = async () => {
             <el-select
               v-model="form['ProductCode']"
               :placeholder="`${t('reuse.enterProductCode')}`"
-              @focus="getCodeAndNameSelect"
+              @click="getCodeAndNameSelect"
               style="width: 100%"
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductCode"
+              default-first-option
+              @change="(data) => fillAllInformation(data)"
+              popper-class="max-w-600px"
             >
+              <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
+                <div ref="divRef" class="whereisthis"> -->
               <el-option
-                v-for="item in CodeAndNameSelect"
-                :key="item.value"
+                ref="optionCodeHeight"
+                v-for="item in CodeOptions"
+                :key="item.id"
                 :label="item.label"
                 :value="item.value"
-                :disabled="true"
               >
                 <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
                 <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
                   >{{ t('reuse.productName') }}: {{ item.name }}</span
                 >
               </el-option>
+              <!-- </div>
+              </el-scrollbar> -->
             </el-select>
           </template>
           <template #Name="form">
             <el-select
               v-model="form['Name']"
               :placeholder="`${t('reuse.enterProductName')}`"
-              @focus="getCodeAndNameSelect"
+              @click="getCodeAndNameSelect"
               style="width: 100%"
               allow-create
               filterable
               clearable
+              remote
+              :remote-method="remoteProductName"
+              default-first-option
+              popper-class="max-w-600px"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"
-                :key="item.value"
+                :key="item.id"
                 :label="item.label"
                 :value="item.value"
                 :disabled="true"
-              >
-                <span style="float: left">{{ t('reuse.productName') }}: {{ item.label }}</span>
-                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productCode') }}: {{ item.productCode }}</span
-                >
-              </el-option>
-            </el-select>
+            /></el-select>
           </template>
           <template #Name-label>
             <div class="w-full text-right ml-2 leading-5">
@@ -571,8 +717,8 @@ const getCodeAndNameSelect = async () => {
           <el-button :icon="viewIcon" @click="previewImage" />
           <el-button :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog v-model="dialogVisible">
-          <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+        <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
     </ElRow>
@@ -596,6 +742,9 @@ const getCodeAndNameSelect = async () => {
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="go(-1)">
+          {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">
@@ -642,5 +791,11 @@ const getCodeAndNameSelect = async () => {
 .avatar-uploader-icon {
   width: 178px;
   height: 178px;
+}
+:deep(.el-dialog__body) {
+  max-height: 85vh;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -29,22 +29,21 @@ export default {
           name: 'products-services.productLibrary.Products',
           meta: {
             title: t('router.productLibraryProducts')
-          },
-          children: [
-            {
-              path: `${utility}/:id?/:type?`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
-              name: `products-services.productLibrary.Products.${utility}`,
-              meta: {
-                title: t('reuse.addNewCategory'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `products-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
+          name: `products-services.productLibrary.Products.${utility}`,
+          meta: {
+            title: t('reuse.addNewCategory'),
+            noTagsView: true,
+            canTo: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
         }
       ]
     },
@@ -64,6 +63,20 @@ export default {
           meta: {
             title: t('router.ServiceLibrarySpaService')
           }
+        },
+        {
+          path: `spa-service-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
+          name: `products-services.ServiceLibrarySpaService.${utility}`,
+          meta: {
+            title: t('reuse.addNewSpaService'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
         }
       ]
     },
@@ -80,22 +93,21 @@ export default {
           name: 'products-services.ProductCategory',
           meta: {
             title: t('router.productCategoryProducts')
-          },
-          children: [
-            {
-              path: `${utility}`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
-              name: `products-services.ProductCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewCategory'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `product-category-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
+          name: `products-services.ProductCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewCategory'),
+            noTagsView: true,
+            canTo: true,
+            noCache: true,
+            hidden: true,
+            showMainRoute: true
+          }
         },
         {
           path: 'attribute-category',
@@ -103,22 +115,21 @@ export default {
           name: 'products-services.AttributeCategory',
           meta: {
             title: t('router.productCategoryAttribute')
-          },
-          children: [
-            {
-              path: `${utility}`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/AttributeCategoryUtility.vue'),
-              name: `products-services.AttributeCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewAttribute'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `attribute-category-utility/:type?/:id?/:tab?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/AttributeCategoryUtility.vue'),
+          name: `products-services.AttributeCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewAttribute'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
         },
         {
           path: 'unit-category',
@@ -126,22 +137,21 @@ export default {
           name: 'products-services.UnitCategory',
           meta: {
             title: t('router.productCategoryUnit')
-          },
-          children: [
-            {
-              path: `${utility}`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/UnitCategoryUtility.vue'),
-              name: `products-services.UnitCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewUnit'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `unit-category-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/UnitCategoryUtility.vue'),
+          name: `products-services.UnitCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewUnit'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
+          }
         },
         {
           path: 'brand-category',
@@ -149,22 +159,21 @@ export default {
           name: 'products-services.BrandCategory',
           meta: {
             title: t('router.productCategoryBrand')
-          },
-          children: [
-            {
-              path: `${utility}`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/BrandCategoryUtility.vue'),
-              name: `products-services.BrandCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewBrand'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `brand-category-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/BrandCategoryUtility.vue'),
+          name: `products-services.BrandCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewBrand'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
         },
         {
           path: 'origin-category',
@@ -172,22 +181,21 @@ export default {
           name: 'products-services.OriginCategory',
           meta: {
             title: t('router.productCategoryOrigin')
-          },
-          children: [
-            {
-              path: `${utility}`,
-              component: () =>
-                import('@/views/Pages/ProductsAndServices/Category/OriginCategoryUtility.vue'),
-              name: `products-services.OriginCategory.${utility}`,
-              meta: {
-                title: t('reuse.addNewOrigin'),
-                noTagsView: true,
-                noCache: true,
-                hidden: true,
-                showMainRoute: true
-              }
-            }
-          ]
+          }
+        },
+        {
+          path: `origin-category-utility/:type?/:id?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/Category/OriginCategoryUtility.vue'),
+          name: `products-services.OriginCategory.${utility}`,
+          meta: {
+            title: t('reuse.addNewOrigin'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
         }
       ]
     }

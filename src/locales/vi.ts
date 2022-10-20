@@ -462,7 +462,8 @@ export default {
     rentalFeePaymentSlip: 'Phiếu thanh toán phí thuê',
     depositSlip: 'Phiếu đặt cọc',
     initializationDate: 'Ngày khởi tạo',
-    totalSalesDebt: 'Tổng công nợ bán hàng'
+    totalSalesDebt: 'Tổng công nợ bán hàng',
+    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng'
   },
   button: {
     add: 'Thêm nhanh',

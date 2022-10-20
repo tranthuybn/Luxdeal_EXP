@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -89,7 +90,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      format: 'YYYY-MM-DD',
+      format: 'DD/MM/YYYY',
       valueFormat: 'YYYY-MM-DD',
       type: 'daterange'
     }
@@ -266,11 +267,13 @@ type FormDataPost = {
   StartDate: string
   EndDate: string
   TargetType: number
-  VoucherType: number
-  ExchangeValue: number
+  VoucherType?: number
+  VoucherConditionType: number
+  ExchangeValue?: number
   ServiceType: number
   Image: any
   CampaignType: number
+  imageurl?: string
 }
 
 const customPostDataFlashSale = (data) => {
@@ -294,6 +297,9 @@ const customPostDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.ServiceType = 1
   customData.Image = data.Images
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
+  customData.VoucherType = 2
+  customData.VoucherConditionType = 2
   if (valueRadioOjbApply.value == 3) {
     customData.CustomerIds = null
     customData.TargetType = 3
@@ -321,6 +327,7 @@ type FormDataEdit = {
   TargetType: number
   ServiceType: number
   Image: any
+  imageurl?: string
   CampaignType: number
 }
 
@@ -343,7 +350,7 @@ const customEditDataFlashSale = (data) => {
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
   customData.ServiceType = 1
-  customData.Image = data.Images
+  customData.Image = data.Image
   if (data.target == 3) {
     customData.CustomerIds = null
     customData.TargetType = 3
@@ -390,6 +397,7 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  imageurl?: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -411,6 +419,8 @@ const customizeData = async (data) => {
   setFormData.products = data[0].productProperties
   setFormData.Images = data[0].images
   setFormData.target = data[0].targetType
+  setFormData.imageurl = `${API_URL}${data.imageurl}`
+
   hideTableCustomer(data[0].targetType)
 }
 
@@ -446,6 +456,7 @@ const editData = async (data) => {
           :schema="schema"
           :type="type"
           :id="id"
+          :multipleImages="false"
           :apiId="getCampaignList"
           @post-data="postData"
           :params="params"

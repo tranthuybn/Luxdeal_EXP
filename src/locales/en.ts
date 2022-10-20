@@ -444,7 +444,9 @@ export default {
     rentalFeePaymentSlip: 'Rental fee payment slip',
     depositSlip: 'Deposit slip',
     initializationDate: 'Initialization date',
-    totalSalesDebt: 'Total sales debt'
+    totalSalesDebt: 'Total sales debt',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers'
   },
   button: {
     add: 'Add quick',

@@ -295,6 +295,7 @@ const editData = () => {}
           :type="type"
           :id="id"
           @post-data="postData"
+          :multipleImages="false"
           :params="params"
           :formDataCustomize="setFormData"
           :rules="rules"

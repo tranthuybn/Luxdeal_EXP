@@ -118,7 +118,7 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
-  productData: [{ id: -1, code: '', name: null, isActive: false }],
+  productData: [{ id: -1, code: '', name: null, isActive: true }],
   spaData: [{ id: -1, code: '', name: null, service: [] }],
   auctionData: [{ id: -1, code: '', name: null }]
 })
@@ -545,7 +545,7 @@ const addLastIndexCustomerTable = () => {
 }
 const addLastIndexProductTable = () => {
   let idTable2 = Date.now()
-  dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: false })
+  dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: true })
 }
 
 const addLastIndexProductOfComboTable = () => {
@@ -568,7 +568,7 @@ const listProductsTable = reactive([
 //get list customer
 const listCustomer = ref()
 const callAPICustomer = async () => {
-  const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 1000 })
   if (res.data && res.data?.length > 0) {
     listCustomer.value = res.data.map((customer) => ({
       value: customer.code,
@@ -582,11 +582,11 @@ const callAPICustomer = async () => {
 //get list product
 const listProducts = ref()
 const callAPIProduct = async () => {
-  const res = await getProductsList()
+  const res = await getProductsList({ PageIndex: 1, PageSize: 1000 })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
-      value: product.code,
-      label: product.storeCode,
+      value: product.productCode,
+      label: product.code,
       name: product.name,
       id: product.id
     }))

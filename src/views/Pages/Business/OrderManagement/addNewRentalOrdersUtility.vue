@@ -1880,6 +1880,7 @@ onBeforeMount(() => {
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <el-select
+                            :disabled="checkDisabled"
                             v-model="ruleForm.customerName"
                             filterable
                             :clearable="true"
@@ -1893,7 +1894,7 @@ onBeforeMount(() => {
                               :value="item.value"
                             />
                           </el-select>
-                          <el-button @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -1909,6 +1910,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
+                          :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
@@ -1943,6 +1945,7 @@ onBeforeMount(() => {
                   <p>{{ customerAddress }}</p>
                   <p>
                     <el-button
+                      :disabled="checkDisabled"
                       class="hover:bg-transparent; focus:bg-transparent"
                       text
                       @click="dialogFormVisible = true"

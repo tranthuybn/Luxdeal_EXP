@@ -195,6 +195,7 @@ const editData = () => {}
           :schema="schema"
           :type="type"
           :id="id"
+          :multipleImages="false"
           :params="params"
           :apiId="getCampaignList"
           @post-data="postData"

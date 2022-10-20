@@ -172,7 +172,7 @@ onUnmounted(() => {
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
-            class="text-ellipsis text-center text-blue-900"
+            class="text-ellipsis text-[#000000]"
           >
             <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
               <strong>{{ filed }}</strong>
@@ -194,7 +194,7 @@ onUnmounted(() => {
           <ElCol
             v-for="(key, i) in acceptKey(item)"
             :key="i"
-            class="text-ellipsis text-center"
+            class="text-ellipsis"
             :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">

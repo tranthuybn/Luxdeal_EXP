@@ -313,7 +313,6 @@ const activeName = ref(collapse[0].name)
 const cities = ref()
 const district = ref()
 const ward = ref()
-const street = ref()
 const valueCommune = ref('')
 const enterdetailAddress = ref([])
 const callApiCity = async () => {
@@ -361,6 +360,7 @@ const postData = async () => {
 }
 
 const postAccount = async () => {
+  await submitForm(ruleFormRef.value, ruleFormRef2.value)
   const payload = {
     fullName: ruleForm.name,
     email: ruleForm.email,
@@ -547,7 +547,7 @@ onBeforeMount(() => {
                   v-model="ruleForm.referralCode"
                   class="w-[80%] outline-none pl-2 dark:bg-transparent"
                   type="text"
-                  :placeholder="t('reuse.referralCode')"
+                  :placeholder="t('reuse.enterReferralCode')"
               /></ElFormItem>
 
               <el-divider content-position="left">{{
@@ -1047,7 +1047,7 @@ onBeforeMount(() => {
                     v-model="valueProvince"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectProvinceCity')"
                     @change="(data) => CityChange(data)"
                   >
                     <el-option
@@ -1066,7 +1066,7 @@ onBeforeMount(() => {
                     v-model="valueDistrict"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectCountyOrDistrict')"
                     @change="(data) => districtChange(data)"
                   >
                     <el-option
@@ -1082,7 +1082,7 @@ onBeforeMount(() => {
                     v-model="valueCommune"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectWardOrCommune')"
                   >
                     <el-option
                       v-for="item in ward"
@@ -1096,25 +1096,18 @@ onBeforeMount(() => {
                   class="flex w-[100%] items-center"
                   :label="t('formDemo.detailedAddress')"
                 >
-                  <el-select
+                  <el-input
                     v-model="enterdetailAddress"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.enterDetailedAddress')"
                     clearable
                     filterable
                     allow-create
-                  >
-                    <el-option
-                      v-for="item in street"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                  />
                 </ElFormItem>
               </div>
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
 
                 <ElFormItem
@@ -1163,7 +1156,7 @@ onBeforeMount(() => {
                   </el-select>
                 </ElFormItem>
               </div>
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
                 <div v-if="type == 'add'">
                   <Qrcode />

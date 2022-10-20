@@ -77,7 +77,8 @@ export const ORDER_API = {
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
-  ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer'
+  ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer',
+  TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
 }
 export const ADDRESS_API = {
   CITY: '/api/addr/getAllCity',

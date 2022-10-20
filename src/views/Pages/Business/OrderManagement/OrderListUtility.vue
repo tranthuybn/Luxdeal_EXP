@@ -46,7 +46,8 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  addQuickCustomer
+  addQuickCustomer,
+  getTotalOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -54,6 +55,12 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
+
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -553,6 +560,8 @@ let promoMin = ref()
 let promoDate = ref()
 let promoName = ref()
 let promoActive = ref()
+let campaignId = ref()
+let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
   currentRow.value = val
@@ -569,12 +578,14 @@ const changeRowPromo = () => {
     promoName.value = 'Nhận voucher miễn phí'
   } else if (currentRow.value.voucherConditionType == 2) {
     promoName.value = 'Affilate'
-  } else if (currentRow.value.voucherConditionType == 2) {
+  } else if (currentRow.value.voucherConditionType == 3) {
     promoName.value = `Đổi voucher ${currentRow.value.exchangeValue} điểm, điểm đang có `
   } else {
     promoName.value = `Mua voucher ${currentRow.value.exchangeValue} đ Ví đang có  `
   }
   promoActive.value = `${promoCode.value} | ${promoDescription.value}`
+  campaignId.value = currentRow.value.id
+  isActivePromo.value = currentRow.value.isActive
 }
 
 const handleChangePromo = (data) => {
@@ -588,16 +599,42 @@ const changeNamePromo = () => {
   promoDescription.value = promo.value.description
   promoMin.value = promo.value.min
   promoDate.value = promo.value.toDate
-  if (currentRow.value.voucherConditionType == 1) {
+  if (promo.value.voucherConditionType == 1) {
     promoName.value = 'Nhận voucher miễn phí'
-  } else if (currentRow.value.voucherConditionType == 2) {
+  } else if (promo.value.voucherConditionType == 2) {
     promoName.value = 'Affilate'
-  } else if (currentRow.value.voucherConditionType == 2) {
-    promoName.value = `Đổi voucher ${currentRow.value.exchangeValue} điểm, điểm đang có `
+  } else if (promo.value.voucherConditionType == 3) {
+    promoName.value = `Đổi voucher ${promo.value.exchangeValue} điểm, điểm đang có `
   } else {
-    promoName.value = `Mua voucher ${currentRow.value.exchangeValue} đ Ví đang có  `
+    promoName.value = `Mua voucher ${promo.value.exchangeValue} đ Ví đang có  `
   }
   promoActive.value = `${promoCode.value} | ${promoDescription.value}`
+  campaignId.value = promo.value.id
+  isActivePromo.value = promo.value.isActive
+}
+
+let totalPriceOrder = ref()
+let totalFinalOrder = ref()
+// Total order
+const autoCalculateOrder = async () => {
+  const payload = {
+    serviceType: 1,
+    fromDate: '2022-10-19T09:38:04.730Z',
+    toDate: '2022-10-19T09:38:04.730Z',
+    days: 1,
+    campaignId: campaignId.value,
+    orderDetail: [
+      {
+        productPropertyId: 2,
+        quantity: 1,
+        accessory: 'string'
+      }
+    ]
+  }
+  const res = await getTotalOrder(payload)
+  totalPriceOrder.value = res[0].totalPrice
+  totalFinalOrder.value = res[0].finalPrice
+  console.log('res: ', res)
 }
 
 //add row to the end of table if fill all table
@@ -2447,7 +2484,7 @@ onMounted(async () => {
               class="demo-ruleForm"
               status-icon
             >
-              <div class="text-sm text-[#303133] font-medium pb-4 pl-4 dark:text-[#fff]">
+              <div class="text-sm text-[#303133] font-medium pb-4 dark:text-[#fff]">
                 <el-divider content-position="left">{{
                   t('formDemo.orderInformation')
                 }}</el-divider>
@@ -2540,9 +2577,17 @@ onMounted(async () => {
               label-width="170px"
               class="demo-ruleForm"
             >
-              <div class="flex w-[100%] gap-8">
-                <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
+              <div class="flex w-[100%] gap-6">
+                <div class="flex-1"
+                  ><el-divider content-position="left">{{
+                    t('formDemo.customer')
+                  }}</el-divider></div
+                >
+                <div class="flex-1"
+                  ><el-divider content-position="left">{{
+                    t('formDemo.delivery')
+                  }}</el-divider></div
+                >
               </div>
               <div class="flex">
                 <div class="flex-1">
@@ -2812,9 +2857,12 @@ onMounted(async () => {
                 :value="item.value"
               />
             </el-select>
-            <el-button class="w-[150px] border-1 border-blue-500" plain>{{
-              t('formDemo.apply')
-            }}</el-button>
+            <el-button
+              @click="autoCalculateOrder"
+              class="w-[150px] border-1 border-blue-500"
+              plain
+              >{{ t('formDemo.apply') }}</el-button
+            >
           </div>
           <div
             v-if="checkPromo"
@@ -2826,7 +2874,8 @@ onMounted(async () => {
               <div class="ml-2">Áp dụng cho đơn hàng từ {{ promoMin }}</div>
             </div>
             <div class="flex flex-1 justify-center">Hết hạn {{ promoDate }}</div>
-            <div class="flex-1 text-blue-500">{{ promoName }}</div>
+            <div v-if="isActivePromo" class="flex-1 text-blue-500">{{ promoName }}</div>
+            <div v-else class="text-[#FDB240]">{{ promoName }}</div>
           </div>
           <div class="flex items-center">
             <h2 class="font-bold text-base w-[40%]">Hoặc chọn mã có sẵn</h2>
@@ -2924,31 +2973,7 @@ onMounted(async () => {
             prop="productName"
             :label="t('formDemo.productInformation')"
             min-width="620"
-          >
-            <!-- <template #default="props">
-              <MultipleOptionsBox
-                :fields="[
-                  t('reuse.productCode'),
-                  t('reuse.managementCode'),
-                  t('formDemo.productInformation')
-                ]"
-                filterable
-                :items="listProductsTable"
-                valueKey="id"
-                labelKey="label"
-                :hiddenKey="['id']"
-                :placeHolder="'Chọn mã sản phẩm'"
-                :clearable="false"
-                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-                ><template #underButton>
-                  <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                  <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
-                    >+ {{ t('formDemo.quicklyAddProducts') }}</div
-                  >
-                </template></MultipleOptionsBox
-              >
-            </template> -->
-          </el-table-column>
+          />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
@@ -2960,12 +2985,7 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="quantity"
-            :label="`${t('formDemo.amount')}`"
-            align="center"
-            width="90"
-          >
+          <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
@@ -2980,24 +3000,30 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column
             prop="unitName"
-            :label="`${t('reuse.dram')}`"
+            :label="t('reuse.dram')"
             align="center"
             min-width="100"
           />
-          <el-table-column
-            prop="price"
-            :label="`${t('reuse.unitPrice')}`"
-            align="right"
-            width="180"
-          />
-
+          <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
+            <template #default="props">
+              {{ changeMoney.format(parseInt(props.row.price)) ?? '0 đ' }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="finalPrice"
-            :label="`${t('formDemo.intoMoney')}`"
+            :label="t('formDemo.intoMoney')"
             align="right"
             width="180"
-          />
-          <el-table-column :label="`${t('formDemo.exportWarehouse')}`" min-width="200">
+          >
+            <template #default="props">
+              {{
+                props.row.finalPrice != undefined
+                  ? changeMoney.format(parseInt(props.row.finalPrice))
+                  : '0 đ'
+              }}
+            </template>
+          </el-table-column>
+          <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
             <div class="flex w-[100%] items-center">
               <div class="w-[40%]">Còn hàng</div>
               <div class="w-[60%]">
@@ -3018,73 +3044,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <!-- <el-table :data="tableData2" class="dark:text-[#fff]">
-          <el-table-column width="250" />
-          <el-table-column width="220" />
-          <el-table-column width="220" />
-          <el-table-column width="550" />
-          <el-table-column align="right" width="180">
-            <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
-            <div class="text-blue-500 cursor-pointer">
-              <el-button
-                text
-                :disabled="checkDisabled"
-                @click="
-                  () => {
-                    openDialogChoosePromotion = true
-                    callPromoApi()
-                  }
-                "
-                style="padding: 0"
-              >
-                <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
-              </el-button>
-            </div>
-            <el-dropdown class="justify-end" trigger="click" :disabled="checkDisabled">
-              <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                {{ t('formDemo.doesNotIncludeVAT') }}
-                <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item>
-                    <el-radio-group v-model="radioVAT" class="flex-col">
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="1">{{
-                          t('formDemo.VATNotIncluded')
-                        }}</el-radio>
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="2">VAT 10%</el-radio>
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="3">VAT 8%</el-radio>
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="4">VAT 5%</el-radio>
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="5">VAT 0%</el-radio>
-                      </div>
-                    </el-radio-group>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-
-            <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
-          </el-table-column>
-          <el-table-column align="right" width="180">
-            <div class="dark:text-[#fff]">{{ totalOrder }} đ</div>
-            <div class="dark:text-[#fff]">-95,000,000 đ</div>
-            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="dark:text-[#fff]">95,000,000 đ</div>
-          </el-table-column>
-          <el-table-column width="200" align="right">
-            <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
-            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-          </el-table-column>
-        </el-table> -->
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
@@ -3100,7 +3059,9 @@ onMounted(async () => {
                 "
                 style="padding: 0"
               >
-                <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
+                <span class="font-normal text-blue-500">
+                  + {{ t('formDemo.choosePromotion') }}</span
+                >
               </el-button>
             </div>
             <div class="text-blue-500 cursor-pointer">
@@ -3144,14 +3105,27 @@ onMounted(async () => {
                 </template>
               </el-dropdown>
             </div>
-            <div class="dark:text-[#fff]">{{ t('formDemo.totalAmountReceivable') }}</div>
+            <div class="text-black font-bold dark:text-[#fff]">{{
+              t('formDemo.totalAmountReceivable')
+            }}</div>
           </div>
 
           <div class="w-30">
-            <div class="text-right dark:text-[#fff]">{{ totalOrder }} đ</div>
-            <div class="text-right dark:text-[#fff]">-95,000,000 đ</div>
+            <div class="text-right dark:text-[#fff]">{{
+              totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
+            }}</div>
+            <div class="text-right dark:text-[#fff]"
+              >-
+              {{
+                totalPriceOrder != undefined
+                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
+                  : '0 đ'
+              }}
+            </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-right dark:text-[#fff]">95,000,000 đ</div>
+            <div class="text-right dark:text-[#fff]">{{
+              totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+            }}</div>
           </div>
 
           <div class="w-60 pl-2">

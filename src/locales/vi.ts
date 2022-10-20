@@ -458,7 +458,8 @@ export default {
     rentalEndDate: 'Ngày kết thúc thuê',
     rentalFeePaymentSlip: 'Phiếu thanh toán phí thuê',
     depositSlip: 'Phiếu đặt cọc',
-    initializationDate: 'Ngày khởi tạo'
+    initializationDate: 'Ngày khởi tạo',
+    totalSalesDebt: 'Tổng công nợ bán hàng'
   },
   button: {
     add: 'Thêm nhanh',

@@ -210,6 +210,7 @@ const loading = ref(false)
 //doc du lieu tu bang roi emit len goi API
 const { go } = useRouter()
 const save = async (type) => {
+  console.log('type', type)
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
     let validateFile = false
@@ -273,7 +274,7 @@ const save = async (type) => {
       console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {

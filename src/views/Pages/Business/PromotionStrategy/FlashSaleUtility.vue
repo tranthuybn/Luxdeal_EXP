@@ -296,10 +296,9 @@ const customPostDataFlashSale = (data) => {
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
   customData.ServiceType = 1
-  customData.Image = data.Images
+  customData.Image = data.Image
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
-  customData.VoucherType = 2
-  customData.VoucherConditionType = 2
+
   if (valueRadioOjbApply.value == 3) {
     customData.CustomerIds = null
     customData.TargetType = 3
@@ -308,6 +307,8 @@ const customPostDataFlashSale = (data) => {
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = JSON.stringify(data.products)
+  customData.VoucherType = 2
+  customData.VoucherConditionType = 2
   return customData
 }
 
@@ -367,6 +368,8 @@ const customEditDataFlashSale = (data) => {
 }
 
 const postData = async (data) => {
+  console.log('1:', data)
+
   data = customPostDataFlashSale(data)
   console.log('data post:', data)
 

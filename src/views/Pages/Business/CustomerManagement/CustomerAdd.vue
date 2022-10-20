@@ -16,9 +16,11 @@ import {
   ElFormItem,
   ElForm,
   ElRadioGroup,
-  ElMessage
+  ElMessage,
+  UploadProps,
+  ElMessageBox,
+  UploadUserFile
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -39,9 +41,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
 
-const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const { t } = useI18n()
 const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
@@ -264,9 +264,6 @@ const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const addIcon = useIcon({ icon: 'uil:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 const collapse: Array<Collapse> = [
   {
@@ -312,17 +309,6 @@ const collapseChangeEvent = (val) => {
     })
 }
 const activeName = ref(collapse[0].name)
-//upload image
-
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-// address
 
 const cities = ref()
 const district = ref()
@@ -464,6 +450,51 @@ const change = () => {
   if (type == 'detail') {
     disableData = true
   }
+}
+const ListFileUpload = ref<UploadUserFile[]>([])
+const disabledForm = ref(false)
+watch(
+  () => type,
+  () => {
+    if (type === 'detail') {
+      disabledForm.value = true
+    }
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+    }
+    if (type === 'add' || type == ':type') {
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+}
+let FileDeleteIds: any = []
+const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
 }
 onBeforeMount(() => {
   change()
@@ -966,6 +997,35 @@ onBeforeMount(() => {
           </div>
 
           <div class="w-[50%]">
+            <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+              <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+            </div>
+            <div class="flex">
+              <div class="pl-5">
+                <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+                <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
+              </div>
+              <div class="pl-4">
+                <el-upload
+                  ref="upload"
+                  class="upload-demo"
+                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  :limit="10"
+                  :on-change="handleChange"
+                  :before-remove="beforeRemove"
+                  :auto-upload="false"
+                  :multiple="true"
+                  v-model:fileList="ListFileUpload"
+                  :disabled="disabledForm"
+                >
+                  <el-dialog v-model="dialogVisible">
+                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
+                    >
+                  </el-dialog>
+                </el-upload>
+              </div>
+            </div>
             <ElForm
               ref="ruleFormRef2"
               :model="ruleForm"
@@ -976,54 +1036,6 @@ onBeforeMount(() => {
               status-icon
               :disabled="disableData"
             >
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
-                <div class="flex gap-4">
-                  <div class="about-image">
-                    <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
-                    <p style="color: orange" class="text-xs text-right">{{
-                      t('formDemo.lessThanTenProfiles')
-                    }}</p>
-                  </div>
-                  <div class="upload-image ml-10">
-                    <el-upload
-                      action="#"
-                      list-type="picture-card"
-                      :auto-upload="false"
-                      prop="Files"
-                    >
-                      <ElButton :icon="addIcon" class="avatar-uploader-icon mx-2" />
-                      <span>{{ t('formDemo.addPhotosOrFiles') }}</span>
-                      <template #file="{ file }">
-                        <div>
-                          <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                          <span class="el-upload-list__item-actions">
-                            <span
-                              class="el-upload-list__item-preview"
-                              @click="handlePictureCardPreview(file)"
-                            >
-                              <ElButton :icon="viewIcon" />
-                            </span>
-
-                            <span
-                              v-if="!disabled"
-                              class="el-upload-list__item-delete"
-                              @click="handleRemove(file)"
-                            >
-                              <ElButton :icon="deleteIcon" />
-                            </span>
-                          </span>
-                        </div>
-                      </template>
-                    </el-upload>
-
-                    <el-dialog v-model="dialogVisible">
-                      <img w-full :src="dialogImageUrl" />
-                    </el-dialog>
-                  </div>
-                </div>
-              </div>
-
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
                 <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
 
@@ -1180,10 +1192,7 @@ onBeforeMount(() => {
 .black-color {
   color: #000000;
 }
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-}
+
 .avatar-uploader .avatar {
   width: 178px;
   height: 178px;
@@ -1192,19 +1201,6 @@ onBeforeMount(() => {
 
 ::v-deep(.custom-select-w38 > .el-select) {
   width: 38%;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
 }
 
 .el-icon.avatar-uploader-icon {

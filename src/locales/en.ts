@@ -438,7 +438,12 @@ export default {
     selectProvinceCity: 'Select province or city',
     selectDistrict: 'Select District or District',
     chooseWard: 'Choose a ward',
-    joint: 'Joint'
+    joint: 'Joint',
+    rentalStartDate: 'Rental start date',
+    rentalEndDate: 'Rental end date',
+    rentalFeePaymentSlip: 'Rental fee payment slip',
+    depositSlip: 'Deposit slip',
+    initializationDate: 'Initialization date'
   },
   button: {
     add: 'Add quick',

@@ -15,7 +15,7 @@ export default defineConfig({
   theme: {
     extend: {
       backgroundColor: {
-        // 暗黑背景色
+        // Dark background color
         'v-dark': 'var(--dark-bg-color)'
       }
       // screens: {

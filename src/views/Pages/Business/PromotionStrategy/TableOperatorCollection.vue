@@ -769,7 +769,6 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
-                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.customerCode'),

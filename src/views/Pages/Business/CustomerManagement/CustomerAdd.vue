@@ -40,8 +40,7 @@ import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
-
-const dialogVisible = ref(false)
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
@@ -228,6 +227,15 @@ const getTableValue = async () => {
     } else {
       ruleForm.sex = false
     }
+    formValue.value?.customerFiles?.map((element) => {
+      if (element.file !== null) {
+        ListFileUpload.value.push({
+          url: `${API_URL}${element?.file?.path}`,
+          name: element?.file?.fileName,
+          id: element?.file?.id
+        })
+      }
+    })
     ruleForm.name = formValue.value.name
     ruleForm.representative = formValue.value.representative
     ruleForm.accountName = formValue.value.accountName
@@ -243,7 +251,6 @@ const getTableValue = async () => {
     ruleForm.taxCode = formValue.value.taxCode
     ruleForm.userName = formValue.value.userName
   }
-  console.log('formvalue: ', formValue)
 }
 
 const { push } = useRouter()
@@ -289,7 +296,6 @@ const collapse: Array<Collapse> = [
 const getGenCodeCustomer = async () => {
   await getGenCodeCustomers({})
     .then((res) => {
-      console.log('res', res)
       ruleForm.customerCode = res.toString()
     })
     .catch((err) => {
@@ -347,85 +353,79 @@ const clear = async () => {
     (ruleForm.bankName = '')
 }
 
-const postData = async () => {
-  await submitForm(ruleFormRef.value, ruleFormRef2.value)
-  if (checkValidate.value) {
-    await postAdd().then(() =>
-      push({
-        name: 'business.customer-management.customerList',
-        params: { backRoute: 'business.customer-management.customerList' }
+const postCustomer = async () => {
+  const payload = {
+    UserName: ruleForm.userName,
+    Code: ruleForm.customerCode,
+    ReferralCode: ruleForm.referralCode,
+    Name: ruleForm.name,
+    TaxCode: ruleForm.taxCode,
+    IsOrganization: ruleForm.businessClassification,
+    Representative: ruleForm.representative,
+    Phonenumber: ruleForm.phonenumber,
+    Email: ruleForm.email,
+    DoB: ruleForm.doB,
+    DistrictId: 1,
+    WardId: 1,
+    Address: 'trieu khuc',
+    CCCD: ruleForm.cccd,
+    CCCDCreateAt: ruleForm.cccdCreateAt,
+    CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
+    Sex: ruleForm.sex,
+    Link: ruleForm.link,
+    ImageId: 1,
+    isActive: true,
+    CustomerType: 1,
+    AccountName: ruleForm.accountName,
+    AccountNumber: ruleForm.accountNumber,
+    BankId: ruleForm.bankName,
+    Files: ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await addNewCustomer(formDataPayLoad)
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
       })
     )
-  }
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
+  clear()
 }
-
-const postAccount = async () => {
+const postData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
-  const payload = {
-    fullName: ruleForm.name,
-    email: ruleForm.email,
-    password: ruleForm.password,
-    confirmPassword: ruleForm.confirmPassword,
-    userName: ruleForm.userName,
-    phoneNumber: null
-  }
-  const res = await addNewAuthRegister(JSON.stringify(payload))
-  if (res) {
-    const payload = {
-      UserName: ruleForm.userName,
-      Code: ruleForm.customerCode,
-      ReferralCode: ruleForm.referralCode,
-      Name: ruleForm.name,
-      TaxCode: ruleForm.taxCode,
-      IsOrganization: ruleForm.businessClassification,
-      Representative: ruleForm.representative,
-      Phonenumber: ruleForm.phonenumber,
-      Email: ruleForm.email,
-      DoB: ruleForm.doB,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
-      CCCD: ruleForm.cccd,
-      CCCDCreateAt: ruleForm.cccdCreateAt,
-      CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
-      Sex: ruleForm.sex,
-      Link: ruleForm.link,
-      ImageId: 1,
-      isActive: true,
-      CustomerType: 1,
-      AccountName: ruleForm.accountName,
-      AccountNumber: ruleForm.accountNumber,
-      BankId: ruleForm.bankName
+  if (checkValidate.value) {
+    const payloadAcc = {
+      fullName: ruleForm.name,
+      email: ruleForm.email,
+      password: ruleForm.password,
+      confirmPassword: ruleForm.confirmPassword,
+      userName: ruleForm.userName,
+      phoneNumber: ruleForm.phonenumber
     }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postAdd', payload)
-
-    await addNewCustomer(formDataPayLoad)
-      .then(() =>
+    await addNewAuthRegister(JSON.stringify(payloadAcc))
+      .then(() => {
+        postCustomer()
+      })
+      .catch(() =>
         ElNotification({
-          message: t('reuse.addSuccess'),
+          message: t('reuse.failCreateAccount'),
           type: 'success'
         })
       )
-      .catch((error) =>
-        ElNotification({
-          message: error,
-          type: 'warning'
-        })
-      )
-    clear()
-  } else {
-    ElNotification({
-      message: t('reuse.failCreateAccount'),
-      type: 'success'
+  }
+  if (typebtn === 'save') {
+    push({
+      name: 'business.customer-management.customerList',
+      params: { backRoute: 'business.customer-management.customerList' }
     })
   }
 }
-
-const postAdd = async () => {
-  await postAccount()
-}
-
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
 
@@ -446,7 +446,6 @@ watch(
   }
 )
 const change = () => {
-  console.log('type: ', type)
   if (type == 'detail') {
     disableData = true
   }
@@ -548,7 +547,8 @@ onBeforeMount(() => {
                   class="w-[80%] outline-none pl-2 dark:bg-transparent"
                   type="text"
                   :placeholder="t('reuse.enterReferralCode')"
-              /></ElFormItem>
+                />
+              </ElFormItem>
 
               <el-divider content-position="left">{{
                 t('formDemo.generalInformation')
@@ -835,8 +835,8 @@ onBeforeMount(() => {
                     <el-button
                       @click="centerDialogVisible = true"
                       class="w-[50%] outline-none min-h-9 pl-2 ml-3 dark:bg-transparent"
-                      >{{ t('reuse.changePassword') }}</el-button
-                    >
+                      >{{ t('reuse.changePassword') }}
+                    </el-button>
                     <el-dialog
                       v-model="centerDialogVisible"
                       :title="t('reuse.changePassword')"
@@ -982,12 +982,15 @@ onBeforeMount(() => {
                 }}</el-button>
               </div>
               <div v-else class="flex justify-center">
-                <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
+                <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
-                <el-button @click="postAdd" type="primary" class="min-w-42 min-h-11">{{
-                  t('reuse.saveAndAdd')
-                }}</el-button>
+                <el-button
+                  @click="postData('saveAndAdd')"
+                  type="primary"
+                  class="min-w-42 min-h-11"
+                  >{{ t('reuse.saveAndAdd') }}</el-button
+                >
 
                 <el-button @click="cancel()" class="min-w-42 min-h-11">{{
                   t('reuse.cancel')
@@ -1009,7 +1012,7 @@ onBeforeMount(() => {
                 <el-upload
                   ref="upload"
                   class="upload-demo"
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  action="#"
                   :limit="10"
                   :on-change="handleChange"
                   :before-remove="beforeRemove"
@@ -1018,11 +1021,9 @@ onBeforeMount(() => {
                   v-model:fileList="ListFileUpload"
                   :disabled="disabledForm"
                 >
-                  <el-dialog v-model="dialogVisible">
-                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
-                    >
-                  </el-dialog>
+                  <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}
+                  </el-button>
                 </el-upload>
               </div>
             </div>
@@ -1158,10 +1159,7 @@ onBeforeMount(() => {
               </div>
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
-                <div v-if="type == 'add'">
-                  <Qrcode />
-                </div>
-                <div v-else> call api qr code </div>
+                <Qrcode :text="ruleForm.customerCode" />
               </div>
             </ElForm>
           </div>
@@ -1177,11 +1175,13 @@ onBeforeMount(() => {
   color: #ffffff;
   padding: 5px;
 }
+
 .option-select > .option-2 {
   background-color: #f56918;
   color: #ffffff;
   padding: 5px;
 }
+
 .black-color {
   color: #000000;
 }
@@ -1207,6 +1207,7 @@ onBeforeMount(() => {
 ::v-deep(.el-select) {
   width: 100%;
 }
+
 ::v-deep(.el-table .cell) {
   word-break: break-word;
 }
@@ -1249,15 +1250,18 @@ onBeforeMount(() => {
   padding: 0;
   flex-wrap: wrap;
 }
+
 .demo-date-picker .block {
   padding: 30px 0;
   text-align: center;
   border-right: solid 1px var(--el-border-color);
   flex: 1;
 }
+
 .demo-date-picker .block:last-child {
   border-right: none;
 }
+
 .demo-date-picker .demonstration {
   display: block;
   color: var(--el-text-color-secondary);
@@ -1269,12 +1273,15 @@ onBeforeMount(() => {
   width: 100%;
   height: 34px;
 }
+
 ::v-deep(.fix-width > .el-input) {
   width: 100%;
 }
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
+
 ::v-deep(.el-form-item--default .el-form-item__error) {
   padding-left: 179px;
 }

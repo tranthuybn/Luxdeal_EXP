@@ -466,16 +466,15 @@ const save = async () => {
       }
       console.log('FORM_IMAGES(data)', data)
       await updateCommissionPayment({ ...payload, ...data })
-        .then(
-          () =>
-            ElNotification({
-              message: t('reuse.updateSuccess'),
-              type: 'success'
-            }),
-          push({
-            name: `business.collaborators.paymentRequest`
-          })
-        )
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.collaborators.paymentRequest`
+            })
+        })
         .catch(() =>
           ElNotification({
             message: t('reuse.updateFail'),
@@ -484,16 +483,15 @@ const save = async () => {
         )
     } else {
       await addNewPaymentRequest(FORM_IMAGES(data))
-        .then(
-          () =>
-            ElNotification({
-              message: t('reuse.addSuccess'),
-              type: 'success'
-            }),
-          push({
-            name: `business.collaborators.paymentRequest`
-          })
-        )
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.collaborators.paymentRequest`
+            })
+        })
         .catch((error) =>
           ElNotification({
             message: error,

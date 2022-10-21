@@ -173,7 +173,7 @@ const rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -241,6 +241,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: 'products-services.AttributeCategory' }
+    })
+  }
 }
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
@@ -306,7 +312,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: 'products-services.AttributeCategory' }
     })
 }
 </script>

@@ -142,7 +142,7 @@ const rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -201,6 +201,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.BrandCategory',
+      params: { backRoute: 'products-services.BrandCategory' }
+    })
+  }
 }
 // get data from router
 const router = useRouter()
@@ -288,7 +294,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.BrandCategory',
+      params: { backRoute: 'products-services.BrandCategory' }
     })
 }
 const deleteBrand = `${t('formDemo.deleteBrand')}`

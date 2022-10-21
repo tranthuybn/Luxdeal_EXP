@@ -157,7 +157,7 @@ let rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -226,6 +226,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.ProductCategory',
+      params: { backRoute: 'products-services.ProductCategory' }
+    })
+  }
 }
 // get data from router
 const router = useRouter()
@@ -313,7 +319,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.ProductCategory',
+      params: { backRoute: 'products-services.ProductCategory' }
     })
 }
 const deleteOrigin = `${t('reuse.deleteOrigin')}`

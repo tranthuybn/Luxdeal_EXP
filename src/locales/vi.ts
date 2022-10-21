@@ -776,7 +776,7 @@ export default {
     enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
     customer: 'Khách hàng',
-    gender: 'Giới  tính',
+    gender: 'Giới tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
@@ -1536,6 +1536,7 @@ export default {
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
-    used: 'Đã xử lí'
+    used: 'Đã xử lí',
+    citizenIdentificationNumber: 'Số cccd/cmnd'
   }
 }

@@ -12,7 +12,7 @@ const propsObj = defineProps({
   },
   // options
   items: {
-    type: Array,
+    type: Array<any>,
     default: () => [],
     require: true,
     description: 'Mảng các giá trị truyền vào để chọn'
@@ -92,7 +92,9 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-  }
+    console.log('selected.value', selected.value)
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -114,10 +116,12 @@ const acceptKey = (item) => {
 //     }
 //   })
 // }
-const appearsEvent = () => {
-  const { items } = propsObj
-  options.value = items
-}
+const loadOption = ref(false)
+// const appearsEvent = () => {
+//   const { items } = propsObj
+//   options.value = items
+//   loadOption.value = false
+// }
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey } = propsObj
@@ -128,6 +132,9 @@ const valueChangeEvent = (val) => {
       }
     })
     if (obj) emit('updateValue', val, obj ?? '')
+    if (propsObj.defaultValue !== null) {
+      selected.value = propsObj.defaultValue
+    }
   }
 }
 const handleScroll = (...val) => {
@@ -142,13 +149,13 @@ onUnmounted(() => {
 </script>
 <template>
   <ElSelect
+    :loading="loadOption"
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
     class="el-select-custom"
-    @visible-change="appearsEvent"
     @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
     :disabled="disabled"
@@ -156,7 +163,7 @@ onUnmounted(() => {
     <!-- value is tje first object when click on title -->
     <ElOption
       :style="`width: ${width}`"
-      :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
+      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
@@ -177,7 +184,7 @@ onUnmounted(() => {
     </ElOption>
     <ElOption
       :style="`width: ${width}`"
-      v-for="(item, index) in options"
+      v-for="(item, index) in items"
       :key="index"
       :value="item[identifyKey]"
       :label="item[identifyLabel]"

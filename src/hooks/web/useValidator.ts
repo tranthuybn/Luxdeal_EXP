@@ -15,7 +15,7 @@ export const useValidator = () => {
     return {
       required: true,
       message: message || t('common.required'),
-      trigger: 'blur'
+      trigger: 'change'
     }
   }
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
@@ -152,7 +152,9 @@ export const useValidator = () => {
     checkDecimal: {
       validator: (_rule: any, value: any, callback: any) => {
         if (!/^[0-9]+$/.test(value)) {
-          callback(new Error(t('reuse.checkDecimal')))
+          if (value != null) {
+            callback(new Error(t('reuse.checkDecimal')))
+          }
         }
         callback()
       },
@@ -250,6 +252,19 @@ export const useValidator = () => {
         else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         else if (value % 1 !== 0) callback(new Error(t('reuse.integerNumber')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
+    maxPercent: {
+      validator: (_rule, value, callback) => {
+        if (value === '') callback(new Error(t('reuse.required')))
+        else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+        else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        else if (value % 1 !== 0) callback(new Error(t('reuse.integerNumber')))
+        else if (value > 100) callback(new Error(t('reuse.maxPercent')))
         callback()
       },
       required: true,

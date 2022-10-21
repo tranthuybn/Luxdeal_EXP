@@ -11,6 +11,7 @@ import {
   addNewCollaborators,
   updateCollaborators
 } from '@/api/Business'
+import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { getAllCustomer } from '@/api/Business'
 import { API_URL } from '@/utils/API_URL'
@@ -32,8 +33,9 @@ import {
   ElFormItem,
   ElMessage
 } from 'element-plus'
-import { FORM_IMAGES, FORM_DATA1 } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
+const { required, ValidService, notSpecialCharacters } = useValidator()
 
 const { t } = useI18n()
 
@@ -44,12 +46,12 @@ const escape = useIcon({ icon: 'quill:escape' })
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
-    name: 'information',
-    title: t('reuse.customerInfo')
+    name: 'customerInfo',
+    title: t('formDemo.detailCollaborator')
   },
   {
     icon: plusIcon,
-    name: 'information',
+    name: 'ManageSalesHistoryAndCommissionPayments',
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
@@ -145,7 +147,7 @@ const callCustomersApi = async () => {
         bankId: product.bankId,
         accountName: product.accountName,
         accountNumber: product.accountNumber,
-        bankName: product.bank.name,
+        bankName: product.bank?.name,
         CustomerId: product.id
       }))
     }
@@ -257,7 +259,7 @@ watch(
       getTableValue()
       disabledTable.value = true
     }
-    if (type === 'add') {
+    if (type === 'add' || type == ':type') {
       getGenCodeCollaborator()
 
       disabledTable.value = true
@@ -286,6 +288,7 @@ type FormDataInput = {
   CollaboratorStatus: boolean
   Discount: string
   customersValue: any
+  isActive?: boolean
 }
 type FormDataPost = {
   CustomerId: number
@@ -337,6 +340,7 @@ const setFormValue = async () => {
       }
     })
     FormData.Discount = formValue.value.discount
+    FormData.isActive = formValue.value.isActive
     CollaboratorId.value = formValue.value.code
     infoCompany.name = formValue.value.accountName
 
@@ -357,7 +361,7 @@ const setFormValue = async () => {
       FormData.CollaboratorStatus = false
     }
     FormData.customersValue = {
-      label: formValue.value.accountName + ' | MST ' + formValue.value.customer?.taxCode,
+      label: formValue.value.code + ' | ' + formValue.value.accountName,
       value: formValue.value.id
     }
     setValues(formValue.value)
@@ -396,20 +400,9 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
 }
 const rules = reactive<FormRules>({
   Discount: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-        callback()
-      },
-      required: true,
-      trigger: 'blur'
-    },
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkPositiveNumber.validator },
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (value > 100) {
@@ -421,13 +414,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  customersValue: [
-    {
-      required: true,
-      message: t('common.selectText'),
-      trigger: 'blur'
-    }
-  ]
+  customersValue: [required()]
 })
 const clear = async () => {
   ;(infoCompany.name = ''),
@@ -481,10 +468,10 @@ const save = async () => {
           })
         )
     }
-    // push({
-    //   name: 'business.collaborators.collaboratorsList',
-    //   params: { backRoute: 'business.collaborators.collaboratorsList' }
-    // })
+    push({
+      name: 'business.collaborators.collaboratorsList',
+      params: { backRoute: 'business.collaborators.collaboratorsList' }
+    })
   }
 }
 const utility = 'Utility'
@@ -494,12 +481,12 @@ const fix = async () => {
     params: { id: id, type: 'edit' }
   })
 }
-const activeName = ref('1')
+const activeName = ref(collapse[0].name)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item :icon="false" name="1">
+      <el-collapse-item :icon="false" :name="collapse[0].name">
         <template #title>
           <div class="flex w-[100%] justify-between">
             <div class="before">
@@ -531,7 +518,7 @@ const activeName = ref('1')
               <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
                 <div>{{ CollaboratorId }}</div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.discountCollaborator')" prop="Discount">
+              <ElFormItem class="mb-7" :label="t('formDemo.discountCollaborator')" prop="Discount">
                 <ElInput
                   v-model="FormData.Discount"
                   size="default"
@@ -539,7 +526,10 @@ const activeName = ref('1')
                   :suffixIcon="h('div', '%')"
                 />
               </ElFormItem>
-              <ElFormItem class="mb-4" :label="t('formDemo.chooseACustomer')" prop="customersValue">
+              <el-divider class="mt-10" content-position="left">{{
+                t('reuse.customerInfo')
+              }}</el-divider>
+              <ElFormItem class="mt-5" :label="t('formDemo.chooseACustomer')" prop="customersValue">
                 <ElSelect
                   v-model="FormData.customersValue"
                   filterable
@@ -557,42 +547,42 @@ const activeName = ref('1')
                   />
                 </ElSelect>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">
+                <div class="leading-6">
                   <div>{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
+                <div class="leading-6">
                   <div>{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative">
+                <div class="leading-6">
                   <div>{{ infoCompany.representative }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber">
+                <div class="leading-6">
                   <div>{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email">
+                <div class="leading-6">
                   <div>{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
+                <div class="leading-6">
                   <div>{{ infoCompany.address }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="align-items: flex-start"
                 :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode !== ''"
+                v-if="infoCompany.taxCode"
               >
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.accountName }}</div>
                   <div>{{ infoCompany.accountNumber }}</div>
                   <div>{{ infoCompany.bankName }}</div>
@@ -606,14 +596,23 @@ const activeName = ref('1')
                     v-model="FormData.CollaboratorStatus"
                     :label="t('formDemo.isActive')"
                     size="large"
-                    :disabled="type === 'add' || type === ''"
+                    :disabled="type === 'add' || type == ':type'"
                   />
                 </div>
                 <div class="flex gap-2 pb-8">
-                  <div class="w-[80%]"
-                    ><span class="pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-                      t('reuse.approval')
-                    }}</span>
+                  <div
+                    v-if="type === 'add' || type === ':type' || FormData.isActive == false"
+                    class="w-[80%]"
+                    ><span
+                      class="pl-4 pr-6 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent"
+                      >{{ t('reuse.approval') }}</span
+                    >
+                  </div>
+                  <div v-else class="w-[80%]"
+                    ><span
+                      class="bg-[#1C6DD0] pl-4 pr-6 text-[#FFFFFF] leading-5 dark:bg-transparent"
+                      >{{ t('reuse.confirmed') }}</span
+                    >
                   </div>
                 </div>
               </ElFormItem>
@@ -642,8 +641,8 @@ const activeName = ref('1')
                   :disabled="disabledForm"
                 >
                   <el-dialog v-model="dialogVisible">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
                     >
                   </el-dialog>
                 </el-upload>
@@ -670,7 +669,7 @@ const activeName = ref('1')
           <ElButton class="min-w-42" @click="cancel()"> {{ t('reuse.cancel') }} </ElButton>
         </div>
       </el-collapse-item>
-      <el-collapse-item :disabled="disabledTable" name="2">
+      <el-collapse-item :disabled="disabledTable" :name="collapse[1].title">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
@@ -741,7 +740,9 @@ const activeName = ref('1')
 .el-button--text {
   margin-right: 15px;
 }
-
+::v-deep(.el-divider--horizontal) {
+  margin: 40px 0 24px 0;
+}
 ::v-deep(.el-input) {
   width: auto;
 }

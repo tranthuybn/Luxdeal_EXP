@@ -29,12 +29,26 @@ export const formatRankingCustomer = (val) => {
 }
 export const formatSubjectVoucher = (val) => {
   switch (val) {
-    case 1:
+    case 3:
       return t('reuse.allCustomer')
     case 2:
       return t('reuse.groupCustomer')
-    case 3:
+    case 1:
       return t('reuse.onlyCustomer')
+    default:
+      return ''
+  }
+}
+export const formatStatusVoucher = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.finishPending')
+    case 2:
+      return t('reuse.inactive')
+    case 3:
+      return t('reuse.active')
     default:
       return ''
   }
@@ -122,6 +136,51 @@ export const businessStatusTransferToText = (val) => {
   return `${t('reuse.inactive')}`
 }
 
+export const campaignType = (val) => {
+  switch (val) {
+    case 1:
+      return t('router.flashsale')
+    case 2:
+      return t('router.collection')
+    case 3:
+      return t('router.newproduct')
+    case 4:
+      return t('router.voucher')
+    case 5:
+      return t('router.combo')
+    default:
+      return t('router.flashsale')
+  }
+}
+
+export const TargetType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.customer')
+    case 2:
+      return t('reuse.groupCustomer')
+    case 3:
+      return t('reuse.allCustomer')
+    default:
+      return t('reuse.customer')
+  }
+}
+
+export const VoucherType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.freeVouchers')
+    case 2:
+      return t('reuse.voucherAffiliate')
+    case 3:
+      return t('reuse.redeemGiftVouchersWithPoints')
+    case 4:
+      return t('reuse.voucherExchangedForVirtualCurrency')
+    default:
+      return t('reuse.freeVouchers')
+  }
+}
+
 export const dateTimeFormat = (val) => {
   return moment(val).format('DD/MM/YYYY')
 }
@@ -193,6 +252,9 @@ export default {
   businessIventoryStatusTransferToText,
   dateTimeFormat,
   collaboratorStatusTransferToText,
+  campaignType,
+  TargetType,
+  VoucherType,
   valueDateFormat,
   dateFormType,
   dateTimeDisable

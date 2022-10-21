@@ -12,7 +12,7 @@ import {
   businessIventoryStatusTransferToText,
   businessStatusTransferToText
 } from '@/utils/format'
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import { reactive, h } from 'vue'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 

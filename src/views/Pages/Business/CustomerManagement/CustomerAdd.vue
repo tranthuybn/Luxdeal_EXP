@@ -264,7 +264,6 @@ const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
@@ -327,7 +326,6 @@ const handlePictureCardPreview = (file: UploadFile) => {
 const cities = ref()
 const district = ref()
 const ward = ref()
-const street = ref()
 const valueCommune = ref('')
 const enterdetailAddress = ref([])
 const callApiCity = async () => {
@@ -375,6 +373,7 @@ const postData = async () => {
 }
 
 const postAccount = async () => {
+  await submitForm(ruleFormRef.value, ruleFormRef2.value)
   const payload = {
     fullName: ruleForm.name,
     email: ruleForm.email,
@@ -516,7 +515,7 @@ onBeforeMount(() => {
                   v-model="ruleForm.referralCode"
                   class="w-[80%] outline-none pl-2 dark:bg-transparent"
                   type="text"
-                  :placeholder="t('reuse.referralCode')"
+                  :placeholder="t('reuse.enterReferralCode')"
               /></ElFormItem>
 
               <el-divider content-position="left">{{
@@ -977,9 +976,9 @@ onBeforeMount(() => {
               :disabled="disableData"
             >
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
                 <div class="flex gap-4">
-                  <div class="about-image">
+                  <div class="about-image ml-10">
                     <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
                     <p style="color: orange" class="text-xs text-right">{{
                       t('formDemo.lessThanTenProfiles')
@@ -992,8 +991,8 @@ onBeforeMount(() => {
                       :auto-upload="false"
                       prop="Files"
                     >
-                      <ElButton :icon="addIcon" class="avatar-uploader-icon mx-2" />
-                      <span>{{ t('formDemo.addPhotosOrFiles') }}</span>
+                      <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon mx-2" /> -->
+                      <span>+ {{ t('formDemo.addPhotosOrFiles') }}</span>
                       <template #file="{ file }">
                         <div>
                           <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -1024,7 +1023,7 @@ onBeforeMount(() => {
                 </div>
               </div>
 
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-[68px]">
                 <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
 
                 <ElFormItem
@@ -1035,7 +1034,7 @@ onBeforeMount(() => {
                     v-model="valueProvince"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectProvinceCity')"
                     @change="(data) => CityChange(data)"
                   >
                     <el-option
@@ -1054,7 +1053,7 @@ onBeforeMount(() => {
                     v-model="valueDistrict"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectCountyOrDistrict')"
                     @change="(data) => districtChange(data)"
                   >
                     <el-option
@@ -1070,7 +1069,7 @@ onBeforeMount(() => {
                     v-model="valueCommune"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.selectWardOrCommune')"
                   >
                     <el-option
                       v-for="item in ward"
@@ -1084,25 +1083,18 @@ onBeforeMount(() => {
                   class="flex w-[100%] items-center"
                   :label="t('formDemo.detailedAddress')"
                 >
-                  <el-select
+                  <el-input
                     v-model="enterdetailAddress"
                     style="width: 96%"
                     class="m-2 fix-full-width"
-                    placeholder="Select"
+                    :placeholder="t('reuse.enterDetailedAddress')"
                     clearable
                     filterable
                     allow-create
-                  >
-                    <el-option
-                      v-for="item in street"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                  />
                 </ElFormItem>
               </div>
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
 
                 <ElFormItem
@@ -1151,7 +1143,7 @@ onBeforeMount(() => {
                   </el-select>
                 </ElFormItem>
               </div>
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
                 <div v-if="type == 'add'">
                   <Qrcode />

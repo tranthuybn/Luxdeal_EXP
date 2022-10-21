@@ -39,8 +39,12 @@ export const CustomerList = [
     label: t('reuse.gender'),
     minWidth: '100',
     filters: filterGender,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return cellValue ? h('div', 'Nam') : h('div', 'Nữ')
+    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
+      return row['isOrganization']
+        ? ''
+        : cellValue
+        ? h('div', t('reuse.male'))
+        : h('div', t('reuse.female'))
     }
   },
   {

@@ -644,7 +644,7 @@ const customizeData = async (formData) => {
   setFormData.ProductCode = formData.productCode
   setFormData.ShortDescription = formData.shortDescription
   setFormData.Name = formData.name
-  setFormData.Description = formData.description
+  setFormData.Description = formData.description ?? ''
   setFormData.VerificationInfo = formData.verificationInfo
   setFormData.HireInventoryStatus = formData.hireInventoryStatus
   setFormData.SellInventoryStatus = formData.sellInventoryStatus

@@ -10,9 +10,9 @@ import {
   filterSubject,
   filterVoucherType,
   filterVoucherCondition,
-  filterVoucherStatus
+  filterTableStatus
 } from '@/utils/filters'
-import { dateTimeFormat, formatSubjectVoucher } from '@/utils/format'
+import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
 import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRouter } from 'vue-router'
@@ -114,9 +114,9 @@ const columns = reactive<TableColumn[]>([
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterVoucherStatus,
+    filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return formatStatusVoucher(cellValue)
     }
   },
   {

@@ -551,8 +551,6 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
-// const initialRadio = ref(false)
-
 const currentRow = ref()
 
 let checkPromo = ref(false)
@@ -616,10 +614,22 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
+// interface tableOrderDetailType {
+//   productPropertyId: number
+//   quantity: number
+//   accessory: string
+// }
+// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  // tableOrderDetail.value = ListOfProductsForSale.value.map((e) => {
+  //   productPropertyId: e.productPropertyId,
+  //   quantity: e.quantity,
+  //   accessory: e.accessory
+  // })
   const payload = {
     serviceType: 1,
     fromDate: '2022-10-19T09:38:04.730Z',

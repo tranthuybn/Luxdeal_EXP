@@ -1,6 +1,6 @@
-import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
+import { ERP_DOMAIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
-export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
+export const LOGIN_API_URL = ERP_DOMAIN
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -81,9 +81,9 @@ export const ORDER_API = {
   TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
 }
 export const ADDRESS_API = {
-  CITY: '/api/addr/getAllCity',
-  DISTRICT: '/api/addr/getDistrict',
-  WARD: '/api/addr/getWard',
+  CITY: '/api/v1/Address/getAllCity',
+  DISTRICT: '/api/v1/Address/getDistrictByCityId',
+  WARD: '/api/v1/Address/getWardByDistrictId',
   STREET: '/api/addr/getStreet'
 }
 export const ACCOUNTANT_API = {

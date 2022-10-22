@@ -120,11 +120,9 @@ watch(
   () => {
     options.value = propsObj.items
     loadOption.value = true
-    console.log('options', options.value)
   }
 )
 const valueChangeEvent = (val) => {
-  console.log('items', propsObj.items)
   if (val) {
     const { items, valueKey } = propsObj
     // find label
@@ -148,7 +146,6 @@ onBeforeMount(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
-console.log('items', propsObj.items, propsObj.valueKey, options.value)
 </script>
 <template>
   <ElSelect
@@ -189,8 +186,8 @@ console.log('items', propsObj.items, propsObj.valueKey, options.value)
       :style="`width: ${width}`"
       v-for="item in options"
       :key="item.value"
-      :value="item[`${identifyKey}`]"
-      :label="item[`${identifyLabel}`]"
+      :value="item[`${identifyKey}`] ?? ''"
+      :label="item[`${identifyLabel}`] ?? ''"
       :disabled="disabled"
     >
       <div class="select-table">

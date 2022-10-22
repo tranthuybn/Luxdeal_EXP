@@ -441,7 +441,17 @@ export default {
     rentalEndDate: 'Rental end date',
     rentalFeePaymentSlip: 'Rental fee payment slip',
     depositSlip: 'Deposit slip',
-    initializationDate: 'Initialization date'
+    initializationDate: 'Initialization date',
+    totalSalesDebt: 'Total sales debt',
+    infoCouponExportExchange: 'Information coupon export and exchange',
+    invoiceForGoodsEntering: 'Invoice for goods entering',
+    productInformationExportChange: 'Product information export and change',
+    completeOrder: 'Complete order',
+    editOrder: 'Edit order',
+    exchangeReturnGoods: 'Exchange or return goods',
+    checkFinish: 'Check and finish',
+    cancellationReturn: 'Cancellation or return',
+    completeExchangeReturn: 'Complete exchange or return'
   },
   button: {
     add: 'Add quick',

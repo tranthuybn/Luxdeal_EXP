@@ -459,7 +459,17 @@ export default {
     rentalEndDate: 'Ngày kết thúc thuê',
     rentalFeePaymentSlip: 'Phiếu thanh toán phí thuê',
     depositSlip: 'Phiếu đặt cọc',
-    initializationDate: 'Ngày khởi tạo'
+    initializationDate: 'Ngày khởi tạo',
+    totalSalesDebt: 'Tổng công nợ bán hàng',
+    infoCouponExportExchange: 'Thông tin phiếu xuất đổi',
+    invoiceForGoodsEntering: 'Phiếu nhập hoàn',
+    productInformationExportChange: 'Thông tin sản phẩm xuất đổi',
+    completeOrder: 'Hoàn thành đơn hàng',
+    editOrder: 'Sửa đơn hàng',
+    exchangeReturnGoods: 'Đổi/Trả hàng',
+    checkFinish: 'Đối soát & kết thúc',
+    cancellationReturn: 'Hủy đổi/Trả hàng',
+    completeExchangeReturn: 'Hoàn thành đổi/Trả hàng'
   },
   button: {
     add: 'Thêm nhanh',

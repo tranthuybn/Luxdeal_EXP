@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
+import { dateTimeFormat } from '@/utils/format'
+
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
 import { TableBase } from '../../Components/TableBase/index'
@@ -147,7 +149,12 @@ const callCustomersApi = async () => {
         accountName: product.accountName,
         accountNumber: product.accountNumber,
         bankName: product.bank?.name,
-        CustomerId: product.id
+        CustomerId: product.id,
+        cccd: product.cccd,
+        cccdCreateAt: product.cccdCreateAt,
+        cccdPlaceOfGrant: product.cccdPlaceOfGrant,
+        sex: product.sex,
+        doB: product.doB
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -167,7 +174,12 @@ let infoCompany = reactive({
   accountName: '',
   accountNumber: '',
   bankName: '',
-  CustomerId: ''
+  CustomerId: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  sex: '',
+  doB: ''
 })
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -186,6 +198,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CustomerId = result.CustomerId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     } else {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -199,6 +216,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CustomerId = result.CustomerId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     }
   } else {
     customerAddress.value = ''
@@ -355,7 +377,11 @@ const setFormValue = async () => {
     infoCompany.bankName = formValue.value.bank?.name
     infoCompany.bankId = formValue.value.bankId
     infoCompany.CustomerId = formValue.value.customerId
-
+    infoCompany.cccd = formValue.value.customer?.cccd
+    infoCompany.cccdCreateAt = formValue.value.customer?.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = formValue.value.customer?.cccdPlaceOfGrant
+    infoCompany.sex = formValue.value.customer?.sex
+    infoCompany.doB = formValue.value.customer?.doB
     if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = true
     } else if (formValue.value.status === 0) {
@@ -591,47 +617,47 @@ const activeName = ref(collapse[0].name)
                 class="w-[33%]"
                 style="display: inline-block"
                 :label="t('reuse.citizenIdentificationNumber')"
-                v-if="infoCompany.phonenumber"
+                v-if="infoCompany.cccd"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div>{{ infoCompany.cccd }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="display: inline-block"
                 :label="t('formDemo.supplyDate')"
-                v-if="infoCompany.phonenumber"
+                v-if="infoCompany.cccdCreateAt"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="display: inline-block"
                 :label="t('formDemo.supplyAddress')"
-                v-if="infoCompany.phonenumber"
+                v-if="infoCompany.cccdPlaceOfGrant"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 class="w-[33%]"
                 style="display: inline-block"
                 :label="t('reuse.dateOfBirth')"
-                v-if="infoCompany.phonenumber"
+                v-if="infoCompany.doB"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="display: inline-block"
                 :label="t('reuse.gender')"
-                v-if="infoCompany.phonenumber"
+                v-if="infoCompany.sex"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">

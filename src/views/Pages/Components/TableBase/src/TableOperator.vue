@@ -517,6 +517,9 @@ const listType = ref<ListImages>('text')
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
+        <ElButton :loading="loading" @click="cancel()">
+          {{ t('reuse.cancel') }}
+        </ElButton>
       </div>
       <div v-if="props.type === 'detail'">
         <ElButton :loading="loading" @click="edit">

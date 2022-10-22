@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { dateTimeFormat } from '@/utils/format'
-
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
@@ -163,7 +162,12 @@ const callCustomersApi = async () => {
         bankId: collaborator.bankId,
         accountNumber: collaborator.customer?.accountNumber,
         bankName: collaborator.bank?.name,
-        CollaboratorId: collaborator.id
+        CollaboratorId: collaborator.id,
+        cccd: collaborator.customer?.cccd,
+        cccdCreateAt: collaborator.customer?.cccdCreateAt,
+        cccdPlaceOfGrant: collaborator.customer?.cccdPlaceOfGrant,
+        sex: collaborator.customer?.sex,
+        doB: collaborator.customer?.doB
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -183,7 +187,12 @@ let infoCompany = reactive({
   accountName: '',
   accountNumber: '',
   bankName: '',
-  CollaboratorId: ''
+  CollaboratorId: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  sex: '',
+  doB: ''
 })
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -201,6 +210,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CollaboratorId = result.CollaboratorId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     } else {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.accountNumber = result.accountNumber
@@ -213,6 +227,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CollaboratorId = result.CollaboratorId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     }
   } else {
     customerAddress.value = ''
@@ -375,6 +394,11 @@ const setFormValue = async () => {
     infoCompany.address = formValue.value.collaborator?.customer?.address
     infoCompany.accountNumber = formValue.value.collaborator?.customer?.accountNumber
     infoCompany.bankName = formValue.value.collaborator?.customer?.bank?.name
+    infoCompany.cccd = formValue.value.collaborator?.customer?.cccd
+    infoCompany.cccdCreateAt = formValue.value.collaborator?.customer?.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = formValue.value.collaborator?.customer?.cccdPlaceOfGrant
+    infoCompany.sex = formValue.value.collaborator?.customer?.sex
+    infoCompany.doB = formValue.value.collaborator?.customer?.doB
     FormData.ReceiptOrPaymentVoucherId = formValue.value.receiptOrPaymentVoucherId
     FormData.PaymentOrder = formValue.value.paymentOrder
     if (formValue.value.status === 1) {
@@ -562,37 +586,89 @@ const activeName = ref(collapse[0].title)
                   />
                 </ElSelect>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code !== ''">
+              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code">
                 <div class="leading-6">
                   <div>{{ infoCompany.code }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name !== ''">
+              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name">
                 <div class="leading-6">
                   <div>{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode !== ''">
+              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
                 <div class="leading-6">
                   <div>{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative !== ''">
-                <div class="leading-6">
-                  <div>{{ infoCompany.representative }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber !== ''">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.phoneNumber')"
+                v-if="infoCompany.phonenumber"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email !== ''">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[50%]"
+                style="display: inline-block"
+                :label="t('reuse.email')"
+                v-if="infoCompany.email"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address !== ''">
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.citizenIdentificationNumber')"
+                v-if="infoCompany.cccd"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccd }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyDate')"
+                v-if="infoCompany.cccdCreateAt"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyAddress')"
+                v-if="infoCompany.cccdPlaceOfGrant"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.dateOfBirth')"
+                v-if="infoCompany.doB"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('reuse.gender')"
+                v-if="infoCompany.sex"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
                 <div class="leading-6">
                   <div>{{ infoCompany.address }}</div>
                 </div>
@@ -600,7 +676,7 @@ const activeName = ref(collapse[0].title)
               <ElFormItem
                 style="align-items: flex-start"
                 :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode !== ''"
+                v-if="infoCompany.taxCode"
               >
                 <div class="leading-6 mt-1">
                   <div>{{ infoCompany.accountName }}</div>
@@ -783,6 +859,10 @@ const activeName = ref(collapse[0].title)
   display: block;
 }
 
+::v-deep(.el-form-item__content) {
+  display: inline-block;
+}
+
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
     max-width: 100%;
@@ -804,7 +884,9 @@ const activeName = ref(collapse[0].title)
 .el-button--text {
   margin-right: 15px;
 }
-
+::v-deep(.el-divider--horizontal) {
+  margin: 40px 0 24px 0;
+}
 ::v-deep(.el-input) {
   width: auto;
 }

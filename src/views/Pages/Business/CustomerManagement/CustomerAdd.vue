@@ -49,8 +49,7 @@ const disabledDate = (time: Date) => {
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const customerClassification = ref('Khách hàng')
-const valueProvince = ref('')
-const valueDistrict = ref('')
+
 const { ValidService, notSpace } = useValidator()
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -193,7 +192,11 @@ let ruleForm = reactive({
   userName: '',
   isActive: true,
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  ProvinceId: '',
+  DistrictId: '',
+  WardId: '',
+  Address: ''
 })
 const formValue = ref()
 //get data from table
@@ -231,8 +234,8 @@ const getTableValue = async () => {
       if (element.file !== null) {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName,
-          id: element?.file?.id
+          name: element?.file?.fileName
+          // id: element?.file?.id
         })
       }
     })
@@ -245,11 +248,27 @@ const getTableValue = async () => {
     ruleForm.email = formValue.value.email
     ruleForm.phonenumber = formValue.value.phonenumber
     ruleForm.link = formValue.value.link
-    ruleForm.bankName = formValue.value.bank.name
+    ruleForm.bankName = formValue.value.bank?.name
     ruleForm.accountNumber = formValue.value.accountNumber
     ruleForm.doB = formValue.value.doB
     ruleForm.taxCode = formValue.value.taxCode
     ruleForm.userName = formValue.value.userName
+    ruleForm.Address = formValue.value.address
+    ruleForm.ProvinceId = formValue.value.provinceId
+    ruleForm.DistrictId = formValue.value.districtId
+    ruleForm.WardId = formValue.value.wardId
+
+    await callApiCity()
+    await CityChange(formValue.value.provinceId)
+    await districtChange(formValue.value.districtId)
+    console.log('cities.value', cities, cities.value, formValue.value.provinceId)
+    const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
+    valueProvince.value = result1.label
+    const result2 = district.value.find((e) => e.value == formValue.value.districtId)
+    valueDistrict.value = result2.label
+
+    const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
+    valueCommune.value = result3.label
   }
 }
 
@@ -320,19 +339,25 @@ const cities = ref()
 const district = ref()
 const ward = ref()
 const valueCommune = ref('')
-const enterdetailAddress = ref([])
+const valueProvince = ref('')
+const valueDistrict = ref('')
 const callApiCity = async () => {
   cities.value = await getCity()
+  cities.value
 }
 
 const CityChange = async (value) => {
+  ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
 }
 
 const districtChange = async (value) => {
+  ruleForm.DistrictId = value
   ward.value = await getWard(value)
 }
-
+const wardChange = async (value) => {
+  ruleForm.WardId = value
+}
 const clear = async () => {
   ;(ruleForm.customerCode = ''),
     (ruleForm.referralCode = ''),
@@ -365,9 +390,10 @@ const postCustomer = async () => {
     Phonenumber: ruleForm.phonenumber,
     Email: ruleForm.email,
     DoB: ruleForm.doB,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 'trieu khuc',
+    ProvinceId: ruleForm.ProvinceId,
+    DistrictId: ruleForm.DistrictId,
+    WardId: ruleForm.WardId,
+    Address: ruleForm.Address,
     CCCD: ruleForm.cccd,
     CCCDCreateAt: ruleForm.cccdCreateAt,
     CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
@@ -452,23 +478,6 @@ const change = () => {
 }
 const ListFileUpload = ref<UploadUserFile[]>([])
 const disabledForm = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'detail') {
-      disabledForm.value = true
-    }
-    if (type === 'detail' || type === 'edit') {
-      getTableValue()
-    }
-    if (type === 'add' || type == ':type') {
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
@@ -498,7 +507,6 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
 onBeforeMount(() => {
   change()
   callApiCity()
-  getTableValue()
   getGenCodeCustomer()
 })
 </script>
@@ -1084,6 +1092,7 @@ onBeforeMount(() => {
                     style="width: 96%"
                     class="m-2 fix-full-width"
                     :placeholder="t('reuse.selectWardOrCommune')"
+                    @change="(data) => wardChange(data)"
                   >
                     <el-option
                       v-for="item in ward"
@@ -1098,7 +1107,7 @@ onBeforeMount(() => {
                   :label="t('formDemo.detailedAddress')"
                 >
                   <el-input
-                    v-model="enterdetailAddress"
+                    v-model="ruleForm.Address"
                     style="width: 96%"
                     class="m-2 fix-full-width"
                     :placeholder="t('reuse.enterDetailedAddress')"

@@ -11,6 +11,12 @@ import { h } from 'vue'
 import { dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
 
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
+
 //Đơn bán hàng
 export const sellOrder = [
   {
@@ -89,14 +95,22 @@ export const sellOrder = [
     label: t('reuse.totaMoney'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalPrice))
+      return x
+    }
   },
   {
     field: 'totalDebt',
-    label: t('reuse.outstandingDebt'),
+    label: t('formDemo.totalSalesDebt'),
     minWidth: '130',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalDebt))
+      return x
+    }
   },
   {
     field: 'receiptAndExpenditure',
@@ -192,18 +206,6 @@ export const rentalorder = [
         })
       )
     }
-  },
-  {
-    field: 'productManagementCode',
-    label: t('formDemo.productManagementCode'),
-    minWidth: '170',
-    headerFilter: 'Name'
-  },
-  {
-    field: 'productInformation',
-    label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
   },
   {
     field: 'totalQuantity',

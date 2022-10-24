@@ -75,27 +75,29 @@ const ruleForm = reactive({
   orderFiles: []
 })
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   discount: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
@@ -2578,6 +2580,7 @@ onMounted(async () => {
           </div>
         </template>
       </el-dialog>
+
       <!-- Bút toán bổ sung -->
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
@@ -2863,11 +2866,8 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"

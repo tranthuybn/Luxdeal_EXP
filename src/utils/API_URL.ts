@@ -54,15 +54,41 @@ export const CUSTOMER_API = {
   GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
   UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
-  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings'
+  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
+  GET_PAYMENT_REQUEST_LIST_API: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_COMMISSION_PAYMENT_API: 'api/v1/Customer/getCommissionPayment',
+  GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
+  GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
+  ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  POST_AUTH_REGISTER: '/api/auth/register'
 }
+
+export const CAMPAIGN_API = {
+  GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
+  POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
+  GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
+  UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign'
+}
+
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
-  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder'
+  ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
+  CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
+  CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
+  GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
+  ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer',
+  TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
 }
 export const ADDRESS_API = {
-  CITY: '/api/addr/getAllCity',
-  DISTRICT: '/api/addr/getDistrict',
-  WARD: '/api/addr/getWard',
+  CITY: '/api/v1/Address/getAllCity',
+  DISTRICT: '/api/v1/Address/getDistrictByCityId',
+  WARD: '/api/v1/Address/getWardByDistrictId',
   STREET: '/api/addr/getStreet'
+}
+export const ACCOUNTANT_API = {
+  PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
+  POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
+  PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment'
 }

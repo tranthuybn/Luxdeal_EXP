@@ -1,17 +1,21 @@
 <script setup lang="ts">
+import { dateTimeFormat } from '@/utils/format'
+
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
-  getCollaboratorsById,
-  getGenCodeCollaborators,
-  addNewCollaborators,
-  updateCollaborators
+  getCommissionPaymentByIdList,
+  addNewPaymentRequest,
+  updateCommissionPayment,
+  getCollaboratorsList,
+  getPaymentList,
+  getReceiptPaymentList
 } from '@/api/Business'
 import { useRouter } from 'vue-router'
-import { getAllCustomer } from '@/api/Business'
 import { API_URL } from '@/utils/API_URL'
 import {
   ElCollapse,
@@ -33,7 +37,7 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
-
+import moment from 'moment'
 const { t } = useI18n()
 
 const { push } = useRouter()
@@ -44,28 +48,28 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'information',
-    title: t('reuse.customerInfo')
+    title: t('router.detailPaymentRequest')
   }
 ]
 const dialogVisible = ref(false)
 // const disabled = ref(false)
 const disabledTable = ref(false)
-
-let CollaboratorId = ref()
-const getGenCodeCollaborator = async () => {
-  await getGenCodeCollaborators({})
-    .then((res) => {
-      CollaboratorId.value = res
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-  CollaboratorId
-}
+var curDate = 'HH' + moment().format('hhmmss')
+let requestCode = ref('')
+// const getGenCodeCollaborator = async () => {
+//   await getGenCodeCollaborators({})
+//     .then((res) => {
+//       CollaboratorId.value = res
+//     })
+//     .catch((err) => {
+//       console.error(err)
+//     })
+//   CollaboratorId
+// }
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
+      if (val.includes(el.title)) el.icon = minusIcon
       else if (el.icon == minusIcon) el.icon = plusIcon
     })
   } else
@@ -76,30 +80,90 @@ const collapseChangeEvent = (val) => {
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 
+// Call api danh sách sản phẩm
+let listReceiptPaymentRequest = ref()
+let listPaymentRequest = ref()
+const listPayments = ref()
+let optionsPaymentApi = ref()
+let optionsReceiptPaymentApi = ref()
+
+let optionCallAPi = 0
+const callAPiPaymentRequest = async () => {
+  if (optionCallAPi == 0) {
+    const res = await getPaymentList({})
+    listPayments.value = res.data
+    optionsPaymentApi.value = listPayments.value.map((payment) => ({
+      code: payment.code,
+      paymentType: payment.paymentType ? 'Thu' : 'Chi',
+      totalMoney: payment.totalMoney,
+      createdAt: dateTimeFormat(payment.createdAt),
+      createdBy: payment.createdBy
+    }))
+    optionCallAPi++
+    listPaymentRequest.value = optionsPaymentApi.value
+  }
+}
+let optionReceiptPaymentCallAPi = 0
+const callAPiReceiptPaymentRequest = async () => {
+  if (optionReceiptPaymentCallAPi == 0) {
+    const res = await getReceiptPaymentList({})
+    listPayments.value = res.data
+    optionsReceiptPaymentApi.value = listPayments.value.map((payment) => ({
+      code: payment.code,
+      paymentType: payment.paymentType ? 'Thu' : 'Chi',
+      totalMoney: payment.totalMoney,
+      createdAt: dateTimeFormat(payment.createdAt),
+      createdBy: payment.createdBy
+    }))
+    optionReceiptPaymentCallAPi++
+    listReceiptPaymentRequest.value = optionsReceiptPaymentApi.value
+  }
+}
+const ReceiptOrPaymentId = ref()
+const changeNameReceiptPayment = (_value, obj, _scope) => {
+  ReceiptOrPaymentId.value = obj.code
+}
+const PaymentId = ref()
+const changeNamePayment = (_value, obj, _scope) => {
+  PaymentId.value = obj.code
+}
+// const changeNameReceiptPayment = (optionID, scope) => {
+//   const option = optionsReceiptPaymentApi.value.find((option) => option.code == optionID)
+//   scope.row.code = option.code
+//   scope.row.typeOfPayment = option.typeOfPayment
+//   scope.row.totalMoney = option.totalMoney
+//   scope.row.createdAt = option.createdAt
+//   scope.row.createdBy = option.createdBy
+// }
+// const changeNamePayment = (optionID, scope) => {
+//   const option = optionsPaymentApi.value.find((option) => option.code == optionID)
+//   scope.row.code = option.code
+//   scope.row.paymentType = option.paymentType
+//   scope.row.totalMoney = option.totalMoney
+//   scope.row.createdAt = option.createdAt
+//   scope.row.createdBy = option.createdBy
+// }
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 1000 })
+    const res = await getCollaboratorsList({ PageIndex: 1, PageSize: 1000 })
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
-        name: product.name,
-        taxCode: product.taxCode,
-        phonenumber: product.phonenumber,
-        email: product.email,
-        representative: product.representative,
-        bankId: product.bankId,
-        accountName: product.accountName,
-        accountNumber: product.accountNumber,
-        bankName: product.bank.name,
-        CustomerId: product.id
+      optionsCustomerApi.value = getCustomerResult.map((collaborator) => ({
+        label: collaborator.code + ' | ' + collaborator.accountName,
+        value: collaborator.code,
+        code: collaborator.code,
+        accountName: collaborator.accountName,
+        taxCode: collaborator.customer?.taxCode,
+        representative: collaborator.customer?.representative,
+        phonenumber: collaborator.customer?.phonenumber,
+        email: collaborator.customer?.email,
+        address: collaborator.customer?.address,
+        bankId: collaborator.bankId,
+        accountNumber: collaborator.customer?.accountNumber,
+        bankName: collaborator.bank?.name,
+        CollaboratorId: collaborator.id
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -108,6 +172,7 @@ const callCustomersApi = async () => {
 }
 let profileCustomer = ref()
 let infoCompany = reactive({
+  code: '',
   name: '',
   taxCode: '',
   phone: '',
@@ -115,11 +180,10 @@ let infoCompany = reactive({
   representative: '',
   phonenumber: '',
   address: '',
-  bankId: '',
   accountName: '',
   accountNumber: '',
   bankName: '',
-  CustomerId: ''
+  CollaboratorId: ''
 })
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -127,30 +191,28 @@ const changeAddressCustomer = (data) => {
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
+      infoCompany.accountNumber = result.accountNumber
       infoCompany.taxCode = result.taxCode
       infoCompany.email = result.email
       infoCompany.representative = result.representative
       infoCompany.phonenumber = result.phonenumber
       infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
       infoCompany.accountName = result.accountName
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
+      infoCompany.CollaboratorId = result.CollaboratorId
     } else {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
+      infoCompany.accountNumber = result.accountNumber
       infoCompany.taxCode = result.taxCode
       infoCompany.email = result.email
       infoCompany.representative = result.representative
       infoCompany.phonenumber = result.phonenumber
       infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
       infoCompany.accountName = result.accountName
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
+      infoCompany.CollaboratorId = result.CollaboratorId
     }
   } else {
     customerAddress.value = ''
@@ -163,8 +225,9 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
+  console.log('formValue', formValue)
   if (!isNaN(id)) {
-    const res = await getCollaboratorsById({ id: id })
+    const res = await getCommissionPaymentByIdList({ id: id })
     if (res && res.data) {
       formValue.value = res.data
       await setFormValue()
@@ -187,7 +250,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, _fields) => {
     if (valid) {
-      console.log('submit!')
       checkValidate.value = true
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -211,9 +273,7 @@ watch(
       getTableValue()
       disabledTable.value = true
     }
-    if (type === 'add') {
-      getGenCodeCollaborator()
-
+    if (type === 'add' || !type) {
       disabledTable.value = true
     }
   },
@@ -237,33 +297,22 @@ defineExpose({
 
 type FormDataInput = {
   CollaboratorStatus: boolean
-  Discount: string
-  customersValue: any
+  Price: string
+  collaboratorValue: any
+  Code: string
+  ReceiptOrPaymentVoucherId: string
+  PaymentOrder: string
 }
 type FormDataPost = {
-  CustomerId: number
+  CollaboratorId: string
   Code: string
-  Status: number
-  Discount: number
-  AccountNumber: string
-  AccountName: string
-  BankId: number
+  Status?: number
+  Price: number
+  ReceiptOrPaymentVoucherId: string
+  PaymentOrder: string
   Files?: any
 }
-const EmptyCustomData = {} as FormDataInput
-let FormData = reactive(EmptyCustomData)
-const customPostData = (FormData) => {
-  const customData = {} as FormDataPost
-  customData.CustomerId = parseInt(infoCompany.CustomerId)
-  customData.Code = CollaboratorId.value
-  customData.Discount = parseInt(FormData.Discount)
-  customData.AccountNumber = infoCompany.accountNumber
-  customData.AccountName = infoCompany.accountName
-  customData.BankId = parseInt(infoCompany.bankId)
-  customData.Files = ListFileUpload.value.map((file) => file.raw)
-  FormData.CollaboratorStatus ? (customData.Status = 1) : (customData.Status = 0)
-  return customData
-}
+
 const cancel = async () => {
   push({
     name: 'business.collaborators.collaboratorsList',
@@ -280,59 +329,95 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 onBeforeMount(() => {
   callCustomersApi()
+  callAPiPaymentRequest()
+  callAPiReceiptPaymentRequest()
+  if (!type) {
+    requestCode.value = curDate
+  }
 })
+let FileDeleteIds: any = []
 const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`).then(
-    () => true,
-    () => false
-  )
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
 }
 const setFormValue = async () => {
   const { setValues } = methods
-  console.log('formValue', formValue.value)
   if (formValue.value) {
-    formValue.value?.collaboratorFiles.map((element) => {
-      if (element.file !== null) {
-        ListFileUpload.value.push({
-          url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName
-        })
-      }
-    })
-    FormData.Discount = formValue.value.discount
-    CollaboratorId.value = formValue.value.code
-    infoCompany.name = formValue.value.accountName
-
-    infoCompany.taxCode = formValue.value.customer?.taxCode
-    infoCompany.representative = formValue.value.customer?.representative
-    infoCompany.phonenumber = formValue.value.customer?.phonenumber
-    infoCompany.email = formValue.value.customer?.email
-    infoCompany.address = formValue.value.customer?.address
-    infoCompany.accountName = formValue.value.accountName
-    infoCompany.accountNumber = formValue.value.accountNumber
-    infoCompany.bankName = formValue.value.bank?.name
-    infoCompany.bankId = formValue.value.bankId
-    infoCompany.CustomerId = formValue.value.customerId
-
-    console.log('ListFileUpload', ListFileUpload.value)
+    FormData.Price = formValue.value.price
+    FormData.Code = formValue.value.code
+    requestCode.value = formValue.value.code
+    infoCompany.CollaboratorId = formValue.value.collaboratorId
+    infoCompany.code = formValue.value.collaborator?.code
+    infoCompany.name = formValue.value.collaborator?.customer?.name
+    infoCompany.accountName = formValue.value.collaborator?.customer?.accountName
+    infoCompany.taxCode = formValue.value.collaborator?.customer?.taxCode
+    infoCompany.representative = formValue.value.collaborator?.customer?.representative
+    infoCompany.phonenumber = formValue.value.collaborator?.customer?.phonenumber
+    infoCompany.email = formValue.value.collaborator?.customer?.email
+    infoCompany.address = formValue.value.collaborator?.customer?.address
+    infoCompany.accountNumber = formValue.value.collaborator?.customer?.accountNumber
+    infoCompany.bankName = formValue.value.collaborator?.customer?.bank?.name
+    FormData.ReceiptOrPaymentVoucherId = formValue.value.receiptOrPaymentVoucherId
+    FormData.PaymentOrder = formValue.value.paymentOrder
     if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = true
     } else if (formValue.value.status === 0) {
       FormData.CollaboratorStatus = false
     }
-    FormData.customersValue = {
-      label: formValue.value.accountName + ' | MST ' + formValue.value.customer?.taxCode,
+    FormData.collaboratorValue = {
+      label: formValue.value.collaborator?.code + ' | ' + formValue.value.collaborator?.accountName,
       value: formValue.value.id
     }
+    formValue.value?.commissionPaymentFiles.map((element) => {
+      if (element.file !== null) {
+        ListFileUpload.value.push({
+          url: `${API_URL}${element?.file?.path}`,
+          name: element?.file?.fileName,
+          id: element?.file?.id
+        })
+      }
+    })
     setValues(formValue.value)
   } else {
-    console.log('FormData', FormData)
     setValues(formValue.value)
   }
 }
-
+const EmptyCustomData = {} as FormDataInput
+let FormData = reactive(EmptyCustomData)
+const customPostData = (FormData) => {
+  const customData = {} as FormDataPost
+  customData.CollaboratorId = infoCompany.CollaboratorId
+  customData.Code = requestCode.value
+  customData.Status = FormData.CollaboratorStatus ? 2 : 1
+  customData.Price = parseInt(FormData.Price)
+  customData.ReceiptOrPaymentVoucherId =
+    ReceiptOrPaymentId.value === undefined
+      ? FormData.ReceiptOrPaymentVoucherId
+      : ReceiptOrPaymentId.value
+  customData.PaymentOrder = PaymentId.value === undefined ? FormData.PaymentOrder : PaymentId.value
+  customData.Files = ListFileUpload.value.map((file) => file.raw)
+  return customData
+}
 const rules = reactive<FormRules>({
-  Discount: [
+  Price: [
     {
       required: true,
       message: t('common.required'),
@@ -346,19 +431,9 @@ const rules = reactive<FormRules>({
       },
       required: true,
       trigger: 'blur'
-    },
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (value > 100) {
-          callback(new Error(t('reuse.checkDiscount')))
-        }
-        callback()
-      },
-      required: false,
-      trigger: 'change'
     }
   ],
-  customersValue: [
+  collaboratorValue: [
     {
       required: true,
       message: t('common.selectText'),
@@ -367,43 +442,38 @@ const rules = reactive<FormRules>({
   ]
 })
 const clear = async () => {
-  ;(infoCompany.name = ''),
+  ;(infoCompany.accountName = ''),
     (infoCompany.taxCode = ''),
     (infoCompany.phone = ''),
     (infoCompany.email = ''),
     (infoCompany.representative = ''),
     (infoCompany.phonenumber = ''),
     (infoCompany.address = ''),
-    (infoCompany.bankId = ''),
     (infoCompany.accountName = ''),
     (infoCompany.accountNumber = ''),
     (infoCompany.bankName = ''),
-    (infoCompany.CustomerId = '')
+    (requestCode.value = '')
 }
 const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
     const data = customPostData(FormData)
-    if (type === 'add') {
-      await addNewCollaborators(FORM_IMAGES(data))
-        .then(() =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          })
-        )
-        .catch((error) =>
-          ElNotification({
-            message: error,
-            type: 'warning'
-          })
-        )
-    } else if (type === 'edit') {
-      await updateCollaborators(FORM_IMAGES(data))
-        .then(() =>
-          ElNotification({
-            message: t('reuse.updateSuccess'),
-            type: 'success'
+    if (type == 'edit') {
+      const payload = {
+        id: id,
+        FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
+        Files: data.Files.filter((file) => file !== undefined)
+      }
+      console.log('FORM_IMAGES(data)', data)
+      await updateCommissionPayment({ ...payload, ...data })
+        .then(
+          () =>
+            ElNotification({
+              message: t('reuse.updateSuccess'),
+              type: 'success'
+            }),
+          push({
+            name: `business.collaborators.paymentRequest`
           })
         )
         .catch(() =>
@@ -412,37 +482,39 @@ const save = async () => {
             type: 'warning'
           })
         )
+    } else {
+      await addNewPaymentRequest(FORM_IMAGES(data))
+        .then(
+          () =>
+            ElNotification({
+              message: t('reuse.addSuccess'),
+              type: 'success'
+            }),
+          push({
+            name: `business.collaborators.paymentRequest`
+          })
+        )
+        .catch((error) =>
+          ElNotification({
+            message: error,
+            type: 'warning'
+          })
+        )
     }
-    push({
-      name: 'business.collaborators.collaboratorsList',
-      params: { backRoute: 'business.collaborators.collaboratorsList' }
-    })
   }
 }
-const utility = 'Utility'
 const fix = async () => {
   push({
-    name: `business.collaborators.collaboratorsList.${utility}`,
+    name: `${String(router.currentRoute.value.name)}`,
     params: { id: id, type: 'edit' }
   })
 }
-const value = ref('')
-const options = [
-  {
-    value: 'Option1',
-    label: 'Phiếu thu'
-  },
-  {
-    value: 'Option2',
-    label: 'Phiếu chi'
-  }
-]
-const activeName = ref('1')
+const activeName = ref(collapse[0].title)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <el-collapse-item :icon="false" name="1">
+      <el-collapse-item :icon="false" :name="collapse[0].title">
         <template #title>
           <div class="flex w-[100%] justify-between">
             <div class="before">
@@ -470,14 +542,18 @@ const activeName = ref('1')
               <el-divider content-position="left">{{
                 t('formDemo.profileCollaborator')
               }}</el-divider>
-              <ElFormItem class="mb-4" :label="t('formDemo.chooseACustomer')" prop="customersValue">
+              <ElFormItem
+                class="mb-4"
+                :label="t('reuse.collaboratorsSelect')"
+                prop="collaboratorValue"
+              >
                 <ElSelect
-                  v-model="FormData.customersValue"
+                  v-model="FormData.collaboratorValue"
                   filterable
                   @clear="clear()"
                   :clearable="true"
                   size="default"
-                  :placeholder="t('formDemo.chooseACustomer')"
+                  :placeholder="t('reuse.collaboratorsSelect')"
                   @change="changeAddressCustomer"
                 >
                   <ElOption
@@ -488,33 +564,38 @@ const activeName = ref('1')
                   />
                 </ElSelect>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name !== ''">
-                <div class="leading-6 mt-2">
+              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code !== ''">
+                <div class="leading-6">
+                  <div>{{ infoCompany.code }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name !== ''">
+                <div class="leading-6">
                   <div>{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode !== ''">
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative !== ''">
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.representative }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber !== ''">
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email !== ''">
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address !== ''">
-                <div class="leading-6 mt-2">
+                <div class="leading-6">
                   <div>{{ infoCompany.address }}</div>
                 </div>
               </ElFormItem>
@@ -523,45 +604,78 @@ const activeName = ref('1')
                 :label="t('reuse.accountBank')"
                 v-if="infoCompany.taxCode !== ''"
               >
-                <div class="leading-6 mt-2">
+                <div class="leading-6 mt-1">
                   <div>{{ infoCompany.accountName }}</div>
                   <div>{{ infoCompany.accountNumber }}</div>
                   <div>{{ infoCompany.bankName }}</div>
                 </div>
               </ElFormItem>
               <el-divider content-position="left">{{ t('router.paymentRequests') }}</el-divider>
-              <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
-                <div>{{ CollaboratorId }}</div>
+              <ElFormItem :label="t('reuse.codeRequest')" prop="requestCode">
+                <div>{{ requestCode }}</div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.discountCollaborator')" prop="Discount">
+              <ElFormItem :label="t('reuse.amountOfMoney')" prop="Price">
                 <ElInput
-                  v-model="FormData.Discount"
+                  v-model="FormData.Price"
                   size="default"
-                  :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
+                  :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
                 />
               </ElFormItem>
               <ElFormItem :label="t('router.receiptsAndExpenditures')">
-                <el-select
-                  v-model="value"
-                  placeholder="Select"
+                <MultipleOptionsBox
                   style="width: 78%; margin-right: 2%"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+                  :fields="[
+                    t('reuse.proposalCode'),
+                    t('reuse.receiptAndPayment'),
+                    t('reuse.amountOfMoney'),
+                    t('reuse.createDate'),
+                    t('reuse.creator')
+                  ]"
+                  filterable
+                  :items="listReceiptPaymentRequest"
+                  valueKey="code"
+                  labelKey="code"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  :defaultValue="FormData.ReceiptOrPaymentVoucherId"
+                  @focus="callAPiReceiptPaymentRequest()"
+                  :clearable="false"
+                  @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
+                />
                 <el-button :icon="plusIcon" style="padding: 8px 34px">{{
                   t('reuse.createNew')
                 }}</el-button>
               </ElFormItem>
               <ElFormItem :label="t('router.paymentProposal')">
-                <el-select
+                <template #default="props">
+                  <MultipleOptionsBox
+                    style="width: 78%; margin-right: 2%"
+                    :fields="[
+                      t('reuse.proposalCode'),
+                      t('reuse.receiptAndPayment'),
+                      t('reuse.amountOfMoney'),
+                      t('reuse.createDate'),
+                      t('reuse.creator')
+                    ]"
+                    filterable
+                    :items="listPaymentRequest"
+                    valueKey="code"
+                    labelKey="code"
+                    :hiddenKey="['id']"
+                    :placeHolder="'Chọn mã sản phẩm'"
+                    :defaultValue="FormData.PaymentOrder"
+                    @focus="callAPiPaymentRequest()"
+                    :clearable="false"
+                    @update-value="(value, obj) => changeNamePayment(value, obj, props)"
+                  />
+                  <el-button :icon="plusIcon" style="padding: 8px 34px">{{
+                    t('reuse.createNew')
+                  }}</el-button>
+                </template>
+                <!-- <el-select
                   v-model="value"
-                  placeholder="Select"
+                  :placeholder="t('reuse.choosePaymentProposal')"
                   style="width: 78%; margin-right: 2%"
                 >
                   <el-option
@@ -570,18 +684,15 @@ const activeName = ref('1')
                     :label="item.label"
                     :value="item.value"
                   />
-                </el-select>
-                <el-button :icon="plusIcon" style="padding: 8px 34px">{{
-                  t('reuse.createNew')
-                }}</el-button>
+                </el-select> -->
               </ElFormItem>
-              <ElFormItem :label="t('reuse.status')" style="align-items: flex-start">
+              <ElFormItem :label="t('formDemo.statusPayment')" style="align-items: flex-start">
                 <div class="block items-center w-[100%] gap-4">
                   <ElCheckbox
                     v-model="FormData.CollaboratorStatus"
-                    :label="t('formDemo.isActive')"
+                    :label="t('formDemo.alreadyPaidForTt')"
                     size="large"
-                    :disabled="type === 'add' || type === ''"
+                    :disabled="type === 'add' || type == ':type'"
                   />
                 </div>
                 <div class="block gap-2 pb-8">

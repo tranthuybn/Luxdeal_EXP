@@ -6,16 +6,17 @@ interface TableResponse<T = any> {
   pageNumber: number
   pageSize: number
 }
-type apiType = <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
+type apiType = (option: any) => Promise<IResponse<TableResponse<TableData>>>
 
 interface Tab {
   name: string
   label: string
-  api: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
+  api: (option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]
   params?: string
-  delApi?: <T = any>(option: any) => Promise<IResponse<TableResponse<TableData>>>
+  delApi?: (option: any) => Promise<IResponse<TableResponse<TableData>>>
   titleAdd?: string
+  customOperator?: number
 }
 import { RendererElement, RendererNode, VNode } from 'vue'
 

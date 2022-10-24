@@ -10,7 +10,7 @@ import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
 import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
-const { required, ValidService, notSpecialCharacters } = useValidator()
+const { required, ValidService, notSpecialCharacters, checkCode } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -67,6 +67,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      style: 'max-width: 100%',
       defaultHtml: ''
     }
   },
@@ -158,18 +159,19 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkCodeServiceLength.validator },
+    { validator: checkCode },
     required()
   ],
   shortDescription: [
+    { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkNameLength.validator },
-    { validator: notSpecialCharacters },
     required()
   ],
   description: [
+    required(),
     { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkDescriptionLength.validator }
   ],
   cost: [
     { validator: ValidService.checkSpace.validator },
@@ -270,7 +272,7 @@ const customPostData = (data) => {
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
   if (type === 'add') {
-    customData.IsActive = true
+    customData.IsActive = false
   } else {
     data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
     data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
@@ -281,6 +283,7 @@ const customPostData = (data) => {
   customData.IsApproved = true
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   //  customPostData(data)
   const payload = {
@@ -290,11 +293,16 @@ const editData = async (data) => {
   }
   console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
-    .then(() =>
-      ElNotification({
-        message: t('reuse.updateSuccess'),
-        type: 'success'
-      })
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch(() =>
       ElNotification({
@@ -306,11 +314,16 @@ const editData = async (data) => {
 const postData = async (data) => {
   data = customPostData(data)
   await postSpa(FORM_IMAGES(data))
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: `${String(router.currentRoute)}`
+        })
     )
     .catch((error) =>
       ElNotification({

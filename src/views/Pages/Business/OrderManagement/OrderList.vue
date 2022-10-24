@@ -17,38 +17,43 @@ const tabs: Array<Tab> = [
     label: t('reuse.orderSell'),
     api: getSellOrderList,
     column: sellOrder,
-    titleAdd: 'formDemo.addNewSalesOrders'
+    titleAdd: 'formDemo.addNewSalesOrders',
+    customOperator: 5
   },
   {
     name: 'orderRental',
     label: t('reuse.orderRental'),
     api: getRentalorderList,
     column: rentalorder,
-    titleAdd: 'formDemo.addnewRentalOrders'
+    titleAdd: 'formDemo.addNewRentalOrders',
+    customOperator: 5
   },
   {
     name: 'orderDeposit',
     label: t('reuse.orderDeposit'),
     api: getOrderDepositList,
     column: orderDeposit,
-    titleAdd: 'formDemo.addNewConsignmentOrders'
+    titleAdd: 'formDemo.addNewConsignmentOrders',
+    customOperator: 5
   },
   {
     name: 'orderPawn',
     label: t('reuse.orderPawn'),
     api: getOrderPawnList,
     column: orderPawn,
-    titleAdd: 'formDemo.addNewPawnOrders'
+    titleAdd: 'formDemo.addNewPawnOrders',
+    customOperator: 5
   },
   {
     name: 'orderSpa',
     label: t('reuse.orderSpa'),
     api: getOrderSpaList,
     column: orderSpa,
-    titleAdd: 'formDemo.addNewSpaOrders'
+    titleAdd: 'formDemo.addNewSpaOrders',
+    customOperator: 5
   }
 ]
 </script>
 <template>
-  <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" />
+  <tableDatetimeFilterBasicVue :selection="true" title="orderList" :tabs="tabs" />
 </template>

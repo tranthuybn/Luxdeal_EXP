@@ -32,7 +32,7 @@ export default {
           }
         },
         {
-          path: `products-utility/:id?/:type?`,
+          path: `products-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
           name: `products-services.productLibrary.Products.${utility}`,
@@ -65,7 +65,7 @@ export default {
           }
         },
         {
-          path: `spa-service-utility/:id?/:type?`,
+          path: `spa-service-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
           name: `products-services.ServiceLibrarySpaService.${utility}`,
@@ -96,7 +96,7 @@ export default {
           }
         },
         {
-          path: `product-category-utility/:id?/:type?`,
+          path: `product-category-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/Category/ProductCategoryUtility.vue'),
           name: `products-services.ProductCategory.${utility}`,
@@ -118,7 +118,7 @@ export default {
           }
         },
         {
-          path: `attribute-category-utility/:id?/:type?/:tab?`,
+          path: `attribute-category-utility/:type?/:id?/:tab?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/Category/AttributeCategoryUtility.vue'),
           name: `products-services.AttributeCategory.${utility}`,
@@ -140,7 +140,7 @@ export default {
           }
         },
         {
-          path: `unit-category-utility/:id?/:type?`,
+          path: `unit-category-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/Category/UnitCategoryUtility.vue'),
           name: `products-services.UnitCategory.${utility}`,
@@ -162,7 +162,7 @@ export default {
           }
         },
         {
-          path: `brand-category-utility/:id?/:type?`,
+          path: `brand-category-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/Category/BrandCategoryUtility.vue'),
           name: `products-services.BrandCategory.${utility}`,
@@ -184,7 +184,7 @@ export default {
           }
         },
         {
-          path: `origin-category-utility/:id?/:type?`,
+          path: `origin-category-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/Category/OriginCategoryUtility.vue'),
           name: `products-services.OriginCategory.${utility}`,

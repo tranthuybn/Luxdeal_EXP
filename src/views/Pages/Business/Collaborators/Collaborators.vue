@@ -236,15 +236,17 @@ watch(
       @filter-change="filterChange"
     >
       <template #contact="data">
-        <div>Mst: {{ data.row.customer?.taxCode }}</div>
-        <div>{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div>
-        <div>Email: {{ data.row.customer?.email }}</div>
-        <div>Địa chỉ: {{ data.row.customer?.address }}</div>
+        <div v-if="data.row.customer?.taxCode">Mst: {{ data.row.customer?.taxCode }}</div>
+        <div v-if="data.row.customer?.phonenumber"
+          >{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div
+        >
+        <div v-if="data.row.customer?.email">Email: {{ data.row.customer?.email }}</div>
+        <div v-if="data.row.customer?.address">Địa chỉ: {{ data.row.customer?.address }}</div>
       </template>
       <template #account="data">
-        <div>STK: {{ data.row.accountNumber }}</div>
-        <div>Tên TK: {{ data.row.accountName }}</div>
-        <div>NH: {{ data.row.bank.name }}</div>
+        <div v-if="data.row.accountNumber">STK: {{ data.row.accountNumber }}</div>
+        <div v-if="data.row.accountName">Tên TK: {{ data.row.accountName }}</div>
+        <div v-if="data.row.bank.name">NH: {{ data.row.bank.name }}</div>
       </template>
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />

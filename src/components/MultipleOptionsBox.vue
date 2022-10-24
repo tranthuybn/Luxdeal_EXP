@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip, ElButton } from 'element-plus'
-import { computed, watchEffect, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
+import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -12,7 +12,7 @@ const propsObj = defineProps({
   },
   // options
   items: {
-    type: Array,
+    type: Array<any>,
     default: () => [],
     require: true,
     description: 'Mảng các giá trị truyền vào để chọn'
@@ -51,12 +51,16 @@ const propsObj = defineProps({
   clearable: {
     type: Boolean,
     default: true
+  },
+  width: {
+    type: String,
+    default: '100%'
   }
 })
 
 const emit = defineEmits(['updateValue', 'addnewproduct'])
 
-let selected = ref<string>('')
+let selected = ref()
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
@@ -79,16 +83,18 @@ const identifyLabel = computed(() => {
 })
 
 // set value for multiple select if defaultValue available
-watchEffect(() => {
-  if (propsObj.items?.length > 0)
-    // set options for select box
-    options.value = propsObj.items
-})
+// watchEffect(() => {
+//   if (propsObj.items?.length > 0)
+//     // set options for select box
+//     options.value = propsObj.items
+// })
 watch(
   () => propsObj.defaultValue,
-  (val) => {
-    if (val) selected.value = val.toString()
-  }
+  () => {
+    selected.value = propsObj.defaultValue
+    console.log('selected.value', selected.value)
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -97,34 +103,38 @@ const acceptKey = (item) => {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
-const filter = (str) => {
-  const { items } = propsObj
-  const searchingKey = str.toLowerCase()
-  options.value = items.filter((item) => {
-    if (
-      item != null &&
-      Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
-    ) {
-      return true
-    }
-  })
-}
-const dialogAddQuick = () => {
-  emit('addnewproduct')
-}
-const appearsEvent = () => {
-  const { items } = propsObj
-  options.value = items
-}
+// const filter = (str) => {
+//   const { items } = propsObj
+//   const searchingKey = str.toLowerCase()
+//   console.log('searchingKey', searchingKey, 'selected', selected.value)
+//   options.value = items.filter((item) => {
+//     if (
+//       item != null &&
+//       Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
+//     ) {
+//       return true
+//     }
+//   })
+// }
+const loadOption = ref(false)
+// const appearsEvent = () => {
+//   const { items } = propsObj
+//   options.value = items
+//   loadOption.value = false
+// }
 const valueChangeEvent = (val) => {
   if (val) {
-    const { items, valueKey, labelKey } = propsObj
-
+    const { items, valueKey } = propsObj
     // find label
     const obj = items.find((el) => {
-      if (el) el[valueKey] === val
+      if (el) {
+        return el[valueKey] === val
+      }
     })
-    if (obj) emit('updateValue', val, obj[labelKey] ?? '')
+    if (obj) emit('updateValue', val, obj ?? '')
+    if (propsObj.defaultValue !== null) {
+      selected.value = propsObj.defaultValue
+    }
   }
 }
 const handleScroll = (...val) => {
@@ -139,28 +149,28 @@ onUnmounted(() => {
 </script>
 <template>
   <ElSelect
+    :loading="loadOption"
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
     class="el-select-custom"
-    @visible-change="appearsEvent"
-    @change="valueChangeEvent"
-    :filter-method="filter"
+    @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
     :disabled="disabled"
   >
     <!-- value is tje first object when click on title -->
     <ElOption
-      :value="options.length > 0 && options[0][identifyKey] ? options[0][identifyKey] : ''"
+      :style="`width: ${width}`"
+      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
         <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
           <ElCol
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-blue-900"
@@ -173,7 +183,8 @@ onUnmounted(() => {
       </div>
     </ElOption>
     <ElOption
-      v-for="(item, index) in options"
+      :style="`width: ${width}`"
+      v-for="(item, index) in items"
       :key="index"
       :value="item[identifyKey]"
       :label="item[identifyLabel]"
@@ -185,7 +196,7 @@ onUnmounted(() => {
             v-for="(key, i) in acceptKey(item)"
             :key="i"
             class="text-ellipsis text-center"
-            :span="24 / fields.length"
+            :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">
               <span> {{ item[key] }}</span>
@@ -194,9 +205,7 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <span class="block h-1 w-[100%] border-t-1 mt-4"></span>
-    <el-button text @click="dialogAddQuick">+ Thêm nhanh sản phẩm</el-button>
-    <!-- <div class="p-2 text-base" @click="dialogAddQuick = true">+ Thêm nhanh sản phẩm</div> -->
+    <slot name="underButton"> </slot>
   </ElSelect>
 </template>
 <style lang="css" scoped>

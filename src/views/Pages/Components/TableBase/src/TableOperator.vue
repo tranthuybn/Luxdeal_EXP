@@ -160,15 +160,48 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
+const editorConfig = Object.assign({
+  readOnly: true,
+  customAlert: (s: string, t: string) => {
+    switch (t) {
+      case 'success':
+        ElMessage.success(s)
+        break
+      case 'info':
+        ElMessage.info(s)
+        break
+      case 'warning':
+        ElMessage.warning(s)
+        break
+      case 'error':
+        ElMessage.error(s)
+        break
+      default:
+        ElMessage.info(s)
+        break
+    }
+  },
+  autoFocus: false,
+  scroll: true,
+  uploadImgShowBase64: true
+})
+
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps } = methods
+      const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      setSchema([
+        {
+          field: 'description',
+          path: 'componentProps.editorConfig',
+          value: editorConfig
+        }
+      ])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -212,7 +245,7 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {

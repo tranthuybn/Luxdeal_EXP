@@ -140,7 +140,11 @@ const rules = reactive({
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  index: [
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpace }
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -200,10 +204,17 @@ const postData = async (data) => {
 }
 // get data from router
 const router = useRouter()
-const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
+let title = ref()
+if (type === 'add') {
+  title.value = router.currentRoute.value.meta.title
+} else if (type === 'detail') {
+  title.value = t('reuse.detailBrand')
+} else if (type === 'edit') {
+  title.value = t('reuse.editBrand')
+}
 
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
@@ -260,6 +271,7 @@ const customPostData = (data) => {
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[7].key, ...data })
@@ -274,7 +286,10 @@ const editData = async (data) => {
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    )
+    ),
+    push({
+      name: `${String(router.currentRoute)}`
+    })
 }
 const deleteBrand = `${t('formDemo.deleteBrand')}`
 </script>

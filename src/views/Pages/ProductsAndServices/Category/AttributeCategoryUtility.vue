@@ -22,9 +22,17 @@ const router = useRouter()
 const route = useRoute()
 const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+let title = ref()
+if (type === 'add') {
+  title.value = router.currentRoute.value.meta.title
+} else if (type === 'detail') {
+  title.value = t('reuse.detailCharacteristic')
+} else if (type === 'edit') {
+  title.value = t('reuse.editCharacteristic')
+}
+
 const params = { TypeName: tab }
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
@@ -163,7 +171,11 @@ const rules = reactive({
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
-  index: [{ validator: ValidService.checkPositiveNumber.validator }, { validator: notSpace }]
+  index: [
+    { validator: ValidService.checkPositiveNumber.validator },
+    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpace }
+  ]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -277,6 +289,7 @@ const customPostData = (data) => {
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
+const { push } = useRouter()
 const editData = async (data) => {
   data = customPostData(data)
   await updateCategory({ ...params, ...data })
@@ -291,7 +304,10 @@ const editData = async (data) => {
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    )
+    ),
+    push({
+      name: `${String(router.currentRoute)}`
+    })
 }
 </script>
 

@@ -445,6 +445,15 @@ export default {
     depositSlip: 'Deposit slip',
     initializationDate: 'Initialization date',
     totalSalesDebt: 'Total sales debt',
+    infoCouponExportExchange: 'Information coupon export and exchange',
+    invoiceForGoodsEntering: 'Invoice for goods entering',
+    productInformationExportChange: 'Product information export and change',
+    completeOrder: 'Complete order',
+    editOrder: 'Edit order',
+    exchangeReturnGoods: 'Exchange or return goods',
+    checkFinish: 'Check and finish',
+    cancellationReturn: 'Cancellation or return',
+    completeExchangeReturn: 'Complete exchange or return',
     informationOnExchangeAndReturnPaymentVouchers:
       'Information on exchange and return payment vouchers'
   },

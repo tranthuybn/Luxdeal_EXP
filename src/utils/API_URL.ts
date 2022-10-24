@@ -81,9 +81,9 @@ export const ORDER_API = {
   TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
 }
 export const ADDRESS_API = {
-  CITY: '/api/addr/getAllCity',
-  DISTRICT: '/api/addr/getDistrict',
-  WARD: '/api/addr/getWard',
+  CITY: '/api/v1/Address/getAllCity',
+  DISTRICT: '/api/v1/Address/getDistrictByCityId',
+  WARD: '/api/v1/Address/getWardByDistrictId',
   STREET: '/api/addr/getStreet'
 }
 export const ACCOUNTANT_API = {

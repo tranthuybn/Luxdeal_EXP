@@ -275,7 +275,7 @@ interface ListOfProductsForSaleType {
   quantity: number | undefined
   accessory: string | undefined
   unitName: string
-  price: string
+  price: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
@@ -1191,6 +1191,7 @@ interface tableDataType {
   alreadyPaidForTt: boolean
   statusAccountingEntry: string
 }
+
 const debtTable = ref<Array<tableDataType>>([
   {
     dateOfPayment: moment().format('L').toString(),
@@ -1279,6 +1280,23 @@ const addStatusDelay = () => {
 }
 
 // fake trạng thái đơn hàng
+// bắt thay đổi đơn hàng
+const priceChangeOrders = ref(false)
+let countPriceChange = 0
+const changePriceRowTable = (props) => {
+  console.log('props: ', props)
+  if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
+    countPriceChange++
+    priceChangeOrders.value = true
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
+      label: 'Duyệt giá thay đổi',
+      value: 1,
+      isActive: true
+    })
+  }
+}
+
 interface statusOrderType {
   label: string
   value: number
@@ -1286,10 +1304,10 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add')
+if (type == 'add' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
-    label: 'Duyệt giá thay đổi',
-    value: 1,
+    label: 'Chốt đơn hàng',
+    value: 2,
     isActive: true
   })
 
@@ -3238,7 +3256,14 @@ onMounted(async () => {
           />
           <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
             <template #default="props">
-              {{ props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ' }}
+              <el-input
+                v-if="type != 'detail'"
+                v-model="props.row.price"
+                @change="changePriceRowTable(props)"
+              />
+              <div v-else>{{
+                props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
+              }}</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -3248,11 +3273,14 @@ onMounted(async () => {
             width="180"
           >
             <template #default="props">
-              {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
-                  : '0 đ'
-              }}
+              <el-input v-if="type != 'detail'" v-model="props.row.finalPrice" />
+              <div v-else>
+                {{
+                  props.row.finalPrice != ''
+                    ? changeMoney.format(parseInt(props.row.finalPrice))
+                    : '0 đ'
+                }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
@@ -3451,7 +3479,11 @@ onMounted(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <div v-if="statusOrder == 1" class="w-[100%] flex ml-1 gap-4">
+          <!-- Đơn hàng có thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3489,7 +3521,66 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 2" class="w-[100%] flex ml-1 gap-4">
+
+          <!-- Đơn hàng không thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == false"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+              t('formDemo.paymentSlip')
+            }}</el-button>
+            <el-button
+              @click="dialogDepositSlipAdvance = true"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.depositSlipAdvance') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 2
+                  changeStatus(3)
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.saveCloseOrder') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 2
+                  addStatusOrder(2)
+                  changeStatus(3)
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.completeOrder') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  statusOrder = 9
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
+          </div>
+          <div
+            v-else-if="statusOrder == 2 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               @click="
                 () => {
@@ -3547,7 +3638,10 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 4 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="checkDisabled"
               @click="
@@ -3568,7 +3662,10 @@ onMounted(async () => {
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 5 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3603,12 +3700,18 @@ onMounted(async () => {
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 6 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
               t('formDemo.cancellationReturn')
             }}</el-button>
           </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 7 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <button
               :disabled="checkDisabled"
               @click="
@@ -3627,7 +3730,10 @@ onMounted(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 8 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>

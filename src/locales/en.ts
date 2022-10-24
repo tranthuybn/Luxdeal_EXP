@@ -457,7 +457,8 @@ export default {
     pleaseInputDiscount: 'Please input discount',
     pleaseInputOrderNote: 'Please input order note',
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
-    pleaseChooseDelivery: 'Please choose delivery'
+    pleaseChooseDelivery: 'Please choose delivery',
+    saveCloseOrder: 'Save & close order'
   },
   button: {
     add: 'Add quick',

@@ -475,7 +475,8 @@ export default {
     pleaseInputDiscount: 'Vui lòng nhập chiết khấu',
     pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
-    pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng'
+    pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
+    saveCloseOrder: 'Lưu & chốt đơn'
   },
   button: {
     add: 'Thêm nhanh',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -11,6 +11,7 @@ import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
+import moment from 'moment'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -184,7 +185,8 @@ const rules = reactive({
   promotion: required(),
   date: required(),
   percent: [{ validator: ValidService.maxPercent.validator }],
-  money: [{ validator: ValidService.checkPositiveNumber.validator }]
+  money: [{ validator: ValidService.checkPositiveNumber.validator }],
+  shortDescription: required()
 })
 
 let valueRadioOjbApply = ref(2)
@@ -385,6 +387,8 @@ const postData = async (data) => {
       })
     )
 }
+//random mã
+var curDate = 'FS' + moment().format('hhmmss')
 
 type SetFormData = {
   code: string
@@ -394,7 +398,7 @@ type SetFormData = {
   shortDescription: string
   customers: any
   products: any
-  Images: any
+  Image: any
   target: number
   percent: number
   money: number
@@ -415,12 +419,12 @@ const customizeData = async (data) => {
   changeSuffixIcon(setFormData.promotion)
   setFormData.code = data[0].code
   setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.shortDescription = data[0].shortDescription
+  setFormData.shortDescription = data[0].description
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
-  setFormData.Images = data[0].images
+  setFormData.Image = data[0].images[0].path
   setFormData.target = data[0].targetType
-  setFormData.imageurl = `${API_URL}${data.imageurl}`
+  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
 
   hideTableCustomer(data[0].targetType)
 }
@@ -442,6 +446,13 @@ const editData = async (data) => {
       })
     )
 }
+
+onBeforeMount(() => {
+  if (type == 'add') {
+    // schema.code = curDate
+    console.log('curFS:', curDate)
+  }
+})
 </script>
 
 <template>

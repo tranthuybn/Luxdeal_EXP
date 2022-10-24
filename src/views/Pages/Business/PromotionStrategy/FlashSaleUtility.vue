@@ -273,7 +273,6 @@ type FormDataPost = {
   ServiceType: number
   Image: any
   CampaignType: number
-  imageurl?: string
 }
 
 const customPostDataFlashSale = (data) => {
@@ -297,7 +296,6 @@ const customPostDataFlashSale = (data) => {
   customData.CampaignType = 1
   customData.ServiceType = 1
   customData.Image = data.Image
-  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
 
   if (valueRadioOjbApply.value == 3) {
     customData.CustomerIds = null

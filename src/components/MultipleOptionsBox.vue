@@ -92,8 +92,7 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-  },
-  { immediate: true }
+  }
 )
 
 const acceptKey = (item) => {
@@ -116,11 +115,13 @@ const acceptKey = (item) => {
 //   })
 // }
 const loadOption = ref(false)
-// const appearsEvent = () => {
-//   const { items } = propsObj
-//   options.value = items
-//   loadOption.value = false
-// }
+watch(
+  () => propsObj.items,
+  () => {
+    options.value = propsObj.items
+    loadOption.value = true
+  }
+)
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey } = propsObj
@@ -148,7 +149,7 @@ onUnmounted(() => {
 </script>
 <template>
   <ElSelect
-    :loading="loadOption"
+    v-if="loadOption"
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
@@ -162,7 +163,7 @@ onUnmounted(() => {
     <!-- value is tje first object when click on title -->
     <ElOption
       :style="`width: ${width}`"
-      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
+      :value="options[0][`${identifyKey}`]"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
@@ -183,10 +184,10 @@ onUnmounted(() => {
     </ElOption>
     <ElOption
       :style="`width: ${width}`"
-      v-for="(item, index) in items"
-      :key="index"
-      :value="item[identifyKey]"
-      :label="item[identifyLabel]"
+      v-for="item in options"
+      :key="item.value"
+      :value="item[`${identifyKey}`] ?? ''"
+      :label="item[`${identifyLabel}`] ?? ''"
       :disabled="disabled"
     >
       <div class="select-table">

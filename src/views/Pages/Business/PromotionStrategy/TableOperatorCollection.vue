@@ -133,7 +133,6 @@ const getTableValue = async () => {
         formValue.value = res.data
       }
       await setFormValue()
-      console.log('res', res.data)
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -167,7 +166,6 @@ const setFormValue = async () => {
 
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
-    console.log('dataTable', dataTable)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -210,7 +208,6 @@ const loading = ref(false)
 //doc du lieu tu bang roi emit len goi API
 const { go } = useRouter()
 const save = async (type) => {
-  console.log('type', type)
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
     let validateFile = false
@@ -227,7 +224,6 @@ const save = async (type) => {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
-      console.log('data', data)
       props.multipleImages
         ? (data.Images = ListFileUpload.value
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
@@ -270,8 +266,6 @@ const save = async (type) => {
         loading.value = false
         return
       }
-
-      console.log('dataTable', dataTable)
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)
@@ -769,7 +763,6 @@ const getSpaSelected = (spaServices) => {
             <el-table :data="dataTable.customerData" border>
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
-                  {{ scope.row.code }}
                   <MultipleOptionsBox
                     :fields="[
                       t('reuse.customerCode'),

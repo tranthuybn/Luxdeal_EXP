@@ -45,14 +45,8 @@ router.beforeEach(async (to, from, next) => {
       }
 
       // Developers can modify it according to the actual situation
-      const roleRouters = wsCache.get('roleRouters') || []
-      const userInfo = wsCache.get(appStore.getUserInfo)
-      //1666066392653 = 18/10/2022
-      if (userInfo.loginDate < 1666066392653) {
-        wsCache.clear()
-        next({ path: '/' })
-        return
-      }
+      const roleRouters = wsCache.get(permissionStore.getRouterByRoles) || []
+
       await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')
 
       permissionStore.getAddRouters.forEach((route) => {
@@ -69,12 +63,13 @@ router.beforeEach(async (to, from, next) => {
       next()
     } else {
       next(`/login?redirect=${to.path}`) // Otherwise, all redirect to the login page
+      wsCache.clear()
     }
   }
 })
 
 router.afterEach((to) => {
   useTitle(to?.meta?.title as string)
-  done() // 结束Progress
+  done() //End Progress
   loadDone()
 })

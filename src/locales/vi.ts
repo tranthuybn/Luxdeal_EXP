@@ -469,7 +469,14 @@ export default {
     exchangeReturnGoods: 'Đổi/Trả hàng',
     checkFinish: 'Đối soát & kết thúc',
     cancellationReturn: 'Hủy đổi/Trả hàng',
-    completeExchangeReturn: 'Hoàn thành đổi/Trả hàng'
+    completeExchangeReturn: 'Hoàn thành đổi/Trả hàng',
+    pleaseInputOrderCode: 'Vui lòng nhập mã đơn hàng',
+    pleaseSelectCollaboratorCode: 'Vui lòng chọn hoặc nhập mã CTV',
+    pleaseInputDiscount: 'Vui lòng nhập chiết khấu',
+    pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
+    pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
+    pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
+    saveCloseOrder: 'Lưu & chốt đơn'
   },
   button: {
     add: 'Thêm nhanh',

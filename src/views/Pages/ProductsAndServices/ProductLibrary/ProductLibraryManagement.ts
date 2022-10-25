@@ -939,7 +939,11 @@ export const getCategoriesData = async () => {
       pageIndex: 1
     }).then(
       (res) =>
-        (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
+        (colorData = res.data.map((color) => ({
+          label: color.name,
+          value: color.id,
+          parentid: -1
+        })))
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[2].key,
@@ -947,7 +951,7 @@ export const getCategoriesData = async () => {
       pageIndex: 1
     }).then(
       (res) =>
-        (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
+        (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: -2 })))
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[3].key,
@@ -958,7 +962,7 @@ export const getCategoriesData = async () => {
         (materialData = res.data.map((material) => ({
           label: material.name,
           value: material.id,
-          parentid: 3
+          parentid: -3
         })))
     )
     await getCategories({
@@ -970,7 +974,7 @@ export const getCategoriesData = async () => {
         (statusData = res.data.map((status) => ({
           label: status.name,
           value: status.id,
-          parentid: 4
+          parentid: -4
         })))
     )
     await getCategories({
@@ -982,7 +986,7 @@ export const getCategoriesData = async () => {
         (genderData = res.data.map((gender) => ({
           label: gender.name,
           value: gender.id,
-          parentid: 5
+          parentid: -5
         })))
     )
 

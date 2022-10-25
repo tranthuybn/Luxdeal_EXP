@@ -14,40 +14,55 @@ import {
 } from './ProductLibraryManagement'
 
 const { t } = useI18n()
-const modelValue = ref()
+
+const props = defineProps({
+  defaultValue: {
+    type: Array,
+    default: () => []
+  }
+})
+const modelValue = ref(props.defaultValue)
+
 const emit = defineEmits(['change-value'])
-const treeSelectData = ref([
+// type treeType = {
+//   value: number
+//   label: string
+//   parentid: number
+//   disabled: boolean
+//   children: treeType[]
+// }
+const treeSelectData: any = ref([
   {
-    value: 1,
+    value: -1,
     label: t('reuse.color'),
     parentid: 0,
     disabled: true,
     children: []
   },
   {
-    value: 2,
-    label: t('reuse.size'),
-    parentid: 0,
-    disabled: true,
-    children: []
-  },
-  {
-    value: 3,
+    value: -3,
     label: t('reuse.material'),
     parentid: 0,
     disabled: true,
     children: []
   },
   {
-    value: 4,
-    label: t('reuse.status'),
+    value: -2,
+    label: t('reuse.size'),
     parentid: 0,
     disabled: true,
     children: []
   },
   {
-    value: 5,
+    value: -5,
     label: t('reuse.gender'),
+    parentid: 0,
+    disabled: true,
+    children: []
+  },
+  {
+    value: -4,
+    label: t('reuse.status'),
     parentid: 0,
     disabled: true,
     children: []
@@ -56,7 +71,7 @@ const treeSelectData = ref([
 
 const customCheck = (nodeObj, tree) => {
   const checkedNodes = tree.checkedNodes
-  const checkedKeys = tree.checkedKeys
+  // const checkedKeys = tree.checkedKeys
   // let sameParent = false
   switch (nodeObj.parentid) {
     //parentid ==0 cap 1
@@ -64,50 +79,50 @@ const customCheck = (nodeObj, tree) => {
     //   sameParent = true
     //   break
     //parentid ==1 color
-    case 1:
+    case -1:
       const nodeBefore = checkedNodes.find((node) => {
-        return node.parentid == 1 && node.value != nodeObj.value
+        return node.parentid == -1 && node.value != nodeObj.value
       })
       if (nodeBefore) {
         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
       }
       break
     //parentid ==2 size
-    case 2:
+    case -2:
       const nodeBefore2 = checkedNodes.find((node) => {
-        return node.parentid == 2 && node.value != nodeObj.value
+        return node.parentid == -2 && node.value != nodeObj.value
       })
       if (nodeBefore2) {
         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore2.value), 1)
       }
       break
     //parentid ==3 material
-    case 3:
+    case -3:
       const nodeBefore3 = checkedNodes.find((node) => {
-        return node.parentid == 3 && node.value != nodeObj.value
+        return node.parentid == -3 && node.value != nodeObj.value
       })
       if (nodeBefore3) {
         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore3.value), 1)
       }
       break
-    case 4:
+    case -4:
       const nodeBefore4 = checkedNodes.find((node) => {
-        return node.parentid == 4 && node.value != nodeObj.value
+        return node.parentid == -4 && node.value != nodeObj.value
       })
       if (nodeBefore4) {
         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore4.value), 1)
       }
       break
-    case 5:
+    case -5:
       const nodeBefore5 = checkedNodes.find((node) => {
-        return node.parentid == 5 && node.value != nodeObj.value
+        return node.parentid == -5 && node.value != nodeObj.value
       })
       if (nodeBefore5) {
         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore5.value), 1)
       }
       break
   }
-  emit('change-value', checkedKeys)
+
   // if (sameParent) {
   //   ElNotification({
   //     message: t('reuse.cantChooseMultipleValueForOneAttribute'),
@@ -136,20 +151,29 @@ const customCheck = (nodeObj, tree) => {
   //   scope.row.categoriesValue = checkedKeys
   //   scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
 }
-
+const arrayObj: any = ref([])
+const checkChange = (nodeObj: any, checked: boolean, _subtree: boolean) => {
+  console.log('change:', nodeObj, checked)
+  checked ? arrayObj.value.push(nodeObj) : arrayObj.value.splice(arrayObj.value.indexOf(nodeObj), 1)
+  emit('change-value', nodeObj)
+}
+const loading = ref(true)
 onBeforeMount(async () => {
-  await getCategoriesData().then(() => {
-    treeSelectData.value[0].children = colorData
-    treeSelectData.value[1].children = sizeData
-    treeSelectData.value[2].children = materialData
-    treeSelectData.value[3].children = statusData
-    treeSelectData.value[4].children = genderData
-  })
+  await getCategoriesData()
+    .then(() => {
+      treeSelectData.value[0].children = colorData
+      treeSelectData.value[2].children = sizeData
+      treeSelectData.value[1].children = materialData
+      treeSelectData.value[4].children = statusData
+      treeSelectData.value[3].children = genderData
+    })
+    .finally(() => (loading.value = false))
 })
 </script>
 <template>
   <ElTreeSelect
     v-model="modelValue"
+    :loading="loading"
     :data="treeSelectData"
     multiple
     accordion
@@ -159,5 +183,6 @@ onBeforeMount(async () => {
     show-checkbox
     node-key="value"
     @check="(nodeObj, tree) => customCheck(nodeObj, tree)"
+    @check-change="checkChange"
   />
 </template>

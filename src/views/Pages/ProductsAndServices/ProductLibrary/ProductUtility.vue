@@ -335,10 +335,14 @@ const handleDeleteRow = async (scope) => {
 }
 const handleEditRow = (data) => {
   data.edited = true //change table cell to tree select
-  data.categoriesValue = []
+  data.categoriesValue = [] //convert obj to array
   //push data to tree select
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
+    for (let i = 0; i <= 4; i++) {
+      if (data.categories[i].id !== 0) {
+        data.categoriesValue.push(data.categories[i].id)
+      }
+    }
   }
 }
 
@@ -362,23 +366,15 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
+  console.log('data:', data)
   //return newProductPropertyId when newValue post success
   customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
   customUpdateData.categories = []
-  customUpdateData.categories[0] = {
-    id: 1
-    //"key": "Gender",
-    //"value": "Túi + Ví"
-  }
-  customUpdateData.categories[1] = { ...data.categories[0] } //color
-  customUpdateData.categories[2] = { ...data.categories[2] } //size
-  customUpdateData.categories[3] = { ...data.categories[1] } //material
-  customUpdateData.categories[4] = {
-    id: 116 //"key": "State",
-    //"value": "New"
-  }
+  data.categoriesValue.forEach((category) => customUpdateData.categories.push({ id: category }))
   customUpdateData.bussinessSetups = data.bussinessSetups
+  console.log('customUpdateData:', customUpdateData)
+
   return customUpdateData
 }
 
@@ -395,7 +391,7 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
         scope.row.categories.push({ id: element })
       })
       scope.row.edited = false
-      console.log('row:', scope.row)
+      console.log('scope', scope.row)
       //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
@@ -1222,9 +1218,17 @@ watch(
   }
 )
 const arrayCategories = ref([])
-const productAttributeValue = (data) => {
-  console.log('data checked', data)
-  arrayCategories.value = data
+const productAttributeValue = (obj, scope) => {
+  console.log('data checked', obj, scope)
+  // scope.row.categoriesValue = obj.value
+  // arrayCategories.value = obj.value
+}
+const categoriesToString = (categories) => {
+  let categoriesLabel: Array<string> = []
+  for (let i = 0; i <= 4; i++) {
+    categories[i]?.value == null ? '' : categoriesLabel.push(categories[i].value)
+  }
+  return categoriesLabel.toString()
 }
 //glhf:)
 </script>
@@ -1386,13 +1390,12 @@ const productAttributeValue = (data) => {
                 :prop="`${scope.$index}.categoriesValue`"
                 :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
-                <ProductAttribute @change-value="productAttributeValue" />
+                <ProductAttribute
+                  @change-value="(obj) => productAttributeValue(obj, scope)"
+                  :default-value="scope.row.categoriesValue"
+                />
               </el-form-item>
-              <span v-else>{{
-                scope.row.categoriesLabel
-                  ? scope.row.categoriesLabel.toString()
-                  : `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-              }}</span>
+              <span v-else>{{ categoriesToString(scope.row.categories) }}</span>
             </template>
           </ElTableColumn>
           <ElTableColumn

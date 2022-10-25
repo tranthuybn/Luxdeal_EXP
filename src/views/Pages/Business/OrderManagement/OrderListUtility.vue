@@ -75,27 +75,29 @@ const ruleForm = reactive({
   orderFiles: []
 })
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   discount: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
@@ -273,7 +275,7 @@ interface ListOfProductsForSaleType {
   quantity: number | undefined
   accessory: string | undefined
   unitName: string
-  price: string
+  price: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
@@ -551,8 +553,6 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
-// const initialRadio = ref(false)
-
 const currentRow = ref()
 
 let checkPromo = ref(false)
@@ -616,10 +616,22 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
+// interface tableOrderDetailType {
+//   productPropertyId: number
+//   quantity: number
+//   accessory: string
+// }
+// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  // tableOrderDetail.value = ListOfProductsForSale.value.map((e) => {
+  //   productPropertyId: e.productPropertyId,
+  //   quantity: e.quantity,
+  //   accessory: e.accessory
+  // })
   const payload = {
     serviceType: 1,
     fromDate: '2022-10-19T09:38:04.730Z',
@@ -1179,6 +1191,7 @@ interface tableDataType {
   alreadyPaidForTt: boolean
   statusAccountingEntry: string
 }
+
 const debtTable = ref<Array<tableDataType>>([
   {
     dateOfPayment: moment().format('L').toString(),
@@ -1267,6 +1280,23 @@ const addStatusDelay = () => {
 }
 
 // fake trạng thái đơn hàng
+// bắt thay đổi đơn hàng
+const priceChangeOrders = ref(false)
+let countPriceChange = 0
+const changePriceRowTable = (props) => {
+  console.log('props: ', props)
+  if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
+    countPriceChange++
+    priceChangeOrders.value = true
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
+      label: 'Duyệt giá thay đổi',
+      value: 1,
+      isActive: true
+    })
+  }
+}
+
 interface statusOrderType {
   label: string
   value: number
@@ -1274,10 +1304,10 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add')
+if (type == 'add' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
-    label: 'Duyệt giá thay đổi',
-    value: 1,
+    label: 'Chốt đơn hàng',
+    value: 2,
     isActive: true
   })
 
@@ -2568,6 +2598,7 @@ onMounted(async () => {
           </div>
         </template>
       </el-dialog>
+
       <!-- Bút toán bổ sung -->
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
@@ -2853,11 +2884,8 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
@@ -3228,7 +3256,14 @@ onMounted(async () => {
           />
           <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
             <template #default="props">
-              {{ props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ' }}
+              <el-input
+                v-if="type != 'detail'"
+                v-model="props.row.price"
+                @change="changePriceRowTable(props)"
+              />
+              <div v-else>{{
+                props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
+              }}</div>
             </template>
           </el-table-column>
           <el-table-column
@@ -3238,11 +3273,14 @@ onMounted(async () => {
             width="180"
           >
             <template #default="props">
-              {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
-                  : '0 đ'
-              }}
+              <el-input v-if="type != 'detail'" v-model="props.row.finalPrice" />
+              <div v-else>
+                {{
+                  props.row.finalPrice != ''
+                    ? changeMoney.format(parseInt(props.row.finalPrice))
+                    : '0 đ'
+                }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
@@ -3441,7 +3479,11 @@ onMounted(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <div v-if="statusOrder == 1" class="w-[100%] flex ml-1 gap-4">
+          <!-- Đơn hàng có thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3479,7 +3521,66 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 2" class="w-[100%] flex ml-1 gap-4">
+
+          <!-- Đơn hàng không thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == false"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+              t('formDemo.paymentSlip')
+            }}</el-button>
+            <el-button
+              @click="dialogDepositSlipAdvance = true"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.depositSlipAdvance') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 2
+                  changeStatus(3)
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.saveCloseOrder') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 2
+                  addStatusOrder(2)
+                  changeStatus(3)
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.completeOrder') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  statusOrder = 9
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
+          </div>
+          <div
+            v-else-if="statusOrder == 2 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               @click="
                 () => {
@@ -3537,7 +3638,10 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 4 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="checkDisabled"
               @click="
@@ -3558,7 +3662,10 @@ onMounted(async () => {
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 5 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3593,12 +3700,18 @@ onMounted(async () => {
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 6 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
               t('formDemo.cancellationReturn')
             }}</el-button>
           </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 7 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <button
               :disabled="checkDisabled"
               @click="
@@ -3617,7 +3730,10 @@ onMounted(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == 8 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>

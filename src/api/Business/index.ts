@@ -270,6 +270,18 @@ export const getPromotionsList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Tính tổng đơn hàng
+export const getTotalOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.TOTAL_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Lấy danh sách dịch vụ Spa
 export const getSpaList = async (params: any): Promise<IResponse> => {
   const res = await request.get(

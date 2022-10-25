@@ -455,7 +455,14 @@ export default {
     exchangeReturnGoods: 'Exchange or return goods',
     checkFinish: 'Check and finish',
     cancellationReturn: 'Cancellation or return',
-    completeExchangeReturn: 'Complete exchange or return'
+    completeExchangeReturn: 'Complete exchange or return',
+    pleaseInputOrderCode: 'Please input order code',
+    pleaseSelectCollaboratorCode: 'Please select or enter collaborators code',
+    pleaseInputDiscount: 'Please input discount',
+    pleaseInputOrderNote: 'Please input order note',
+    pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
+    pleaseChooseDelivery: 'Please choose delivery',
+    saveCloseOrder: 'Save & close order'
   },
   button: {
     add: 'Add quick',

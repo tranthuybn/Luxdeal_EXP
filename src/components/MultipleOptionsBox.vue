@@ -92,7 +92,8 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-  }
+  },
+  { immediate: true }
 )
 
 const acceptKey = (item) => {
@@ -133,7 +134,7 @@ const valueChangeEvent = (val) => {
     })
     if (obj) emit('updateValue', val, obj ?? '')
     if (propsObj.defaultValue !== null) {
-      selected.value = propsObj.defaultValue
+      selected.value = obj.productCode
     }
   }
 }

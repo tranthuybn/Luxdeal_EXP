@@ -166,10 +166,14 @@ export const getUnitSelectOptions = async () => {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
-          unitSelect = res.data.map((index) => ({
-            label: index.name,
-            value: index.id
-          }))
+          unitSelect = res.data.map((index) =>
+            index.isActive
+              ? {
+                  label: index.name,
+                  value: index.id
+                }
+              : ''
+          )
         }
       })
       .catch((err) => {
@@ -300,7 +304,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.productCode'),
     component: 'Select',
     componentProps: {
-      id: 'hiddenGem',
       placeholder: t('reuse.enterProductCode'),
       style: 'width: 100%',
       loading: true,

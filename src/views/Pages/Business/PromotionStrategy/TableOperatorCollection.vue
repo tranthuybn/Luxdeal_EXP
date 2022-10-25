@@ -272,7 +272,7 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        emit('post-data', data)
+        emit('post-data', data, go(-1))
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
@@ -760,7 +760,11 @@ const getSpaSelected = (spaServices) => {
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
           <template #tableCustomer>
-            <el-table :data="dataTable.customerData" border>
+            <el-table
+              :data="dataTable.customerData"
+              border
+              header-row-class-name="dark:text-white text-black"
+            >
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -796,7 +800,11 @@ const getSpaSelected = (spaServices) => {
             </el-table>
           </template>
           <template #tableProduct>
-            <el-table :data="dataTable.productData" border>
+            <el-table
+              :data="dataTable.productData"
+              border
+              header-row-class-name="dark:text-white text-black"
+            >
               <el-table-column :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -834,7 +842,11 @@ const getSpaSelected = (spaServices) => {
           </template>
 
           <template #tableProductOfAuction>
-            <el-table :data="dataTable.auctionData" border>
+            <el-table
+              :data="dataTable.auctionData"
+              border
+              header-row-class-name="dark:text-white text-black"
+            >
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -872,7 +884,11 @@ const getSpaSelected = (spaServices) => {
           </template>
 
           <template #tableProductOfCombo>
-            <el-table :data="dataTable.spaData" border>
+            <el-table
+              :data="dataTable.spaData"
+              border
+              header-row-class-name="dark:text-white text-black"
+            >
               <template #append>
                 <div class="pl-750px w-320px"
                   ><div class="w-320px"

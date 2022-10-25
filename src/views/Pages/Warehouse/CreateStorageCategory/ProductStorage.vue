@@ -15,12 +15,11 @@ const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   { field: '', width: '50' },
   {
-    field: 'imageurl',
+    field: 'warehouseImages',
     label: t('reuse.warehouseListInformation'),
     minWidth: '650',
-    headerFilter: 'name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
     field: 'createdAt',

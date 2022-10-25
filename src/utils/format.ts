@@ -169,15 +169,11 @@ export const TargetType = (val) => {
 export const VoucherType = (val) => {
   switch (val) {
     case 1:
-      return t('reuse.freeVouchers')
+      return t('formDemo.giftSpa')
     case 2:
-      return t('reuse.voucherAffiliate')
-    case 3:
-      return t('reuse.redeemGiftVouchersWithPoints')
-    case 4:
-      return t('reuse.voucherExchangedForVirtualCurrency')
+      return t('formDemo.giftDiscount')
     default:
-      return t('reuse.freeVouchers')
+      return ''
   }
 }
 

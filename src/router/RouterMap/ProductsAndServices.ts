@@ -59,7 +59,7 @@ export default {
           path: 'spa-service',
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaService.vue'),
-          name: 'products-services.ServiceLibrarySpaService',
+          name: 'products-services.ServiceLibrary.SpaService',
           meta: {
             title: t('router.ServiceLibrarySpaService')
           }
@@ -75,7 +75,7 @@ export default {
             noCache: true,
             canTo: true,
             hidden: true,
-            showMainRoute: true
+            canto: true
           }
         }
       ]

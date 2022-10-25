@@ -1419,7 +1419,7 @@ const testList: string[] = [
   '/inventory-management/business-product-warehouse/export',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
-  `/inventory-management/create-repository-directory/product-storage/product-storage-utility/:type?/:id?`,
+  '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',
 
   '/accountant',
   '/accountant/payment-proposal',

@@ -116,11 +116,13 @@ const acceptKey = (item) => {
 //   })
 // }
 const loadOption = ref(false)
-// const appearsEvent = () => {
-//   const { items } = propsObj
-//   options.value = items
-//   loadOption.value = false
-// }
+watch(
+  () => propsObj.items,
+  () => {
+    options.value = propsObj.items
+    loadOption.value = true
+  }
+)
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey } = propsObj
@@ -148,7 +150,7 @@ onUnmounted(() => {
 </script>
 <template>
   <ElSelect
-    :loading="loadOption"
+    v-if="loadOption"
     ref="MultipleSelect"
     v-model="selected"
     :placeholder="placeHolder"
@@ -162,7 +164,7 @@ onUnmounted(() => {
     <!-- value is tje first object when click on title -->
     <ElOption
       :style="`width: ${width}`"
-      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
+      :value="options[0][`${identifyKey}`]"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
@@ -172,7 +174,7 @@ onUnmounted(() => {
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
-            class="text-ellipsis text-center text-blue-900"
+            class="text-ellipsis text-[#000000]"
           >
             <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
               <strong>{{ filed }}</strong>
@@ -183,10 +185,10 @@ onUnmounted(() => {
     </ElOption>
     <ElOption
       :style="`width: ${width}`"
-      v-for="(item, index) in items"
-      :key="index"
-      :value="item[identifyKey]"
-      :label="item[identifyLabel]"
+      v-for="item in options"
+      :key="item.value"
+      :value="item[`${identifyKey}`] ?? ''"
+      :label="item[`${identifyLabel}`] ?? ''"
       :disabled="disabled"
     >
       <div class="select-table">
@@ -194,7 +196,7 @@ onUnmounted(() => {
           <ElCol
             v-for="(key, i) in acceptKey(item)"
             :key="i"
-            class="text-ellipsis text-center"
+            class="text-ellipsis"
             :span="Math.floor(24 / fields.length)"
           >
             <ElTooltip placement="left-end" :content="item[key]" effect="light">

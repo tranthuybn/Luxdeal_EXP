@@ -494,6 +494,8 @@ const optionsClassify = [
   }
 ]
 
+const checkedDonePay = ref(false)
+
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -1120,6 +1122,8 @@ const detailedListExpenses = [
     note: ''
   }
 ]
+// dialogInformationExchangeAndReturnPaymentVouchers
+const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
 
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
@@ -1230,6 +1234,34 @@ const tableAccountingEntry = [
     collected: '',
     spent: '10,000,000 đ',
     intoMoney: '10,000,000 đ'
+  }
+]
+//data tbale nhập hoàn
+
+const tableDataNhapHoan = [
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 200000,
+    intoCashback: 1500
+  },
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 20000,
+    intoCashback: 1500
+  },
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 20000,
+    intoCashback: 1500
   }
 ]
 
@@ -2835,6 +2867,10 @@ onMounted(async () => {
                   t('formDemo.orderInformation')
                 }}</el-divider>
               </div>
+              <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
+              <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
+                >open a Form thông tin phiếu thanh toán trả hàng</el-button
+              >
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"

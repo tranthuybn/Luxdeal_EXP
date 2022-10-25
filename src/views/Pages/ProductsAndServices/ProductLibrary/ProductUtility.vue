@@ -21,7 +21,6 @@ import {
   ElButton,
   ElTable,
   ElTableColumn,
-  ElTreeSelect,
   ElInput,
   ElSwitch,
   ElNotification,
@@ -31,7 +30,6 @@ import {
   FormInstance,
   ElSelect,
   ElOption,
-  ElTree,
   ElMessageBox
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
@@ -51,6 +49,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import ProductAttribute from './ProductAttribute.vue'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -91,7 +90,6 @@ const validateTree = (_rule: any, value: any, callback: any) => {
     callback()
   }
 }
-const treeRef = ref<InstanceType<typeof ElTree>>()
 const treeSelectData = ref([
   {
     value: 1,
@@ -110,6 +108,13 @@ const treeSelectData = ref([
   {
     value: 3,
     label: t('reuse.material'),
+    parentid: 0,
+    disabled: true,
+    children: []
+  },
+  {
+    value: 4,
+    label: t('reuse.status'),
     parentid: 0,
     disabled: true,
     children: []
@@ -430,71 +435,71 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   })
 }
 // only check 1 child node from 1 parent node
-const customCheck = (nodeObj, tree, scope) => {
-  const checkedNodes = tree.checkedNodes
-  const checkedKeys = tree.checkedKeys
-  // let sameParent = false
-  switch (nodeObj.parentid) {
-    //parentid ==0 cap 1
-    // case 0:
-    //   sameParent = true
-    //   break
-    //parentid ==1 color
-    case 1:
-      const nodeBefore = checkedNodes.find((node) => {
-        return node.parentid == 1 && node.value != nodeObj.value
-      })
-      if (nodeBefore) {
-        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
-      }
-      break
-    //parentid ==2 size
-    case 2:
-      const nodeBefore2 = checkedNodes.find((node) => {
-        return node.parentid == 2 && node.value != nodeObj.value
-      })
-      if (nodeBefore2) {
-        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
-      }
-      break
-    //parentid ==3 material
-    case 3:
-      const nodeBefore3 = checkedNodes.find((node) => {
-        return node.parentid == 3 && node.value != nodeObj.value
-      })
-      if (nodeBefore3) {
-        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
-      }
-      break
-  }
-  // if (sameParent) {
-  //   ElNotification({
-  //     message: t('reuse.cantChooseMultipleValueForOneAttribute'),
-  //     type: 'warning'
-  //   })
-  //   tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeObj.value), 1)
-  //   // treeRef.value!.setChecked(nodeObj.value, false, false)
-  // }
+// const customCheck = (nodeObj, tree, scope) => {
+//   const checkedNodes = tree.checkedNodes
+//   const checkedKeys = tree.checkedKeys
+//   // let sameParent = false
+//   switch (nodeObj.parentid) {
+//     //parentid ==0 cap 1
+//     // case 0:
+//     //   sameParent = true
+//     //   break
+//     //parentid ==1 color
+//     case 1:
+//       const nodeBefore = checkedNodes.find((node) => {
+//         return node.parentid == 1 && node.value != nodeObj.value
+//       })
+//       if (nodeBefore) {
+//         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+//       }
+//       break
+//     //parentid ==2 size
+//     case 2:
+//       const nodeBefore2 = checkedNodes.find((node) => {
+//         return node.parentid == 2 && node.value != nodeObj.value
+//       })
+//       if (nodeBefore2) {
+//         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore2.value), 1)
+//       }
+//       break
+//     //parentid ==3 material
+//     case 3:
+//       const nodeBefore3 = checkedNodes.find((node) => {
+//         return node.parentid == 3 && node.value != nodeObj.value
+//       })
+//       if (nodeBefore3) {
+//         tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore3.value), 1)
+//       }
+//       break
+//   }
+//   // if (sameParent) {
+//   //   ElNotification({
+//   //     message: t('reuse.cantChooseMultipleValueForOneAttribute'),
+//   //     type: 'warning'
+//   //   })
+//   //   tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeObj.value), 1)
+//   //   // treeRef.value!.setChecked(nodeObj.value, false, false)
+//   // }
 
-  //bind value to table data
-  const colorNode = checkedNodes.find((node) => node.parentid == 1)
-  colorNode
-    ? ((scope.row.categories[0].id = colorNode.value),
-      (scope.row.categories[0].value = colorNode.label))
-    : ''
-  const sizeNode = checkedNodes.find((node) => node.parentid == 2)
-  sizeNode
-    ? ((scope.row.categories[2].id = sizeNode.value),
-      (scope.row.categories[2].value = sizeNode.label))
-    : ''
-  const materialNode = checkedNodes.find((node) => node.parentid == 3)
-  materialNode
-    ? ((scope.row.categories[1].id = materialNode.value),
-      (scope.row.categories[1].value = materialNode.label))
-    : ''
-  scope.row.categoriesValue = checkedKeys
-  scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
-}
+//   //bind value to table data
+//   const colorNode = checkedNodes.find((node) => node.parentid == 1)
+//   colorNode
+//     ? ((scope.row.categories[0].id = colorNode.value),
+//       (scope.row.categories[0].value = colorNode.label))
+//     : ''
+//   const sizeNode = checkedNodes.find((node) => node.parentid == 2)
+//   sizeNode
+//     ? ((scope.row.categories[2].id = sizeNode.value),
+//       (scope.row.categories[2].value = sizeNode.label))
+//     : ''
+//   const materialNode = checkedNodes.find((node) => node.parentid == 3)
+//   materialNode
+//     ? ((scope.row.categories[1].id = materialNode.value),
+//       (scope.row.categories[1].value = materialNode.label))
+//     : ''
+//   scope.row.categoriesValue = checkedKeys
+//   scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
+// }
 //get data from router
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
@@ -1207,6 +1212,10 @@ watch(
     disabledTabOpen.value = false
   }
 )
+
+const productAttributeValue = (data) => {
+  console.log('data checked', data)
+}
 //glhf:)
 </script>
 <template>
@@ -1367,17 +1376,9 @@ watch(
                 :prop="`${scope.$index}.categoriesValue`"
                 :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
-                <ElTreeSelect
-                  v-model="scope.row.categoriesValue"
-                  :data="treeSelectData"
-                  multiple
-                  accordion
-                  check-strictly
-                  :render-after-expand="false"
-                  ref="treeRef"
-                  show-checkbox
-                  node-key="value"
-                  @check="(nodeObj, tree) => customCheck(nodeObj, tree, scope)"
+                <ProductAttribute
+                  :value="scope.row.categoriesValue"
+                  @change-value="productAttributeValue"
                 />
               </el-form-item>
               <span v-else>{{

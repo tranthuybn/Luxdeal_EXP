@@ -53,6 +53,7 @@ router.beforeEach(async (to, from, next) => {
         next({ path: '/' })
         return
       }
+
       await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')
 
       permissionStore.getAddRouters.forEach((route) => {
@@ -69,12 +70,13 @@ router.beforeEach(async (to, from, next) => {
       next()
     } else {
       next(`/login?redirect=${to.path}`) // Otherwise, all redirect to the login page
+      wsCache.clear()
     }
   }
 })
 
 router.afterEach((to) => {
   useTitle(to?.meta?.title as string)
-  done() // 结束Progress
+  done() //End Progress
   loadDone()
 })

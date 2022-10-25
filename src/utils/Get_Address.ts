@@ -21,7 +21,7 @@ export const getCity = async () => {
 
 export const getDistrict = async (ID) => {
   const districtOptions = ref()
-  const res = await getAllDistrict({ id: ID })
+  const res = await getAllDistrict({ ProvinceId: ID })
   if (res) {
     districtOptions.value = res.data.map((district) => ({
       label: district.name,
@@ -38,11 +38,11 @@ export const getDistrict = async (ID) => {
 }
 export const getWard = async (ID) => {
   const wardOptions = ref()
-  const res = await getAllWard({ id: ID })
+  const res = await getAllWard({ DistrictId: ID })
   if (res) {
     wardOptions.value = res.data.map((ward) => ({
       label: ward.name,
-      value: ward.id
+      value: ward.districtId
     }))
     return wardOptions.value
   } else {

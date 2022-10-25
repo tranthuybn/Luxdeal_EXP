@@ -55,16 +55,6 @@ const dialogVisible = ref(false)
 const disabledTable = ref(false)
 var curDate = 'HH' + moment().format('hhmmss')
 let requestCode = ref('')
-// const getGenCodeCollaborator = async () => {
-//   await getGenCodeCollaborators({})
-//     .then((res) => {
-//       CollaboratorId.value = res
-//     })
-//     .catch((err) => {
-//       console.error(err)
-//     })
-//   CollaboratorId
-// }
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -85,11 +75,10 @@ let listPaymentRequest = ref()
 const listPayments = ref()
 let optionsPaymentApi = ref()
 let optionsReceiptPaymentApi = ref()
-
 let optionCallAPi = 0
-const callAPiPaymentRequest = async () => {
+const callAPiPaymentRequest = async (id) => {
   if (optionCallAPi == 0) {
-    const res = await getPaymentList({})
+    const res = await getPaymentList({ PeopleId: id })
     listPayments.value = res.data
     optionsPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -103,9 +92,9 @@ const callAPiPaymentRequest = async () => {
   }
 }
 let optionReceiptPaymentCallAPi = 0
-const callAPiReceiptPaymentRequest = async () => {
+const callAPiReceiptPaymentRequest = async (id) => {
   if (optionReceiptPaymentCallAPi == 0) {
-    const res = await getReceiptPaymentList({})
+    const res = await getReceiptPaymentList({ PeopleId: id })
     listPayments.value = res.data
     optionsReceiptPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -152,6 +141,7 @@ const callCustomersApi = async () => {
       optionsCustomerApi.value = getCustomerResult.map((collaborator) => ({
         label: collaborator.code + ' | ' + collaborator.accountName,
         value: collaborator.code,
+        id: collaborator.customerId,
         code: collaborator.code,
         accountName: collaborator.accountName,
         taxCode: collaborator.customer?.taxCode,
@@ -198,43 +188,25 @@ const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CollaboratorId = result.CollaboratorId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CollaboratorId = result.CollaboratorId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
-    }
-  } else {
-    customerAddress.value = ''
+
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.taxCode = result.taxCode
+    infoCompany.email = result.email
+    infoCompany.representative = result.representative
+    infoCompany.phonenumber = result.phonenumber
+    infoCompany.address = result.address
+    infoCompany.accountName = result.accountName
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.CollaboratorId = result.CollaboratorId
+    infoCompany.bankName = result.bankName
+    infoCompany.cccd = result.cccd
+    infoCompany.cccdCreateAt = result.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+    infoCompany.sex = result.sex
+    infoCompany.doB = result.doB
+    callAPiPaymentRequest(result.id)
+    callAPiReceiptPaymentRequest(result.id)
   }
 }
 const ruleFormRef = ref<FormInstance>()
@@ -348,9 +320,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 onBeforeMount(() => {
   callCustomersApi()
-  callAPiPaymentRequest()
-  callAPiReceiptPaymentRequest()
-  if (!type) {
+  if (type === 'add') {
     requestCode.value = curDate
   }
 })
@@ -713,7 +683,6 @@ const activeName = ref(collapse[0].title)
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   :defaultValue="FormData.ReceiptOrPaymentVoucherId"
-                  @focus="callAPiReceiptPaymentRequest()"
                   :clearable="false"
                   @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
                 />
@@ -739,7 +708,6 @@ const activeName = ref(collapse[0].title)
                     :hiddenKey="['id']"
                     :placeHolder="'Chọn mã sản phẩm'"
                     :defaultValue="FormData.PaymentOrder"
-                    @focus="callAPiPaymentRequest()"
                     :clearable="false"
                     @update-value="(value, obj) => changeNamePayment(value, obj, props)"
                   />

@@ -139,71 +139,61 @@ export const businessProductLibrary = [
   }
 ]
 let brandSelect = reactive([])
-let callBrandAPI = 0
 export const getBrandSelectOptions = async () => {
-  if (callBrandAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 100, pageIndex: 1 })
-      .then((res) => {
-        if (res.data) {
-          brandSelect = res.data.map((index) => ({
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 100, pageIndex: 1 })
+    .then((res) => {
+      if (res.data) {
+        brandSelect = res.data
+          .filter((data) => data.isActive == true)
+          .map((index) => ({
             label: index.name,
             value: index.id
           }))
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => callBrandAPI++)
-    columnProfileProduct[2].componentProps!.options = brandSelect
-    columnProfileProduct[2].componentProps!.loading = false
-  }
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  columnProfileProduct[2].componentProps!.options = brandSelect
+  columnProfileProduct[2].componentProps!.loading = false
 }
 let unitSelect = reactive([])
-let callUnitAPI = 0
 export const getUnitSelectOptions = async () => {
-  if (callUnitAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
-      .then((res) => {
-        if (res.data) {
-          unitSelect = res.data.map((index) =>
-            index.isActive
-              ? {
-                  label: index.name,
-                  value: index.id
-                }
-              : ''
-          )
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => callUnitAPI++)
-    columnProfileProduct[3].componentProps!.options = unitSelect
-    columnProfileProduct[3].componentProps!.loading = false
-  }
-}
-let originSelect = reactive([])
-let callOriginAPI = 0
-export const getOriginSelectOptions = async () => {
-  if (callOriginAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 100, pageIndex: 1 })
-      .then((res) => {
-        if (res.data) {
-          originSelect = res.data.map((index) => ({
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
+    .then((res) => {
+      if (res.data) {
+        unitSelect = res.data
+          .filter((data) => data.isActive == true)
+          .map((index) => ({
             label: index.name,
             value: index.id
           }))
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => callOriginAPI++)
-    columnProfileProduct[4].componentProps!.options = originSelect
-    columnProfileProduct[4].componentProps!.loading = false
-  }
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  columnProfileProduct[3].componentProps!.options = unitSelect
+  columnProfileProduct[3].componentProps!.loading = false
+}
+let originSelect = reactive([])
+export const getOriginSelectOptions = async () => {
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 100, pageIndex: 1 })
+    .then((res) => {
+      if (res.data) {
+        originSelect = res.data
+          .filter((data) => data.isActive == true)
+          .map((index) => ({
+            label: index.name,
+            value: index.id
+          }))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  columnProfileProduct[4].componentProps!.options = originSelect
+  columnProfileProduct[4].componentProps!.loading = false
 }
 export const customPostData = async (data) => {
   if (originSelect.length == 0) {
@@ -935,3 +925,73 @@ export const columnsImportAndExportHistory = reactive<TableColumn[]>([
     minWidth: '110'
   }
 ])
+let callAttribute = 0
+export let colorData = reactive([])
+export let sizeData = reactive([])
+export let materialData = reactive([])
+export let statusData = reactive([])
+export let genderData = reactive([])
+export const getCategoriesData = async () => {
+  if (callAttribute == 0) {
+    await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[1].key,
+      pageSize: 1000,
+      pageIndex: 1
+    }).then(
+      (res) =>
+        (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
+    )
+    await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[2].key,
+      pageSize: 1000,
+      pageIndex: 1
+    }).then(
+      (res) =>
+        (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
+    )
+    await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[3].key,
+      pageSize: 1000,
+      pageIndex: 1
+    }).then(
+      (res) =>
+        (materialData = res.data.map((material) => ({
+          label: material.name,
+          value: material.id,
+          parentid: 3
+        })))
+    )
+    await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[4].key,
+      pageSize: 1000,
+      pageIndex: 1
+    }).then(
+      (res) =>
+        (statusData = res.data.map((status) => ({
+          label: status.name,
+          value: status.id,
+          parentid: 4
+        })))
+    )
+    await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[5].key,
+      pageSize: 1000,
+      pageIndex: 1
+    }).then(
+      (res) =>
+        (genderData = res.data.map((gender) => ({
+          label: gender.name,
+          value: gender.id,
+          parentid: 5
+        })))
+    )
+
+    // treeSelectData.value[0].children = colorData
+    // treeSelectData.value[1].children = sizeData
+    // treeSelectData.value[2].children = materialData
+    // treeSelectData.value[3].children = statusData
+    // treeSelectData.value[4].children = genderData
+
+    callAttribute++
+  }
+}

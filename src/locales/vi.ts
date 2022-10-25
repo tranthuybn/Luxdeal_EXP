@@ -479,8 +479,7 @@ export default {
     pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
-    saveCloseOrder: 'Lưu & chốt đơn',
-    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng'
+    saveCloseOrder: 'Lưu & chốt đơn'
   },
   button: {
     add: 'Thêm nhanh',
@@ -875,7 +874,7 @@ export default {
     warningDate: 'Ngày bắt đầu không thể lớn hơn ngày kết thúc',
     categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
     position: 'Vị trí',
-    color: 'Màu săc',
+    color: 'Màu sắc',
     size: 'Size',
     productName: 'Tên sản phẩm',
     description: 'Mô tả',

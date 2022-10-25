@@ -32,12 +32,7 @@ import { getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSettin
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 import { API_URL } from '@/utils/API_URL'
-import {
-  customPostData,
-  getBrandSelectOptions,
-  getOriginSelectOptions,
-  getUnitSelectOptions
-} from './ProductLibraryManagement'
+import { customPostData, getUnitSelectOptions } from './ProductLibraryManagement'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -532,7 +527,7 @@ const fillAllInformation = async (data) => {
 }
 
 const callApiAttribute = async () => {
-  await getUnitSelectOptions(), await getOriginSelectOptions(), await getBrandSelectOptions()
+  await getUnitSelectOptions()
 }
 //for infinite scroll
 // const scrollMethod = () => {

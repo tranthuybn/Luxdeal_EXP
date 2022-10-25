@@ -37,12 +37,7 @@ export default {
             import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
           name: `products-services.productLibrary.Products.${utility}`,
           meta: {
-            title: t('reuse.addNewCategory'),
-            noTagsView: true,
-            canTo: true,
-            noCache: true,
-            hidden: true,
-            showMainRoute: true
+            title: t('reuse.addNewCategory')
           }
         }
       ]

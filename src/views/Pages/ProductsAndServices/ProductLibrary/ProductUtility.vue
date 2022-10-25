@@ -387,9 +387,15 @@ const newProductPropertyId = ref<number>()
 const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   if (!formEl) return
   //validate for its own row not all table
-  formEl.validateField(`${scope.$index}.categoriesValue`, async (valid) => {
+  //but i dont use it anymore, used to be validate if user enter all field
+  formEl.validateField('', async (valid) => {
     if (valid) {
+      scope.row.categories = []
+      arrayCategories.value.forEach((element) => {
+        scope.row.categories.push({ id: element })
+      })
       scope.row.edited = false
+      console.log('row:', scope.row)
       //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
@@ -973,7 +979,10 @@ watch(
 const addLastIndexSellTable = () => {
   collapse[8].tableList.push({
     quantity: undefined,
-    prices: [{ price: undefined }, { price: undefined }]
+    prices: [
+      { price: undefined, priceType: 1 },
+      { price: undefined, priceType: 2 }
+    ]
   })
 }
 const addLastIndexRentTable = () => {
@@ -1212,9 +1221,10 @@ watch(
     disabledTabOpen.value = false
   }
 )
-
+const arrayCategories = ref([])
 const productAttributeValue = (data) => {
   console.log('data checked', data)
+  arrayCategories.value = data
 }
 //glhf:)
 </script>
@@ -1376,10 +1386,7 @@ const productAttributeValue = (data) => {
                 :prop="`${scope.$index}.categoriesValue`"
                 :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
-                <ProductAttribute
-                  :value="scope.row.categoriesValue"
-                  @change-value="productAttributeValue"
-                />
+                <ProductAttribute @change-value="productAttributeValue" />
               </el-form-item>
               <span v-else>{{
                 scope.row.categoriesLabel

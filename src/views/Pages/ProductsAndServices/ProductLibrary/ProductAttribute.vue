@@ -1,24 +1,20 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { getCategories } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 import { ElTreeSelect } from 'element-plus'
-import { reactive, ref, watch } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import {
+  colorData,
+  genderData,
+  getCategoriesData,
+  materialData,
+  sizeData,
+  statusData
+} from './ProductLibraryManagement'
 
 const { t } = useI18n()
-const props = defineProps({
-  value: {
-    type: String || Array,
-    default: ''
-  }
-})
 const modelValue = ref()
-watch(
-  () => props.value,
-  () => (modelValue.value = props.value)
-)
 const emit = defineEmits(['change-value'])
 const treeSelectData = ref([
   {
@@ -57,77 +53,7 @@ const treeSelectData = ref([
     children: []
   }
 ])
-let colorData = reactive([])
-let sizeData = reactive([])
-let materialData = reactive([])
-let statusData = reactive([])
-let genderData = reactive([])
 
-let callAttribute = 0
-const getAttributeData = async () => {
-  if (callAttribute == 0) {
-    await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[1].key,
-      pageSize: 1000,
-      pageIndex: 1
-    }).then(
-      (res) =>
-        (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
-    )
-    await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[2].key,
-      pageSize: 1000,
-      pageIndex: 1
-    }).then(
-      (res) =>
-        (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
-    )
-    await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[3].key,
-      pageSize: 1000,
-      pageIndex: 1
-    }).then(
-      (res) =>
-        (materialData = res.data.map((material) => ({
-          label: material.name,
-          value: material.id,
-          parentid: 3
-        })))
-    )
-    await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[4].key,
-      pageSize: 1000,
-      pageIndex: 1
-    }).then(
-      (res) =>
-        (statusData = res.data.map((status) => ({
-          label: status.name,
-          value: status.id,
-          parentid: 4
-        })))
-    )
-    await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[5].key,
-      pageSize: 1000,
-      pageIndex: 1
-    }).then(
-      (res) =>
-        (genderData = res.data.map((gender) => ({
-          label: gender.name,
-          value: gender.id,
-          parentid: 5
-        })))
-    )
-
-    treeSelectData.value[0].children = colorData
-    treeSelectData.value[1].children = sizeData
-    treeSelectData.value[2].children = materialData
-    treeSelectData.value[3].children = statusData
-    treeSelectData.value[4].children = genderData
-
-    callAttribute++
-  }
-}
 const customCheck = (nodeObj, tree) => {
   const checkedNodes = tree.checkedNodes
   const checkedKeys = tree.checkedKeys
@@ -210,6 +136,16 @@ const customCheck = (nodeObj, tree) => {
   //   scope.row.categoriesValue = checkedKeys
   //   scope.row.categoriesLabel = checkedNodes.map((node) => node.label)
 }
+
+onBeforeMount(async () => {
+  await getCategoriesData().then(() => {
+    treeSelectData.value[0].children = colorData
+    treeSelectData.value[1].children = sizeData
+    treeSelectData.value[2].children = materialData
+    treeSelectData.value[3].children = statusData
+    treeSelectData.value[4].children = genderData
+  })
+})
 </script>
 <template>
   <ElTreeSelect
@@ -223,6 +159,5 @@ const customCheck = (nodeObj, tree) => {
     show-checkbox
     node-key="value"
     @check="(nodeObj, tree) => customCheck(nodeObj, tree)"
-    @click="getAttributeData"
   />
 </template>

@@ -814,9 +814,7 @@ const postQuickCustomer = async () => {
     unitId: 121,
     categories: [
       {
-        id: 0,
-        key: 'string',
-        value: 'string'
+        id: 0
       }
     ]
   }
@@ -872,24 +870,28 @@ const postData = async () => {
   if (checkValidate.value) {
     const productPayment = JSON.stringify([
       {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
+        productPropertyId: 2,
+        productCode: '11959375',
+        productName: 'Chanel Mini Flap Bag',
+        productPropertyCode: 'CH-WS-123',
+        productPropertyName: 'Túi + Ví, Hồng, Da động vật, Medium(30.5 - 35.5)',
         accessory: 'todo',
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory1'
+        unitName: 'Cái',
+        quantity: 1,
+        price: 10000,
+        finalPrice: 10000
       },
       {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
+        productPropertyId: 2,
+        productCode: '11959375',
+        productName: 'Chanel Mini Flap Bag',
+        productPropertyCode: 'CH-WS-123',
+        productPropertyName: 'Túi + Ví, Hồng, Da động vật, Medium(30.5 - 35.5)',
         accessory: 'todo',
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory2'
+        unitName: 'Cái',
+        quantity: 1,
+        price: 10000,
+        finalPrice: 10000
       }
     ])
     console.log('ListOfProductsForSale-post: ', ListOfProductsForSale.value)
@@ -930,10 +932,10 @@ const postData = async () => {
       CustomerId: ruleForm.customerName,
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
+      ProvinceId: valueProvince.value,
+      DistrictId: valueDistrict.value,
+      WardId: valueCommune.value,
+      Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
@@ -2730,6 +2732,89 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Địa chỉ nhận hàng -->
+      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+        <el-divider />
+        <div>
+          <div class="flex w-[100%] gap-4 items-center">
+            <label class="w-[25%] text-right"
+              >{{ t('formDemo.provinceOrCity') }} <span class="text-red-500">*</span></label
+            >
+            <el-select
+              v-model="valueProvince"
+              style="width: 96%"
+              class="m-2 fix-full-width"
+              :placeholder="t('formDemo.selectProvinceCity')"
+              @change="(data) => CityChange(data)"
+            >
+              <el-option
+                v-for="item in cities"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex w-[100%] gap-4 items-center">
+            <label class="w-[25%] text-right"
+              >{{ t('formDemo.countyOrDistrict') }} <span class="text-red-500">*</span></label
+            >
+            <el-select
+              v-model="valueDistrict"
+              style="width: 96%"
+              class="m-2 fix-full-width"
+              :placeholder="t('formDemo.selectDistrict')"
+              @change="(data) => districtChange(data)"
+            >
+              <el-option
+                v-for="item in district"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex w-[100%] gap-4 items-center">
+            <label class="w-[25%] text-right"
+              >{{ t('formDemo.wardOrCommune') }} <span class="text-red-500">*</span></label
+            >
+            <el-select
+              v-model="valueCommune"
+              style="width: 96%"
+              class="m-2 fix-full-width"
+              :placeholder="t('formDemo.chooseWard')"
+            >
+              <el-option
+                v-for="item in ward"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex w-[100%] gap-4 items-center">
+            <label class="w-[25%] text-right"
+              >{{ t('formDemo.detailedAddress') }} <span class="text-red-500">*</span></label
+            >
+            <el-input
+              v-model="enterdetailAddress"
+              style="width: 96%"
+              class="m-2 fix-full-width"
+              :placeholder="t('formDemo.enterDetailAddress')"
+            />
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="dialogFormVisible = false">{{
+              t('reuse.save')
+            }}</el-button>
+            <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -2928,100 +3013,6 @@ onMounted(async () => {
                       @click="dialogFormVisible = true"
                       ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
                     </el-button>
-                    <el-dialog
-                      v-model="dialogFormVisible"
-                      width="40%"
-                      align-center
-                      title="Địa chỉ nhận hàng"
-                    >
-                      <el-divider />
-                      <div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.provinceOrCity') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueProvince"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            :placeholder="t('formDemo.selectProvinceCity')"
-                            @change="(data) => CityChange(data)"
-                          >
-                            <el-option
-                              v-for="item in cities"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.countyOrDistrict') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueDistrict"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            :placeholder="t('formDemo.selectDistrict')"
-                            @change="(data) => districtChange(data)"
-                          >
-                            <el-option
-                              v-for="item in district"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.wardOrCommune') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueCommune"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            :placeholder="t('formDemo.chooseWard')"
-                          >
-                            <el-option
-                              v-for="item in ward"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.detailedAddress') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-input
-                            v-model="enterdetailAddress"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            :placeholder="t('formDemo.enterDetailAddress')"
-                          />
-                        </div>
-                      </div>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            class="w-[150px]"
-                            type="primary"
-                            @click="dialogFormVisible = false"
-                            >{{ t('reuse.save') }}</el-button
-                          >
-                          <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
-                            t('reuse.exit')
-                          }}</el-button>
-                        </span>
-                      </template>
-                    </el-dialog>
                   </p>
                 </div>
               </div>
@@ -3211,10 +3202,12 @@ onMounted(async () => {
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 ><template #underButton>
-                  <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                  <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
-                    >+ {{ t('formDemo.quicklyAddProducts') }}</div
-                  >
+                  <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
+                    <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
+                    <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
+                      >+ {{ t('formDemo.quicklyAddProducts') }}</div
+                    >
+                  </div>
                 </template></MultipleOptionsBox
               >
             </template>

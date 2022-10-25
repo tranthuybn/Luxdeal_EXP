@@ -92,3 +92,7 @@ export const ACCOUNTANT_API = {
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment'
 }
+
+export const WAREHOUSE_API = {
+  GET_LIST_PRODUCT_STORAGE: '/api/v1/Demo/get_warehouse'
+}

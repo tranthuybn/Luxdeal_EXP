@@ -462,7 +462,9 @@ export default {
     pleaseInputOrderNote: 'Please input order note',
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
-    saveCloseOrder: 'Save & close order'
+    saveCloseOrder: 'Save & close order',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers'
   },
   button: {
     add: 'Add quick',

@@ -129,10 +129,6 @@ const signIn = () => {
       try {
         const res = await loginApi(formData)
         if (res) {
-          const now = new Date()
-          const loginDate = { loginDate: now.getTime() }
-          Object.assign(res.data, loginDate)
-          await wsCache.set(appStore.getUserInfo, res.data)
           await setPermissionForUser(res.data)
           getRole()
         }

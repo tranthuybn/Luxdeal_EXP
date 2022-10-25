@@ -1135,11 +1135,11 @@ const getSpaSelected = (spaServices) => {
     </ElRow>
     <template #under v-if="!removeButton">
       <div v-if="props.type === 'add' || isNaN(props.id)">
-        <ElButton type="primary" :loading="loading" @click="save('add')">
-          {{ t('reuse.save') }}
-        </ElButton>
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-          {{ t('reuse.saveAndAdd') }}
+          {{ t('reuse.saveAndPending') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="cancel">
+          {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">

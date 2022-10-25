@@ -479,7 +479,8 @@ export default {
     pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
-    saveCloseOrder: 'Lưu & chốt đơn'
+    saveCloseOrder: 'Lưu & chốt đơn',
+    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng'
   },
   button: {
     add: 'Thêm nhanh',

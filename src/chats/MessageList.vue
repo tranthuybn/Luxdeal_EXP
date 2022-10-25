@@ -158,5 +158,18 @@ export default {
   overflow-y: auto;
   background-size: 100%;
   padding: 40px 0px;
+  &::-webkit-scrollbar {
+    width: 6px;
+    background-color: #e5e5e5;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: #b0b3bc;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 }
 </style>

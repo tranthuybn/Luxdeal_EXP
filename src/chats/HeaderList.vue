@@ -1,12 +1,14 @@
 <template>
-  <div class="sc-header" :style="{ color: colors.header.text }">
+  <div class="sc-header" :style="{ color: colors.header.bg }">
     <input class="sc-search" type="text" placeholder="Tìm theo tên tài khoản..." name="search2" />
     <img
       :src="SearchIcon"
       :style="{
         position: 'absolute',
-        right: '20px',
-        top: '23px',
+        right: '25px',
+        top: '31px',
+        width: '13px',
+        height: '13px',
         opacity: 0.3
       }"
     />
@@ -60,11 +62,7 @@ export default {
 
 <style scoped>
 .sc-header {
-  min-height: 75px;
-  border-top-left-radius: 9px;
-  border-top-right-radius: 9px;
-  padding: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  padding: 20px 15px;
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -72,8 +70,11 @@ export default {
 
 .sc-search {
   background: #ffffff;
-  border: 1px solid #cecece;
+  border: 1px solid #b1b1b1;
   border-radius: 5px;
+  font-size: 12px;
+  line-height: 14px;
+  color: #9ea1a5;
 
   /* Inside auto layout */
 
@@ -82,8 +83,8 @@ export default {
   align-self: stretch;
   flex-grow: 0;
   width: 100%;
-  height: 90%;
-  padding: 3%;
+  height: 35px;
+  padding: 0 30px 0 10px;
 }
 
 .sc-header--img {

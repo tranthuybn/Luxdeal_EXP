@@ -57,8 +57,8 @@ export default {
   },
   blue: {
     header: {
-      bg: '#4e8cff',
-      text: '#ffffff'
+      bg: '#ffffff',
+      text: '#1b1b1c'
     },
     launcher: {
       bg: '#4e8cff'
@@ -67,16 +67,16 @@ export default {
       bg: '#ffffff'
     },
     sentMessage: {
-      bg: '#4e8cff',
+      bg: '#2C6DDA',
       text: '#ffffff'
     },
     receivedMessage: {
-      bg: '#eaeaea',
-      text: '#222222'
+      bg: '#BF8D5C',
+      text: '#ffffff'
     },
     userInput: {
-      bg: '#f4f7f9',
-      text: '#565867'
+      bg: '#ffffff',
+      text: '#000000'
     },
     userList: {
       bg: '#fff',

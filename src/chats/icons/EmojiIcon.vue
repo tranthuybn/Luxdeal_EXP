@@ -38,6 +38,7 @@
         </g>
       </svg>
     </button>
+    <span>Trạng thái</span>
   </div>
 </template>
 
@@ -88,7 +89,7 @@ export default {
 }
 
 .sc-user-input--emoji-icon {
-  height: 18px;
+  height: 27px;
   cursor: pointer;
   align-self: center;
 }

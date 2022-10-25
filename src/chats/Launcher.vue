@@ -13,6 +13,28 @@
       <img v-if="isOpen" class="sc-closed-icon" :src="icons.close.img" :alt="icons.close.name" />
       <img v-else class="sc-open-icon" :src="icons.open.img" :alt="icons.open.name" />
     </div>
+    <div class="list-icon-chat" :class="{ opened: isOpen, closed: !isOpen }">
+      <div class="list-icon-chat-inner">
+        <div class="icon-chat-item count-more" v-if="countMore > 1">
+          <span>+ {{ countMore }}</span>
+        </div>
+        <div
+          class="icon-chat-item"
+          v-for="(chatItem, index) in listChatItemFilter"
+          :key="chatItem.id"
+          :class="{ lastItem: index === listChatItemFilter.length - 1 }"
+        >
+          <span class="chat-tooltip">{{ chatItem.name }}</span>
+          <img :src="chatItem.imageUrl" :alt="chatItem.name" />
+          <span
+            class="close-chat-item"
+            :class="{ hidenClose: countMore > 1 && index === listChatItemFilter.length - 6 }"
+            @click="handleCloseChatItem(chatItem.id)"
+            >x</span
+          >
+        </div>
+      </div>
+    </div>
     <ChatWindow
       :message-list="messageList"
       :on-user-input-submit="onMessageWasSent"
@@ -30,11 +52,15 @@
       :colors="colors"
       :always-scroll-to-bottom="alwaysScrollToBottom"
       :message-styling="messageStyling"
+      :listChatOpen="listChatOpen"
+      :popupOpened="popupOpened"
       @close="close"
       @scrollToTop="$emit('scrollToTop')"
       @onType="$emit('onType', $event)"
       @edit="$emit('edit', $event)"
       @remove="$emit('remove', $event)"
+      @selectUser="handleOpenChat"
+      @getChatPopup="handleCloseChat"
     >
       <template #header>
         <slot name="header"> </slot>
@@ -200,8 +226,8 @@ export default {
       default: function () {
         return {
           header: {
-            bg: '#4e8cff',
-            text: '#ffffff'
+            bg: '#ffffff',
+            text: '#1b1b1c'
           },
           launcher: {
             bg: '#4e8cff'
@@ -237,6 +263,16 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      listUserSelected: [],
+      listChatOpen: [],
+      listChatMore: [],
+      listItemChatBottom: [],
+      popupOpened: false,
+      countMore: 1
+    }
+  },
   computed: {
     chatWindowTitle() {
       if (this.title !== '') return this.title
@@ -245,6 +281,9 @@ export default {
       if (this.participants.length > 1) return 'You, ' + this.participants[0].name + ' & others'
 
       return 'You & ' + this.participants[0].name
+    },
+    listChatItemFilter() {
+      return [...this.listItemChatBottom].filter((chatItem, index) => index < 6).reverse()
     }
   },
   watch: {
@@ -264,15 +303,72 @@ export default {
       if (this.autoFocus) {
         this.$event.$emit('focusUserInput')
       }
+    },
+    handleOpenChat(user) {
+      const messageUser = this.messageList.filter((message) => message.author === user.id)
+      const userFormat = {
+        user,
+        popupOpened: this.popupOpened,
+        messageUser
+      }
+      const isSelected = this.listUserSelected.includes(user.id)
+      // handle show popup chat
+      if (isSelected) {
+        const index = this.listChatOpen.findIndex((chatPopup) => chatPopup.user.id === user.id)
+        this.listChatOpen.forEach((chatPopup) => (chatPopup.popupOpened = false))
+        if (this.listChatOpen.length > 0) {
+          this.listChatOpen[index].popupOpened = true
+        }
+        if (this.listChatOpen.length === 3) {
+          if (user.id !== this.listChatOpen[0].user.id) {
+            this.listChatOpen.splice(index, 1)
+            this.listChatOpen.unshift(userFormat)
+          }
+        }
+      } else {
+        this.listUserSelected.unshift(user.id)
+        this.listChatOpen.unshift(userFormat)
+        if (this.listChatOpen.length > 3) {
+          this.listItemChatBottom.unshift(this.listChatOpen[this.listChatOpen.length - 1].user)
+          this.listChatOpen.splice(this.listChatOpen.length - 1, 1)
+          this.listUserSelected.splice(this.listUserSelected.length - 1, 1)
+        }
+      }
+      // handle show more item
+      if (this.listItemChatBottom.length >= 7) {
+        this.countMore += 1
+      }
+      if (this.countMore === 2) {
+        this.listChatMore = [this.listItemChatBottom[0], this.listItemChatBottom[1]]
+      } else if (this.countMore > 2) {
+        this.listChatMore.push(this.listItemChatBottom[this.countMore - 1])
+      }
+    },
+    handleCloseChat(id) {
+      const index1 = this.listChatOpen.findIndex((chatPopup) => chatPopup.user.id === id)
+      const index2 = this.listUserSelected.findIndex((id) => id === id)
+      if (this.listChatOpen.length >= 7) {
+        this.countMore -= 1
+      }
+      this.listChatOpen.splice(index1, 1)
+      this.listUserSelected.splice(index2, 1)
+      // if (this.listItemChatBottom.length > 0) {
+      //   this.listChatOpen.push(this.listItemChatBottom[0])
+      //   this.listItemChatBottom.splice(0, 1)
+      // }
+    },
+    handleCloseChatItem(id) {
+      const index = this.listItemChatBottom.findIndex((user) => user.id === id)
+      this.listItemChatBottom.splice(index, 1)
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .sc-launcher {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   background-position: center;
   background-repeat: no-repeat;
   position: fixed;
@@ -282,22 +378,23 @@ export default {
   box-shadow: none;
   transition: box-shadow 0.2s ease-in-out;
   cursor: pointer;
+  z-index: 101;
 }
 
 .sc-launcher:before {
   content: '';
   position: relative;
   display: block;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   transition: box-shadow 0.2s ease-in-out;
 }
 
 .sc-launcher .sc-open-icon,
 .sc-launcher .sc-closed-icon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   position: fixed;
   right: 25px;
   bottom: 25px;
@@ -306,12 +403,12 @@ export default {
 
 .sc-launcher .sc-closed-icon {
   transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
 }
 
 .sc-launcher .sc-open-icon {
-  padding: 20px;
+  padding: 15px;
   box-sizing: border-box;
   opacity: 1;
 }
@@ -350,5 +447,89 @@ export default {
   margin: auto;
   font-size: 12px;
   font-weight: 500;
+}
+.list-icon-chat {
+  position: fixed;
+  height: 50px;
+  bottom: 25px;
+  right: 85px;
+  width: auto;
+  max-width: 360px;
+  overflow: hidden;
+  transition: all 0.3s;
+  &.closed {
+    opacity: 0;
+    display: none;
+  }
+}
+
+.list-icon-chat-inner {
+  z-index: 100;
+  display: flex;
+}
+.icon-chat-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: box-shadow 0.2s ease-in-out;
+  &.unLastItem {
+    margin-right: -10px;
+  }
+  &:hover {
+    box-shadow: 0 0px 27px 1.5px rgba(0, 0, 0, 0.2);
+  }
+  img {
+    width: 100%;
+    height: 50px;
+    max-width: 50px;
+    min-width: 50px;
+    display: block;
+    border-radius: 50%;
+  }
+}
+.count-more {
+  background-color: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  letter-spacing: -1.75px;
+  font-size: 14px;
+  z-index: 1;
+}
+.chat-tooltip {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+}
+.close-chat-item {
+  position: absolute;
+  top: 0px;
+  right: 1px;
+  color: #000;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  &.hidenClose {
+    display: none;
+  }
+  // &:hover {
+  //   &:not(.count-more) {
+
+  //   }
+  // }
 }
 </style>

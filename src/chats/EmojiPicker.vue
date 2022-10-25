@@ -56,10 +56,10 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .sc-emoji-picker {
   position: absolute;
-  bottom: 50px;
+  bottom: 100%;
   right: 0px;
   width: 330px;
   max-height: 215px;
@@ -67,6 +67,7 @@ export default {
   background: white;
   border-radius: 10px;
   outline: none;
+  z-index: 99999999;
 }
 
 .sc-emoji-picker:after {
@@ -82,12 +83,14 @@ export default {
 }
 
 .sc-emoji-picker--content {
-  padding: 10px;
   overflow: auto;
   width: 100%;
   max-height: 195px;
   margin-top: 7px;
   box-sizing: border-box;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .sc-emoji-picker--category {

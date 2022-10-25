@@ -10,14 +10,19 @@
     >
       <slot name="user-avatar" :message="message" :user="user">
         <div
+          class="sc-avater-name"
           v-if="message.type !== 'system' && authorName && authorName !== 'me'"
-          el-tooltip="authorName"
-          :title="authorName"
-          class="sc-message--avatar"
-          :style="{
-            backgroundImage: `url(${chatImageUrl})`
-          }"
-        ></div>
+        >
+          <span
+            el-tooltip="authorName"
+            :title="authorName"
+            class="sc-message--avatar"
+            :style="{
+              backgroundImage: `url(${chatImageUrl})`
+            }"
+          ></span>
+          <span>{{ authorName }}</span>
+        </div>
       </slot>
 
       <TextMessage
@@ -146,11 +151,11 @@ export default {
 
 .sc-message--content {
   width: 100%;
-  display: flex;
 }
 
 .sc-message--content.sent {
   justify-content: flex-end;
+  display: flex;
 }
 
 .sc-message--content.system {
@@ -160,16 +165,29 @@ export default {
 .sc-message--content.sent .sc-message--avatar {
   display: none;
 }
-
+.sc-avater-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+  span {
+    &:last-child {
+      width: calc(100% - 35px);
+      padding-left: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #000000;
+    }
+  }
+}
 .sc-message--avatar {
   background-repeat: no-repeat;
   background-size: 100%;
   background-position: center;
-  min-width: 30px;
-  min-height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   align-self: center;
-  margin-right: 15px;
+  display: block;
 }
 
 .sc-message--meta {
@@ -186,12 +204,14 @@ export default {
 }
 
 .sc-message--text {
-  padding: 5px 20px;
+  padding: 10px 20px;
   border-radius: 6px;
   font-weight: 300;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.4;
   position: relative;
+  display: inline-block;
+  max-width: 80%;
   -webkit-font-smoothing: subpixel-antialiased;
   .sc-message--text-body {
     .sc-message--text-content {
@@ -234,7 +254,6 @@ export default {
 .sc-message--content.sent .sc-message--text {
   color: white;
   background-color: #4e8cff;
-  max-width: calc(100% - 120px);
   word-wrap: break-word;
 }
 

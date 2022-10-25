@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="scc-chat-window" :class="{ opened: isOpen, closed: !isOpen }">
+      <!-- <div style="color: red" @click="handleSelectUser">sss</div> -->
       <HeaderList
         :title="title"
         :colors="colors"
@@ -11,64 +12,82 @@
           <slot name="header"> </slot>
         </template>
       </HeaderList>
-      <UserList :colors="colors" :participants="participants" />
+      <UserList :colors="colors" :participants="participants" @select-user="selectUser" />
     </div>
-    <div class="sc-chat-window" :class="{ opened: isOpen, closed: !isOpen }">
-      <Header
-        v-if="showHeader"
-        :title="title"
-        :colors="colors"
-        @close="$emit('close')"
-        @userList="handleUserListToggle"
+    <div
+      class="sc-chat-window"
+      v-if="listChatOpen.length > 0"
+      :class="{ opened: isOpen, closed: !isOpen }"
+    >
+      <div
+        class="sc-chat-window-inner"
+        v-for="(chatPopup, index) in listChatOpenFilter"
+        :key="chatPopup.user.id"
+        :class="{ popupOpened: chatPopup.popupOpened }"
+        :style="{
+          right: index === 0 ? '320px' : `${320 + chatPosition * index}px`
+        }"
       >
-        <template>
-          <slot name="header"> </slot>
-        </template>
-      </Header>
-      <MessageList
-        :messages="messages"
-        :participants="participants"
-        :show-typing-indicator="showTypingIndicator"
-        :colors="colors"
-        :always-scroll-to-bottom="alwaysScrollToBottom"
-        :show-confirmation-deletion="showConfirmationDeletion"
-        :confirmation-deletion-message="confirmationDeletionMessage"
-        :message-styling="messageStyling"
-        @scrollToTop="$emit('scrollToTop')"
-        @remove="$emit('remove', $event)"
-      >
-        <template #user-avatar="scopedProps">
-          <slot name="user-avatar" :user="scopedProps.user" :message="scopedProps.message"> </slot>
-        </template>
-        <template #text-message-body="scopedProps">
-          <slot
-            name="text-message-body"
-            :message="scopedProps.message"
-            :messageText="scopedProps.messageText"
-            :messageColors="scopedProps.messageColors"
-            :me="scopedProps.me"
-          >
-          </slot>
-        </template>
-        <template #system-message-body="scopedProps">
-          <slot name="system-message-body" :message="scopedProps.message"> </slot>
-        </template>
-        <template #text-message-toolbox="scopedProps">
-          <slot name="text-message-toolbox" :message="scopedProps.message" :me="scopedProps.me">
-          </slot>
-        </template>
-      </MessageList>
-      <UserInput
-        :show-emoji="showEmoji"
-        :show-emoji-in-text="showEmojiInText"
-        :on-submit="onUserInputSubmit"
-        :suggestions="getSuggestions()"
-        :show-file="showFile"
-        :placeholder="placeholder"
-        :colors="colors"
-        @onType="$emit('onType', $event)"
-        @edit="$emit('edit', $event)"
-      />
+        <Header
+          v-if="showHeader"
+          :title="chatPopup.user.name"
+          :titleImageUrl="chatPopup.user.imageUrl"
+          :colors="colors"
+          :chatPopupSelect="chatPopup"
+          @close="$emit('close')"
+          @userList="handleUserListToggle"
+          @getChatPopup="getChatPopup"
+        >
+          <template>
+            <slot name="header"> </slot>
+          </template>
+        </Header>
+        <MessageList
+          :messages="messages"
+          :participants="participants"
+          :show-typing-indicator="showTypingIndicator"
+          :colors="colors"
+          :always-scroll-to-bottom="alwaysScrollToBottom"
+          :show-confirmation-deletion="showConfirmationDeletion"
+          :confirmation-deletion-message="confirmationDeletionMessage"
+          :message-styling="messageStyling"
+          @scrollToTop="$emit('scrollToTop')"
+          @remove="$emit('remove', $event)"
+        >
+          <template #user-avatar="scopedProps">
+            <slot name="user-avatar" :user="scopedProps.user" :message="scopedProps.message">
+            </slot>
+          </template>
+          <template #text-message-body="scopedProps">
+            <slot
+              name="text-message-body"
+              :message="scopedProps.message"
+              :messageText="scopedProps.messageText"
+              :messageColors="scopedProps.messageColors"
+              :me="scopedProps.me"
+            >
+            </slot>
+          </template>
+          <template #system-message-body="scopedProps">
+            <slot name="system-message-body" :message="scopedProps.message"> </slot>
+          </template>
+          <template #text-message-toolbox="scopedProps">
+            <slot name="text-message-toolbox" :message="scopedProps.message" :me="scopedProps.me">
+            </slot>
+          </template>
+        </MessageList>
+        <UserInput
+          :show-emoji="showEmoji"
+          :show-emoji-in-text="showEmojiInText"
+          :on-submit="onUserInputSubmit"
+          :suggestions="getSuggestions()"
+          :show-file="showFile"
+          :placeholder="placeholder"
+          :colors="colors"
+          @onType="$emit('onType', $event)"
+          @edit="$emit('edit', $event)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -152,18 +171,30 @@ export default {
     confirmationDeletionMessage: {
       type: String,
       required: true
+    },
+    listChatOpen: {
+      type: Array,
+      required: true,
+      default: () => []
+    },
+    popupOpened: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
     return {
-      showUserList: true
+      showUserList: true,
+      chatPosition: 405
     }
   },
   computed: {
     messages() {
       let messages = this.messageList
-
       return messages
+    },
+    listChatOpenFilter() {
+      return [...this.listChatOpen].filter((chatItem, index) => index < 3).reverse()
     }
   },
   methods: {
@@ -172,18 +203,24 @@ export default {
     },
     getSuggestions() {
       return this.messages.length > 0 ? this.messages[this.messages.length - 1].suggestions : []
+    },
+    selectUser(user) {
+      this.$emit('selectUser', user)
+    },
+    getChatPopup(chatItem) {
+      this.$emit('getChatPopup', chatItem)
     }
   }
 }
 </script>
 
 <style scoped>
-.sc-chat-window {
-  width: 370px;
+.sc-chat-window-inner {
+  width: 400px;
   height: calc(100% - 120px);
   max-height: 590px;
   position: fixed;
-  right: 400px;
+  right: 320px;
   bottom: 100px;
   box-sizing: border-box;
   box-shadow: 0px 7px 40px 2px rgba(148, 149, 150, 0.1);
@@ -191,18 +228,17 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 10px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   animation: fadeIn;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
-  z-index: 2147483647;
+  z-index: 1000;
 }
 
 .scc-chat-window {
-  width: 370px;
-  height: calc(100% - 120px);
-  max-height: 590px;
+  width: 290px;
+  height: 100%;
+  max-height: calc(100% - 120px);
   position: fixed;
   right: 25px;
   bottom: 100px;
@@ -212,15 +248,20 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 10px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   animation: fadeIn;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
-  z-index: 2147483647;
+  z-index: 1000;
 }
 
 .sc-chat-window.closed {
+  opacity: 0;
+  display: none;
+  bottom: 90px;
+}
+
+.scc-chat-window.closed {
   opacity: 0;
   display: none;
   bottom: 90px;

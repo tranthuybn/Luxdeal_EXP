@@ -19,6 +19,7 @@
       </svg>
       <input id="file-input" type="file" @change="_handleChange" @click="_handleClick" />
     </button>
+    <span>File</span>
   </div>
 </template>
 
@@ -60,8 +61,8 @@ export default {
 }
 
 .sc-user-input--file-icon {
-  height: 20px;
-  width: 20px;
+  height: 27px;
+  width: 27px;
   align-self: center;
   outline: none;
 }

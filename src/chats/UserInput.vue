@@ -42,13 +42,13 @@
       ></div>
       <div class="sc-user-input--buttons">
         <div class="sc-user-input--button"></div>
-        <div v-if="showEmoji && !isEditing" class="sc-user-input--button">
+        <div v-if="showEmoji && !isEditing" class="sc-user-input--button type-a">
           <EmojiIcon :on-emoji-picked="_handleEmojiPicked" :color="colors.userInput.text" />
         </div>
-        <div v-if="showFile && !isEditing" class="sc-user-input--button">
+        <div v-if="showFile && !isEditing" class="sc-user-input--button type-a">
           <FileIcons :on-change="_handleFileSubmit" :color="colors.userInput.text" />
         </div>
-        <div v-if="isEditing" class="sc-user-input--button">
+        <div v-if="isEditing" class="sc-user-input--button type-b">
           <UserInputButton
             :color="colors.userInput.text"
             tooltip="cancel"
@@ -57,7 +57,7 @@
             <IconCross />
           </UserInputButton>
         </div>
-        <div class="sc-user-input--button">
+        <div class="sc-user-input--button type-c">
           <UserInputButton
             v-if="isEditing"
             :color="colors.userInput.text"
@@ -338,13 +338,14 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .sc-user-input {
-  min-height: 55px;
+  min-height: 120px;
+  padding: 14px 20px;
   margin: 0px;
   position: relative;
   bottom: 0;
-  display: flex;
+  border-top: 1px solid #eeeeee;
   background-color: #f4f7f9;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
@@ -352,24 +353,26 @@ export default {
 }
 
 .sc-user-input--text {
-  width: 300px;
+  width: 100%;
+  margin: auto;
   resize: none;
   border: none;
   outline: none;
   border-bottom-left-radius: 10px;
   box-sizing: border-box;
-  padding: 18px;
-  font-size: 15px;
+  padding: 17px 80px 17px 20px;
+  font-size: 12px;
   font-weight: 400;
-  line-height: 1.33;
+  line-height: 14px;
   white-space: pre-wrap;
   word-wrap: break-word;
   color: #565867;
   -webkit-font-smoothing: antialiased;
   max-height: 200px;
-  overflow: scroll;
   bottom: 0;
-  overflow-x: hidden;
+  min-height: 48px;
+  background-color: #eeeeee;
+  border-radius: 30px;
   overflow-y: auto;
 }
 
@@ -383,16 +386,13 @@ export default {
 }
 
 .sc-user-input--buttons {
-  width: 100px;
-  position: absolute;
-  right: 30px;
-  height: 100%;
+  width: 100%;
   display: flex;
-  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .sc-user-input--button:first-of-type {
-  width: 40px;
+  order: 6;
 }
 
 .sc-user-input--button {
@@ -403,12 +403,38 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  &.type-a {
+    width: 60px;
+    text-align: center;
+    span {
+      color: #000000;
+      font-size: 10px;
+      display: block;
+    }
+  }
+  &.type-b {
+    position: absolute;
+    bottom: 75px;
+    right: 60px;
+  }
+  &.type-c {
+    position: absolute;
+    bottom: 75px;
+    right: 30px;
+  }
 }
 
 .sc-user-input.active {
   box-shadow: none;
   background-color: white;
   box-shadow: 0px -5px 20px 0px rgba(150, 165, 190, 0.2);
+  .sc-user-input--button:last-child {
+    svg {
+      g {
+        fill: #2c6dda;
+      }
+    }
+  }
 }
 
 .sc-user-input--button label {

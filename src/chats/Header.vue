@@ -1,12 +1,16 @@
 <template>
   <div class="sc-header" :style="{ background: colors.header.bg, color: colors.header.text }">
-    <img v-if="titleImageUrl" class="sc-header--img" :src="titleImageUrl" alt="" />
+    <img v-if="titleImageUrl" class="sc-header--img" :src="titleImageUrl" alt="avatar" />
     <div v-if="!disableUserListToggle" class="sc-header--title enabled" @click="toggleUserList">
       {{ title }}
     </div>
     <div v-else class="sc-header--title">{{ title }}</div>
 
-    <div v-if="showCloseButton" class="sc-header--close-button" @click="$emit('close')">
+    <div
+      v-if="showCloseButton"
+      class="sc-header--close-button"
+      @click="getChatPopup(chatPopupSelect.user.id)"
+    >
       <img :src="icons.close.img" :alt="icons.close.name" />
     </div>
   </div>
@@ -14,7 +18,7 @@
 
 <script>
 import { mapState } from './store/'
-import CloseIcon from './assets/close-icon-big.png'
+import CloseIcon from './assets/close.svg'
 
 export default {
   props: {
@@ -36,6 +40,14 @@ export default {
     colors: {
       type: Object,
       required: true
+    },
+    chatPopupSelect: {
+      type: Object,
+      required: true
+    },
+    titleImageUrl: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -44,12 +56,15 @@ export default {
     }
   },
   computed: {
-    ...mapState(['disableUserListToggle', 'titleImageUrl', 'showCloseButton'])
+    ...mapState(['disableUserListToggle', 'showCloseButton'])
   },
   methods: {
     toggleUserList() {
       this.inUserList = !this.inUserList
       this.$emit('userList', this.inUserList)
+    },
+    getChatPopup(chatItem) {
+      this.$emit('getChatPopup', chatItem)
     }
   }
 }
@@ -57,11 +72,9 @@ export default {
 
 <style scoped>
 .sc-header {
-  min-height: 75px;
-  border-top-left-radius: 9px;
-  border-top-right-radius: 9px;
+  min-height: 74px;
   padding: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #eeeeee;
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -70,15 +83,17 @@ export default {
 .sc-header--img {
   border-radius: 50%;
   align-self: center;
-  padding: 10px;
+  width: 48px;
+  height: 48px;
 }
 
 .sc-header--title {
   align-self: center;
-  padding: 10px;
+  padding: 0 14px;
   flex: 1;
   user-select: none;
-  font-size: 20px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .sc-header--title.enabled {
@@ -86,23 +101,14 @@ export default {
   border-radius: 5px;
 }
 
-.sc-header--title.enabled:hover {
-  box-shadow: 0px 2px 5px rgba(0.2, 0.2, 0.5, 0.1);
-}
-
 .sc-header--close-button {
   width: 40px;
   align-self: center;
   height: 40px;
-  margin-right: 10px;
   box-sizing: border-box;
   cursor: pointer;
   border-radius: 5px;
   margin-left: auto;
-}
-
-.sc-header--close-button:hover {
-  box-shadow: 0px 2px 5px rgba(0.2, 0.2, 0.5, 0.1);
 }
 
 .sc-header--close-button img {

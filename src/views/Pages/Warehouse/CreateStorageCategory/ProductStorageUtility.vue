@@ -38,7 +38,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'title',
+    field: 'name',
     label: t('reuse.nameStorage'),
     component: 'Input',
     colProps: {
@@ -83,16 +83,28 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 //title lay trong router
 const title = router.currentRoute.value.meta.title
+
+type SetFormData = {
+  name: string
+}
+const emtyFormData = {} as SetFormData
+const setFormData = reactive(emtyFormData)
+
+const customizeData = async (data) => {
+  setFormData.name = data[0].name
+}
 </script>
 
 <template>
   <TableOperator
-    :api="getProductStorageList"
+    :apiId="getProductStorageList"
     :schema="schema"
     :nameBack="currentRoute"
     :title="title"
     :id="id"
     :type="type"
+    :formDataCustomize="setFormData"
+    @customize-form-data="customizeData"
     :multipleImages="false"
   />
 </template>

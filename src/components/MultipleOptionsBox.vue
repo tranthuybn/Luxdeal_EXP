@@ -92,6 +92,7 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
+    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )

@@ -54,7 +54,8 @@ const schema = reactive<FormSchema[]>([
         { label: t('formDemo.decreaseByAmount'), value: 2 },
         { label: t('formDemo.noPromotion'), value: 3 }
       ]
-    }
+    },
+    value: 1
   },
   {
     field: 'percent',

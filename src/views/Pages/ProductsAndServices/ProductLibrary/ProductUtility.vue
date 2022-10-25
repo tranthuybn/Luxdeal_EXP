@@ -216,28 +216,7 @@ const addLastRowAttribute = () => {
     productCode: productData.productCode,
     productId: findId,
     code: 'string', //api chua tra/chưa có trường nào để lấy thông tin
-    categories: [
-      {
-        id: null,
-        key: 'Color',
-        value: ''
-      },
-      {
-        id: null,
-        key: 'Material',
-        value: ''
-      },
-      {
-        id: null,
-        key: 'Size',
-        value: ''
-      },
-      {
-        id: 116, //fix cứng chưa có trường nào để lấy thông tin
-        key: 'State',
-        value: 'Small(15.5 - 30.5)'
-      }
-    ],
+    categories: [],
     bussinessSetups: [
       //fix theo api (ko đổi)
       {
@@ -334,13 +313,14 @@ const handleDeleteRow = async (scope) => {
         })
 }
 const handleEditRow = (data) => {
+  console.log('edit:', data)
   data.edited = true //change table cell to tree select
   data.categoriesValue = [] //convert obj to array
   //push data to tree select
   if (!data.newValue) {
     for (let i = 0; i <= 4; i++) {
-      if (data.categories[i].id !== 0) {
-        data.categoriesValue.push(data.categories[i].id)
+      if (data.categories[i]?.id !== 0) {
+        data.categoriesValue.push(data.categories[i]?.id)
       }
     }
   }
@@ -370,8 +350,7 @@ const customUpdate = async (data) => {
   //return newProductPropertyId when newValue post success
   customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
-  customUpdateData.categories = []
-  data.categoriesValue.forEach((category) => customUpdateData.categories.push({ id: category }))
+  customUpdateData.categories = data.categories
   customUpdateData.bussinessSetups = data.bussinessSetups
   console.log('customUpdateData:', customUpdateData)
 
@@ -386,22 +365,22 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   //but i dont use it anymore, used to be validate if user enter all field
   formEl.validateField('', async (valid) => {
     if (valid) {
-      scope.row.categories = []
-      arrayCategories.value.forEach((element) => {
-        scope.row.categories.push({ id: element })
-      })
+      // scope.row.categories = []
+      // arrayCategories.value.forEach((element) => {
+      //   scope.row.categories.push({ id: element })
+      // })
       scope.row.edited = false
       console.log('scope', scope.row)
       //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
           .then((res) => {
-            ;(scope.row.newValue = false),
-              (newProductPropertyId.value = res.data),
-              ElNotification({
-                message: t('reuse.addSuccess'),
-                type: 'success'
-              })
+            scope.row.newValue = false
+            newProductPropertyId.value = res.data
+            ElNotification({
+              message: t('reuse.addSuccess'),
+              type: 'success'
+            })
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
@@ -1217,10 +1196,10 @@ watch(
     disabledTabOpen.value = false
   }
 )
-const arrayCategories = ref([])
+// const arrayCategories = ref([])
 const productAttributeValue = (obj, scope) => {
   console.log('data checked', obj, scope)
-  // scope.row.categoriesValue = obj.value
+  scope.row.categories = obj.map((element) => ({ id: element.value, value: element.label }))
   // arrayCategories.value = obj.value
 }
 const categoriesToString = (categories) => {

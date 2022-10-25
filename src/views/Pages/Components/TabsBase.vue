@@ -130,6 +130,7 @@ const pushAdd = () => {
             :selection="selection"
             :api="dynamicApi"
             :fullColumns="dynamicColumns"
+            :customOperator="item.customOperator"
             :delApi="item.delApi"
             :tabs="item.name"
           />

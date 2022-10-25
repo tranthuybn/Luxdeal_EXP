@@ -368,6 +368,7 @@ export default {
     enterPassword: 'Enter password',
     confirmPassword: 'Confirm password',
     cancelAccount: 'Cancel account',
+    cancelRequest: 'Cancel request',
     enterAccountNumber: 'Enter account number',
     enterAccountName: 'Enter account name',
     provinceAndCity: 'Province/city',

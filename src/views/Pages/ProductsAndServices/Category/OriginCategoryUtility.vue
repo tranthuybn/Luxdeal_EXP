@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -17,6 +17,7 @@ import { API_URL } from '@/utils/API_URL'
 const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
+let disableCheckBox = ref(false)
 let timesCallAPI = 0
 const schema = reactive<FormSchema[]>([
   {
@@ -111,14 +112,28 @@ const schema = reactive<FormSchema[]>([
     component: 'Checkbox',
     value: [],
     colProps: {
-      span: 24
+      span: 7
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 'active'
-        },
+        }
+      ]
+    }
+  },
+  {
+    field: 'status',
+    label: t('reuse.status'),
+    component: 'Checkbox',
+    value: [],
+    colProps: {
+      span: 11
+    },
+    componentProps: {
+      options: [
         {
           label: t('reuse.stopShowAppWeb'),
           value: 'hide'
@@ -215,13 +230,23 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[8].key }
 let title = ref()
-if (type === 'add') {
-  title.value = router.currentRoute.value.meta.title
-} else if (type === 'detail') {
-  title.value = t('reuse.detailOrigin')
-} else if (type === 'edit') {
-  title.value = t('reuse.editOrigin')
-}
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute.value.meta.title
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailOrigin')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editOrigin')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const formDataCustomize = ref()
 //custom data before set Value to Form
 const customizeData = async (formData) => {

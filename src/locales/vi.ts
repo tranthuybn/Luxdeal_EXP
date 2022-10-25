@@ -384,6 +384,7 @@ export default {
     enterPassword: 'Nhập mật khẩu',
     confirmPassword: 'Nhập lại mật khẩu',
     cancelAccount: 'Hủy tài khoản',
+    cancelRequest: 'Hủy yêu cầu',
     enterAccountNumber: 'Nhập số tài khoản',
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',

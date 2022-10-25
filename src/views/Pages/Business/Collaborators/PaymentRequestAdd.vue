@@ -816,7 +816,7 @@ const activeName = ref(collapse[0].title)
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelAccount') }} </ElButton>
+          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelRequest') }} </ElButton>
         </div>
         <div v-else-if="type === 'detail'" class="flex justify-center">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">

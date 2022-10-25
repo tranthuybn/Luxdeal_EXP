@@ -1,10 +1,15 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import { useCache } from '@/hooks/web/useCache'
+import { usePermissionStore } from '@/store/modules/permission'
 
 import { ElMessage } from 'element-plus'
 
 import qs from 'qs'
 
 import { config } from '@/config/axios/config'
+
+const { wsCache } = useCache()
+const permissionStore = usePermissionStore()
 
 const { result_code, base_url } = config
 
@@ -18,6 +23,7 @@ const service: AxiosInstance = axios.create({
 // Request interceptor
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
+    config!.headers!['Authorization'] = `Bearer ${wsCache.get(permissionStore.getAccessToken)}`
     if (
       config.method === 'post' &&
       config!.headers!['Content-Type'] === 'application/x-www-form-urlencoded'
@@ -49,7 +55,7 @@ service.interceptors.request.use(
   }
 )
 
-// response 拦截器
+// Response interceptor
 service.interceptors.response.use(
   (response: AxiosResponse<Recordable>) => {
     if (response.data.code === result_code || response.data.code == null) {

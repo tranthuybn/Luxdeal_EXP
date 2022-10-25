@@ -10,6 +10,10 @@ export interface PermissionState {
   addRouters: AppRouteRecordRaw[]
   isAddRouters: boolean
   menuTabRouters: AppRouteRecordRaw[]
+  accessToken: string
+  refreshToken: string
+  roles: string
+  routerByRoles: string
 }
 
 export const usePermissionStore = defineStore({
@@ -18,7 +22,11 @@ export const usePermissionStore = defineStore({
     routers: [],
     addRouters: [],
     isAddRouters: false,
-    menuTabRouters: []
+    menuTabRouters: [],
+    accessToken: 'ACCESS_TOKEN',
+    refreshToken: 'REFRESH_TOKEN',
+    roles: 'ROLES',
+    routerByRoles: 'ROUTER_BY_ROLES'
   }),
   persist: {
     enabled: true
@@ -35,6 +43,18 @@ export const usePermissionStore = defineStore({
     },
     getMenuTabRouters(): AppRouteRecordRaw[] {
       return this.menuTabRouters
+    },
+    getAccessToken(): string {
+      return this.accessToken
+    },
+    getRefreshToken(): string {
+      return this.refreshToken
+    },
+    getUserRole(): string {
+      return this.roles
+    },
+    getRouterByRoles(): string {
+      return this.routerByRoles
     }
   },
   actions: {

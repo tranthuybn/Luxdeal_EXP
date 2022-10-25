@@ -374,8 +374,6 @@ const customEditDataFlashSale = (data) => {
 }
 
 const postData = async (data) => {
-  console.log('1:', data)
-
   data = customPostDataFlashSale(data)
   console.log('data post:', data)
 

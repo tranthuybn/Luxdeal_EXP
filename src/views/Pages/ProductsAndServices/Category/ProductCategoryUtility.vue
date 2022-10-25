@@ -213,6 +213,8 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
+  console.log('data', data)
+
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
       ElNotification({

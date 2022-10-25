@@ -23,7 +23,7 @@ const service: AxiosInstance = axios.create({
 // Request interceptor
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    config!.headers!['Authorization'] = wsCache.get(permissionStore.getAccessToken)
+    config!.headers!['Authorization'] = `Bearer ${wsCache.get(permissionStore.getAccessToken)}`
     if (
       config.method === 'post' &&
       config!.headers!['Content-Type'] === 'application/x-www-form-urlencoded'

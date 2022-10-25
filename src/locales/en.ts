@@ -454,6 +454,13 @@ export default {
     checkFinish: 'Check and finish',
     cancellationReturn: 'Cancellation or return',
     completeExchangeReturn: 'Complete exchange or return',
+    pleaseInputOrderCode: 'Please input order code',
+    pleaseSelectCollaboratorCode: 'Please select or enter collaborators code',
+    pleaseInputDiscount: 'Please input discount',
+    pleaseInputOrderNote: 'Please input order note',
+    pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
+    pleaseChooseDelivery: 'Please choose delivery',
+    saveCloseOrder: 'Save & close order',
     informationOnExchangeAndReturnPaymentVouchers:
       'Information on exchange and return payment vouchers'
   },

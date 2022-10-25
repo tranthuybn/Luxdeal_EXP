@@ -15,7 +15,8 @@ import moment from 'moment'
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
-
+//random mã
+const curDate = 'FS' + moment().format('hhmmss')
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
@@ -31,7 +32,11 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
-    }
+    },
+    componentProps: {
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'promotion',
@@ -387,8 +392,6 @@ const postData = async (data) => {
       })
     )
 }
-//random mã
-var curDate = 'FS' + moment().format('hhmmss')
 
 type SetFormData = {
   code: string

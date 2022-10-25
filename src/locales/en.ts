@@ -174,6 +174,7 @@ export default {
     chooseShipping: 'Choose shipping',
     cashPayment: 'Cash payment',
     cardPayment: 'Card payment',
+    bill: 'Bill',
     selfDelivery: 'chose delivery method',
     choseDeliveryMethod: 'Chose delivery method',
     deliveryToYourPlace: 'delivery to your place',

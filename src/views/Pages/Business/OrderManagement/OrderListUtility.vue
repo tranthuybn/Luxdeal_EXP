@@ -29,6 +29,7 @@ import {
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
+import formPrint from '../../Components/formPrint/src/formPrint.vue'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -862,11 +863,14 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
 
+let dataEdit = ref()
+
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
     const orderObj = { ...res.data[0] }
+    dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaborator.name
@@ -899,6 +903,30 @@ const editData = async () => {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
+
+const dataTablePrint = reactive<TableColumn[]>([
+  {
+    field: 'index',
+    label: t('reuse.index'),
+    type: 'index',
+    align: 'center'
+  },
+  {
+    field: 'employeeCode',
+    label: t('reuse.employeeCode'),
+    minWidth: '250'
+  },
+  {
+    field: 'employeeName',
+    label: t('reuse.employeeName'),
+    minWidth: '150'
+  },
+  {
+    field: 'gender',
+    label: t('reuse.gender'),
+    minWidth: '100'
+  }
+])
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1108,6 +1136,21 @@ const optionsCharacteristic = [
     label: 'Like new'
   }
 ]
+
+// Methods in phieu
+
+const dialogPrint = ref(false)
+let buttonClick = ref('')
+
+function openDialogSale() {
+  dialogPrint.value = !dialogPrint.value
+  buttonClick.value = 'sale'
+}
+
+function openDialogDeposit() {
+  dialogPrint.value = !dialogPrint.value
+  buttonClick.value = 'deposit'
+}
 
 onBeforeMount(async () => {
   callCustomersApi()
@@ -1830,7 +1873,8 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu bán hàng -->
-      <el-dialog
+
+      <!-- <el-dialog
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.salesSlipInformation')"
         width="40%"
@@ -1960,10 +2004,19 @@ onMounted(async () => {
             </div>
           </div>
         </template>
+      </el-dialog> -->
+
+      <el-dialog v-model="dialogPrint" width="40%" align-center>
+        <formPrint
+          :dataEdit="dataEdit"
+          @close-dialog="dialogPrint = false"
+          :buttonClick="buttonClick"
+        />
       </el-dialog>
 
       <!-- Thông tin phiếu đặt cọc/tạm ứng -->
-      <el-dialog
+
+      <!-- <el-dialog
         v-model="dialogDepositSlipAdvance"
         :title="t('formDemo.depositSlipAdvanceinformation')"
         width="40%"
@@ -2107,7 +2160,7 @@ onMounted(async () => {
             </div>
           </div>
         </template>
-      </el-dialog>
+      </el-dialog> -->
 
       <!-- Thông tin phiếu nhập hoàn hàng đổi/trả -->
       <el-dialog
@@ -3043,14 +3096,15 @@ onMounted(async () => {
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <div class="w-[100%] flex ml-1 gap-4">
+            <!-- @click="clickPrint('printPage')" -->
             <el-button
-              @click="dialogSalesSlipInfomation = true"
+              @click="openDialogSale"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentSlip') }}</el-button
             >
             <el-button
-              @click="dialogDepositSlipAdvance = true"
+              @click="openDialogDeposit"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
@@ -3342,6 +3396,26 @@ onMounted(async () => {
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
     max-width: 100%;
+  }
+}
+
+@media screen {
+  #printPage {
+    display: none;
+  }
+}
+
+@media print {
+  #printPage {
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: white;
   }
 }
 

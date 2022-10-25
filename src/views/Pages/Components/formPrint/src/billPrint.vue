@@ -1,5 +1,5 @@
 <template>
-  <div id="blockPrint">
+  <div>
     <div class="flex items-end pb-[30px]">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -9,11 +9,11 @@
     <div class="flex justify-between">
       <div>
         <div class="flex pb-1 items-center">
-          <label class="text-left mr-2">{{ t('formDemo.address') }} 1:</label>
+          <label class="mr-2">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
         </div>
         <div class="flex items-center">
-          <label class="text-left mr-2">{{ t('formDemo.address') }} 2:</label>
+          <label class="mr-2">{{ t('formDemo.address') }} 2:</label>
           <div>TP. Hà Nội</div>
         </div>
       </div>
@@ -25,21 +25,21 @@
 
     <div class="flex justify-between items-center divide-x">
       <div class="basis-5/12">
-        <div class="flex pb-1 items-center">
-          <label class="basis-2/5 text-left">{{ t('reuse.customerName') }}:</label>
+        <div class="flex pb-2 items-center">
+          <label class="basis-2/5">{{ t('reuse.customerName') }}:</label>
           <div v-if="dataEdit" class="basis-3/5">{{ dataEdit.customer.name }}</div>
         </div>
-        <div class="flex pb-1 items-center">
-          <label class="basis-2/5 text-left">{{ t('formDemo.address') }}:</label>
+        <div class="flex pb-2 items-center">
+          <label class="basis-2/5">{{ t('formDemo.address') }}:</label>
           <div v-if="dataEdit" class="basis-3/5">{{ dataEdit.address }}</div>
         </div>
-        <div class="flex pb-1 items-center">
-          <label class="basis-2/5 text-left">{{ t('reuse.phoneNumber') }}:</label>
+        <div class="flex pb-2 items-center">
+          <label class="basis-2/5">{{ t('reuse.phoneNumber') }}:</label>
           <div v-if="dataEdit" class="basis-3/5">{{ dataEdit.customer.phonenumber }}</div>
         </div>
       </div>
       <div class="basis-7/12 text-center">
-        <p v-if="buttonClick === 'sale'" class="text-4xl">Phiếu thanh toán</p>
+        <p v-if="nameDialog === 'bill'" class="text-4xl">Phiếu thanh toán</p>
         <p v-else class="text-4xl">Phiếu đặt cọc</p>
         <div class="flex justify-center pb-3">
           <label class="mr-2">{{ t('formDemo.day') }}:</label>
@@ -80,7 +80,7 @@
     <div class="flex justify-between items-start pb-[20px]">
       <div class="border basis-6/12 p-2">
         Chính sách:
-        <div v-if="buttonClick === 'sale'">
+        <div v-if="nameDialog === 'bill'">
           <div v-for="policy in policySale" :key="policy.id"> - {{ policy.title }} </div>
         </div>
         <div v-else>
@@ -88,12 +88,12 @@
         </div>
       </div>
       <div class="basis-5/12 flex flex-col justify-between">
-        <div v-if="buttonClick === 'sale'">
-          <div class="sale flex justify-between">
+        <div v-if="nameDialog === 'bill'">
+          <div class="bill flex justify-between">
             <div class="text-[20px]">{{ t('formDemo.total') }}</div>
             <div v-if="dataEdit">{{ getArraySum(dataEdit.orderDetails) }} VNĐ</div>
           </div>
-          <div class="sale flex justify-between">
+          <div class="bill flex justify-between">
             <div class="text-[20px]">{{ t('formDemo.status') }}</div>
             <div>Đã thanh toán</div>
           </div>
@@ -130,16 +130,6 @@
       <div class="text-center text-[20px]"> TRÂN TRỌNG CẢM ƠN QUÝ KHÁCH! </div>
       <div class="text-center text-base"> Thank you for being our valued customer! </div>
     </div>
-    <div class="flex justify-between">
-      <el-button class="noPrint" @click="printPage('blockPrint')">{{
-        t('button.print')
-      }}</el-button>
-      <div>
-        <span class="dialog-footer">
-          <el-button class="noPrint" @click="buttonClose">{{ t('reuse.exit') }}</el-button>
-        </span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -150,7 +140,6 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElDivider, ElTable, ElTableColumn } from 'element-plus'
 
 const { t } = useI18n()
-const emit = defineEmits(['closeDialog'])
 const locateIcon = useIcon({ icon: 'entypo:location' })
 const callIcon = useIcon({ icon: 'fluent:chat-mail-20-filled' })
 
@@ -159,18 +148,10 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
-  buttonClick: {
+  nameDialog: {
     type: String,
     default: () => ''
   }
-  // policys: {
-  //   type: Array,
-  //   default: () => []
-  // },
-  // nameBill: {
-  //   type: String,
-  //   default: () => ''
-  // }
 })
 
 const policySale = [
@@ -212,40 +193,6 @@ const policyDeposit = [
 //   }
 // )
 
-// hàm in phiếu
-
-function printPage(id: String) {
-  const prtHtml = document.getElementById(id).innerHTML
-  debugger
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                  </head>
-                  <body>
-                    ${prtHtml}
-                  </body>
-                </html>`)
-
-  WinPrint.document.close()
-  WinPrint.focus()
-  setTimeout(() => {
-    WinPrint.print()
-    WinPrint.close()
-  }, 500)
-}
-
-// hàm tính tổng tiền
-
 function getArraySum(arr) {
   var total = 0
   for (var i in arr) {
@@ -253,22 +200,16 @@ function getArraySum(arr) {
   }
   return total
 }
-
-// hàm đóng dialog
-
-function buttonClose() {
-  emit('closeDialog')
-}
 </script>
 
 <style scoped>
 >>> .el-divider--horizontal {
   margin: 14px 0;
 }
-.sale:nth-child(1) {
+.bill:nth-child(1) {
   padding-bottom: 12px;
 }
-.sale:nth-child(2) {
+.bill:nth-child(2) {
   padding: 16px 0;
   border-top: 1px solid #e5e7eb;
 }
@@ -281,10 +222,5 @@ function buttonClose() {
 .deposit:nth-child(3) {
   padding: 12px 0;
   border-top: 1px solid #e5e7eb;
-}
-@media print {
-  .noPrint {
-    display: none;
-  }
 }
 </style>

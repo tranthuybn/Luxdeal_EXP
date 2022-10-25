@@ -456,7 +456,7 @@ const callApiProductList = async () => {
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.label
+  scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
   scope.row.price = obj.price
@@ -619,43 +619,31 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: number
-//   accessory: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+interface tableOrderDetailType {
+  productPropertyId: number
+  quantity: number | undefined
+  accessory: string | undefined
+}
+let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
-  // tableOrderDetail.value = ListOfProductsForSale.value.map((e) => {
-  //   productPropertyId: e.productPropertyId,
-  //   quantity: e.quantity,
-  //   accessory: e.accessory
-  // })
+  tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
+    productPropertyId: parseInt(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
   const payload = {
     serviceType: 1,
     fromDate: '2022-10-19T09:38:04.730Z',
     toDate: '2022-10-19T09:38:04.730Z',
     days: 1,
     campaignId: campaignId.value,
-    orderDetail: [
-      {
-        productPropertyId: 2,
-        quantity: 1,
-        accessory: 'string'
-      },
-      {
-        productPropertyId: 2,
-        quantity: 1,
-        accessory: 'string'
-      }
-    ]
+    orderDetail: tableOrderDetail.value
   }
   const res = await getTotalOrder(payload)
-  console.log('res: ', res)
 
   totalPriceOrder.value = res.reduce((_total, e) => {
     _total += e.totalPrice
@@ -665,8 +653,6 @@ const autoCalculateOrder = async () => {
     _total += e.finalPrice
     return _total
   }, 0)
-  console.log('totalPriceOrder: ', totalPriceOrder)
-  console.log('totalFinalOrder: ', totalFinalOrder)
 }
 
 //add row to the end of table if fill all table
@@ -839,7 +825,6 @@ const handleChangeQuickAddProduct = async (data) => {
   if (checkProductAPI == 0) {
     const res = await getCheckProduct({ keyWord: dataSelectedObj.value })
     codeCheckProduct.value = res.data[0]
-    console.log('codeCheckProduct: ', codeCheckProduct)
   }
   checkProductAPI++
 
@@ -849,8 +834,6 @@ const handleChangeQuickAddProduct = async (data) => {
   if (getProductIdAPI == 0) {
     const res = await getproductId({ Id: codeCheckProduct.value.id })
     formProductData.value = res.data[0]
-
-    console.log('res: ', res.data)
   }
   getProductIdAPI++
 
@@ -1174,8 +1157,47 @@ const tableSalesSlip = [
   }
 ]
 
+// Thông tin đổi/trả hàng
+const changeReturnGoods = ref(false)
+const inputReasonReturn = ref('Hàng bị rách góc')
+
+const tableReturnFullyIntegrated = [
+  {
+    commodityName:
+      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
+    accessory: '',
+    quantity: '2',
+    unitPrices: '10,000,000 đ',
+    intoMoney: '20,000,000 đ'
+  },
+  {
+    commodityName: '',
+    accessory: '',
+    quantity: '',
+    unitPrices: 'đ',
+    intoMoney: 'đ'
+  }
+]
+
+const tableProductInformationExportChange = [
+  {
+    commodityName:
+      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
+    accessory: '',
+    quantity: '2',
+    unitPrices: '10,000,000 đ',
+    intoMoney: '20,000,000 đ'
+  },
+  {
+    commodityName: '',
+    accessory: '',
+    quantity: '',
+    unitPrices: 'đ',
+    intoMoney: 'đ'
+  }
+]
+
 const alreadyPaidForTt = ref(true)
-console.log('singleTableRef: ', singleTableRef)
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -1295,7 +1317,6 @@ const addStatusDelay = () => {
 const priceChangeOrders = ref(false)
 let countPriceChange = 0
 const changePriceRowTable = (props) => {
-  console.log('props: ', props)
   if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
     countPriceChange++
     priceChangeOrders.value = true
@@ -1371,13 +1392,21 @@ const addStatusOrder = (index) => {
         })
       break
     case 7:
-      arrayStatusOrder.value.length > 0
-        ? (arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false)
-        : arrayStatusOrder.value.push({
-            label: 'Hủy đơn hàng',
-            value: 7,
-            isActive: true
-          })
+      if (arrayStatusOrder.value.length > 0) {
+        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+        arrayStatusOrder.value.push({
+          label: 'Hủy đơn hàng',
+          value: 7,
+          isActive: true
+        })
+      } else {
+        arrayStatusOrder.value.push({
+          label: 'Hủy đơn hàng',
+          value: 7,
+          isActive: true
+        })
+      }
+
       break
   }
 }
@@ -3184,6 +3213,177 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Thông tin đổi/trả hàng -->
+      <el-dialog
+        v-model="changeReturnGoods"
+        :title="t('formDemo.InformationChangeReturnGoods')"
+        width="40%"
+        align-center
+      >
+        <div>
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
+            <div class="w-[100%] text-xl">BH24354</div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
+              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
+              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+              <div class="w-[100%]">0932424343</div>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
+              <el-input v-model="inputReasonReturn" class="w-[100%]">Hàng bị rách góc</el-input>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="w-[35%] text-base font-bold break-w">{{
+            t('formDemo.fullyIntegrated')
+          }}</span>
+          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table
+            ref="singleTableRef"
+            :data="tableReturnFullyIntegrated"
+            border
+            style="width: 100%"
+          >
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column
+              prop="commodityName"
+              :label="t('formDemo.commodityName')"
+              width="280"
+            />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.unitPrices }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.intoMoney }}</div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="flex items-center pt-4">
+          <span class="w-[35%] text-base font-bold break-w">{{
+            t('formDemo.productInformationExportChange')
+          }}</span>
+          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table
+            ref="singleTableRef"
+            :data="tableProductInformationExportChange"
+            border
+            style="width: 100%"
+          >
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column
+              prop="commodityName"
+              :label="t('formDemo.commodityName')"
+              width="280"
+            />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.unitPrices }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.intoMoney }}</div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="flex justify-end">
+            <div class="w-[145px] text-right">
+              <p>Thành tiền bán</p>
+              <p>Thành tiền hoàn</p>
+              <p class="text-black font-bold dark:text-white">Thành tiền chênh lệch</p>
+            </div>
+            <div class="w-[145px] text-right">
+              <p class="pr-2">10,000,000 đ</p>
+              <p class="pr-2">8,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">2,000,000 đ</p>
+              <p class="pr-2">Phải chi</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
+          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">Thanh toán</label>
+            <div class="w-[100%]">
+              <el-checkbox
+                v-model="alreadyPaidForTt"
+                :label="t('formDemo.alreadyPaidForTt')"
+                size="large"
+              />
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
+            <el-select v-model="payment" placeholder="Select">
+              <el-option
+                v-for="item in choosePayment"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex gap-4 pb-2 items-center">
+            <label class="w-[30%] text-right">Trạng thái</label>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <div class="flex justify-between">
+            <el-button @click="changeReturnGoods = false">{{ t('button.print') }}</el-button>
+            <div>
+              <span class="dialog-footer">
+                <el-button type="primary" @click="changeReturnGoods = false">{{
+                  t('formDemo.saveRecordDebts')
+                }}</el-button>
+                <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
+              </span>
+            </div>
+          </div>
+        </template>
+      </el-dialog>
+
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
@@ -3204,7 +3404,7 @@ onMounted(async () => {
           >
             <template #default="props">
               <div v-if="type == 'detail'">
-                {{ props.row.productPropertyCode }}
+                {{ props.row.productPropertyId }}
               </div>
               <MultipleOptionsBox
                 :fields="[
@@ -3287,14 +3487,11 @@ onMounted(async () => {
             width="180"
           >
             <template #default="props">
-              <el-input v-if="type != 'detail'" v-model="props.row.finalPrice" />
-              <div v-else>
-                {{
-                  props.row.finalPrice != ''
-                    ? changeMoney.format(parseInt(props.row.finalPrice))
-                    : '0 đ'
-                }}
-              </div>
+              {{
+                props.row.finalPrice != ''
+                  ? changeMoney.format(parseInt(props.row.finalPrice))
+                  : '0 đ'
+              }}
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
@@ -3568,6 +3765,7 @@ onMounted(async () => {
                 () => {
                   postData()
                   statusOrder = 5
+                  addStatusOrder(3)
                 }
               "
               type="primary"
@@ -3649,10 +3847,7 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div
-            v-else-if="statusOrder == 4 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div v-else-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
             <el-button
               :disabled="checkDisabled"
               @click="
@@ -3673,10 +3868,7 @@ onMounted(async () => {
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div
-            v-else-if="statusOrder == 5 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3691,6 +3883,7 @@ onMounted(async () => {
               @click="
                 () => {
                   postData()
+                  changeReturnGoods = true
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
@@ -3711,23 +3904,21 @@ onMounted(async () => {
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
-          <div
-            v-else-if="statusOrder == 6 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
-            <el-button :disabled="checkDisabled" class="min-w-42 min-h-11">{{
-              t('formDemo.cancellationReturn')
-            }}</el-button>
+          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+            <el-button
+              @click="changeReturnGoods = true"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.cancellationReturn') }}</el-button
+            >
           </div>
-          <div
-            v-else-if="statusOrder == 7 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
             <button
               :disabled="checkDisabled"
               @click="
                 () => {
                   postData()
+                  changeReturnGoods = true
                   statusOrder = 8
                 }
               "
@@ -3741,10 +3932,7 @@ onMounted(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div
-            v-else-if="statusOrder == 8 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>

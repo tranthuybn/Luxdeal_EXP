@@ -53,6 +53,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
+import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 
 const { t } = useI18n()
 
@@ -494,7 +495,7 @@ const optionsClassify = [
   }
 ]
 
-const checkedDonePay = ref(false)
+// const checkedDonePay = ref(false)
 
 // form add quick customer
 const addQuickCustomerName = ref()
@@ -862,7 +863,7 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-// const { push } = useRouter()
+const { push } = useRouter()
 const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
@@ -872,28 +873,22 @@ const postData = async () => {
   if (checkValidate.value) {
     const productPayment = JSON.stringify([
       {
-        productPropertyId: 2,
-        productCode: '11959375',
-        productName: 'Chanel Mini Flap Bag',
-        productPropertyCode: 'CH-WS-123',
-        productPropertyName: 'Túi + Ví, Hồng, Da động vật, Medium(30.5 - 35.5)',
-        accessory: 'todo',
-        unitName: 'Cái',
-        quantity: 1,
-        price: 10000,
-        finalPrice: 10000
+        ProductPropertyId: 2,
+        Quantity: 1,
+        ProductPrice: 10000,
+        SoldPrice: 10000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory1'
       },
       {
-        productPropertyId: 2,
-        productCode: '11959375',
-        productName: 'Chanel Mini Flap Bag',
-        productPropertyCode: 'CH-WS-123',
-        productPropertyName: 'Túi + Ví, Hồng, Da động vật, Medium(30.5 - 35.5)',
-        accessory: 'todo',
-        unitName: 'Cái',
-        quantity: 1,
-        price: 10000,
-        finalPrice: 10000
+        ProductPropertyId: 3,
+        Quantity: 1,
+        ProductPrice: 90000,
+        SoldPrice: 80000,
+        WarehouseId: 1,
+        IsPaid: true,
+        Accessory: 'Accessory2'
       }
     ])
     console.log('ListOfProductsForSale-post: ', ListOfProductsForSale.value)
@@ -950,12 +945,12 @@ const postData = async () => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
           })
-        // () =>
-        //   push({
-        //     name: 'business.collaborators.collaboratorsList',
-        //     params: { backRoute: 'business.collaborators.collaboratorsList' }
-        //   })
       )
       .catch(() =>
         ElNotification({
@@ -1123,7 +1118,7 @@ const detailedListExpenses = [
   }
 ]
 // dialogInformationExchangeAndReturnPaymentVouchers
-const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
+// const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
 
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
@@ -1236,34 +1231,35 @@ const tableAccountingEntry = [
     intoMoney: '10,000,000 đ'
   }
 ]
+
 //data tbale nhập hoàn
 
-const tableDataNhapHoan = [
-  {
-    date: '1',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    amount: 2,
-    unitPrice: 200000,
-    intoCashback: 1500
-  },
-  {
-    date: '1',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    amount: 2,
-    unitPrice: 20000,
-    intoCashback: 1500
-  },
-  {
-    date: '1',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles',
-    amount: 2,
-    unitPrice: 20000,
-    intoCashback: 1500
-  }
-]
+// const tableDataNhapHoan = [
+//   {
+//     date: '1',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     amount: 2,
+//     unitPrice: 200000,
+//     intoCashback: 1500
+//   },
+//   {
+//     date: '1',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     amount: 2,
+//     unitPrice: 20000,
+//     intoCashback: 1500
+//   },
+//   {
+//     date: '1',
+//     name: 'Tom',
+//     address: 'No. 189, Grove St, Los Angeles',
+//     amount: 2,
+//     unitPrice: 20000,
+//     intoCashback: 1500
+//   }
+// ]
 
 // fake tạm option thêm nhanh sản phẩm
 
@@ -1278,25 +1274,6 @@ const options = [
   {
     value: 'Option2',
     label: 'Option2'
-  }
-]
-
-const optionsCharacteristic = [
-  {
-    value: 'Màu đỏ',
-    label: 'Màu đỏ'
-  },
-  {
-    value: 'Size L',
-    label: 'Size L'
-  },
-  {
-    value: 'Da bò',
-    label: 'Da bò'
-  },
-  {
-    value: 'Like new',
-    label: 'Like new'
   }
 ]
 
@@ -1403,6 +1380,10 @@ const addStatusOrder = (index) => {
           })
       break
   }
+}
+
+const productAttributeValue = (data) => {
+  console.log('data checked', data)
 }
 
 onBeforeMount(async () => {
@@ -1716,7 +1697,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <el-select
+            <!-- <el-select
               v-model="productCharacteristics"
               multiple
               :placeholder="t('formDemo.selectFeature')"
@@ -1727,7 +1708,11 @@ onMounted(async () => {
                 :label="item.label"
                 :value="item.value"
               />
-            </el-select>
+            </el-select> -->
+            <ProductAttribute
+              :value="productCharacteristics"
+              @change-value="productAttributeValue"
+            />
           </div>
         </div>
         <template #footer>
@@ -2868,9 +2853,9 @@ onMounted(async () => {
                 }}</el-divider>
               </div>
               <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
-              <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
+              <!-- <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
                 >open a Form thông tin phiếu thanh toán trả hàng</el-button
-              >
+              > -->
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"
@@ -3570,8 +3555,7 @@ onMounted(async () => {
               @click="
                 () => {
                   postData()
-                  statusOrder = 2
-                  changeStatus(3)
+                  statusOrder = 3
                 }
               "
               type="primary"
@@ -3583,9 +3567,7 @@ onMounted(async () => {
               @click="
                 () => {
                   postData()
-                  statusOrder = 2
-                  addStatusOrder(2)
-                  changeStatus(3)
+                  statusOrder = 5
                 }
               "
               type="primary"

@@ -7,6 +7,7 @@
         :colors="colors"
         @close="$emit('close')"
         @userList="handleUserListToggle"
+        @changeTextSearch="changeTextSearch"
       >
         <template>
           <slot name="header"> </slot>
@@ -209,6 +210,9 @@ export default {
     },
     getChatPopup(chatItem) {
       this.$emit('getChatPopup', chatItem)
+    },
+    changeTextSearch(textSearch) {
+      this.$emit('changeTextSearch', textSearch)
     }
   }
 }

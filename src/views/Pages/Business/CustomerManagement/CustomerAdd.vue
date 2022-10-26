@@ -378,7 +378,7 @@ const clear = async () => {
     (ruleForm.bankName = '')
 }
 
-const postCustomer = async () => {
+const postCustomer = async (typebtn) => {
   const payload = {
     UserName: ruleForm.userName,
     Code: ruleForm.customerCode,
@@ -409,12 +409,18 @@ const postCustomer = async () => {
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await addNewCustomer(formDataPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
+      if (typebtn === 'save') {
+        push({
+          name: 'business.customer-management.customerList',
+          params: { backRoute: 'business.customer-management.customerList' }
+        })
+      }
+    })
     .catch((error) =>
       ElNotification({
         message: error,
@@ -436,7 +442,7 @@ const postData = async (typebtn) => {
     }
     await addNewAuthRegister(JSON.stringify(payloadAcc))
       .then(() => {
-        postCustomer()
+        postCustomer(typebtn)
       })
       .catch(() =>
         ElNotification({
@@ -444,12 +450,6 @@ const postData = async (typebtn) => {
           type: 'success'
         })
       )
-  }
-  if (typebtn === 'save') {
-    push({
-      name: 'business.customer-management.customerList',
-      params: { backRoute: 'business.customer-management.customerList' }
-    })
   }
 }
 const centerDialogVisible = ref(false)

@@ -33,11 +33,11 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 20
     },
+    value: 1,
     componentProps: {
       style: 'width: 100%',
       disabled: true,
-      modelValue: 1,
-      value: 1,
+
       options: [
         {
           label: t('reuse.UnitLevel1'),
@@ -89,7 +89,6 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
-    value: [],
     colProps: {
       span: 7
     },
@@ -106,7 +105,6 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     component: 'Checkbox',
-    value: [],
     colProps: {
       span: 11
     },
@@ -182,7 +180,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('ab', { ...data })
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({
@@ -205,16 +202,17 @@ const postData = async (data) => {
 }
 // get data from router
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+const id = Number(router.currentRoute?.value?.params?.id)
+const type = String(router.currentRoute?.value?.params?.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 let title = ref()
 watch(
   () => type,
   () => {
     if (type === 'add') {
-      title.value = router.currentRoute.value.meta.title
-      schema[8].value = ['active']
+      title.value = router?.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[6].value = ['active']
     } else if (type === 'detail') {
       title.value = t('reuse.detailUnit')
     } else if (type === 'edit') {
@@ -292,6 +290,7 @@ const editData = async (data) => {
       params: { backRoute: 'products-services.UnitCategory' }
     })
 }
+
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 </script>
 

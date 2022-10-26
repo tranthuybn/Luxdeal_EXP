@@ -1430,8 +1430,8 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-function printPage(id: String) {
-  const prtHtml = document.getElementById(id).innerHTML
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1441,7 +1441,7 @@ function printPage(id: String) {
     '',
     'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
   )
-  WinPrint.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
@@ -1451,11 +1451,11 @@ function printPage(id: String) {
                   </body>
                 </html>`)
 
-  WinPrint.document.close()
-  WinPrint.focus()
+  WinPrint?.document.close()
+  WinPrint?.focus()
   setTimeout(() => {
-    WinPrint.print()
-    WinPrint.close()
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 
@@ -1927,11 +1927,11 @@ onMounted(async () => {
       </div>
 
       <div id="IPRFormPrint">
-        <!-- <slot> -->
-        <el-dialog v-model="testDialog" width="40%" align-center>
+        <slot>
+          <!-- <el-dialog v-model="testDialog" width="40%" align-center> -->
           <paymentOrderPrint />
-        </el-dialog>
-        <!-- </slot> -->
+          <!-- </el-dialog> -->
+        </slot>
       </div>
 
       <!-- Dialog Thông tin phiếu chi -->
@@ -2051,7 +2051,7 @@ onMounted(async () => {
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-            <button @click="testDialog = true">Test</button>
+            <!-- <button @click="testDialog = true">Test</button> -->
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2188,7 +2188,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogIPRForm = false">{{ t('button.print') }}</el-button>
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogIPRForm = false">{{
@@ -4044,6 +4044,9 @@ onMounted(async () => {
     display: none;
   }
   #billDepositPrint {
+    display: none;
+  }
+  #IPRFormPrint {
     display: none;
   }
 }

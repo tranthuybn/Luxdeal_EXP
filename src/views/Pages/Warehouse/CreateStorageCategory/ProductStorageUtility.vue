@@ -1,49 +1,100 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getProductStorageList } from '@/api/Warehouse'
+import { getProductStorage, createNewProductStorage } from '@/api/Warehouse'
+import { API_URL } from '@/utils/API_URL'
+import { useValidator } from '@/hooks/web/useValidator'
+import { ElNotification } from 'element-plus'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
-
+const params = {}
+let timesCallAPI = 0
+let rank1SelectOptions = reactive([])
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const schema = reactive<FormSchema[]>([
   {
-    field: 'field13',
+    field: 'warehouse',
     label: t('reuse.typeStorage'),
     component: 'Divider'
   },
   {
-    field: 'field14',
+    field: 'rankWarehouse',
     label: t('reuse.chooseRankStorage'),
     component: 'Select',
+    modelValue: 1,
+    value: 1,
+    colProps: {
+      span: 20
+    },
     componentProps: {
+      style: 'width: 100%',
+      clearable: false,
+      disabled: false,
       options: [
         {
           label: t('reuse.rank1Category'),
-          value: '1'
+          value: 1
         },
         {
           label: t('reuse.rank2Category'),
-          value: '2'
+          value: 2
         }
-      ]
-    },
-    colProps: {
-      span: 13
+      ],
+      onChange: (value) => {
+        if (value == 1 || value == '') {
+          removeFormSchema()
+        }
+        if (value == 2) {
+          addFormSchema(timesCallAPI)
+          timesCallAPI++
+        }
+      }
     }
   },
   {
-    field: 'field1',
+    field: 'warehouseInformation',
     label: t('reuse.generalInformation'),
     component: 'Divider'
   },
   {
     field: 'name',
-    label: t('reuse.nameStorage'),
+    label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
-      span: 13
-    }
+      span: 20
+    },
+    componentProps: {
+      placeholder: t('reuse.InputNameAttributeLevel1')
+    },
+    hidden: false
+  },
+  {
+    field: 'parentid',
+    label: t('reuse.nameAttributeLevel1'),
+    component: 'Select',
+    colProps: {
+      span: 20
+    },
+    componentProps: {
+      options: [],
+      style: 'width: 100%',
+      placeholder: t('reuse.InputNameAttributeLevel1')
+    },
+    hidden: true
+  },
+  {
+    field: 'name',
+    label: t('reuse.nameAttributeLevel2'),
+    component: 'Input',
+    colProps: {
+      span: 20
+    },
+    componentProps: {
+      placeholder: t('reuse.InputNameAttributeLevel2')
+    },
+    hidden: true
   },
   {
     field: 'field41',
@@ -62,48 +113,173 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.active'),
-          value: 'Đang hoạt động'
+          value: 'active'
         },
         {
           label: t('reuse.stopShowAppWeb'),
-          value: '2'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '3'
+          value: 'hide'
         }
       ]
     }
   }
 ])
+
+let rules = reactive({
+  rankCategory: [required()],
+  name: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
+  ],
+  parentid: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkNameServiceLength.validator },
+    { validator: ValidService.checkSpace.validator }
+  ]
+})
 //lay du lieu tu router
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 //title lay trong router
-const title = router.currentRoute.value.meta.title
-
-type SetFormData = {
-  name: string
+let title = ref()
+if (type === 'add') {
+  title.value = router.currentRoute.value.meta.title
+} else if (type === 'detail') {
+  title.value = t('reuse.detailProductCategory')
+} else if (type === 'edit') {
+  title.value = t('reuse.editProductCategory')
 }
-const emtyFormData = {} as SetFormData
-const setFormData = reactive(emtyFormData)
+const formDataCustomize = ref()
+//custom data before set Value to Form
+const customizeData = async (formData) => {
+  //disable parent select
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
+  formDataCustomize.value = formData[0]
+  formDataCustomize.value['status'] = []
+  if (formData[0].parentid == 0) {
+    formDataCustomize.value.rankWarehouse = 1
+  } else {
+    formDataCustomize.value.rankWarehouse = 2
+    await addFormSchema(timesCallAPI, formData[0].name)
+  }
+  if (formData[0].isActive == true) {
+    formDataCustomize.value['status'].push('active')
+  }
+  if (formData[0].isHide == true) {
+    formDataCustomize.value['status'].push('hide')
+  }
+  formDataCustomize.value.imageurl = `${API_URL}${formData[0].imageurl}`
+  formDataCustomize.value.isDelete = false
+}
 
-const customizeData = async (data) => {
-  setFormData.name = data[0].name
+//call api for select options
+const getRank1SelectOptions = async () => {
+  const payload = {
+    PageIndex: 1,
+    PageSize: 1000
+  }
+  await getProductStorage({ ...payload })
+    .then((res) => {
+      if (res.data) {
+        rank1SelectOptions = res.data.map((index) => ({
+          label: index.name,
+          value: index.id
+        }))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}
+const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
+  if (timesCallAPI == 0) {
+    await getRank1SelectOptions()
+    if (schema[4].componentProps?.options != undefined) {
+      schema[4].componentProps.options = rank1SelectOptions
+    }
+  }
+  schema[3].hidden = true
+  schema[4].hidden = false
+  schema[5].hidden = false
+  schema[5].value = nameChildren
+}
+const removeFormSchema = () => {
+  schema[3].hidden = false
+  schema[4].hidden = true
+  schema[5].hidden = true
+}
+
+//type of post api data
+type FormDataPost = {
+  Id: number
+  Name: string
+  code?: string
+  Image?: any
+  ParentId?: number
+  isActive: boolean
+  imageurl?: string
+}
+
+const customPostData = (data) => {
+  const customData = {} as FormDataPost
+  customData.Id = data.id
+  customData.Name = data.name
+  customData.ParentId = data.parentid
+  customData.Image = data.Image
+  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
+  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  return customData
+}
+
+const postData = async (data) => {
+  //manipulate Data
+  if (data[0].ParentId == undefined) {
+    data[0].ParentId = 0
+  }
+  if (data[0].status[0] === 'active') {
+    data[0].isActive = true
+  } else {
+    data[0].isActive = false
+  }
+  console.log('data post', data)
+
+  await createNewProductStorage(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    )
 }
 </script>
 
 <template>
   <TableOperator
-    :apiId="getProductStorageList"
+    :apiId="getProductStorage"
     :schema="schema"
     :nameBack="currentRoute"
     :title="title"
     :id="id"
+    @post-data="postData"
+    :rules="rules"
+    :params="params"
     :type="type"
-    :formDataCustomize="setFormData"
+    :formDataCustomize="formDataCustomize"
     @customize-form-data="customizeData"
     :multipleImages="false"
   />

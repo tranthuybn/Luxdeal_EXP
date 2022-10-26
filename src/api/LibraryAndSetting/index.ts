@@ -1,7 +1,6 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
-import { PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
-import { API_URL } from '@/utils/API_URL'
+import { PRODUCTS_AND_SERVICES_API, API_URL } from '@/utils/API_URL'
 
 const request = useAxios()
 const fixedBaseURL = API_URL

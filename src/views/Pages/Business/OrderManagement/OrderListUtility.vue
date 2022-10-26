@@ -494,6 +494,8 @@ const optionsClassify = [
   }
 ]
 
+const checkedDonePay = ref(false)
+
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -1118,6 +1120,8 @@ const detailedListExpenses = [
     note: ''
   }
 ]
+// dialogInformationExchangeAndReturnPaymentVouchers
+const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
 
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
@@ -1228,6 +1232,34 @@ const tableAccountingEntry = [
     collected: '',
     spent: '10,000,000 đ',
     intoMoney: '10,000,000 đ'
+  }
+]
+//data tbale nhập hoàn
+
+const tableDataNhapHoan = [
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 200000,
+    intoCashback: 1500
+  },
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 20000,
+    intoCashback: 1500
+  },
+  {
+    date: '1',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles',
+    amount: 2,
+    unitPrice: 20000,
+    intoCashback: 1500
   }
 ]
 
@@ -2730,6 +2762,149 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Dialog Thông tin phiểu thanh toán đổi trả hàng -->
+
+      <el-dialog
+        v-model="dialogInformationExchangeAndReturnPaymentVouchers"
+        :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
+        width="50%"
+        align-center
+      >
+        <div class="container">
+          <el-divider content-position="left">Thông tin đơn hàng</el-divider>
+          <div class="flex gap-3 justify-items-center justify-around">
+            <div class="codeProduct">Mã đơn hàng : DIWJF</div>
+            <div class="QRcodse">Mã QR code api</div>
+          </div>
+
+          <el-divider content-position="left">Thông tin khách hàng</el-divider>
+
+          <div class="info-customer">
+            <p class="name-customer flex gap-2">
+              <span class="w-[170px] text-right text-gray-500">Tên khách hàng </span>
+              <span class="text-[#000000]">Cao Xuan Tao</span>
+            </p>
+            <p class="address-customer flex gap-2 mt-2">
+              <span class="w-[170px] text-right text-gray-500">Địa chỉ </span>
+              <span class="text-[#000000]"
+                >79 khúc thừa dụ, phường dịch vọng, quận cầu giấy, hà nội
+              </span>
+            </p>
+            <p class="phone-number flex gap-2 mt-2">
+              <span class="w-[170px] text-right text-gray-500">Số điện thoại </span>
+              <span class="text-[#000000]">12345678910</span>
+            </p>
+            <p class="reason-return flex gap-2 mt-2 text-center items-center">
+              <span class="w-[170px] text-right text-gray-500">Lý do đổi/trả </span>
+              <el-input placeholder="Nhập lý do đổi trả/hàng" class="!w-[75%]"
+            /></p>
+          </div>
+
+          <div class="info-nhap-hoan">
+            <el-divider content-position="left">Thông tin sản phẩm nhập/hoàn</el-divider>
+            <el-table :data="tableDataNhapHoan" border style="width: 100%">
+              <el-table-column prop="date" label="STT" width="60" />
+              <el-table-column prop="name" label="Tên hàng hóa" width="200" />
+              <el-table-column prop="address" label="Phụ kiện" width="150" />
+              <el-table-column prop="amount" label="Số lượng" width="120" />
+              <el-table-column prop="unitPrice" label="Đơn giá hoàn" width="180" />
+              <el-table-column prop="intoCashback" label="Thành tiền hoàn" />
+            </el-table>
+          </div>
+
+          <div class="info-product-xuat-doi">
+            <el-divider content-position="left">Thông tin sản phẩm xuất đổi</el-divider>
+            <el-table :data="tableDataNhapHoan" border style="width: 100%">
+              <el-table-column prop="date" label="STT" width="60" />
+              <el-table-column prop="name" label="Tên hàng hóa" width="200" />
+              <el-table-column prop="address" label="Phụ kiện" width="150" />
+              <el-table-column prop="amount" label="Số lượng" width="120" />
+              <el-table-column prop="unitPrice" label="Đơn giá hoàn" width="180" />
+              <el-table-column prop="intoCashback" label="Thành tiền hoàn" />
+            </el-table>
+
+            <div class="flex justify-end mr-[90px]">
+              <div class="w-[145px] text-right">
+                <p class="text-black dark:text-white">Thành tiền bán</p>
+              </div>
+              <div class="w-[145px] text-right">
+                <p class="pr-2 text-black dark:text-white">đ</p>
+              </div>
+            </div>
+            <div class="flex justify-end mr-[90px]">
+              <div class="w-[145px] text-right">
+                <p class="text-black dark:text-white">Thành tiền hoàn</p>
+              </div>
+              <div class="w-[145px] text-right">
+                <p class="pr-2 text-black dark:text-white">đ</p>
+              </div>
+            </div>
+
+            <div class="flex justify-end mr-[90px]">
+              <div class="w-[145px] text-right">
+                <p class="text-black font-bold dark:text-white">Thành tiền chênh lệch</p>
+              </div>
+              <div class="w-[145px] text-right">
+                <p class="pr-2 text-black font-bold dark:text-white">đ</p>
+              </div>
+            </div>
+
+            <div class="flex justify-end mr-[90px]">
+              <p class="phai-chi">Phải chi</p>
+            </div>
+          </div>
+
+          <div class="info-thanh-toan">
+            <el-divider content-position="left">Thông tin thanh toán</el-divider>
+            <div class="info-pay">
+              <p class="name-customer flex gap-2">
+                <span class="w-[170px] text-right text-gray-500">Thanh toán </span>
+                <el-checkbox v-model="checkedDonePay" label="Đã thanh toán" />
+              </p>
+              <p class="address-customer flex gap-2 mt-2">
+                <span class="w-[170px] text-right text-gray-500">Hình thức thanh toán</span>
+                <el-select v-model="value" class="m-2 !w-[75%]" placeholder="Select">
+                  <el-option
+                    v-for="item in choosePayment"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </p>
+              <div class="flex gap-4 pt-4 items-center">
+                <label class="w-[30%] text-right">Trạng thái</label>
+                <div class="flex items-center w-[100%]">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+                  ></span>
+                  <span class="box dark:text-black">
+                    Khởi tạo & ghi sổ
+                    <span class="triangle-right"> </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="dialogInformationExchangeAndReturnPaymentVouchers = false"
+              >Lưu & ghi sổ công nợ</el-button
+            >
+            <el-button type="danger" plain>Hủy bút toán</el-button>
+            <el-button @click="dialogInformationExchangeAndReturnPaymentVouchers = false"
+              >Thoát</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- Dialog Thông tin đổi trả hàng -->
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -2750,6 +2925,10 @@ onMounted(async () => {
                   t('formDemo.orderInformation')
                 }}</el-divider>
               </div>
+              <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
+              <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
+                >open a Form thông tin phiếu thanh toán trả hàng</el-button
+              >
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"

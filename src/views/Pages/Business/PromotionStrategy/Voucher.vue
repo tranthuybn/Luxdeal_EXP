@@ -12,7 +12,12 @@ import {
   filterVoucherCondition,
   filterTableStatus
 } from '@/utils/filters'
-import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
+import {
+  dateTimeFormat,
+  formatStatusVoucher,
+  formatSubjectVoucher,
+  VoucherType
+} from '@/utils/format'
 import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRouter } from 'vue-router'
@@ -42,12 +47,12 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250'
   },
   {
-    field: 'type',
+    field: 'voucherType',
     label: t('reuse.type'),
     minWidth: '200',
     filters: filterVoucherType,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return VoucherType(cellValue)
     }
   },
   {

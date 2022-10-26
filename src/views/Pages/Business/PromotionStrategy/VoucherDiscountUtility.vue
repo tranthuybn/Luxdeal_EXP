@@ -304,6 +304,7 @@ const editData = () => {}
           @post-data="postData"
           :rules="rules"
           @customize-form-data="customizeData"
+          :multipleImages="false"
           @edit-data="editData"
         />
       </el-collapse-item>

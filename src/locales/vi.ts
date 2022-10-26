@@ -146,6 +146,8 @@ export default {
     enterServiceName: 'Nhập tên dịch vụ',
     voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
     voucherDiscount: 'Voucher giảm giá đơn hàng',
+    giftSpa: 'Tặng dịch vụ Spa',
+    giftDiscount: 'Giảm giá đơn hàng',
     voucherDetails: ' Chi tiết voucher',
     voucherCode: 'Mã voucher',
     odersApply: 'Đơn hàng áp dụng',
@@ -476,7 +478,8 @@ export default {
     pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
-    saveCloseOrder: 'Lưu & chốt đơn'
+    saveCloseOrder: 'Lưu & chốt đơn',
+    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng'
   },
   button: {
     add: 'Thêm nhanh',

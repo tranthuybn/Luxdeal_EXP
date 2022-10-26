@@ -454,7 +454,7 @@ const customCheck = (nodeObj, tree, scope) => {
         return node.parentid == 2 && node.value != nodeObj.value
       })
       if (nodeBefore2) {
-        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore2.value), 1)
       }
       break
     //parentid ==3 material
@@ -463,7 +463,7 @@ const customCheck = (nodeObj, tree, scope) => {
         return node.parentid == 3 && node.value != nodeObj.value
       })
       if (nodeBefore3) {
-        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore.value), 1)
+        tree.checkedKeys.splice(tree.checkedKeys.indexOf(nodeBefore3.value), 1)
       }
       break
   }

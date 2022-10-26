@@ -121,6 +121,11 @@ export const useValidator = () => {
       message: t('reuse.yearFormat'),
       trigger: 'blur'
     },
+    checkCode: {
+      pattern: /^[a-zA-Z0-9]*$/,
+      message: t('reuse.codeFormat'),
+      trigger: 'blur'
+    },
     checkNumber: {
       validator: (_rule: any, value: Number | string, callback: any) => {
         if (value === '') callback(new Error(t('reuse.required')))

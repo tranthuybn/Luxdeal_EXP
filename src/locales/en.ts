@@ -174,6 +174,7 @@ export default {
     chooseShipping: 'Choose shipping',
     cashPayment: 'Cash payment',
     cardPayment: 'Card payment',
+    bill: 'Bill',
     selfDelivery: 'chose delivery method',
     choseDeliveryMethod: 'Chose delivery method',
     deliveryToYourPlace: 'delivery to your place',
@@ -370,6 +371,7 @@ export default {
     enterPassword: 'Enter password',
     confirmPassword: 'Confirm password',
     cancelAccount: 'Cancel account',
+    cancelRequest: 'Cancel request',
     enterAccountNumber: 'Enter account number',
     enterAccountName: 'Enter account name',
     provinceAndCity: 'Province/city',
@@ -462,7 +464,8 @@ export default {
     pleaseChooseDelivery: 'Please choose delivery',
     saveCloseOrder: 'Save & close order',
     informationOnExchangeAndReturnPaymentVouchers:
-      'Information on exchange and return payment vouchers'
+      'Information on exchange and return payment vouchers',
+    InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
     add: 'Add quick',
@@ -761,6 +764,7 @@ export default {
     serviceDetail: 'serviceDetail',
     statusTag: 'Status tag',
     result: 'Result',
+    reason: 'Reason',
     receiveConsignmentGoodsAtCounter: 'Receive consignment good at counter',
     receivePawnGoodsAtCounter: 'Receive pawn good at counter',
     receivePawn: 'Receive pawn',
@@ -1155,6 +1159,7 @@ export default {
     tagList: 'Tag List',
     nameDescription: 'Name Description',
     name: 'Name',
+    fullName: 'Full name',
     newForum: 'New Forum',
     removeFromGroup: 'Remove From Group',
     createPosts: 'Create Posts',

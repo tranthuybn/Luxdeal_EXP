@@ -101,6 +101,11 @@ const props = defineProps({
   backButton: {
     type: Boolean,
     default: false
+  },
+  //validate iamge required
+  imageRequired: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -149,6 +154,7 @@ const setFormValue = async () => {
     setValues(props.formDataCustomize)
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
+      console.log('imageUrl', imageUrl)
     }
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
@@ -245,6 +251,7 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
+        data.backRouter = true
         emit('post-data', data)
         loading.value = false
       }
@@ -323,7 +330,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       }
     }
     //nếu là 1 list ảnh
-    if (type === 'list') {
+    else if (type === 'list') {
       let inValid = true
       rawFile.map((file) => {
         if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
@@ -346,16 +353,19 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     }
     return true
   } else {
-    //báo lỗi nếu ko có ảnh
-    if (type === 'list' && fileList.value.length > 0) {
-      return true
+    if (props.imageRequired) {
+      //báo lỗi nếu ko có ảnh
+      if (type === 'list' && fileList.value.length > 0) {
+        return true
+      }
+      if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+        return true
+      } else {
+        ElMessage.warning(t('reuse.notHaveImage'))
+        return false
+      }
     }
-    if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-      return true
-    } else {
-      ElMessage.warning(t('reuse.notHaveImage'))
-      return false
-    }
+    return true
   }
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
@@ -515,6 +525,9 @@ const listType = ref<ListImages>('text')
         </ElButton>
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="cancel()">
+          {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">

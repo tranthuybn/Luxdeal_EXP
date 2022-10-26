@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -18,6 +18,7 @@ const { required, ValidService, notSpecialCharacters, notSpace } = useValidator(
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
+let disableCheckBox = ref(false)
 const schema = reactive<FormSchema[]>([
   {
     field: 'field20',
@@ -125,14 +126,27 @@ const schema = reactive<FormSchema[]>([
     component: 'Checkbox',
     value: [],
     colProps: {
-      span: 24
+      span: 7
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 'active'
-        },
+        }
+      ]
+    }
+  },
+  {
+    field: 'status',
+    component: 'Checkbox',
+    value: [],
+    colProps: {
+      span: 11
+    },
+    componentProps: {
+      options: [
         {
           label: t('reuse.stopShowAppWeb'),
           value: 'hide'
@@ -157,7 +171,7 @@ let rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -228,6 +242,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.ProductCategory',
+      params: { backRoute: 'products-services.ProductCategory' }
+    })
+  }
 }
 // get data from router
 const router = useRouter()
@@ -236,13 +256,25 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[0].key }
 let title = ref()
-if (type === 'add') {
-  title.value = router.currentRoute.value.meta.title
-} else if (type === 'detail') {
-  title.value = t('reuse.detailProductCategory')
-} else if (type === 'edit') {
-  title.value = t('reuse.editProductCategory')
-}
+
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute.value.meta.title
+      disableCheckBox.value = true
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailProductCategory')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editProductCategory')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const formDataCustomize = ref()
 //custom data before set Value to Form
 const customizeData = async (formData) => {
@@ -292,7 +324,7 @@ const customPostData = (data) => {
   customData.ParentId = data.parentid
   customData.Image = data.Image
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
-  customData.index = data.index
+  customData.index = data.index == null ? '' : data.index
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
@@ -315,7 +347,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.ProductCategory',
+      params: { backRoute: 'products-services.ProductCategory' }
     })
 }
 const deleteOrigin = `${t('reuse.deleteOrigin')}`

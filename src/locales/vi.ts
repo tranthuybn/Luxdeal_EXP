@@ -194,6 +194,7 @@ export default {
     chooseShipping: 'Chọn giao vận',
     cashPayment: 'Thanh toán tiền mặt',
     cardPayment: 'Thanh toán thẻ',
+    bill: 'Phiếu thanh toán',
     selfDelivery: 'Tự giao hàng(Nội bộ tự giao hàng cho khách)',
     choseDeliveryMethod: 'Chọn phương thức giao hàng',
     deliveryToYourPlace: 'Giao hàng tận nơi',
@@ -202,6 +203,7 @@ export default {
     deliveryNotesAndImport: 'Phiếu xuất trả/nhập hàng',
     printSpaBill: 'In phiếu Spa',
     printDepositSlip: 'In phiếu đặt cọc',
+    deposit: 'Đặt cọc',
     complete: 'Hoàn thành',
     edit: 'Sửa',
     orderStatus: 'Trạng thái đơn hàng',
@@ -276,7 +278,6 @@ export default {
     totalDeposit: 'Tổng tiền cọc',
     kindOfMoney: 'Loại tiền',
     rentalFeeDebt: 'Công nợ phí thuê',
-    deposit: 'Tiền cọc',
     fee: 'Tiền phí',
     leaseExtensionIsInProgress: 'Đang gia hạn thuê',
     rentalImportReturnHistory: 'Lịch sử nhập trả lại hàng cho thuê',
@@ -386,6 +387,7 @@ export default {
     enterPassword: 'Nhập mật khẩu',
     confirmPassword: 'Nhập lại mật khẩu',
     cancelAccount: 'Hủy tài khoản',
+    cancelRequest: 'Hủy yêu cầu',
     enterAccountNumber: 'Nhập số tài khoản',
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
@@ -797,7 +799,7 @@ export default {
     enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
     customer: 'Khách hàng',
-    gender: 'Giới  tính',
+    gender: 'Giới tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
@@ -1215,6 +1217,7 @@ export default {
     tagList: 'Danh sách thẻ',
     nameDescription: 'Tên mô tả',
     name: 'Tên',
+    fullName: 'Họ và tên',
     newForum: 'Forum mới',
     removeFromGroup: 'Xóa khỏi nhóm',
     createPosts: 'Tạo bài viết',
@@ -1222,6 +1225,7 @@ export default {
     generalForum: 'Forum chung',
     removePosts: 'Xóa bài viết',
     fix: 'Sửa',
+    reason: 'Lý do',
     selectCategory: 'Chọn danh mục',
     generalProductInformation: 'Thông tin chung sản phẩm',
     inspectionInformation: 'Thông tin kiểm định',
@@ -1559,6 +1563,7 @@ export default {
     inUse: 'Đang xử lí',
     used: 'Đã xử lí',
     // product
-    under256Characters: 'Dưới 256 ký tự'
+    under256Characters: 'Dưới 256 ký tự',
+    citizenIdentificationNumber: 'Số cccd/cmnd'
   }
 }

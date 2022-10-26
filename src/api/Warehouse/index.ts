@@ -5,7 +5,7 @@ import { objectToQueryParams } from '@/utils/format'
 const request = useAxios()
 const fixedBaseURL = API_URL
 
-export const getProductStorageList = async (params: any): Promise<IResponse> => {
+export const getProductStorage = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${WAREHOUSE_API.GET_LIST_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
@@ -16,9 +16,9 @@ export const getProductStorageList = async (params: any): Promise<IResponse> => 
 }
 
 export const createNewProductStorage = async (params: any): Promise<IResponse> => {
-  const res = await request.get(
+  const res = await request.post(
     {
-      url: `${WAREHOUSE_API.GET_LIST_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
+      url: `${WAREHOUSE_API.CREATE_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

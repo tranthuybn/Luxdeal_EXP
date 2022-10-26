@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { dateTimeFormat } from '@/utils/format'
-
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
@@ -56,16 +55,6 @@ const dialogVisible = ref(false)
 const disabledTable = ref(false)
 var curDate = 'HH' + moment().format('hhmmss')
 let requestCode = ref('')
-// const getGenCodeCollaborator = async () => {
-//   await getGenCodeCollaborators({})
-//     .then((res) => {
-//       CollaboratorId.value = res
-//     })
-//     .catch((err) => {
-//       console.error(err)
-//     })
-//   CollaboratorId
-// }
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -86,11 +75,10 @@ let listPaymentRequest = ref()
 const listPayments = ref()
 let optionsPaymentApi = ref()
 let optionsReceiptPaymentApi = ref()
-
 let optionCallAPi = 0
-const callAPiPaymentRequest = async () => {
+const callAPiPaymentRequest = async (id) => {
   if (optionCallAPi == 0) {
-    const res = await getPaymentList({})
+    const res = await getPaymentList({ PeopleId: id })
     listPayments.value = res.data
     optionsPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -104,9 +92,9 @@ const callAPiPaymentRequest = async () => {
   }
 }
 let optionReceiptPaymentCallAPi = 0
-const callAPiReceiptPaymentRequest = async () => {
+const callAPiReceiptPaymentRequest = async (id) => {
   if (optionReceiptPaymentCallAPi == 0) {
-    const res = await getReceiptPaymentList({})
+    const res = await getReceiptPaymentList({ PeopleId: id })
     listPayments.value = res.data
     optionsReceiptPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -153,6 +141,7 @@ const callCustomersApi = async () => {
       optionsCustomerApi.value = getCustomerResult.map((collaborator) => ({
         label: collaborator.code + ' | ' + collaborator.accountName,
         value: collaborator.code,
+        id: collaborator.customerId,
         code: collaborator.code,
         accountName: collaborator.accountName,
         taxCode: collaborator.customer?.taxCode,
@@ -163,7 +152,12 @@ const callCustomersApi = async () => {
         bankId: collaborator.bankId,
         accountNumber: collaborator.customer?.accountNumber,
         bankName: collaborator.bank?.name,
-        CollaboratorId: collaborator.id
+        CollaboratorId: collaborator.id,
+        cccd: collaborator.customer?.cccd,
+        cccdCreateAt: collaborator.customer?.cccdCreateAt,
+        cccdPlaceOfGrant: collaborator.customer?.cccdPlaceOfGrant,
+        sex: collaborator.customer?.sex,
+        doB: collaborator.customer?.doB
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -183,39 +177,36 @@ let infoCompany = reactive({
   accountName: '',
   accountNumber: '',
   bankName: '',
-  CollaboratorId: ''
+  CollaboratorId: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  sex: '',
+  doB: ''
 })
 const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CollaboratorId = result.CollaboratorId
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CollaboratorId = result.CollaboratorId
-    }
-  } else {
-    customerAddress.value = ''
+
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.taxCode = result.taxCode
+    infoCompany.email = result.email
+    infoCompany.representative = result.representative
+    infoCompany.phonenumber = result.phonenumber
+    infoCompany.address = result.address
+    infoCompany.accountName = result.accountName
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.CollaboratorId = result.CollaboratorId
+    infoCompany.bankName = result.bankName
+    infoCompany.cccd = result.cccd
+    infoCompany.cccdCreateAt = result.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+    infoCompany.sex = result.sex
+    infoCompany.doB = result.doB
+    callAPiPaymentRequest(result.id)
+    callAPiReceiptPaymentRequest(result.id)
   }
 }
 const ruleFormRef = ref<FormInstance>()
@@ -329,9 +320,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 onBeforeMount(() => {
   callCustomersApi()
-  callAPiPaymentRequest()
-  callAPiReceiptPaymentRequest()
-  if (!type) {
+  if (type === 'add') {
     requestCode.value = curDate
   }
 })
@@ -375,6 +364,11 @@ const setFormValue = async () => {
     infoCompany.address = formValue.value.collaborator?.customer?.address
     infoCompany.accountNumber = formValue.value.collaborator?.customer?.accountNumber
     infoCompany.bankName = formValue.value.collaborator?.customer?.bank?.name
+    infoCompany.cccd = formValue.value.collaborator?.customer?.cccd
+    infoCompany.cccdCreateAt = formValue.value.collaborator?.customer?.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = formValue.value.collaborator?.customer?.cccdPlaceOfGrant
+    infoCompany.sex = formValue.value.collaborator?.customer?.sex
+    infoCompany.doB = formValue.value.collaborator?.customer?.doB
     FormData.ReceiptOrPaymentVoucherId = formValue.value.receiptOrPaymentVoucherId
     FormData.PaymentOrder = formValue.value.paymentOrder
     if (formValue.value.status === 1) {
@@ -466,16 +460,15 @@ const save = async () => {
       }
       console.log('FORM_IMAGES(data)', data)
       await updateCommissionPayment({ ...payload, ...data })
-        .then(
-          () =>
-            ElNotification({
-              message: t('reuse.updateSuccess'),
-              type: 'success'
-            }),
-          push({
-            name: `business.collaborators.paymentRequest`
-          })
-        )
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.collaborators.paymentRequest`
+            })
+        })
         .catch(() =>
           ElNotification({
             message: t('reuse.updateFail'),
@@ -484,16 +477,15 @@ const save = async () => {
         )
     } else {
       await addNewPaymentRequest(FORM_IMAGES(data))
-        .then(
-          () =>
-            ElNotification({
-              message: t('reuse.addSuccess'),
-              type: 'success'
-            }),
-          push({
-            name: `business.collaborators.paymentRequest`
-          })
-        )
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.collaborators.paymentRequest`
+            })
+        })
         .catch((error) =>
           ElNotification({
             message: error,
@@ -564,37 +556,89 @@ const activeName = ref(collapse[0].title)
                   />
                 </ElSelect>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code !== ''">
+              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code">
                 <div class="leading-6">
                   <div>{{ infoCompany.code }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name !== ''">
+              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name">
                 <div class="leading-6">
                   <div>{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode !== ''">
+              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
                 <div class="leading-6">
                   <div>{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative !== ''">
-                <div class="leading-6">
-                  <div>{{ infoCompany.representative }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber !== ''">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.phoneNumber')"
+                v-if="infoCompany.phonenumber"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email !== ''">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[50%]"
+                style="display: inline-block"
+                :label="t('reuse.email')"
+                v-if="infoCompany.email"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address !== ''">
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.citizenIdentificationNumber')"
+                v-if="infoCompany.cccd"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccd }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyDate')"
+                v-if="infoCompany.cccdCreateAt"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyAddress')"
+                v-if="infoCompany.cccdPlaceOfGrant"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.dateOfBirth')"
+                v-if="infoCompany.doB"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('reuse.gender')"
+                v-if="infoCompany.sex"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
                 <div class="leading-6">
                   <div>{{ infoCompany.address }}</div>
                 </div>
@@ -602,7 +646,7 @@ const activeName = ref(collapse[0].title)
               <ElFormItem
                 style="align-items: flex-start"
                 :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode !== ''"
+                v-if="infoCompany.taxCode"
               >
                 <div class="leading-6 mt-1">
                   <div>{{ infoCompany.accountName }}</div>
@@ -639,7 +683,6 @@ const activeName = ref(collapse[0].title)
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   :defaultValue="FormData.ReceiptOrPaymentVoucherId"
-                  @focus="callAPiReceiptPaymentRequest()"
                   :clearable="false"
                   @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
                 />
@@ -665,7 +708,6 @@ const activeName = ref(collapse[0].title)
                     :hiddenKey="['id']"
                     :placeHolder="'Chọn mã sản phẩm'"
                     :defaultValue="FormData.PaymentOrder"
-                    @focus="callAPiPaymentRequest()"
                     :clearable="false"
                     @update-value="(value, obj) => changeNamePayment(value, obj, props)"
                   />
@@ -742,7 +784,7 @@ const activeName = ref(collapse[0].title)
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelAccount') }} </ElButton>
+          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelRequest') }} </ElButton>
         </div>
         <div v-else-if="type === 'detail'" class="flex justify-center">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
@@ -785,6 +827,10 @@ const activeName = ref(collapse[0].title)
   display: block;
 }
 
+::v-deep(.el-form-item__content) {
+  display: inline-block;
+}
+
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
     max-width: 100%;
@@ -806,7 +852,9 @@ const activeName = ref(collapse[0].title)
 .el-button--text {
   margin-right: 15px;
 }
-
+::v-deep(.el-divider--horizontal) {
+  margin: 40px 0 24px 0;
+}
 ::v-deep(.el-input) {
   width: auto;
 }

@@ -27,7 +27,8 @@ import {
   ElTreeSelect,
   UploadUserFile,
   UploadProps,
-  ElMessageBox
+  ElMessageBox,
+  useNamespace
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -53,6 +54,9 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
+import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
+import billPrint from '../../Components/formPrint/src/billPrint.vue'
+import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 
 const { t } = useI18n()
@@ -967,11 +971,14 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
 
+let dataEdit = ref()
+
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
     const orderObj = { ...res.data[0] }
+    dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaborator.name
@@ -1013,6 +1020,30 @@ const editData = async () => {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
+
+const dataTablePrint = reactive<TableColumn[]>([
+  {
+    field: 'index',
+    label: t('reuse.index'),
+    type: 'index',
+    align: 'center'
+  },
+  {
+    field: 'employeeCode',
+    label: t('reuse.employeeCode'),
+    minWidth: '250'
+  },
+  {
+    field: 'employeeName',
+    label: t('reuse.employeeName'),
+    minWidth: '150'
+  },
+  {
+    field: 'gender',
+    label: t('reuse.gender'),
+    minWidth: '100'
+  }
+])
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1206,6 +1237,7 @@ interface tableDataType {
   dateOfPayment: string
   col: number
   content: string
+  formCode: string
   collected: string
   spent: string
   salesDebt: string
@@ -1220,6 +1252,7 @@ const debtTable = ref<Array<tableDataType>>([
     dateOfPayment: moment().format('L').toString(),
     col: 1,
     content: 'Phiếu thanh toán',
+    formCode: 'PC354344',
     collected: '',
     spent: '',
     salesDebt: '0 đ',
@@ -1235,6 +1268,7 @@ const onAddDebtTableItem = () => {
     dateOfPayment: moment().format('L').toString(),
     col: 1,
     content: '',
+    formCode: '',
     collected: '10,000,000 đ',
     spent: '',
     salesDebt: '',
@@ -1409,6 +1443,60 @@ const addStatusOrder = (index) => {
 
       break
   }
+}
+
+// dialog print
+
+const nameDialog = ref('')
+const testDialog = ref(false)
+
+function openBillDialog() {
+  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  nameDialog.value = 'bill'
+}
+
+function openDepositDialog() {
+  dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
+  nameDialog.value = 'deposit'
+}
+
+function openReceiptDialog() {
+  dialogInformationReceipts.value = !dialogInformationReceipts.value
+  nameDialog.value = 'Phiếu thu'
+}
+
+function openPaymentDialog() {
+  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+  nameDialog.value = 'Phiếu chi'
+}
+
+function printPage(id: String) {
+  const prtHtml = document.getElementById(id).innerHTML
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+  )
+  WinPrint.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint.document.close()
+  WinPrint.focus()
+  setTimeout(() => {
+    WinPrint.print()
+    WinPrint.close()
+  }, 500)
 }
 
 const productAttributeValue = (data) => {
@@ -1765,6 +1853,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
+
       <el-dialog
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
@@ -1856,9 +1945,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogInformationReceipts = false">{{
-              t('button.print')
-            }}</el-button>
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogInformationReceipts = false">{{
@@ -1872,6 +1959,28 @@ onMounted(async () => {
           </div>
         </template>
       </el-dialog>
+
+      <!-- phieu in -->
+
+      <div id="billDepositPrint">
+        <slot>
+          <billPrint :dataEdit="dataEdit" :nameDialog="nameDialog" />
+        </slot>
+      </div>
+
+      <div id="recpPaymentPrint">
+        <slot>
+          <receiptsPaymentPrint :nameDialog="nameDialog" />
+        </slot>
+      </div>
+
+      <div id="IPRFormPrint">
+        <!-- <slot> -->
+        <el-dialog v-model="testDialog" width="40%" align-center>
+          <paymentOrderPrint />
+        </el-dialog>
+        <!-- </slot> -->
+      </div>
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
@@ -1965,7 +2074,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogPaymentVoucher = false">{{ t('button.print') }}</el-button>
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogPaymentVoucher = false">{{
@@ -1990,6 +2099,7 @@ onMounted(async () => {
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <button @click="testDialog = true">Test</button>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2140,6 +2250,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu bán hàng -->
+
       <el-dialog
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.salesSlipInformation')"
@@ -2255,9 +2366,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogSalesSlipInfomation = false">{{
-              t('button.print')
-            }}</el-button>
+            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogSalesSlipInfomation = false">{{
@@ -2273,6 +2382,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu đặt cọc/tạm ứng -->
+
       <el-dialog
         v-model="dialogDepositSlipAdvance"
         :title="t('formDemo.depositSlipAdvanceinformation')"
@@ -2404,7 +2514,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogDepositSlipAdvance = false">{{ t('button.print') }}</el-button>
+            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogDepositSlipAdvance = false">{{
@@ -3690,55 +3800,17 @@ onMounted(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <!-- Đơn hàng có thay đổi giá -->
-          <div
-            v-if="statusOrder == 1 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
-            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
+          <!-- <div class="w-[100%] flex ml-1 gap-4">
             <el-button
-              @click="dialogDepositSlipAdvance = true"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  statusOrder = 2
-                  addStatusOrder(2)
-                  changeStatus(3)
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.saveAndPending') }}</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                  statusOrder = 9
-                }
-              "
+              @click="dialogSalesSlipInfomation = true"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
-          </div>
-
-          <!-- Đơn hàng không thay đổi giá -->
-          <div
-            v-if="statusOrder == 1 && priceChangeOrders == false"
-            class="w-[100%] flex ml-1 gap-4"
-          >
-            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+          </div> -->
+          <div v-if="statusOrder == 1" class="w-[100%] flex ml-1 gap-4">
+            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
             <el-button
@@ -3847,7 +3919,7 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
+          <div v-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
             <el-button
               :disabled="checkDisabled"
               @click="
@@ -3869,11 +3941,11 @@ onMounted(async () => {
             >
           </div>
           <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
             <el-button
-              @click="dialogDepositSlipAdvance = true"
+              @click="openDepositDialog"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
@@ -3933,11 +4005,11 @@ onMounted(async () => {
             >
           </div>
           <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
+            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
             <el-button
-              @click="dialogDepositSlipAdvance = true"
+              @click="openDepositDialog"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
@@ -3961,8 +4033,8 @@ onMounted(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
-        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
+        <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
+        <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
         <el-table
           ref="multipleTableRef"
@@ -4004,10 +4076,18 @@ onMounted(async () => {
             min-width="120"
             align="left"
           >
-            <div @click="dialogInformationReceipts = true" class="text-blue-500">PT354344</div>
+            <template #default="data">
+              <div
+                @click="
+                  data.row.formCode.includes('PT') ? openReceiptDialog() : openPaymentDialog()
+                "
+                class="cursor-pointer text-blue-500"
+                >{{ data.row.formCode }}</div
+              >
+            </template>
           </el-table-column>
           <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="left" min-width="150">
-            <div @click="dialogIPRForm = true" class="text-blue-500">DNTT6543</div>
+            <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">DNTT6543</div>
           </el-table-column>
           <el-table-column
             prop="collected"
@@ -4224,6 +4304,29 @@ onMounted(async () => {
 @media only screen and (min-width: 1920px) {
   ::v-deep(.el-col-xl-12) {
     max-width: 100%;
+  }
+}
+
+@media screen {
+  #recpPaymentPrint {
+    display: none;
+  }
+  #billDepositPrint {
+    display: none;
+  }
+}
+
+@media print {
+  #printPage {
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: white;
   }
 }
 

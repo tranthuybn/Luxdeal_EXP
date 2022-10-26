@@ -174,6 +174,7 @@ export default {
     chooseShipping: 'Choose shipping',
     cashPayment: 'Cash payment',
     cardPayment: 'Card payment',
+    bill: 'Bill',
     selfDelivery: 'chose delivery method',
     choseDeliveryMethod: 'Chose delivery method',
     deliveryToYourPlace: 'delivery to your place',
@@ -328,6 +329,8 @@ export default {
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
     voucherGiftSpa: 'Voucher gift Spa',
+    giftSpa: 'Gift spa',
+    giftDiscount: 'Gift discount',
     appliesToOrdersFrom: 'Applies to orders from',
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
@@ -459,7 +462,10 @@ export default {
     pleaseInputOrderNote: 'Please input order note',
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
-    saveCloseOrder: 'Save & close order'
+    saveCloseOrder: 'Save & close order',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers',
+    InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
     add: 'Add quick',
@@ -758,6 +764,7 @@ export default {
     serviceDetail: 'serviceDetail',
     statusTag: 'Status tag',
     result: 'Result',
+    reason: 'Reason',
     receiveConsignmentGoodsAtCounter: 'Receive consignment good at counter',
     receivePawnGoodsAtCounter: 'Receive pawn good at counter',
     receivePawn: 'Receive pawn',
@@ -1152,6 +1159,7 @@ export default {
     tagList: 'Tag List',
     nameDescription: 'Name Description',
     name: 'Name',
+    fullName: 'Full name',
     newForum: 'New Forum',
     removeFromGroup: 'Remove From Group',
     createPosts: 'Create Posts',

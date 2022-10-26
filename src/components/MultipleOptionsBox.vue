@@ -92,6 +92,7 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
+    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )
@@ -109,7 +110,8 @@ const acceptKey = (item) => {
 //   options.value = items.filter((item) => {
 //     if (
 //       item != null &&
-//       Object.keys(item).find((key) => item[key].toString().toLowerCase().includes(searchingKey))
+//       Object.keys(item).find((key)
+// => item[key].toString().toLowerCase().includes(searchingKey))
 //     ) {
 //       return true
 //     }
@@ -208,7 +210,6 @@ onUnmounted(() => {
   </ElSelect>
 </template>
 <style lang="css" scoped>
-/* @import '@/scss/variables.scss'; */
 ul li:first-child {
   background-color: transparent;
   color: white;

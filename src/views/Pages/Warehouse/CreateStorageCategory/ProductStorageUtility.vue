@@ -3,7 +3,12 @@ import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getProductStorage, createNewProductStorage } from '@/api/Warehouse'
+import {
+  getProductStorage,
+  createNewProductStorage,
+  updateProductStorage,
+  deleteProductStorage
+} from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
@@ -13,6 +18,7 @@ const params = {}
 let timesCallAPI = 0
 let rank1SelectOptions = reactive([])
 const { required, ValidService, notSpecialCharacters } = useValidator()
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'warehouse',
@@ -222,35 +228,35 @@ const removeFormSchema = () => {
 type FormDataPost = {
   Id: number
   Name: string
-  code?: string
-  Image?: any
-  ParentId?: number
+  Code: string
+  Images?: any
+  ParentId: number
   isActive: boolean
-  imageurl?: string
+  DeleteFileIds: string
 }
 
 const customPostData = (data) => {
   const customData = {} as FormDataPost
   customData.Id = data.id
   customData.Name = data.name
+  customData.Code = data.name
   customData.ParentId = data.parentid
-  customData.Image = data.Image
-  customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
+  customData.Images = data.Images
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   return customData
 }
 
 const postData = async (data) => {
   //manipulate Data
-  if (data[0].ParentId == undefined) {
-    data[0].ParentId = 0
+  if (data.ParentId == undefined) {
+    data.ParentId = 0
   }
-  if (data[0].status[0] === 'active') {
-    data[0].isActive = true
+  if (data.status === 'active') {
+    data.isActive = true
   } else {
-    data[0].isActive = false
+    data.isActive = false
   }
-  console.log('data post', data)
+  data.Code = 'HN91a'
 
   await createNewProductStorage(FORM_IMAGES(data))
     .then(() =>
@@ -266,21 +272,39 @@ const postData = async (data) => {
       })
     )
 }
+const editData = async (data) => {
+  data = customPostData(data)
+  await updateProductStorage(data)
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
 </script>
 
 <template>
   <TableOperator
+    ref="formRef"
     :apiId="getProductStorage"
     :schema="schema"
     :nameBack="currentRoute"
     :title="title"
     :id="id"
+    @edit-data="editData"
     @post-data="postData"
     :rules="rules"
     :params="params"
     :type="type"
     :formDataCustomize="formDataCustomize"
     @customize-form-data="customizeData"
-    :multipleImages="false"
+    :delApi="deleteProductStorage"
   />
 </template>

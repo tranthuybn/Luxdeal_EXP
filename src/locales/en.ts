@@ -462,7 +462,8 @@ export default {
     pleaseChooseDelivery: 'Please choose delivery',
     saveCloseOrder: 'Save & close order',
     informationOnExchangeAndReturnPaymentVouchers:
-      'Information on exchange and return payment vouchers'
+      'Information on exchange and return payment vouchers',
+    InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
     add: 'Add quick',

@@ -463,6 +463,7 @@ export default {
     depositSlip: 'Phiếu đặt cọc',
     initializationDate: 'Ngày khởi tạo',
     totalSalesDebt: 'Tổng công nợ bán hàng',
+    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng',
     infoCouponExportExchange: 'Thông tin phiếu xuất đổi',
     invoiceForGoodsEntering: 'Phiếu nhập hoàn',
     productInformationExportChange: 'Thông tin sản phẩm xuất đổi',
@@ -479,7 +480,7 @@ export default {
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
     saveCloseOrder: 'Lưu & chốt đơn',
-    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng'
+    InformationChangeReturnGoods: 'Thông tin đổi/Trả hàng'
   },
   button: {
     add: 'Thêm nhanh',

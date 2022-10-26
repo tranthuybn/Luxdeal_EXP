@@ -236,10 +236,8 @@ watch(
       @filter-change="filterChange"
     >
       <template #contact="data">
-        <div v-if="data.row.customer?.taxCode">Mst: {{ data.row.customer?.taxCode }}</div>
-        <div v-if="data.row.customer?.phonenumber"
-          >{{ t('reuse.phoneNumber') }}: {{ data.row.customer?.phonenumber }}</div
-        >
+        <div v-if="data.row.customer?.taxCode">MST: {{ data.row.customer?.taxCode }}</div>
+        <div v-if="data.row.customer?.phonenumber">SDT: {{ data.row.customer?.phonenumber }}</div>
         <div v-if="data.row.customer?.email">Email: {{ data.row.customer?.email }}</div>
         <div v-if="data.row.customer?.address">Địa chỉ: {{ data.row.customer?.address }}</div>
       </template>

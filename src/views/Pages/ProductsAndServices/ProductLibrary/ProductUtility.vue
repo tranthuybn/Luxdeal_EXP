@@ -2119,6 +2119,7 @@ const productAttributeValue = (data) => {
         v-if="openLastCollapse"
         :type="type"
         :id="id"
+        :imageRequired="true"
         :rules="ruleSEO"
         @edit-data="editDataSeo"
         :formDataCustomize="SEOdata"

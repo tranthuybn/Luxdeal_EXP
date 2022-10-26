@@ -386,6 +386,7 @@ export default {
     enterPassword: 'Nhập mật khẩu',
     confirmPassword: 'Nhập lại mật khẩu',
     cancelAccount: 'Hủy tài khoản',
+    cancelRequest: 'Hủy yêu cầu',
     enterAccountNumber: 'Nhập số tài khoản',
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
@@ -797,7 +798,7 @@ export default {
     enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
     customer: 'Khách hàng',
-    gender: 'Giới  tính',
+    gender: 'Giới tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
@@ -1557,6 +1558,7 @@ export default {
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
-    used: 'Đã xử lí'
+    used: 'Đã xử lí',
+    citizenIdentificationNumber: 'Số cccd/cmnd'
   }
 }

@@ -5,6 +5,7 @@ import { ConfigGlobal } from '@/components/ConfigGlobal'
 // import { isDark } from '@/utils/is'
 import { useDesign } from '@/hooks/web/useDesign'
 import { useCache } from '@/hooks/web/useCache'
+import chat from './components/chats/chat.vue'
 
 const { getPrefixCls } = useDesign()
 
@@ -34,6 +35,7 @@ setDefaultTheme()
 <template>
   <ConfigGlobal :size="currentSize">
     <RouterView :class="greyMode ? `${prefixCls}-grey-mode` : ''" />
+    <chat />
   </ConfigGlobal>
 </template>
 

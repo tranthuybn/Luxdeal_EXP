@@ -94,5 +94,6 @@ export const ACCOUNTANT_API = {
 }
 
 export const WAREHOUSE_API = {
-  GET_LIST_PRODUCT_STORAGE: '/api/v1/Warehouse/GetWarehouse'
+  GET_LIST_PRODUCT_STORAGE: '/api/v1/Warehouse/GetWarehouse',
+  CREATE_PRODUCT_STORAGE: '/api/v1/Warehouse/CreateWarehouse'
 }

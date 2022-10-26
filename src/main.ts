@@ -32,6 +32,8 @@ import { createApp } from 'vue'
 
 import App from './App.vue'
 
+import  VueBeatifulChat  from './chats'
+
 import './permission'
 //event bus
 import mitt from 'mitt';                  // Import mitt
@@ -40,7 +42,7 @@ const emitter = mitt();                   // Initialize mitt
 // Create instance
 const setupAll = async () => {
   const app = createApp(App)
-
+  app.use(VueBeatifulChat)
   await setupI18n(app)
 
   setupStore(app)
@@ -54,6 +56,7 @@ const setupAll = async () => {
   setupPermission(app)
 
   app.mount('#app')
+
   app.provide('emitter', emitter);
 }
 

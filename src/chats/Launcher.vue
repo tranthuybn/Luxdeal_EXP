@@ -21,15 +21,15 @@
         <div
           class="icon-chat-item"
           v-for="(chatItem, index) in listChatItemFilter"
-          :key="chatItem.id"
+          :key="chatItem.user.id"
           :class="{ lastItem: index === listChatItemFilter.length - 1 }"
         >
-          <span class="chat-tooltip">{{ chatItem.name }}</span>
-          <img :src="chatItem.imageUrl" :alt="chatItem.name" />
+          <span class="chat-tooltip">{{ chatItem.user.name }}</span>
+          <img :src="chatItem.user.imageUrl" :alt="chatItem.user.name" />
           <span
             class="close-chat-item"
             :class="{ hidenClose: countMore > 1 && index === listChatItemFilter.length - 6 }"
-            @click="handleCloseChatItem(chatItem.id)"
+            @click="handleCloseChatItem(chatItem.user.id)"
             >x</span
           >
         </div>
@@ -322,16 +322,22 @@ export default {
         if (this.listChatOpen.length === 3) {
           if (user.id !== this.listChatOpen[0].user.id) {
             this.listChatOpen.splice(index, 1)
+            this.listUserSelected.splice(index, 1)
             this.listChatOpen.unshift(userFormat)
+            this.listUserSelected.unshift(userFormat.user.id)
           }
         }
       } else {
         this.listUserSelected.unshift(user.id)
         this.listChatOpen.unshift(userFormat)
         if (this.listChatOpen.length > 3) {
-          this.listItemChatBottom.unshift(this.listChatOpen[this.listChatOpen.length - 1].user)
+          this.listItemChatBottom.unshift(this.listChatOpen[this.listChatOpen.length - 1])
           this.listChatOpen.splice(this.listChatOpen.length - 1, 1)
           this.listUserSelected.splice(this.listUserSelected.length - 1, 1)
+        }
+        const index2 = this.listItemChatBottom.findIndex((chatItem) => chatItem.user.id === user.id)
+        if (index2 !== -1) {
+          this.listItemChatBottom.splice(index2, 1)
         }
       }
       // handle show more item
@@ -346,19 +352,20 @@ export default {
     },
     handleCloseChat(id) {
       const index1 = this.listChatOpen.findIndex((chatPopup) => chatPopup.user.id === id)
-      const index2 = this.listUserSelected.findIndex((id) => id === id)
+      const index2 = this.listUserSelected.findIndex((select) => select === id)
       if (this.listChatOpen.length >= 7) {
         this.countMore -= 1
       }
       this.listChatOpen.splice(index1, 1)
       this.listUserSelected.splice(index2, 1)
-      // if (this.listItemChatBottom.length > 0) {
-      //   this.listChatOpen.push(this.listItemChatBottom[0])
-      //   this.listItemChatBottom.splice(0, 1)
-      // }
+      if (this.listItemChatBottom.length > 0) {
+        this.listUserSelected.push(this.listItemChatBottom[0].user.id)
+        this.listChatOpen.push(this.listItemChatBottom[0])
+        this.listItemChatBottom.splice(0, 1)
+      }
     },
     handleCloseChatItem(id) {
-      const index = this.listItemChatBottom.findIndex((user) => user.id === id)
+      const index = this.listItemChatBottom.findIndex((chatItem) => chatItem.user.id === id)
       this.listItemChatBottom.splice(index, 1)
     }
   }

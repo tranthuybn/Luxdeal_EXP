@@ -116,7 +116,6 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const customPostData = (data) => {
-  console.log('data', data)
   const postCustomerRatings = ref()
   postCustomerRatings.value = data
   data.isActive.length > 0
@@ -142,7 +141,6 @@ const postData = async (data) => {
 }
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value = formData
   formData.isActive == true
     ? (formDataCustomize.value.isActive = [1])
@@ -159,7 +157,6 @@ type FormDataUpdate = {
   ImageUrl: any
 }
 const customUpdateData = (data) => {
-  console.log(data)
   const customUpdate = {} as FormDataUpdate
   customUpdate.Id = data.id
   customUpdate.Name = data.name

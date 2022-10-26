@@ -132,7 +132,6 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'status',
-    label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
     colProps: {
@@ -240,7 +239,8 @@ watch(
   () => type,
   () => {
     if (type === 'add') {
-      title.value = router.currentRoute.value.meta.title
+      title.value = router.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
       schema[8].value = ['active']
     } else if (type === 'detail') {
       title.value = t('reuse.detailOrigin')

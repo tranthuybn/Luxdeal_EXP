@@ -26,23 +26,7 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 let title = ref()
 let disableCheckBox = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'add') {
-      title.value = router.currentRoute.value.meta.title
-      schema[8].value = ['active']
-    } else if (type === 'detail') {
-      title.value = t('reuse.detailCharacteristic')
-    } else if (type === 'edit') {
-      title.value = t('reuse.editCharacteristic')
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
 const params = { TypeName: tab }
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
@@ -173,7 +157,6 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'status',
-    label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
     colProps: {
@@ -209,6 +192,24 @@ const rules = reactive({
     { validator: notSpace }
   ]
 })
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailCharacteristic')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editCharacteristic')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 //call api for select options
 const getRank1SelectOptions = async () => {
   const payload = {

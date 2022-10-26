@@ -59,7 +59,8 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       style: 'width: 100%',
-      placeholder: t('formDemo.inputBrandName')
+      placeholder: t('formDemo.inputBrandName'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -74,7 +75,8 @@ const schema = reactive<FormSchema[]>([
       options: [],
       disabled: true,
       style: 'width: 100%',
-      placeholder: t('formDemo.selectRankBrand')
+      placeholder: t('formDemo.selectRankBrand'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -86,7 +88,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('formDemo.inputBrandName')
+      placeholder: t('formDemo.inputBrandName'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -98,7 +101,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {

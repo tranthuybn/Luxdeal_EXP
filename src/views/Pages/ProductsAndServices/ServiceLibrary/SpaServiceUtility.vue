@@ -10,7 +10,7 @@ import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
 import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
-const { required, ValidService, notSpecialCharacters, checkCode } = useValidator()
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -377,7 +377,6 @@ const activeName = ref('information')
         <TableOperator
           :apiId="getSpaById"
           :schema="schema"
-          :title="item.title"
           :deleteTitle="deleteOrigin"
           :type="type"
           :id="id"

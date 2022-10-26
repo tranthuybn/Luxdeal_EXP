@@ -1726,18 +1726,6 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <!-- <el-select
-              v-model="productCharacteristics"
-              multiple
-              :placeholder="t('formDemo.selectFeature')"
-            >
-              <el-option
-                v-for="item in optionsCharacteristic"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select> -->
             <ProductAttribute
               :value="productCharacteristics"
               @change-value="productAttributeValue"

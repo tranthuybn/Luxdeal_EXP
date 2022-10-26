@@ -480,7 +480,13 @@ export default {
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
     saveCloseOrder: 'Lưu & chốt đơn',
-    InformationChangeReturnGoods: 'Thông tin đổi/Trả hàng'
+    InformationChangeReturnGoods: 'Thông tin đổi/Trả hàng',
+    rentalFeePaymentSlipInformation: 'Thông tin phiếu thanh toán tiền phí thuê',
+    feePaymentPeriod: 'Kỳ thanh toán phí',
+    rentalProductInformation: 'Thông tin sản phẩm thuê',
+    totalRentalFee: 'Tổng tiền phí thuê',
+    depositSlipInformation: 'Thông tin phiếu thanh toán tiền cọc thuê',
+    depositPayment: 'Thanh toán tiền cọc'
   },
   button: {
     add: 'Thêm nhanh',

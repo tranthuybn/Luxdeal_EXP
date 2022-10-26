@@ -463,7 +463,13 @@ export default {
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
     saveCloseOrder: 'Save & close order',
-    InformationChangeReturnGoods: 'Information change or return goods'
+    InformationChangeReturnGoods: 'Information change or return goods',
+    rentalFeePaymentSlipInformation: 'Rental fee payment slip information',
+    feePaymentPeriod: 'Fee payment period',
+    rentalProductInformation: 'Rental product information',
+    totalRentalFee: 'Total rental fee',
+    depositSlipInformation: 'Deposit slip information',
+    depositPayment: 'Deposit payment'
   },
   button: {
     add: 'Add quick',

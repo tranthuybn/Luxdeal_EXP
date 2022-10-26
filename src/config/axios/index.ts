@@ -7,6 +7,8 @@ import { ElMessage } from 'element-plus'
 import qs from 'qs'
 
 import { config } from '@/config/axios/config'
+import { resetRouter } from '@/router'
+import { useTagsViewStore } from '@/store/modules/tagsView'
 
 const { wsCache } = useCache()
 const permissionStore = usePermissionStore()
@@ -54,6 +56,7 @@ service.interceptors.request.use(
     Promise.reject(error)
   }
 )
+const tagsViewStore = useTagsViewStore()
 
 // Response interceptor
 service.interceptors.response.use(
@@ -62,6 +65,11 @@ service.interceptors.response.use(
       return response
     } else {
       ElMessage.error(response.data.message)
+    }
+    if (response.data.status == 401) {
+      wsCache.clear()
+      tagsViewStore.delAllViews()
+      resetRouter() // Reset the static routing table
     }
   },
   (error: AxiosError) => {

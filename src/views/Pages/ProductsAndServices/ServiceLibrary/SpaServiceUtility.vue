@@ -10,7 +10,7 @@ import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
 import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
-const { required, ValidService, notSpecialCharacters, checkCode } = useValidator()
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -34,7 +34,14 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceCode')
+      placeholder: t('formDemo.enterServiceCode'),
+      formatter: (value) =>
+        value
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/Đ/g, 'D')
+          .trim()
     }
   },
   {
@@ -45,7 +52,8 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceName')
+      placeholder: t('formDemo.enterServiceName'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     }
   },
   {
@@ -85,6 +93,13 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
       suffixIcon: h('div', 'đ')
     }
   },
@@ -97,6 +112,13 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
       suffixIcon: h('div', 'đ')
     }
   },
@@ -109,6 +131,11 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberHours'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, ''),
       suffixIcon: h('div', 'giờ')
     }
   },
@@ -121,6 +148,11 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberDays'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, ''),
       suffixIcon: h('div', 'ngày')
     }
   },
@@ -149,19 +181,8 @@ const schema = reactive<FormSchema[]>([
 ])
 const rules = reactive({
   rankCategory: [{ validator: ValidService.checkSpace.validator }, required()],
-  name: [
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameServiceLength.validator },
-    { validator: ValidService.checkSpace.validator },
-    required()
-  ],
-  code: [
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkCodeServiceLength.validator },
-    { validator: checkCode },
-    required()
-  ],
+  name: [required()],
+  code: [required()],
   shortDescription: [
     { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
@@ -173,26 +194,8 @@ const rules = reactive({
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkDescriptionLength.validator }
   ],
-  cost: [
-    { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkPositiveNumber.validator },
-    required()
-  ],
-  promotePrice: [
-    { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkPositiveNumber.validator },
-    required()
-  ],
-  time: [
-    { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkPositiveNumber.validator },
-    required()
-  ],
-  warranty: [
-    { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkPositiveNumber.validator },
-    required()
-  ]
+  cost: [required()],
+  time: [required()]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -354,17 +357,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 let currentCollapse = ref<string>(collapse[0].name)
-// const collapseChangeEvent = (val) => {
-//   if (val) {
-//     collapse.forEach((el) => {
-//       if (val.includes(el.name)) el.icon = minusIcon
-//       else if (el.icon == minusIcon) el.icon = plusIcon
-//     })
-//   } else
-//     collapse.forEach((el) => {
-//       el.icon = plusIcon
-//     })
-// }
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 const activeName = ref('information')
 </script>
@@ -385,7 +377,6 @@ const activeName = ref('information')
         <TableOperator
           :apiId="getSpaById"
           :schema="schema"
-          :title="item.title"
           :deleteTitle="deleteOrigin"
           :type="type"
           :id="id"

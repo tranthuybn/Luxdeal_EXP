@@ -858,7 +858,7 @@ export default {
     surveyContent: 'Nội dung khảo sát',
     productCode: 'Mã sản phẩm',
     managementCode: 'Mã quản lý',
-    productInformation: 'Thông tin SP',
+    productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
     firstEntryDate: 'Ngày nhập',
@@ -992,7 +992,7 @@ export default {
     numberOfTimesPawn: 'Số lần đã cầm đồ',
     numberOfTimesSpa: 'Số lần đã spa',
     setInventoryForSale: 'Đặt tồn kho bán',
-    setInventoryForRent: 'Đặt tồn kho thuê',
+    setInventoryForRent: 'Đặt tồn kho cho thuê',
     sellingPriceFrom: 'Giá bán từ',
     rentalPriceFrom: 'Giá thuê từ',
     dram: 'Đơn vị',
@@ -1557,6 +1557,8 @@ export default {
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
-    used: 'Đã xử lí'
+    used: 'Đã xử lí',
+    // product
+    under256Characters: 'Dưới 256 ký tự'
   }
 }

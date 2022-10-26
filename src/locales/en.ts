@@ -1440,6 +1440,8 @@ export default {
     selectCountyOrDistrict: 'Select country/district',
     selectWardOrCommune: 'Select ward/commune',
     enterDetailedAddress: 'Enter detailed address',
-    CheckCode: 'Please enter the correct code format'
+    CheckCode: 'Please enter the correct code format',
+    // product
+    under256Characters: 'Under 256 characters'
   }
 }

@@ -503,14 +503,11 @@ const rules = reactive({
     { validator: ValidService.checkNameLength.validator },
     required()
   ],
-  ShortDescription: [
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator }
-  ],
+  ShortDescription: [{ validator: ValidService.checkNameLength.validator }],
+  VerificationInfo: [{ validator: ValidService.checkNameLength.validator }],
   Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
-  SellInventoryStatus: [required()],
-  ProductStatus: [required()]
+  SellInventoryStatus: [required()]
 })
 const ruleSEO = reactive({
   SeoTitle: [
@@ -634,7 +631,7 @@ const customizeData = async (formData) => {
   setFormData.VerificationInfo = formData.verificationInfo
   setFormData.HireInventoryStatus = formData.hireInventoryStatus
   setFormData.SellInventoryStatus = formData.sellInventoryStatus
-  setFormData.ProductStatus = formData.productStatus
+  formData.productStatus == 1 ? (setFormData.ProductStatus = 1) : (setFormData.ProductStatus = 0)
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }

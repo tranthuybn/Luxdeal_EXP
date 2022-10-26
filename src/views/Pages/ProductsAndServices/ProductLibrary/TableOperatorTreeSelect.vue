@@ -32,7 +32,12 @@ import { getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSettin
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 import { API_URL } from '@/utils/API_URL'
-import { customPostData, getUnitSelectOptions } from './ProductLibraryManagement'
+import {
+  customPostData,
+  getBrandSelectOptions,
+  getOriginSelectOptions,
+  getUnitSelectOptions
+} from './ProductLibraryManagement'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -527,7 +532,7 @@ const fillAllInformation = async (data) => {
 }
 
 const callApiAttribute = async () => {
-  await getUnitSelectOptions()
+  await getUnitSelectOptions(), await getBrandSelectOptions(), await getOriginSelectOptions()
 }
 //for infinite scroll
 // const scrollMethod = () => {
@@ -640,7 +645,7 @@ const changeTreeData = (data) => {
           <template #Name-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productName') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
           <template #ShortDescription-label>

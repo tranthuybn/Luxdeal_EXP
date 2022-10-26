@@ -15,7 +15,7 @@ export const useValidator = () => {
     return {
       required: true,
       message: message || t('common.required'),
-      trigger: 'change'
+      trigger: 'blur'
     }
   }
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
@@ -169,7 +169,7 @@ export const useValidator = () => {
     checkNameLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value && value.length > 50) {
+        if (value && value.length > 256) {
           callback(new Error(t('reuse.checkNameLength')))
         }
         callback()

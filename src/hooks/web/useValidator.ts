@@ -37,16 +37,18 @@ export const useValidator = () => {
   }
   const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
-    if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
-      callback(new Error(t('reuse.notSpecialCharacters')))
-    } else if (
-      /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
-        val
-      )
-    ) {
-      callback(new Error(t('reuse.checkEmoji')))
-    } else {
-      callback()
+    if (val) {
+      if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
+        callback(new Error(t('reuse.notSpecialCharacters')))
+      } else if (
+        /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+          val
+        )
+      ) {
+        callback(new Error(t('reuse.checkEmoji')))
+      } else {
+        callback()
+      }
     }
   }
   const checkCode = (_, val: any, callback: Callback) => {
@@ -203,7 +205,7 @@ export const useValidator = () => {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
         if (value) {
-          if (value.length > 500) {
+          if (value.length > 507) {
             callback(new Error(t('reuse.checkDescriptionLength')))
           } else {
             callback()
@@ -298,8 +300,12 @@ export const useValidator = () => {
     },
     checkSpaceBeforeAndAfter: {
       validator: (_rule, value, callback) => {
-        if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
-          callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
+        if (value) {
+          if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
+            callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
+          } else {
+            callback()
+          }
         } else {
           callback()
         }

@@ -501,9 +501,13 @@ const rules = reactive({
   Name: [
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkSpaceBeforeAndAfter.validator },
     required()
   ],
-  ShortDescription: [{ validator: ValidService.checkNameLength.validator }],
+  ShortDescription: [
+    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkSpaceBeforeAndAfter.validator }
+  ],
   VerificationInfo: [{ validator: ValidService.checkNameLength.validator }],
   Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
@@ -517,7 +521,7 @@ const ruleSEO = reactive({
   ],
   SeoUrl: [required()],
   SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
-  SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
+  description: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 
 //call api for ProductProperty table
@@ -597,7 +601,7 @@ type seoData = {
   SeoTitle: string
   SeoUrl: string
   SeoTags: Array<string>
-  SeoDescription: string
+  description: string
 }
 const emptySeoObj = {} as seoData
 
@@ -610,8 +614,8 @@ const customSeoData = (formData) => {
     SEOdata.SeoTags = formData.seoTags.map((tag) => tag.key)
   }
   formData.seoDescription
-    ? (SEOdata.SeoDescription = formData.seoDescription)
-    : (SEOdata.SeoDescription = '')
+    ? (SEOdata.description = formData.seoDescription)
+    : (SEOdata.description = '')
 }
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
@@ -647,6 +651,7 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  data.SeoDescription = data.description
   data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
     .then(() =>

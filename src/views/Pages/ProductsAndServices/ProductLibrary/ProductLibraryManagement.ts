@@ -495,12 +495,10 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'SeoDescription',
+    field: 'description',
     label: t('reuse.descriptions'),
     component: 'Editor',
-    componentProps: {
-      placeholder: 'Hello'
-    },
+    componentProps: { defaultHtml: '' },
     colProps: {
       span: 24
     }

@@ -112,6 +112,10 @@ const props = defineProps({
   backButton: {
     type: Boolean,
     default: false
+  },
+  showProduct: {
+    type: Boolean,
+    default: true
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -250,21 +254,23 @@ const save = async (type) => {
           return
         }
       }
-      if (dataTable.productData.length > 1) {
-        if (
-          dataTable.productData[dataTable.productData.length - 1].name == null ||
-          dataTable.productData[dataTable.productData.length - 1].code == ''
-        ) {
-          dataTable.productData.pop()
+      if (props.showProduct) {
+        if (dataTable.productData.length > 1) {
+          if (
+            dataTable.productData[dataTable.productData.length - 1].name == null ||
+            dataTable.productData[dataTable.productData.length - 1].code == ''
+          ) {
+            dataTable.productData.pop()
+          }
+          data.products = dataTable.productData
+        } else {
+          ElNotification({
+            message: t('reuse.tableProductNotFillInformation'),
+            type: 'info'
+          })
+          loading.value = false
+          return
         }
-        data.products = dataTable.productData
-      } else {
-        ElNotification({
-          message: t('reuse.tableProductNotFillInformation'),
-          type: 'info'
-        })
-        loading.value = false
-        return
       }
       //callback cho hàm emit
       if (type == 'add') {

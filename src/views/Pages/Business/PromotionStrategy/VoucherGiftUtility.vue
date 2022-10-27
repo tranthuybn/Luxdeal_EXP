@@ -6,7 +6,9 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
+import moment from 'moment'
 const { t } = useI18n()
+const curDate = 'VC' + moment().format('hhmmss')
 
 const schema = reactive<FormSchema[]>([
   {
@@ -23,7 +25,11 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
-    }
+    },
+    componentProps: {
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'date',
@@ -65,7 +71,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       onChange: (data) => hideTableCustomer(data),
       options: [
-        { label: t('reuse.allCustomer'), value: 1 },
+        { label: t('reuse.allCustomer'), value: 3 },
         { label: t('formDemo.chooseCustomerDetail'), value: 2 }
       ]
     },
@@ -135,9 +141,13 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+
+let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  data == 1 ? (schema[6].hidden = true) : (schema[6].hidden = false)
+  data == 3 ? (schema[6].hidden = true) : (schema[6].hidden = false)
+  valueRadioOjbApply.value = data
 }
+
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const collapse: Array<Collapse> = [
@@ -201,6 +211,7 @@ const editData = () => {}
           :type="type"
           :id="id"
           @post-data="postData"
+          :showProduct="false"
           :rules="rules"
           @customize-form-data="customizeData"
           :multipleImages="false"

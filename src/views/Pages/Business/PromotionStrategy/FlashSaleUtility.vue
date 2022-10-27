@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onBeforeMount, reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -448,13 +448,6 @@ const editData = async (data) => {
       })
     )
 }
-
-onBeforeMount(() => {
-  if (type == 'add') {
-    // schema.code = curDate
-    console.log('curFS:', curDate)
-  }
-})
 </script>
 
 <template>

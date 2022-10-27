@@ -165,10 +165,18 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps } = methods
+      const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      setSchema(
+        schema.map((component) => ({
+          field: component.field,
+          path: 'componentProps.placeholder',
+          value: ''
+        }))
+      )
+      setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -313,7 +321,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.length > 100) {
+      } else if (rawFile.name?.split('.')[0].length > 100) {
         ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
@@ -332,7 +340,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
-        } else if (file.name?.length > 100) {
+        } else if (file.name?.split('.')[0].length > 100) {
           ElMessage.error(t('reuse.checkNameImageLength'))
           inValid = false
           return false
@@ -405,13 +413,10 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
       imageUrl.value = URL.createObjectURL(uploadFile.raw!)
     }
   } else {
-    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     ListFileUpload.value = uploadFiles
-    if (!validImage) {
-      uploadFiles.map((file) => {
-        file.raw ? handleRemove(file) : ''
-      })
-    }
+    uploadFiles.map(async (file) => {
+      ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
+    })
   }
 }
 const previewImage = () => {
@@ -556,6 +561,7 @@ const changeTreeData = (data) => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
+              clearable
               :modelValue="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
@@ -639,7 +645,6 @@ const changeTreeData = (data) => {
                 :key="item.id"
                 :label="item.label"
                 :value="item.value"
-                :disabled="true"
             /></el-select>
           </template>
           <template #Name-label>
@@ -651,7 +656,7 @@ const changeTreeData = (data) => {
           <template #ShortDescription-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.shortDescription') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
           <template #ProductStatus="form">
@@ -743,7 +748,7 @@ const changeTreeData = (data) => {
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
-        <ElButton :loading="loading" @click="go(-1)">
+        <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
       </div>
@@ -751,20 +756,20 @@ const changeTreeData = (data) => {
         <ElButton :loading="loading" @click="edit">
           {{ t('reuse.edit') }}
         </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
         <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton :loading="loading" @click="cancel">
+        <!-- <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
         <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
     </template>
   </ContentWrap>

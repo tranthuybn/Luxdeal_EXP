@@ -1433,7 +1433,7 @@ export default {
     standardTime: 'Thời gian tiêu chuẩn',
     spaPrices: 'Giá Spa',
     productAttributeTable: 'Bảng đặc tính sản phẩm',
-    addAttributeAndPrice: 'Thêm đặc tính và giá bán',
+    addAttributeAndPrice: 'Thêm đặc tính',
     seoManagement: 'Quản lý SEO',
     validateEnterNumber: 'Phải điền số',
     minute: 'Phút',

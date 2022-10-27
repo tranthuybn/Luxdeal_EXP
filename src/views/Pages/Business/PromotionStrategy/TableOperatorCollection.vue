@@ -1126,7 +1126,7 @@ const getSpaSelected = (spaServices) => {
                   <ElButton :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="!disabled"
+                  v-if="props.type !== 'detail'"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >

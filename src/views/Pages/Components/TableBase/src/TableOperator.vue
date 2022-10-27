@@ -143,7 +143,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref()
 //set data for form edit and detail
 const setFormValue = async () => {
@@ -467,14 +466,14 @@ const listType = ref<ListImages>('text')
             <ElButton :icon="addIcon" />
           </div>
           <template #file="{ file }">
-            <div>
+            <div class="ml-auto mr-auto">
               <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <ElButton :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="!disabled"
+                  v-if="props.type !== 'detail'"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >

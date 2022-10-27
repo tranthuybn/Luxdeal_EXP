@@ -22,6 +22,7 @@ import {
   ElTable,
   ElTableColumn,
   ElInput,
+  ElInputNumber,
   ElSwitch,
   ElNotification,
   ElDialog,
@@ -516,10 +517,10 @@ const rules = reactive({
 const ruleSEO = reactive({
   SeoTitle: [
     required(),
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator }
+    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkEmojiValidator.validator }
   ],
-  SeoUrl: [required()],
+  SeoUrl: [required(), { validator: ValidService.checkNameLength.validator }],
   SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
   description: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
@@ -885,6 +886,7 @@ const openSellTable = async (scope) => {
   collapse[8].loading = false
   forceRemove.value == false
 }
+//should've splited into different small-components but too late
 const rentForm = ref<FormInstance>()
 const depositForm = ref<FormInstance>()
 const sellForm = ref<FormInstance>()
@@ -1257,9 +1259,9 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.quantity`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input-number v-model="scope.row.quantity" type="text" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1284,10 +1286,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1301,10 +1303,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1386,6 +1388,7 @@ const categoriesToString = (categories) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[0].hasPrice ? 'primary' : 'warning'"
                   @click="openSellTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1415,6 +1418,7 @@ const categoriesToString = (categories) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1443,6 +1447,7 @@ const categoriesToString = (categories) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
                   @click="openDepositTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1471,6 +1476,7 @@ const categoriesToString = (categories) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[3].hasPrice ? 'primary' : 'warning'"
                   @click="openPawnTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1499,6 +1505,7 @@ const categoriesToString = (categories) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
                   @click="openSpaTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1529,6 +1536,7 @@ const categoriesToString = (categories) => {
                   :icon="plusIcon"
                   link
                   type="primary"
+                  :disabled="type == 'detail'"
                   @click="openWarehouseTable(scope.row.featureGroup)"
                   >{{ t('reuse.detail') }}</el-button
                 >
@@ -1559,19 +1567,30 @@ const categoriesToString = (categories) => {
                 @click="handleSaveRow(scope, ruleTreeFormRef)"
                 >{{ t('reuse.save') }}</el-button
               >
-              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.edit')
-              }}</el-button>
-              <el-button type="danger" @click="handleDeleteRow(scope)">{{
-                t('reuse.delete')
-              }}</el-button>
+              <el-button
+                v-else
+                type="default"
+                @click="handleEditRow(scope.row)"
+                :disabled="type == 'detail'"
+                >{{ t('reuse.edit') }}</el-button
+              >
+              <el-button
+                type="danger"
+                @click="handleDeleteRow(scope)"
+                :disabled="type == 'detail'"
+                >{{ t('reuse.delete') }}</el-button
+              >
             </template>
           </ElTableColumn>
         </ElTable>
       </el-form>
-      <el-button class="ml-5 mt-5" :icon="plusIcon" @click="addLastRowAttribute">{{
-        t('reuse.addAttributeAndPrice')
-      }}</el-button>
+      <el-button
+        class="ml-5 mt-5"
+        :icon="plusIcon"
+        @click="addLastRowAttribute"
+        :disabled="type == 'detail'"
+        >{{ t('reuse.addAttributeAndPrice') }}</el-button
+      >
     </el-collapse-item>
     <el-dialog
       v-model="rentTableVisible"
@@ -1591,9 +1610,9 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.quantity`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input-number v-model="scope.row.quantity" type="text" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1618,10 +1637,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1635,10 +1654,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[2].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[2].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[2].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1652,10 +1671,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[3].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[3].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[3].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1669,10 +1688,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1745,10 +1764,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>%</template></el-input
+                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
+                  ><template #append>%</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1762,10 +1781,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1832,10 +1851,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1849,10 +1868,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -1866,7 +1885,11 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item>
                 <el-input
-                  :value="scope.row.prices[0].price + scope.row.prices[1].price"
+                  :value="
+                    isNaN(scope.row.prices[0].price + scope.row.prices[1].price)
+                      ? 0
+                      : scope.row.prices[0].price + scope.row.prices[1].price
+                  "
                   type="text"
                   autocomplete="off"
                   ><template #append>đ</template></el-input
@@ -1978,10 +2001,10 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
+                <el-input-number v-model="scope.row.price" type="text" autocomplete="off"
+                  ><template #append>đ</template></el-input-number
                 >
               </el-form-item>
             </template>
@@ -2125,9 +2148,6 @@ const categoriesToString = (categories) => {
 <style scoped>
 .text-center {
   font-size: 20px;
-}
-.el-table .cell {
-  word-break: break-word;
 }
 :deep(.el-collapse-item__wrap) {
   margin: 2rem;

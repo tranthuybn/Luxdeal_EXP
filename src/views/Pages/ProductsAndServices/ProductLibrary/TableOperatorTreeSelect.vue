@@ -136,7 +136,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref('')
 //set data for form edit and detail
 const { setValues } = methods
@@ -250,7 +249,7 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
@@ -697,14 +696,14 @@ const changeTreeData = (data) => {
             <el-button :icon="addIcon" />
           </div>
           <template #file="{ file }">
-            <div>
+            <div class="ml-auto mr-auto">
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <el-button :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="!disabled"
+                  v-if="props.type !== 'detail'"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >

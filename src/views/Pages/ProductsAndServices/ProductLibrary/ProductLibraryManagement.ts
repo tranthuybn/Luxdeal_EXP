@@ -350,7 +350,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: ' ',
     component: 'Editor',
     componentProps: {
-      height: '1000px',
       style: 'width: 100%'
     },
     colProps: {
@@ -498,7 +497,7 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     field: 'description',
     label: t('reuse.descriptions'),
     component: 'Editor',
-    componentProps: { defaultHtml: '' },
+    componentProps: { defaultHtml: '', style: 'width: 100%' },
     colProps: {
       span: 24
     }

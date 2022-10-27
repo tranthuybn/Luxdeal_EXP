@@ -17,8 +17,7 @@ import {
   ElNotification,
   ElImage,
   ElTreeSelect,
-  ElRadioGroup,
-  ElRadio,
+  ElCheckbox,
   ElSelect,
   ElOption
 } from 'element-plus'
@@ -651,19 +650,16 @@ const changeTreeData = (data) => {
           <template #ShortDescription-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.shortDescription') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
           <template #ProductStatus="form">
             <div>
-              <el-radio-group v-model="form['ProductStatus']">
-                <el-radio :label="1"
-                  >{{ t('reuse.active')
-                  }}<span class="text-[#FECB80]">
-                    ({{ t('reuse.allBusinessRelatedActivities') }})</span
-                  ></el-radio
-                >
-              </el-radio-group>
+              <el-checkbox v-model="form['ProductStatus']" :label="1" size="large" :disabled="true"
+                ><template #default>
+                  <label>{{ t('reuse.active') }}</label>
+                </template></el-checkbox
+              >
             </div>
           </template>
         </Form>

@@ -208,14 +208,14 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
+  let randomCode = Math.random().toString(36).substr(2, 5)
   //have id when in edit mode
   //newId: when click save and add return id
   const findId = isNaN(id) ? newId.value : id
   collapse[1].tableList.push({
     categoriesValue: [],
-    productCode: productData.productCode,
+    code: randomCode,
     productId: findId,
-    code: 'string', //api chua tra/chưa có trường nào để lấy thông tin
     categories: [],
     bussinessSetups: [
       //fix theo api (ko đổi)
@@ -592,7 +592,6 @@ const setFormData = reactive(emptyFormObj)
 type ProductProperty = {
   [key: string]: any
 }
-const emptyProductPropertyObj = {} as ProductProperty
 
 type seoData = {
   SeoTitle: string
@@ -601,7 +600,6 @@ type seoData = {
   SeoDescription: string
 }
 const emptySeoObj = {} as seoData
-let productData = reactive(emptyProductPropertyObj)
 
 const SEOdata = reactive(emptySeoObj)
 const customSeoData = (formData) => {
@@ -618,8 +616,6 @@ const customSeoData = (formData) => {
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
   console.log(formData)
-
-  productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
   setFormData.UnitId = formData.categories[2].id
@@ -690,7 +686,7 @@ let callApiWarehouseTable = 0
 // if res.data return empty array [] then push a empty obj to table
 let spaDialogTitle = ref('')
 const openSpaTable = async (scope) => {
-  spaDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  spaDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -751,7 +747,7 @@ const openWarehouseTable = async (dialogTitle) => {
 //same logic
 let pawnDialogTitle = ref('')
 const openPawnTable = async (scope) => {
-  pawnDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  pawnDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -785,7 +781,7 @@ const openPawnTable = async (scope) => {
 }
 let depositDialogTitle = ref('')
 const openDepositTable = async (scope) => {
-  depositDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  depositDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -816,7 +812,7 @@ const openDepositTable = async (scope) => {
 }
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
-  rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  rentDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -852,7 +848,7 @@ const openRentTable = async (scope) => {
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
-  sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  sellDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -1356,7 +1352,7 @@ const categoriesToString = (categories) => {
           <ElTableColumn
             header-align="center"
             min-width="130"
-            prop="productCode"
+            prop="code"
             :label="t('reuse.managementCode')"
           />
           <ElTableColumn header-align="center" min-width="250" :label="t('reuse.featureGroup')">

@@ -1444,6 +1444,8 @@ export default {
     selectCountyOrDistrict: 'Select country/district',
     selectWardOrCommune: 'Select ward/commune',
     enterDetailedAddress: 'Enter detailed address',
-    CheckCode: 'Please enter the correct code format'
+    CheckCode: 'Please enter the correct code format',
+    CustomersDoNotBankAccount: 'Customers do not have a bank account',
+    pleaseAddBankAccount: 'Please add a bank account'
   }
 }

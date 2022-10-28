@@ -143,7 +143,7 @@ export const useValidator = () => {
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
       },
-      required: true,
+      required: false,
       trigger: 'blur'
     },
     checkSpace: {
@@ -249,7 +249,7 @@ export const useValidator = () => {
         }
         callback()
       },
-      required: true,
+      required: false,
       trigger: 'blur'
     },
     checkMoney: {

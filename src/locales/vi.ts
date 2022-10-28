@@ -1562,6 +1562,8 @@ export default {
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
     used: 'Đã xử lí',
-    citizenIdentificationNumber: 'Số cccd/cmnd'
+    citizenIdentificationNumber: 'Số cccd/cmnd',
+    CustomersDoNotBankAccount: 'khách hàng chưa có tài khoản ngân hàng',
+    pleaseAddBankAccount: 'Vui lòng thêm tài khoản ngân hàng'
   }
 }

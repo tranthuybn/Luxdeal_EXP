@@ -6,7 +6,6 @@ import {
   ElUpload,
   ElDivider,
   ElButton,
-  ElRadio,
   ElDialog,
   ElOption,
   ElSelect,
@@ -15,11 +14,11 @@ import {
   ElInput,
   ElFormItem,
   ElForm,
-  ElRadioGroup,
   ElMessage,
   UploadProps,
   ElMessageBox,
-  UploadUserFile
+  UploadUserFile,
+  ElCheckbox
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
@@ -50,10 +49,14 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const customerClassification = ref('Khách hàng')
 
-const { ValidService, notSpace } = useValidator()
+const { ValidService, notSpace, notSpecialCharacters, required } = useValidator()
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
+  referralCode: [
+    { validator: ValidService.checkNameLength.validator },
+    { validator: notSpecialCharacters }
+  ],
   name: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   businessClassification: [
     {
@@ -69,6 +72,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
+  email: [ValidService.checkEmail],
   phonenumber: [
     {
       required: true,
@@ -108,7 +112,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
-      ElMessage.success(t('reuse.addSuccess'))
       checkValidate.value = true
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -444,9 +447,9 @@ const postData = async (typebtn) => {
       .then(() => {
         postCustomer(typebtn)
       })
-      .catch(() =>
+      .catch((res) =>
         ElNotification({
-          message: t('reuse.failCreateAccount'),
+          message: res.response.data.message,
           type: 'success'
         })
       )
@@ -549,15 +552,21 @@ onBeforeMount(() => {
                 </div>
               </ElFormItem>
 
-              <ElFormItem :label="t('reuse.referralCode')" prop="referralCode">
-                <el-input
-                  v-model="ruleForm.referralCode"
-                  class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                  type="text"
-                  :placeholder="t('reuse.enterReferralCode')"
-                />
+              <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="referralCode">
+                <div class="flex">
+                  <label class="min-w-[170px] pr-2 text-right"
+                    >{{ t('reuse.referralCode') }} <span class="text-red-600">*</span></label
+                  >
+                  <div class="w-[84%]">
+                    <el-input
+                      v-model="ruleForm.referralCode"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('reuse.enterReferralCode')"
+                    />
+                  </div>
+                </div>
               </ElFormItem>
-
               <el-divider content-position="left">{{
                 t('formDemo.generalInformation')
               }}</el-divider>
@@ -789,14 +798,20 @@ onBeforeMount(() => {
                   </div>
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.email')">
-                  <el-input
-                    prop="email"
-                    v-model="ruleForm.email"
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.enterEmail')"
-                  />
+                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="email">
+                  <div class="flex">
+                    <label class="min-w-[170px] pr-2 text-right"
+                      >{{ t('reuse.email') }} <span class="text-red-600">*</span></label
+                    >
+                    <div class="w-[84%]">
+                      <el-input
+                        v-model="ruleForm.email"
+                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                        type="text"
+                        :placeholder="t('formDemo.enterEmail')"
+                      />
+                    </div>
+                  </div>
                 </ElFormItem>
 
                 <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.link')">
@@ -938,9 +953,9 @@ onBeforeMount(() => {
                 </ElFormItem>
               </div>
               <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.status')">
-                <el-radio-group v-model="ruleForm.isActive" class="ml-4">
-                  <el-radio :label="true" class="pl-2">{{ t('formDemo.isActive') }}</el-radio>
-                </el-radio-group>
+                <el-checkbox v-model="ruleForm.isActive" class="pl-2">{{
+                  t('formDemo.isActive')
+                }}</el-checkbox>
               </ElFormItem>
             </ElForm>
             <div class="option-page mt-5">

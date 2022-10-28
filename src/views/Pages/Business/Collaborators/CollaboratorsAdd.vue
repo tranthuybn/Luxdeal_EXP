@@ -185,42 +185,28 @@ const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = result.name
+    infoCompany.taxCode = result.taxCode
+    infoCompany.email = result.email
+    infoCompany.representative = result.representative
+    infoCompany.phonenumber = result.phonenumber
+    infoCompany.address = result.address
+    infoCompany.bankId = result.bankId
+    infoCompany.accountName = result.accountName
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.bankName = result.bankName
+    infoCompany.CustomerId = result.CustomerId
+    infoCompany.cccd = result.cccd
+    infoCompany.cccdCreateAt = result.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+    infoCompany.sex = result.sex
+    infoCompany.doB = result.doB
+    if (!infoCompany.bankId) {
+      ElNotification({
+        message: t('reuse.CustomersDoNotBankAccount'),
+        type: 'warning'
+      })
     }
   } else {
     customerAddress.value = ''
@@ -319,7 +305,7 @@ type FormDataPost = {
   Discount: number
   AccountNumber: string
   AccountName: string
-  BankId: number
+  BankId: number | null
   Files?: any
 }
 const EmptyCustomData = {} as FormDataInput
@@ -331,7 +317,7 @@ const customPostData = (FormData) => {
   customData.Discount = parseInt(FormData.Discount)
   customData.AccountNumber = infoCompany.accountNumber
   customData.AccountName = infoCompany.accountName
-  customData.BankId = parseInt(infoCompany.bankId)
+  customData.BankId = infoCompany.bankId ? parseInt(infoCompany.bankId) : null
   customData.Files = ListFileUpload.value
     .map((file) => file.raw)
     .filter((file) => file !== undefined)
@@ -389,7 +375,7 @@ const setFormValue = async () => {
     }
     FormData.customersValue = {
       label: formValue.value.code + ' | ' + formValue.value.accountName,
-      value: formValue.value.id
+      value: formValue.value.code
     }
     setValues(formValue.value)
   } else {
@@ -461,47 +447,51 @@ const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
     const data = customPostData(FormData)
-    if (type === 'edit') {
-      const payload = {
-        id: id,
-        FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
-        Files: data.Files.filter((file) => file !== undefined)
+    if (data.BankId) {
+      if (type === 'edit') {
+        const payload = {
+          id: id,
+          FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
+          Files: data.Files.filter((file) => file !== undefined)
+        }
+        await updateCollaborators({ ...payload, ...data })
+          .then(() => {
+            ElNotification({
+              message: t('reuse.updateSuccess'),
+              type: 'success'
+            }),
+              push({
+                name: 'business.collaborators.collaboratorsList',
+                params: { backRoute: 'business.collaborators.collaboratorsList' }
+              })
+          })
+          .catch(() =>
+            ElNotification({
+              message: t('reuse.updateFail'),
+              type: 'warning'
+            })
+          )
+      } else {
+        await addNewCollaborators(FORM_IMAGES(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.addSuccess'),
+              type: 'success'
+            }),
+              push({
+                name: 'business.collaborators.collaboratorsList',
+                params: { backRoute: 'business.collaborators.collaboratorsList' }
+              })
+          })
+          .catch((error) =>
+            ElNotification({
+              message: error,
+              type: 'warning'
+            })
+          )
       }
-      await updateCollaborators({ ...payload, ...data })
-        .then(() => {
-          ElNotification({
-            message: t('reuse.updateSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: 'business.collaborators.collaboratorsList',
-              params: { backRoute: 'business.collaborators.collaboratorsList' }
-            })
-        })
-        .catch(() =>
-          ElNotification({
-            message: t('reuse.updateFail'),
-            type: 'warning'
-          })
-        )
     } else {
-      await addNewCollaborators(FORM_IMAGES(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: 'business.collaborators.collaboratorsList',
-              params: { backRoute: 'business.collaborators.collaboratorsList' }
-            })
-        })
-        .catch((error) =>
-          ElNotification({
-            message: error,
-            type: 'warning'
-          })
-        )
+      ElMessage.error(t('reuse.pleaseAddBankAccount'))
     }
   }
 }
@@ -669,7 +659,7 @@ const activeName = ref(collapse[0].name)
               <ElFormItem
                 style="align-items: flex-start"
                 :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode"
+                v-if="infoCompany.bankId"
               >
                 <div class="leading-4">
                   <div>{{ infoCompany.accountName }}</div>

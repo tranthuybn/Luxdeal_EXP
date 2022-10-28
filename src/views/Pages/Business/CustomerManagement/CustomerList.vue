@@ -6,5 +6,10 @@ import { CustomerList } from './CustomerManagement'
 </script>
 
 <template>
-  <TableType01 :columns="CustomerList" :api="getCustomerList" />
+  <TableType01
+    :customOperator="5"
+    :titleAdd="'router.customerAdd'"
+    :columns="CustomerList"
+    :api="getCustomerList"
+  />
 </template>

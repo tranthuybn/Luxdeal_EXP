@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
+import CurrentInput from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import { useForm } from '@/hooks/web/useForm'
 import { PropType, watch, ref, unref } from 'vue'
 import { TableData } from '@/api/table/types'
@@ -449,7 +450,15 @@ const listType = ref<ListImages>('text')
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register">
+          <template #InputPrice>
+            <CurrentInput
+              class="w-[80%] outline-none pl-2 dark:bg-transparent"
+              type="text"
+              :placeholder="t('reuse.enterPhoneNumber')"
+            />
+          </template>
+        </Form>
       </ElCol>
       <ElCol
         :span="hasImage ? 8 : 0"

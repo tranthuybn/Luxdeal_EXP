@@ -35,6 +35,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 
@@ -1248,14 +1249,11 @@ const getSpaSelected = (spaServices) => {
                   ></el-input
                 ></div
               >
-              <div v-if="scope.row.enterCondition == 'prices'"
-                ><el-input v-model="scope.row.price" type="number"
-                  ><template #suffix><span>đ</span></template></el-input
-                ></div
-              >
-            </div>
-          </template></el-table-column
-        >
+              <div v-if="scope.row.enterCondition == 'prices'">
+                <CurrencyInputComponent v-model="scope.row.price" />
+              </div>
+            </div> </template
+        ></el-table-column>
       </el-table>
     </el-dialog>
     <el-dialog
@@ -1297,14 +1295,11 @@ const getSpaSelected = (spaServices) => {
                   ></el-input
                 ></div
               >
-              <div v-if="scope.row.enterCondition == 'prices'"
-                ><el-input v-model="scope.row.price" type="number"
-                  ><template #suffix><span>đ</span></template></el-input
-                ></div
-              >
-            </div>
-          </template></el-table-column
-        >
+              <div v-if="scope.row.enterCondition == 'prices'">
+                <CurrencyInputComponent v-model="scope.row.price" />
+              </div>
+            </div> </template
+        ></el-table-column>
       </el-table>
       <template #footer>
         <span class="dialog-footer">

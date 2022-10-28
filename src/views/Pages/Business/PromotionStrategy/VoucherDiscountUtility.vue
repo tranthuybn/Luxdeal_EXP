@@ -93,7 +93,7 @@ const schema = reactive<FormSchema[]>([
     label: t('formDemo.odersApply'),
     component: 'Select',
     colProps: {
-      span: 14
+      span: 18
     },
     componentProps: {
       placeholder: t('reuse.selectOrder'),
@@ -108,20 +108,13 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'orderInput',
-    component: 'Input',
+    component: 'InputPrice',
+    value: 0,
     colProps: {
-      span: 10
+      span: 6
     },
     componentProps: {
-      placeholder: t('formDemo.appliesToOrdersFrom'),
-      formatter: (value) =>
-        value
-          .replace(/^\s+$/gm, '')
-          .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
-      suffixIcon: h('div', 'đ')
+      style: 'width: 100%'
     },
     formItemProps: {
       labelWidth: '0px'

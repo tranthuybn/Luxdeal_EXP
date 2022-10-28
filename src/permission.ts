@@ -78,6 +78,22 @@ router.beforeEach(async (to, from, next) => {
 })
 
 router.afterEach((to) => {
+  // const type = to.params.type
+  // let title = to?.meta?.title ?? ''
+  // console.log('to:', to, type, title)
+
+  // if (type) {
+  //   if (type == 'add') {
+  //     title = title.concat('add')
+  //   }
+  //   if (type == 'detail') {
+  //     title = title.concat('detail')
+  //   }
+  //   if (type == 'edit') {
+  //     title = title.concat('edit')
+  //   }
+  // }
+  // console.log('title', title)
   useTitle(to?.meta?.title as string)
   done() //End Progress
   loadDone()

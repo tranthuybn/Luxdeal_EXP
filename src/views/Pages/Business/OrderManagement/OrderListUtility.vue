@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, onMounted, h } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -350,10 +351,57 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 
-//add row table
-// const deleteRowDebtTable = (index: number) => {
-//   debtTable.value.splice(index, 1)
-// }
+// debtTable
+interface tableDataType {
+  createdAt: string
+  content: string
+  receiptOrPaymentVoucherId: number | undefined
+  paymentRequestId: number | undefined
+  receiveMoney: string
+  paidMoney: string
+  debt: string
+  typeOfPayment: string | number
+  paymentMethods: number
+  status: number
+  alreadyPaidForTt: boolean
+  statusAccountingEntry: string
+}
+
+const addDebtTable = ref<Array<tableDataType>>([
+  {
+    createdAt: moment().format('L').toString(),
+    content: '',
+    receiptOrPaymentVoucherId: undefined,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  }
+])
+
+let debtTable = ref<Array<tableDataType>>([])
+
+const onAddDebtTableItem = () => {
+  debtTable.value.push({
+    createdAt: moment().format('L').toString(),
+    content: '',
+    receiptOrPaymentVoucherId: 0,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  })
+}
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
@@ -367,9 +415,6 @@ const onAddHistoryTableItem = () => {
     inventoryStatus: ''
   })
 }
-// const deleteRow = (index: number) => {
-//   historyTable.value.splice(index, 1)
-// }
 // Dialog change address
 
 const dialogFormVisible = ref(false)
@@ -1010,11 +1055,11 @@ const editData = async () => {
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
     const transaction = await getOrderTransaction({ id: 10 })
-    console.log('res: ', res)
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
     console.log('transaction: ', transaction)
 
     const orderObj = { ...res.data[0] }
-    console.log('orderObj: ', orderObj)
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -1029,7 +1074,6 @@ const editData = async () => {
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
-      console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1056,6 +1100,7 @@ const editData = async () => {
     // })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
+    debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -1271,55 +1316,6 @@ const alreadyPaidForTt = ref(true)
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 
-interface tableDataType {
-  dateOfPayment: string
-  col: number
-  accessory: string
-  content: string
-  formCode: string
-  collected: string
-  spent: string
-  salesDebt: string
-  edited: boolean
-  paymentType: string | number
-  alreadyPaidForTt: boolean
-  statusAccountingEntry: string
-}
-
-const debtTable = ref<Array<tableDataType>>([
-  {
-    dateOfPayment: moment().format('L').toString(),
-    col: 1,
-    accessory: '',
-    content: 'Phiếu thanh toán',
-    formCode: 'PC354344',
-    collected: '',
-    spent: '',
-    salesDebt: '0 đ',
-    edited: true,
-    paymentType: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  }
-])
-
-const onAddDebtTableItem = () => {
-  debtTable.value.push({
-    dateOfPayment: moment().format('L').toString(),
-    col: 1,
-    accessory: '',
-    content: '',
-    formCode: '',
-    collected: '10,000,000 đ',
-    spent: '',
-    salesDebt: '',
-    edited: true,
-    paymentType: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
-  })
-}
-
 const tableAccountingEntry = [
   {
     content: 'Trả lại tiền cọc cho khách',
@@ -1359,7 +1355,6 @@ const tableAccountingEntry = [
 // ]
 
 // fake tạm option thêm nhanh sản phẩm
-
 const value = ref('')
 const payment = choosePayment[0].value
 
@@ -1549,10 +1544,7 @@ onBeforeMount(async () => {
   callApiCollaborators()
   await callApiProductList()
   callApiCity()
-  getBrandSelectOptions()
-  getUnitSelectOptions()
-  getOriginSelectOptions()
-  getCategory()
+
   if (type == 'add') {
     ruleForm.orderCode = curDate
   }
@@ -3562,7 +3554,17 @@ onMounted(async () => {
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                    <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
+                    <div
+                      class="text-base text-blue-400 cursor-pointer pl-2"
+                      @click="
+                        () => {
+                          addnewproduct()
+                          getBrandSelectOptions()
+                          getUnitSelectOptions()
+                          getOriginSelectOptions()
+                          getCategory()
+                        }
+                      "
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div
                     >
                   </div>
@@ -3607,13 +3609,10 @@ onMounted(async () => {
           />
           <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
             <template #default="props">
-              <el-input
-                v-if="type != 'detail'"
+              <CurrencyInputComponent
                 v-model="props.row.price"
-                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                @change="changePriceRowTable(props)"
-                :suffixIcon="h('div', 'đ')"
+                v-if="type != 'detail'"
+                @change="changePriceRowTable"
               />
               <div v-else>{{
                 props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
@@ -4110,25 +4109,25 @@ onMounted(async () => {
         >
           <el-table-column type="selection" width="40" align="center" />
           <el-table-column
-            prop="dateOfPayment"
-            :label="`${t('formDemo.dateOfPayment')}`"
+            prop="createdAt"
+            :label="t('formDemo.dateOfPayment')"
             min-width="150"
             align="center"
           >
             <template #default="data">
               <el-date-picker
-                v-model="data.row.dateOfPayment"
+                v-model="data.row.createdAt"
                 v-if="type != 'detail'"
                 type="date"
                 placeholder="Pick a day"
                 format="DD/MM/YYYY"
               />
-              <div v-else>{{ data.row.dateOfPayment }}</div>
+              <div v-else>{{ data.row.createdAt }}</div>
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="`${t('formDemo.certificateInformation')}`"
+            :label="t('formDemo.certificateInformation')"
             min-width="240"
           >
             <template #default="data">
@@ -4137,7 +4136,8 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            :label="`${t('formDemo.receiptOrPayment')}`"
+            prop="receiptOrPaymentVoucherId"
+            :label="t('formDemo.receiptOrPayment')"
             min-width="120"
             align="left"
           >
@@ -4151,71 +4151,76 @@ onMounted(async () => {
               >
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="left" min-width="150">
+          <el-table-column
+            prop="paymentRequestId"
+            :label="t('formDemo.paymentOrder')"
+            align="left"
+            min-width="150"
+          >
             <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">DNTT6543</div>
           </el-table-column>
           <el-table-column
-            prop="collected"
+            prop="receiveMoney"
             :label="t('formDemo.collected')"
             align="left"
             min-width="150"
           >
             <template #default="data">
               <el-input
-                v-model="data.row.collected"
+                v-model="data.row.receiveMoney"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.collected }}</div>
+              <div v-else>{{ data.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.spent')" min-width="150">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
               <el-input
-                v-model="data.row.spent"
+                v-model="data.row.paidMoney"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.spent }}</div>
+              <div v-else>{{ data.row.paidMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="salesDebt" :label="t('formDemo.salesDebt')" min-width="150">
+          <el-table-column prop="deibt" :label="t('formDemo.salesDebt')" min-width="150">
             <template #default="data">
               <el-input
-                v-model="data.row.salesDebt"
+                v-model="data.row.deibt"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
               <div v-else class="text-right">
-                {{ data.row.salesDebt }}
+                {{ data.row.deibt }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.receivableOrPayable')" min-width="120">
-            <div>Phải thu</div>
-          </el-table-column>
-          <el-table-column prop="paymentType" :label="t('formDemo.choosePayment')" min-width="180">
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            min-width="120"
+          >
             <template #default="props">
-              <el-select v-if="type != 'detail'" v-model="props.row.paymentType" class="m-2">
-                <el-option
-                  v-for="(item, index) in choosePayment"
-                  :key="index"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <div v-else>{{ props.row.paymentType }}</div>
+              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
             </template>
           </el-table-column>
           <el-table-column
-            :label="t('formDemo.statusAccountingEntry')"
-            prop="statusAccountingEntry"
-            align="center"
-            min-width="120"
-          />
+            prop="paymentMethods"
+            :label="t('formDemo.choosePayment')"
+            min-width="180"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.paymentMethods == 0
+                  ? t('formDemo.cashPayment')
+                  : t('formDemo.cardPayment')
+              }}</div>
+            </template>
+          </el-table-column>
           <el-table-column
             prop="alreadyPaidForTt"
-            :label="`${t('formDemo.alreadyPaidForTt')}`"
+            :label="t('formDemo.alreadyPaidForTt')"
             align="center"
             min-width="70"
           >
@@ -4223,10 +4228,22 @@ onMounted(async () => {
               <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
+          <el-table-column
+            :label="t('formDemo.statusAccountingEntry')"
+            prop="status"
+            align="center"
+            min-width="120"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+              }}</div>
+            </template>
+          </el-table-column>
+
           <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
             <template #default>
               <div class="flex">
-                <!-- @click.prevent="deleteRowDebtTable(scope.$index)" -->
                 <button
                   @click="dialogSalesSlipInfomation = true"
                   v-if="type != 'detail'"
@@ -4235,12 +4252,6 @@ onMounted(async () => {
                   {{ t('reuse.detail') }}
                 </button>
                 <div v-else>{{ t('reuse.detail') }}</div>
-                <!-- <button
-                  class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                  @click.prevent="deleteRowDebtTable(scope.$index)"
-                >
-                  {{ t('reuse.delete') }}
-                </button> -->
               </div>
             </template>
           </el-table-column>

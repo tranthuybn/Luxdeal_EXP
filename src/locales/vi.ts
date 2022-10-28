@@ -500,7 +500,9 @@ export default {
     completePayment: 'Hoàn thành trả hàng',
     leaseExtension: 'Gia hạn thuê',
     returnsExpired: 'Trả hàng hết hạn',
-    aheadTimeReturns: 'Trả hàng trước hạn'
+    aheadTimeReturns: 'Trả hàng trước hạn',
+    recorded: 'Đã ghi sổ',
+    cancelled: 'Đã hủy'
   },
   button: {
     add: 'Thêm nhanh',

@@ -483,7 +483,9 @@ export default {
     completePayment: 'Complete the payment',
     leaseExtension: 'Lease extension',
     returnsExpired: 'Returns expired',
-    aheadTimeReturns: 'Ahead of time returns'
+    aheadTimeReturns: 'Ahead of time returns',
+    cancelled: 'Cancelled',
+    recorded: 'Recorded'
   },
   button: {
     add: 'Add quick',

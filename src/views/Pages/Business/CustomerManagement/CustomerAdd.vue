@@ -21,6 +21,7 @@ import {
   ElMessageBox,
   UploadUserFile
 } from 'element-plus'
+import CurrentInput from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -365,7 +366,7 @@ const clear = async () => {
     (ruleForm.taxCode = ''),
     (ruleForm.businessClassification = false),
     (ruleForm.representative = ''),
-    (ruleForm.phonenumber = ''),
+    (ruleForm.phonenumber = null),
     (ruleForm.email = ''),
     (ruleForm.doB = ''),
     (ruleForm.cccd = ''),
@@ -378,7 +379,7 @@ const clear = async () => {
     (ruleForm.bankName = '')
 }
 
-const postCustomer = async () => {
+const postCustomer = async (typebtn) => {
   const payload = {
     UserName: ruleForm.userName,
     Code: ruleForm.customerCode,
@@ -409,12 +410,18 @@ const postCustomer = async () => {
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await addNewCustomer(formDataPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
+      if (typebtn === 'save') {
+        push({
+          name: 'business.customer-management.customerList',
+          params: { backRoute: 'business.customer-management.customerList' }
+        })
+      }
+    })
     .catch((error) =>
       ElNotification({
         message: error,
@@ -436,7 +443,7 @@ const postData = async (typebtn) => {
     }
     await addNewAuthRegister(JSON.stringify(payloadAcc))
       .then(() => {
-        postCustomer()
+        postCustomer(typebtn)
       })
       .catch(() =>
         ElNotification({
@@ -444,12 +451,6 @@ const postData = async (typebtn) => {
           type: 'success'
         })
       )
-  }
-  if (typebtn === 'save') {
-    push({
-      name: 'business.customer-management.customerList',
-      params: { backRoute: 'business.customer-management.customerList' }
-    })
   }
 }
 const centerDialogVisible = ref(false)
@@ -629,7 +630,7 @@ onBeforeMount(() => {
                     <label class="min-w-[170px] pr-2 text-right"
                       >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
                     >
-                    <el-input
+                    <CurrentInput
                       v-model="ruleForm.phonenumber"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
@@ -780,7 +781,7 @@ onBeforeMount(() => {
                     <label class="min-w-[170px] pr-2 text-right"
                       >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
                     >
-                    <el-input
+                    <CurrentInput
                       v-model="ruleForm.phonenumber"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"

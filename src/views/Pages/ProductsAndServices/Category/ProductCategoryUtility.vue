@@ -73,7 +73,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterNameCategory')
+      placeholder: t('reuse.EnterNameCategory'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -100,7 +101,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterNameCategoryLevel2')
+      placeholder: t('reuse.EnterNameCategoryLevel2'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -112,7 +114,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {

@@ -37,16 +37,18 @@ export const useValidator = () => {
   }
   const notSpecialCharacters = (_, val: any, callback: Callback) => {
     // The password cannot be a special character
-    if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
-      callback(new Error(t('reuse.notSpecialCharacters')))
-    } else if (
-      /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
-        val
-      )
-    ) {
-      callback(new Error(t('reuse.checkEmoji')))
-    } else {
-      callback()
+    if (val) {
+      if (/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi.test(val)) {
+        callback(new Error(t('reuse.notSpecialCharacters')))
+      } else if (
+        /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi.test(
+          val
+        )
+      ) {
+        callback(new Error(t('reuse.checkEmoji')))
+      } else {
+        callback()
+      }
     }
   }
   const checkCode = (_, val: any, callback: Callback) => {

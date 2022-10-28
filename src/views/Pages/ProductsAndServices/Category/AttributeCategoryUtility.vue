@@ -26,23 +26,7 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 let title = ref()
 let disableCheckBox = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'add') {
-      title.value = router.currentRoute.value.meta.title
-      schema[8].value = ['active']
-    } else if (type === 'detail') {
-      title.value = t('reuse.detailCharacteristic')
-    } else if (type === 'edit') {
-      title.value = t('reuse.editCharacteristic')
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
 const params = { TypeName: tab }
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
 const schema = reactive<FormSchema[]>([
@@ -99,7 +83,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.InputNameAttributeLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -113,7 +98,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.InputNameAttributeLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -125,7 +111,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel2')
+      placeholder: t('reuse.InputNameAttributeLevel2'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -137,7 +124,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {
@@ -165,7 +157,6 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'status',
-    label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
     colProps: {
@@ -201,6 +192,24 @@ const rules = reactive({
     { validator: notSpace }
   ]
 })
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailCharacteristic')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editCharacteristic')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 //call api for select options
 const getRank1SelectOptions = async () => {
   const payload = {

@@ -72,6 +72,10 @@ export const formatCustomerRatings = (val) => {
 export const priceTransferToText = (val) => {
   return `${val + ' đ'}`
 }
+export const productStatusPending = (val) => {
+  if (val) return `${t('reuse.active')}`
+  return `${t('reuse.pending')}`
+}
 export const productStatusTransferToText = (val) => {
   if (val) return `${t('reuse.active')}`
   return `${t('reuse.inactive')}`

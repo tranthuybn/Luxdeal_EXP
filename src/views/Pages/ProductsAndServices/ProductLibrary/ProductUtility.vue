@@ -49,7 +49,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 
@@ -257,6 +257,7 @@ const addLastRowAttribute = () => {
         hasPrice: false
       }
     ],
+    isActive: false,
     edited: true, //edit data (turn to treeSelect, input ...)
     newValue: true //check is newValue so dont have to call api
   })
@@ -1646,9 +1647,7 @@ const categoriesToString = (categories) => {
             }}</template></ElTableColumn
           >
           <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.status')"
-            ><template #default="scope">{{
-              productStatusTransferToText(scope.row.isActive)
-            }}</template>
+            ><template #default="scope">{{ productStatusPending(scope.row.isActive) }}</template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"

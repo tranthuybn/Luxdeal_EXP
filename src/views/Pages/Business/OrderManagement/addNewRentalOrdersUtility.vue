@@ -3871,6 +3871,11 @@ onBeforeMount(() => {
 ::v-deep(.el-dialog__title) {
   font-weight: bold;
 }
+
+.duplicate-status {
+  margin-bottom: 10px;
+}
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }

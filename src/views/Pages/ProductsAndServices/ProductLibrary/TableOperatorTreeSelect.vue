@@ -17,8 +17,7 @@ import {
   ElNotification,
   ElImage,
   ElTreeSelect,
-  ElRadioGroup,
-  ElRadio,
+  ElCheckbox,
   ElSelect,
   ElOption
 } from 'element-plus'
@@ -32,7 +31,12 @@ import { getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSettin
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
 import { API_URL } from '@/utils/API_URL'
-import { customPostData, getUnitSelectOptions } from './ProductLibraryManagement'
+import {
+  customPostData,
+  getBrandSelectOptions,
+  getOriginSelectOptions,
+  getUnitSelectOptions
+} from './ProductLibraryManagement'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -132,7 +136,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref('')
 //set data for form edit and detail
 const { setValues } = methods
@@ -160,10 +163,18 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps } = methods
+      const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      setSchema(
+        schema.map((component) => ({
+          field: component.field,
+          path: 'componentProps.placeholder',
+          value: ''
+        }))
+      )
+      setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -238,7 +249,8 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
+        setValues({ ProductStatus: 0 })
         loading.value = false
       }
       if (type == 'saveAndAdd') {
@@ -308,7 +320,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.length > 100) {
+      } else if (rawFile.name?.split('.')[0].length > 100) {
         ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
@@ -327,7 +339,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
-        } else if (file.name?.length > 100) {
+        } else if (file.name?.split('.')[0].length > 100) {
           ElMessage.error(t('reuse.checkNameImageLength'))
           inValid = false
           return false
@@ -400,13 +412,10 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
       imageUrl.value = URL.createObjectURL(uploadFile.raw!)
     }
   } else {
-    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     ListFileUpload.value = uploadFiles
-    if (!validImage) {
-      uploadFiles.map((file) => {
-        file.raw ? handleRemove(file) : ''
-      })
-    }
+    uploadFiles.map(async (file) => {
+      ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
+    })
   }
 }
 const previewImage = () => {
@@ -527,7 +536,7 @@ const fillAllInformation = async (data) => {
 }
 
 const callApiAttribute = async () => {
-  await getUnitSelectOptions()
+  await getUnitSelectOptions(), await getBrandSelectOptions(), await getOriginSelectOptions()
 }
 //for infinite scroll
 // const scrollMethod = () => {
@@ -551,6 +560,7 @@ const changeTreeData = (data) => {
         <Form :rules="rules" @register="register">
           <template #ProductTypeId="form">
             <ElTreeSelect
+              clearable
               :modelValue="form['ProductTypeId']"
               :data="treeSelectData"
               @focus="apiTreeSelect"
@@ -634,31 +644,32 @@ const changeTreeData = (data) => {
                 :key="item.id"
                 :label="item.label"
                 :value="item.value"
-                :disabled="true"
             /></el-select>
           </template>
           <template #Name-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productName') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
           <template #ShortDescription-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.shortDescription') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
           <template #ProductStatus="form">
-            <div>
-              <el-radio-group v-model="form['ProductStatus']">
-                <el-radio :label="1"
-                  >{{ t('reuse.active')
-                  }}<span class="text-[#FECB80]">
-                    ({{ t('reuse.allBusinessRelatedActivities') }})</span
-                  ></el-radio
-                >
-              </el-radio-group>
+            <!-- fix cung -->
+            <div v-if="form['ProductStatus'] == 0">{{ t('reuse.pending') }}</div>
+            <div v-else>
+              <el-checkbox v-model="form['ProductStatus']" :label="1" size="large" :disabled="true"
+                ><template #default>
+                  <label>{{ t('reuse.active') }}</label>
+                  <span class="text-[#FECB80]"
+                    >({{ t('reuse.allBusinessRelatedActivities') }})</span
+                  >
+                </template></el-checkbox
+              >
             </div>
           </template>
         </Form>
@@ -691,14 +702,14 @@ const changeTreeData = (data) => {
             <el-button :icon="addIcon" />
           </div>
           <template #file="{ file }">
-            <div>
+            <div class="ml-auto mr-auto">
               <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <el-button :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="!disabled"
+                  v-if="props.type !== 'detail'"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
@@ -738,7 +749,7 @@ const changeTreeData = (data) => {
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
-        <ElButton :loading="loading" @click="go(-1)">
+        <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
       </div>
@@ -746,20 +757,20 @@ const changeTreeData = (data) => {
         <ElButton :loading="loading" @click="edit">
           {{ t('reuse.edit') }}
         </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
         <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton :loading="loading" @click="cancel">
+        <!-- <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
         <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
     </template>
   </ContentWrap>

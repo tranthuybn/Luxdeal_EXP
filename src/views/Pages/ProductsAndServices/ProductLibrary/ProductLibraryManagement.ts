@@ -155,7 +155,6 @@ export const getBrandSelectOptions = async () => {
       console.error(err)
     })
   columnProfileProduct[2].componentProps!.options = brandSelect
-  columnProfileProduct[2].componentProps!.loading = false
 }
 let unitSelect = reactive([])
 export const getUnitSelectOptions = async () => {
@@ -174,7 +173,6 @@ export const getUnitSelectOptions = async () => {
       console.error(err)
     })
   columnProfileProduct[3].componentProps!.options = unitSelect
-  columnProfileProduct[3].componentProps!.loading = false
 }
 let originSelect = reactive([])
 export const getOriginSelectOptions = async () => {
@@ -193,7 +191,6 @@ export const getOriginSelectOptions = async () => {
       console.error(err)
     })
   columnProfileProduct[4].componentProps!.options = originSelect
-  columnProfileProduct[4].componentProps!.loading = false
 }
 export const customPostData = async (data) => {
   if (originSelect.length == 0) {
@@ -249,7 +246,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.chooseBrand'),
       style: 'width: 100%',
-      loading: true,
       options: []
     },
     colProps: {
@@ -263,7 +259,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     componentProps: {
       style: 'width: 100%',
       placeholder: t('reuse.chooseUnit'),
-      loading: true,
       options: []
     },
     colProps: {
@@ -277,7 +272,6 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.chooseOrigin'),
       style: 'width: 100%',
-      loading: true,
       options: []
     },
     colProps: {
@@ -329,7 +323,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     label: t('reuse.shortDescription'),
     component: 'Input',
     componentProps: {
-      placeholder: t('formDemo.enterDescription')
+      placeholder: t('reuse.under256Characters')
     },
     colProps: {
       span: 20
@@ -353,10 +347,9 @@ export const columnProfileProduct = reactive<FormSchema[]>([
   },
   {
     field: 'Description',
-    label: t('reuse.descriptions'),
+    label: ' ',
     component: 'Editor',
     componentProps: {
-      height: '1000px',
       style: 'width: 100%'
     },
     colProps: {
@@ -501,12 +494,10 @@ export const columnManagementSeo = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'SeoDescription',
+    field: 'description',
     label: t('reuse.descriptions'),
     component: 'Editor',
-    componentProps: {
-      placeholder: 'Hello'
-    },
+    componentProps: { defaultHtml: '', style: 'width: 100%' },
     colProps: {
       span: 24
     }

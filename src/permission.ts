@@ -26,7 +26,8 @@ const whiteList = ['/login'] // Don’t reconstruct a white list
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
-  if (wsCache.get(appStore.getUserInfo)) {
+  const userInfo = wsCache.get(appStore.getUserInfo)
+  if (userInfo) {
     if (to.path === '/login') {
       next({ path: '/' })
     } else {
@@ -45,6 +46,14 @@ router.beforeEach(async (to, from, next) => {
       }
 
       // Developers can modify it according to the actual situation
+      // force to logout if login before this time
+      const loginBefore = new Date('2022-10-28')
+      if (userInfo.loginTime < loginBefore.getTime()) {
+        wsCache.clear()
+        next({ path: '/login' })
+        return
+      }
+
       const roleRouters = wsCache.get(permissionStore.getRouterByRoles) || []
 
       await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')

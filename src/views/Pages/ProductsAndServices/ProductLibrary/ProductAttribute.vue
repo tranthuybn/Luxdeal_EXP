@@ -153,6 +153,14 @@ const clickTree = () => {
     treeRef.value!.setCheckedKeys(props.defaultValue, false)
   }
 }
+
+const filterNodeMethod = (searching, data) => {
+  if (!searching) return true
+  else {
+    searching = searching.toLowerCase()
+    return data.label.toLowerCase().includes(searching)
+  }
+}
 </script>
 <template>
   <ElTreeSelect
@@ -160,7 +168,8 @@ const clickTree = () => {
     v-model="modelValue"
     :loading="loading"
     :data="treeSelectData"
-    filter
+    filterable
+    :filter-node-method="filterNodeMethod"
     multiple
     accordion
     check-strictly

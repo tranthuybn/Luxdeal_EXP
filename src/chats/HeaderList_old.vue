@@ -1,12 +1,6 @@
 <template>
   <div class="sc-header" :style="{ color: colors.header.bg }">
-    <input
-      class="sc-search"
-      type="text"
-      placeholder="Tìm theo tên tài khoản..."
-      name="search2"
-      @input="changeTextSearch"
-    />
+    <input class="sc-search" type="text" placeholder="Tìm theo tên tài khoản..." name="search2" />
     <img
       :src="SearchIcon"
       :style="{
@@ -51,8 +45,7 @@ export default {
   data() {
     return {
       inUserList: false,
-      SearchIcon: SearchIcon,
-      textSearch: ''
+      SearchIcon: SearchIcon
     }
   },
   computed: {
@@ -62,10 +55,6 @@ export default {
     toggleUserList() {
       this.inUserList = !this.inUserList
       this.$emit('userList', this.inUserList)
-    },
-    changeTextSearch(e) {
-      // console.log(e.target.value)
-      this.$emit('changeTextSearch', e.target.value)
     }
   }
 }

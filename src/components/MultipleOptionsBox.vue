@@ -92,7 +92,6 @@ watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )
@@ -199,7 +198,11 @@ onUnmounted(() => {
             class="text-ellipsis text-center"
             :span="Math.floor(24 / fields.length)"
           >
-            <ElTooltip placement="left-end" :content="item[key]" effect="light">
+            <ElTooltip
+              placement="left-end"
+              :content="item[key] ? item[key].toString() : ''"
+              effect="light"
+            >
               <span> {{ item[key] }}</span>
             </ElTooltip>
           </ElCol>

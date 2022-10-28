@@ -488,7 +488,19 @@ export default {
     rentalProductInformation: 'Thông tin sản phẩm thuê',
     totalRentalFee: 'Tổng tiền phí thuê',
     depositSlipInformation: 'Thông tin phiếu thanh toán tiền cọc thuê',
-    depositPayment: 'Thanh toán tiền cọc'
+    depositPayment: 'Thanh toán tiền cọc',
+    informationWarehouseReceiptRentalPayment: 'Thông tin phiếu nhập kho trả hàng cho thuê',
+    returnReason: 'Lý do trả hàng',
+    totalAmountStock: 'Tổng tiền nhập kho',
+    conditionProducts: 'Tình trạng sản phẩm',
+    rentalVoucher: 'Phiếu cho thuê',
+    startRentingTerm: 'Bắt đầu thuê theo kỳ hạn',
+    durationPrepayment: 'Trả hàng trước thời hạn',
+    cancelReturns: 'Hủy trả hàng',
+    completePayment: 'Hoàn thành trả hàng',
+    leaseExtension: 'Gia hạn thuê',
+    returnsExpired: 'Trả hàng hết hạn',
+    aheadTimeReturns: 'Trả hàng trước hạn'
   },
   button: {
     add: 'Thêm nhanh',

@@ -471,7 +471,19 @@ export default {
     rentalProductInformation: 'Rental product information',
     totalRentalFee: 'Total rental fee',
     depositSlipInformation: 'Deposit slip information',
-    depositPayment: 'Deposit payment'
+    depositPayment: 'Deposit payment',
+    informationWarehouseReceiptRentalPayment: 'Information of warehouse receipt for rental payment',
+    returnReason: 'Return reason',
+    totalAmountStock: 'Total amount in stock',
+    conditionProducts: 'Condition of products',
+    rentalVoucher: 'Rental voucher',
+    startRentingTerm: 'Start renting by term',
+    durationPrepayment: 'Duration prepayment',
+    cancelReturns: 'Cancel returns',
+    completePayment: 'Complete the payment',
+    leaseExtension: 'Lease extension',
+    returnsExpired: 'Returns expired',
+    aheadTimeReturns: 'Ahead of time returns'
   },
   button: {
     add: 'Add quick',

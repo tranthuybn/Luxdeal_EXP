@@ -33,7 +33,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .sc-suggestions-row {
   text-align: center;
   background: inherit;

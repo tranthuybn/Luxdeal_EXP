@@ -569,6 +569,17 @@ export const getReceiptsExpendituresList = async (params: any): Promise<IRespons
   return res && res.data
 }
 
+export const getBalanceList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.BALANCE_SHEET_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  console.log('data: ', res.data)
+  return res && res.data
+}
+
 export const getaddNewPotenialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/addNewPotenialCustomer/List', params })
   return res && res.data

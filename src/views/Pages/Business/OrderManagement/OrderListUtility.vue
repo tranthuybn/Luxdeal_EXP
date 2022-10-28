@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, onMounted, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -27,8 +27,7 @@ import {
   ElTreeSelect,
   UploadUserFile,
   UploadProps,
-  ElMessageBox,
-  useNamespace
+  ElMessageBox
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -58,6 +57,7 @@ import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+// import FormatMoney from './FormatMoney.vue'
 
 const { t } = useI18n()
 
@@ -376,14 +376,29 @@ const dialogFormVisible = ref(false)
 let dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
+
+// api địa chỉ
 const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
+const enterdetailAddress = ref()
 
+const cities = ref()
 const district = ref()
 const ward = ref()
 
-const enterdetailAddress = ref([])
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
+
+const CityChange = async (value) => {
+  district.value = await getDistrict(value)
+}
+
+const districtChange = async (value) => {
+  ward.value = await getWard(value)
+}
+
 const tableWarehouse = [
   {
     warehouseCheckbox: '',
@@ -420,19 +435,21 @@ const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
+    console.log('getCustomerResult: ', getCustomerResult.value)
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
+        code: product.code,
         label: product.representative
           ? product.representative + ' | MST ' + product.taxCode
           : product.name + ' | ' + product.phonenumber,
-        value: product.id,
         address: product.address,
-        isOrganization: product.isOrganization,
         name: product.name,
+        value: product.id.toString(),
+        isOrganization: product.isOrganization,
         taxCode: product.taxCode,
         phone: product.phonenumber,
         email: product.email,
-        id: product.id
+        id: product.id.toString()
       }))
     }
   }
@@ -466,6 +483,12 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.price = obj.price
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
+
+const getValueOfCustomerSelected = (_value, obj) => {
+  changeAddressCustomer(_value)
+  ruleForm.customerName = obj.label
+}
+
 const handleTotal = (scope) => {
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
@@ -680,6 +703,29 @@ watch(
   () => {
     if (checkValidate.value === true) {
       postData()
+    }
+  }
+)
+
+// change address
+let autoChangeCommune = ref()
+let autoChangeDistrict = ref()
+let autoChangeProvince = ref()
+watch(
+  () => enterdetailAddress.value,
+  () => {
+    if (enterdetailAddress.value) {
+      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
+      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
+      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
+      customerAddress.value =
+        enterdetailAddress.value +
+        ', ' +
+        autoChangeCommune.value.label +
+        ', ' +
+        autoChangeDistrict.value.label +
+        ', ' +
+        autoChangeProvince.value.label
     }
   }
 )
@@ -948,19 +994,6 @@ const postData = async () => {
   }
 }
 
-const cities = ref()
-const callApiCity = async () => {
-  cities.value = await getCity()
-}
-
-const CityChange = async (value) => {
-  district.value = await getDistrict(value)
-}
-
-const districtChange = async (value) => {
-  ward.value = await getWard(value)
-}
-
 // total order
 let totalOrder = ref(0)
 
@@ -1021,29 +1054,29 @@ const editData = async () => {
   }
 }
 
-const dataTablePrint = reactive<TableColumn[]>([
-  {
-    field: 'index',
-    label: t('reuse.index'),
-    type: 'index',
-    align: 'center'
-  },
-  {
-    field: 'employeeCode',
-    label: t('reuse.employeeCode'),
-    minWidth: '250'
-  },
-  {
-    field: 'employeeName',
-    label: t('reuse.employeeName'),
-    minWidth: '150'
-  },
-  {
-    field: 'gender',
-    label: t('reuse.gender'),
-    minWidth: '100'
-  }
-])
+// const dataTablePrint = reactive<TableColumn[]>([
+//   {
+//     field: 'index',
+//     label: t('reuse.index'),
+//     type: 'index',
+//     align: 'center'
+//   },
+//   {
+//     field: 'employeeCode',
+//     label: t('reuse.employeeCode'),
+//     minWidth: '250'
+//   },
+//   {
+//     field: 'employeeName',
+//     label: t('reuse.employeeName'),
+//     minWidth: '150'
+//   },
+//   {
+//     field: 'gender',
+//     label: t('reuse.gender'),
+//     minWidth: '100'
+//   }
+// ])
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1236,6 +1269,7 @@ const dialogAccountingEntryAdditional = ref(false)
 interface tableDataType {
   dateOfPayment: string
   col: number
+  accessory: string
   content: string
   formCode: string
   collected: string
@@ -1251,6 +1285,7 @@ const debtTable = ref<Array<tableDataType>>([
   {
     dateOfPayment: moment().format('L').toString(),
     col: 1,
+    accessory: '',
     content: 'Phiếu thanh toán',
     formCode: 'PC354344',
     collected: '',
@@ -1267,6 +1302,7 @@ const onAddDebtTableItem = () => {
   debtTable.value.push({
     dateOfPayment: moment().format('L').toString(),
     col: 1,
+    accessory: '',
     content: '',
     formCode: '',
     collected: '10,000,000 đ',
@@ -1470,8 +1506,8 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-function printPage(id: String) {
-  const prtHtml = document.getElementById(id).innerHTML
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1481,7 +1517,7 @@ function printPage(id: String) {
     '',
     'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
   )
-  WinPrint.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
@@ -1491,11 +1527,11 @@ function printPage(id: String) {
                   </body>
                 </html>`)
 
-  WinPrint.document.close()
-  WinPrint.focus()
+  WinPrint?.document.close()
+  WinPrint?.focus()
   setTimeout(() => {
-    WinPrint.print()
-    WinPrint.close()
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 
@@ -1841,7 +1877,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
-
       <el-dialog
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
@@ -1949,7 +1984,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- phieu in -->
-
       <div id="billDepositPrint">
         <slot>
           <billPrint :dataEdit="dataEdit" :nameDialog="nameDialog" />
@@ -2238,7 +2272,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu bán hàng -->
-
       <el-dialog
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.salesSlipInformation')"
@@ -2370,7 +2403,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu đặt cọc/tạm ứng -->
-
       <el-dialog
         v-model="dialogDepositSlipAdvance"
         :title="t('formDemo.depositSlipAdvanceinformation')"
@@ -2959,6 +2991,7 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -3093,21 +3126,22 @@ onMounted(async () => {
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <el-select
-                            :disabled="checkDisabled"
-                            v-model="ruleForm.customerName"
+                          <MultipleOptionsBox
+                            :fields="[
+                              t('reuse.customerCode'),
+                              t('reuse.customerName'),
+                              t('reuse.customerInfo')
+                            ]"
                             filterable
-                            :clearable="true"
-                            :placeholder="t('formDemo.chooseACustomer')"
-                            @change="changeAddressCustomer"
-                          >
-                            <el-option
-                              v-for="item in optionsCustomerApi"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
+                            :items="optionsCustomerApi"
+                            valueKey="value"
+                            labelKey="label"
+                            :hiddenKey="['id']"
+                            :placeHolder="'Chọn khách hàng'"
+                            :defaultValue="ruleForm.customerName"
+                            :clearable="false"
+                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                          />
                           <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
@@ -3571,7 +3605,10 @@ onMounted(async () => {
               <el-input
                 v-if="type != 'detail'"
                 v-model="props.row.price"
+                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 @change="changePriceRowTable(props)"
+                :suffixIcon="h('div', 'đ')"
               />
               <div v-else>{{
                 props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
@@ -3623,7 +3660,6 @@ onMounted(async () => {
                 @click="
                   () => {
                     openDialogChoosePromotion = true
-                    callPromoApi()
                   }
                 "
                 style="padding: 0"
@@ -3788,16 +3824,11 @@ onMounted(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <!-- <div class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              @click="dialogSalesSlipInfomation = true"
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
-          </div> -->
-          <div v-if="statusOrder == 1" class="w-[100%] flex ml-1 gap-4">
+          <!-- Không thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == false"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3831,6 +3862,47 @@ onMounted(async () => {
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  statusOrder = 9
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
+          </div>
+
+          <!-- Có thay đổi giá -->
+          <div
+            v-else-if="statusOrder == 1 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
+              t('formDemo.paymentSlip')
+            }}</el-button>
+            <el-button
+              @click="dialogDepositSlipAdvance = true"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.depositSlipAdvance') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
               @click="

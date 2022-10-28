@@ -16,9 +16,11 @@ import {
   ElFormItem,
   ElForm,
   ElRadioGroup,
-  ElMessage
+  ElMessage,
+  UploadProps,
+  ElMessageBox,
+  UploadUserFile
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -38,10 +40,7 @@ import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
@@ -50,8 +49,7 @@ const disabledDate = (time: Date) => {
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const customerClassification = ref('Khách hàng')
-const valueProvince = ref('')
-const valueDistrict = ref('')
+
 const { ValidService, notSpace } = useValidator()
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -194,7 +192,11 @@ let ruleForm = reactive({
   userName: '',
   isActive: true,
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  ProvinceId: '',
+  DistrictId: '',
+  WardId: '',
+  Address: ''
 })
 const formValue = ref()
 //get data from table
@@ -228,6 +230,15 @@ const getTableValue = async () => {
     } else {
       ruleForm.sex = false
     }
+    formValue.value?.customerFiles?.map((element) => {
+      if (element.file !== null) {
+        ListFileUpload.value.push({
+          url: `${API_URL}${element?.file?.path}`,
+          name: element?.file?.fileName
+          // id: element?.file?.id
+        })
+      }
+    })
     ruleForm.name = formValue.value.name
     ruleForm.representative = formValue.value.representative
     ruleForm.accountName = formValue.value.accountName
@@ -237,13 +248,28 @@ const getTableValue = async () => {
     ruleForm.email = formValue.value.email
     ruleForm.phonenumber = formValue.value.phonenumber
     ruleForm.link = formValue.value.link
-    ruleForm.bankName = formValue.value.bank.name
+    ruleForm.bankName = formValue.value.bank?.name
     ruleForm.accountNumber = formValue.value.accountNumber
     ruleForm.doB = formValue.value.doB
     ruleForm.taxCode = formValue.value.taxCode
     ruleForm.userName = formValue.value.userName
+    ruleForm.Address = formValue.value.address
+    ruleForm.ProvinceId = formValue.value.provinceId
+    ruleForm.DistrictId = formValue.value.districtId
+    ruleForm.WardId = formValue.value.wardId
+
+    await callApiCity()
+    await CityChange(formValue.value.provinceId)
+    await districtChange(formValue.value.districtId)
+    console.log('cities.value', cities, cities.value, formValue.value.provinceId)
+    const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
+    valueProvince.value = result1.label
+    const result2 = district.value.find((e) => e.value == formValue.value.districtId)
+    valueDistrict.value = result2.label
+
+    const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
+    valueCommune.value = result3.label
   }
-  console.log('formvalue: ', formValue)
 }
 
 const { push } = useRouter()
@@ -264,8 +290,6 @@ const { register } = useForm()
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 const collapse: Array<Collapse> = [
   {
@@ -291,7 +315,6 @@ const collapse: Array<Collapse> = [
 const getGenCodeCustomer = async () => {
   await getGenCodeCustomers({})
     .then((res) => {
-      console.log('res', res)
       ruleForm.customerCode = res.toString()
     })
     .catch((err) => {
@@ -311,35 +334,30 @@ const collapseChangeEvent = (val) => {
     })
 }
 const activeName = ref(collapse[0].name)
-//upload image
-
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-// address
 
 const cities = ref()
 const district = ref()
 const ward = ref()
 const valueCommune = ref('')
-const enterdetailAddress = ref([])
+const valueProvince = ref('')
+const valueDistrict = ref('')
 const callApiCity = async () => {
   cities.value = await getCity()
+  cities.value
 }
 
 const CityChange = async (value) => {
+  ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
 }
 
 const districtChange = async (value) => {
+  ruleForm.DistrictId = value
   ward.value = await getWard(value)
 }
-
+const wardChange = async (value) => {
+  ruleForm.WardId = value
+}
 const clear = async () => {
   ;(ruleForm.customerCode = ''),
     (ruleForm.referralCode = ''),
@@ -360,85 +378,80 @@ const clear = async () => {
     (ruleForm.bankName = '')
 }
 
-const postData = async () => {
-  await submitForm(ruleFormRef.value, ruleFormRef2.value)
-  if (checkValidate.value) {
-    await postAdd().then(() =>
-      push({
-        name: 'business.customer-management.customerList',
-        params: { backRoute: 'business.customer-management.customerList' }
+const postCustomer = async (typebtn) => {
+  const payload = {
+    UserName: ruleForm.userName,
+    Code: ruleForm.customerCode,
+    ReferralCode: ruleForm.referralCode,
+    Name: ruleForm.name,
+    TaxCode: ruleForm.taxCode,
+    IsOrganization: ruleForm.businessClassification,
+    Representative: ruleForm.representative,
+    Phonenumber: ruleForm.phonenumber,
+    Email: ruleForm.email,
+    DoB: ruleForm.doB,
+    ProvinceId: ruleForm.ProvinceId,
+    DistrictId: ruleForm.DistrictId,
+    WardId: ruleForm.WardId,
+    Address: ruleForm.Address,
+    CCCD: ruleForm.cccd,
+    CCCDCreateAt: ruleForm.cccdCreateAt,
+    CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
+    Sex: ruleForm.sex,
+    Link: ruleForm.link,
+    ImageId: 1,
+    isActive: true,
+    CustomerType: 1,
+    AccountName: ruleForm.accountName,
+    AccountNumber: ruleForm.accountNumber,
+    BankId: ruleForm.bankName,
+    Files: ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await addNewCustomer(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      if (typebtn === 'save') {
+        push({
+          name: 'business.customer-management.customerList',
+          params: { backRoute: 'business.customer-management.customerList' }
+        })
+      }
+    })
+    .catch((error) =>
+      ElNotification({
+        message: error,
+        type: 'warning'
       })
     )
-  }
+  clear()
 }
-
-const postAccount = async () => {
+const postData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
-  const payload = {
-    fullName: ruleForm.name,
-    email: ruleForm.email,
-    password: ruleForm.password,
-    confirmPassword: ruleForm.confirmPassword,
-    userName: ruleForm.userName,
-    phoneNumber: null
-  }
-  const res = await addNewAuthRegister(JSON.stringify(payload))
-  if (res) {
-    const payload = {
-      UserName: ruleForm.userName,
-      Code: ruleForm.customerCode,
-      ReferralCode: ruleForm.referralCode,
-      Name: ruleForm.name,
-      TaxCode: ruleForm.taxCode,
-      IsOrganization: ruleForm.businessClassification,
-      Representative: ruleForm.representative,
-      Phonenumber: ruleForm.phonenumber,
-      Email: ruleForm.email,
-      DoB: ruleForm.doB,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
-      CCCD: ruleForm.cccd,
-      CCCDCreateAt: ruleForm.cccdCreateAt,
-      CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
-      Sex: ruleForm.sex,
-      Link: ruleForm.link,
-      ImageId: 1,
-      isActive: true,
-      CustomerType: 1,
-      AccountName: ruleForm.accountName,
-      AccountNumber: ruleForm.accountNumber,
-      BankId: ruleForm.bankName
+  if (checkValidate.value) {
+    const payloadAcc = {
+      fullName: ruleForm.name,
+      email: ruleForm.email,
+      password: ruleForm.password,
+      confirmPassword: ruleForm.confirmPassword,
+      userName: ruleForm.userName,
+      phoneNumber: ruleForm.phonenumber
     }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postAdd', payload)
-
-    await addNewCustomer(formDataPayLoad)
-      .then(() =>
+    await addNewAuthRegister(JSON.stringify(payloadAcc))
+      .then(() => {
+        postCustomer(typebtn)
+      })
+      .catch(() =>
         ElNotification({
-          message: t('reuse.addSuccess'),
+          message: t('reuse.failCreateAccount'),
           type: 'success'
         })
       )
-      .catch((error) =>
-        ElNotification({
-          message: error,
-          type: 'warning'
-        })
-      )
-    clear()
-  } else {
-    ElNotification({
-      message: t('reuse.failCreateAccount'),
-      type: 'success'
-    })
   }
 }
-
-const postAdd = async () => {
-  await postAccount()
-}
-
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
 
@@ -459,15 +472,41 @@ watch(
   }
 )
 const change = () => {
-  console.log('type: ', type)
   if (type == 'detail') {
     disableData = true
   }
 }
+const ListFileUpload = ref<UploadUserFile[]>([])
+const disabledForm = ref(false)
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+}
+let FileDeleteIds: any = []
+const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
+}
 onBeforeMount(() => {
   change()
   callApiCity()
-  getTableValue()
   getGenCodeCustomer()
 })
 </script>
@@ -516,7 +555,8 @@ onBeforeMount(() => {
                   class="w-[80%] outline-none pl-2 dark:bg-transparent"
                   type="text"
                   :placeholder="t('reuse.enterReferralCode')"
-              /></ElFormItem>
+                />
+              </ElFormItem>
 
               <el-divider content-position="left">{{
                 t('formDemo.generalInformation')
@@ -803,8 +843,8 @@ onBeforeMount(() => {
                     <el-button
                       @click="centerDialogVisible = true"
                       class="w-[50%] outline-none min-h-9 pl-2 ml-3 dark:bg-transparent"
-                      >{{ t('reuse.changePassword') }}</el-button
-                    >
+                      >{{ t('reuse.changePassword') }}
+                    </el-button>
                     <el-dialog
                       v-model="centerDialogVisible"
                       :title="t('reuse.changePassword')"
@@ -950,12 +990,15 @@ onBeforeMount(() => {
                 }}</el-button>
               </div>
               <div v-else class="flex justify-center">
-                <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
+                <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
-                <el-button @click="postAdd" type="primary" class="min-w-42 min-h-11">{{
-                  t('reuse.saveAndAdd')
-                }}</el-button>
+                <el-button
+                  @click="postData('saveAndAdd')"
+                  type="primary"
+                  class="min-w-42 min-h-11"
+                  >{{ t('reuse.saveAndAdd') }}</el-button
+                >
 
                 <el-button @click="cancel()" class="min-w-42 min-h-11">{{
                   t('reuse.cancel')
@@ -965,6 +1008,33 @@ onBeforeMount(() => {
           </div>
 
           <div class="w-[50%]">
+            <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+              <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+            </div>
+            <div class="flex">
+              <div class="pl-5">
+                <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+                <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
+              </div>
+              <div class="pl-4">
+                <el-upload
+                  ref="upload"
+                  class="upload-demo"
+                  action="#"
+                  :limit="10"
+                  :on-change="handleChange"
+                  :before-remove="beforeRemove"
+                  :auto-upload="false"
+                  :multiple="true"
+                  v-model:fileList="ListFileUpload"
+                  :disabled="disabledForm"
+                >
+                  <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}
+                  </el-button>
+                </el-upload>
+              </div>
+            </div>
             <ElForm
               ref="ruleFormRef2"
               :model="ruleForm"
@@ -975,55 +1045,7 @@ onBeforeMount(() => {
               status-icon
               :disabled="disableData"
             >
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
-                <div class="flex gap-4">
-                  <div class="about-image ml-10">
-                    <p>{{ t('formDemo.addPhotosOrFiles') }}</p>
-                    <p style="color: orange" class="text-xs text-right">{{
-                      t('formDemo.lessThanTenProfiles')
-                    }}</p>
-                  </div>
-                  <div class="upload-image ml-10">
-                    <el-upload
-                      action="#"
-                      list-type="picture-card"
-                      :auto-upload="false"
-                      prop="Files"
-                    >
-                      <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon mx-2" /> -->
-                      <span>+ {{ t('formDemo.addPhotosOrFiles') }}</span>
-                      <template #file="{ file }">
-                        <div>
-                          <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                          <span class="el-upload-list__item-actions">
-                            <span
-                              class="el-upload-list__item-preview"
-                              @click="handlePictureCardPreview(file)"
-                            >
-                              <ElButton :icon="viewIcon" />
-                            </span>
-
-                            <span
-                              v-if="!disabled"
-                              class="el-upload-list__item-delete"
-                              @click="handleRemove(file)"
-                            >
-                              <ElButton :icon="deleteIcon" />
-                            </span>
-                          </span>
-                        </div>
-                      </template>
-                    </el-upload>
-
-                    <el-dialog v-model="dialogVisible">
-                      <img w-full :src="dialogImageUrl" />
-                    </el-dialog>
-                  </div>
-                </div>
-              </div>
-
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-[68px]">
+              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
                 <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
 
                 <ElFormItem
@@ -1070,6 +1092,7 @@ onBeforeMount(() => {
                     style="width: 96%"
                     class="m-2 fix-full-width"
                     :placeholder="t('reuse.selectWardOrCommune')"
+                    @change="(data) => wardChange(data)"
                   >
                     <el-option
                       v-for="item in ward"
@@ -1084,7 +1107,7 @@ onBeforeMount(() => {
                   :label="t('formDemo.detailedAddress')"
                 >
                   <el-input
-                    v-model="enterdetailAddress"
+                    v-model="ruleForm.Address"
                     style="width: 96%"
                     class="m-2 fix-full-width"
                     :placeholder="t('reuse.enterDetailedAddress')"
@@ -1145,10 +1168,7 @@ onBeforeMount(() => {
               </div>
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                 <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
-                <div v-if="type == 'add'">
-                  <Qrcode />
-                </div>
-                <div v-else> call api qr code </div>
+                <Qrcode :text="ruleForm.customerCode" />
               </div>
             </ElForm>
           </div>
@@ -1164,18 +1184,17 @@ onBeforeMount(() => {
   color: #ffffff;
   padding: 5px;
 }
+
 .option-select > .option-2 {
   background-color: #f56918;
   color: #ffffff;
   padding: 5px;
 }
+
 .black-color {
   color: #000000;
 }
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-}
+
 .avatar-uploader .avatar {
   width: 178px;
   height: 178px;
@@ -1184,19 +1203,6 @@ onBeforeMount(() => {
 
 ::v-deep(.custom-select-w38 > .el-select) {
   width: 38%;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
 }
 
 .el-icon.avatar-uploader-icon {
@@ -1210,6 +1216,7 @@ onBeforeMount(() => {
 ::v-deep(.el-select) {
   width: 100%;
 }
+
 ::v-deep(.el-table .cell) {
   word-break: break-word;
 }
@@ -1252,15 +1259,18 @@ onBeforeMount(() => {
   padding: 0;
   flex-wrap: wrap;
 }
+
 .demo-date-picker .block {
   padding: 30px 0;
   text-align: center;
   border-right: solid 1px var(--el-border-color);
   flex: 1;
 }
+
 .demo-date-picker .block:last-child {
   border-right: none;
 }
+
 .demo-date-picker .demonstration {
   display: block;
   color: var(--el-text-color-secondary);
@@ -1272,12 +1282,15 @@ onBeforeMount(() => {
   width: 100%;
   height: 34px;
 }
+
 ::v-deep(.fix-width > .el-input) {
   width: 100%;
 }
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
+
 ::v-deep(.el-form-item--default .el-form-item__error) {
   padding-left: 179px;
 }

@@ -59,7 +59,7 @@ export default {
           path: 'spa-service',
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaService.vue'),
-          name: 'products-services.ServiceLibrarySpaService',
+          name: 'products-services.ServiceLibrary.SpaService',
           meta: {
             title: t('router.ServiceLibrarySpaService')
           }
@@ -68,14 +68,14 @@ export default {
           path: `spa-service-utility/:type?/:id?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
-          name: `products-services.ServiceLibrarySpaService.${utility}`,
+          name: `products-services.ServiceLibrary.SpaService.${utility}`,
           meta: {
             title: t('reuse.addNewSpaService'),
             noTagsView: true,
             noCache: true,
             canTo: true,
             hidden: true,
-            showMainRoute: true
+            canto: true
           }
         }
       ]

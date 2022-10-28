@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -18,6 +18,7 @@ const { required, ValidService, notSpecialCharacters, notSpace } = useValidator(
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
+let disableCheckBox = ref(false)
 const schema = reactive<FormSchema[]>([
   {
     field: 'typeCategory',
@@ -58,7 +59,8 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       style: 'width: 100%',
-      placeholder: t('formDemo.inputBrandName')
+      placeholder: t('formDemo.inputBrandName'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -73,7 +75,8 @@ const schema = reactive<FormSchema[]>([
       options: [],
       disabled: true,
       style: 'width: 100%',
-      placeholder: t('formDemo.selectRankBrand')
+      placeholder: t('formDemo.selectRankBrand'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -85,7 +88,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('formDemo.inputBrandName')
+      placeholder: t('formDemo.inputBrandName'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -97,7 +101,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {
@@ -111,14 +120,27 @@ const schema = reactive<FormSchema[]>([
     component: 'Checkbox',
     value: [],
     colProps: {
-      span: 24
+      span: 7
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 'active'
-        },
+        }
+      ]
+    }
+  },
+  {
+    field: 'status',
+    component: 'Checkbox',
+    value: [],
+    colProps: {
+      span: 11
+    },
+    componentProps: {
+      options: [
         {
           label: t('reuse.stopShowAppWeb'),
           value: 'hide'
@@ -142,7 +164,7 @@ const rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -201,6 +223,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.BrandCategory',
+      params: { backRoute: 'products-services.BrandCategory' }
+    })
+  }
 }
 // get data from router
 const router = useRouter()
@@ -208,14 +236,24 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[7].key }
 let title = ref()
-if (type === 'add') {
-  title.value = router.currentRoute.value.meta.title
-} else if (type === 'detail') {
-  title.value = t('reuse.detailBrand')
-} else if (type === 'edit') {
-  title.value = t('reuse.editBrand')
-}
-
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailBrand')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editBrand')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   //disable parent select
@@ -288,7 +326,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.BrandCategory',
+      params: { backRoute: 'products-services.BrandCategory' }
     })
 }
 const deleteBrand = `${t('formDemo.deleteBrand')}`

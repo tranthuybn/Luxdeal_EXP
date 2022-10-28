@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -18,6 +18,8 @@ const { required, ValidService, notSpecialCharacters, notSpace } = useValidator(
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
+let disableCheckBox = ref(false)
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'field13',
@@ -31,11 +33,11 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 20
     },
+    value: 1,
     componentProps: {
       style: 'width: 100%',
       disabled: true,
-      modelValue: 1,
-      value: 1,
+
       options: [
         {
           label: t('reuse.UnitLevel1'),
@@ -57,35 +59,10 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.inputUnit')
+      placeholder: t('reuse.inputUnit'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
-  },
-  {
-    field: 'parentid',
-    label: t('reuse.nameRank1Category'),
-    component: 'Select',
-    colProps: {
-      span: 20
-    },
-    componentProps: {
-      options: [],
-      style: 'width: 100%',
-      placeholder: t('reuse.selectRankOrigin')
-    },
-    hidden: true
-  },
-  {
-    field: 'name',
-    label: t('reuse.nameRank2Category'),
-    component: 'Input',
-    colProps: {
-      span: 20
-    },
-    componentProps: {
-      placeholder: t('reuse.inputOrigin')
-    },
-    hidden: true
   },
   {
     field: 'index',
@@ -95,7 +72,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {
@@ -107,16 +89,27 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
-    value: [],
     colProps: {
-      span: 24
+      span: 7
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 'active'
-        },
+        }
+      ]
+    }
+  },
+  {
+    field: 'status',
+    component: 'Checkbox',
+    colProps: {
+      span: 11
+    },
+    componentProps: {
+      options: [
         {
           label: t('reuse.stopShowAppWeb'),
           value: 'hide'
@@ -140,7 +133,7 @@ const rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
@@ -187,7 +180,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('ab', { ...data })
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[6].key, ...data })
     .then(() =>
       ElNotification({
@@ -201,20 +193,37 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.UnitCategory',
+      params: { backRoute: 'products-services.UnitCategory' }
+    })
+  }
 }
 // get data from router
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+const id = Number(router.currentRoute?.value?.params?.id)
+const type = String(router.currentRoute?.value?.params?.type)
 const params = { TypeName: PRODUCTS_AND_SERVICES[6].key }
 let title = ref()
-if (type === 'add') {
-  title.value = router.currentRoute.value.meta.title
-} else if (type === 'detail') {
-  title.value = t('reuse.detailUnit')
-} else if (type === 'edit') {
-  title.value = t('reuse.editUnit')
-}
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router?.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[6].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailUnit')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editUnit')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
@@ -277,9 +286,11 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.UnitCategory',
+      params: { backRoute: 'products-services.UnitCategory' }
     })
 }
+
 const deleteOrigin = `${t('reuse.deleteUnit')}`
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRoute, useRouter } from 'vue-router'
@@ -25,13 +25,7 @@ const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 let title = ref()
-if (type === 'add') {
-  title.value = router.currentRoute.value.meta.title
-} else if (type === 'detail') {
-  title.value = t('reuse.detailCharacteristic')
-} else if (type === 'edit') {
-  title.value = t('reuse.editCharacteristic')
-}
+let disableCheckBox = ref(false)
 
 const params = { TypeName: tab }
 const hierarchical = params.TypeName === 'mausac' || params.TypeName === 'chatlieu' ? true : false
@@ -89,7 +83,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.InputNameAttributeLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -103,7 +98,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.InputNameAttributeLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -115,7 +111,8 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel2')
+      placeholder: t('reuse.InputNameAttributeLevel2'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
@@ -127,7 +124,12 @@ const schema = reactive<FormSchema[]>([
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.EnterDisplayPosition')
+      placeholder: t('reuse.EnterDisplayPosition'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
     }
   },
   {
@@ -141,14 +143,27 @@ const schema = reactive<FormSchema[]>([
     component: 'Checkbox',
     value: [],
     colProps: {
-      span: 24
+      span: 7
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 'active'
-        },
+        }
+      ]
+    }
+  },
+  {
+    field: 'status',
+    component: 'Checkbox',
+    value: [],
+    colProps: {
+      span: 11
+    },
+    componentProps: {
+      options: [
         {
           label: t('reuse.stopShowAppWeb'),
           value: 'hide'
@@ -173,10 +188,28 @@ const rules = reactive({
   ],
   index: [
     { validator: ValidService.checkPositiveNumber.validator },
-    { validator: ValidService.checkDecimal.validator },
+    { validator: notSpecialCharacters },
     { validator: notSpace }
   ]
 })
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      title.value = router.currentRoute?.value?.meta?.title
+      disableCheckBox.value = true
+      schema[8].value = ['active']
+    } else if (type === 'detail') {
+      title.value = t('reuse.detailCharacteristic')
+    } else if (type === 'edit') {
+      title.value = t('reuse.editCharacteristic')
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 //call api for select options
 const getRank1SelectOptions = async () => {
   const payload = {
@@ -241,6 +274,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  if (data.backRouter == true) {
+    push({
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: 'products-services.AttributeCategory' }
+    })
+  }
 }
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
@@ -306,7 +345,8 @@ const editData = async (data) => {
       })
     ),
     push({
-      name: `${String(router.currentRoute)}`
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: 'products-services.AttributeCategory' }
     })
 }
 </script>

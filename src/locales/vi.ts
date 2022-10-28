@@ -146,6 +146,8 @@ export default {
     enterServiceName: 'Nhập tên dịch vụ',
     voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
     voucherDiscount: 'Voucher giảm giá đơn hàng',
+    giftSpa: 'Tặng dịch vụ Spa',
+    giftDiscount: 'Giảm giá đơn hàng',
     voucherDetails: ' Chi tiết voucher',
     voucherCode: 'Mã voucher',
     odersApply: 'Đơn hàng áp dụng',
@@ -154,7 +156,7 @@ export default {
     voucherSendingSettings: 'Cài đặt gửi voucher',
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
-    enterNumberHours: 'Nhập số giờ',
+    enterNumberMinute: 'Nhập số phút',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
@@ -385,6 +387,7 @@ export default {
     enterPassword: 'Nhập mật khẩu',
     confirmPassword: 'Nhập lại mật khẩu',
     cancelAccount: 'Hủy tài khoản',
+    cancelRequest: 'Hủy yêu cầu',
     enterAccountNumber: 'Nhập số tài khoản',
     enterAccountName: 'Nhập tên tài khoản',
     provinceAndCity: 'Tỉnh/thành phố',
@@ -462,6 +465,7 @@ export default {
     depositSlip: 'Phiếu đặt cọc',
     initializationDate: 'Ngày khởi tạo',
     totalSalesDebt: 'Tổng công nợ bán hàng',
+    informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng',
     infoCouponExportExchange: 'Thông tin phiếu xuất đổi',
     invoiceForGoodsEntering: 'Phiếu nhập hoàn',
     productInformationExportChange: 'Thông tin sản phẩm xuất đổi',
@@ -477,7 +481,8 @@ export default {
     pleaseInputOrderNote: 'Vui lòng nhập ghi chú',
     pleaseSelectCustomerName: 'Vui lòng chọn khách hàng hoặc nhập mã khách hàng',
     pleaseChooseDelivery: 'Vui lòng chọn phương thức giao hàng',
-    saveCloseOrder: 'Lưu & chốt đơn'
+    saveCloseOrder: 'Lưu & chốt đơn',
+    InformationChangeReturnGoods: 'Thông tin đổi/Trả hàng'
   },
   button: {
     add: 'Thêm nhanh',
@@ -795,7 +800,7 @@ export default {
     enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
     customer: 'Khách hàng',
-    gender: 'Giới  tính',
+    gender: 'Giới tính',
     contact: 'Liên hệ',
     collaboratorsName: 'Tên CTV',
     collaboratorsCode: 'Mã CTV',
@@ -1557,6 +1562,7 @@ export default {
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
-    used: 'Đã xử lí'
+    used: 'Đã xử lí',
+    citizenIdentificationNumber: 'Số cccd/cmnd'
   }
 }

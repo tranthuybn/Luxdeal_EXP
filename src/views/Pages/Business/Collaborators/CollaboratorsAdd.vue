@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
+import { dateTimeFormat } from '@/utils/format'
+
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
 import { TableBase } from '../../Components/TableBase/index'
@@ -96,7 +98,6 @@ const tableColumn = [
     align: 'center'
   }
 ]
-const dialogVisible = ref(false)
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -135,7 +136,7 @@ const callCustomersApi = async () => {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         label: product.representative
           ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
+          : product.name + ' | ' + product.code,
         value: product.code,
         address: product.address,
         isOrganization: product.isOrganization,
@@ -148,7 +149,12 @@ const callCustomersApi = async () => {
         accountName: product.accountName,
         accountNumber: product.accountNumber,
         bankName: product.bank?.name,
-        CustomerId: product.id
+        CustomerId: product.id,
+        cccd: product.cccd,
+        cccdCreateAt: product.cccdCreateAt,
+        cccdPlaceOfGrant: product.cccdPlaceOfGrant,
+        sex: product.sex,
+        doB: product.doB
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -168,7 +174,12 @@ let infoCompany = reactive({
   accountName: '',
   accountNumber: '',
   bankName: '',
-  CustomerId: ''
+  CustomerId: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  sex: '',
+  doB: ''
 })
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -187,6 +198,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CustomerId = result.CustomerId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     } else {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -200,6 +216,11 @@ const changeAddressCustomer = (data) => {
       infoCompany.accountNumber = result.accountNumber
       infoCompany.bankName = result.bankName
       infoCompany.CustomerId = result.CustomerId
+      infoCompany.cccd = result.cccd
+      infoCompany.cccdCreateAt = result.cccdCreateAt
+      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+      infoCompany.sex = result.sex
+      infoCompany.doB = result.doB
     }
   } else {
     customerAddress.value = ''
@@ -289,6 +310,7 @@ type FormDataInput = {
   Discount: string
   customersValue: any
   isActive?: boolean
+  status?: string
 }
 type FormDataPost = {
   CustomerId: number
@@ -341,6 +363,7 @@ const setFormValue = async () => {
     })
     FormData.Discount = formValue.value.discount
     FormData.isActive = formValue.value.isActive
+    FormData.status = formValue.value.status
     CollaboratorId.value = formValue.value.code
     infoCompany.name = formValue.value.accountName
 
@@ -354,7 +377,11 @@ const setFormValue = async () => {
     infoCompany.bankName = formValue.value.bank?.name
     infoCompany.bankId = formValue.value.bankId
     infoCompany.CustomerId = formValue.value.customerId
-
+    infoCompany.cccd = formValue.value.customer?.cccd
+    infoCompany.cccdCreateAt = formValue.value.customer?.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = formValue.value.customer?.cccdPlaceOfGrant
+    infoCompany.sex = formValue.value.customer?.sex
+    infoCompany.doB = formValue.value.customer?.doB
     if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = true
     } else if (formValue.value.status === 0) {
@@ -441,12 +468,16 @@ const save = async () => {
         Files: data.Files.filter((file) => file !== undefined)
       }
       await updateCollaborators({ ...payload, ...data })
-        .then(() =>
+        .then(() => {
           ElNotification({
             message: t('reuse.updateSuccess'),
             type: 'success'
-          })
-        )
+          }),
+            push({
+              name: 'business.collaborators.collaboratorsList',
+              params: { backRoute: 'business.collaborators.collaboratorsList' }
+            })
+        })
         .catch(() =>
           ElNotification({
             message: t('reuse.updateFail'),
@@ -455,12 +486,16 @@ const save = async () => {
         )
     } else {
       await addNewCollaborators(FORM_IMAGES(data))
-        .then(() =>
+        .then(() => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
-          })
-        )
+          }),
+            push({
+              name: 'business.collaborators.collaboratorsList',
+              params: { backRoute: 'business.collaborators.collaboratorsList' }
+            })
+        })
         .catch((error) =>
           ElNotification({
             message: error,
@@ -468,10 +503,6 @@ const save = async () => {
           })
         )
     }
-    push({
-      name: 'business.collaborators.collaboratorsList',
-      params: { backRoute: 'business.collaborators.collaboratorsList' }
-    })
   }
 }
 const utility = 'Utility'
@@ -524,6 +555,7 @@ const activeName = ref(collapse[0].name)
                   size="default"
                   :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                   :suffixIcon="h('div', '%')"
+                  :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
                 />
               </ElFormItem>
               <el-divider class="mt-10" content-position="left">{{
@@ -548,32 +580,89 @@ const activeName = ref(collapse[0].name)
                 </ElSelect>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">
-                <div class="leading-6">
+                <div class="leading-4">
                   <div>{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
-                <div class="leading-6">
+                <div class="leading-4">
                   <div>{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative">
-                <div class="leading-6">
+                <div class="leading-4">
                   <div>{{ infoCompany.representative }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.phoneNumber')"
+                v-if="infoCompany.phonenumber"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.email')" v-if="infoCompany.email">
-                <div class="leading-6">
+              <ElFormItem
+                class="w-[50%]"
+                style="display: inline-block"
+                :label="t('reuse.email')"
+                v-if="infoCompany.email"
+              >
+                <div class="leading-4">
                   <div>{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.citizenIdentificationNumber')"
+                v-if="infoCompany.cccd"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccd }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyDate')"
+                v-if="infoCompany.cccdCreateAt"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyAddress')"
+                v-if="infoCompany.cccdPlaceOfGrant"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.dateOfBirth')"
+                v-if="infoCompany.doB"
+              >
+                <div class="leading-4">
+                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('reuse.gender')"
+                v-if="infoCompany.sex"
+              >
+                <div class="leading-4">
+                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
+                </div>
+              </ElFormItem>
               <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
-                <div class="leading-6">
+                <div class="leading-4">
                   <div>{{ infoCompany.address }}</div>
                 </div>
               </ElFormItem>
@@ -582,7 +671,7 @@ const activeName = ref(collapse[0].name)
                 :label="t('reuse.accountBank')"
                 v-if="infoCompany.taxCode"
               >
-                <div class="leading-6">
+                <div class="leading-4">
                   <div>{{ infoCompany.accountName }}</div>
                   <div>{{ infoCompany.accountNumber }}</div>
                   <div>{{ infoCompany.bankName }}</div>
@@ -640,11 +729,9 @@ const activeName = ref(collapse[0].name)
                   v-model:fileList="ListFileUpload"
                   :disabled="disabledForm"
                 >
-                  <el-dialog v-model="dialogVisible">
-                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
-                    >
-                  </el-dialog>
+                  <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
+                  >
                 </el-upload>
               </div>
             </div>
@@ -716,7 +803,7 @@ const activeName = ref(collapse[0].name)
 }
 
 ::v-deep(.el-form-item__content) {
-  display: block;
+  display: inline-block;
 }
 
 @media only screen and (min-width: 1920px) {

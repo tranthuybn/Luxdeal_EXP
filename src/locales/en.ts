@@ -145,7 +145,7 @@ export default {
     enterServiceName: 'Enter service name',
     enterDescription: 'Enter description',
     enterPrice: 'Enter price',
-    enterNumberHours: 'Enter the number of hours',
+    enterNumberMinute: 'Enter the number of minute',
     enterNumberDays: 'Enter the number of days',
     productInfomation: 'Product information',
     standardManagementMaterialsUsed: 'Standard management of materials used',
@@ -329,6 +329,8 @@ export default {
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
     voucherGiftSpa: 'Voucher gift Spa',
+    giftSpa: 'Gift spa',
+    giftDiscount: 'Gift discount',
     appliesToOrdersFrom: 'Applies to orders from',
     voucherSendingSettings: 'Voucher sending settings',
     setConditionsToReceiveVoucher: 'Set conditions to receive Voucher',
@@ -369,6 +371,7 @@ export default {
     enterPassword: 'Enter password',
     confirmPassword: 'Confirm password',
     cancelAccount: 'Cancel account',
+    cancelRequest: 'Cancel request',
     enterAccountNumber: 'Enter account number',
     enterAccountName: 'Enter account name',
     provinceAndCity: 'Province/city',
@@ -459,7 +462,10 @@ export default {
     pleaseInputOrderNote: 'Please input order note',
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
-    saveCloseOrder: 'Save & close order'
+    saveCloseOrder: 'Save & close order',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers',
+    InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
     add: 'Add quick',

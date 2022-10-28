@@ -156,7 +156,7 @@ export default {
     voucherSendingSettings: 'Cài đặt gửi voucher',
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
-    enterNumberHours: 'Nhập số giờ',
+    enterNumberMinute: 'Nhập số phút',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',

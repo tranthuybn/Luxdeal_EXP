@@ -21,7 +21,6 @@ import {
   ElMessageBox,
   UploadUserFile
 } from 'element-plus'
-import CurrentInput from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -366,7 +365,7 @@ const clear = async () => {
     (ruleForm.taxCode = ''),
     (ruleForm.businessClassification = false),
     (ruleForm.representative = ''),
-    (ruleForm.phonenumber = null),
+    (ruleForm.phonenumber = ''),
     (ruleForm.email = ''),
     (ruleForm.doB = ''),
     (ruleForm.cccd = ''),
@@ -630,7 +629,7 @@ onBeforeMount(() => {
                     <label class="min-w-[170px] pr-2 text-right"
                       >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
                     >
-                    <CurrentInput
+                    <el-input
                       v-model="ruleForm.phonenumber"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
@@ -781,7 +780,7 @@ onBeforeMount(() => {
                     <label class="min-w-[170px] pr-2 text-right"
                       >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
                     >
-                    <CurrentInput
+                    <el-input
                       v-model="ruleForm.phonenumber"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"

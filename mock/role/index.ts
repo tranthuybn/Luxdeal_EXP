@@ -91,7 +91,7 @@ const adminList = [
           {
             path: 'spa-service',
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaService',
-            name: 'products-services.ServiceLibrarySpaService',
+            name: 'products-services.ServiceLibrary.SpaService',
             meta: {
               title: 'router.ServiceLibrarySpaService'
             }
@@ -99,7 +99,7 @@ const adminList = [
           {
             path: `${utility}/:type?/:id?`,
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
-            name: `products-services.ServiceLibrarySpaService.${utility}`,
+            name: `products-services.ServiceLibrary.SpaService.${utility}`,
             meta: {
               title: 'reuse.addNewSpaService',
               noTagsView: true,

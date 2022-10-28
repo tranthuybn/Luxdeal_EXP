@@ -92,7 +92,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
       formatter: (value) =>
-        value
+        `${value}`
           .replace(/^\s+$/gm, '')
           .replace(/^[a-zA-Z]*$/gm, '')
           .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
@@ -228,10 +228,10 @@ const customPostData = (data) => {
   var curDate = moment().format()
   customData.Id = id
   customData.Photo = data.Images
-  customData.Cost = data.cost ?? 0
-  customData.PromotePrice = data.promotePrice ?? 0
-  customData.Time = data.time.trim() ?? 0
-  customData.Warranty = data.warranty.trim() ?? 0
+  customData.Cost = data.cost.replace(/\./g, '')
+  customData.PromotePrice = data.promotePrice.replace(/\./g, '')
+  customData.Time = data.time.trim()
+  customData.Warranty = data.warranty.trim()
   customData.Description = data.description.trim()
   customData.ShortDescription = data.shortDescription.trim()
   customData.Name = data.name.trim()
@@ -246,9 +246,6 @@ const customPostData = (data) => {
     data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
     data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
   }
-
-  // data.status.includes(['active']) ? (customData.IsActive = true) : (customData.IsActive = false)
-  // data.status.includes([]) ? (customData.IsActive = false) : (customData.IsActive = true)
   customData.IsApproved = true
   return customData
 }
@@ -262,17 +259,16 @@ const editData = async (data) => {
   }
   console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
-    .then(
-      () =>
-        ElNotification({
-          message: t('reuse.updateSuccess'),
-          type: 'success'
-        }),
-      () =>
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
         push({
-          name: `${String(router.currentRoute)}`
+          name: 'products-services.ServiceLibrary.SpaService',
+          params: { backRoute: 'products-services.ServiceLibrary.SpaService' }
         })
-    )
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -283,17 +279,16 @@ const editData = async (data) => {
 const postData = async (data) => {
   data = customPostData(data)
   await postSpa(FORM_IMAGES(data))
-    .then(
-      () =>
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        }),
-      () =>
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
         push({
-          name: `${String(router.currentRoute)}`
+          name: 'products-services.ServiceLibrary.SpaService',
+          params: { backRoute: 'products-services.ServiceLibrary.SpaService' }
         })
-    )
+    })
     .catch((error) =>
       ElNotification({
         message: error,

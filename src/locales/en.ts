@@ -145,7 +145,7 @@ export default {
     enterServiceName: 'Enter service name',
     enterDescription: 'Enter description',
     enterPrice: 'Enter price',
-    enterNumberHours: 'Enter the number of hours',
+    enterNumberMinute: 'Enter the number of minute',
     enterNumberDays: 'Enter the number of days',
     productInfomation: 'Product information',
     standardManagementMaterialsUsed: 'Standard management of materials used',
@@ -450,6 +450,8 @@ export default {
     depositSlip: 'Deposit slip',
     initializationDate: 'Initialization date',
     totalSalesDebt: 'Total sales debt',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers',
     infoCouponExportExchange: 'Information coupon export and exchange',
     invoiceForGoodsEntering: 'Invoice for goods entering',
     productInformationExportChange: 'Product information export and change',
@@ -466,8 +468,6 @@ export default {
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
     saveCloseOrder: 'Save & close order',
-    informationOnExchangeAndReturnPaymentVouchers:
-      'Information on exchange and return payment vouchers',
     InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
@@ -1459,6 +1459,9 @@ export default {
     selectCountyOrDistrict: 'Select country/district',
     selectWardOrCommune: 'Select ward/commune',
     enterDetailedAddress: 'Enter detailed address',
-    CheckCode: 'Please enter the correct code format'
+    CheckCode: 'Please enter the correct code format',
+    // product
+    under256Characters: 'Under 256 characters',
+    enterSearchingData: 'Please enter searching data'
   }
 }

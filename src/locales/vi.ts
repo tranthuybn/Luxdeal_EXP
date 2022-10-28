@@ -156,7 +156,7 @@ export default {
     voucherSendingSettings: 'Cài đặt gửi voucher',
     enterDescription: 'Nhập mô tả',
     enterPrice: 'Nhập giá',
-    enterNumberHours: 'Nhập số giờ',
+    enterNumberMinute: 'Nhập số phút',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
@@ -862,7 +862,7 @@ export default {
     surveyContent: 'Nội dung khảo sát',
     productCode: 'Mã sản phẩm',
     managementCode: 'Mã quản lý',
-    productInformation: 'Thông tin SP',
+    productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
     firstEntryDate: 'Ngày nhập',
@@ -879,7 +879,7 @@ export default {
     warningDate: 'Ngày bắt đầu không thể lớn hơn ngày kết thúc',
     categoryTitle: 'Thông tin danh mục sản phẩm kinh doanh',
     position: 'Vị trí',
-    color: 'Màu săc',
+    color: 'Màu sắc',
     size: 'Size',
     productName: 'Tên sản phẩm',
     description: 'Mô tả',
@@ -1002,7 +1002,7 @@ export default {
     numberOfTimesPawn: 'Số lần đã cầm đồ',
     numberOfTimesSpa: 'Số lần đã spa',
     setInventoryForSale: 'Đặt tồn kho bán',
-    setInventoryForRent: 'Đặt tồn kho thuê',
+    setInventoryForRent: 'Đặt tồn kho cho thuê',
     sellingPriceFrom: 'Giá bán từ',
     rentalPriceFrom: 'Giá thuê từ',
     dram: 'Đơn vị',
@@ -1443,7 +1443,7 @@ export default {
     standardTime: 'Thời gian tiêu chuẩn',
     spaPrices: 'Giá Spa',
     productAttributeTable: 'Bảng đặc tính sản phẩm',
-    addAttributeAndPrice: 'Thêm đặc tính và giá bán',
+    addAttributeAndPrice: 'Thêm đặc tính',
     seoManagement: 'Quản lý SEO',
     validateEnterNumber: 'Phải điền số',
     minute: 'Phút',
@@ -1574,6 +1574,9 @@ export default {
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
     used: 'Đã xử lí',
-    citizenIdentificationNumber: 'Số cccd/cmnd'
+    // product
+    under256Characters: 'Dưới 256 ký tự',
+    citizenIdentificationNumber: 'Số cccd/cmnd',
+    enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm'
   }
 }

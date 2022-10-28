@@ -555,6 +555,7 @@ const activeName = ref(collapse[0].name)
                   size="default"
                   :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                   :suffixIcon="h('div', '%')"
+                  :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
                 />
               </ElFormItem>
               <el-divider class="mt-10" content-position="left">{{

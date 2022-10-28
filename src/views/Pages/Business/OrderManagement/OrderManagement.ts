@@ -231,7 +231,11 @@ export const rentalorder = [
     align: 'right',
     sortable: true,
     formatter: (row, _column, _cellValue) => {
-      const x = changeMoney.format(parseInt(row.totalPrice))
+      const total = row.orderDetails.reduce((sum, val) => {
+        sum += val.depositePrice
+        return sum
+      }, 0)
+      const x = changeMoney.format(parseInt(total))
       return x
     }
   },
@@ -242,7 +246,11 @@ export const rentalorder = [
     align: 'right',
     sortable: true,
     formatter: (row, _column, _cellValue) => {
-      const x = changeMoney.format(parseInt(row.totalDebt))
+      const total = row.orderDetails.reduce((sum, val) => {
+        sum += val.hirePrice
+        return sum
+      }, 0)
+      const x = changeMoney.format(parseInt(total))
       return x
     }
   },
@@ -266,27 +274,30 @@ export const rentalorder = [
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'rentTerm',
+    field: 'hirePeriodName',
     label: t('reuse.rentTerm'),
     minWidth: '150',
     filters: filterRentTerm
   },
   {
-    field: 'createdAt',
+    field: 'fromDate',
     label: t('reuse.startDate'),
     minWidth: '150',
     align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return dateTimeFormat(_.createdAt)
+      return dateTimeFormat(_.fromDate)
     }
   },
   {
-    field: 'endDate',
+    field: 'toDate',
     label: t('reuse.endDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return dateTimeFormat(_.toDate)
+    }
   },
   {
     field: 'createdAt',
@@ -305,10 +316,13 @@ export const rentalorder = [
     headerFilter: 'Name'
   },
   {
-    field: 'orderStatusName',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
   }
 ]
 //Đơn hàng ký gửi

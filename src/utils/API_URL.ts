@@ -78,7 +78,8 @@ export const ORDER_API = {
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
   ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer',
-  TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
+  TOTAL_ORDER: '/api/v1/Order/CalculateOrder',
+  ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

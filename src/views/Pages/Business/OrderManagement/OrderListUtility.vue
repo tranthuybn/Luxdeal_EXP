@@ -47,7 +47,8 @@ import {
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getTotalOrder
+  getTotalOrder,
+  getOrderTransaction
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -57,7 +58,6 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import CurrencyInputComponent from '../../Components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 
@@ -435,7 +435,6 @@ const callCustomersApi = async () => {
   if (optionCallCustomerAPi == 0) {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
-    console.log('getCustomerResult: ', getCustomerResult.value)
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         code: product.code,
@@ -1010,11 +1009,16 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id })
+    const transaction = await getOrderTransaction({ id: 10 })
+    console.log('res: ', res)
+    console.log('transaction: ', transaction)
+
     const orderObj = { ...res.data[0] }
+    console.log('orderObj: ', orderObj)
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaborator.name
+      ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1025,6 +1029,7 @@ const editData = async () => {
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1040,15 +1045,15 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
-    })
+    // orderObj.orderFiles.map((element) => {
+    //   if (element !== null) {
+    //     ListFileUpload.value.push({
+    //       url: `${element?.domainUrl}${element?.path}`,
+    //       name: element?.fileId,
+    //       uid: element?.id
+    //     })
+    //   }
+    // })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }

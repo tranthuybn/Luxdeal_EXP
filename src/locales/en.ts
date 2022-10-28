@@ -145,7 +145,7 @@ export default {
     enterServiceName: 'Enter service name',
     enterDescription: 'Enter description',
     enterPrice: 'Enter price',
-    enterNumberHours: 'Enter the number of hours',
+    enterNumberMinute: 'Enter the number of minute',
     enterNumberDays: 'Enter the number of days',
     productInfomation: 'Product information',
     standardManagementMaterialsUsed: 'Standard management of materials used',

@@ -20,12 +20,10 @@
             <li
               v-for="moreItem in listChatMore"
               :key="moreItem.user.id"
-              @click="handleClickItemChat(moreItem)"
+              @click="handleClickMoreChatItem(moreItem)"
             >
               <span>{{ moreItem.user.name }}</span>
-              <span @click.stop="handleCloseChatItem(moreItem)"
-                ><img class="close-item" :src="icons.CloseSvgIcon.img" alt="close"
-              /></span>
+              <span><img class="close-item" :src="icons.CloseSvgIcon.img" alt="close" /></span>
             </li>
           </ul>
           <span>+ {{ countMore }}</span>
@@ -56,7 +54,7 @@
     <ChatWindow
       :message-list="messageList"
       :on-user-input-submit="onMessageWasSent"
-      :participants="participantsFilter"
+      :participants="participants"
       :title="chatWindowTitle"
       :is-open="isOpen"
       :show-emoji="showEmoji"
@@ -79,7 +77,6 @@
       @remove="$emit('remove', $event)"
       @selectUser="handleOpenChat"
       @getChatPopup="handleCloseChat"
-      @changeTextSearch="handleSearch"
     >
       <template #header>
         <slot name="header"> </slot>
@@ -290,8 +287,8 @@ export default {
     return {
       listUserSelected: [],
       listChatOpen: [],
+      listChatMore: [],
       listItemChatBottom: [],
-      participantsFilter: this.participants,
       popupOpened: false,
       countMore: 1
     }
@@ -308,8 +305,8 @@ export default {
     listChatItemFilter() {
       return [...this.listItemChatBottom].filter((chatItem, index) => index < 6).reverse()
     },
-    listChatMore() {
-      return [...this.listItemChatBottom].filter((chatItem, index) => index > 4).reverse()
+    listChatMores() {
+      return [...this.listItemChatBottom].filter((chatItem, index) => index >= 4).reverse()
     }
   },
   watch: {
@@ -331,6 +328,7 @@ export default {
       }
     },
     handleOpenChat(user) {
+      console.log(this.listChatMores)
       const messageUser = this.messageList.filter((message) => message.author === user.id)
       const userFormat = {
         user,
@@ -347,7 +345,6 @@ export default {
         }
         if (this.listChatOpen.length === 3) {
           if (user.id !== this.listChatOpen[0].user.id) {
-            console.log(this.listItemChatBottom)
             this.listChatOpen.splice(index, 1)
             this.listUserSelected.splice(index, 1)
             this.listChatOpen.unshift(userFormat)
@@ -372,13 +369,41 @@ export default {
       if (this.listItemChatBottom.length >= 7) {
         this.countMore += 1
       }
+      if (this.countMore === 2) {
+        this.listChatMore = [
+          this.listItemChatBottom[this.listItemChatBottom.length - 1],
+          this.listItemChatBottom[this.listItemChatBottom.length - 2]
+        ]
+      } else if (this.countMore > 2) {
+        this.listChatMore.push(
+          this.listItemChatBottom[this.listItemChatBottom.length - this.countMore]
+        )
+      }
     },
     handleClickItemChat(chatItem) {
       const index = this.listItemChatBottom.findIndex((item) => item.user.id === chatItem.user.id)
       this.listItemChatBottom.splice(index, 1)
-      this.listItemChatBottom.unshift(this.listChatOpen[2])
       this.listChatOpen.splice(2, 1)
       this.listChatOpen.unshift(chatItem)
+      if (this.countMore > 1) {
+        this.countMore -= 1
+      }
+    },
+    handleClickMoreChatItem(moreChatItem) {
+      const index1 = this.listItemChatBottom.findIndex(
+        (item) => item.user.id === moreChatItem.user.id
+      )
+      const index2 = this.listChatMore.findIndex((item) => item.user.id === moreChatItem.user.id)
+      this.listItemChatBottom.splice(index1, 1)
+      this.listChatMore.splice(index2, 1)
+      this.listChatOpen.splice(2, 1)
+      this.listChatOpen.unshift(moreChatItem)
+      if (this.countMore > 1) {
+        this.countMore -= 1
+      }
+      console.log(this.listItemChatBottom)
+      console.log(this.listChatMore)
+      console.log(this.listChatOpen)
     },
     handleCloseChat(id) {
       const index1 = this.listChatOpen.findIndex((chatPopup) => chatPopup.user.id === id)
@@ -402,16 +427,7 @@ export default {
       this.listItemChatBottom.splice(index, 1)
       if (this.listItemChatBottom.length < 7) {
         this.countMore = 1
-      } else {
-        this.countMore -= 1
       }
-    },
-    handleSearch(textSearch) {
-      this.participantsFilter = this.participants.filter((el, i) => {
-        if (el.name.includes(textSearch)) {
-          return el
-        }
-      })
     }
   }
 }
@@ -564,12 +580,6 @@ export default {
   letter-spacing: -1.75px;
   font-size: 14px;
   z-index: 1;
-  &:hover {
-    .list-chat-more {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
 }
 .chat-tooltip {
   position: absolute;
@@ -628,9 +638,6 @@ export default {
   overflow-y: auto;
   box-shadow: 0 6px 12px 4px rgb(0, 0, 0, 0.2);
   border-radius: 10px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
   &::-webkit-scrollbar {
     width: 6px;
     &:hover {

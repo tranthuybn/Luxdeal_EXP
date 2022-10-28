@@ -3,7 +3,7 @@ import { h, reactive, ref, RendererElement, RendererNode, VNode } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getSpaById, getSpaLibrary, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
+import { getSpaById, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
@@ -12,8 +12,6 @@ import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
-let rank1SelectOptions = reactive([])
-let timesCallAPI = 0
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 // get data from router
 const router = useRouter()
@@ -98,7 +96,7 @@ const schema = reactive<FormSchema[]>([
           .replace(/^\s+$/gm, '')
           .replace(/^[a-zA-Z]*$/gm, '')
           .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          .replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
       parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
       suffixIcon: h('div', 'đ')
     }
@@ -117,7 +115,7 @@ const schema = reactive<FormSchema[]>([
           .replace(/^\s+$/gm, '')
           .replace(/^[a-zA-Z]*$/gm, '')
           .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          .replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
       parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
       suffixIcon: h('div', 'đ')
     }
@@ -130,13 +128,13 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterNumberHours'),
+      placeholder: t('formDemo.enterNumberMinute'),
       formatter: (value) =>
         value
           .replace(/^\s+$/gm, '')
           .replace(/^[a-zA-Z]*$/gm, '')
           .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, ''),
-      suffixIcon: h('div', 'giờ')
+      suffixIcon: h('div', 'phút')
     }
   },
   {
@@ -152,7 +150,7 @@ const schema = reactive<FormSchema[]>([
         value
           .replace(/^\s+$/gm, '')
           .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, ''),
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\| .<>\/?~]/gi, ''),
       suffixIcon: h('div', 'ngày')
     }
   },
@@ -180,7 +178,6 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rules = reactive({
-  rankCategory: [{ validator: ValidService.checkSpace.validator }, required()],
   name: [required()],
   code: [required()],
   shortDescription: [
@@ -197,42 +194,11 @@ const rules = reactive({
   cost: [required()],
   time: [required()]
 })
-//call api for select options
-const getRank1SelectOptions = async () => {
-  await getSpaLibrary({})
-    .then((res) => {
-      if (res.data) {
-        rank1SelectOptions = res.data.map((index) => ({
-          label: index.name,
-          value: index.id
-        }))
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-}
-
-const addFormSchema = async (timesCallAPI) => {
-  if (timesCallAPI == 0) {
-    await getRank1SelectOptions()
-    if (schema[4].componentProps?.options != undefined) {
-      schema[4].componentProps.options = rank1SelectOptions
-    }
-  }
-}
-
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
   formDataCustomize.value.Images = formData.photos
   formDataCustomize.value['status'] = []
-  if (formData.parentid == 0) {
-    formDataCustomize.value.rankCategory = 1
-  } else {
-    formDataCustomize.value.rankCategory = 2
-    await addFormSchema(timesCallAPI)
-  }
   if (formData.isActive == true) {
     formDataCustomize.value['status'].push('active')
   }
@@ -262,8 +228,8 @@ const customPostData = (data) => {
   var curDate = moment().format()
   customData.Id = id
   customData.Photo = data.Images
-  customData.Cost = data.cost.trim() ?? 0
-  customData.PromotePrice = data.promotePrice.trim() ?? 0
+  customData.Cost = data.cost ?? 0
+  customData.PromotePrice = data.promotePrice ?? 0
   customData.Time = data.time.trim() ?? 0
   customData.Warranty = data.warranty.trim() ?? 0
   customData.Description = data.description.trim()

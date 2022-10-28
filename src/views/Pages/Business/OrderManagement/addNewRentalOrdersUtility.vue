@@ -271,10 +271,10 @@ const productForSale = reactive<tableRentalProduct>({
   rentalStartDate: '20/03/2022',
   rentalEndDate: '20/06/2022',
   quantity: 2,
-  rentalUnitPrice: 'đ',
-  rentalFee: 'đ',
+  rentalUnitPrice: '',
+  rentalFee: '',
   dram: t('formDemo.psc'),
-  intoARentalDeposit: 'đ'
+  intoARentalDeposit: ''
 })
 
 interface tableDataType {
@@ -3013,6 +3013,8 @@ onBeforeMount(() => {
               <el-input
                 v-if="type != 'detail'"
                 v-model="props.row.rentalUnitPrice"
+                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 @change="changePriceRowTable(props)"
               />
               <div v-else>{{
@@ -3027,7 +3029,15 @@ onBeforeMount(() => {
             :label="t('formDemo.rentalFee')"
             align="right"
             width="180"
-          />
+          >
+            <template #default="props">
+              {{
+                props.row.rentalFee != ''
+                  ? changeMoney.format(parseInt(props.row.rentalFee))
+                  : '0 đ'
+              }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="intoARentalDeposit"
             :label="t('formDemo.intoARentalDeposit')"

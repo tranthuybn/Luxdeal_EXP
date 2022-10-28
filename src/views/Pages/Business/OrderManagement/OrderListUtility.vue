@@ -53,11 +53,11 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
-import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
+// import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import FormatMoney from './FormatMoney.vue'
+// import CurrencyInputComponent from '../../Components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 

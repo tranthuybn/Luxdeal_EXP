@@ -272,11 +272,14 @@ export const rentalorder = [
     filters: filterRentTerm
   },
   {
-    field: 'startDate',
+    field: 'createdAt',
     label: t('reuse.startDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return dateTimeFormat(_.createdAt)
+    }
   },
   {
     field: 'endDate',

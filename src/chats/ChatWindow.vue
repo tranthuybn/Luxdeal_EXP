@@ -6,10 +6,10 @@
         :title="title"
         :colors="colors"
         @close="$emit('close')"
-        @userList="handleUserListToggle"
-        @changeTextSearch="changeTextSearch"
+        @user-list="handleUserListToggle"
+        @change-text-search="changeTextSearch"
       >
-        <template>
+        <template #header>
           <slot name="header"> </slot>
         </template>
       </HeaderList>
@@ -36,10 +36,10 @@
           :colors="colors"
           :chatPopupSelect="chatPopup"
           @close="$emit('close')"
-          @userList="handleUserListToggle"
-          @getChatPopup="getChatPopup"
+          @user-list="handleUserListToggle"
+          @get-chat-popup="getChatPopup"
         >
-          <template>
+          <template #header>
             <slot name="header"> </slot>
           </template>
         </Header>
@@ -52,7 +52,7 @@
           :show-confirmation-deletion="showConfirmationDeletion"
           :confirmation-deletion-message="confirmationDeletionMessage"
           :message-styling="messageStyling"
-          @scrollToTop="$emit('scrollToTop')"
+          @scroll-to-top="$emit('scrollToTop')"
           @remove="$emit('remove', $event)"
         >
           <template #user-avatar="scopedProps">
@@ -85,7 +85,7 @@
           :show-file="showFile"
           :placeholder="placeholder"
           :colors="colors"
-          @onType="$emit('onType', $event)"
+          @on-type="$emit('onType', $event)"
           @edit="$emit('edit', $event)"
         />
       </div>

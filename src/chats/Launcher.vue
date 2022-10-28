@@ -15,20 +15,27 @@
     </div>
     <div class="list-icon-chat" :class="{ opened: isOpen, closed: !isOpen }">
       <div class="list-icon-chat-inner">
-        <div class="icon-chat-item count-more" v-if="countMore > 1">
-          <ul class="list-chat-more">
-            <li
-              v-for="moreItem in listChatMore"
-              :key="moreItem.user.id"
-              @click="handleClickItemChat(moreItem)"
-            >
-              <span>{{ moreItem.user.name }}</span>
-              <span @click.stop="handleCloseChatItem(moreItem)"
-                ><img class="close-item" :src="icons.CloseSvgIcon.img" alt="close"
-              /></span>
-            </li>
-          </ul>
-          <span>+ {{ countMore }}</span>
+        <div
+          class="icon-chat-item count-more"
+          v-if="listItemChatBottom.length >= 7"
+          @mouseover="mouseoverShowMoreOption"
+          @mouseleave="mouseleaverHidenMoreOption"
+        >
+          <div class="wr-list-chat-more" :class="styleMoreItem">
+            <ul class="list-chat-more">
+              <li
+                v-for="moreItem in listChatMore"
+                :key="moreItem.user.id"
+                @click="handleClickItemChat(moreItem)"
+              >
+                <span>{{ moreItem.user.name }}</span>
+                <span @click.stop="handleCloseChatItem(moreItem)"
+                  ><img class="close-item" :src="icons.CloseSvgIcon.img" alt="close"
+                /></span>
+              </li>
+            </ul>
+          </div>
+          <span>+ {{ listItemChatBottom.length >= 7 ? listItemChatBottom.length - 5 : 0 }}</span>
         </div>
         <div
           class="icon-chat-item"
@@ -36,6 +43,8 @@
           :key="chatItem.user.id"
           :class="{ lastItem: index === listChatItemFilter.length - 1 }"
           @click="handleClickItemChat(chatItem)"
+          @mouseover="mouseoverShowMoreOption"
+          @mouseleave="mouseleaverHidenMoreOption"
         >
           <span
             class="chat-tooltip"
@@ -51,6 +60,49 @@
             <img class="close-item" :src="icons.CloseSvgIcon.img" alt="close" />
           </span>
         </div>
+      </div>
+      <div
+        @mouseover="mouseoverShowMoreOption"
+        @mouseleave="mouseleaverHidenMoreOption"
+        :class="{
+          show: listItemChatBottom.length > 0 && isShowMoreOption,
+          active: isShowPopupOptionMore
+        }"
+        class="moreOption"
+        @click="togglePopupMoreOption"
+        @focusout="hidenPopupMoreOption"
+        tabindex="1"
+      >
+        <svg
+          version="1.1"
+          id="Layer_1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 210 210"
+          style="enable-background: new 0 0 210 210"
+          xml:space="preserve"
+        >
+          <g id="XMLID_27_">
+            <path
+              id="XMLID_28_"
+              d="M25,80C11.215,80,0,91.215,0,105s11.215,25,25,25c13.785,0,25-11.215,25-25S38.785,80,25,80z"
+            />
+            <path
+              id="XMLID_30_"
+              d="M105,80c-13.785,0-25,11.215-25,25s11.215,25,25,25c13.785,0,25-11.215,25-25S118.785,80,105,80z"
+            />
+            <path
+              id="XMLID_71_"
+              d="M185,80c-13.785,0-25,11.215-25,25s11.215,25,25,25c13.785,0,25-11.215,25-25S198.785,80,185,80z"
+            />
+          </g>
+        </svg>
+        <ul class="more-option-popup" :class="isShowPopupOptionMore ? 'show' : ''">
+          <li @click="handleCloseAllChat">Đóng tất cả đoạn chát</li>
+          <li @click="handleZoomOutChat">Thu nhỏ đoạn chát đang mở</li>
+        </ul>
       </div>
     </div>
     <ChatWindow
@@ -73,13 +125,13 @@
       :listChatOpen="listChatOpen"
       :popupOpened="popupOpened"
       @close="close"
-      @scrollToTop="$emit('scrollToTop')"
-      @onType="$emit('onType', $event)"
+      @scroll-to-top="$emit('scrollToTop')"
+      @on-type="$emit('onType', $event)"
       @edit="$emit('edit', $event)"
       @remove="$emit('remove', $event)"
-      @selectUser="handleOpenChat"
-      @getChatPopup="handleCloseChat"
-      @changeTextSearch="handleSearch"
+      @select-user="handleOpenChat"
+      @get-chat-popup="handleCloseChat"
+      @change-text-search="handleSearch"
     >
       <template #header>
         <slot name="header"> </slot>
@@ -293,7 +345,9 @@ export default {
       listItemChatBottom: [],
       participantsFilter: this.participants,
       popupOpened: false,
-      countMore: 1
+      countMore: 1,
+      isShowMoreOption: false,
+      isShowPopupOptionMore: false
     }
   },
   computed: {
@@ -310,6 +364,17 @@ export default {
     },
     listChatMore() {
       return [...this.listItemChatBottom].filter((chatItem, index) => index > 4).reverse()
+    },
+    styleMoreItem() {
+      let className = null
+      if (this.listItemChatBottom.length === 7) {
+        className = 'th1'
+      } else if (this.listItemChatBottom.length === 8) {
+        className = 'th2'
+      } else if (this.listItemChatBottom.length >= 9) {
+        className = 'th3'
+      }
+      return className
     }
   },
   watch: {
@@ -324,6 +389,28 @@ export default {
     }
   },
   methods: {
+    handleZoomOutChat() {
+      this.listItemChatBottom = [...this.listChatOpen, ...this.listItemChatBottom]
+      this.listUserSelected = []
+      this.listChatOpen = []
+    },
+    handleCloseAllChat() {
+      this.listUserSelected = []
+      this.listChatOpen = []
+      this.listItemChatBottom = []
+    },
+    togglePopupMoreOption() {
+      this.isShowPopupOptionMore = !this.isShowPopupOptionMore
+    },
+    hidenPopupMoreOption() {
+      this.isShowPopupOptionMore = false
+    },
+    mouseoverShowMoreOption() {
+      this.isShowMoreOption = true
+    },
+    mouseleaverHidenMoreOption() {
+      this.isShowMoreOption = false
+    },
     openAndFocus() {
       this.open()
       if (this.autoFocus) {
@@ -347,7 +434,6 @@ export default {
         }
         if (this.listChatOpen.length === 3) {
           if (user.id !== this.listChatOpen[0].user.id) {
-            console.log(this.listItemChatBottom)
             this.listChatOpen.splice(index, 1)
             this.listUserSelected.splice(index, 1)
             this.listChatOpen.unshift(userFormat)
@@ -565,7 +651,7 @@ export default {
   font-size: 14px;
   z-index: 1;
   &:hover {
-    .list-chat-more {
+    .wr-list-chat-more {
       opacity: 1;
       visibility: visible;
     }
@@ -617,10 +703,39 @@ export default {
     background-color: #e1e1e1;
   }
 }
-.list-chat-more {
+.wr-list-chat-more {
   position: absolute;
-  right: calc(100% + 15px);
+  left: 50%;
   bottom: -15px;
+  transform: translateX(-50%);
+  top: -133px;
+  opacity: 0;
+  visibility: hidden;
+  &::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    display: block;
+    position: absolute;
+    background: #ffffff;
+    transform: rotate(45deg) translateX(-50%);
+    left: 50%;
+    bottom: 6px;
+  }
+  &.th1 {
+    height: 100px;
+    top: -96px;
+  }
+  &.th2 {
+    height: 135px;
+    top: -132px;
+  }
+  &.th3 {
+    height: 138px;
+    top: -135px;
+  }
+}
+.list-chat-more {
   background: #ffffff;
   max-height: 124px;
   min-width: 200px;
@@ -628,8 +743,6 @@ export default {
   overflow-y: auto;
   box-shadow: 0 6px 12px 4px rgb(0, 0, 0, 0.2);
   border-radius: 10px;
-  opacity: 0;
-  visibility: hidden;
   transition: all 0.3s;
   &::-webkit-scrollbar {
     width: 6px;
@@ -695,5 +808,84 @@ export default {
 .close-item {
   width: 9px;
   height: 9px;
+}
+.moreOption {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  width: 36px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+  background-color: #ffffff;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s;
+  &.show,
+  &.active {
+    opacity: 1;
+  }
+  svg {
+    width: 18px;
+  }
+}
+.more-option-popup {
+  position: absolute;
+  min-width: 300px;
+  right: calc(100% + 15px);
+  box-shadow: 0 6px 12px 4px rgb(0 0 0 / 20%);
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.3s;
+  opacity: 0;
+  visibility: hidden;
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  li {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 7px 10px;
+    display: flex;
+    &::before {
+      content: '';
+      margin-right: 7px;
+      display: block;
+      background-size: auto;
+      width: 20px;
+      height: 20px;
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAqCAYAAACz+XvQAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQyIDc5LjE2MDkyNCwgMjAxNy8wNy8xMy0wMTowNjozOSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE3N0REQjdGNTZBMDExRURCQ0YwRjBBQzQxRTcwNjY3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE3N0REQjgwNTZBMDExRURCQ0YwRjBBQzQxRTcwNjY3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MTc3RERCN0Q1NkEwMTFFREJDRjBGMEFDNDFFNzA2NjciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MTc3RERCN0U1NkEwMTFFREJDRjBGMEFDNDFFNzA2NjciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6EELmZAAACEElEQVR42uxVTShEURSe97ylvWmSlbEQi5EyK0XK7ySlyMaaFQs2ykLJwsaKtc2wUBJDNpQVNZnFSGEslGT2lmp85/XJdb135814SvLV9+7r3nO/e879OcfqnRmK6DheO3DQjIODYDsY49ATmAUz4DbmvupzbQ+xCTR34Bh4CvaDdWQ/+2TsjrafYKkewmAVzQA4hf6ziAGw7URzBK7Ddu6LhxQbBTvKiQloI16Pcu6HIF2fBlth+BIJCNq2SlTv4Vugwz2bDOKZIfxNMG7zNK91MRjNgw0ekxtkzCP8K9GyeTX2PBY+B3NcXfUkxzEd+6IlId/ID1Yp+ISyC46wy/332hrYNsqpi4f14LPhJEe4+r6fGCEaMTsSMkTwEYwaTk/CTJG76p5qEI0nEbwEu037J2Eq4fuJikbW5kMf9jBIggl1z/if4JgOiSAT/sVmCloANzBQW4VYLZPEgmjZDCWN5hDMVyJK2zwzTvpTtmEK2gGLhpPUw7yQOWr6svSMzayxLO+bT/JEufhRnqYcYjPDTBszNg3i4BbYxVtQJDPsk7G4LuZ6WCqVQn8pocLpm039V72/XvVq8BHlKMRWqr0qjcmmh/vz2x5x0FT1KoVb9USwje/1uxCNdser6mFPFgMeytKPVz1HqXoFn5WDwlz1qkDZqlcp3KongtuSfYOk/TIXu0W0/qveL6x6bwIMAKwwP7DxDOqhAAAAAElFTkSuQmCC');
+    }
+    &:first-child {
+      &::before {
+        background-position: 0 0;
+      }
+    }
+    &:last-child {
+      &::before {
+        background-position: 20px 20px;
+      }
+    }
+    &:hover {
+      background-color: #f7f7f7;
+    }
+  }
+  &::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    display: block;
+    position: absolute;
+    background: #ffffff;
+    transform: rotate(45deg) translateY(-50%);
+    top: 50%;
+    right: -2px;
+  }
 }
 </style>

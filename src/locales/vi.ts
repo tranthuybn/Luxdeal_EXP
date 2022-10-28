@@ -1565,6 +1565,7 @@ export default {
     // product
     under256Characters: 'Dưới 256 ký tự',
     citizenIdentificationNumber: 'Số cccd/cmnd',
-    enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm'
+    enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm',
+    sameQuantity: 'Không được nhập cùng 1 số lượng'
   }
 }

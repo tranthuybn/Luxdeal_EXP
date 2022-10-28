@@ -1447,6 +1447,7 @@ export default {
     CheckCode: 'Please enter the correct code format',
     // product
     under256Characters: 'Under 256 characters',
-    enterSearchingData: 'Please enter searching data'
+    enterSearchingData: 'Please enter searching data',
+    sameQuantity: 'Cant enter the same quantity'
   }
 }

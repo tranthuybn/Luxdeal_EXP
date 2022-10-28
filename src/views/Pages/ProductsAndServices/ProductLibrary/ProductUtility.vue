@@ -30,7 +30,8 @@ import {
   FormInstance,
   ElSelect,
   ElOption,
-  ElMessageBox
+  ElMessageBox,
+  ElMessage
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -379,7 +380,7 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
             scope.row.newValue = false
             newProductPropertyId.value = res.data
             ElNotification({
-              message: t('reuse.addSuccess'),
+              message: t('reuse.saveSuccess'),
               type: 'success'
             })
           })
@@ -387,7 +388,7 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
           .catch(() => {
             collapse[1].tableList.splice(scope.$index, 1)
             ElNotification({
-              message: t('reuse.addFail'),
+              message: t('reuse.saveFail'),
               type: 'error'
             })
           })
@@ -560,14 +561,14 @@ const postData = async (data) => {
     .then((res) => {
       newId.value = res.data
       ElNotification({
-        message: t('reuse.addSuccess'),
+        message: t('reuse.saveSuccess'),
         type: 'success'
       })
       disabledTabOpen.value = false
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.saveFail'),
         type: 'error'
       })
     )
@@ -989,29 +990,58 @@ const customPostSpaPrice = (data) => {
 }
 const saveDataSpaTable = async () => {
   removeLastRowSpa()
-  await unref(spaForm)!.validate((valid) => {
-    if (valid) {
-      const data = customPostSpaPrice(collapse[5].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.saveSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
-              true)
+  if (collapse[5].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[5].tableList.productPropertyId
+    emptyPrice.serviceType = 5
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        sellTableVisible.value = false
+        unref(sellForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.saveFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(spaForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostSpaPrice(collapse[5].tableList)
+        const isDuplicate = checkDuplicateSpaServices(data.productPropertyPrices[0].prices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
+                true)
           })
-        })
-        .finally(() => (spaTableVisible.value = false))
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+          .finally(() => (spaTableVisible.value = false))
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 
 //same logic for rent,deposit,pawn,sell
@@ -1019,29 +1049,59 @@ const saveDataSpaTable = async () => {
 //forceRemove = false so it wont auto add last row because of watch()
 const saveDataRentTable = async () => {
   removeLastRowRent()
-  await unref(rentForm)!.validate((valid) => {
-    if (valid) {
-      rentTableVisible.value = false
-      const data = customPostPrice(collapse[2].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.saveSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
-              true)
+  if (collapse[2].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[2].tableList.productPropertyId
+    emptyPrice.serviceType = 2
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        rentTableVisible.value = false
+        unref(rentForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.saveFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(rentForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostPrice(collapse[2].tableList)
+        const isDuplicate = checkDuplicateQuantity(data.productPropertyPrices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        rentTableVisible.value = false
+
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
+                true)
           })
-        })
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 const saveDataWarehouseTable = async () => {
   warehouseTableVisible.value = false
@@ -1049,12 +1109,13 @@ const saveDataWarehouseTable = async () => {
 const saveDataPawnTable = async () => {
   await unref(pawnForm)!.validate((valid) => {
     if (valid) {
-      pawnTableVisible.value = false
       const data = customPostPrice(collapse[4].tableList)
+      pawnTableVisible.value = false
+
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
-            message: t('reuse.addSuccess'),
+            message: t('reuse.saveSuccess'),
             type: 'success'
           }),
             (collapse[1].tableList[collapse[4].tableList.currentRow].bussinessSetups[3].hasPrice =
@@ -1062,7 +1123,7 @@ const saveDataPawnTable = async () => {
         })
         .catch(() => {
           ElNotification({
-            message: t('reuse.addFail'),
+            message: t('reuse.saveFail'),
             type: 'warning'
           })
         })
@@ -1077,12 +1138,12 @@ const saveDataPawnTable = async () => {
 const saveDataDepositTable = async () => {
   await unref(depositForm)!.validate((valid) => {
     if (valid) {
-      depositTableVisible.value = false
       const data = customPostPrice(collapse[3].tableList)
+      depositTableVisible.value = false
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
-            message: t('reuse.addSuccess'),
+            message: t('reuse.saveSuccess'),
             type: 'success'
           }),
             (collapse[1].tableList[collapse[3].tableList.currentRow].bussinessSetups[2].hasPrice =
@@ -1090,18 +1151,32 @@ const saveDataDepositTable = async () => {
         })
         .catch(() => {
           ElNotification({
-            message: t('reuse.addFail'),
+            message: t('reuse.saveFail'),
             type: 'warning'
           })
         })
     } else {
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.saveFail'),
         type: 'warning'
       })
     }
   })
 }
+const checkDuplicateSpaServices = (_array) => {
+  //ham nay qua kho
+  return false
+}
+const checkDuplicateQuantity = (array) => {
+  var valueArr = array.map(function (item) {
+    return item.quantity
+  })
+  var isDuplicate: boolean = valueArr.some(function (item, idx) {
+    return valueArr.indexOf(item) != idx
+  })
+  return isDuplicate
+}
+
 //add few fields so for api/backend
 const customPostPrice = (data) => {
   const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
@@ -1112,29 +1187,58 @@ const customPostPrice = (data) => {
 }
 const saveDataSellTable = async () => {
   removeLastRowSell()
-  await unref(sellForm)!.validate((valid) => {
-    if (valid) {
-      sellTableVisible.value = false
-      const data = customPostPrice(collapse[8].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
-              true)
+  if (collapse[8].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[8].tableList.productPropertyId
+    emptyPrice.serviceType = 1
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        sellTableVisible.value = false
+        unref(sellForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.addFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(sellForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostPrice(collapse[8].tableList)
+        const isDuplicate = checkDuplicateQuantity(data.productPropertyPrices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        sellTableVisible.value = false
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+                true)
           })
-        })
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 //same logic
 //check last row only (for performance) because others row already get from api so it cant be undefined
@@ -1261,7 +1365,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.quantity" type="number" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1605,7 +1709,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.quantity" type="number" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1632,9 +1736,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1649,9 +1751,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[2].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[2].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[2].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1666,9 +1766,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[3].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[3].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[3].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1683,9 +1781,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1757,9 +1853,9 @@ const categoriesToString = (categories) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
+                :rules="[{ validator: ValidService.maxPercent.validator }]"
               >
-                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price"
                   ><template #append>%</template></el-input
                 >
               </el-form-item>
@@ -1776,9 +1872,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1846,9 +1940,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1863,9 +1955,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1877,16 +1967,9 @@ const categoriesToString = (categories) => {
           >
             <template #default="scope">
               <el-form-item>
-                <el-input
-                  :value="
-                    isNaN(scope.row.prices[0].price + scope.row.prices[1].price)
-                      ? 0
-                      : scope.row.prices[0].price + scope.row.prices[1].price
-                  "
-                  type="number"
-                  autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent
+                  :modelValue="scope.row.prices[0].price + scope.row.prices[1].price"
+                />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1996,9 +2079,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.price" type="number" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.price" />
               </el-form-item>
             </template>
           </ElTableColumn>

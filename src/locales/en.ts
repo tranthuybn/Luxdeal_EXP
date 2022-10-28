@@ -1446,6 +1446,7 @@ export default {
     enterDetailedAddress: 'Enter detailed address',
     CheckCode: 'Please enter the correct code format',
     // product
-    under256Characters: 'Under 256 characters'
+    under256Characters: 'Under 256 characters',
+    enterSearchingData: 'Please enter searching data'
   }
 }

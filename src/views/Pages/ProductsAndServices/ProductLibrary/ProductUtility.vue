@@ -22,7 +22,6 @@ import {
   ElTable,
   ElTableColumn,
   ElInput,
-  ElInputNumber,
   ElSwitch,
   ElNotification,
   ElDialog,
@@ -33,6 +32,7 @@ import {
   ElOption,
   ElMessageBox
 } from 'element-plus'
+import { formatMoneyInput, parseMoneyInput } from '@/utils/format'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
@@ -1261,7 +1261,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input v-model="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1288,8 +1288,12 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input
+                  v-model="scope.row.prices[0].price"
+                  autocomplete="off"
+                  :formatter="(value) => formatMoneyInput(value)"
+                  :parse="(value) => parseMoneyInput(value)"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1305,8 +1309,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[1].price" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1612,7 +1616,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input v-model="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1639,8 +1643,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1656,8 +1660,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[2].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[2].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[2].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1673,8 +1677,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[3].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[3].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[3].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1690,8 +1694,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1766,8 +1770,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>%</template></el-input-number
+                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
+                  ><template #append>%</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1783,8 +1787,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1853,8 +1857,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[0].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[0].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1870,8 +1874,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.prices[1].price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>
@@ -1890,7 +1894,7 @@ const categoriesToString = (categories) => {
                       ? 0
                       : scope.row.prices[0].price + scope.row.prices[1].price
                   "
-                  type="text"
+                  type="number"
                   autocomplete="off"
                   ><template #append>đ</template></el-input
                 >
@@ -2003,8 +2007,8 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input-number v-model="scope.row.price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input-number
+                <el-input v-model="scope.row.price" type="number" autocomplete="off"
+                  ><template #append>đ</template></el-input
                 >
               </el-form-item>
             </template>

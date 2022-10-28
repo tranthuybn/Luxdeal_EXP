@@ -250,6 +250,7 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         emit('post-data', data)
+        setValues({ ProductStatus: 0 })
         loading.value = false
       }
       if (type == 'saveAndAdd') {
@@ -658,10 +659,15 @@ const changeTreeData = (data) => {
             </div>
           </template>
           <template #ProductStatus="form">
-            <div>
+            <!-- fix cung -->
+            <div v-if="form['ProductStatus'] == 0">{{ t('reuse.pending') }}</div>
+            <div v-else>
               <el-checkbox v-model="form['ProductStatus']" :label="1" size="large" :disabled="true"
                 ><template #default>
                   <label>{{ t('reuse.active') }}</label>
+                  <span class="text-[#FECB80]"
+                    >({{ t('reuse.allBusinessRelatedActivities') }})</span
+                  >
                 </template></el-checkbox
               >
             </div>

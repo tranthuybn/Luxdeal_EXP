@@ -301,7 +301,7 @@ export const useValidator = () => {
     checkSpaceBeforeAndAfter: {
       validator: (_rule, value, callback) => {
         if (value) {
-          if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
+          if (value.indexOf(' ') == 0 || value.slice(-1) == ' ') {
             callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
           } else {
             callback()

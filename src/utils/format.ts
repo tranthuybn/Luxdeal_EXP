@@ -1,8 +1,12 @@
 import moment from 'moment'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-export const formatMoneyInput = (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-export const parseMoneyInput = (value) => value.replace(/\$\s?|(,*)/g, '')
+export const formatMoneyInput = (value) => {
+  return Number(`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','))
+}
+export const parseMoneyInput = (value) => {
+  return Number(value.replace(/\$\s?|(,*)/g, ''))
+}
 export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   if (dateTime && moment(dateTime, typeDefinition).isValid()) {
     if (targetType) {

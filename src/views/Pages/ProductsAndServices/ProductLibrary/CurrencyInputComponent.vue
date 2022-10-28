@@ -7,8 +7,8 @@ const propsObj = defineProps({
     default: ''
   },
   modelValue: {
-    type: Number || String || undefined,
-    default: 0
+    type: Object,
+    default: () => ({})
   },
   disabled: {
     type: Boolean,
@@ -23,24 +23,24 @@ const valueHasChangedEvent = (val) => {
 const isInputActive = ref(false)
 const displayValue = computed({
   get() {
-    if (propsObj.modelValue === null || isNaN(propsObj.modelValue)) {
-      return 0
+    if (propsObj.modelValue === null) {
+      return ''
     }
 
     if (isInputActive.value) {
       // Cursor is inside the input field. unformat display value for user
-      return propsObj.modelValue
+      return propsObj.modelValue.toString()
     } else {
       // User is not modifying now. Format display value for user interface
       return (
-        propsObj.modelValue?.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, '$1.') + ' ' + 'VND'
+        propsObj.modelValue?.toFixed(0).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, '$1.') + ' ' + 'VND'
       )
     }
   },
   set(modifiedValue) {
     // Recalculate value after ignoring "$" and "," in user input
     // eslint-disable-next-line no-useless-escape
-    let newValue = parseFloat(modifiedValue.toString().replace(/[^\d\.]/g, ''))
+    let newValue = parseFloat(modifiedValue.replace(/[^\d\.]/g, ''))
     // Ensure that it is not NaN
     if (isNaN(newValue)) {
       newValue = 0

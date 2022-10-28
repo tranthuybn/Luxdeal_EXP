@@ -32,7 +32,6 @@ import {
   ElOption,
   ElMessageBox
 } from 'element-plus'
-import { formatMoneyInput, parseMoneyInput } from '@/utils/format'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
@@ -51,6 +50,7 @@ import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -1284,17 +1284,8 @@ const categoriesToString = (categories) => {
             :label="t('reuse.unitPrices')"
           >
             <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.prices[0].price`"
-                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
-              >
-                <el-input
-                  v-model="scope.row.prices[0].price"
-                  autocomplete="off"
-                  :formatter="(value) => formatMoneyInput(value)"
-                  :parse="(value) => parseMoneyInput(value)"
-                  ><template #append>đ</template></el-input
-                >
+              <el-form-item :prop="`${scope.$index}.prices[0].price`" :rules="[required()]">
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1309,9 +1300,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.prices[1].price`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model="scope.row.prices[1].price" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>

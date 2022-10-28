@@ -155,5 +155,10 @@ const action = (row: any, type: string) => {
 }
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" :customOperator="3" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :titleAdd="t('formDemo.addNewVoucher')"
+    :api="getCampaignList"
+    :customOperator="3"
+  />
 </template>

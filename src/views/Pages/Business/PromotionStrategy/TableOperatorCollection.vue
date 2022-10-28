@@ -278,7 +278,7 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        emit('post-data', data, go(-1))
+        emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
@@ -288,7 +288,7 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
-        emit('edit-data', data, go(-1))
+        emit('edit-data', data)
         loading.value = false
       }
     } else {
@@ -397,11 +397,12 @@ const edit = () => {
 //xóa dữ liệu sản phẩm
 const delAction = async () => {
   {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('reuse.delete'),
+    ElMessageBox.confirm(`${t('reuse.deleteWarningFlashSale')}`, props.deleteTitle, {
+      confirmButtonText: t('button.cancel'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
-      confirmButtonClass: 'ElButton--danger'
+      title: t('reuse.cancelFlashSaleProgramming'),
+      confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
         const res = props.delApi({ Id: props.id })
@@ -427,7 +428,10 @@ const delAction = async () => {
   }
 }
 const cancel = () => {
-  go(-1)
+  push({
+    name: 'business.promotion-strategy.flash-sale',
+    params: { backRoute: 'business.promotion-strategy.flash-sale' }
+  })
 }
 //xử lí ảnh
 const ListFileUpload = ref()
@@ -706,6 +710,7 @@ const conditionVoucherTable = reactive([
     enterCondition: 'points',
     point: 500
   },
+
   {
     id: 4,
     condition: t('reuse.buyByVirtualWallet'),
@@ -726,14 +731,28 @@ const conditionComboTable = reactive([
     condition: t('reuse.exchangeByPoints'),
     explainCondition: t('reuse.explainExchangeByPoints'),
     enterCondition: 'points',
-    point: 500
+    point: 500,
+    formatter: (value) =>
+      value
+        .replace(/^\s+$/gm, '')
+        .replace(/^[a-zA-Z]*$/gm, '')
+        .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+    parser: (value) => value.replace(/\$\s?|(,*)/g, '')
   },
   {
     id: 3,
     condition: t('reuse.buyByVirtualWallet'),
     explainCondition: t('reuse.explainBuyByVirtualWallet'),
     enterCondition: 'prices',
-    price: 200
+    price: 200,
+    formatter: (value) =>
+      value
+        .replace(/^\s+$/gm, '')
+        .replace(/^[a-zA-Z]*$/gm, '')
+        .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+    parser: (value) => value.replace(/\$\s?|(,*)/g, '')
   }
 ])
 const currentRow = ref()
@@ -771,7 +790,7 @@ const getSpaSelected = (spaServices) => {
               border
               header-row-class-name="dark:text-white text-black"
             >
-              <el-table-column prop="code" :label="t('reuse.customerCode')" width="250"
+              <el-table-column prop="code" :label="t('reuse.customerCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
                     :fields="[
@@ -793,7 +812,7 @@ const getSpaSelected = (spaServices) => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="700"
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="860"
                 ><template #default="scope">{{ scope.row.name }}</template></el-table-column
               >
               <el-table-column :label="t('reuse.operator')" fixed="right">
@@ -811,7 +830,7 @@ const getSpaSelected = (spaServices) => {
               border
               header-row-class-name="dark:text-white text-black"
             >
-              <el-table-column :label="t('formDemo.productManagementCode')" width="250"
+              <el-table-column :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
                     :defaultValue="scope.row.code"
@@ -833,9 +852,15 @@ const getSpaSelected = (spaServices) => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
-              <el-table-column :label="t('formDemo.joinTheProgram')" width="200">
-                <template #default="scope"><el-switch v-model="scope.row.isActive" /></template
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="690" />
+              <el-table-column :label="t('formDemo.joinTheProgram')" width="180">
+                <template #default="scope"
+                  ><el-switch
+                    v-model="scope.row.isActive"
+                    active-text="ON"
+                    inline-prompt
+                    inactive-text="OFF"
+                    size="large" /></template
               ></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
@@ -853,7 +878,7 @@ const getSpaSelected = (spaServices) => {
               border
               header-row-class-name="dark:text-white text-black"
             >
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
                     :fields="[
@@ -912,7 +937,7 @@ const getSpaSelected = (spaServices) => {
                   ></div>
                 </div>
               </template>
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
                     :fields="[
@@ -985,7 +1010,7 @@ const getSpaSelected = (spaServices) => {
           </template>
           <template #spaProduct>
             <el-table :data="fakeSpaProductData" border>
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="250"
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
                     :fields="[
@@ -1079,11 +1104,11 @@ const getSpaSelected = (spaServices) => {
             <div
               v-if="form['statusValue'] == 0"
               class="backgroundAroundLetter"
-              style="background: orange"
-              >{{ t('reuse.pending') }}</div
+              style="background: blue"
+              >{{ t('formDemo.theProgramIsRunning') }}</div
             >
-            <div v-else class="backgroundAroundLetter" style="background: blue">{{
-              t('formDemo.theProgramIsRunning')
+            <div v-else class="backgroundAroundLetter" style="background: orange">{{
+              t('reuse.pending')
             }}</div>
           </template>
         </Form>
@@ -1169,7 +1194,7 @@ const getSpaSelected = (spaServices) => {
           {{ t('reuse.edit') }}
         </ElButton>
         <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('reuse.delete') }}
+          {{ t('formDemo.cancelTheProgram') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'edit'">
@@ -1180,7 +1205,7 @@ const getSpaSelected = (spaServices) => {
           {{ t('reuse.cancel') }}
         </ElButton>
         <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('reuse.delete') }}
+          {{ t('formDemo.cancelTheProgram') }}
         </ElButton>
       </div>
     </template>
@@ -1262,7 +1287,7 @@ const getSpaSelected = (spaServices) => {
             ><div class="explainText">({{ scope.row.explainCondition }})</div></template
           ></el-table-column
         >
-        <el-table-column :label="t('reuse.enterCondition')" width="300"
+        <el-table-column :label="t('reuse.enterCondition')"
           ><template #default="scope">
             <div v-if="scope.row.enterCondition !== ''" class="w-full">
               <div v-if="scope.row.enterCondition == 'points'"
@@ -1281,6 +1306,14 @@ const getSpaSelected = (spaServices) => {
           </template></el-table-column
         >
       </el-table>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="conditionVoucherVisible = false">
+            {{ t('reuse.save') }}
+          </el-button>
+          <el-button @click="conditionVoucherVisible = false">{{ t('reuse.exit') }}</el-button>
+        </span>
+      </template>
     </el-dialog>
   </ContentWrap>
 </template>

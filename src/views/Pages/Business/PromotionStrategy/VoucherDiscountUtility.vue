@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { addNewCampaign, getCampaignList, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -96,14 +96,15 @@ const schema = reactive<FormSchema[]>([
       span: 14
     },
     componentProps: {
-      placeholder: t('formDemo.choosePromotion'),
+      placeholder: t('reuse.selectOrder'),
       style: 'width: 100%',
       options: [
         { label: t('reuse.sellOrderList'), value: 1 },
         { label: t('reuse.leaseOrderList'), value: 2 },
         { label: t('reuse.spaOrderList'), value: 3 }
       ]
-    }
+    },
+    value: 1
   },
   {
     field: 'orderInput',
@@ -113,6 +114,13 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.appliesToOrdersFrom'),
+      formatter: (value) =>
+        value
+          .replace(/^\s+$/gm, '')
+          .replace(/^[a-zA-Z]*$/gm, '')
+          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
       suffixIcon: h('div', 'đ')
     },
     formItemProps: {
@@ -153,7 +161,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       style: 'width: 100%',
       disabled: true,
-      placeholder: t('formDemo.enterCondition'),
+      placeholder: t('reuse.selectCondition'),
       options: [
         { label: t('reuse.freeRecievedVoucher'), value: 1 },
         { label: t('reuse.voucherAffiliate'), value: 2 },
@@ -242,19 +250,24 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const { required, ValidService } = useValidator()
+const { required, ValidService, requiredOption } = useValidator()
 
 const rules = reactive({
   code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
-  promotion: required(),
+  promotion: requiredOption(),
   date: required(),
-  percent: [{ validator: ValidService.maxPercent.validator }],
-  money: [{ validator: ValidService.checkPositiveNumber.validator }],
-  shortDescription: required()
+  percent: [required(), { validator: ValidService.maxPercent.validator }],
+  money: [required(), { validator: ValidService.checkPositiveNumber.validator }],
+  shortDescription: required(),
+  condition: required(),
+  order: requiredOption(),
+  orderInput: required()
 })
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  data == 3 ? (schema[12].hidden = true) : (schema[12].hidden = false)
+  console.log(data)
+
+  data == 3 ? (schema[13].hidden = true) : (schema[13].hidden = false)
   valueRadioOjbApply.value = data
 }
 
@@ -283,7 +296,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.collectionProgramDetails'),
+    title: t('formDemo.voucherDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -461,9 +474,7 @@ type SetFormData = {
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
-console.log('setFormData_beforeChange: ', setFormData)
 const customizeData = async (data) => {
-  console.log('data here', data)
   setFormData.code = data[0].code
   setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
@@ -490,6 +501,12 @@ const editData = async (data) => {
       })
     )
 }
+
+onBeforeMount(() => {
+  if (type === 'add') {
+    schema[16].hidden = true
+  }
+})
 </script>
 
 <template>

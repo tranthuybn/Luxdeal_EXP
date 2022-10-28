@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+import { computed, ref, watch, onBeforeMount, onUnmounted, watchEffect } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -83,16 +84,15 @@ const identifyLabel = computed(() => {
 })
 
 // set value for multiple select if defaultValue available
-// watchEffect(() => {
-//   if (propsObj.items?.length > 0)
-//     // set options for select box
-//     options.value = propsObj.items
-// })
+watchEffect(() => {
+  if (propsObj.items?.length > 0)
+    // set options for select box
+    options.value = propsObj.items
+})
 watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )
@@ -103,20 +103,25 @@ const acceptKey = (item) => {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
-// const filter = (str) => {
-//   const { items } = propsObj
-//   const searchingKey = str.toLowerCase()
-//   console.log('searchingKey', searchingKey, 'selected', selected.value)
-//   options.value = items.filter((item) => {
-//     if (
-//       item != null &&
-//       Object.keys(item).find((key)
-// => item[key].toString().toLowerCase().includes(searchingKey))
-//     ) {
-//       return true
-//     }
-//   })
-// }
+const filter = (str) => {
+  const { items } = propsObj
+  if (str) {
+    const searchingKey = str.toLowerCase()
+    options.value = items.filter((item) => {
+      if (
+        item != null &&
+        Object.keys(item).find((key) => {
+          return item[key] ? item[key].toString().toLowerCase().includes(searchingKey) : false
+        })
+      ) {
+        return true
+      }
+    })
+  } else {
+    options.value = items
+  }
+}
+
 const loadOption = ref(false)
 // const appearsEvent = () => {
 //   const { items } = propsObj
@@ -153,9 +158,12 @@ onUnmounted(() => {
     :loading="loadOption"
     ref="MultipleSelect"
     v-model="selected"
+    remote-show-suffix
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
+    remote
+    :remote-method="filter"
     class="el-select-custom"
     @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
@@ -174,7 +182,7 @@ onUnmounted(() => {
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
-            class="text-ellipsis text-center text-blue-900"
+            class="text-ellipsis text-center text-black bg-white"
           >
             <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
               <strong>{{ filed }}</strong>
@@ -185,10 +193,10 @@ onUnmounted(() => {
     </ElOption>
     <ElOption
       :style="`width: ${width}`"
-      v-for="(item, index) in items"
+      v-for="(item, index) in options"
       :key="index"
-      :value="item[identifyKey]"
-      :label="item[identifyLabel]"
+      :value="item[identifyKey] ?? ''"
+      :label="item[identifyLabel] ?? ''"
       :disabled="disabled"
     >
       <div class="select-table">
@@ -222,6 +230,9 @@ ul li:first-child {
   width: 100%;
   height: auto;
 }
+.el-select-dropdown__item:first-child {
+  padding: 0;
+}
 
 .el-select-custom .el-input__icon {
   color: #9ea1a5;
@@ -230,5 +241,19 @@ ul li:first-child {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.el-select-dropdown__item:hover {
+  background-color: #4c89e5;
+  color: white;
+}
+::v-deep(.el-input__wrapper) {
+  cursor: default !important;
+}
+::v-deep(.el-select__caret.el-icon) {
+  cursor: default !important;
+}
+::v-deep(.el-input__inner) {
+  cursor: default !important;
 }
 </style>

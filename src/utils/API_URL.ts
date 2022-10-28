@@ -68,7 +68,8 @@ export const CAMPAIGN_API = {
   GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
   POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
-  UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign'
+  UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign',
+  DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign'
 }
 
 export const ORDER_API = {

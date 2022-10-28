@@ -525,7 +525,7 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
-              title: 'reuse.voucherDetail',
+              title: 'reuse.initializationVoucher',
               noTagsView: true,
               noCache: true,
               hidden: true,

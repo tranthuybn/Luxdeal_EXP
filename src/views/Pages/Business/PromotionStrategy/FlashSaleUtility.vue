@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
-import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
+import { getCampaignList, addNewCampaign, updateCampaign, deleteCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
@@ -14,9 +14,26 @@ import { API_URL } from '@/utils/API_URL'
 import moment from 'moment'
 const { t } = useI18n()
 
+const { required, ValidService, requiredOption } = useValidator()
+const rules = reactive({
+  code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
+  promotion: requiredOption(),
+  date: required(),
+
+  percent: [
+    required(),
+    { validator: ValidService.maxPercent.validator, blur: ValidService.maxPercent.trigger }
+  ],
+  money: [
+    required(),
+    { validator: ValidService.checkPositiveNumber.validator, blur: ValidService.maxPercent.trigger }
+  ],
+  shortDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
+})
+
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 //random mã
-const curDate = 'FS' + moment().format('hhmmss')
+const curDate = 'FS0' + moment().format('hhmmss')
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
@@ -185,15 +202,6 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const { required, ValidService } = useValidator()
-const rules = reactive({
-  code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
-  promotion: required(),
-  date: required(),
-  percent: [{ validator: ValidService.maxPercent.validator }],
-  money: [{ validator: ValidService.checkPositiveNumber.validator }],
-  shortDescription: required()
-})
 
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
@@ -430,17 +438,22 @@ const customizeData = async (data) => {
 
   hideTableCustomer(data[0].targetType)
 }
+const { push } = useRouter()
 
 const editData = async (data) => {
   data = customEditDataFlashSale(data)
 
   await updateCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.flash-sale',
+          params: { backRoute: 'business.promotion-strategy.flash-sale' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -448,6 +461,11 @@ const editData = async (data) => {
       })
     )
 }
+onBeforeMount(() => {
+  if (type === 'add') {
+    schema[13].hidden = true
+  }
+})
 </script>
 
 <template>
@@ -463,6 +481,7 @@ const editData = async (data) => {
           :schema="schema"
           :type="type"
           :id="id"
+          :delApi="deleteCampaign"
           :multipleImages="false"
           :apiId="getCampaignList"
           @post-data="postData"

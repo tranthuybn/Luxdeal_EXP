@@ -106,6 +106,11 @@ const props = defineProps({
   imageRequired: {
     type: Boolean,
     default: false
+  },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory',
+    Descriptions: 'tiêu đề nút thêm mới'
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -251,7 +256,6 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
-        data.backRouter = true
         emit('post-data', data)
         loading.value = false
       }
@@ -266,7 +270,7 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
-        emit('edit-data', data, go(-1))
+        emit('edit-data', data)
         loading.value = false
       }
       fileList.value = []

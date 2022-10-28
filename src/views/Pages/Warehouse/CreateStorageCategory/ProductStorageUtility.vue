@@ -40,11 +40,11 @@ const schema = reactive<FormSchema[]>([
       disabled: false,
       options: [
         {
-          label: t('reuse.rank1Category'),
+          label: t('reuse.warehouseLevel1'),
           value: 1
         },
         {
-          label: t('reuse.rank2Category'),
+          label: t('reuse.warehouseLevel2'),
           value: 2
         }
       ],
@@ -66,19 +66,19 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('reuse.nameAttributeLevel1'),
+    label: t('reuse.nameWarehouseLevel1'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1')
     },
     hidden: false
   },
   {
     field: 'parentid',
-    label: t('reuse.nameAttributeLevel1'),
+    label: t('reuse.nameWarehouseLevel1'),
     component: 'Select',
     colProps: {
       span: 20
@@ -86,19 +86,19 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.InputNameAttributeLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1')
     },
     hidden: true
   },
   {
     field: 'name',
-    label: t('reuse.nameAttributeLevel2'),
+    label: t('reuse.nameWarehouseLevel2'),
     component: 'Input',
     colProps: {
       span: 20
     },
     componentProps: {
-      placeholder: t('reuse.InputNameAttributeLevel2')
+      placeholder: t('reuse.inputNameWarehouseLevel2')
     },
     hidden: true
   },
@@ -256,15 +256,19 @@ const postData = async (data) => {
   } else {
     data.isActive = false
   }
-  data.Code = 'HN91a'
+  data.Code = 'HN91ads'
 
   await createNewProductStorage(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
+          params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
+        })
+    })
     .catch((error) =>
       ElNotification({
         message: error,
@@ -272,15 +276,21 @@ const postData = async (data) => {
       })
     )
 }
+const { push } = useRouter()
+
 const editData = async (data) => {
   data = customPostData(data)
   await updateProductStorage(data)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
+          params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),

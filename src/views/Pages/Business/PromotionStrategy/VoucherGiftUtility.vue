@@ -2,13 +2,17 @@
 import { reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
+import { addNewCampaign, getCampaignList, updateCampaign } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import moment from 'moment'
+import { FORM_IMAGES } from '@/utils/format'
+import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 const { t } = useI18n()
 const curDate = 'VC' + moment().format('hhmmss')
+const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -20,7 +24,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'discountCode',
+    field: 'code',
     label: t('formDemo.voucherCode'),
     component: 'Input',
     colProps: {
@@ -154,7 +158,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.collectionProgramDetails'),
+    title: t('formDemo.voucherDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -183,6 +187,63 @@ const collapseChangeEvent = (val) => {
     })
 }
 
+//edit data api
+type FormDataEdit = {
+  Id: number
+  Name?: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  CustomerIdsAdd?: string
+  CustomerIdsDelete?: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Image: any
+  imageurl?: string
+  VoucherConditionType?: number
+  ExchangeValue?: number
+  CampaignType: number
+}
+
+const customEditDataVoucher = (data) => {
+  const customData = {} as FormDataEdit
+  customData.Id = id
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 4
+  customData.ServiceType = 1
+  customData.Image = data.Image
+  if (data.target == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+  )
+  console.log('data edit', data, customData)
+
+  return customData
+}
+
 //upload image
 
 const activeName = ref(collapse[0].name)
@@ -192,9 +253,118 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const postData = () => {}
-const customizeData = () => {}
-const editData = () => {}
+//post data api
+type FormDataPost = {
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  ProductPropertyIdJson?: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  VoucherType?: number
+  VoucherConditionType: number
+  ExchangeValue?: number
+  ServiceType: number
+  Image: any
+  CampaignType: number
+}
+
+const customPostDataVoucher = (data) => {
+  const customData = {} as FormDataPost
+
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.Code = data.code
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.ServiceType = 1
+  customData.Image = data.Image
+
+  if (valueRadioOjbApply.value == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = '[]'
+  customData.VoucherType = 2
+  customData.ExchangeValue = 1
+  customData.VoucherConditionType = 2
+  customData.CampaignType = 4
+  return customData
+}
+
+const postData = async (data) => {
+  data = customPostDataVoucher(data)
+  console.log('data post:', data)
+
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
+type SetFormData = {
+  code: string
+  promotion: number
+  reduce: number
+  date: any
+  shortDescription: string
+  customers: any
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+const customizeData = async (data) => {
+  console.log('data here', data)
+  setFormData.code = data[0].code
+  setFormData.promotion = 2
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.reduce = data[0].reduce
+  setFormData.shortDescription = data[0].shortDescription
+  setFormData.customers = data[0].customers
+  console.log('setFormDataAfterChange: ', setFormData)
+}
+
+const editData = async (data) => {
+  data = customEditDataVoucher(data)
+
+  await updateCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
 </script>
 
 <template>
@@ -209,11 +379,14 @@ const editData = () => {}
           ref="formRef"
           :schema="schema"
           :type="type"
+          :apiId="getCampaignList"
           :id="id"
+          :params="params"
           @post-data="postData"
           :showProduct="false"
           :rules="rules"
           @customize-form-data="customizeData"
+          :formDataCustomize="setFormData"
           :multipleImages="false"
           @edit-data="editData"
         />

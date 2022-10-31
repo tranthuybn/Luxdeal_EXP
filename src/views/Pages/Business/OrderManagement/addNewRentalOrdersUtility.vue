@@ -49,6 +49,7 @@ import {
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -65,7 +66,7 @@ const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: t('reuse.byMonth'),
-  rentalPeriod: '',
+  rentalPeriod: [],
   rentalPaymentPeriod: t('reuse.byMonth'),
   collaborators: '',
   discount: '',
@@ -251,14 +252,15 @@ const input = ref('')
 
 interface tableRentalProduct {
   productManagementCode: string
-  name: string
+  productName: string
   accessory: string
-  rentalStartDate: string
-  rentalEndDate: string
+  fromDate: string
+  toDate: string
   quantity: number
-  rentalUnitPrice: string
-  rentalFee: string
-  dram: string
+  hirePrice: string
+  depositePrice: string
+  finalPrice: string
+  unitName: string
   intoARentalDeposit: string
 }
 
@@ -266,14 +268,15 @@ const tableData = ref<Array<tableRentalProduct>>([])
 
 const productForSale = reactive<tableRentalProduct>({
   productManagementCode: '',
-  name: '',
+  productName: '',
   accessory: '',
-  rentalStartDate: '20/03/2022',
-  rentalEndDate: '20/06/2022',
+  fromDate: '',
+  toDate: '',
   quantity: 2,
-  rentalUnitPrice: '',
-  rentalFee: '',
-  dram: t('formDemo.psc'),
+  hirePrice: '',
+  depositePrice: '',
+  finalPrice: '',
+  unitName: t('formDemo.psc'),
   intoARentalDeposit: ''
 })
 
@@ -437,9 +440,9 @@ const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((product) => ({
-      label: product.name,
-      value: product.id
+    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
+      label: collaborator.name,
+      value: collaborator.id
     }))
   }
   optionCallCollaborators++
@@ -712,13 +715,15 @@ const postData = async () => {
       }
     ])
     const payload = {
-      ServiceType: 1,
+      ServiceType: 3,
       OrderCode: ruleForm.orderCode,
       PromotionCode: 'AA12',
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
       CustomerId: ruleForm.customerName,
+      fromDate: ruleForm.rentalPeriod[0],
+      toData: ruleForm.rentalPeriod[1],
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: 1,
@@ -753,40 +758,55 @@ const postData = async () => {
   }
 }
 
-const options = [
+const hirePeriod = [
   {
-    value: t('reuse.byDay'),
+    value: 1,
     label: t('reuse.byDay')
   },
   {
-    value: t('reuse.byWeek'),
+    value: 7,
     label: t('reuse.byWeek')
   },
   {
-    value: t('reuse.byMonth'),
+    value: 30,
+    label: t('reuse.byMonth')
+  }
+]
+
+const options = [
+  {
+    value: 1,
+    label: t('reuse.byDay')
+  },
+  {
+    value: 7,
+    label: t('reuse.byWeek')
+  },
+  {
+    value: 30,
     label: t('reuse.byMonth')
   }
 ]
 
 const optionsRentalPaymentPeriod = [
   {
-    value: t('formDemo.onetimePaymentInAdvance'),
+    value: 1,
     label: t('formDemo.onetimePaymentInAdvance')
   },
   {
-    value: t('formDemo.payAfterOneTime'),
+    value: 2,
     label: t('formDemo.payAfterOneTime')
   },
   {
-    value: t('reuse.byDay'),
+    value: 3,
     label: t('reuse.byDay')
   },
   {
-    value: t('reuse.byWeek'),
+    value: 4,
     label: t('reuse.byWeek')
   },
   {
-    value: t('reuse.byMonth'),
+    value: 5,
     label: t('reuse.byMonth')
   }
 ]
@@ -803,12 +823,15 @@ let customerIdPromo = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id })
+    const res = await getSellOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaborator.name
+      ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.leaseTerm = orderObj.days
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+      ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
@@ -817,6 +840,7 @@ const editData = async () => {
       totalOrder.value = orderObj.totalPrice
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+      console.log('tableData: ', tableData.value)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -847,9 +871,12 @@ const editData = async () => {
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
+  console.log('_value: ', _value)
+  console.log('obj: ', obj)
+  console.log('scope: ', scope)
   scope.row.productManagementCode = obj.productPropertyId
   scope.row.productCode = obj.productPropertyId
-  scope.row.name = obj.name
+  scope.row.productName = obj.name
   scope.row.rentalUnitPrice = obj.price
   scope.row.rentalFee = (
     parseInt(scope.row.quantity) * parseInt(scope.row.rentalUnitPrice)
@@ -1163,7 +1190,7 @@ watch(
   () => {
     if (
       tableData.value[tableData.value.length - 1].productManagementCode &&
-      tableData.value[tableData.value.length - 1].accessory &&
+      tableData.value[tableData.value.length - 1].quantity &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -2615,7 +2642,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select v-model="ruleForm.leaseTerm" placeholder="Select" clearable>
                   <el-option
-                    v-for="item in options"
+                    v-for="item in hirePeriod"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -2979,7 +3006,11 @@ onBeforeMount(() => {
               >
             </template>
           </el-table-column>
-          <el-table-column prop="name" :label="t('formDemo.productInformation')" width="380" />
+          <el-table-column
+            prop="productName"
+            :label="t('formDemo.productInformation')"
+            width="380"
+          />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="props">
               <el-input
@@ -2990,56 +3021,76 @@ onBeforeMount(() => {
               <div v-else>{{ props.row.accessory }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="rentalStartDate"
-            :label="t('formDemo.rentalStartDate')"
-            width="120"
-          />
-          <el-table-column prop="rentalEndDate" :label="t('formDemo.rentalEndDate')" width="120" />
+          <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
+            <template #default="props">
+              <div v-if="props.row.fromDate != ''">
+                {{ dateTimeFormat(props.row.fromDate) }}
+              </div>
+              <el-date-picker
+                v-else
+                v-model="props.row.fromDate"
+                type="date"
+                placeholder="Chọn ngày"
+                format="DD/MM/YYYY"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
+            <template #default="props">
+              <div v-if="props.row.toDate != ''">
+                {{ dateTimeFormat(props.row.toDate) }}
+              </div>
+              <el-date-picker
+                v-else
+                v-model="props.row.toDate"
+                type="date"
+                placeholder="Chọn ngày"
+                format="DD/MM/YYYY"
+              />
+            </template>
+          </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.rentalQuantity')" width="90">
             <template #default="props">
               <div v-if="type == 'detail'">{{ props.row.quantity }}</div>
               <el-input v-model="props.row.quantity" />
             </template>
           </el-table-column>
-          <el-table-column prop="dram" :label="t('reuse.dram')" align="center" width="100" />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="100" />
           <el-table-column
-            prop="rentalUnitPrice"
+            prop="hirePrice"
             :label="t('formDemo.rentalUnitPrice')"
             align="right"
             width="180"
           >
             <template #default="props">
-              <el-input
+              <CurrencyInputComponent
+                v-model="props.row.hirePrice"
                 v-if="type != 'detail'"
-                v-model="props.row.rentalUnitPrice"
-                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                @change="changePriceRowTable(props)"
+                @change="changePriceRowTable"
               />
               <div v-else>{{
-                props.row.rentalUnitPrice != ''
-                  ? changeMoney.format(parseInt(props.row.rentalUnitPrice))
+                props.row.hirePrice != ''
+                  ? changeMoney.format(parseInt(props.row.hirePrice))
                   : '0 đ'
               }}</div>
             </template>
           </el-table-column>
           <el-table-column
-            prop="rentalFee"
+            prop="finalPrice"
             :label="t('formDemo.rentalFee')"
             align="right"
             width="180"
           >
             <template #default="props">
               {{
-                props.row.rentalFee != ''
-                  ? changeMoney.format(parseInt(props.row.rentalFee))
+                props.row.finalPrice != ''
+                  ? changeMoney.format(parseInt(props.row.finalPrice))
                   : '0 đ'
               }}
             </template>
           </el-table-column>
           <el-table-column
-            prop="intoARentalDeposit"
+            prop="depositePrice"
             :label="t('formDemo.intoARentalDeposit')"
             align="right"
             width="180"

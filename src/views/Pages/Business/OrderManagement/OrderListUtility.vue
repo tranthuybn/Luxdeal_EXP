@@ -483,8 +483,8 @@ const callCustomersApi = async () => {
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         code: product.code,
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
+        label: product.isOrganization
+          ? product.name + ' | MST ' + product.taxCode
           : product.name + ' | ' + product.phonenumber,
         address: product.address,
         name: product.name,
@@ -701,6 +701,8 @@ let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  // if (ListOfProductsForSale.value[2])
+  console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
@@ -708,8 +710,9 @@ const autoCalculateOrder = async () => {
   }))
   const payload = {
     serviceType: 1,
-    fromDate: '2022-10-19T09:38:04.730Z',
-    toDate: '2022-10-19T09:38:04.730Z',
+    fromDate: '2022-10-31T09:15:56.106Z',
+    toDate: '2022-10-31T09:15:56.106Z',
+    paymentPeriod: 1,
     days: 1,
     campaignId: campaignId.value,
     orderDetail: tableOrderDetail.value
@@ -731,6 +734,7 @@ watch(
   () => ListOfProductsForSale,
   () => {
     if (
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
@@ -1053,11 +1057,10 @@ let dataEdit = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id })
+    const res = await getSellOrderList({ Id: id, ServiceType: 1 })
     const transaction = await getOrderTransaction({ id: 10 })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
-    console.log('transaction: ', transaction)
 
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
@@ -1089,15 +1092,15 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    // orderObj.orderFiles.map((element) => {
-    //   if (element !== null) {
-    //     ListFileUpload.value.push({
-    //       url: `${element?.domainUrl}${element?.path}`,
-    //       name: element?.fileId,
-    //       uid: element?.id
-    //     })
-    //   }
-    // })
+    orderObj.orderFiles.map((element) => {
+      if (element !== null) {
+        ListFileUpload.value.push({
+          url: `${element?.domainUrl}${element?.path}`,
+          name: element?.fileId,
+          uid: element?.id
+        })
+      }
+    })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
     debtTable.value.push({ ...addDebtTable })

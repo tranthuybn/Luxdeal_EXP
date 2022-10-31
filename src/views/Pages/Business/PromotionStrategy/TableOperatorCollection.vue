@@ -853,8 +853,8 @@ const getSpaSelected = (spaServices) => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="690" />
-              <el-table-column :label="t('formDemo.joinTheProgram')" width="180">
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="650" />
+              <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
                 <template #default="scope"
                   ><el-switch
                     v-model="scope.row.isActive"

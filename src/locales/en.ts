@@ -1448,6 +1448,8 @@ export default {
     // product
     under256Characters: 'Under 256 characters',
     enterSearchingData: 'Please enter searching data',
-    sameQuantity: 'Cant enter the same quantity'
+    sameQuantity: 'Cant enter the same quantity',
+    fillProductInformation: 'Do you want to automatically fill information of the existing product',
+    notification: 'Notification'
   }
 }

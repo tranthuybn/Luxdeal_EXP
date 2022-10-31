@@ -499,40 +499,56 @@ const remoteProductName = async (query: string) => {
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
   const codeObj = CodeOptions.value.find((code) => code.value == data)
+
   codeObj
-    ? await getBusinessProductLibrary({ Id: codeObj?.id })
-        .then((res) => {
-          if (res.data.length == 0) {
-            ElNotification({
-              message: t('reuse.cantFindData'),
-              type: 'warning'
+    ? //ask if they want to change value of product type, brand ..
+      ElMessageBox.confirm(t('reuse.fillProductInformation'), t('reuse.notification'), {
+        confirmButtonText: t('reuse.confirm'),
+        cancelButtonText: t('reuse.cancel'),
+        type: 'info'
+      })
+        .then(() => {
+          getBusinessProductLibrary({ Id: codeObj?.id })
+            .then((res) => {
+              if (res.data.length == 0) {
+                ElNotification({
+                  message: t('reuse.cantFindData'),
+                  type: 'warning'
+                })
+              } else {
+                const fillValue = res.data[0]
+                const BrandId = fillValue.categories[0].id
+                const UnitId = fillValue.categories[2].id
+                const OriginId = fillValue.categories[3].id
+                setValues({
+                  ProductTypeId: fillValue.categories[1].value,
+                  BrandId: BrandId,
+                  UnitId: UnitId,
+                  OriginId: OriginId,
+                  ShortDescription: fillValue.shortDescription,
+                  VerificationInfo: fillValue.verificationInfo,
+                  Description: fillValue.description
+                })
+                const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
+                customPostData(checkData)
+              }
+              sameProductCode.value = true
             })
-          } else {
-            const fillValue = res.data[0]
-            const BrandId = fillValue.categories[0].id
-            const UnitId = fillValue.categories[2].id
-            const OriginId = fillValue.categories[3].id
-            setValues({
-              ProductTypeId: fillValue.categories[1].value,
-              BrandId: BrandId,
-              UnitId: UnitId,
-              OriginId: OriginId,
-              ShortDescription: fillValue.shortDescription,
-              VerificationInfo: fillValue.verificationInfo,
-              Description: fillValue.description
-            })
-            const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
-            customPostData(checkData)
-          }
-          sameProductCode.value = true
+            .catch(() =>
+              ElNotification({
+                message: t('reuse.cantFindData'),
+                type: 'warning'
+              })
+            )
         })
-        .catch((error) =>
-          ElNotification({
-            message: error,
-            type: 'warning'
-          })
-        )
+        .catch(() => {})
+        .finally(() => {
+          setValues({ ProductCode: '' })
+        })
     : (sameProductCode.value = false)
+  // .finally(() => {
+  //   setValues({ ProductCode: '' })
+  // })
 }
 
 const callApiAttribute = async () => {

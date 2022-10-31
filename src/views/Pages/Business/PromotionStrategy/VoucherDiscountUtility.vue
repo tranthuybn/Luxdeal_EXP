@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
-import { getCampaignList } from '@/api/Business'
+import { addNewCampaign, getCampaignList, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import moment from 'moment'
+import { FORM_IMAGES } from '@/utils/format'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
+const curDate = 'VC' + moment().format('hhmmss')
 
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
@@ -27,16 +31,21 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
-    }
+    },
+    componentProps: {
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'promotion',
     label: t('reuse.promotion'),
     component: 'Select',
     colProps: {
-      span: 14
+      span: 18
     },
     componentProps: {
+      onChange: (data) => changeSuffixIcon(data),
       placeholder: t('formDemo.choosePromotion'),
       style: 'width: 100%',
       options: [
@@ -44,48 +53,68 @@ const schema = reactive<FormSchema[]>([
         { label: t('formDemo.decreaseByAmount'), value: 2 },
         { label: t('formDemo.noPromotion'), value: 3 }
       ]
-    }
+    },
+    value: 1
   },
   {
-    field: 'reduce',
+    field: 'percent',
     component: 'Input',
     colProps: {
-      span: 10
+      span: 6
     },
+    value: '',
     componentProps: {
       placeholder: t('formDemo.enterPercent'),
-      suffixIcon: h('div', '%')
+      suffixIcon: h('span', '%')
     },
     formItemProps: {
       labelWidth: '0px'
-    }
+    },
+    hidden: false
+  },
+  {
+    field: 'money',
+    component: 'Input',
+    colProps: {
+      span: 6
+    },
+    value: '',
+    componentProps: {
+      placeholder: t('reuse.placeholderMoney'),
+      suffixIcon: h('span', 'đ')
+    },
+    formItemProps: {
+      labelWidth: '0px'
+    },
+    hidden: true
   },
   {
     field: 'order',
     label: t('formDemo.odersApply'),
     component: 'Select',
     colProps: {
-      span: 14
+      span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.choosePromotion'),
+      placeholder: t('reuse.selectOrder'),
       style: 'width: 100%',
       options: [
         { label: t('reuse.sellOrderList'), value: 1 },
         { label: t('reuse.leaseOrderList'), value: 2 },
         { label: t('reuse.spaOrderList'), value: 3 }
       ]
-    }
+    },
+    value: 1
   },
   {
     field: 'orderInput',
-    component: 'Input',
+    component: 'InputPrice',
+    value: 0,
     colProps: {
-      span: 10
+      span: 6
     },
     componentProps: {
-      placeholder: t('formDemo.appliesToOrdersFrom'),
-      suffixIcon: h('div', 'đ')
+      style: 'width: 100%'
     },
     formItemProps: {
       labelWidth: '0px'
@@ -99,6 +128,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      format: 'DD/MM/YYYY',
+      valueFormat: 'YYYY-MM-DD',
       type: 'daterange'
     }
   },
@@ -123,7 +154,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       style: 'width: 100%',
       disabled: true,
-      placeholder: t('formDemo.enterCondition'),
+      placeholder: t('reuse.selectCondition'),
       options: [
         { label: t('reuse.freeRecievedVoucher'), value: 1 },
         { label: t('reuse.voucherAffiliate'), value: 2 },
@@ -160,7 +191,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       onChange: (data) => hideTableCustomer(data),
       options: [
-        { label: t('reuse.allCustomer'), value: 1 },
+        { label: t('reuse.allCustomer'), value: 3 },
         { label: t('formDemo.chooseCustomerDetail'), value: 2 }
       ]
     },
@@ -212,8 +243,45 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+const { required, ValidService, requiredOption } = useValidator()
+
+const rules = reactive({
+  code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
+  promotion: requiredOption(),
+  date: required(),
+  percent: [required(), { validator: ValidService.maxPercent.validator }],
+  money: [required(), { validator: ValidService.checkPositiveNumber.validator }],
+  shortDescription: required(),
+  condition: required(),
+  order: requiredOption(),
+  orderInput: required()
+})
+let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  data == 1 ? (schema[12].hidden = true) : (schema[12].hidden = false)
+  console.log(data)
+
+  data == 3 ? (schema[13].hidden = true) : (schema[13].hidden = false)
+  valueRadioOjbApply.value = data
+}
+
+const changeSuffixIcon = (data) => {
+  if (schema[3].componentProps) {
+    if (data == 1) {
+      schema[3].hidden = false
+      schema[4].hidden = true
+      schema[2].colProps!.span = 18
+    }
+    if (data == 2) {
+      schema[3].hidden = true
+      schema[4].hidden = false
+      schema[2].colProps!.span = 18
+    }
+    if (data == 3) {
+      schema[3].hidden = true
+      schema[4].hidden = true
+      schema[2].colProps!.span = 24
+    }
+  }
 }
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -221,7 +289,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.collectionProgramDetails'),
+    title: t('formDemo.voucherDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -250,30 +318,156 @@ const collapseChangeEvent = (val) => {
     })
 }
 
+//edit data api
+type FormDataEdit = {
+  Id: number
+  Name?: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  CustomerIdsAdd?: string
+  CustomerIdsDelete?: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Image: any
+  imageurl?: string
+  VoucherConditionType?: number
+  ExchangeValue?: number
+  CampaignType: number
+}
+
+const customEditDataVoucher = (data) => {
+  const customData = {} as FormDataEdit
+  customData.Id = id
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 4
+  customData.ServiceType = 1
+  customData.Image = data.Image
+  if (data.target == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+  )
+  console.log('data edit', data, customData)
+
+  return customData
+}
+
 //upload image
 
 const activeName = ref(collapse[0].name)
-const rules = reactive({})
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const postData = () => {}
 
+//post data api
+type FormDataPost = {
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  ProductPropertyIdJson?: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  VoucherType?: number
+  VoucherConditionType: number
+  ExchangeValue?: number
+  ServiceType: number
+  Image: any
+  CampaignType: number
+}
+
+const customPostDataVoucher = (data) => {
+  const customData = {} as FormDataPost
+
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.Code = data.code
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.ServiceType = 1
+  customData.Image = data.Image
+
+  if (valueRadioOjbApply.value == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = '[]'
+  customData.VoucherType = 2
+  customData.ExchangeValue = 1
+  customData.VoucherConditionType = 2
+  customData.CampaignType = 4
+  return customData
+}
+
+const postData = async (data) => {
+  data = customPostDataVoucher(data)
+  console.log('data post:', data)
+
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
 type SetFormData = {
   code: string
   promotion: number
   reduce: number
   date: any
-
   shortDescription: string
   customers: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
-console.log('setFormData_beforeChange: ', setFormData)
 const customizeData = async (data) => {
-  console.log('data here', data)
   setFormData.code = data[0].code
   setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
@@ -283,7 +477,29 @@ const customizeData = async (data) => {
   console.log('setFormDataAfterChange: ', setFormData)
 }
 
-const editData = () => {}
+const editData = async (data) => {
+  data = customEditDataVoucher(data)
+
+  await updateCampaign(FORM_IMAGES(data))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
+
+onBeforeMount(() => {
+  if (type === 'add') {
+    schema[16].hidden = true
+  }
+})
 </script>
 
 <template>
@@ -299,11 +515,13 @@ const editData = () => {}
           :schema="schema"
           :type="type"
           :id="id"
+          :showProduct="false"
           :params="params"
           :apiId="getCampaignList"
           @post-data="postData"
           :rules="rules"
           @customize-form-data="customizeData"
+          :formDataCustomize="setFormData"
           :multipleImages="false"
           @edit-data="editData"
         />

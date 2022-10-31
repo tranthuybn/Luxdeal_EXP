@@ -236,6 +236,9 @@ export default {
     addnewRentalOrders: 'Add new rental orders',
     addNewConsignmentOrders: 'Add new consignment orders',
     addNewPawnOrders: 'Add new pawn orders',
+    addNewFlashSale: 'Add new Flash sale',
+    addNewVoucher: 'Add new Voucher',
+
     addNewSpaOrders: 'Add new Spa Orders',
     startDay: 'Start day',
     endDay: 'End day',
@@ -828,6 +831,12 @@ export default {
     rentalTerm: 'Rental Term',
     surveyDate: 'Survey Date',
     serviceRating: 'Service Rating',
+    warehouseLevel1: 'Warehouse Level 1',
+    nameWarehouseLevel1: 'Name warehouse Level 1',
+    inputNameWarehouseLevel1: 'Name warehouse Level 1',
+    nameWarehouseLevel2: 'Name warehouse Level 2',
+    inputNameWarehouseLevel2: 'Input name warehouse Level 2',
+    warehouseLevel2: 'Warehouse level  2',
     picture: 'Picture',
     collectionCode: 'Collection Code',
     subject: 'Subject',
@@ -1242,6 +1251,9 @@ export default {
     //notification
     exit: 'Exit',
     deleteWarning: 'Are you sure want to delete ?',
+    deleteWarningFlashSale: 'Are you sure want to delete Flash Sale programming ?',
+    cancelFlashSaleProgramming: 'Cancel Flash Sale programming',
+
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
@@ -1356,6 +1368,7 @@ export default {
     comboDetail: 'Combo detail',
     auctionDetail: 'Auction detail',
     voucherDetail: 'Voucher detail',
+    initializationVoucher: 'Initialization voucher',
     newProductDetail: 'New product detail',
     collectionDetail: 'Collection detail',
     flashSaleDetail: 'Flash sale detail',
@@ -1424,6 +1437,8 @@ export default {
     redeemGiftVouchersWithPoints: 'Redeem gift vouchers with points',
     condition: 'Condition',
     enterCondition: 'Enter condition',
+    selectCondition: 'Selec condition',
+
     points: 'Points',
     //combo
     freeReceiveCombo: 'Free receive combo',

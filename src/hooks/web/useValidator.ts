@@ -95,6 +95,11 @@ export const useValidator = () => {
       message: t('reuse.emailFormat'),
       trigger: 'blur'
     },
+    checkLink: {
+      pattern: /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/,
+      message: t('reuse.linkFormat'),
+      trigger: 'blur'
+    },
     checkDateTime: {
       pattern:
         /^([1-9]|([012][0-9])|(3[01]))[/]([0]{0,1}[1-9]|1[012])[/]\d\d\d\d [012]{0,1}[0-9]:[0-6][0-9]$/g,
@@ -176,7 +181,7 @@ export const useValidator = () => {
         }
         callback()
       },
-      required: false,
+      required: true,
       trigger: 'change'
     },
     checkCodeServiceLength: {
@@ -249,7 +254,7 @@ export const useValidator = () => {
         }
         callback()
       },
-      required: false,
+      required: true,
       trigger: 'blur'
     },
     checkMoney: {

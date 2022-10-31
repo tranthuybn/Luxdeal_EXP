@@ -1329,6 +1329,7 @@ export default {
     isNotEqual: 'Không bằng nhau',
     phoneNumberFormat: 'Không phải số điện thoại',
     emailFormat: 'Vui lòng nhập đúng định dạng email',
+    linkFormat: 'Vui lòng nhập đúng định dạng link',
     dateTimeFormat: 'Định dạng ngày giờ không đúng',
     dateFormat: 'Định dạng ngày không đúng',
     checkEmoji: 'Vui lòng không nhập icon',

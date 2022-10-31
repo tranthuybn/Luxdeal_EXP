@@ -53,10 +53,11 @@ const { ValidService, notSpace, notSpecialCharacters, required } = useValidator(
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  referralCode: [
-    { validator: ValidService.checkNameLength.validator },
-    { validator: notSpecialCharacters }
-  ],
+  //referralCode: [
+  //{ required: false }
+  //   { validator: ValidService.checkNameLength.validator },
+  //   { validator: notSpecialCharacters }
+  //],
   name: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   businessClassification: [
     {
@@ -73,6 +74,7 @@ const rules = reactive<FormRules>({
     }
   ],
   email: [ValidService.checkEmail],
+  link: [ValidService.checkLink],
   phonenumber: [
     {
       required: true,
@@ -119,7 +121,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
     }
   })
 }
-
 const options = [
   {
     value: true,
@@ -554,15 +555,22 @@ onBeforeMount(() => {
 
               <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="referralCode">
                 <div class="flex">
-                  <label class="min-w-[170px] pr-2 text-right"
-                    >{{ t('reuse.referralCode') }} <span class="text-red-600">*</span></label
-                  >
+                  <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.referralCode') }}</label>
                   <div class="w-[84%]">
                     <el-input
                       v-model="ruleForm.referralCode"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.enterReferralCode')"
+                      :formatter="
+                        (value) =>
+                          value
+                            .normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '')
+                            .replace(/đ/g, 'd')
+                            .replace(/Đ/g, 'D')
+                            .trim()
+                      "
                     />
                   </div>
                 </div>
@@ -624,6 +632,7 @@ onBeforeMount(() => {
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
                         type="text"
                         :placeholder="t('formDemo.enterCustomerName')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
                     </div>
                   </div>
@@ -643,21 +652,22 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.enterPhoneNumber')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
 
-                <ElFormItem
-                  class="flex items-center w-[100%] mt-5"
-                  :label="t('reuse.email')"
-                  prop="email"
-                >
-                  <el-input
-                    v-model="ruleForm.email"
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('formDemo.enterEmail')"
-                  />
+                <ElFormItem class="flex items-center w-[100%] mt-5" label-width="0" prop="email">
+                  <div class="flex">
+                    <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.email') }}</label>
+                    <el-input
+                      v-model="ruleForm.email"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.enterEmail')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                    />
+                  </div>
                 </ElFormItem>
 
                 <ElFormItem
@@ -671,6 +681,7 @@ onBeforeMount(() => {
                       class="w-[25%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterCCCD')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                     <el-date-picker
                       prop="cccdCreateAt"
@@ -689,6 +700,7 @@ onBeforeMount(() => {
                       class="w-[25%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.supplyAddress')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
@@ -723,14 +735,18 @@ onBeforeMount(() => {
                   </div>
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.link')">
-                  <el-input
-                    prop="link"
-                    v-model="ruleForm.link"
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('reuse.enterFacebookZaloLink')"
-                  />
+                <ElFormItem class="flex items-center w-[100%] mt-5" label-width="0" prop="link">
+                  <div class="flex">
+                    <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.link') }}</label>
+                    <el-input
+                      prop="link"
+                      v-model="ruleForm.link"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('reuse.enterFacebookZaloLink')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                    />
+                  </div>
                 </ElFormItem>
               </div>
 
@@ -746,6 +762,7 @@ onBeforeMount(() => {
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
                         type="text"
                         :placeholder="t('formDemo.enterCompanyName')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
                     </div>
                   </div>
@@ -762,6 +779,7 @@ onBeforeMount(() => {
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
                         type="text"
                         :placeholder="t('formDemo.enterTaxCode')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
                     </div>
                   </div>
@@ -777,6 +795,7 @@ onBeforeMount(() => {
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterRepresentativeName')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
                   />
                 </ElFormItem>
 
@@ -794,6 +813,7 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.enterPhoneNumber')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
@@ -809,6 +829,7 @@ onBeforeMount(() => {
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
                         type="text"
                         :placeholder="t('formDemo.enterEmail')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
                     </div>
                   </div>
@@ -821,6 +842,7 @@ onBeforeMount(() => {
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
                   />
                 </ElFormItem>
               </div>
@@ -838,6 +860,7 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterUserName')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
@@ -853,6 +876,7 @@ onBeforeMount(() => {
                       class="w-[50%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterPassword')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
 
                     <el-button
@@ -880,6 +904,7 @@ onBeforeMount(() => {
                             class="w-[80%] outline-none pl-2 dark:bg-transparent"
                             type="text"
                             :placeholder="t('reuse.enterNewPassword')"
+                            :formatter="(value) => value.replace(/^\s+$/gm, '')"
                           />
                         </div>
                       </ElFormItem>
@@ -897,6 +922,7 @@ onBeforeMount(() => {
                             class="w-[80%] outline-none pl-2 dark:bg-transparent"
                             type="text"
                             :placeholder="t('reuse.confirmPassword')"
+                            :formatter="(value) => value.replace(/^\s+$/gm, '')"
                           />
                         </div>
                       </ElFormItem>
@@ -930,6 +956,7 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterPassword')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
@@ -948,6 +975,7 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.confirmPassword')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
                   </div>
                 </ElFormItem>
@@ -1126,6 +1154,7 @@ onBeforeMount(() => {
                     style="width: 96%"
                     class="m-2 fix-full-width"
                     :placeholder="t('reuse.enterDetailedAddress')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     clearable
                     filterable
                     allow-create
@@ -1145,6 +1174,7 @@ onBeforeMount(() => {
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterAccountName')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
                   />
                 </ElFormItem>
 
@@ -1158,6 +1188,7 @@ onBeforeMount(() => {
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
                     :placeholder="t('formDemo.enterAccountNumber')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
                   />
                 </ElFormItem>
 

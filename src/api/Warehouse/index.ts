@@ -1,6 +1,6 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { API_URL, WAREHOUSE_API } from '@/utils/API_URL'
-import { objectToQueryParams } from '@/utils/format'
+import { FORM_DATA, objectToQueryParams } from '@/utils/format'
 
 const request = useAxios()
 const fixedBaseURL = API_URL
@@ -18,27 +18,30 @@ export const getProductStorage = async (params: any): Promise<IResponse> => {
 export const createNewProductStorage = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
-      url: `${WAREHOUSE_API.CREATE_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
+      url: `${WAREHOUSE_API.CREATE_PRODUCT_STORAGE}`,
+      data: params
     },
     fixedBaseURL
   )
   return res && res.data
 }
 
-export const updateProductStorage = async (params: any): Promise<IResponse> => {
-  const res = await request.get(
+export const updateProductStorage = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
+  const res = await request.put(
     {
-      url: `${WAREHOUSE_API.GET_LIST_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
+      url: `${WAREHOUSE_API.UPDATE_PRODUCT_STORAGE}`,
+      data
     },
     fixedBaseURL
   )
   return res && res.data
 }
 
-export const deleteProductStorage = async (params: any): Promise<IResponse> => {
-  const res = await request.get(
+export const deleteProductStorage = async (params): Promise<IResponse> => {
+  const res = await request.delete(
     {
-      url: `${WAREHOUSE_API.GET_LIST_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
+      url: `${WAREHOUSE_API.DELETE_PRODUCT_STORAGE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

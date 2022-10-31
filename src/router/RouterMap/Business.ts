@@ -260,7 +260,7 @@ export default {
           component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
           name: `business.promotion-strategy.voucher.${utility}`,
           meta: {
-            title: t('reuse.voucherDetail'),
+            title: t('reuse.initializationVoucher'),
             canTo: true,
             hidden: true
           }

@@ -154,7 +154,7 @@ export const getBrandSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[2].componentProps!.options = brandSelect
+  columnProfileProduct[7].componentProps!.options = brandSelect
 }
 let unitSelect = reactive([])
 export const getUnitSelectOptions = async () => {
@@ -172,7 +172,7 @@ export const getUnitSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[3].componentProps!.options = unitSelect
+  columnProfileProduct[8].componentProps!.options = unitSelect
 }
 let originSelect = reactive([])
 export const getOriginSelectOptions = async () => {
@@ -190,7 +190,7 @@ export const getOriginSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[4].componentProps!.options = originSelect
+  columnProfileProduct[9].componentProps!.options = originSelect
 }
 export const customPostData = async (data) => {
   if (originSelect.length == 0) {
@@ -227,57 +227,6 @@ export const customPostData = async (data) => {
 export { originSelect, unitSelect, brandSelect }
 
 export const columnProfileProduct = reactive<FormSchema[]>([
-  {
-    field: 'Divider',
-    label: t('router.productCategoryProducts'),
-    component: 'Divider'
-  },
-  {
-    field: 'ProductTypeId',
-    label: t('reuse.selectCategory'),
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'BrandId',
-    label: t('router.productCategoryBrand'),
-    component: 'Select',
-    componentProps: {
-      placeholder: t('reuse.chooseBrand'),
-      style: 'width: 100%',
-      options: []
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'UnitId',
-    label: t('router.productCategoryUnit'),
-    component: 'Select',
-    componentProps: {
-      style: 'width: 100%',
-      placeholder: t('reuse.chooseUnit'),
-      options: []
-    },
-    colProps: {
-      span: 20
-    }
-  },
-  {
-    field: 'OriginId',
-    label: t('router.productCategoryOrigin'),
-    component: 'Select',
-    componentProps: {
-      placeholder: t('reuse.chooseOrigin'),
-      style: 'width: 100%',
-      options: []
-    },
-    colProps: {
-      span: 20
-    }
-  },
   {
     field: 'Divider02',
     label: t('reuse.generalProductInformation'),
@@ -340,6 +289,58 @@ export const columnProfileProduct = reactive<FormSchema[]>([
       span: 20
     }
   },
+  {
+    field: 'Divider',
+    label: t('router.productCategoryProducts'),
+    component: 'Divider'
+  },
+  {
+    field: 'ProductTypeId',
+    label: t('reuse.selectCategory'),
+    colProps: {
+      span: 20
+    }
+  },
+  {
+    field: 'BrandId',
+    label: t('router.productCategoryBrand'),
+    component: 'Select',
+    componentProps: {
+      placeholder: t('reuse.chooseBrand'),
+      style: 'width: 100%',
+      options: []
+    },
+    colProps: {
+      span: 20
+    }
+  },
+  {
+    field: 'UnitId',
+    label: t('router.productCategoryUnit'),
+    component: 'Select',
+    componentProps: {
+      style: 'width: 100%',
+      placeholder: t('reuse.chooseUnit'),
+      options: []
+    },
+    colProps: {
+      span: 20
+    }
+  },
+  {
+    field: 'OriginId',
+    label: t('router.productCategoryOrigin'),
+    component: 'Select',
+    componentProps: {
+      placeholder: t('reuse.chooseOrigin'),
+      style: 'width: 100%',
+      options: []
+    },
+    colProps: {
+      span: 20
+    }
+  },
+
   {
     field: 'Divider03',
     label: t('reuse.descriptionParameters'),

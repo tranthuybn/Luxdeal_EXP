@@ -18,6 +18,15 @@ export const useValidator = () => {
       trigger: 'blur'
     }
   }
+
+  const requiredOption = (message?: string) => {
+    return {
+      required: true,
+      message: message || t('common.required'),
+      trigger: 'blur'
+    }
+  }
+
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
     const { min, max } = options
     if (val.length < min || val.length > max) {
@@ -316,6 +325,7 @@ export const useValidator = () => {
 
   return {
     required,
+    requiredOption,
     lengthRange,
     notSpace,
     notSpecialCharacters,

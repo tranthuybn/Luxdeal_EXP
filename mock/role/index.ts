@@ -525,7 +525,7 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
-              title: 'reuse.voucherDetail',
+              title: 'reuse.initializationVoucher',
               noTagsView: true,
               noCache: true,
               hidden: true,
@@ -1424,7 +1424,8 @@ const testList: string[] = [
   '/accountant',
   '/accountant/payment-proposal',
   '/accountant/payment-proposal/payment-proposal-list',
-  '/accountant/payment-proposal/payment-proposal-add',
+  '/accountant/payment-proposal/payment-proposal-list/:type?/:tab?/:id?',
+
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',
   '/accountant/receipts-expenditures/receipts-add',

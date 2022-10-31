@@ -129,6 +129,8 @@ const signIn = () => {
       try {
         const res = await loginApi(formData)
         if (res) {
+          const now = new Date()
+          Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           await setPermissionForUser(res.data)
           getRole()
         }

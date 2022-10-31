@@ -493,6 +493,16 @@ export const updateCampaign = async (data): Promise<IResponse> => {
   return res && res.data
 }
 
+export const deleteCampaign = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CAMPAIGN_API.DELETE_CAMPAIGN}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data

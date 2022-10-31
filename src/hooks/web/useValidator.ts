@@ -15,9 +15,18 @@ export const useValidator = () => {
     return {
       required: true,
       message: message || t('common.required'),
-      trigger: 'change'
+      trigger: 'blur'
     }
   }
+
+  const requiredOption = (message?: string) => {
+    return {
+      required: true,
+      message: message || t('common.required'),
+      trigger: 'blur'
+    }
+  }
+
   const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
     const { min, max } = options
     if (val.length < min || val.length > max) {
@@ -176,7 +185,7 @@ export const useValidator = () => {
     checkNameLength: {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value && value.length > 50) {
+        if (value && value.length > 256) {
           callback(new Error(t('reuse.checkNameLength')))
         }
         callback()
@@ -210,7 +219,7 @@ export const useValidator = () => {
       type: 'string',
       validator: (_rule: any, value: any, callback: any) => {
         if (value) {
-          if (value.length > 500) {
+          if (value.length > 507) {
             callback(new Error(t('reuse.checkDescriptionLength')))
           } else {
             callback()
@@ -305,8 +314,12 @@ export const useValidator = () => {
     },
     checkSpaceBeforeAndAfter: {
       validator: (_rule, value, callback) => {
-        if (value.indexOf(' ') == 0 || value.indexOf(' ') == value.length - 1) {
-          callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
+        if (value) {
+          if (value.indexOf(' ') == 0 || value.slice(-1) == ' ') {
+            callback(new Error(t('reuse.notSpaceBeforeAndAfter')))
+          } else {
+            callback()
+          }
         } else {
           callback()
         }
@@ -317,6 +330,7 @@ export const useValidator = () => {
 
   return {
     required,
+    requiredOption,
     lengthRange,
     notSpace,
     notSpecialCharacters,

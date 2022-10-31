@@ -30,7 +30,8 @@ import {
   FormInstance,
   ElSelect,
   ElOption,
-  ElMessageBox
+  ElMessageBox,
+  ElMessage
 } from 'element-plus'
 import TableOperatorTreeSelect from './TableOperatorTreeSelect.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -48,8 +49,9 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -208,36 +210,15 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
+  let randomCode = Math.random().toString(36).substr(2, 5)
   //have id when in edit mode
   //newId: when click save and add return id
   const findId = isNaN(id) ? newId.value : id
   collapse[1].tableList.push({
     categoriesValue: [],
-    productCode: productData.productCode,
+    code: randomCode,
     productId: findId,
-    code: 'string', //api chua tra/chưa có trường nào để lấy thông tin
-    categories: [
-      {
-        id: null,
-        key: 'Color',
-        value: ''
-      },
-      {
-        id: null,
-        key: 'Material',
-        value: ''
-      },
-      {
-        id: null,
-        key: 'Size',
-        value: ''
-      },
-      {
-        id: 116, //fix cứng chưa có trường nào để lấy thông tin
-        key: 'State',
-        value: 'Small(15.5 - 30.5)'
-      }
-    ],
+    categories: [],
     bussinessSetups: [
       //fix theo api (ko đổi)
       {
@@ -276,6 +257,7 @@ const addLastRowAttribute = () => {
         hasPrice: false
       }
     ],
+    isActive: false,
     edited: true, //edit data (turn to treeSelect, input ...)
     newValue: true //check is newValue so dont have to call api
   })
@@ -334,11 +316,16 @@ const handleDeleteRow = async (scope) => {
         })
 }
 const handleEditRow = (data) => {
+  console.log('edit:', data)
   data.edited = true //change table cell to tree select
-  data.categoriesValue = []
+  data.categoriesValue = [] //convert obj to array
   //push data to tree select
   if (!data.newValue) {
-    data.categoriesValue.push(data.categories[0].id, data.categories[2].id, data.categories[1].id)
+    for (let i = 0; i <= 4; i++) {
+      if (data.categories[i]?.id !== 0) {
+        data.categoriesValue.push(data.categories[i]?.id)
+      }
+    }
   }
 }
 
@@ -362,23 +349,14 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
+  console.log('data:', data)
   //return newProductPropertyId when newValue post success
   customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
-  customUpdateData.categories = []
-  customUpdateData.categories[0] = {
-    id: 1
-    //"key": "Gender",
-    //"value": "Túi + Ví"
-  }
-  customUpdateData.categories[1] = { ...data.categories[0] } //color
-  customUpdateData.categories[2] = { ...data.categories[2] } //size
-  customUpdateData.categories[3] = { ...data.categories[1] } //material
-  customUpdateData.categories[4] = {
-    id: 116 //"key": "State",
-    //"value": "New"
-  }
+  customUpdateData.categories = data.categories
   customUpdateData.bussinessSetups = data.bussinessSetups
+  console.log('customUpdateData:', customUpdateData)
+
   return customUpdateData
 }
 
@@ -387,25 +365,31 @@ const newProductPropertyId = ref<number>()
 const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   if (!formEl) return
   //validate for its own row not all table
-  formEl.validateField(`${scope.$index}.categoriesValue`, async (valid) => {
+  //but i dont use it anymore, used to be validate if user enter all field
+  formEl.validateField('', async (valid) => {
     if (valid) {
+      // scope.row.categories = []
+      // arrayCategories.value.forEach((element) => {
+      //   scope.row.categories.push({ id: element })
+      // })
       scope.row.edited = false
+      console.log('scope', scope.row)
       //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
           .then((res) => {
-            ;(scope.row.newValue = false),
-              (newProductPropertyId.value = res.data),
-              ElNotification({
-                message: t('reuse.addSuccess'),
-                type: 'success'
-              })
+            scope.row.newValue = false
+            newProductPropertyId.value = res.data
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            })
           })
           //chua co xoa row cuoi khi post Fail
           .catch(() => {
             collapse[1].tableList.splice(scope.$index, 1)
             ElNotification({
-              message: t('reuse.addFail'),
+              message: t('reuse.saveFail'),
               type: 'error'
             })
           })
@@ -520,26 +504,27 @@ const rules = reactive({
   Name: [
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkSpaceBeforeAndAfter.validator },
     required()
   ],
   ShortDescription: [
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator }
+    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkSpaceBeforeAndAfter.validator }
   ],
+  VerificationInfo: [{ validator: ValidService.checkNameLength.validator }],
   Description: [{ validator: ValidService.checkDescriptionLength.validator }],
   HireInventoryStatus: [required()],
-  SellInventoryStatus: [required()],
-  ProductStatus: [required()]
+  SellInventoryStatus: [required()]
 })
 const ruleSEO = reactive({
   SeoTitle: [
     required(),
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkNameLength.validator }
+    { validator: ValidService.checkNameLength.validator },
+    { validator: ValidService.checkEmojiValidator.validator }
   ],
-  SeoUrl: [required()],
+  SeoUrl: [required(), { validator: ValidService.checkNameLength.validator }],
   SeoTags: [{ required: true, trigger: 'blur', message: t('common.required') }],
-  SeoDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
+  description: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 
 //call api for ProductProperty table
@@ -577,14 +562,14 @@ const postData = async (data) => {
     .then((res) => {
       newId.value = res.data
       ElNotification({
-        message: t('reuse.addSuccess'),
+        message: t('reuse.saveSuccess'),
         type: 'success'
       })
-      disabledTabOpen.value = false
+      disabledTabOpen.value = data.disabledTabOpen
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.saveFail'),
         type: 'error'
       })
     )
@@ -614,16 +599,14 @@ const setFormData = reactive(emptyFormObj)
 type ProductProperty = {
   [key: string]: any
 }
-const emptyProductPropertyObj = {} as ProductProperty
 
 type seoData = {
   SeoTitle: string
   SeoUrl: string
   SeoTags: Array<string>
-  SeoDescription: string
+  description: string
 }
 const emptySeoObj = {} as seoData
-let productData = reactive(emptyProductPropertyObj)
 
 const SEOdata = reactive(emptySeoObj)
 const customSeoData = (formData) => {
@@ -634,14 +617,12 @@ const customSeoData = (formData) => {
     SEOdata.SeoTags = formData.seoTags.map((tag) => tag.key)
   }
   formData.seoDescription
-    ? (SEOdata.SeoDescription = formData.seoDescription)
-    : (SEOdata.SeoDescription = '')
+    ? (SEOdata.description = formData.seoDescription)
+    : (SEOdata.description = '')
 }
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
   console.log(formData)
-
-  productData = formData
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
   setFormData.UnitId = formData.categories[2].id
@@ -653,7 +634,7 @@ const customizeData = async (formData) => {
   setFormData.VerificationInfo = formData.verificationInfo
   setFormData.HireInventoryStatus = formData.hireInventoryStatus
   setFormData.SellInventoryStatus = formData.sellInventoryStatus
-  setFormData.ProductStatus = formData.productStatus
+  formData.productStatus == 1 ? (setFormData.ProductStatus = 1) : (setFormData.ProductStatus = 0)
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
@@ -673,6 +654,7 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  data.SeoDescription = data.description
   data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
     .then(() =>
@@ -712,7 +694,7 @@ let callApiWarehouseTable = 0
 // if res.data return empty array [] then push a empty obj to table
 let spaDialogTitle = ref('')
 const openSpaTable = async (scope) => {
-  spaDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  spaDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -773,7 +755,7 @@ const openWarehouseTable = async (dialogTitle) => {
 //same logic
 let pawnDialogTitle = ref('')
 const openPawnTable = async (scope) => {
-  pawnDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  pawnDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -807,7 +789,7 @@ const openPawnTable = async (scope) => {
 }
 let depositDialogTitle = ref('')
 const openDepositTable = async (scope) => {
-  depositDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  depositDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -838,7 +820,7 @@ const openDepositTable = async (scope) => {
 }
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
-  rentDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  rentDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -874,7 +856,7 @@ const openRentTable = async (scope) => {
 }
 let sellDialogTitle = ref('')
 const openSellTable = async (scope) => {
-  sellDialogTitle.value = `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
+  sellDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
   if (findPropertyId == undefined) {
     ElNotification({
@@ -906,6 +888,7 @@ const openSellTable = async (scope) => {
   collapse[8].loading = false
   forceRemove.value == false
 }
+//should've splited into different small-components but too late
 const rentForm = ref<FormInstance>()
 const depositForm = ref<FormInstance>()
 const sellForm = ref<FormInstance>()
@@ -973,7 +956,10 @@ watch(
 const addLastIndexSellTable = () => {
   collapse[8].tableList.push({
     quantity: undefined,
-    prices: [{ price: undefined }, { price: undefined }]
+    prices: [
+      { price: undefined, priceType: 1 },
+      { price: undefined, priceType: 2 }
+    ]
   })
 }
 const addLastIndexRentTable = () => {
@@ -1005,29 +991,58 @@ const customPostSpaPrice = (data) => {
 }
 const saveDataSpaTable = async () => {
   removeLastRowSpa()
-  await unref(spaForm)!.validate((valid) => {
-    if (valid) {
-      const data = customPostSpaPrice(collapse[5].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.saveSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
-              true)
+  if (collapse[5].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[5].tableList.productPropertyId
+    emptyPrice.serviceType = 5
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        sellTableVisible.value = false
+        unref(sellForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.saveFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(spaForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostSpaPrice(collapse[5].tableList)
+        const isDuplicate = checkDuplicateSpaServices(data.productPropertyPrices[0].prices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =
+                true)
           })
-        })
-        .finally(() => (spaTableVisible.value = false))
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+          .finally(() => (spaTableVisible.value = false))
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 
 //same logic for rent,deposit,pawn,sell
@@ -1035,29 +1050,59 @@ const saveDataSpaTable = async () => {
 //forceRemove = false so it wont auto add last row because of watch()
 const saveDataRentTable = async () => {
   removeLastRowRent()
-  await unref(rentForm)!.validate((valid) => {
-    if (valid) {
-      rentTableVisible.value = false
-      const data = customPostPrice(collapse[2].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.saveSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
-              true)
+  if (collapse[2].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[2].tableList.productPropertyId
+    emptyPrice.serviceType = 2
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        rentTableVisible.value = false
+        unref(rentForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.saveFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(rentForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostPrice(collapse[2].tableList)
+        const isDuplicate = checkDuplicateQuantity(data.productPropertyPrices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        rentTableVisible.value = false
+
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
+                true)
           })
-        })
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 const saveDataWarehouseTable = async () => {
   warehouseTableVisible.value = false
@@ -1065,12 +1110,13 @@ const saveDataWarehouseTable = async () => {
 const saveDataPawnTable = async () => {
   await unref(pawnForm)!.validate((valid) => {
     if (valid) {
-      pawnTableVisible.value = false
       const data = customPostPrice(collapse[4].tableList)
+      pawnTableVisible.value = false
+
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
-            message: t('reuse.addSuccess'),
+            message: t('reuse.saveSuccess'),
             type: 'success'
           }),
             (collapse[1].tableList[collapse[4].tableList.currentRow].bussinessSetups[3].hasPrice =
@@ -1078,7 +1124,7 @@ const saveDataPawnTable = async () => {
         })
         .catch(() => {
           ElNotification({
-            message: t('reuse.addFail'),
+            message: t('reuse.saveFail'),
             type: 'warning'
           })
         })
@@ -1093,12 +1139,12 @@ const saveDataPawnTable = async () => {
 const saveDataDepositTable = async () => {
   await unref(depositForm)!.validate((valid) => {
     if (valid) {
-      depositTableVisible.value = false
       const data = customPostPrice(collapse[3].tableList)
+      depositTableVisible.value = false
       changePriceProductProperty(JSON.stringify(data))
         .then(() => {
           ElNotification({
-            message: t('reuse.addSuccess'),
+            message: t('reuse.saveSuccess'),
             type: 'success'
           }),
             (collapse[1].tableList[collapse[3].tableList.currentRow].bussinessSetups[2].hasPrice =
@@ -1106,18 +1152,32 @@ const saveDataDepositTable = async () => {
         })
         .catch(() => {
           ElNotification({
-            message: t('reuse.addFail'),
+            message: t('reuse.saveFail'),
             type: 'warning'
           })
         })
     } else {
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.saveFail'),
         type: 'warning'
       })
     }
   })
 }
+const checkDuplicateSpaServices = (_array) => {
+  //ham nay qua kho
+  return false
+}
+const checkDuplicateQuantity = (array) => {
+  var valueArr = array.map(function (item) {
+    return item.quantity
+  })
+  var isDuplicate: boolean = valueArr.some(function (item, idx) {
+    return valueArr.indexOf(item) != idx
+  })
+  return isDuplicate
+}
+
 //add few fields so for api/backend
 const customPostPrice = (data) => {
   const customPostPriceData = reactive(emptyUpdateProductPropertyObj)
@@ -1128,29 +1188,58 @@ const customPostPrice = (data) => {
 }
 const saveDataSellTable = async () => {
   removeLastRowSell()
-  await unref(sellForm)!.validate((valid) => {
-    if (valid) {
-      sellTableVisible.value = false
-      const data = customPostPrice(collapse[8].tableList)
-      changePriceProductProperty(JSON.stringify(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-            (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
-              true)
+  if (collapse[8].tableList.length == 0) {
+    let emptyPrice: any = {}
+    emptyPrice.productPropertyId = collapse[8].tableList.productPropertyId
+    emptyPrice.serviceType = 1
+    emptyPrice.productPropertyPrices = []
+    changePriceProductProperty(JSON.stringify(emptyPrice))
+      .then(() => {
+        sellTableVisible.value = false
+        unref(sellForm)!.clearValidate()
+        ElNotification({
+          message: t('reuse.saveSuccess'),
+          type: 'success'
+        }),
+          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+            false)
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.saveFail'),
+          type: 'warning'
         })
-        .catch(() => {
-          ElNotification({
-            message: t('reuse.addFail'),
-            type: 'warning'
+      })
+  } else {
+    await unref(sellForm)!.validate((valid) => {
+      if (valid) {
+        const data = customPostPrice(collapse[8].tableList)
+        const isDuplicate = checkDuplicateQuantity(data.productPropertyPrices)
+        if (isDuplicate) {
+          forceRemove.value = false
+          return ElMessage.error(t('reuse.sameQuantity'))
+        }
+        sellTableVisible.value = false
+        changePriceProductProperty(JSON.stringify(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.saveSuccess'),
+              type: 'success'
+            }),
+              (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
+                true)
           })
-        })
-    } else {
-      forceRemove.value = false
-    }
-  })
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.saveFail'),
+              type: 'warning'
+            })
+          })
+      } else {
+        forceRemove.value = false
+      }
+    })
+  }
 }
 //same logic
 //check last row only (for performance) because others row already get from api so it cant be undefined
@@ -1212,9 +1301,18 @@ watch(
     disabledTabOpen.value = false
   }
 )
-
-const productAttributeValue = (data) => {
-  console.log('data checked', data)
+// const arrayCategories = ref([])
+const productAttributeValue = (obj, scope) => {
+  console.log('data checked', obj, scope)
+  scope.row.categories = obj.map((element) => ({ id: element.value, value: element.label }))
+  // arrayCategories.value = obj.value
+}
+const categoriesToString = (categories) => {
+  let categoriesLabel: Array<string> = []
+  for (let i = 0; i <= 4; i++) {
+    categories[i]?.value == null ? '' : categoriesLabel.push(categories[i].value)
+  }
+  return categoriesLabel.toString()
 }
 //glhf:)
 </script>
@@ -1266,9 +1364,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.quantity`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1291,13 +1389,8 @@ const productAttributeValue = (data) => {
             :label="t('reuse.unitPrices')"
           >
             <template #default="scope">
-              <el-form-item
-                :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
-              >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+              <el-form-item :prop="`${scope.$index}.prices[0].price`" :rules="[required()]">
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1310,11 +1403,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1366,7 +1457,7 @@ const productAttributeValue = (data) => {
           <ElTableColumn
             header-align="center"
             min-width="130"
-            prop="productCode"
+            prop="code"
             :label="t('reuse.managementCode')"
           />
           <ElTableColumn header-align="center" min-width="250" :label="t('reuse.featureGroup')">
@@ -1377,15 +1468,11 @@ const productAttributeValue = (data) => {
                 :rules="[{ validator: validateTree, trigger: 'blur' }]"
               >
                 <ProductAttribute
-                  :value="scope.row.categoriesValue"
-                  @change-value="productAttributeValue"
+                  @change-value="(obj) => productAttributeValue(obj, scope)"
+                  :default-value="scope.row.categoriesValue"
                 />
               </el-form-item>
-              <span v-else>{{
-                scope.row.categoriesLabel
-                  ? scope.row.categoriesLabel.toString()
-                  : `${scope.row.categories[0].value},${scope.row.categories[1].value},${scope.row.categories[2].value}`
-              }}</span>
+              <span v-else>{{ categoriesToString(scope.row.categories) }}</span>
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -1399,6 +1486,7 @@ const productAttributeValue = (data) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[0].hasPrice ? 'primary' : 'warning'"
                   @click="openSellTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1428,6 +1516,7 @@ const productAttributeValue = (data) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1456,6 +1545,7 @@ const productAttributeValue = (data) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
                   @click="openDepositTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1484,6 +1574,7 @@ const productAttributeValue = (data) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[3].hasPrice ? 'primary' : 'warning'"
                   @click="openPawnTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1512,6 +1603,7 @@ const productAttributeValue = (data) => {
                 <el-button
                   :icon="plusIcon"
                   link
+                  :disabled="type == 'detail'"
                   :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
                   @click="openSpaTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1542,6 +1634,7 @@ const productAttributeValue = (data) => {
                   :icon="plusIcon"
                   link
                   type="primary"
+                  :disabled="type == 'detail'"
                   @click="openWarehouseTable(scope.row.featureGroup)"
                   >{{ t('reuse.detail') }}</el-button
                 >
@@ -1554,9 +1647,7 @@ const productAttributeValue = (data) => {
             }}</template></ElTableColumn
           >
           <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.status')"
-            ><template #default="scope">{{
-              productStatusTransferToText(scope.row.isActive)
-            }}</template>
+            ><template #default="scope">{{ productStatusPending(scope.row.isActive) }}</template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"
@@ -1572,19 +1663,30 @@ const productAttributeValue = (data) => {
                 @click="handleSaveRow(scope, ruleTreeFormRef)"
                 >{{ t('reuse.save') }}</el-button
               >
-              <el-button v-else type="default" @click="handleEditRow(scope.row)">{{
-                t('reuse.edit')
-              }}</el-button>
-              <el-button type="danger" @click="handleDeleteRow(scope)">{{
-                t('reuse.delete')
-              }}</el-button>
+              <el-button
+                v-else
+                type="default"
+                @click="handleEditRow(scope.row)"
+                :disabled="type == 'detail'"
+                >{{ t('reuse.edit') }}</el-button
+              >
+              <el-button
+                type="danger"
+                @click="handleDeleteRow(scope)"
+                :disabled="type == 'detail'"
+                >{{ t('reuse.delete') }}</el-button
+              >
             </template>
           </ElTableColumn>
         </ElTable>
       </el-form>
-      <el-button class="ml-5 mt-5" :icon="plusIcon" @click="addLastRowAttribute">{{
-        t('reuse.addAttributeAndPrice')
-      }}</el-button>
+      <el-button
+        class="ml-5 mt-5"
+        :icon="plusIcon"
+        @click="addLastRowAttribute"
+        :disabled="type == 'detail'"
+        >{{ t('reuse.addAttributeAndPrice') }}</el-button
+      >
     </el-collapse-item>
     <el-dialog
       v-model="rentTableVisible"
@@ -1604,9 +1706,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.quantity`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="text" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1631,11 +1733,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1648,11 +1748,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[2].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[2].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[2].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1665,11 +1763,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[3].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[3].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[3].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1682,11 +1778,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1758,9 +1852,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.maxPercent.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
+                <el-input v-model.number="scope.row.prices[0].price"
                   ><template #append>%</template></el-input
                 >
               </el-form-item>
@@ -1775,11 +1869,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1845,11 +1937,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[0].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[0].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[0].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1862,11 +1952,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.prices[1].price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.prices[1].price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.prices[1].price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1878,12 +1966,9 @@ const productAttributeValue = (data) => {
           >
             <template #default="scope">
               <el-form-item>
-                <el-input
-                  :value="scope.row.prices[0].price + scope.row.prices[1].price"
-                  type="text"
-                  autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent
+                  :modelValue="scope.row.prices[0].price + scope.row.prices[1].price"
+                />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1991,11 +2076,9 @@ const productAttributeValue = (data) => {
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.price`"
-                :rules="[required(), { type: 'number', message: t('reuse.validateEnterNumber') }]"
+                :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.price" type="text" autocomplete="off"
-                  ><template #append>đ</template></el-input
-                >
+                <CurrencyInputComponent v-model="scope.row.price" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -2138,9 +2221,6 @@ const productAttributeValue = (data) => {
 <style scoped>
 .text-center {
   font-size: 20px;
-}
-.el-table .cell {
-  word-break: break-word;
 }
 :deep(.el-collapse-item__wrap) {
   margin: 2rem;

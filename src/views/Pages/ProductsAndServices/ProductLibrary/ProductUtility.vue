@@ -565,7 +565,7 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
-      disabledTabOpen.value = false
+      disabledTabOpen.value = data.disabledTabOpen
     })
     .catch(() =>
       ElNotification({

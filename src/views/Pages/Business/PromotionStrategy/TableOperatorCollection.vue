@@ -159,7 +159,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref()
 const { setValues } = methods
 //set data for form edit and detail
@@ -573,8 +572,9 @@ const listProductsTable = reactive([
 
 //get list customer
 const listCustomer = ref()
+const pageIndexCustomer = ref(1)
 const callAPICustomer = async () => {
-  const res = await getAllCustomer({ PageIndex: 1, PageSize: 1000 })
+  const res = await getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
     listCustomer.value = res.data.map((customer) => ({
       value: customer.code,
@@ -634,6 +634,36 @@ const changeCustomer = (data, scope) => {
   } else {
     scope.row.code = data
   }
+}
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const ScrollCustomerTop = () => {
+  scrollCustomerTop.value = true
+}
+const noMoreCustomerData = ref(false)
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+                listCustomer.value.push({
+                  value: customer.code,
+                  label: customer.phonenumber,
+                  name: customer.name,
+                  id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
 }
 const removeCustomer = (scope) => {
   forceRemove.value = true
@@ -810,6 +840,8 @@ const getSpaSelected = (spaServices) => {
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
                     @change="(option) => changeCustomer(option, scope)"
+                    @scroll-top="ScrollCustomerTop"
+                    @scroll-bottom="ScrollCustomerBottom"
                   />
                 </template>
               </el-table-column>

@@ -249,11 +249,13 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
+        data.disabledTabOpen = false
         emit('post-data', data)
         setValues({ ProductStatus: 0 })
         loading.value = false
       }
       if (type == 'saveAndAdd') {
+        data.disabledTabOpen = true
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
         props.multipleImages
@@ -521,12 +523,13 @@ const fillAllInformation = async (data) => {
                 const UnitId = fillValue.categories[2].id
                 const OriginId = fillValue.categories[3].id
                 setValues({
+                  Name: fillValue.name,
+                  ShortDescription: fillValue.shortDescription,
+                  VerificationInfo: fillValue.verificationInfo,
                   ProductTypeId: fillValue.categories[1].value,
                   BrandId: BrandId,
                   UnitId: UnitId,
                   OriginId: OriginId,
-                  ShortDescription: fillValue.shortDescription,
-                  VerificationInfo: fillValue.verificationInfo,
                   Description: fillValue.description
                 })
                 const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, ref, watch, onBeforeMount, onUnmounted, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -59,7 +59,7 @@ const propsObj = defineProps({
   }
 })
 
-const emit = defineEmits(['updateValue', 'addnewproduct'])
+const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
 let selected = ref()
 const options = ref<Array<any>>([])
@@ -143,15 +143,17 @@ const valueChangeEvent = (val) => {
     }
   }
 }
-const handleScroll = (...val) => {
-  console.log(val)
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    emit('scrollTop')
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    emit('scrollBottom')
+  }
 }
-onBeforeMount(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
 </script>
 <template>
   <ElSelect
@@ -191,36 +193,39 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <ElOption
-      :style="`width: ${width}`"
-      v-for="(item, index) in options"
-      :key="index"
-      :value="item[identifyKey] ?? ''"
-      :label="item[identifyLabel] ?? ''"
-      :disabled="disabled"
-    >
-      <div class="select-table">
-        <ElRow type="flex" justify="space-between">
-          <ElCol
-            v-for="(key, i) in acceptKey(item)"
-            :key="i"
-            class="text-ellipsis text-center"
-            :span="Math.floor(24 / fields.length)"
-          >
-            <ElTooltip placement="left-end" :content="item[key]" effect="light">
-              <span> {{ item[key] }}</span>
-            </ElTooltip>
-          </ElCol>
-        </ElRow>
-      </div>
-    </ElOption>
+    <div @scroll="scrolling" id="content">
+      <ElOption
+        :style="`width: ${width}`"
+        v-for="(item, index) in options"
+        :key="index"
+        :value="item[identifyKey] ?? ''"
+        :label="item[identifyLabel] ?? ''"
+        :disabled="disabled"
+      >
+        <div class="select-table">
+          <ElRow type="flex" justify="space-between">
+            <ElCol
+              v-for="(key, i) in acceptKey(item)"
+              :key="i"
+              class="text-ellipsis text-center"
+              :span="Math.floor(24 / fields.length)"
+            >
+              <ElTooltip placement="left-end" :content="item[key]" effect="light">
+                <span> {{ item[key] }}</span>
+              </ElTooltip>
+            </ElCol>
+          </ElRow>
+        </div>
+      </ElOption>
+    </div>
     <slot name="underButton"> </slot>
   </ElSelect>
 </template>
 <style lang="css" scoped>
-ul li:first-child {
-  background-color: transparent;
-  color: white;
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 .el-select-custom {
   width: 100%;
@@ -229,9 +234,6 @@ ul li:first-child {
 .el-select-custom input {
   width: 100%;
   height: auto;
-}
-.el-select-dropdown__item:first-child {
-  padding: 0;
 }
 
 .el-select-custom .el-input__icon {

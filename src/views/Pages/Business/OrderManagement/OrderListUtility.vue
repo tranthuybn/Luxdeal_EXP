@@ -296,7 +296,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: 1,
   accessory: '',
-  unitName: '',
+  unitName: 'Cái',
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -369,15 +369,15 @@ interface tableDataType {
 
 const addDebtTable = ref<Array<tableDataType>>([
   {
-    createdAt: moment().format('L').toString(),
+    createdAt: '',
     content: '',
     receiptOrPaymentVoucherId: undefined,
     paymentRequestId: undefined,
     receiveMoney: '',
     paidMoney: '',
     debt: '',
-    typeOfPayment: 0,
-    paymentMethods: 1,
+    typeOfPayment: '',
+    paymentMethods: 0,
     status: 0,
     alreadyPaidForTt: false,
     statusAccountingEntry: 'Đã ghi sổ'
@@ -388,7 +388,7 @@ let debtTable = ref<Array<tableDataType>>([])
 
 const onAddDebtTableItem = () => {
   debtTable.value.push({
-    createdAt: moment().format('L').toString(),
+    createdAt: '',
     content: '',
     receiptOrPaymentVoucherId: 0,
     paymentRequestId: undefined,
@@ -701,8 +701,8 @@ let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
-  // if (ListOfProductsForSale.value[2])
-  console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
+  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
+    ListOfProductsForSale.value.pop()
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
@@ -3133,6 +3133,7 @@ onMounted(async () => {
                               t('reuse.customerInfo')
                             ]"
                             filterable
+                            width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
                             labelKey="label"

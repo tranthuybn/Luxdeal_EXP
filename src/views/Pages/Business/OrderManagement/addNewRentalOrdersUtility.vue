@@ -251,7 +251,7 @@ const percentageIcon = useIcon({ icon: 'material-symbols:percent' })
 const input = ref('')
 
 interface tableRentalProduct {
-  productManagementCode: string
+  productPropertyId: string
   productName: string
   accessory: string
   fromDate: string
@@ -267,7 +267,7 @@ interface tableRentalProduct {
 const tableData = ref<Array<tableRentalProduct>>([])
 
 const productForSale = reactive<tableRentalProduct>({
-  productManagementCode: '',
+  productPropertyId: '',
   productName: '',
   accessory: '',
   fromDate: '',
@@ -617,28 +617,30 @@ let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  if (tableData.value[tableData.value.length - 1].productPropertyId == '') tableData.value.pop()
   tableOrderDetail.value = tableData.value.map((e) => ({
-    productPropertyId: parseInt(e.productManagementCode),
+    productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
     accessory: e.accessory
   }))
   const payload = {
-    serviceType: 1,
-    fromDate: '2022-10-19T09:38:04.730Z',
-    toDate: '2022-10-19T09:38:04.730Z',
+    serviceType: 3,
+    fromDate: '2022-10-31T09:15:56.106Z',
+    toDate: '2022-10-31T09:15:56.106Z',
+    paymentPeriod: 1,
     days: 1,
     campaignId: campaignId.value,
     orderDetail: tableOrderDetail.value
   }
   const res = await getTotalOrder(payload)
 
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
+  totalPriceOrder.value = res.reduce((total, e) => {
+    total += e.totalPrice
+    return total
   }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
+  totalFinalOrder.value = res.reduce((total, e) => {
+    total += e.finalPrice
+    return total
   }, 0)
 }
 
@@ -825,6 +827,7 @@ const editData = async () => {
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
@@ -840,7 +843,6 @@ const editData = async () => {
       totalOrder.value = orderObj.totalPrice
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
-      console.log('tableData: ', tableData.value)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -886,6 +888,10 @@ const getValueOfSelected = (_value, obj, scope) => {
 const dialogAddProduct = ref(false)
 const addnewproduct = () => {
   dialogAddProduct.value = true
+  getBrandSelectOptions()
+  getUnitSelectOptions()
+  getOriginSelectOptions()
+  getCategory()
 }
 
 const quickProductCode = ref()
@@ -1189,7 +1195,7 @@ watch(
   () => tableData,
   () => {
     if (
-      tableData.value[tableData.value.length - 1].productManagementCode &&
+      tableData.value[tableData.value.length - 1].productPropertyId &&
       tableData.value[tableData.value.length - 1].quantity &&
       forceRemove.value == false &&
       type !== 'detail'
@@ -1373,12 +1379,7 @@ onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
-  callApiCity()
   editData()
-  getBrandSelectOptions()
-  getUnitSelectOptions()
-  getOriginSelectOptions()
-  getCategory()
   if (type == 'add') {
     ruleForm.orderCode = curDate
   }
@@ -2845,7 +2846,12 @@ onBeforeMount(() => {
                       :disabled="checkDisabled"
                       class="hover:bg-transparent; focus:bg-transparent"
                       text
-                      @click="dialogFormVisible = true"
+                      @click="
+                        () => {
+                          dialogFormVisible = true
+                          callApiCity()
+                        }
+                      "
                       ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
                     </el-button>
                   </p>
@@ -2971,13 +2977,13 @@ onBeforeMount(() => {
         <el-divider content-position="left">{{ t('formDemo.rentalProductList') }}</el-divider>
         <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
           <el-table-column
-            prop="productManagementCode"
+            prop="productPropertyId"
             :label="t('formDemo.productManagementCode')"
             width="150"
           >
             <template #default="props">
               <div v-if="type == 'detail'">
-                {{ props.row.productManagementCode }}
+                {{ props.row.productPropertyId }}
               </div>
               <MultipleOptionsBox
                 :fields="[

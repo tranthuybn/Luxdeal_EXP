@@ -42,7 +42,7 @@ export const getWard = async (ID) => {
   if (res) {
     wardOptions.value = res.data.map((ward) => ({
       label: ward.name,
-      value: ward.districtId
+      value: ward.code
     }))
     return wardOptions.value
   } else {

@@ -79,7 +79,8 @@ export const ORDER_API = {
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
   ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer',
-  TOTAL_ORDER: '/api/v1/Order/CalculateOrder'
+  TOTAL_ORDER: '/api/v1/Order/CalculateOrder',
+  ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -91,7 +92,8 @@ export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
-  PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment'
+  PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
+  BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts'
 }
 
 export const WAREHOUSE_API = {

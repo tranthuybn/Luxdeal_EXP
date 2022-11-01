@@ -173,7 +173,6 @@ const scrolling = (e) => {
   >
     <!-- value is tje first object when click on title -->
     <ElOption
-      :style="`width: ${width}`"
       :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
@@ -210,7 +209,11 @@ const scrolling = (e) => {
               class="text-ellipsis text-center"
               :span="Math.floor(24 / fields.length)"
             >
-              <ElTooltip placement="left-end" :content="item[key]" effect="light">
+              <ElTooltip
+                placement="left-end"
+                :content="item[key] ? item[key].toString() : ''"
+                effect="light"
+              >
                 <span> {{ item[key] }}</span>
               </ElTooltip>
             </ElCol>

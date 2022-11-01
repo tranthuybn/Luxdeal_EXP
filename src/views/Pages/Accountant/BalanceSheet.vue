@@ -1,40 +1,36 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { getAccountantBalanceList } from '@/api/Accountant'
-import { useIcon } from '@/hooks/web/useIcon'
+import { getBalanceList } from '@/api/Business'
 import TableType01 from '@/views/Pages/Components/TableDataBase.vue'
 import { h } from 'vue'
+import { filterStatusRevenueExpenditure } from '@/utils/filters'
+import { STATUS } from '@/utils/API.Variables'
 const { t } = useI18n()
 
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-
-const seeDetail = (record: Recordable, data: TableSlotDefault) => {
-  console.log(record, data)
-}
 const unitCategories = [
   { field: '', width: '50' },
   {
-    field: 'accountCode',
+    field: 'accountName',
     label: t('reuse.accountCode'),
     minWidth: '100'
   },
   {
-    field: 'accountName',
+    field: 'accountNumber',
     label: t('userDemo.username'),
-    minWidth: '150'
+    minWidth: '350'
   },
   {
-    field: 'openingBalance',
+    field: 'beginningPeriodRevenue',
     label: t('reuse.openingBalance'),
     children: [
       {
-        field: 'openingBalanceOwed',
+        field: 'beginningPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
         align: 'right'
       },
       {
-        field: 'openingBalanceCash',
+        field: 'beginningPeriodPayment',
         label: t('reuse.cash'),
         minWidth: '100',
         align: 'right'
@@ -46,13 +42,13 @@ const unitCategories = [
     label: t('reuse.arisingInThePeriod'),
     children: [
       {
-        field: 'owedArisingInThePeriod',
+        field: 'duringPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
         align: 'right'
       },
       {
-        field: 'cashArisingInThePeriod',
+        field: 'duringPeriodPayment',
         label: t('reuse.cash'),
         minWidth: '100',
         align: 'right'
@@ -64,13 +60,13 @@ const unitCategories = [
     label: t('reuse.arisingInTheEndOfPeriod'),
     children: [
       {
-        field: 'owedArisingInTheEndOfPeriod',
+        field: 'endPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
         align: 'right'
       },
       {
-        field: 'cashArisingInTheEndOfPeriod',
+        field: 'endPeriodpayment',
         label: t('reuse.cash'),
         minWidth: '100',
         align: 'right'
@@ -79,16 +75,15 @@ const unitCategories = [
   },
   {
     field: 'status',
-    label: t('reuse.operator'),
-    minWidth: '100',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h('ElButton', {
-        style: { margin: 'auto' },
-        icon: eyeIcon,
-        onClick: () => seeDetail(record, cellValue)
-      })
+    label: t('reuse.status'),
+    minWidth: '150',
+    filters: filterStatusRevenueExpenditure,
+    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
+      if (record.pepopleType == false) {
+        return h('div', STATUS[0].label)
+      } else {
+        return h('div', STATUS[1].label)
+      }
     }
   }
 ]
@@ -96,8 +91,8 @@ const unitCategories = [
 <template>
   <TableType01
     :columns="unitCategories"
-    :api="getAccountantBalanceList"
+    :api="getBalanceList"
     :selection="false"
-    isOperatorColumnCustomize
+    :customOperator="4"
   />
 </template>

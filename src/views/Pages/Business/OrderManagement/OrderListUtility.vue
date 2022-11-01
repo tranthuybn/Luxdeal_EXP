@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -27,8 +28,7 @@ import {
   ElTreeSelect,
   UploadUserFile,
   UploadProps,
-  ElMessageBox,
-  useNamespace
+  ElMessageBox
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -48,13 +48,14 @@ import {
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getTotalOrder
+  getTotalOrder,
+  getOrderTransaction
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
-import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
+// import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -295,7 +296,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: 1,
   accessory: '',
-  unitName: '',
+  unitName: 'Cái',
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -350,10 +351,57 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 
-//add row table
-// const deleteRowDebtTable = (index: number) => {
-//   debtTable.value.splice(index, 1)
-// }
+// debtTable
+interface tableDataType {
+  createdAt: string
+  content: string
+  receiptOrPaymentVoucherId: number | undefined
+  paymentRequestId: number | undefined
+  receiveMoney: string
+  paidMoney: string
+  debt: string
+  typeOfPayment: string | number
+  paymentMethods: number
+  status: number
+  alreadyPaidForTt: boolean
+  statusAccountingEntry: string
+}
+
+const addDebtTable = ref<Array<tableDataType>>([
+  {
+    createdAt: '',
+    content: '',
+    receiptOrPaymentVoucherId: undefined,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: '',
+    paymentMethods: 0,
+    status: 0,
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  }
+])
+
+let debtTable = ref<Array<tableDataType>>([])
+
+const onAddDebtTableItem = () => {
+  debtTable.value.push({
+    createdAt: '',
+    content: '',
+    receiptOrPaymentVoucherId: 0,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  })
+}
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
@@ -367,23 +415,35 @@ const onAddHistoryTableItem = () => {
     inventoryStatus: ''
   })
 }
-// const deleteRow = (index: number) => {
-//   historyTable.value.splice(index, 1)
-// }
 // Dialog change address
 
 const dialogFormVisible = ref(false)
 let dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
+
+// api địa chỉ
 const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
+const enterdetailAddress = ref()
 
+const cities = ref()
 const district = ref()
 const ward = ref()
 
-const enterdetailAddress = ref([])
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
+
+const CityChange = async (value) => {
+  district.value = await getDistrict(value)
+}
+
+const districtChange = async (value) => {
+  ward.value = await getWard(value)
+}
+
 const tableWarehouse = [
   {
     warehouseCheckbox: '',
@@ -422,17 +482,18 @@ const callCustomersApi = async () => {
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
+        code: product.code,
+        label: product.isOrganization
+          ? product.name + ' | MST ' + product.taxCode
           : product.name + ' | ' + product.phonenumber,
-        value: product.id,
         address: product.address,
-        isOrganization: product.isOrganization,
         name: product.name,
+        value: product.id.toString(),
+        isOrganization: product.isOrganization,
         taxCode: product.taxCode,
         phone: product.phonenumber,
         email: product.email,
-        id: product.id
+        id: product.id.toString()
       }))
     }
   }
@@ -466,6 +527,12 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.price = obj.price
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
+
+const getValueOfCustomerSelected = (_value, obj) => {
+  changeAddressCustomer(_value)
+  ruleForm.customerName = obj.label
+}
+
 const handleTotal = (scope) => {
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
@@ -634,6 +701,8 @@ let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
+    ListOfProductsForSale.value.pop()
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
@@ -641,8 +710,9 @@ const autoCalculateOrder = async () => {
   }))
   const payload = {
     serviceType: 1,
-    fromDate: '2022-10-19T09:38:04.730Z',
-    toDate: '2022-10-19T09:38:04.730Z',
+    fromDate: '2022-10-31T09:15:56.106Z',
+    toDate: '2022-10-31T09:15:56.106Z',
+    paymentPeriod: 1,
     days: 1,
     campaignId: campaignId.value,
     orderDetail: tableOrderDetail.value
@@ -664,6 +734,7 @@ watch(
   () => ListOfProductsForSale,
   () => {
     if (
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
@@ -680,6 +751,29 @@ watch(
   () => {
     if (checkValidate.value === true) {
       postData()
+    }
+  }
+)
+
+// change address
+let autoChangeCommune = ref()
+let autoChangeDistrict = ref()
+let autoChangeProvince = ref()
+watch(
+  () => enterdetailAddress.value,
+  () => {
+    if (enterdetailAddress.value) {
+      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
+      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
+      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
+      customerAddress.value =
+        enterdetailAddress.value +
+        ', ' +
+        autoChangeCommune.value.label +
+        ', ' +
+        autoChangeDistrict.value.label +
+        ', ' +
+        autoChangeProvince.value.label
     }
   }
 )
@@ -948,19 +1042,6 @@ const postData = async () => {
   }
 }
 
-const cities = ref()
-const callApiCity = async () => {
-  cities.value = await getCity()
-}
-
-const CityChange = async (value) => {
-  district.value = await getDistrict(value)
-}
-
-const districtChange = async (value) => {
-  ward.value = await getWard(value)
-}
-
 // total order
 let totalOrder = ref(0)
 
@@ -976,12 +1057,16 @@ let dataEdit = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id })
+    const res = await getSellOrderList({ Id: id, ServiceType: 1 })
+    const transaction = await getOrderTransaction({ id: 10 })
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
+
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaborator.name
+      ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1018,32 +1103,33 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
+    debtTable.value.push({ ...addDebtTable })
   }
 }
 
-const dataTablePrint = reactive<TableColumn[]>([
-  {
-    field: 'index',
-    label: t('reuse.index'),
-    type: 'index',
-    align: 'center'
-  },
-  {
-    field: 'employeeCode',
-    label: t('reuse.employeeCode'),
-    minWidth: '250'
-  },
-  {
-    field: 'employeeName',
-    label: t('reuse.employeeName'),
-    minWidth: '150'
-  },
-  {
-    field: 'gender',
-    label: t('reuse.gender'),
-    minWidth: '100'
-  }
-])
+// const dataTablePrint = reactive<TableColumn[]>([
+//   {
+//     field: 'index',
+//     label: t('reuse.index'),
+//     type: 'index',
+//     align: 'center'
+//   },
+//   {
+//     field: 'employeeCode',
+//     label: t('reuse.employeeCode'),
+//     minWidth: '250'
+//   },
+//   {
+//     field: 'employeeName',
+//     label: t('reuse.employeeName'),
+//     minWidth: '150'
+//   },
+//   {
+//     field: 'gender',
+//     label: t('reuse.gender'),
+//     minWidth: '100'
+//   }
+// ])
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1233,52 +1319,6 @@ const alreadyPaidForTt = ref(true)
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 
-interface tableDataType {
-  dateOfPayment: string
-  col: number
-  content: string
-  formCode: string
-  collected: string
-  spent: string
-  salesDebt: string
-  edited: boolean
-  paymentType: string | number
-  alreadyPaidForTt: boolean
-  statusAccountingEntry: string
-}
-
-const debtTable = ref<Array<tableDataType>>([
-  {
-    dateOfPayment: moment().format('L').toString(),
-    col: 1,
-    content: 'Phiếu thanh toán',
-    formCode: 'PC354344',
-    collected: '',
-    spent: '',
-    salesDebt: '0 đ',
-    edited: true,
-    paymentType: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  }
-])
-
-const onAddDebtTableItem = () => {
-  debtTable.value.push({
-    dateOfPayment: moment().format('L').toString(),
-    col: 1,
-    content: '',
-    formCode: '',
-    collected: '10,000,000 đ',
-    spent: '',
-    salesDebt: '',
-    edited: true,
-    paymentType: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
-  })
-}
-
 const tableAccountingEntry = [
   {
     content: 'Trả lại tiền cọc cho khách',
@@ -1318,7 +1358,6 @@ const tableAccountingEntry = [
 // ]
 
 // fake tạm option thêm nhanh sản phẩm
-
 const value = ref('')
 const payment = choosePayment[0].value
 
@@ -1470,8 +1509,8 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-function printPage(id: String) {
-  const prtHtml = document.getElementById(id).innerHTML
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1481,7 +1520,7 @@ function printPage(id: String) {
     '',
     'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
   )
-  WinPrint.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
@@ -1491,11 +1530,11 @@ function printPage(id: String) {
                   </body>
                 </html>`)
 
-  WinPrint.document.close()
-  WinPrint.focus()
+  WinPrint?.document.close()
+  WinPrint?.focus()
   setTimeout(() => {
-    WinPrint.print()
-    WinPrint.close()
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 
@@ -1508,10 +1547,7 @@ onBeforeMount(async () => {
   callApiCollaborators()
   await callApiProductList()
   callApiCity()
-  getBrandSelectOptions()
-  getUnitSelectOptions()
-  getOriginSelectOptions()
-  getCategory()
+
   if (type == 'add') {
     ruleForm.orderCode = curDate
   }
@@ -1814,18 +1850,6 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <!-- <el-select
-              v-model="productCharacteristics"
-              multiple
-              :placeholder="t('formDemo.selectFeature')"
-            >
-              <el-option
-                v-for="item in optionsCharacteristic"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select> -->
             <ProductAttribute
               :value="productCharacteristics"
               @change-value="productAttributeValue"
@@ -1853,7 +1877,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
-
       <el-dialog
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
@@ -1961,7 +1984,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- phieu in -->
-
       <div id="billDepositPrint">
         <slot>
           <billPrint :dataEdit="dataEdit" :nameDialog="nameDialog" />
@@ -2250,7 +2272,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu bán hàng -->
-
       <el-dialog
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.salesSlipInformation')"
@@ -2382,7 +2403,6 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin phiếu đặt cọc/tạm ứng -->
-
       <el-dialog
         v-model="dialogDepositSlipAdvance"
         :title="t('formDemo.depositSlipAdvanceinformation')"
@@ -2971,6 +2991,7 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -3105,21 +3126,23 @@ onMounted(async () => {
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <el-select
-                            :disabled="checkDisabled"
-                            v-model="ruleForm.customerName"
+                          <MultipleOptionsBox
+                            :fields="[
+                              t('reuse.customerCode'),
+                              t('reuse.customerName'),
+                              t('reuse.customerInfo')
+                            ]"
                             filterable
-                            :clearable="true"
-                            :placeholder="t('formDemo.chooseACustomer')"
-                            @change="changeAddressCustomer"
-                          >
-                            <el-option
-                              v-for="item in optionsCustomerApi"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
+                            width="700px"
+                            :items="optionsCustomerApi"
+                            valueKey="value"
+                            labelKey="label"
+                            :hiddenKey="['id']"
+                            :placeHolder="'Chọn khách hàng'"
+                            :defaultValue="ruleForm.customerName"
+                            :clearable="false"
+                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                          />
                           <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
@@ -3535,7 +3558,17 @@ onMounted(async () => {
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                    <div class="text-base text-blue-400 cursor-pointer pl-2" @click="addnewproduct"
+                    <div
+                      class="text-base text-blue-400 cursor-pointer pl-2"
+                      @click="
+                        () => {
+                          addnewproduct()
+                          getBrandSelectOptions()
+                          getUnitSelectOptions()
+                          getOriginSelectOptions()
+                          getCategory()
+                        }
+                      "
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div
                     >
                   </div>
@@ -3580,10 +3613,10 @@ onMounted(async () => {
           />
           <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
             <template #default="props">
-              <el-input
-                v-if="type != 'detail'"
+              <CurrencyInputComponent
                 v-model="props.row.price"
-                @change="changePriceRowTable(props)"
+                v-if="type != 'detail'"
+                @change="changePriceRowTable"
               />
               <div v-else>{{
                 props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
@@ -3635,7 +3668,6 @@ onMounted(async () => {
                 @click="
                   () => {
                     openDialogChoosePromotion = true
-                    callPromoApi()
                   }
                 "
                 style="padding: 0"
@@ -3800,16 +3832,11 @@ onMounted(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <!-- <div class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              @click="dialogSalesSlipInfomation = true"
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
-          </div> -->
-          <div v-if="statusOrder == 1" class="w-[100%] flex ml-1 gap-4">
+          <!-- Không thay đổi giá -->
+          <div
+            v-if="statusOrder == 1 && priceChangeOrders == false"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -3843,6 +3870,47 @@ onMounted(async () => {
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  statusOrder = 9
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
+          </div>
+
+          <!-- Có thay đổi giá -->
+          <div
+            v-else-if="statusOrder == 1 && priceChangeOrders == true"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
+              t('formDemo.paymentSlip')
+            }}</el-button>
+            <el-button
+              @click="dialogDepositSlipAdvance = true"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.depositSlipAdvance') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  postData()
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
               @click="
@@ -4045,25 +4113,25 @@ onMounted(async () => {
         >
           <el-table-column type="selection" width="40" align="center" />
           <el-table-column
-            prop="dateOfPayment"
-            :label="`${t('formDemo.dateOfPayment')}`"
+            prop="createdAt"
+            :label="t('formDemo.dateOfPayment')"
             min-width="150"
             align="center"
           >
             <template #default="data">
               <el-date-picker
-                v-model="data.row.dateOfPayment"
+                v-model="data.row.createdAt"
                 v-if="type != 'detail'"
                 type="date"
                 placeholder="Pick a day"
                 format="DD/MM/YYYY"
               />
-              <div v-else>{{ data.row.dateOfPayment }}</div>
+              <div v-else>{{ data.row.createdAt }}</div>
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="`${t('formDemo.certificateInformation')}`"
+            :label="t('formDemo.certificateInformation')"
             min-width="240"
           >
             <template #default="data">
@@ -4072,7 +4140,8 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            :label="`${t('formDemo.receiptOrPayment')}`"
+            prop="receiptOrPaymentVoucherId"
+            :label="t('formDemo.receiptOrPayment')"
             min-width="120"
             align="left"
           >
@@ -4086,71 +4155,76 @@ onMounted(async () => {
               >
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('formDemo.paymentOrder')}`" align="left" min-width="150">
+          <el-table-column
+            prop="paymentRequestId"
+            :label="t('formDemo.paymentOrder')"
+            align="left"
+            min-width="150"
+          >
             <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">DNTT6543</div>
           </el-table-column>
           <el-table-column
-            prop="collected"
+            prop="receiveMoney"
             :label="t('formDemo.collected')"
             align="left"
             min-width="150"
           >
             <template #default="data">
               <el-input
-                v-model="data.row.collected"
+                v-model="data.row.receiveMoney"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.collected }}</div>
+              <div v-else>{{ data.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.spent')" min-width="150">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
               <el-input
-                v-model="data.row.spent"
+                v-model="data.row.paidMoney"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.spent }}</div>
+              <div v-else>{{ data.row.paidMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="salesDebt" :label="t('formDemo.salesDebt')" min-width="150">
+          <el-table-column prop="deibt" :label="t('formDemo.salesDebt')" min-width="150">
             <template #default="data">
               <el-input
-                v-model="data.row.salesDebt"
+                v-model="data.row.deibt"
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
               <div v-else class="text-right">
-                {{ data.row.salesDebt }}
+                {{ data.row.deibt }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.receivableOrPayable')" min-width="120">
-            <div>Phải thu</div>
-          </el-table-column>
-          <el-table-column prop="paymentType" :label="t('formDemo.choosePayment')" min-width="180">
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            min-width="120"
+          >
             <template #default="props">
-              <el-select v-if="type != 'detail'" v-model="props.row.paymentType" class="m-2">
-                <el-option
-                  v-for="(item, index) in choosePayment"
-                  :key="index"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <div v-else>{{ props.row.paymentType }}</div>
+              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
             </template>
           </el-table-column>
           <el-table-column
-            :label="t('formDemo.statusAccountingEntry')"
-            prop="statusAccountingEntry"
-            align="center"
-            min-width="120"
-          />
+            prop="paymentMethods"
+            :label="t('formDemo.choosePayment')"
+            min-width="180"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.paymentMethods == 0
+                  ? t('formDemo.cashPayment')
+                  : t('formDemo.cardPayment')
+              }}</div>
+            </template>
+          </el-table-column>
           <el-table-column
             prop="alreadyPaidForTt"
-            :label="`${t('formDemo.alreadyPaidForTt')}`"
+            :label="t('formDemo.alreadyPaidForTt')"
             align="center"
             min-width="70"
           >
@@ -4158,10 +4232,22 @@ onMounted(async () => {
               <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
             </template>
           </el-table-column>
+          <el-table-column
+            :label="t('formDemo.statusAccountingEntry')"
+            prop="status"
+            align="center"
+            min-width="120"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+              }}</div>
+            </template>
+          </el-table-column>
+
           <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
             <template #default>
               <div class="flex">
-                <!-- @click.prevent="deleteRowDebtTable(scope.$index)" -->
                 <button
                   @click="dialogSalesSlipInfomation = true"
                   v-if="type != 'detail'"
@@ -4170,12 +4256,6 @@ onMounted(async () => {
                   {{ t('reuse.detail') }}
                 </button>
                 <div v-else>{{ t('reuse.detail') }}</div>
-                <!-- <button
-                  class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                  @click.prevent="deleteRowDebtTable(scope.$index)"
-                >
-                  {{ t('reuse.delete') }}
-                </button> -->
               </div>
             </template>
           </el-table-column>

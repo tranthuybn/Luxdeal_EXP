@@ -5,6 +5,7 @@ import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
 import { getSpaById, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
+import { formatPrice, formatNumber } from '@/hooks/web/useFomat'
 import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -91,13 +92,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
-      formatter: (value) =>
-        `${value}`
-          .replace(/^\s+$/gm, '')
-          .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
-      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
+      formatter: formatPrice,
       suffixIcon: h('div', 'đ')
     }
   },
@@ -110,13 +105,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
-      formatter: (value) =>
-        value
-          .replace(/^\s+$/gm, '')
-          .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
-      parser: (value) => value.replace(/\$\s?|(,*)/g, ''),
+      formatter: formatPrice,
       suffixIcon: h('div', 'đ')
     }
   },
@@ -129,11 +118,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberMinute'),
-      formatter: (value) =>
-        value
-          .replace(/^\s+$/gm, '')
-          .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/gi, ''),
+      formatter: formatNumber,
       suffixIcon: h('div', 'phút')
     }
   },
@@ -146,11 +131,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberDays'),
-      formatter: (value) =>
-        value
-          .replace(/^\s+$/gm, '')
-          .replace(/^[a-zA-Z]*$/gm, '')
-          .replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\| .<>\/?~]/gi, ''),
+      formatter: formatNumber,
       suffixIcon: h('div', 'ngày')
     }
   },
@@ -183,21 +164,41 @@ const rules = reactive({
   shortDescription: [
     { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
-    { validator: ValidService.checkNameLength.validator },
-    required()
+    { validator: ValidService.checkNameLength.validator }
   ],
   description: [
-    required(),
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkDescriptionLength.validator }
   ],
   cost: [required()],
-  time: [required()]
+  time: [required()],
+  promotePrice: [
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    }
+  ],
+  warranty: [
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        callback()
+      },
+      required: false,
+      trigger: 'blur'
+    }
+  ]
 })
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
   formDataCustomize.value.Images = formData.photos
+  formDataCustomize.value.cost = formatPrice(formData.cost)
+  formDataCustomize.value.promotePrice = formatPrice(formData.promotePrice)
   formDataCustomize.value['status'] = []
   if (formData.isActive == true) {
     formDataCustomize.value['status'].push('active')
@@ -228,14 +229,14 @@ const customPostData = (data) => {
   var curDate = moment().format()
   customData.Id = id
   customData.Photo = data.Images
-  customData.Cost = data.cost.replace(/\./g, '')
-  customData.PromotePrice = data.promotePrice.replace(/\./g, '')
-  customData.Time = data.time.trim()
-  customData.Warranty = data.warranty.trim()
-  customData.Description = data.description.trim()
-  customData.ShortDescription = data.shortDescription.trim()
-  customData.Name = data.name.trim()
-  customData.Code = data.code.trim()
+  customData.Cost = data.cost ? data.cost.replace(/\./g, '') : 0
+  customData.PromotePrice = data.promotePrice ? data.promotePrice.replace(/\./g, '') : 0
+  customData.Time = data.time
+  customData.Warranty = data.warranty
+  customData.Description = data.description
+  customData.ShortDescription = data.shortDescription
+  customData.Name = data.name
+  customData.Code = data.code
   customData.UpdatedBy = 'anle'
   customData.CreatedBy = 'anle'
   customData.UpdatedAt = curDate.toString()
@@ -289,9 +290,9 @@ const postData = async (data) => {
           params: { backRoute: 'products-services.ServiceLibrary.SpaService' }
         })
     })
-    .catch((error) =>
+    .catch((res) =>
       ElNotification({
-        message: error,
+        message: res.response.data.message,
         type: 'warning'
       })
     )

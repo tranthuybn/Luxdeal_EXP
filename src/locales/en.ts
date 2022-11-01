@@ -1471,6 +1471,8 @@ export default {
     selectWardOrCommune: 'Select ward/commune',
     enterDetailedAddress: 'Enter detailed address',
     CheckCode: 'Please enter the correct code format',
+    CustomersDoNotBankAccount: 'Customers do not have a bank account',
+    pleaseAddBankAccount: 'Please add a bank account',
     // product
     under256Characters: 'Under 256 characters',
     enterSearchingData: 'Please enter searching data',

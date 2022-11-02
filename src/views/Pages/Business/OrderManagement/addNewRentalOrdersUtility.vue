@@ -49,7 +49,8 @@ import {
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
 

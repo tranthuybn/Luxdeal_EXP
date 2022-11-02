@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+
 import {
   ElCollapse,
   ElCollapseItem,

@@ -565,6 +565,7 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
+      //disable tab when click saveAndAdd button
       disabledTabOpen.value = data.disabledTabOpen
     })
     .catch(() =>

@@ -800,6 +800,7 @@ export default {
     representative: 'Người đại diện',
     enterRepresentativeName: 'Nhập tên người đại diện',
     customerCode: 'Mã khách hàng',
+    inputLotCode: 'Mã lot nhập',
     customer: 'Khách hàng',
     gender: 'Giới tính',
     contact: 'Liên hệ',
@@ -871,7 +872,9 @@ export default {
     typeOfTransfer: 'Loại hình chuyển kho',
     location: 'Vị trí',
     amountImport: 'Số lượng nhập',
+    amountImportLot: 'Số lượng lot nhập',
     inventory: 'Tồn các kho',
+    quantityInventory: 'Số lượng tồn kho',
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
@@ -1118,6 +1121,7 @@ export default {
     stopShowAppWeb: 'Dừng hiển thị app/web user',
     stopActive: 'Dừng hoạt động',
     addImage: 'Thêm ảnh',
+    transfer: 'Chuyển kho',
     //warning input
     warningInputNumber: 'Vui lòng nhập số',
     warningMoneyGreater: 'Vui lòng nhập khoảng tiền hợp lí',
@@ -1272,6 +1276,7 @@ export default {
     rentalPriceTableByQuantity: 'Bảng tính giá thuê theo số lượng',
     importExportDate: 'Ngày nhập/xuất',
     importExportCode: 'Mã đơn nhập/xuất',
+    importTransferWarehouseCode: 'Mã phiếu nhập/chuyển kho',
     importExportForm: 'Hình thức nhập/xuất',
     importExportWarehouse: 'Kho nhập/xuất',
     importWarehouse: 'Kho nhập',
@@ -1337,6 +1342,7 @@ export default {
     isNotEqual: 'Không bằng nhau',
     phoneNumberFormat: 'Không phải số điện thoại',
     emailFormat: 'Vui lòng nhập đúng định dạng email',
+    linkFormat: 'Vui lòng nhập đúng định dạng link',
     dateTimeFormat: 'Định dạng ngày giờ không đúng',
     dateFormat: 'Định dạng ngày không đúng',
     checkEmoji: 'Vui lòng không nhập icon',
@@ -1577,9 +1583,19 @@ export default {
     // product
     under256Characters: 'Dưới 256 ký tự',
     citizenIdentificationNumber: 'Số cccd/cmnd',
+    CustomersDoNotBankAccount: 'khách hàng chưa có tài khoản ngân hàng',
+    pleaseAddBankAccount: 'Vui lòng thêm tài khoản ngân hàng',
     enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm',
     sameQuantity: 'Không được nhập cùng 1 số lượng',
     fillProductInformation: 'Có muốn điền thông tin của sản phẩm có sẵn không ?',
-    notification: 'Thông báo'
+    notification: 'Thông báo',
+    // ware house
+    profileWareHouse: 'Thông tin chi tiết phiếu nhập kho',
+    petitioner: 'Người yêu cầu',
+    selectObject: 'Chọn đối tượng',
+    importedProductsWareHouse: 'Sản phẩm nhập kho',
+    receiptStatus: 'Trạng thái phiếu nhập kho',
+    productType: 'Loại hình sản phẩm',
+    conditionProducts: 'Tình trạng sản phẩm'
   }
 }

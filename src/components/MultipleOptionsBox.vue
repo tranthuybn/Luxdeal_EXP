@@ -249,6 +249,10 @@ const scrolling = (e) => {
   background-color: #4c89e5;
   color: white;
 }
+
+.el-select-dropdown__item {
+  padding: 0;
+}
 ::v-deep(.el-input__wrapper) {
   cursor: default !important;
 }

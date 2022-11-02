@@ -134,9 +134,7 @@ const callCustomersApi = async () => {
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.code,
+        label: product.code + ' | ' + product.name,
         value: product.code,
         address: product.address,
         isOrganization: product.isOrganization,
@@ -185,42 +183,28 @@ const changeAddressCustomer = (data) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.email = result.email
-      infoCompany.representative = result.representative
-      infoCompany.phonenumber = result.phonenumber
-      infoCompany.address = result.address
-      infoCompany.bankId = result.bankId
-      infoCompany.accountName = result.accountName
-      infoCompany.accountNumber = result.accountNumber
-      infoCompany.bankName = result.bankName
-      infoCompany.CustomerId = result.CustomerId
-      infoCompany.cccd = result.cccd
-      infoCompany.cccdCreateAt = result.cccdCreateAt
-      infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-      infoCompany.sex = result.sex
-      infoCompany.doB = result.doB
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = result.name
+    infoCompany.taxCode = result.taxCode
+    infoCompany.email = result.email
+    infoCompany.representative = result.representative
+    infoCompany.phonenumber = result.phonenumber
+    infoCompany.address = result.address
+    infoCompany.bankId = result.bankId
+    infoCompany.accountName = result.accountName
+    infoCompany.accountNumber = result.accountNumber
+    infoCompany.bankName = result.bankName
+    infoCompany.CustomerId = result.CustomerId
+    infoCompany.cccd = result.cccd
+    infoCompany.cccdCreateAt = result.cccdCreateAt
+    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
+    infoCompany.sex = result.sex
+    infoCompany.doB = result.doB
+    if (!infoCompany.bankId) {
+      ElNotification({
+        message: t('reuse.CustomersDoNotBankAccount'),
+        type: 'warning'
+      })
     }
   } else {
     customerAddress.value = ''
@@ -269,28 +253,7 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 const disabledForm = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'detail') {
-      disabledForm.value = true
-      disabledTable.value = true
-    }
-    if (type === 'detail' || type === 'edit') {
-      getTableValue()
-      disabledTable.value = true
-    }
-    if (type === 'add' || type == ':type') {
-      getGenCodeCollaborator()
 
-      disabledTable.value = true
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 watch(
   () => checkValidate.value,
   () => {
@@ -319,7 +282,7 @@ type FormDataPost = {
   Discount: number
   AccountNumber: string
   AccountName: string
-  BankId: number
+  BankId: number | null
   Files?: any
 }
 const EmptyCustomData = {} as FormDataInput
@@ -331,7 +294,7 @@ const customPostData = (FormData) => {
   customData.Discount = parseInt(FormData.Discount)
   customData.AccountNumber = infoCompany.accountNumber
   customData.AccountName = infoCompany.accountName
-  customData.BankId = parseInt(infoCompany.bankId)
+  customData.BankId = infoCompany.bankId ? parseInt(infoCompany.bankId) : null
   customData.Files = ListFileUpload.value
     .map((file) => file.raw)
     .filter((file) => file !== undefined)
@@ -389,7 +352,7 @@ const setFormValue = async () => {
     }
     FormData.customersValue = {
       label: formValue.value.code + ' | ' + formValue.value.accountName,
-      value: formValue.value.id
+      value: formValue.value.code
     }
     setValues(formValue.value)
   } else {
@@ -428,8 +391,6 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
 const rules = reactive<FormRules>({
   Discount: [
     required(),
-    { validator: notSpecialCharacters },
-    { validator: ValidService.checkPositiveNumber.validator },
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (value > 100) {
@@ -457,51 +418,77 @@ const clear = async () => {
     (infoCompany.bankName = ''),
     (infoCompany.CustomerId = '')
 }
+watch(
+  () => type,
+  () => {
+    if (type === 'detail') {
+      disabledForm.value = true
+      disabledTable.value = true
+    }
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+      disabledTable.value = true
+    }
+    if (type === 'add' || type == ':type') {
+      getGenCodeCollaborator()
+      disabledTable.value = true
+      FormData.CollaboratorStatus = true
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
     const data = customPostData(FormData)
-    if (type === 'edit') {
-      const payload = {
-        id: id,
-        FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
-        Files: data.Files.filter((file) => file !== undefined)
+    if (data.BankId) {
+      if (type === 'edit') {
+        const payload = {
+          id: id,
+          FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
+          Files: data.Files.filter((file) => file !== undefined)
+        }
+        await updateCollaborators({ ...payload, ...data })
+          .then(() => {
+            ElNotification({
+              message: t('reuse.updateSuccess'),
+              type: 'success'
+            }),
+              push({
+                name: 'business.collaborators.collaboratorsList',
+                params: { backRoute: 'business.collaborators.collaboratorsList' }
+              })
+          })
+          .catch(() =>
+            ElNotification({
+              message: t('reuse.updateFail'),
+              type: 'warning'
+            })
+          )
+      } else {
+        await addNewCollaborators(FORM_IMAGES(data))
+          .then(() => {
+            ElNotification({
+              message: t('reuse.addSuccess'),
+              type: 'success'
+            }),
+              push({
+                name: 'business.collaborators.collaboratorsList',
+                params: { backRoute: 'business.collaborators.collaboratorsList' }
+              })
+          })
+          .catch((error) =>
+            ElNotification({
+              message: error,
+              type: 'warning'
+            })
+          )
       }
-      await updateCollaborators({ ...payload, ...data })
-        .then(() => {
-          ElNotification({
-            message: t('reuse.updateSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: 'business.collaborators.collaboratorsList',
-              params: { backRoute: 'business.collaborators.collaboratorsList' }
-            })
-        })
-        .catch(() =>
-          ElNotification({
-            message: t('reuse.updateFail'),
-            type: 'warning'
-          })
-        )
     } else {
-      await addNewCollaborators(FORM_IMAGES(data))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: 'business.collaborators.collaboratorsList',
-              params: { backRoute: 'business.collaborators.collaboratorsList' }
-            })
-        })
-        .catch((error) =>
-          ElNotification({
-            message: error,
-            type: 'warning'
-          })
-        )
+      ElMessage.error(t('reuse.pleaseAddBankAccount'))
     }
   }
 }
@@ -547,51 +534,57 @@ const activeName = ref(collapse[0].name)
               }}</el-divider>
 
               <ElFormItem :label="t('formDemo.CollaboratorCode')" prop="CollaboratorId">
-                <div>{{ CollaboratorId }}</div>
+                <div class="ml-5">{{ CollaboratorId }}</div>
               </ElFormItem>
               <ElFormItem class="mb-7" :label="t('formDemo.discountCollaborator')" prop="Discount">
-                <ElInput
-                  v-model="FormData.Discount"
-                  size="default"
-                  :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
-                  :suffixIcon="h('div', '%')"
-                  :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
-                />
+                <div class="flex">
+                  <label><span class="text-red-600"> *</span></label>
+                  <ElInput
+                    v-model="FormData.Discount"
+                    size="default"
+                    :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
+                    :suffixIcon="h('div', '%')"
+                    :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
+                  />
+                </div>
               </ElFormItem>
               <el-divider class="mt-10" content-position="left">{{
                 t('reuse.customerInfo')
               }}</el-divider>
               <ElFormItem class="mt-5" :label="t('formDemo.chooseACustomer')" prop="customersValue">
-                <ElSelect
-                  v-model="FormData.customersValue"
-                  filterable
-                  @clear="clear()"
-                  :clearable="false"
-                  size="default"
-                  :placeholder="t('formDemo.chooseACustomer')"
-                  @change="changeAddressCustomer"
-                >
-                  <ElOption
-                    v-for="item in optionsCustomerApi"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </ElSelect>
+                <div class="flex">
+                  <label><span class="text-red-600"> *</span></label>
+                  <ElSelect
+                    v-model="FormData.customersValue"
+                    filterable
+                    @clear="clear()"
+                    :clearable="false"
+                    size="default"
+                    :placeholder="t('formDemo.chooseACustomer')"
+                    @change="changeAddressCustomer"
+                  >
+                    <ElOption
+                      v-for="item in optionsCustomerApi"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </ElSelect>
+                </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">
                 <div class="leading-4">
-                  <div>{{ infoCompany.name }}</div>
+                  <div class="ml-5">{{ infoCompany.name }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
                 <div class="leading-4">
-                  <div>{{ infoCompany.taxCode }}</div>
+                  <div class="ml-5">{{ infoCompany.taxCode }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.represent')" v-if="infoCompany.representative">
                 <div class="leading-4">
-                  <div>{{ infoCompany.representative }}</div>
+                  <div class="ml-5">{{ infoCompany.representative }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
@@ -601,7 +594,7 @@ const activeName = ref(collapse[0].name)
                 v-if="infoCompany.phonenumber"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
+                  <div class="ml-5">{{ infoCompany.phonenumber }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
@@ -611,17 +604,17 @@ const activeName = ref(collapse[0].name)
                 v-if="infoCompany.email"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.email }}</div>
+                  <div class="ml-5">{{ infoCompany.email }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
-                class="w-[33%]"
+                class="w-[35%]"
                 style="display: inline-block"
                 :label="t('reuse.citizenIdentificationNumber')"
                 v-if="infoCompany.cccd"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.cccd }}</div>
+                  <div class="ml-5">{{ infoCompany.cccd }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
@@ -630,7 +623,7 @@ const activeName = ref(collapse[0].name)
                 v-if="infoCompany.cccdCreateAt"
               >
                 <div class="leading-4">
-                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
+                  <div class="ml-5">{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
@@ -639,7 +632,7 @@ const activeName = ref(collapse[0].name)
                 v-if="infoCompany.cccdPlaceOfGrant"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
+                  <div class="ml-5">{{ infoCompany.cccdPlaceOfGrant }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
@@ -649,32 +642,34 @@ const activeName = ref(collapse[0].name)
                 v-if="infoCompany.doB"
               >
                 <div class="leading-4">
-                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
+                  <div class="ml-5">{{ dateTimeFormat(infoCompany.doB) }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="display: inline-block"
                 :label="t('reuse.gender')"
-                v-if="infoCompany.sex"
+                v-if="!infoCompany.taxCode"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
+                  <div class="ml-5">{{
+                    infoCompany.sex ? t('reuse.male') : t('reuse.female')
+                  }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
                 <div class="leading-4">
-                  <div>{{ infoCompany.address }}</div>
+                  <div class="ml-5">{{ infoCompany.address }}</div>
                 </div>
               </ElFormItem>
               <ElFormItem
                 style="align-items: flex-start"
                 :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode"
+                v-if="infoCompany.bankId"
               >
                 <div class="leading-4">
-                  <div>{{ infoCompany.accountName }}</div>
-                  <div>{{ infoCompany.accountNumber }}</div>
-                  <div>{{ infoCompany.bankName }}</div>
+                  <div class="ml-5">{{ infoCompany.accountName }}</div>
+                  <div class="ml-5">{{ infoCompany.accountNumber }}</div>
+                  <div class="ml-5">{{ infoCompany.bankName }}</div>
                 </div>
               </ElFormItem>
               <el-divider content-position="left">{{ t('reuse.statusAndAccount') }}</el-divider>
@@ -682,6 +677,7 @@ const activeName = ref(collapse[0].name)
               <ElFormItem :label="t('reuse.status')" style="align-items: flex-start">
                 <div class="flex items-center w-[80%] gap-4">
                   <ElCheckbox
+                    class="ml-5"
                     v-model="FormData.CollaboratorStatus"
                     :label="t('formDemo.isActive')"
                     size="large"
@@ -693,7 +689,7 @@ const activeName = ref(collapse[0].name)
                     v-if="type === 'add' || type === ':type' || FormData.isActive == false"
                     class="w-[80%]"
                     ><span
-                      class="pl-4 pr-6 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent"
+                      class="pl-4 ml-5 pr-6 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent"
                       >{{ t('reuse.approval') }}</span
                     >
                   </div>
@@ -880,8 +876,15 @@ const activeName = ref(collapse[0].name)
 ::v-deep(.fix-full-width > .el-select .el-input) {
   width: 100% !important;
 }
+::v-deep(.el-input__wrapper) {
+  margin-left: 15px;
+}
+
 .header-icon {
   margin-right: 10px;
+}
+::v-deep(.el-form-item__label) {
+  padding: 0;
 }
 .after {
   display: flex;

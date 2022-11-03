@@ -17,49 +17,50 @@ export const wareHouse = [
   },
   {
     field: 'productCode',
-    label: t('reuse.productCode'),
+    label: t('reuse.inputLotCode'),
     minWidth: '150'
   },
   {
     field: 'managementCode',
-    label: t('reuse.managementCode'),
+    label: t('reuse.importTransferWarehouseCode'),
     minWidth: '150'
   },
   {
     field: 'productName',
-    label: t('reuse.productName'),
+    label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
     field: 'description',
-    label: t('reuse.description'),
-    minWidth: '150'
+    label: t('reuse.typeOfProduct'),
+    minWidth: '150',
+    filters: filterLocation
   },
   {
     field: 'characteristic',
-    label: t('reuse.featureGroup'),
+    label: t('reuse.productCode'),
     minWidth: '100'
   },
   {
     field: 'accessory',
-    label: t('reuse.accessory'),
+    label: t('reuse.managementCode'),
     minWidth: '100'
   },
   {
     field: 'singleEntryCode',
-    label: t('reuse.singleEntryCode'),
+    label: t('reuse.productInformation'),
     minWidth: '100'
   },
 
   {
     field: 'typeOfFirstEntry',
-    label: t('reuse.typeOfFirstEntry'),
+    label: t('reuse.accessory'),
     minWidth: '100',
     filters: filterService
   },
   {
     field: 'typeOfTransfer',
-    label: t('reuse.typeOfTransfer'),
+    label: t('reuse.category'),
     minWidth: '100'
   },
   {
@@ -76,13 +77,18 @@ export const wareHouse = [
   },
   {
     field: 'amountImport',
-    label: t('reuse.amountImport'),
+    label: t('reuse.image'),
+    minWidth: '100'
+  },
+  {
+    field: 'amountImport',
+    label: t('reuse.amountImportLot'),
     minWidth: '100',
     sortable: true
   },
   {
     field: 'inventory',
-    label: t('reuse.inventory'),
+    label: t('reuse.quantityInventory'),
     minWidth: '100',
     sortable: true
   },
@@ -114,11 +120,6 @@ export const wareHouse = [
     label: t('reuse.firstEntryDate'),
     minWidth: '100',
     sortable: true
-  },
-  {
-    field: 'stockCard',
-    label: t('reuse.stockCard'),
-    minWidth: '100'
   },
   {
     field: 'status',

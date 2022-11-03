@@ -22,7 +22,7 @@
       :confirmation-deletion-message="'Are you sure? (you can customize this message)'"
       :title-image-url="titleImageUrl"
       :disable-user-list-toggle="false"
-      @onType="handleOnType"
+      @on-type="handleOnType"
       @edit="editMessage"
       @remove="removeMessage"
   /></div>

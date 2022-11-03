@@ -136,13 +136,15 @@ export default {
     },
     watchScrollList() {
       resizeObserver = new ResizeObserver(() => {
-        const value = this.$refs.scrollList.scrollHeight - this.$refs.scrollList.scrollTop
-        if (
-          this.initialScrollTop === this.$refs.scrollList.scrollTop ||
-          (this.$refs.scrollList.scrollTop > this.initialScrollTop &&
-            value > this.$refs.scrollList.offsetHeight)
-        ) {
-          this._scrollDown()
+        if (this.$refs.scrollList) {
+          const value = this.$refs.scrollList.scrollHeight - this.$refs.scrollList.scrollTop
+          if (
+            this.initialScrollTop === this.$refs.scrollList.scrollTop ||
+            (this.$refs.scrollList.scrollTop > this.initialScrollTop &&
+              value > this.$refs.scrollList.offsetHeight)
+          ) {
+            this._scrollDown()
+          }
         }
       })
 
@@ -152,7 +154,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .sc-message-list {
   height: 80%;
   overflow-y: auto;

@@ -160,3 +160,44 @@ export const typeOfPeople = {
   2: 'Cộng tác viên',
   3: 'Nhân viên'
 }
+
+export const API_ORDER = [
+  {
+    value: 0,
+    key: 1,
+    label: 'orderSell'
+  },
+  {
+    value: 1,
+    key: 3,
+    label: 'orderRental'
+  },
+  {
+    value: 2,
+    key: 2,
+    label: 'orderDeposit'
+  },
+  {
+    value: 3,
+    key: 4,
+    label: 'orderPawn'
+  },
+  {
+    value: 4,
+    key: 5,
+    label: 'orderSpa'
+  }
+]
+
+export const STATUS = [
+  {
+    value: false,
+    key: 1,
+    label: 'Không hoạt động'
+  },
+  {
+    value: true,
+    key: 1,
+    label: 'Đang hoạt động'
+  }
+]

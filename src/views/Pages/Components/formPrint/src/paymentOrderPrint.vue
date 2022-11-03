@@ -3,6 +3,7 @@
     <div class="basis-4/12">
       <img src="@/assets/imgs/images.png" />
     </div>
+
     <div class="basis-8/12">
       <div class="font-bold text-2xl uppercase pl-[32px]"> Giấy đề nghị thanh toán </div>
       <el-divider />
@@ -13,25 +14,104 @@
         >
         <div>BM_02-13_01/v1.0</div>
       </div>
-      <div>
-        <div class="flex">
-          <label class="">{{ t('reuse.phoneNumber') }} :</label>
-          <div class="">098 23 56789</div>
+      <div class="float-right">
+        <div class="flex pb-1">
+          <label class="mr-2 font-bold">Số: </label>
+          <div class="">.......................</div>
+        </div>
+        <div class="flex pb-1">
+          <label class="mr-2 font-bold">Nợ: </label>
+          <div class="">.......................</div>
+        </div>
+        <div class="flex pb-1">
+          <label class="mr-2 font-bold">Có: </label>
+          <div class="">.......................</div>
+        </div>
+        <div class="flex pb-1">
+          <label class="mr-2 font-bold">Phòng ban: </label>
+          <div class="">Văn phòng</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="pb-1">
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
+      <div>Đặng Ngọc Tuyết</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="font-bold basis-1/3"
+        >{{ t('formDemo.paymentOrder') }} {{ t('reuse.amountOfMoney') }} :</label
+      >
+      <div>799.000 Đồng</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="font-bold basis-1/3">{{ t('reuse.reason') }} :</label>
+      <div>Thu phí</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="font-bold basis-1/3">{{ t('formDemo.formPayment') }} :</label>
+      <div class="mr-2">Tiền mặt</div>
+      <div>Chuyển khoản</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="font-bold basis-1/3">{{ t('userDemo.accountInfo') }} :</label>
+      <div class="uppercase">dang ngoc tuyet</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="basis-1/3">{{ t('userDemo.accountNumber') }} :</label>
+      <div>123456789</div>
+    </div>
+  </div>
+
+  <div class="pb-4">
+    <div class="font-bold text-[16px] pb-5">Bảng kê chi tiết các khoản chi</div>
+    <el-table ref="singleTableRef" :data="[]" border style="width: 100%">
+      <el-table-column label="Chứng từ" align="center">
+        <el-table-column prop="STT" type="index" label="STT" width="60" />
+        <el-table-column prop="No" label="Số" width="80" />
+        <el-table-column prop="Date" label="Ngày" width="80" />
+      </el-table-column>
+      <el-table-column prop="productName" :label="t('formDemo.spendFor')" width="200" />
+      <el-table-column prop="quantity" :label="t('reuse.quantity')" width="auto" />
+      <el-table-column prop="price" :label="t('reuse.unitPrices')">
+        <template #default="data">
+          <div class="text-right">{{ data.row.price }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
+        <template #default="data">
+          <div class="text-right">{{ data.row.quantity * data.row.price }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="note" :label="t('reuse.note')" width="auto" />
+    </el-table>
+  </div>
+
+  <div class="flex h-[16vh] justify-between text-center">
+    <div class="text-1xl font-medium border-b basis-3/10">
+      <div> Giám đốc </div>
+    </div>
+    <div class="text-1xl font-medium border-b basis-3/10">
+      <div> Kế toán trưởng </div>
+    </div>
+    <div class="text-1xl font-medium border-b basis-3/10">
+      <div> Người lập bảng kê </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElDivider } from 'element-plus'
+import { ElButton, ElDivider, ElTable, ElTableColumn } from 'element-plus'
+
 import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
 </script>
 
 <style scoped>
->>> .el-divider--horizontal {
+.el-divider--horizontal {
   margin: 0;
 }
 </style>

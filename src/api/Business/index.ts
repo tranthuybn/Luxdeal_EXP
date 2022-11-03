@@ -282,6 +282,17 @@ export const getTotalOrder = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// lấy bút toán
+export const getOrderTransaction = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.ORDER_TRANSACTION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Lấy danh sách dịch vụ Spa
 export const getSpaList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
@@ -576,6 +587,17 @@ export const getReceiptsExpendituresList = async (params: any): Promise<IRespons
     },
     fixedBaseURL
   )
+  return res && res.data
+}
+
+export const getBalanceList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.BALANCE_SHEET_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  console.log('data: ', res.data)
   return res && res.data
 }
 

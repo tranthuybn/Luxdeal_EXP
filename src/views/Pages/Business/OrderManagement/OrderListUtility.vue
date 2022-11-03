@@ -481,19 +481,19 @@ const callCustomersApi = async () => {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        code: product.code,
-        label: product.isOrganization
-          ? product.name + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        address: product.address,
-        name: product.name,
-        value: product.id.toString(),
-        isOrganization: product.isOrganization,
-        taxCode: product.taxCode,
-        phone: product.phonenumber,
-        email: product.email,
-        id: product.id.toString()
+      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+        code: customer.code,
+        label: customer.isOrganization
+          ? customer.name + ' | MST ' + customer.taxCode
+          : customer.name + ' | ' + customer.phonenumber,
+        address: customer.address,
+        name: customer.name,
+        value: customer.id.toString(),
+        isOrganization: customer.isOrganization,
+        taxCode: customer.taxCode,
+        phone: customer.phonenumber,
+        email: customer.email,
+        id: customer.id.toString()
       }))
     }
   }
@@ -528,8 +528,15 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
 
-const getValueOfCustomerSelected = (_value, obj) => {
-  changeAddressCustomer(_value)
+let customerID = ref()
+
+const getValueOfCustomerSelected = (value, obj) => {
+  changeAddressCustomer(value)
+  customerID.value = value
+  valueProvince.value = obj.provinceId
+  valueDistrict.value = obj.districtId
+  valueCommune.value = obj.wardId
+  enterdetailAddress.value = obj.address
   ruleForm.customerName = obj.label
 }
 
@@ -790,6 +797,7 @@ const removeListProductsSale = (index) => {
 const checkDisabled = ref(false)
 
 const dialogAddProduct = ref(false)
+
 const addnewproduct = () => {
   dialogAddProduct.value = true
 }
@@ -1007,7 +1015,7 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
-      CustomerId: ruleForm.customerName,
+      CustomerId: customerID.value,
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value,
@@ -1390,16 +1398,17 @@ const addStatusDelay = () => {
 const priceChangeOrders = ref(false)
 let countPriceChange = 0
 const changePriceRowTable = (props) => {
-  if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
-    countPriceChange++
-    priceChangeOrders.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      label: 'Duyệt giá thay đổi',
-      value: 1,
-      isActive: true
-    })
-  }
+  console.log('props: ', props)
+  // if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
+  countPriceChange++
+  priceChangeOrders.value = true
+  arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+  arrayStatusOrder.value.push({
+    label: 'Duyệt giá thay đổi',
+    value: 1,
+    isActive: true
+  })
+  // }
 }
 
 interface statusOrderType {
@@ -1542,6 +1551,10 @@ const productAttributeValue = (data) => {
   console.log('data checked', data)
 }
 
+// const handleOpenDialog = () => {
+//   dialogAddQuick.value = true
+// }
+
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
@@ -1566,6 +1579,7 @@ onMounted(async () => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
+      <!-- <DialogOrder @openDialog="handleOpenDialog" dialogType="1" /> -->
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"

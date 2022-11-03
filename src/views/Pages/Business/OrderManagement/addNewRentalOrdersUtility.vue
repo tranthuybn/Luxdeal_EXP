@@ -458,7 +458,6 @@ let infoCompany = reactive({
 })
 
 // Call api danh sách khách hàng
-// Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -466,18 +465,18 @@ const callCustomersApi = async () => {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        value: product.id,
-        address: product.address,
-        isOrganization: product.isOrganization,
-        name: product.name,
-        taxCode: product.taxCode,
-        phone: product.phonenumber,
-        email: product.email,
-        id: product.id
+      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+        label: customer.representative
+          ? customer.representative + ' | MST ' + customer.taxCode
+          : customer.name + ' | ' + customer.phonenumber,
+        value: customer.id,
+        address: customer.address,
+        isOrganization: customer.isOrganization,
+        name: customer.name,
+        taxCode: customer.taxCode,
+        phone: customer.phonenumber,
+        email: customer.email,
+        id: customer.id
       }))
     }
   }

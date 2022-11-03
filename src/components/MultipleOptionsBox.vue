@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -58,7 +59,7 @@ const propsObj = defineProps({
   }
 })
 
-const emit = defineEmits(['updateValue', 'addnewproduct'])
+const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
 let selected = ref()
 const options = ref<Array<any>>([])
@@ -83,16 +84,15 @@ const identifyLabel = computed(() => {
 })
 
 // set value for multiple select if defaultValue available
-// watchEffect(() => {
-//   if (propsObj.items?.length > 0)
-//     // set options for select box
-//     options.value = propsObj.items
-// })
+watchEffect(() => {
+  if (propsObj.items?.length > 0)
+    // set options for select box
+    options.value = propsObj.items
+})
 watch(
   () => propsObj.defaultValue,
   () => {
     selected.value = propsObj.defaultValue
-    console.log('selected.value', selected.value)
   },
   { immediate: true }
 )
@@ -103,20 +103,25 @@ const acceptKey = (item) => {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
-// const filter = (str) => {
-//   const { items } = propsObj
-//   const searchingKey = str.toLowerCase()
-//   console.log('searchingKey', searchingKey, 'selected', selected.value)
-//   options.value = items.filter((item) => {
-//     if (
-//       item != null &&
-//       Object.keys(item).find((key)
-// => item[key].toString().toLowerCase().includes(searchingKey))
-//     ) {
-//       return true
-//     }
-//   })
-// }
+const filter = (str) => {
+  const { items } = propsObj
+  if (str) {
+    const searchingKey = str.toLowerCase()
+    options.value = items.filter((item) => {
+      if (
+        item != null &&
+        Object.keys(item).find((key) => {
+          return item[key] ? item[key].toString().toLowerCase().includes(searchingKey) : false
+        })
+      ) {
+        return true
+      }
+    })
+  } else {
+    options.value = items
+  }
+}
+
 const loadOption = ref(false)
 // const appearsEvent = () => {
 //   const { items } = propsObj
@@ -138,24 +143,29 @@ const valueChangeEvent = (val) => {
     }
   }
 }
-const handleScroll = (...val) => {
-  console.log(val)
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    emit('scrollTop')
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    emit('scrollBottom')
+  }
 }
-onBeforeMount(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
 </script>
 <template>
   <ElSelect
     :loading="loadOption"
     ref="MultipleSelect"
     v-model="selected"
+    remote-show-suffix
     :placeholder="placeHolder"
     :clearable="clearable"
     filterable
+    remote
+    :remote-method="filter"
     class="el-select-custom"
     @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"
@@ -174,7 +184,7 @@ onUnmounted(() => {
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
-            class="text-ellipsis text-center text-blue-900"
+            class="text-ellipsis text-center text-black bg-white"
           >
             <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
               <strong>{{ filed }}</strong>
@@ -183,36 +193,39 @@ onUnmounted(() => {
         </ElRow>
       </div>
     </ElOption>
-    <ElOption
-      :style="`width: ${width}`"
-      v-for="(item, index) in items"
-      :key="index"
-      :value="item[identifyKey]"
-      :label="item[identifyLabel]"
-      :disabled="disabled"
-    >
-      <div class="select-table">
-        <ElRow type="flex" justify="space-between">
-          <ElCol
-            v-for="(key, i) in acceptKey(item)"
-            :key="i"
-            class="text-ellipsis text-center"
-            :span="Math.floor(24 / fields.length)"
-          >
-            <ElTooltip placement="left-end" :content="item[key]" effect="light">
-              <span> {{ item[key] }}</span>
-            </ElTooltip>
-          </ElCol>
-        </ElRow>
-      </div>
-    </ElOption>
+    <div @scroll="scrolling" id="content">
+      <ElOption
+        :style="`width: ${width}`"
+        v-for="(item, index) in options"
+        :key="index"
+        :value="item[identifyKey] ?? ''"
+        :label="item[identifyLabel] ?? ''"
+        :disabled="disabled"
+      >
+        <div class="select-table">
+          <ElRow type="flex" justify="space-between">
+            <ElCol
+              v-for="(key, i) in acceptKey(item)"
+              :key="i"
+              class="text-ellipsis text-center"
+              :span="Math.floor(24 / fields.length)"
+            >
+              <ElTooltip placement="left-end" :content="item[key]" effect="light">
+                <span> {{ item[key] }}</span>
+              </ElTooltip>
+            </ElCol>
+          </ElRow>
+        </div>
+      </ElOption>
+    </div>
     <slot name="underButton"> </slot>
   </ElSelect>
 </template>
 <style lang="css" scoped>
-ul li:first-child {
-  background-color: transparent;
-  color: white;
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 .el-select-custom {
   width: 100%;
@@ -230,5 +243,23 @@ ul li:first-child {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.el-select-dropdown__item:hover {
+  background-color: #4c89e5;
+  color: white;
+}
+
+.el-select-dropdown__item {
+  padding: 0;
+}
+::v-deep(.el-input__wrapper) {
+  cursor: default !important;
+}
+::v-deep(.el-select__caret.el-icon) {
+  cursor: default !important;
+}
+::v-deep(.el-input__inner) {
+  cursor: default !important;
 }
 </style>

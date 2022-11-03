@@ -2,7 +2,7 @@
 import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getProductStorage } from '@/api/Warehouse'
+import { getProductStorage, deleteProductStorage } from '@/api/Warehouse'
 import { filterTableStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import { dateTimeFormat, productStatusTransferToText } from '@/utils/format'
@@ -43,5 +43,10 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getProductStorage" :selection="false" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getProductStorage"
+    :selection="false"
+    :delApi="deleteProductStorage"
+  />
 </template>

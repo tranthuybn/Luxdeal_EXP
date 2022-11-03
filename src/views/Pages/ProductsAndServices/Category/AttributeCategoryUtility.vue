@@ -13,7 +13,7 @@ import {
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElMessage } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
-const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
+const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -185,11 +185,6 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
-  ],
-  index: [
-    { validator: ValidService.checkPositiveNumber.validator },
-    { validator: notSpecialCharacters },
-    { validator: notSpace }
   ]
 })
 watch(

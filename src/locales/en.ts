@@ -113,6 +113,7 @@ export default {
     ratings: 'Ratings',
     sales: 'Sales',
     creator: 'Creator',
+    petitioner: 'Petitioner',
     addNewRatings: 'Add new ratings',
     ratingInformation: 'Rating information',
     enterSales: 'Enter sales',
@@ -236,6 +237,9 @@ export default {
     addnewRentalOrders: 'Add new rental orders',
     addNewConsignmentOrders: 'Add new consignment orders',
     addNewPawnOrders: 'Add new pawn orders',
+    addNewFlashSale: 'Add new Flash sale',
+    addNewVoucher: 'Add new Voucher',
+
     addNewSpaOrders: 'Add new Spa Orders',
     startDay: 'Start day',
     endDay: 'End day',
@@ -447,6 +451,8 @@ export default {
     depositSlip: 'Deposit slip',
     initializationDate: 'Initialization date',
     totalSalesDebt: 'Total sales debt',
+    informationOnExchangeAndReturnPaymentVouchers:
+      'Information on exchange and return payment vouchers',
     infoCouponExportExchange: 'Information coupon export and exchange',
     invoiceForGoodsEntering: 'Invoice for goods entering',
     productInformationExportChange: 'Product information export and change',
@@ -463,8 +469,6 @@ export default {
     pleaseSelectCustomerName: 'Please select Customer or enter Customer code',
     pleaseChooseDelivery: 'Please choose delivery',
     saveCloseOrder: 'Save & close order',
-    informationOnExchangeAndReturnPaymentVouchers:
-      'Information on exchange and return payment vouchers',
     InformationChangeReturnGoods: 'Information change or return goods'
   },
   button: {
@@ -776,9 +780,12 @@ export default {
     approval: 'Approval',
     operator: 'Operator',
     createDate: 'Create date',
+    createDateBill: 'Create date bill',
     customerName: `Customer's name`,
     representative: 'Representative',
     customerCode: 'Customer Code',
+    inputLotCode: 'Imput lot code',
+
     gender: 'Gender',
     contact: 'Contact',
     companyInfo: 'CompanyInformation',
@@ -829,8 +836,15 @@ export default {
     rentalTerm: 'Rental Term',
     surveyDate: 'Survey Date',
     serviceRating: 'Service Rating',
+    warehouseLevel1: 'Warehouse Level 1',
+    nameWarehouseLevel1: 'Name warehouse Level 1',
+    inputNameWarehouseLevel1: 'Name warehouse Level 1',
+    nameWarehouseLevel2: 'Name warehouse Level 2',
+    inputNameWarehouseLevel2: 'Input name warehouse Level 2',
+    warehouseLevel2: 'Warehouse level  2',
     picture: 'Picture',
     collectionCode: 'Collection Code',
+    transfer: 'Transfer',
     subject: 'Subject',
     subjectsOfApplication: 'Subjects of application',
     promotion: 'Promotion',
@@ -846,9 +860,12 @@ export default {
     firstEntryDate: 'First Entry Date',
     singleEntryCode: 'Single Entry Code',
     typeOfFirstEntry: 'Type Of First Entry',
+    typeOfProduct: 'Type of product',
     typeOfTransfer: 'Type Of Transfer',
     location: 'Location',
     amountImport: 'Amount Import',
+    amountImportLot: 'Amount Import lot',
+    quantityInventory: 'Quantity inventory',
     inventory: 'Inventory',
     priceImport: 'Price Import',
     CashIntoInventory: 'Cash Into Inventory',
@@ -1162,6 +1179,9 @@ export default {
     name: 'Name',
     fullName: 'Full name',
     newForum: 'New Forum',
+    importExportTransferWarehouse: 'Import export transfer warehouse',
+    importExportTransferWarehouseCode: 'Import export transfer warehouse code',
+    importTransferWarehouseCode: 'Import transfer Warehouse code',
     removeFromGroup: 'Remove From Group',
     createPosts: 'Create Posts',
     forumCustomer: 'Customer Forum',
@@ -1243,6 +1263,9 @@ export default {
     //notification
     exit: 'Exit',
     deleteWarning: 'Are you sure want to delete ?',
+    deleteWarningFlashSale: 'Are you sure want to delete Flash Sale programming ?',
+    cancelFlashSaleProgramming: 'Cancel Flash Sale programming',
+
     deleteOrigin: 'Delete origin',
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
@@ -1357,6 +1380,7 @@ export default {
     comboDetail: 'Combo detail',
     auctionDetail: 'Auction detail',
     voucherDetail: 'Voucher detail',
+    initializationVoucher: 'Initialization voucher',
     newProductDetail: 'New product detail',
     collectionDetail: 'Collection detail',
     flashSaleDetail: 'Flash sale detail',
@@ -1425,6 +1449,8 @@ export default {
     redeemGiftVouchersWithPoints: 'Redeem gift vouchers with points',
     condition: 'Condition',
     enterCondition: 'Enter condition',
+    selectCondition: 'Selec condition',
+
     points: 'Points',
     //combo
     freeReceiveCombo: 'Free receive combo',
@@ -1445,6 +1471,14 @@ export default {
     selectCountyOrDistrict: 'Select country/district',
     selectWardOrCommune: 'Select ward/commune',
     enterDetailedAddress: 'Enter detailed address',
-    CheckCode: 'Please enter the correct code format'
+    CheckCode: 'Please enter the correct code format',
+    CustomersDoNotBankAccount: 'Customers do not have a bank account',
+    pleaseAddBankAccount: 'Please add a bank account',
+    // product
+    under256Characters: 'Under 256 characters',
+    enterSearchingData: 'Please enter searching data',
+    sameQuantity: 'Cant enter the same quantity',
+    fillProductInformation: 'Do you want to automatically fill information of the existing product',
+    notification: 'Notification'
   }
 }

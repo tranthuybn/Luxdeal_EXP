@@ -8,7 +8,8 @@ import {
   ElFormItem,
   ElForm,
   FormInstance,
-  ElInput
+  ElInput,
+  ElMessage
 } from 'element-plus'
 import { reactive, ref, unref } from 'vue'
 import moment from 'moment'
@@ -37,14 +38,13 @@ const { register, methods } = useForm()
 
 const { getFormData } = methods
 //validation
-const checkStartDate = (_, endDate: any, callback: Callback) => {
-  getFormData().then((res) =>
-    res?.startDate && moment(endDate).isBefore(res?.startDate)
-      ? callback(new Error(t('reuse.warningDate')))
-      : callback()
-  )
+const checkStartDate = (_, endDate: any, __callback: Callback) => {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
-  elFormRef?.validateField('startDate', () => null)
+  getFormData().then((res) => {
+    res?.startDate && moment(endDate).isBefore(res?.startDate)
+      ? elFormRef?.validateField('startDate', () => null)
+      : elFormRef?.validateField('startDate', () => null)
+  })
   disableChooseDate.value = true
 }
 const checkEndDate = (_, startDate: any, callback: Callback) => {
@@ -161,7 +161,15 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
   })
   forceDisable.value = false
 }
-function reLoadEvent() {
+async function reLoadEvent() {
+  const dateFormData = await getFormData()
+  if (
+    validateHeaderInput.searchingKey == '' &&
+    dateFormData?.startDate == '' &&
+    dateFormData?.endDate == ''
+  ) {
+    return
+  }
   verifyReset()
   validateHeaderInput.searchingKey = ''
   periodSelected.value = ''
@@ -173,6 +181,7 @@ function reLoadEvent() {
 async function getDataEvent() {
   //if there is value it will validate and return value, if not valid == null
   let inputValid: any = null
+  let noSearchingKey = false
   if (validateHeaderInput.searchingKey !== '') {
     const formEl = unref(formRef)
     await formEl?.validate((valid) => {
@@ -182,6 +191,8 @@ async function getDataEvent() {
         inputValid = false
       }
     })
+  } else {
+    noSearchingKey = true
   }
   let dateValid: any = null
   const dateFormData = await getFormData()
@@ -194,8 +205,14 @@ async function getDataEvent() {
         dateValid = false
       }
     })
+  } else {
+    noSearchingKey = true
   }
 
+  if (noSearchingKey) {
+    ElMessage(t('reuse.enterSearchingData'))
+    return
+  }
   //if not false then run ( false when there is a value and is inValid)
   if (inputValid !== false && dateValid !== false) {
     dateTimeDisable.value = false

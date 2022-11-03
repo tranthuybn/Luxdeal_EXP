@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
-import CurrentInput from '@/views/Pages/Components/CurrencyInputComponent.vue'
 import { useForm } from '@/hooks/web/useForm'
 import { PropType, watch, ref, unref } from 'vue'
 import { TableData } from '@/api/table/types'
@@ -107,6 +106,11 @@ const props = defineProps({
   imageRequired: {
     type: Boolean,
     default: false
+  },
+  titleAdd: {
+    type: String,
+    default: 'reuse.addCategory',
+    Descriptions: 'tiêu đề nút thêm mới'
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -144,7 +148,6 @@ const customizeData = async () => {
 }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const disabled = ref(false)
 const imageUrl = ref()
 //set data for form edit and detail
 const setFormValue = async () => {
@@ -167,31 +170,6 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-const editorConfig = Object.assign({
-  readOnly: true,
-  customAlert: (s: string, t: string) => {
-    switch (t) {
-      case 'success':
-        ElMessage.success(s)
-        break
-      case 'info':
-        ElMessage.info(s)
-        break
-      case 'warning':
-        ElMessage.warning(s)
-        break
-      case 'error':
-        ElMessage.error(s)
-        break
-      default:
-        ElMessage.info(s)
-        break
-    }
-  },
-  autoFocus: false,
-  scroll: true,
-  uploadImgShowBase64: true
-})
 
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
@@ -202,11 +180,18 @@ watch(
       setProps({
         disabled: true
       })
+      setSchema(
+        schema.map((component) => ({
+          field: component.field,
+          path: 'componentProps.placeholder',
+          value: ''
+        }))
+      )
       setSchema([
         {
           field: 'description',
-          path: 'componentProps.editorConfig',
-          value: editorConfig
+          path: 'componentProps.disabled',
+          value: true
         }
       ])
     }
@@ -229,8 +214,11 @@ const loading = ref(false)
 //doc du lieu tu bang roi emit len goi API
 const { go } = useRouter()
 const save = async (type) => {
+  console.log('type', type)
+
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
+    console.log('type1', type)
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
@@ -241,7 +229,9 @@ const save = async (type) => {
     } else {
       validateFile = true
     }
+    console.log('type2', type)
     if (isValid && validateFile) {
+      console.log('type', type)
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
@@ -251,8 +241,8 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
+      console.log('type', type)
       if (type == 'add') {
-        data.backRouter = true
         emit('post-data', data)
         loading.value = false
       }
@@ -267,7 +257,7 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
-        emit('edit-data', data, go(-1))
+        emit('edit-data', data)
         loading.value = false
       }
       fileList.value = []
@@ -325,7 +315,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.length > 100) {
+      } else if (rawFile.name?.split('.')[0].length > 100) {
         ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
@@ -344,7 +334,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         } else if (file.size / 1024 / 1024 > 4) {
           ElMessage.error(t('reuse.imageOver4MB'))
           inValid = false
-        } else if (file.name?.length > 100) {
+        } else if (file.name?.split('.')[0].length > 100) {
           ElMessage.error(t('reuse.checkNameImageLength'))
           inValid = false
           return false
@@ -424,13 +414,10 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) =>
     } else {
     }
   } else {
-    const validImage = await beforeAvatarUpload(uploadFiles, 'list')
     ListFileUpload.value = uploadFiles
-    if (!validImage) {
-      uploadFiles.map((file) => {
-        file.raw ? handleRemove(file) : ''
-      })
-    }
+    uploadFiles.map(async (file) => {
+      ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
+    })
   }
 }
 const previewImage = () => {
@@ -450,15 +437,7 @@ const listType = ref<ListImages>('text')
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register">
-          <template #InputPrice>
-            <CurrentInput
-              class="w-[80%] outline-none pl-2 dark:bg-transparent"
-              type="text"
-              :placeholder="t('reuse.enterPhoneNumber')"
-            />
-          </template>
-        </Form>
+        <Form :rules="rules" @register="register" />
       </ElCol>
       <ElCol
         :span="hasImage ? 8 : 0"
@@ -497,14 +476,14 @@ const listType = ref<ListImages>('text')
             <ElButton :icon="addIcon" />
           </div>
           <template #file="{ file }">
-            <div>
+            <div class="ml-auto mr-auto">
               <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
               <span class="el-upload-list__item-actions">
                 <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                   <ElButton :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="!disabled"
+                  v-if="props.type !== 'detail'"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
@@ -543,20 +522,20 @@ const listType = ref<ListImages>('text')
         <ElButton :loading="loading" @click="edit">
           {{ t('reuse.edit') }}
         </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
         <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton :loading="loading" @click="cancel">
+        <!-- <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
         <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton>
+        </ElButton> -->
       </div>
     </template>
   </ContentWrap>

@@ -68,7 +68,8 @@ export const CAMPAIGN_API = {
   GET_CAMPAIGN: '/api/v1/Campaign/GetCampaign',
   POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
-  UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign'
+  UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign',
+  DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign'
 }
 
 export const ORDER_API = {
@@ -95,5 +96,7 @@ export const ACCOUNTANT_API = {
 
 export const WAREHOUSE_API = {
   GET_LIST_PRODUCT_STORAGE: '/api/v1/Warehouse/GetWarehouse',
-  CREATE_PRODUCT_STORAGE: '/api/v1/Warehouse/CreateWarehouse'
+  CREATE_PRODUCT_STORAGE: '/api/v1/Warehouse/CreateWarehouse',
+  UPDATE_PRODUCT_STORAGE: '/api/v1/Warehouse/UpdateWarehouse',
+  DELETE_PRODUCT_STORAGE: '/api/v1/Warehouse/DeleteWarehouse'
 }

@@ -26,7 +26,6 @@ declare global {
     | 'Editor'
     | 'Descriptions'
     | 'Tag'
-    | 'InputPrice'
 
   declare type ColProps = {
     span?: number

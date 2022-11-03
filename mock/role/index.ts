@@ -525,7 +525,7 @@ const adminList = [
             component: 'views/Pages/Business/PromotionStrategy/indexVoucher',
             name: `business.promotion-strategy.voucher.${utility}`,
             meta: {
-              title: 'reuse.voucherDetail',
+              title: 'reuse.initializationVoucher',
               noTagsView: true,
               noCache: true,
               hidden: true,
@@ -847,6 +847,14 @@ const adminList = [
             name: 'Inventorymanagement.ListWarehouse.export',
             meta: {
               title: 'router.export'
+            }
+          },
+          {
+            path: 'transfer',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Transfer',
+            name: 'Inventorymanagement.ListWarehouse.transfer',
+            meta: {
+              title: 'router.transfer'
             }
           }
         ]
@@ -1417,6 +1425,7 @@ const testList: string[] = [
   '/inventory-management/business-product-warehouse/inventory-tracking',
   '/inventory-management/business-product-warehouse/ware-house',
   '/inventory-management/business-product-warehouse/export',
+  '/inventory-management/business-product-warehouse/transfer',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
   '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',
@@ -1424,7 +1433,8 @@ const testList: string[] = [
   '/accountant',
   '/accountant/payment-proposal',
   '/accountant/payment-proposal/payment-proposal-list',
-  '/accountant/payment-proposal/payment-proposal-add',
+  '/accountant/payment-proposal/payment-proposal-list/:type?/:tab?/:id?',
+
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',
   '/accountant/receipts-expenditures/receipts-add',

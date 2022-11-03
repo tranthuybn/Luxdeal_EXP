@@ -35,7 +35,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 

@@ -111,7 +111,7 @@ const { t } = useI18n()
 </script>
 
 <style scoped>
->>> .el-divider--horizontal {
+.el-divider--horizontal {
   margin: 0;
 }
 </style>

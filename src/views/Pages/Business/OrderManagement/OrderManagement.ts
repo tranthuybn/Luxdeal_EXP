@@ -31,7 +31,7 @@ export const sellOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorCode',
+    field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -119,7 +119,7 @@ export const sellOrder = [
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'createdDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
@@ -135,10 +135,13 @@ export const sellOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'orderStatusName',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
   }
 ]
 //Đơn hàng cho thuê
@@ -155,7 +158,7 @@ export const rentalorder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -222,18 +225,34 @@ export const rentalorder = [
     sortable: true
   },
   {
-    field: 'totalDepositMoney',
+    field: 'totalPrice',
     label: t('reuse.totalDepositMoney'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const total = row.orderDetails.reduce((sum, val) => {
+        sum += val.depositePrice
+        return sum
+      }, 0)
+      const x = changeMoney.format(parseInt(total))
+      return x
+    }
   },
   {
     field: 'totalRentFeeByTerm',
     label: t('reuse.totalRentFeeByTerm'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const total = row.orderDetails.reduce((sum, val) => {
+        sum += val.hirePrice
+        return sum
+      }, 0)
+      const x = changeMoney.format(parseInt(total))
+      return x
+    }
   },
 
   {
@@ -242,7 +261,11 @@ export const rentalorder = [
 
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalDebt))
+      return x
+    }
   },
   {
     field: 'receiptAndExpenditure',
@@ -251,27 +274,33 @@ export const rentalorder = [
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'rentTerm',
+    field: 'hirePeriodName',
     label: t('reuse.rentTerm'),
     minWidth: '150',
     filters: filterRentTerm
   },
   {
-    field: 'startDate',
+    field: 'fromDate',
     label: t('reuse.startDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return dateTimeFormat(_.fromDate)
+    }
   },
   {
-    field: 'endDate',
+    field: 'toDate',
     label: t('reuse.endDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return dateTimeFormat(_.toDate)
+    }
   },
   {
-    field: 'createdDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
@@ -287,10 +316,13 @@ export const rentalorder = [
     headerFilter: 'Name'
   },
   {
-    field: 'orderStatusName',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
   }
 ]
 //Đơn hàng ký gửi

@@ -10,10 +10,17 @@ import {
 import { sellOrder, rentalorder, orderDeposit, orderPawn, orderSpa } from './OrderManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
+import { provide, reactive } from 'vue'
+import { API_ORDER } from '@/utils/API.Variables'
+
 const { t } = useI18n()
+let params = reactive({ ServiceType: 1 })
+provide('parameters', {
+  params
+})
 const tabs: Array<Tab> = [
   {
-    name: 'orderSell',
+    name: API_ORDER[0].label,
     label: t('reuse.orderSell'),
     api: getSellOrderList,
     column: sellOrder,
@@ -21,7 +28,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: 'orderRental',
+    name: API_ORDER[1].label,
     label: t('reuse.orderRental'),
     api: getRentalorderList,
     column: rentalorder,
@@ -29,7 +36,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: 'orderDeposit',
+    name: API_ORDER[2].label,
     label: t('reuse.orderDeposit'),
     api: getOrderDepositList,
     column: orderDeposit,
@@ -37,7 +44,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: 'orderPawn',
+    name: API_ORDER[3].label,
     label: t('reuse.orderPawn'),
     api: getOrderPawnList,
     column: orderPawn,
@@ -45,7 +52,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: 'orderSpa',
+    name: API_ORDER[4].label,
     label: t('reuse.orderSpa'),
     api: getOrderSpaList,
     column: orderSpa,
@@ -53,7 +60,24 @@ const tabs: Array<Tab> = [
     customOperator: 5
   }
 ]
+
+const changeParam = (val: string) => {
+  const index = API_ORDER.find((e) => e.label == val) ?? {
+    value: 0,
+    key: 1,
+    label: 'orderSell'
+  }
+  params.ServiceType = index?.key
+  provide('parameters', {
+    params
+  })
+}
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :selection="true" title="orderList" :tabs="tabs" />
+  <tableDatetimeFilterBasicVue
+    :selection="true"
+    title="orderList"
+    :tabs="tabs"
+    @tab-change-event="changeParam"
+  />
 </template>

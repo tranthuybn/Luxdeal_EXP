@@ -59,7 +59,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'accountCode',
+    field: 'accountNumber',
     label: t('reuse.accountCode'),
     minWidth: '150',
     headerFilter: 'Name'

@@ -23,7 +23,8 @@ import {
   ElForm,
   ElFormItem,
   FormRules,
-  FormInstance
+  FormInstance,
+  ElNotification
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -34,12 +35,12 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
-  getPromotionsList,
   getAllCustomer,
   getSpaList,
   addNewSpaOrders
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import { useRoute, useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -171,14 +172,22 @@ const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
     edited: true
   }
 ])
-const tableData2 = [
-  {
-    name: '',
-    quantity: '',
-    unitPrice: '',
-    intoMoney: ''
-  }
-]
+
+let totalPriceOrder = ref()
+let totalFinalOrder = ref()
+// const tableData2 = [
+//   {
+//     name: '',
+//     quantity: '',
+//     unitPrice: '',
+//     intoMoney: ''
+//   }
+// ]
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 
 onBeforeMount(() => {
   callCustomersApi()
@@ -397,26 +406,26 @@ const callApiCollaborators = async () => {
 // Call api danh sách mã giảm giá
 let promoTable = ref()
 const promoLoading = ref(true)
-const listPromotions = ref()
-const optionPromotions = ref()
-let optionCallPromoAPi = 0
-const callPromoApi = async () => {
-  if (optionCallPromoAPi == 0) {
-    const res = await getPromotionsList('')
-    listPromotions.value = res.data
-    optionPromotions.value = listPromotions.value.map((product) => ({
-      radio: '',
-      label: product.code,
-      value: product.name,
-      name: product.description,
-      discount: product.reduce,
-      min: product.minimumPriceToGetReduce,
-      max: product.maximumReduce
-    }))
-    optionCallPromoAPi++
-    promoTable.value = optionPromotions.value
-  }
-}
+// const listPromotions = ref()
+// const optionPromotions = ref()
+// let optionCallPromoAPi = 0
+// const callPromoApi = async () => {
+//   if (optionCallPromoAPi == 0) {
+//     const res = await getPromotionsList('')
+//     listPromotions.value = res.data
+//     optionPromotions.value = listPromotions.value.map((product) => ({
+//       radio: '',
+//       label: product.code,
+//       value: product.name,
+//       name: product.description,
+//       discount: product.reduce,
+//       min: product.minimumPriceToGetReduce,
+//       max: product.maximumReduce
+//     }))
+//     optionCallPromoAPi++
+//     promoTable.value = optionPromotions.value
+//   }
+// }
 
 // api Spa
 
@@ -504,10 +513,17 @@ const removeListProductsSale = (index) => {
   }
 }
 const dialogFormSettingServiceSpa = ref(false)
+var curDate = 'DHSP' + moment().format('hhmmss')
 
 // tạo đơn hàng
+const { push } = useRouter()
+const router = useRouter()
+// const id = Number(router.currentRoute.value.params.id)
+// const type = String(router.currentRoute.value.params.type)
+const route = useRoute()
+const type = String(route.params.type)
 
-const postData = () => {
+const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
     const productPayment = JSON.stringify([
@@ -550,7 +566,25 @@ const postData = () => {
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     console.log('postData', payload)
-    addNewSpaOrders(formDataPayLoad)
+    await addNewSpaOrders(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 
@@ -598,18 +632,18 @@ const ruleForm = reactive({
 })
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   collaboratorCommission: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
@@ -621,12 +655,14 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
@@ -670,12 +706,18 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
+let promoActive = ref()
+
 onBeforeMount(() => {
   callApiServicesSpa()
   callCustomersApi()
   callApiCollaborators()
   callApiProductList()
   callApiCity()
+
+  if (type == 'add') {
+    ruleForm.orderCode = curDate
+  }
 })
 </script>
 
@@ -1368,86 +1410,99 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
         </el-table>
-        <el-table :data="tableData2" class="pl-4 dark:text-[#fff]">
-          <el-table-column min-width="250" />
-          <el-table-column min-width="680" />
-          <el-table-column min-width="180" />
-          <el-table-column min-width="90" />
-          <el-table-column min-width="100" />
-          <el-table-column align="right" min-width="180">
+
+        <div class="flex justify-end pt-4">
+          <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.spaFeePayment') }}</div>
             <div class="text-blue-500 cursor-pointer">
               <el-button
                 text
+                :disabled="checkDisabled"
                 @click="
                   () => {
                     openDialogChoosePromotion = true
-                    callPromoApi()
                   }
                 "
                 style="padding: 0"
               >
-                <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
+                <span class="font-normal text-blue-500">
+                  + {{ t('formDemo.choosePromotion') }}</span
+                >
               </el-button>
             </div>
-            <el-dropdown trigger="click">
-              <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                {{ t('formDemo.doesNotIncludeVAT') }}
-                <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item>
-                    <el-radio-group v-model="radioVAT" class="flex-col">
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="1" size="large">{{
-                          t('formDemo.VATNotIncluded')
-                        }}</el-radio>
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="2" size="large"
-                          >VAT 10%</el-radio
-                        >
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="3" size="large"
-                          >VAT 8%</el-radio
-                        >
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="4" size="large"
-                          >VAT 5%</el-radio
-                        >
-                      </div>
-                      <div style="width: 100%">
-                        <el-radio class="text-left" style="color: blue" label="5" size="large"
-                          >VAT 0%</el-radio
-                        >
-                      </div>
-                    </el-radio-group>
-                  </el-dropdown-item>
-                  <el-dropdown-item divided>
-                    <div style="width: 100%; text-align: center"> Confirm </div>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            <div class="text-blue-500 cursor-pointer">
+              <el-dropdown class="flex justify-end" trigger="click">
+                <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
+                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-radio-group v-model="radioVAT" class="flex-col">
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="1">{{
+                            t('formDemo.VATNotIncluded')
+                          }}</el-radio>
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="2"
+                            >VAT 10%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="3"
+                            >VAT 8%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="4"
+                            >VAT 5%</el-radio
+                          >
+                        </div>
+                        <div style="width: 100%">
+                          <el-radio class="text-left" style="color: blue" label="5"
+                            >VAT 0%</el-radio
+                          >
+                        </div>
+                      </el-radio-group>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+            <div class="text-black font-bold dark:text-[#fff]">{{
+              t('formDemo.totalSpaFeeDebt')
+            }}</div>
+          </div>
 
-            <div class="dark:text-[#fff]">{{ t('formDemo.totalSpaFeeDebt') }}</div>
-          </el-table-column>
-          <el-table-column align="right" min-width="180">
-            <div class="dark:text-[#fff]">190,000,000 đ</div>
-            <div class="dark:text-[#fff]">-95,000,000 đ</div>
+          <div class="w-30">
+            <div class="text-right dark:text-[#fff]">{{
+              totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
+            }}</div>
+            <div class="h-[32px] text-right dark:text-[#fff]"
+              >-
+              {{
+                totalPriceOrder != undefined
+                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
+                  : '0 đ'
+              }}
+            </div>
+            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">{{
+              totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+            }}</div>
+          </div>
+
+          <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="dark:text-[#fff]">95,000,000 đ</div>
-          </el-table-column>
-          <!-- <el-table-column min-width="200" align="right">
-            <div class="text-blue-500 cursor-pointer">FGF343D | Giảm giá 60% ... </div>
+            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+              {{ promoActive }}
+            </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-          </el-table-column> -->
-          <el-table-column align="center" min-width="90" />
-          <el-table-column min-width="90" />
-        </el-table>
+          </div>
+        </div>
+
         <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
         <el-table :data="debtTable" border>
           <el-table-column

@@ -788,6 +788,7 @@ export default {
     action: 'Vận hành',
     username: 'Tên tài khoản',
     accountNumber: 'Số tài khoản',
+    accountInfo: 'Thông tin chuyển khoản',
     password: 'Mật khẩu mở khóa',
     role: 'Role',
     remark: 'Nhận xét',

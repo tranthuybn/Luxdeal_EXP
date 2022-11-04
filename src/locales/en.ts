@@ -766,6 +766,7 @@ export default {
     action: 'Action',
     username: 'Username',
     accountNumber: 'Account number',
+    accountInfo: 'Account info',
     password: 'Password',
     role: 'Role',
     remark: 'Remark',

@@ -71,12 +71,12 @@
       :listChatOpen="listChatOpen"
       :popupOpened="popupOpened"
       @close="close"
-      @scrollToTop="$emit('scrollToTop')"
-      @onType="$emit('onType', $event)"
+      @scroll-to-top="$emit('scrollToTop')"
+      @on-type="$emit('onType', $event)"
       @edit="$emit('edit', $event)"
       @remove="$emit('remove', $event)"
-      @selectUser="handleOpenChat"
-      @getChatPopup="handleCloseChat"
+      @select-user="handleOpenChat"
+      @get-chat-popup="handleCloseChat"
     >
       <template #header>
         <slot name="header"> </slot>

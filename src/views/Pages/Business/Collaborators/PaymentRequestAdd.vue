@@ -668,7 +668,7 @@ const activeName = ref(collapse[0].title)
               </ElFormItem>
               <ElFormItem :label="t('router.receiptsAndExpenditures')">
                 <MultipleOptionsBox
-                  style="width: 78%; margin-right: 2%"
+                  style="width: 76%; margin-right: 2%"
                   :fields="[
                     t('reuse.proposalCode'),
                     t('reuse.receiptAndPayment'),
@@ -693,7 +693,7 @@ const activeName = ref(collapse[0].title)
               <ElFormItem :label="t('router.paymentProposal')">
                 <template #default="props">
                   <MultipleOptionsBox
-                    style="width: 78%; margin-right: 2%"
+                    style="width: 76%; margin-right: 2%"
                     :fields="[
                       t('reuse.proposalCode'),
                       t('reuse.receiptAndPayment'),

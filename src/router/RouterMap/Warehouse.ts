@@ -46,6 +46,14 @@ export default {
           meta: {
             title: t('router.export')
           }
+        },
+        {
+          path: 'transfer',
+          component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/Transfer.vue'),
+          name: 'Inventorymanagement.ListWarehouse.transfer',
+          meta: {
+            title: t('reuse.transfer')
+          }
         }
       ]
     },

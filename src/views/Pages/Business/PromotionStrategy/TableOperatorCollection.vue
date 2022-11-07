@@ -35,7 +35,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 
@@ -587,8 +587,10 @@ const callAPICustomer = async () => {
 
 //get list product
 const listProducts = ref()
+const pageIndexProducts = ref(1)
+
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: 1, PageSize: 1000 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       value: product.productCode,
@@ -635,6 +637,7 @@ const changeCustomer = (data, scope) => {
     scope.row.code = data
   }
 }
+
 const scrollCustomerTop = ref(false)
 const scrollCustomerBottom = ref(false)
 
@@ -663,6 +666,37 @@ const ScrollCustomerBottom = () => {
         })
         .catch(() => {
           noMoreCustomerData.value = true
+        })
+}
+
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProducts.value.push({
+                  value: product.productCode,
+                  label: product.code,
+                  name: product.name,
+                  id: product.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
         })
 }
 const removeCustomer = (scope) => {
@@ -845,7 +879,7 @@ const getSpaSelected = (spaServices) => {
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="860"
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"
                 ><template #default="scope">{{ scope.row.name }}</template></el-table-column
               >
               <el-table-column :label="t('reuse.operator')" fixed="right">
@@ -882,10 +916,12 @@ const getSpaSelected = (spaServices) => {
                     :clearable="false"
                     @update-value="(value, obj) => getProductSelected(value, obj, scope)"
                     @change="(option) => changeProduct(option, scope)"
+                    @scroll-top="ScrollProductTop"
+                    @scroll-bottom="ScrollProductBottom"
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="650" />
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
                 <template #default="scope"
                   ><el-switch

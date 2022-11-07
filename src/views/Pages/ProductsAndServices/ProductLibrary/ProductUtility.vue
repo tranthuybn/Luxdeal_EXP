@@ -51,7 +51,7 @@ import { ref } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -565,6 +565,7 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
+      //disable tab when click saveAndAdd button
       disabledTabOpen.value = data.disabledTabOpen
     })
     .catch(() =>

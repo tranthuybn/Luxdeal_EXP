@@ -848,6 +848,14 @@ const adminList = [
             meta: {
               title: 'router.export'
             }
+          },
+          {
+            path: 'transfer',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Transfer',
+            name: 'Inventorymanagement.ListWarehouse.transfer',
+            meta: {
+              title: 'router.transfer'
+            }
           }
         ]
       },
@@ -1417,6 +1425,7 @@ const testList: string[] = [
   '/inventory-management/business-product-warehouse/inventory-tracking',
   '/inventory-management/business-product-warehouse/ware-house',
   '/inventory-management/business-product-warehouse/export',
+  '/inventory-management/business-product-warehouse/transfer',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
   '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',

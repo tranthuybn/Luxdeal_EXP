@@ -304,6 +304,17 @@ export const getSpaList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách dịch vụ Spa theo sản phẩm
+export const getSpaListByProduct = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_SPA_BY_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Suggestions :suggestions="suggestions" :colors="colors" @sendSuggestion="_submitSuggestion" />
+    <Suggestions :suggestions="suggestions" :colors="colors" @send-suggestion="_submitSuggestion" />
     <div
       v-if="file"
       class="file-container"

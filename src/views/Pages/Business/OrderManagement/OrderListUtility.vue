@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import CurrencyInputComponent from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+
 import {
   ElCollapse,
   ElCollapseItem,
@@ -2007,11 +2008,11 @@ onMounted(async () => {
       </div>
 
       <div id="IPRFormPrint">
-        <!-- <slot> -->
-        <el-dialog v-model="testDialog" width="40%" align-center>
+        <slot>
+          <!-- <el-dialog v-model="testDialog" width="40%" align-center> -->
           <paymentOrderPrint />
-        </el-dialog>
-        <!-- </slot> -->
+          <!-- </el-dialog> -->
+        </slot>
       </div>
 
       <!-- Dialog Thông tin phiếu chi -->
@@ -2131,7 +2132,7 @@ onMounted(async () => {
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-            <button @click="testDialog = true">Test</button>
+            <!-- <button @click="testDialog = true">Test</button> -->
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2268,7 +2269,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogIPRForm = false">{{ t('button.print') }}</el-button>
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button type="primary" @click="dialogIPRForm = false">{{
@@ -4403,6 +4404,9 @@ onMounted(async () => {
     display: none;
   }
   #billDepositPrint {
+    display: none;
+  }
+  #IPRFormPrint {
     display: none;
   }
 }

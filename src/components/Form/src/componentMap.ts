@@ -21,7 +21,7 @@ import {
   ElTag
 } from 'element-plus'
 import { InputPassword } from '@/components/InputPassword'
-import InputPrice from '@/views/Pages/Components/CurrencyInputComponent.vue'
+import InputPrice from '@/components/CurrencyInputComponent.vue'
 import { Editor } from '@/components/Editor'
 
 const componentMap: Recordable<Component, ComponentName> = {

@@ -56,7 +56,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
-// import { PaymentOrderPrint } from '../../Components/formPrint'
+import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -73,6 +73,8 @@ const changeMoney = new Intl.NumberFormat('vi', {
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')
+var autoCodeSellOrder = 'BH' + moment().format('hmmss')
+const sellOrderCode = ref()
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -557,8 +559,8 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+  scope.row.price = Number(obj.price)
+  // scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
 
 let customerID = ref()
@@ -573,9 +575,9 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 
-const handleTotal = (scope) => {
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
-}
+// const handleTotal = (scope) => {
+//   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+// }
 
 // Call api danh sách cộng tác viên
 const listCollaborators = ref()
@@ -662,7 +664,7 @@ const optionsCustomer = [
   }
 ]
 
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -734,6 +736,7 @@ interface tableOrderDetailType {
   productPropertyId: number
   quantity: number | undefined
   accessory: string | undefined
+  spaServiceIds: string
 }
 let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 
@@ -746,19 +749,23 @@ const autoCalculateOrder = async () => {
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    spaServiceIds: ''
   }))
   const payload = {
     serviceType: 1,
-    fromDate: '2022-10-31T09:15:56.106Z',
-    toDate: '2022-10-31T09:15:56.106Z',
+    fromDate: '2022-11-07T07:21:33.634Z',
+    toDate: '2022-12-07T07:21:33.634Z',
     paymentPeriod: 1,
     days: 1,
     campaignId: campaignId.value,
     orderDetail: tableOrderDetail.value
   }
   const res = await getTotalOrder(payload)
-
+  console.log('res: ', res)
+  for (let i = 0; i < ListOfProductsForSale.value.length - 1; i++) {
+    ListOfProductsForSale.value[i].finalPrice = res[i].totalPrice
+  }
   totalPriceOrder.value = res.reduce((_total, e) => {
     _total += e.totalPrice
     return _total
@@ -769,13 +776,13 @@ const autoCalculateOrder = async () => {
   }, 0)
 }
 
+const forceRemove = ref(false)
 //add row to the end of table if fill all table
 watch(
   () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1],
-  (...val) => {
+  () => {
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -800,7 +807,7 @@ let autoChangeProvince = ref()
 watch(
   () => enterdetailAddress.value,
   () => {
-    if (enterdetailAddress.value) {
+    if (enterdetailAddress.value && district.value && ward.value) {
       autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
       autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
       autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
@@ -1119,12 +1126,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1213,14 +1220,14 @@ const changeAddressCustomer = (data) => {
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
-    infoCompany.phone = 'Số điện thoại: ' + infoCustomerId.value.phone
+    infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
     console.log('2')
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
-    infoCompany.phone = 'Số điện thoại: ' + infoCustomerId.value.phone
+    infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
   optionCallPromoAPi = 0
@@ -1523,7 +1530,7 @@ const addStatusOrder = (index) => {
 // dialog print
 
 const nameDialog = ref('')
-const testDialog = ref(false)
+// const testDialog = ref(false)
 
 function openBillDialog() {
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
@@ -1590,6 +1597,7 @@ onBeforeMount(async () => {
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
+    sellOrderCode.value = autoCodeSellOrder
   }
 })
 onMounted(async () => {
@@ -2328,7 +2336,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2345,7 +2353,7 @@ onMounted(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">0932424343</div>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -2356,22 +2364,18 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="commodityName"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+            <el-table-column prop="price" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPrices }}</div>
+                <div class="text-right">{{ props.row.price }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }}</div>
+                <div class="text-right">{{ props.row.finalPrice }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -2382,9 +2386,17 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2">30,000,000 đ</p>
-              <p class="pr-2">đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">30,000,000 đ</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
+              }}</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined
+                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
+                  : '0 đ'
+              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              }}</p>
             </div>
           </div>
         </div>
@@ -3252,7 +3264,7 @@ onMounted(async () => {
                     <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
-                    <div>{{ infoCompany.phone }}</div>
+                    <div>Số điện thoại: {{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
@@ -3599,6 +3611,7 @@ onMounted(async () => {
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
+                @change="autoCalculateOrder"
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
@@ -3627,10 +3640,8 @@ onMounted(async () => {
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
+              <!-- <div v-if="type === 'detail'">{{ data.row.accessory }}</div> -->
               <el-input
-                v-else
-                class="max-w-[150px]"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -3641,12 +3652,7 @@ onMounted(async () => {
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
               </div>
-              <el-input
-                v-else
-                v-model="data.row.quantity"
-                @change="handleTotal(data)"
-                style="width: 100%"
-              />
+              <el-input v-else v-model="data.row.quantity" style="width: 100%" />
             </template>
           </el-table-column>
           <el-table-column
@@ -3702,6 +3708,9 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>

@@ -119,6 +119,8 @@ const rules = reactive<FormRules>({
 
 let checkValidate = ref(false)
 var curDate = 'DCT' + moment().format('hhmmss')
+var autoRentalOrderCode = 'T' + moment().format('hmmss')
+const rentalOrderCode = ref()
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   console.log('ruleForm:', ruleForm)
@@ -592,13 +594,13 @@ const changeAddressCustomer = (data) => {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
       infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.phone = result.phone
       infoCompany.email = 'Email: ' + result.email
     } else {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
       infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
+      infoCompany.phone = result.phone
       infoCompany.email = 'Email: ' + result.email
     }
   } else {
@@ -645,23 +647,62 @@ const autoCalculateOrder = async () => {
 }
 
 // Call api danh sách sản phẩm
-let listProductsTable = ref()
-let optionCallAPi = 0
+const listProductsTable = ref()
+
+const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList()
-    if (Array.isArray(res.data) && res.data.length > 0) {
-      listProductsTable.value = res.data.map((product) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      }))
-      optionCallAPi++
-    }
+  const res = await getProductsList({
+    ServiceType: 3,
+    PageIndex: pageIndexProducts.value,
+    PageSize: 20
+  })
+  console.log('res: ', res.data)
+  if (res.data && res.data?.length > 0) {
+    listProductsTable.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      name: product.name ?? '',
+      price: product.price.toString(),
+      productPropertyId: product.id.toString(),
+      productPropertyCode: product.productPropertyCode,
+      hirePrice: product.hirePrice,
+      finalPrice: product.finalPrice,
+      depositePrice: product.depositePrice
+    }))
   }
+}
+
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProductsTable.value.push({
+                  productCode: product.code,
+                  value: product.productCode,
+                  name: product.name ?? '',
+                  price: product.price.toString(),
+                  productPropertyId: product.id.toString(),
+                  productPropertyCode: product.productPropertyCode
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
+        })
 }
 
 // api địa chỉ
@@ -849,12 +890,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1186,25 +1227,25 @@ const tableWarehouse = [
 ]
 
 //add row to the end of table if fill all table
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
 }
 
-watch(
-  () => tableData,
-  () => {
-    if (
-      tableData.value[tableData.value.length - 1].productPropertyId &&
-      tableData.value[tableData.value.length - 1].quantity &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => tableData,
+//   () => {
+//     if (
+//       tableData.value[tableData.value.length - 1].productPropertyId &&
+//       tableData.value[tableData.value.length - 1].quantity &&
+//       forceRemove.value == false &&
+//       type !== 'detail'
+//     ) {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 watch(
   () => checkValidate.value,
   () => {
@@ -1220,7 +1261,7 @@ let autoChangeProvince = ref()
 watch(
   () => enterdetailAddress.value,
   () => {
-    if (enterdetailAddress.value) {
+    if (enterdetailAddress.value && district.value && ward.value) {
       autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
       autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
       autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
@@ -1382,6 +1423,7 @@ onBeforeMount(() => {
   editData()
   if (type == 'add') {
     ruleForm.orderCode = curDate
+    rentalOrderCode.value = autoRentalOrderCode
   }
 })
 </script>
@@ -2105,7 +2147,9 @@ onBeforeMount(() => {
             <div class="flex-1">
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
-                <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">T24354</div>
+                <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">{{
+                  rentalOrderCode
+                }}</div>
               </div>
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
@@ -2139,17 +2183,15 @@ onBeforeMount(() => {
           <div>
             <div class="flex gap-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50"
-                >79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div
-              >
+              <div class="w-[100%] text-black dark:text-light-50">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">0932424343</div>
+              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -2868,7 +2910,7 @@ onBeforeMount(() => {
                     <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
-                    <div>{{ infoCompany.phone }}</div>
+                    <div>Số điện thoại: {{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
@@ -2999,6 +3041,8 @@ onBeforeMount(() => {
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyCode"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 ><template #underButton>
@@ -3115,6 +3159,9 @@ onBeforeMount(() => {
             }}</button>
           </el-table-column>
         </el-table>
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>

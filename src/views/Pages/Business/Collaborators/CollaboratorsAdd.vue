@@ -37,7 +37,7 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
-const { required, ValidService, notSpecialCharacters } = useValidator()
+const { required } = useValidator()
 
 const { t } = useI18n()
 
@@ -432,7 +432,7 @@ watch(
     if (type === 'add' || type == ':type') {
       getGenCodeCollaborator()
       disabledTable.value = true
-      FormData.CollaboratorStatus = true
+      FormData.CollaboratorStatus = false
     }
   },
   {
@@ -544,7 +544,7 @@ const activeName = ref(collapse[0].name)
                     size="default"
                     :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                     :suffixIcon="h('div', '%')"
-                    :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
+                    :formatter="(value) => value.replace(/^[^0-9,]*$/gm, '')"
                   />
                 </div>
               </ElFormItem>
@@ -648,7 +648,7 @@ const activeName = ref(collapse[0].name)
               <ElFormItem
                 style="display: inline-block"
                 :label="t('reuse.gender')"
-                v-if="!infoCompany.taxCode"
+                v-if="infoCompany.taxCode"
               >
                 <div class="leading-4">
                   <div class="ml-5">{{
@@ -878,6 +878,9 @@ const activeName = ref(collapse[0].name)
 }
 ::v-deep(.el-input__wrapper) {
   margin-left: 15px;
+}
+::v-deep(.el-form-item__error) {
+  margin-left: 20px;
 }
 
 .header-icon {

@@ -59,6 +59,7 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+// import { Qrcode } from '@/components/Qrcode'
 
 const { t } = useI18n()
 
@@ -297,7 +298,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: 1,
   accessory: '',
   unitName: 'Cái',
-  price: '',
+  price: 0,
   finalPrice: '',
   paymentType: '',
   edited: true
@@ -744,7 +745,6 @@ watch(
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -788,10 +788,7 @@ watch(
 let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
-    forceRemove.value = true
-    ListOfProductsForSale.value.splice(index, 1)
-  }
+  ListOfProductsForSale.value.splice(index, 1)
 }
 
 const checkDisabled = ref(false)
@@ -1173,30 +1170,31 @@ const callPromoApi = async () => {
   }
 }
 
+const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    optionCallPromoAPi = 0
-    customerIdPromo.value = result.id
-    callPromoApi()
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
+  console.log('data: ', data)
+  infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  console.log('infoCustomerId', infoCustomerId.value)
+  console.log('optionsCustomerApi: ', optionsCustomerApi.value)
+  // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+  if (infoCustomerId.value.isOrganization) {
+    console.log('1', optionsCustomerApi)
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = 'Số điện thoại: ' + infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    customerAddress.value = ''
-    // deliveryMethod.value = ''
+    console.log('2')
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = 'Số điện thoại: ' + infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
+  optionCallPromoAPi = 0
+  customerIdPromo.value = infoCustomerId.value.id
+  callPromoApi()
 }
 
 // Thông tin phiếu thu
@@ -1396,11 +1394,10 @@ const addStatusDelay = () => {
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
 const priceChangeOrders = ref(false)
-let countPriceChange = 0
 const changePriceRowTable = (props) => {
+  let countPriceChange = ref(0)
   console.log('props: ', props)
-  // if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
-  countPriceChange++
+  countPriceChange.value++
   priceChangeOrders.value = true
   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
   arrayStatusOrder.value.push({
@@ -1408,7 +1405,6 @@ const changePriceRowTable = (props) => {
     value: 1,
     isActive: true
   })
-  // }
 }
 
 interface statusOrderType {
@@ -2293,6 +2289,7 @@ onMounted(async () => {
         align-center
       >
         <div>
+          <!-- <Qrcode :text="'abc'" /> -->
           <el-divider />
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
@@ -2309,11 +2306,11 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+              <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>

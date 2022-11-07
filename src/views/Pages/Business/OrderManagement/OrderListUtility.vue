@@ -56,7 +56,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
-// import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
+// import { PaymentOrderPrint } from '../../Components/formPrint'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -503,23 +503,54 @@ const callCustomersApi = async () => {
 }
 
 // Call api danh sách sản phẩm
-let listProductsTable = ref()
-let optionCallAPi = 0
+const listProductsTable = ref()
+
+const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList()
-    if (Array.isArray(res.data) && res.data.length > 0) {
-      listProductsTable.value = res.data.map((product) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      }))
-      optionCallAPi++
-    }
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  if (res.data && res.data?.length > 0) {
+    listProductsTable.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      name: product.name ?? '',
+      price: product.price.toString(),
+      productPropertyId: product.id.toString(),
+      productPropertyCode: product.productPropertyCode
+    }))
   }
+}
+
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProductsTable.value.push({
+                  productCode: product.code,
+                  value: product.productCode,
+                  name: product.name ?? '',
+                  price: product.price.toString(),
+                  productPropertyId: product.id.toString(),
+                  productPropertyCode: product.productPropertyCode
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
+        })
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
@@ -740,12 +771,11 @@ const autoCalculateOrder = async () => {
 
 //add row to the end of table if fill all table
 watch(
-  () => ListOfProductsForSale,
-  () => {
+  () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1],
+  (...val) => {
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -3565,6 +3595,8 @@ onMounted(async () => {
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyCode"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
                 ><template #underButton>

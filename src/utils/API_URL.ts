@@ -80,7 +80,8 @@ export const ORDER_API = {
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
   ADD_QUICK_CUSTOMER: '/api/v1/Customer/addCustomer',
   TOTAL_ORDER: '/api/v1/Order/CalculateOrder',
-  ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction'
+  ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
+  GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

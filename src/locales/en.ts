@@ -298,6 +298,8 @@ export default {
     renewingThePawn: 'Renewing the Pawn',
     pawning: 'pawning',
     spaFeePayment: 'Spa fee payment',
+    depositpriceForRentalByDay: 'Consignment price for sale',
+    consignmentPriceForSale: 'Deposit price For Rental by Day',
     testOrSpa: 'Have Spa/ test',
     spaFeeDebt: 'Spa Fee Debt',
     atLeastTenDays: 'At least ten days',

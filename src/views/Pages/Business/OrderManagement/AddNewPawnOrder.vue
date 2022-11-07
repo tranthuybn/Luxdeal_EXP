@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, unref } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -17,23 +17,35 @@ import {
   ElDatePicker,
   FormRules,
   ElForm,
+  ElTreeSelect,
   ElFormItem,
-  FormInstance
+  FormInstance,
+  UploadUserFile
 } from 'element-plus'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 
 import type { UploadFile } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 
+import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
-  addNewSpaOrders
+  addNewSpaOrders,
+  getSellOrderList,
+  getOrderTransaction,
+  createQuickProduct,
+  getproductId,
+  getCheckProduct
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import { useRoute, useRouter } from 'vue-router'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { getCategories } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
 
 const dialogImageUrl = ref('')
@@ -43,6 +55,7 @@ const disabled = ref(false)
 const handleRemove = (file: UploadFile) => {
   console.log(file)
 }
+const value = ref('')
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
@@ -112,9 +125,6 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   }
 ]
-const value = ref('')
-const value2 = ref('')
-const value4 = ref('')
 
 const codeProducts = [
   {
@@ -171,6 +181,146 @@ const optionsPawnTerm = [
     label: 'Theo tháng'
   }
 ]
+
+// tạo đơn hàng
+// const { push } = useRouter()
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+// const type = String(router.currentRoute.value.params.type)
+const route = useRoute()
+const type = String(route.params.type)
+
+interface ListOfProductsForSaleType {
+  name: string
+  productCode: string
+  productName: string
+  productPropertyCode: string
+  productPropertyName: string
+  id: string
+  productPropertyId: string
+  spaServices: string
+  amountSpa: number
+  quantity: number | undefined
+  accessory: string | undefined
+  unitName: string
+  price: string | number | undefined
+  finalPrice: string
+  paymentType: string
+  edited: boolean
+}
+
+const productForSale = reactive<ListOfProductsForSaleType>({
+  name: '',
+  productCode: '',
+  productName: '',
+  productPropertyCode: '',
+  productPropertyName: '',
+  id: '',
+  spaServices: '',
+  amountSpa: 2,
+  productPropertyId: '',
+  quantity: 1,
+  accessory: '',
+  unitName: 'Cái',
+  price: '',
+  finalPrice: '',
+  paymentType: '',
+  edited: true
+})
+
+let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
+
+const addLastIndexSellTable = () => {
+  ListOfProductsForSale.value.push({ ...productForSale })
+}
+const forceRemove = ref(false)
+
+//add row to the end of table if fill all table
+watch(
+  () => ListOfProductsForSale,
+  () => {
+    if (
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
+      forceRemove.value == false &&
+      type !== 'detail'
+    ) {
+      addLastIndexSellTable()
+    }
+  },
+  { deep: true }
+)
+// total order
+let totalOrder = ref(0)
+let dataEdit = ref()
+
+const ListFileUpload = ref<UploadUserFile[]>([])
+// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+//   ListFileUpload.value = uploadFiles
+// }
+
+const removeListProductsSale = (index) => {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
+    forceRemove.value = true
+    ListOfProductsForSale.value.splice(index, 1)
+  }
+}
+
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  if (type == 'edit' || type == 'detail') {
+    const res = await getSellOrderList({ Id: id, ServiceType: 5 })
+    const transaction = await getOrderTransaction({ id: 10 })
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
+
+    const orderObj = { ...res.data[0] }
+    dataEdit.value = orderObj
+    if (res.data) {
+      ruleForm.orderCode = orderObj.code
+      ruleForm.collaborators = orderObj.collaboratorCode
+      ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
+      ruleForm.customerName = orderObj.customer.isOrganization
+        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.orderNotes = orderObj.description
+
+      totalOrder.value = orderObj.totalPrice
+      if (ListOfProductsForSale.value.length > 0)
+        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
+      ListOfProductsForSale.value = orderObj.orderDetails
+      customerAddress.value = orderObj.address
+      ruleForm.delivery = orderObj.deliveryOptionName
+
+      if (orderObj.customer.isOrganization) {
+        infoCompany.name = orderObj.customer.name
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      } else {
+        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      }
+    }
+    orderObj.orderFiles.map((element) => {
+      if (element !== null) {
+        ListFileUpload.value.push({
+          url: `${element?.domainUrl}${element?.path}`,
+          name: element?.fileId,
+          uid: element?.id
+        })
+      }
+    })
+  } else if (type == 'add' || !type) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+    // debtTable.value.push({ ...addDebtTable })
+  }
+}
 
 const valueClassify = ref('individual')
 const optionsClassify = [
@@ -302,25 +452,38 @@ const callCustomersApi = async () => {
   optionCallCustomerAPi++
 }
 
-// Call api danh sách sản phẩm
-let listProductsTable = ref()
-const listProducts = ref()
-const optionsApi = ref()
+//thêm nahnh sp
 
-let optionCallAPi = 0
-const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList({ ProductId: 1 })
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id.toString(),
-      value: product.id.toString(),
-      name: product.name,
-      price: product.price.toString()
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
+const quickProductCode = ref()
+const quickManagementCode = ref()
+const quickProductName = ref()
+const quickDescription = ref()
+const productCharacteristics = ref()
+const chooseOrigin = ref()
+
+const dialogAddProduct = ref(false)
+const addnewproduct = () => {
+  dialogAddProduct.value = true
+}
+//end thêm nhanh sp
+const postQuickCustomer = async () => {
+  const payload = {
+    serviceType: 1,
+    productCode: quickProductCode.value,
+    productPropertyCode: quickManagementCode.value,
+    name: quickProductName.value,
+    shortDescription: quickDescription.value,
+    productTypeId: 9,
+    brandId: 49,
+    originId: 123,
+    unitId: 121,
+    categories: [
+      {
+        id: 0
+      }
+    ]
   }
+  await createQuickProduct(payload)
 }
 
 const checked1 = ref(true)
@@ -376,6 +539,65 @@ const historyTable = [
   }
 ]
 
+// Call api danh sách sản phẩm
+const listProducts = ref()
+
+const pageIndexProducts = ref(1)
+const callAPIProduct = async () => {
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  if (res.data && res.data?.length > 0) {
+    listProducts.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      name: product.name ?? '',
+      price: product.price.toString(),
+      productPropertyId: product.id.toString(),
+      productPropertyCode: product.productPropertyCode
+    }))
+  }
+}
+
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProducts.value.push({
+                  productCode: product.code,
+                  value: product.productCode,
+                  name: product.name ?? '',
+                  price: product.price.toString(),
+                  productPropertyId: product.id.toString(),
+                  productPropertyCode: product.productPropertyCode
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
+        })
+}
+
+const getValueOfSelected = (_value, obj, scope) => {
+  scope.row.productPropertyId = obj.productPropertyId
+  scope.row.productCode = obj.value
+  scope.row.productName = obj.name
+  scope.row.price = obj.price
+  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+}
+
 const dramValue = ref('Chiếc')
 const moneyValue = ref('Tiền gốc')
 const collapseChangeEvent = (val) => {
@@ -429,6 +651,8 @@ const ruleForm = reactive({
   delivery: ''
 })
 
+//[{"ProductPropertyId":2,"Quantity":1,"ProductPrice":10000,"SoldPrice":10000,"WarehouseId":1,"SpaServiceIds":"47,48","Accessory":"Accessory1"}]
+
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
   collaborators: [
@@ -455,7 +679,6 @@ const rules = reactive<FormRules>({
   ],
   paymentPeriod: [
     {
-      type: 'date',
       required: true,
       message: 'Please pick a date',
       trigger: 'change'
@@ -482,7 +705,7 @@ const optionsCustomer = [
     label: t('formDemo.customer')
   }
 ]
-
+const value4 = ref('')
 const checkDisabled = ref(false)
 const postData = () => {
   // let productPayment = reactive<
@@ -547,7 +770,7 @@ const postData = () => {
     // }
 
     const payload = {
-      ServiceType: 1,
+      ServiceType: 4,
       OrderCode: ruleForm.orderCode,
       PromotionCode: 'AA12',
       CollaboratorId: ruleForm.collaborators,
@@ -570,6 +793,133 @@ const postData = () => {
   }
 }
 
+// Danh mục brand unit origin api
+
+const chooseCategory = ref()
+let categorySelect = ref()
+let optionsCategory = ref()
+let callCategoryAPI = 0
+const getCategory = async () => {
+  if (callCategoryAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[0].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    categorySelect.value = res.data
+    optionsCategory.value = categorySelect.value.map((product) => ({
+      label: product.name,
+      value: product.id,
+      id: product.id,
+      children: product.children.map((child) => ({
+        value: child.name,
+        label: child.name,
+        id: child.id
+      }))
+    }))
+  }
+  callCategoryAPI++
+}
+const chooseBrand = ref()
+let brandSelect = ref()
+let optionsBrand = ref()
+let callBrandAPI = 0
+const getBrandSelectOptions = async () => {
+  if (callBrandAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[7].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    brandSelect.value = res.data
+    optionsBrand.value = brandSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callUnitAPI++
+}
+
+const chooseUnit = ref()
+let unitSelect = ref()
+let optionsUnit = ref()
+let callUnitAPI = 0
+const getUnitSelectOptions = async () => {
+  if (callUnitAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[6].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    unitSelect.value = res.data
+    optionsUnit.value = unitSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callUnitAPI++
+}
+
+let originSelect = ref()
+let optionsOrigin = ref()
+let callOriginAPI = 0
+const getOriginSelectOptions = async () => {
+  if (callOriginAPI == 0) {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[8].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    originSelect.value = res.data
+    optionsOrigin.value = originSelect.value.map((product) => ({
+      label: product.name,
+      value: product.id
+    }))
+  }
+  callOriginAPI++
+}
+
+const handleChangeQuickAddProduct = async (data) => {
+  console.log('data: ', data)
+
+  const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
+  // quickProductName.value = dataSelectedObj.name
+  console.log('dataSelectedObj: ', dataSelectedObj)
+
+  // call API checkProduct
+  let codeCheckProduct = ref()
+  let checkProductAPI = 0
+  if (checkProductAPI == 0) {
+    const res = await getCheckProduct({ keyWord: dataSelectedObj.value })
+    codeCheckProduct.value = res.data[0]
+  }
+  checkProductAPI++
+
+  // call API getProductId
+  let formProductData = ref()
+  let getProductIdAPI = 0
+  if (getProductIdAPI == 0) {
+    const res = await getproductId({ Id: codeCheckProduct.value.id })
+    formProductData.value = res.data[0]
+  }
+  getProductIdAPI++
+
+  // fill data
+  quickProductName.value = formProductData.value.name
+  quickDescription.value = formProductData.value.shortDescription
+  chooseBrand.value = formProductData.value.categories[0]?.id
+  chooseCategory.value = formProductData.value.categories[1]?.value
+  chooseUnit.value = formProductData.value.categories[2]?.id
+  chooseOrigin.value = formProductData.value.categories[3]?.id
+}
+const handleTotal = (scope) => {
+  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+}
+
+const productAttributeValue = (data) => {
+  console.log('data checked', data)
+}
+
 const district = ref()
 const ward = ref()
 const street = ref()
@@ -589,12 +939,21 @@ const districtChange = async (value) => {
 }
 
 const activeName = ref(collapse[0].name)
+var curDate = 'DHxx' + moment().format('hhmmss')
 
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
-  callApiProductList()
+  callAPIProduct()
   callApiCity()
+
+  if (type == 'add') {
+    ruleForm.orderCode = curDate
+  }
+})
+
+onMounted(async () => {
+  await editData()
 })
 </script>
 
@@ -1095,6 +1454,150 @@ onBeforeMount(() => {
           </div>
         </div>
       </el-collapse-item>
+
+      <!-- Dialog Thêm nhanh sản phẩm -->
+      <el-dialog
+        v-model="dialogAddProduct"
+        :title="t('formDemo.quicklyAddProducts')"
+        width="40%"
+        align-center
+      >
+        <div>
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{
+              t('router.productCategoryProducts')
+            }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right"
+                >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
+              >
+              <el-tree-select
+                v-model="chooseCategory"
+                :data="optionsCategory"
+                :placeholder="t('reuse.selectCategory')"
+              />
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
+              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
+                <el-option
+                  v-for="item in optionsBrand"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right"
+                >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
+              >
+              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
+                <el-option
+                  v-for="item in optionsUnit"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
+              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
+                <el-option
+                  v-for="item in optionsOrigin"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right"
+              >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
+            >
+            <el-select
+              filterable
+              allow-create
+              v-model="quickProductCode"
+              :placeholder="t('formDemo.AddSelectProductCode')"
+              @change="(data) => handleChangeQuickAddProduct(data)"
+            >
+              <el-option
+                v-for="item in listProducts"
+                :key="item.productPropertyId"
+                :label="item.productCode"
+                :value="item.productPropertyId"
+              />
+            </el-select>
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right"
+              >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
+            >
+            <el-input
+              v-model="quickManagementCode"
+              style="width: 100%"
+              :placeholder="t('formDemo.addManagementCode')"
+            />
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right"
+              >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
+            >
+            <el-input
+              v-model="quickProductName"
+              style="width: 100%"
+              :placeholder="t('formDemo.EnterNameDescription')"
+            />
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
+            <el-input
+              v-model="quickDescription"
+              style="width: 100%"
+              :placeholder="t('formDemo.EnterNameDescription')"
+            />
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
+            <ProductAttribute
+              :value="productCharacteristics"
+              @change-value="productAttributeValue"
+            />
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              class="btn"
+              type="primary"
+              @click="
+                () => {
+                  dialogAddProduct = false
+                  postQuickCustomer()
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button class="btn" @click="dialogAddProduct = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
@@ -1103,53 +1606,107 @@ onBeforeMount(() => {
         <el-divider content-position="left">{{
           t('formDemo.listOfConsignmentProducts')
         }}</el-divider>
-        <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
-          <el-table-column :label="`${t('formDemo.productManagementCode')}`" width="150">
-            <el-select v-model="value2" class="m-2">
-              <el-option
-                v-for="item in codeProducts"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+        <el-table
+          :data="ListOfProductsForSale"
+          border
+          :class="[
+            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+          ]"
+        >
+          <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productPropertyId"
+          >
+            <template #default="props">
+              <div v-if="type == 'detail'">
+                {{ props.row.productPropertyId }}
+              </div>
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.productCode'),
+                  t('reuse.managementCode'),
+                  t('formDemo.productInformation')
+                ]"
+                v-else
+                filterable
+                width="650px"
+                :items="listProducts"
+                valueKey="productPropertyId"
+                labelKey="productCode"
+                :hiddenKey="['id']"
+                :placeHolder="t('reuse.chooseProductCode')"
+                :defaultValue="props.row.productPropertyCode"
+                :clearable="false"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
+                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
+                ><template #underButton>
+                  <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
+                    <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
+                    <div
+                      class="text-base text-blue-400 cursor-pointer pl-2"
+                      @click="
+                        () => {
+                          addnewproduct()
+                          getBrandSelectOptions()
+                          getUnitSelectOptions()
+                          getOriginSelectOptions()
+                          getCategory()
+                        }
+                      "
+                      >+ {{ t('formDemo.quicklyAddProducts') }}</div
+                    >
+                  </div>
+                </template></MultipleOptionsBox
+              >
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="productName"
+            :label="t('formDemo.productInformation')"
+            min-width="620"
+          />
+          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
+            <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
+              <el-input
+                v-else
+                class="max-w-[150px]"
+                v-model="data.row.accessory"
+                :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
-            </el-select>
+            </template>
           </el-table-column>
-          <el-table-column prop="name" :label="`${t('reuse.productInformation')}`" width="680" />
-          <el-table-column :label="`${t('reuse.accessory')}`" width="180">
-            <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
+          <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" align="center" width="90">
+            <template #default="data">
+              <el-input
+                v-model="data.row.quantity"
+                @change="handleTotal(data)"
+                v-if="data.row.edited"
+                style="width: 100%"
+              />
+            </template>
           </el-table-column>
-          <el-table-column
-            prop="quantity"
-            :label="`${t('reuse.pawnNumber')}`"
-            align="center"
-            width="90"
-          />
-          <el-table-column :label="`${t('reuse.quantitySold')}`" align="center" width="90" />
-          <el-table-column
-            :label="`${t('formDemo.numberOfTimesRented')}`"
-            align="center"
-            width="100"
-          />
-          <el-table-column :label="`${t('reuse.numberOfTimesSpa')}`" align="center" width="100" />
-          <el-table-column :label="`${t('reuse.currentlyLeased')}`" align="center" width="100" />
+          <el-table-column :label="t('reuse.quantitySold')" align="center" width="90" />
+          <el-table-column :label="t('formDemo.numberOfTimesRented')" align="center" width="100" />
+          <el-table-column :label="t('reuse.numberOfTimesSpa')" align="center" width="100" />
+          <el-table-column :label="t('reuse.currentlyLeased')" align="center" width="100" />
           <el-table-column
             :label="`${t('reuse.quantityImportedInternalWarehouse')}`"
             align="center"
             width="100"
           />
           <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
-          <el-table-column :label="`${t('reuse.dram')}`" align="center" width="100">
-            <el-select v-model="dramValue" class="m-2">
-              <el-option
-                v-for="item in dram"
-                :key="item.dramValue"
-                :label="item.label"
-                :value="item.dramValue"
-              />
-            </el-select>
-          </el-table-column>
+          <el-table-column
+            prop="dram"
+            :label="`${t('reuse.dram')}`"
+            align="center"
+            min-width="100"
+          />
           <el-table-column :label="`${t('reuse.pawnMoney')}`" align="center" width="100" />
-          <el-table-column :label="`${t('reuse.pawnfeeMoney')}`" width="200">
+          <el-table-column prop="intoMoney" :label="`${t('reuse.pawnfeeMoney')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">200,000đ/1n</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -1167,17 +1724,14 @@ onBeforeMount(() => {
             </div>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importWarehouse')" width="250">
-            <div class="flex w-[100%]">
-              <div class="flex-1">{{ t('reuse.stocking') }}</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
-            </div>
-          </el-table-column>
-
-          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" width="90">
-            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
+          <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
+            <template #default="scope">
+              <div class="flex gap-2">
+                <el-button @click.prevent="removeListProductsSale(scope.$index)" type="danger">{{
+                  t('reuse.delete')
+                }}</el-button>
+              </div>
+            </template>
           </el-table-column>
         </el-table>
         <!-- s -->

@@ -334,12 +334,12 @@ export const orderDeposit = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -351,13 +351,13 @@ export const orderDeposit = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
     filters: filtersCustomerType
   },
   {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
@@ -365,13 +365,31 @@ export const orderDeposit = [
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
     minWidth: '170',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'productInformation',
     label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
   },
   {
     field: 'depositNumber',
@@ -491,12 +509,12 @@ export const orderPawn = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -508,13 +526,13 @@ export const orderPawn = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
     filters: filtersCustomerType
   },
   {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
@@ -522,13 +540,31 @@ export const orderPawn = [
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
     minWidth: '170',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'productInformation',
     label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
   },
   {
     field: 'pawnNumber',
@@ -661,7 +697,7 @@ export const orderPawn = [
     filters: filterDeposit
   }
 ]
-//Đơn hàng ký gửi
+//Đơn hàng SPA
 export const orderSpa = [
   {
     field: 'index',
@@ -670,12 +706,12 @@ export const orderSpa = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'code',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'collaboratorsCode',
+    field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -687,13 +723,13 @@ export const orderSpa = [
     sortable: true
   },
   {
-    field: 'customer',
+    field: 'userName',
     label: t('reuse.customerName'),
     minWidth: '170',
     filters: filtersCustomerType
   },
   {
-    field: 'explain',
+    field: 'description',
     label: t('reuse.explain'),
     minWidth: '170'
   },
@@ -701,13 +737,31 @@ export const orderSpa = [
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
     minWidth: '170',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'productInformation',
     label: t('formDemo.productInformation'),
-    minWidth: '170',
-    headerFilter: 'Name'
+    minWidth: '300',
+    headerFilter: 'Name',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName, productPropertyName }) => {
+          return h('li', { key: id }, `${productName}${productPropertyName}`)
+        })
+      )
+    }
   },
   {
     field: 'spaService',
@@ -744,11 +798,15 @@ export const orderSpa = [
     sortable: true
   },
   {
-    field: 'unpaidDebt',
+    field: 'totalDebt',
     label: t('reuse.totalSpaFeeDebt'),
-    minWidth: '150',
+    minWidth: '130',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalDebt))
+      return x
+    }
   },
   {
     field: 'receiptAndExpenditure',
@@ -764,22 +822,28 @@ export const orderSpa = [
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filterDeposit
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
   }
 ]

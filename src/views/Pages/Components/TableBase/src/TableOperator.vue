@@ -243,6 +243,7 @@ const save = async (type) => {
       //callback cho hàm emit
       console.log('type', type)
       if (type == 'add') {
+        data.backRouter = true
         emit('post-data', data)
         loading.value = false
       }

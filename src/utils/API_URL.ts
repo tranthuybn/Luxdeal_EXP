@@ -100,5 +100,10 @@ export const WAREHOUSE_API = {
   GET_LIST_PRODUCT_STORAGE: '/api/v1/Warehouse/GetWarehouse',
   CREATE_PRODUCT_STORAGE: '/api/v1/Warehouse/CreateWarehouse',
   UPDATE_PRODUCT_STORAGE: '/api/v1/Warehouse/UpdateWarehouse',
-  DELETE_PRODUCT_STORAGE: '/api/v1/Warehouse/DeleteWarehouse'
+  DELETE_PRODUCT_STORAGE: '/api/v1/Warehouse/DeleteWarehouse',
+  GET_WAREHOUSE_INVENTORY_API: '/api/v1/Warehouse/GetWarehouseInventory',
+  GET_WAREHOUSE_TRANSACTION_API: 'api/v1/Warehouse/GetWarehouseTransaction'
+}
+export const STAFF_API = {
+  GET_STAFF: '/api/v1/Staff/GetStaff'
 }

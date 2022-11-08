@@ -16,25 +16,19 @@ export const wareHouse = [
     align: 'center'
   },
   {
-    field: 'productCode',
-    label: t('reuse.inputLotCode'),
-    minWidth: '150'
-  },
-  {
-    field: 'managementCode',
+    field: 'orderCode',
     label: t('reuse.importTransferWarehouseCode'),
     minWidth: '150'
   },
   {
-    field: 'productName',
-    label: t('reuse.orderCode'),
+    field: 'ticketCode',
+    label: t('reuse.inputLotCode'),
     minWidth: '150'
   },
   {
-    field: 'description',
-    label: t('reuse.typeOfProduct'),
-    minWidth: '150',
-    filters: filterLocation
+    field: 'productPropertyCode',
+    label: t('reuse.orderCode'),
+    minWidth: '150'
   },
   {
     field: 'characteristic',
@@ -59,6 +53,11 @@ export const wareHouse = [
     filters: filterService
   },
   {
+    field: 'amountImport',
+    label: t('reuse.image'),
+    minWidth: '100'
+  },
+  {
     field: 'typeOfTransfer',
     label: t('reuse.category'),
     minWidth: '100'
@@ -76,9 +75,10 @@ export const wareHouse = [
     filters: filterLocation
   },
   {
-    field: 'amountImport',
-    label: t('reuse.image'),
-    minWidth: '100'
+    field: 'description',
+    label: t('reuse.productType'),
+    minWidth: '150',
+    filters: filterLocation
   },
   {
     field: 'amountImport',

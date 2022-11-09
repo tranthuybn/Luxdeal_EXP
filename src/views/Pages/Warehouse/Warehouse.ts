@@ -16,7 +16,7 @@ export const wareHouse = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'ticketCode',
     label: t('reuse.importTransferWarehouseCode'),
     minWidth: '150'
   },
@@ -26,34 +26,34 @@ export const wareHouse = [
     minWidth: '150'
   },
   {
-    field: 'productPropertyCode',
+    field: 'orderCode',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'characteristic',
+    field: 'productCode',
     label: t('reuse.productCode'),
     minWidth: '100'
   },
   {
-    field: 'accessory',
+    field: 'productPropertyCode',
     label: t('reuse.managementCode'),
     minWidth: '100'
   },
   {
-    field: 'singleEntryCode',
+    field: 'productPropertyName',
     label: t('reuse.productInformation'),
     minWidth: '100'
   },
 
   {
-    field: 'typeOfFirstEntry',
+    field: 'accessory',
     label: t('reuse.accessory'),
     minWidth: '100',
     filters: filterService
   },
   {
-    field: 'amountImport',
+    field: 'image',
     label: t('reuse.image'),
     minWidth: '100'
   },

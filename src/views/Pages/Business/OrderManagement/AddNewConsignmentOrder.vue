@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, unref } from 'vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -322,22 +322,22 @@ const forceRemove = ref(false)
 // Thông tin phiếu thanh toán tiền cọc thuê
 const dialogDepositSlip = ref(false)
 //add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale,
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => ListOfProductsForSale,
+//   () => {
+//     if (
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
+//       forceRemove.value == false &&
+//       type !== 'detail'
+//     ) {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 // total order
 let totalOrder = ref(0)
 let dataEdit = ref()
@@ -348,9 +348,8 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 //   ListFileUpload.value = uploadFiles
 // }
 
-const removeListProductsSale = (index: number) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
-    forceRemove.value = true
+const removeListProductsSale = (index) => {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
   }
 }
@@ -1037,24 +1036,24 @@ function printPage(id: string) {
   const WinPrint = window.open(
     '',
     '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
                   </head>
-                  <body>
+                  <body style="overflow-y: scroll">
                     ${prtHtml}
                   </body>
                 </html>`)
 
   WinPrint?.document.close()
   WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
+  // setTimeout(() => {
+  //   WinPrint?.print()
+  //   WinPrint?.close()
+  // }, 500)
 }
 
 const checkDisabled = ref(false)
@@ -1727,7 +1726,9 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -1747,7 +1748,7 @@ onMounted(async () => {
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="printPage('billDepositPrint')">{{
+            <el-button class="min-w-42 min-h-11" @click="printPage('billLiquidationContract')">{{
               t('formDemo.printLiquidationContract')
             }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
@@ -1761,7 +1762,7 @@ onMounted(async () => {
       </el-collapse-item>
 
       <!-- phieu in -->
-      <div id="billDepositPrint">
+      <div id="billLiquidationContract">
         <slot>
           <liquidationContractPrint />
         </slot>
@@ -2517,7 +2518,7 @@ onMounted(async () => {
 }
 
 @media screen {
-  #billDepositPrint {
+  #billLiquidationContract {
     display: none;
   }
 }

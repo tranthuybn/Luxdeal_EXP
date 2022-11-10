@@ -176,6 +176,8 @@ export default {
     cashPayment: 'Cash payment',
     cardPayment: 'Card payment',
     bill: 'Bill',
+    billInterest: 'Bill interest',
+
     billPawn: 'Bill pawn',
     selfDelivery: 'chose delivery method',
     choseDeliveryMethod: 'Chose delivery method',

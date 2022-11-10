@@ -1,5 +1,37 @@
+<script setup lang="ts">
+import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
+// import { useIcon } from '@/hooks/web/useIcon'
+
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
+
+// const locateIcon = useIcon({ icon: 'entypo:location' })
+
+const tableData = [
+  {
+    stt: 'da',
+    codeProduct: 'da',
+    name: 'da',
+    code: 'da',
+    assetsory: 'da',
+    price: 'da',
+    loai: 'da',
+    note: 'da'
+  }
+]
+
+const WinPrint = window.open()
+const printBill = () => {
+  WinPrint?.print()
+  WinPrint?.close()
+}
+</script>
+
 <template>
-  <div class="container">
+  <div class="p-5 w-[798px] h-[1123px]">
+    <div class="flex flex-end">
+      <button @click="printBill">In phiếu</button>
+    </div>
     <div class="flex items-end">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -97,14 +129,14 @@
         BÀNG MUC DUOI DÂY:
       </p>
 
-      <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="stt" label="STT" width="80" align="center" />
-        <el-table-column prop="codeProduct" label="MÃ HÀNG" width="180" align="center" />
-        <el-table-column prop="name" label="TÊN HÀNG" width="280" align="center" />
-        <el-table-column prop="code" label="CODE" width="150" align="center" />
-        <el-table-column prop="assetsory" label="PHỤ KIỆN ĐI KÈM" width="200" align="center" />
-        <el-table-column prop="price" label="GIÁ NHẬP" width="150" align="center" />
-        <el-table-column prop="loai" label="LOẠI HÀNG" width="150" align="center" />
+      <el-table :data="tableData" width="100" border>
+        <el-table-column prop="stt" min-width="80" label="STT" align="center" />
+        <el-table-column prop="codeProduct" label="MÃ HÀNG" align="center" />
+        <el-table-column prop="name" label="TÊN HÀNG" align="center" />
+        <el-table-column prop="code" label="CODE" align="center" />
+        <el-table-column prop="assetsory" label="PHỤ KIỆN ĐI KÈM" align="center" />
+        <el-table-column prop="price" label="GIÁ NHẬP" align="center" />
+        <el-table-column prop="loai" label="LOẠI HÀNG" align="center" />
         <el-table-column prop="note" label="GHI CHÚ" align="center" />
       </el-table>
       <div class="total-money text-end pr-[547px]">
@@ -169,29 +201,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
-// import { useIcon } from '@/hooks/web/useIcon'
-
-import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
-
-// const locateIcon = useIcon({ icon: 'entypo:location' })
-
-const tableData = [
-  {
-    stt: 'da',
-    codeProduct: 'da',
-    name: 'da',
-    code: 'da',
-    assetsory: 'da',
-    price: 'da',
-    loai: 'da',
-    note: 'da'
-  }
-]
-</script>
 
 <style scoped>
 .text-end {

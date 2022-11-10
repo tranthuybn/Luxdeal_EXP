@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -286,22 +286,22 @@ const addLastIndexSellTable = () => {
 const forceRemove = ref(false)
 
 //add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale,
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => ListOfProductsForSale,
+//   () => {
+//     if (
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
+//       forceRemove.value == false &&
+//       type !== 'detail'
+//     ) {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 // total order
 let totalOrder = ref(0)
 let dataEdit = ref()
@@ -311,10 +311,8 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 // const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
 //   ListFileUpload.value = uploadFiles
 // }
-
 const removeListProductsSale = (index) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
-    forceRemove.value = true
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
   }
 }
@@ -556,7 +554,7 @@ function printPage(id: string) {
                   <head>
                     ${stylesHtml}
                   </head>
-                  <body>
+                  <body style="overflow-y: scroll"> 
                     ${prtHtml}
                   </body>
                 </html>`)
@@ -1784,9 +1782,10 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <button class="bg-none border-1 pt-2 pb-2 pl-4 pr-4 mt-2 text-[#cccccc]"
-          >+ {{ t('formDemo.add') }}</button
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
         >
+
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -1802,9 +1801,10 @@ onMounted(async () => {
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="printPage('billDepositPrint')">{{
+            <el-button class="min-w-42 min-h-11" @click="printPage('billLPawn')">{{
               t('formDemo.billPawn')
             }}</el-button>
+            <el-button class="min-w-42 min-h-11">{{ t('formDemo.billInterest') }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.saveAndPending')
             }}</el-button>
@@ -1816,7 +1816,7 @@ onMounted(async () => {
       </el-collapse-item>
 
       <!-- phieu in -->
-      <div id="billDepositPrint">
+      <div id="billLPawn">
         <slot>
           <liquidationContractPrint />
         </slot>
@@ -1979,7 +1979,7 @@ onMounted(async () => {
 </template>
 <style scoped>
 @media screen {
-  #billDepositPrint {
+  #billLPawn {
     display: none;
   }
 }

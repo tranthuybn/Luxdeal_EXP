@@ -195,6 +195,7 @@ export default {
     cashPayment: 'Thanh toán tiền mặt',
     cardPayment: 'Thanh toán thẻ',
     bill: 'Phiếu thanh toán',
+    billInterest: 'Phiếu thanh toán lãi',
     billPawn: 'Phiếu cầm đồ',
     selfDelivery: 'Tự giao hàng(Nội bộ tự giao hàng cho khách)',
     choseDeliveryMethod: 'Chọn phương thức giao hàng',

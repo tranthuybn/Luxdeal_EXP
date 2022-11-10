@@ -5,7 +5,10 @@ import {
   filterLocation,
   filterWarehouseManagement
 } from '@/utils/filters'
+import { h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import { dateTimeFormat, formatPotentialCustomerStatusIdToText } from '@/utils/format'
+import { setImageDisplayInDOm } from '@/utils/domUtils'
 const { t } = useI18n()
 //Đơn bán hàng
 export const wareHouse = [
@@ -16,7 +19,7 @@ export const wareHouse = [
     align: 'center'
   },
   {
-    field: 'orderCode',
+    field: 'ticketCode',
     label: t('reuse.importTransferWarehouseCode'),
     minWidth: '150'
   },
@@ -26,36 +29,38 @@ export const wareHouse = [
     minWidth: '150'
   },
   {
-    field: 'productPropertyCode',
+    field: 'orderCode',
     label: t('reuse.orderCode'),
     minWidth: '150'
   },
   {
-    field: 'characteristic',
+    field: 'productCode',
     label: t('reuse.productCode'),
     minWidth: '100'
   },
   {
-    field: 'accessory',
+    field: 'productPropertyCode',
     label: t('reuse.managementCode'),
     minWidth: '100'
   },
   {
-    field: 'singleEntryCode',
+    field: 'productPropertyName',
     label: t('reuse.productInformation'),
     minWidth: '100'
   },
 
   {
-    field: 'typeOfFirstEntry',
+    field: 'accessory',
     label: t('reuse.accessory'),
     minWidth: '100',
     filters: filterService
   },
   {
-    field: 'amountImport',
+    field: 'LotImageUrl',
     label: t('reuse.image'),
-    minWidth: '100'
+    minWidth: '100',
+    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
     field: 'typeOfTransfer',
@@ -63,13 +68,13 @@ export const wareHouse = [
     minWidth: '100'
   },
   {
-    field: 'warehouseManagement',
-    label: t('router.warehouseManagement'),
+    field: 'warehouse',
+    label: t('router.warehouse'),
     minWidth: '100',
     filters: filterWarehouseManagement
   },
   {
-    field: 'location',
+    field: 'locationWarehouse',
     label: t('reuse.location'),
     minWidth: '100',
     filters: filterLocation
@@ -81,7 +86,7 @@ export const wareHouse = [
     filters: filterLocation
   },
   {
-    field: 'amountImport',
+    field: 'inputPrice',
     label: t('reuse.amountImportLot'),
     minWidth: '100',
     sortable: true
@@ -98,7 +103,7 @@ export const wareHouse = [
     minWidth: '100'
   },
   {
-    field: 'priceImport',
+    field: 'inputPrice',
     label: t('reuse.priceImport'),
     minWidth: '100',
     sortable: true
@@ -116,16 +121,17 @@ export const wareHouse = [
     filters: filterDeposit
   },
   {
-    field: 'firstEntryDate',
+    field: 'createdAt',
     label: t('reuse.firstEntryDate'),
     minWidth: '100',
-    sortable: true
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100',
-    filters: filterIventory
+    minWidth: '100'
   }
 ]
 
@@ -137,39 +143,50 @@ export const wareHouseContainer = [
     align: 'center'
   },
   {
-    field: 'productCode',
+    field: 'transactionType',
     label: t('reuse.importExportTransferWarehouse'),
     minWidth: '150',
     filters: filterIventory
   },
   {
-    field: 'managementCode',
+    field: 'transactionCode',
     label: t('reuse.importExportTransferWarehouseCode'),
     minWidth: '150',
     filters: filterIventory
   },
   {
-    field: 'productName',
+    field: 'orderCode',
     label: t('reuse.orderCode'),
     minWidth: '150',
     filters: filterIventory
   },
   {
-    field: 'description',
-    label: t('reuse.typeOfProduct'),
-    minWidth: '150',
-    filters: filterIventory
-  },
-  {
-    field: 'productName',
+    field: 'orderDetails',
     label: t('reuse.managementCode'),
     minWidth: '150',
-    filters: filterIventory
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productCode }) => {
+          return h('li', { key: id }, productCode)
+        })
+      )
+    }
   },
   {
     field: 'characteristic',
     label: t('reuse.productInformation'),
-    minWidth: '250'
+    minWidth: '250',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.orderDetails.map(({ id, productName }) => {
+          return h('li', { key: id }, productName)
+        })
+      )
+    }
   },
   {
     field: 'accessory',
@@ -182,9 +199,34 @@ export const wareHouseContainer = [
     minWidth: '100',
     filters: filterService
   },
+  {
+    field: 'transactionDetails[0].warehouseName',
+    label: t('reuse.warehouse'),
+    minWidth: '100',
+    filters: filterIventory
+  },
 
   {
+    field: 'transactionDetails[0].locationName',
+    label: t('reuse.location'),
+    minWidth: '100',
+    sortable: true
+  },
+
+  {
+    field: 'transactionDetails[0].lotCode',
+    label: t('reuse.lotCode'),
+    minWidth: '100',
+    sortable: true,
+    filters: filterIventory
+  },
+  {
     field: 'typeOfFirstEntry',
+    label: t('reuse.productType'),
+    minWidth: '100'
+  },
+  {
+    field: 'orderDescription',
     label: t('reuse.note'),
     minWidth: '100'
   },
@@ -194,41 +236,35 @@ export const wareHouseContainer = [
     minWidth: '100'
   },
   {
-    field: 'warehouseManagement',
+    field: 'orderDetails[0].unitName',
     label: t('reuse.dram'),
     minWidth: '100'
   },
   {
-    field: 'amountImport',
-    label: t('reuse.warehouse'),
+    field: 'createdAt',
+    label: t('reuse.createDate'),
     minWidth: '100',
-    filters: filterIventory
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'location',
-    label: t('reuse.createDateBill'),
-    minWidth: '100',
-    sortable: true
-  },
-
-  {
-    field: 'inventory',
-    label: t('customerList.petitioner'),
-    minWidth: '100',
-    sortable: true,
-    filters: filterIventory
+    field: 'staffName',
+    label: t('reuse.petitioner'),
+    minWidth: '100'
   },
   {
-    field: 'dram',
+    field: 'customerName',
     label: t('reuse.subject'),
     minWidth: '100',
     filters: filterIventory
   },
-
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
-    filters: filterIventory
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatPotentialCustomerStatusIdToText(cellValue)
+    }
   }
 ]

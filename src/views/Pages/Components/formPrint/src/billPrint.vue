@@ -1,3 +1,72 @@
+<script setup lang="ts">
+import { useI18n } from '@/hooks/web/useI18n'
+// import { useIcon } from '@/hooks/web/useIcon'
+
+import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
+
+const { t } = useI18n()
+// const locateIcon = useIcon({ icon: 'entypo:location' })
+// const callIcon = useIcon({ icon: 'fluent:chat-mail-20-filled' })
+
+const props = defineProps({
+  dataEdit: {
+    type: Object,
+    default: () => {}
+  },
+  nameDialog: {
+    type: String,
+    default: () => ''
+  }
+})
+
+const policySale = [
+  {
+    title: 'Quý khách vui lòng kiểm tra hàng trước khi thanh toán',
+    id: 1
+  },
+  {
+    title: 'Thời hạn đổi trả sản phẩm là 3 ngày kể từ ngày mua hàng',
+    id: 2
+  },
+  {
+    title: 'Hàng đổi trả cần ở tình trạng nguyên vẹn',
+    id: 3
+  }
+]
+
+const policyDeposit = [
+  {
+    title: 'Thời hạn thanh toán tối đa sau khi tiến hành đặt cọc...',
+    id: 1
+  },
+  {
+    title: 'Thời hạn hủy đơn hàng là 1 ngày sau khi tiến hành đặt cọc',
+    id: 2
+  }
+]
+
+// watch(
+//   () => props.dataEdit,
+//   () => {
+//     if (props.dataEdit) {
+//       console.log('abc')
+//     } else console.log('bnm')
+//   },
+//   {
+//     deep: true,
+//     immediate: true
+//   }
+// )
+
+function getArraySum(arr) {
+  var total = 0
+  for (var i in arr) {
+    if (arr[i].finalPrice !== 'đ') total += arr[i].finalPrice
+  }
+  return total
+}
+</script>
+
 <template>
   <div>
     <div class="flex items-end pb-[30px]">
@@ -132,75 +201,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-import { useIcon } from '@/hooks/web/useIcon'
-
-import { ElButton, ElDivider, ElTable, ElTableColumn } from 'element-plus'
-
-const { t } = useI18n()
-const locateIcon = useIcon({ icon: 'entypo:location' })
-const callIcon = useIcon({ icon: 'fluent:chat-mail-20-filled' })
-
-const props = defineProps({
-  dataEdit: {
-    type: Object,
-    default: () => {}
-  },
-  nameDialog: {
-    type: String,
-    default: () => ''
-  }
-})
-
-const policySale = [
-  {
-    title: 'Quý khách vui lòng kiểm tra hàng trước khi thanh toán',
-    id: 1
-  },
-  {
-    title: 'Thời hạn đổi trả sản phẩm là 3 ngày kể từ ngày mua hàng',
-    id: 2
-  },
-  {
-    title: 'Hàng đổi trả cần ở tình trạng nguyên vẹn',
-    id: 3
-  }
-]
-
-const policyDeposit = [
-  {
-    title: 'Thời hạn thanh toán tối đa sau khi tiến hành đặt cọc...',
-    id: 1
-  },
-  {
-    title: 'Thời hạn hủy đơn hàng là 1 ngày sau khi tiến hành đặt cọc',
-    id: 2
-  }
-]
-
-// watch(
-//   () => props.dataEdit,
-//   () => {
-//     if (props.dataEdit) {
-//       console.log('abc')
-//     } else console.log('bnm')
-//   },
-//   {
-//     deep: true,
-//     immediate: true
-//   }
-// )
-
-function getArraySum(arr) {
-  var total = 0
-  for (var i in arr) {
-    if (arr[i].finalPrice !== 'đ') total += arr[i].finalPrice
-  }
-  return total
-}
-</script>
 
 <style scoped>
 .el-divider--horizontal {

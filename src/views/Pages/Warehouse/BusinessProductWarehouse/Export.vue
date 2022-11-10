@@ -3,6 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
@@ -12,6 +13,7 @@ import {
   updateCollaborators,
   addQuickCustomer
 } from '@/api/Business'
+import { getStaff, getProductStorage } from '@/api/Warehouse'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { getAllCustomer } from '@/api/Business'
@@ -43,16 +45,17 @@ const { push } = useRouter()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.profileWareHouse')
+    title: t('reuse.profileExport')
   },
   {
     icon: plusIcon,
     name: 'importedProductsWareHouse',
-    title: t('reuse.importedProductsWareHouse')
+    title: t('reuse.importedProductsExport')
   }
 ]
 let CollaboratorId = ref()
@@ -65,6 +68,20 @@ const getGenCodeCollaborator = async () => {
       console.error(err)
     })
   CollaboratorId
+}
+
+const optionsStaffApi = ref<Array<any>>([])
+const getStaffs = async () => {
+  await getStaff({ PageIndex: 1, PageSize: 1000 })
+    .then((res) => {
+      optionsStaffApi.value = res.data.map((product) => ({
+        label: product.name + ' | ' + product.phonenumber,
+        value: product.code
+      }))
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -95,6 +112,22 @@ interface ListOfProductsForSaleType {
   paymentType: string
   edited: boolean
 }
+const productForSale = reactive<ListOfProductsForSaleType>({
+  name: '',
+  productCode: '',
+  productName: '',
+  productPropertyCode: '',
+  productPropertyName: '',
+  id: '',
+  productPropertyId: '',
+  quantity: 1,
+  accessory: '',
+  unitName: 'Cái',
+  price: '',
+  finalPrice: '',
+  paymentType: '',
+  edited: true
+})
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 // Call api danh sách sản phẩm
 let listProductsTable = ref()
@@ -115,18 +148,25 @@ const callApiProductList = async () => {
     }
   }
 }
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
+// interface statusTableWarehouse {
+//   warehouseCheckbox: any
+//   name: any
+//   address: any
+// }
+let tableWarehouse = ref()
+
+const getWarehouse = async () => {
+  await getProductStorage({ PageIndex: 1, PageSize: 1000 })
+    .then((res) => {
+      tableWarehouse.value.warehouseCheckbox = res.data.warehouseCheckbox
+      tableWarehouse.value.name = res.data.name
+      tableWarehouse.value.address = res.data.address
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}
+
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -137,23 +177,9 @@ const callCustomersApi = async () => {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         label: product.code + ' | ' + product.name,
         value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
         name: product.name,
-        taxCode: product.taxCode,
         phonenumber: product.phonenumber,
-        email: product.email,
-        representative: product.representative,
-        bankId: product.bankId,
-        accountName: product.accountName,
-        accountNumber: product.accountNumber,
-        bankName: product.bank?.name,
-        CustomerId: product.id,
-        cccd: product.cccd,
-        cccdCreateAt: product.cccdCreateAt,
-        cccdPlaceOfGrant: product.cccdPlaceOfGrant,
-        sex: product.sex,
-        doB: product.doB
+        email: product.email
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -186,27 +212,24 @@ const changeAddressCustomer = (data) => {
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = result.name
-    infoCompany.taxCode = result.taxCode
     infoCompany.email = result.email
-    infoCompany.representative = result.representative
     infoCompany.phonenumber = result.phonenumber
-    infoCompany.address = result.address
-    infoCompany.bankId = result.bankId
-    infoCompany.accountName = result.accountName
-    infoCompany.accountNumber = result.accountNumber
-    infoCompany.bankName = result.bankName
-    infoCompany.CustomerId = result.CustomerId
-    infoCompany.cccd = result.cccd
-    infoCompany.cccdCreateAt = result.cccdCreateAt
-    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-    infoCompany.sex = result.sex
-    infoCompany.doB = result.doB
     if (!infoCompany.bankId) {
       ElNotification({
         message: t('reuse.CustomersDoNotBankAccount'),
         type: 'warning'
       })
     }
+  } else {
+    customerAddress.value = ''
+  }
+}
+const changeStaff = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsStaffApi.value.find((e) => e.value == data)
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = result.name
   } else {
     customerAddress.value = ''
   }
@@ -317,6 +340,7 @@ const createQuickCustomer = async () => {
       })
     )
 }
+
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
@@ -344,6 +368,7 @@ type FormDataInput = {
   customersValue: any
   isActive?: boolean
   status?: string
+  staffValue: any
 }
 type FormDataPost = {
   CustomerId: number
@@ -432,6 +457,9 @@ const setFormValue = async () => {
 onBeforeMount(async () => {
   callCustomersApi()
   await callApiProductList()
+  ListOfProductsForSale.value.push({ ...productForSale })
+  getStaffs()
+  getWarehouse()
 })
 let FileDeleteIds: any = []
 
@@ -536,13 +564,7 @@ const save = async () => {
     }
   }
 }
-const utility = 'Utility'
-const fix = async () => {
-  push({
-    name: `business.collaborators.collaboratorsList.${utility}`,
-    params: { id: id, type: 'edit' }
-  })
-}
+
 const activeName = ref(collapse[0].name)
 </script>
 <template>
@@ -739,7 +761,7 @@ const activeName = ref(collapse[0].name)
               @register="register"
               status-icon
             >
-              <el-divider content-position="left">{{ t('reuse.profileWareHouse') }}</el-divider>
+              <el-divider content-position="left">{{ t('reuse.detailExport') }}</el-divider>
 
               <ElFormItem :label="t('reuse.formCode')" prop="CollaboratorId">
                 <div class="ml-5">{{ CollaboratorId }}</div>
@@ -747,23 +769,19 @@ const activeName = ref(collapse[0].name)
               <ElFormItem :label="t('reuse.createDate')" prop="CollaboratorId">
                 <div class="ml-5"> 20/03/2022 </div>
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.exportWarehouse')" prop="CollaboratorId">
-                <div class="ml-5"> Kho hà nội </div>
-              </ElFormItem>
               <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="customersValue">
                 <div class="flex">
                   <label><span class="text-red-600"> *</span></label>
                   <ElSelect
-                    v-model="FormData.customersValue"
+                    v-model="FormData.staffValue"
                     filterable
                     @clear="clear()"
                     :clearable="false"
                     size="default"
-                    :placeholder="t('formDemo.chooseACustomer')"
-                    @change="changeAddressCustomer"
+                    @change="changeStaff"
                   >
                     <ElOption
-                      v-for="item in optionsCustomerApi"
+                      v-for="item in optionsStaffApi"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value"
@@ -892,29 +910,24 @@ const activeName = ref(collapse[0].name)
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-table
-          :data="ListOfProductsForSale"
           border
           :class="[
             'bg-[var(--el-color-white)] dark:(text-white-800) border-[var(--el-border-color)] border-1px)'
           ]"
+          :data="ListOfProductsForSale"
         >
-          <el-table-column :label="t('reuse.productType')" min-width="200" prop="productType" />
           <el-table-column
             :label="t('formDemo.productManagementCode')"
             min-width="200"
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
@@ -951,6 +964,16 @@ const activeName = ref(collapse[0].name)
               />
             </template>
           </el-table-column>
+          <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
+            <div class="flex w-[100%] items-center">
+              <div class="w-[40%]">Còn hàng</div>
+              <div class="w-[60%]">
+                <el-button text @click="openDialogChooseWarehouse = true">
+                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                </el-button>
+              </div>
+            </div>
+          </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
@@ -965,45 +988,6 @@ const activeName = ref(collapse[0].name)
             align="center"
             min-width="100"
           />
-          <el-table-column
-            prop="price"
-            :label="t('formDemo.unitPriceWarehouse')"
-            align="right"
-            width="180"
-          >
-            <template #default="props">
-              <el-input v-if="type != 'detail'" v-model="props.row.price" />
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="finalPrice"
-            :label="t('formDemo.intoMoneyWarehouse')"
-            align="right"
-            width="180"
-          />
-          <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
-            <div class="flex w-[100%] items-center">
-              <div class="w-[40%]">Còn hàng</div>
-              <div class="w-[60%]">
-                <el-button text @click="openDialogChooseWarehouse = true">
-                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                </el-button>
-              </div>
-            </div>
-          </el-table-column>
-          <el-table-column
-            prop="quantity"
-            :label="t('reuse.conditionProducts')"
-            align="center"
-            width="90"
-          >
-            <template #default="data">
-              <div v-if="type == 'detail'">
-                {{ data.row.quantity }}
-              </div>
-              <el-input v-else v-model="data.row.quantity" style="width: 100%" />
-            </template>
-          </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <button class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded">{{
               t('reuse.delete')
@@ -1016,6 +1000,12 @@ const activeName = ref(collapse[0].name)
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('reuse.receiptStatus') }}</label>
         </div>
+        <div class="ml-[170px]">
+          <ElButton class="w-[150px]">{{ t('reuse.printDeliveryNote') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.save') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.outStockNow') }}</ElButton>
+          <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancellation') }}</ElButton></div
+        >
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -1137,222 +1127,5 @@ const activeName = ref(collapse[0].name)
 .after {
   display: flex;
   align-items: center;
-}
-::v-deep(.el-select) {
-  width: 100%;
-}
-
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
-}
-
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: block;
-}
-
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-@media screen {
-  #recpPaymentPrint {
-    display: none;
-  }
-  #billDepositPrint {
-    display: none;
-  }
-}
-
-@media print {
-  #printPage {
-    display: block; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: white;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-
-.el-button--text {
-  margin-right: 15px;
-}
-
-::v-deep(.el-input) {
-  width: 100%;
-  height: fit-content;
-}
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
-::v-deep(.el-table th.el-table__cell) {
-  padding: 0 !important;
-}
-
-.example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-dropdown-menu__item) {
-  padding: 5px 30px;
-}
-
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.el-select .el-input) {
-  width: 100% !important;
-}
-
-::v-deep(.el-button--large) {
-  padding: 12px 18px;
-}
-
-.fix-label-color > .el-radio {
-  color: transparent;
-}
-
-::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
-  color: transparent;
-}
-
-.fix-width > .el-form-item {
-  width: 80%;
-}
-
-::v-deep(.poi-self > .el-form-item__label) {
-  margin-top: 2px;
-  align-self: start;
-}
-
-::v-deep(.el-dialog__title) {
-  font-weight: bold;
-}
-
-.btn {
-  width: 150px;
-}
-
-.break-w {
-  word-break: break-word;
-}
-
-.box {
-  padding: 0 10px 0 20px;
-  position: relative;
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
-  background-color: #ccc;
-  opacity: 0.6;
-}
-.box_1 {
-  border: 1px solid #fff0d9;
-  background-color: #fff0d9;
-}
-
-.box_2 {
-  border: 1px solid #f4f8fd;
-  background-color: #f4f8fd;
-}
-
-.box_3 {
-  border: 1px solid #d9d9d9;
-  background-color: #d9d9d9;
-}
-
-.box_4 {
-  border: 1px solid #fce5e1;
-  background-color: #fce5e1;
-}
-
-.right_1 {
-  border-left: 11px solid #fff0d9 !important;
-}
-.right_2 {
-  border-left: 11px solid #f4f8fd !important;
-}
-
-.right_3 {
-  border-left: 11px solid #d9d9d9 !important;
-}
-
-.right_4 {
-  border-left: 11px solid #fce5e1 !important;
-}
-
-.triangle-left {
-  position: absolute;
-  z-index: 1998;
-  width: 0;
-  height: 0;
-}
-.triangle-right {
-  position: absolute;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 13px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 11px solid #ccc;
-}
-
-::v-deep(.el-table td.el-table__cell div) {
-  width: 100%;
-}
-
-::v-deep(.el-table) {
-  z-index: 0;
-}
-
-.duplicate-status + .duplicate-status {
-  margin-left: 10px;
-}
-.active {
-  opacity: 1 !important;
 }
 </style>

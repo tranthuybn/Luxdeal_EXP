@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import tableDatetimeFilterBasicVue from '../../Components/TabsBase.vue'
-import { getWareHouseList } from '@/api/Business'
+import { getWareHouseList, getWareHouseTransactionList } from '@/api/Business'
 import { wareHouse, wareHouseContainer } from '../Warehouse'
 import { Tab } from '../../Components/Type'
 const tabs: Array<Tab> = [
@@ -13,7 +13,7 @@ const tabs: Array<Tab> = [
   {
     name: 'wareHouse',
     label: 'Lịch sử nhập/xuất/chuyển kho',
-    api: getWareHouseList,
+    api: getWareHouseTransactionList,
     column: wareHouseContainer
   }
 ]

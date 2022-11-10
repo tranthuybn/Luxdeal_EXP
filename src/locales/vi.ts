@@ -460,6 +460,8 @@ export default {
     fullyIntegrated: 'Thông tin sản phẩm nhập hoàn',
     unitPriceWarehouse: 'Đơn giá nhập kho',
     intoMoneyWarehouse: 'Thành tiền nhập kho',
+    unitPriceTransfer: 'Đơn giá nhập kho',
+    intoMoneyTransfer: 'Thành tiền nhập kho',
     accountingEntryAdditional: 'Bút toán bổ sung',
     selectProvinceCity: 'Chọn Tỉnh/Thành phố',
     selectDistrict: 'Chọn Quận/Huyện',
@@ -1616,11 +1618,27 @@ export default {
     notification: 'Thông báo',
     // ware house
     profileWareHouse: 'Thông tin chi tiết phiếu nhập kho',
+    profileTransfer: 'Thông tin chi tiết phiếu chuyển kho',
+    detailTransfer: 'Thông tin phiếu chuyển kho',
+    detailWarehouse: 'Thông tin phiếu nhập kho',
+    profileExport: 'Thông tin chi tiết phiếu xuất kho',
+    detailExport: 'Thông tin phiếu xuất kho',
     petitioner: 'Người yêu cầu',
     selectObject: 'Chọn đối tượng',
     importedProductsWareHouse: 'Sản phẩm nhập kho',
+    importedProductsExport: 'Sản phẩm nhập kho',
+    importedProductsTransfer: 'Sản phẩm chuyển kho',
     receiptStatus: 'Trạng thái phiếu nhập kho',
     productType: 'Loại hình sản phẩm',
-    conditionProducts: 'Tình trạng sản phẩm'
+    conditionProducts: 'Tình trạng sản phẩm',
+    printAdmissionSlip: 'In phiếu nhập kho',
+    outStockNow: 'Xuất kho ngay',
+    warehouseNow: 'Nhập kho ngay',
+    moveWarehouseNow: 'Chuyển kho ngay',
+    cancelImport: 'Hủy nhập kho',
+    cancellation: 'Hủy xuất kho',
+    cancelTransfer: 'Hủy chuyển kho',
+    printDeliveryNote: 'In phiếu xuất kho',
+    printTransferSlip: 'In phiếu chuyển kho'
   }
 }

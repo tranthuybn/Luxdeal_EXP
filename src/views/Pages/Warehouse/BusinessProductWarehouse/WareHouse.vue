@@ -3,6 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
@@ -12,6 +13,7 @@ import {
   updateCollaborators,
   addQuickCustomer
 } from '@/api/Business'
+import { getStaff } from '@/api/Warehouse'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { getAllCustomer } from '@/api/Business'
@@ -23,7 +25,9 @@ import {
   ElOption,
   ElButton,
   ElDivider,
+  UploadProps,
   ElInput,
+  ElUpload,
   ElNotification,
   UploadUserFile,
   ElForm,
@@ -33,6 +37,7 @@ import {
   ElTableColumn,
   ElDialog
 } from 'element-plus'
+import type { UploadFile } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 const { required } = useValidator()
@@ -43,6 +48,7 @@ const { push } = useRouter()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -65,6 +71,20 @@ const getGenCodeCollaborator = async () => {
       console.error(err)
     })
   CollaboratorId
+}
+
+const optionsStaffApi = ref<Array<any>>([])
+const getStaffs = async () => {
+  await getStaff({ PageIndex: 1, PageSize: 1000 })
+    .then((res) => {
+      optionsStaffApi.value = res.data.map((product) => ({
+        label: product.name + ' | ' + product.phonenumber,
+        value: product.code
+      }))
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -95,6 +115,22 @@ interface ListOfProductsForSaleType {
   paymentType: string
   edited: boolean
 }
+const productForSale = reactive<ListOfProductsForSaleType>({
+  name: '',
+  productCode: '',
+  productName: '',
+  productPropertyCode: '',
+  productPropertyName: '',
+  id: '',
+  productPropertyId: '',
+  quantity: 1,
+  accessory: '',
+  unitName: 'Cái',
+  price: '',
+  finalPrice: '',
+  paymentType: '',
+  edited: true
+})
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 // Call api danh sách sản phẩm
 let listProductsTable = ref()
@@ -137,23 +173,9 @@ const callCustomersApi = async () => {
       optionsCustomerApi.value = getCustomerResult.map((product) => ({
         label: product.code + ' | ' + product.name,
         value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
         name: product.name,
-        taxCode: product.taxCode,
         phonenumber: product.phonenumber,
-        email: product.email,
-        representative: product.representative,
-        bankId: product.bankId,
-        accountName: product.accountName,
-        accountNumber: product.accountNumber,
-        bankName: product.bank?.name,
-        CustomerId: product.id,
-        cccd: product.cccd,
-        cccdCreateAt: product.cccdCreateAt,
-        cccdPlaceOfGrant: product.cccdPlaceOfGrant,
-        sex: product.sex,
-        doB: product.doB
+        email: product.email
       }))
     }
     profileCustomer.value = getCustomerResult
@@ -186,27 +208,24 @@ const changeAddressCustomer = (data) => {
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = result.name
-    infoCompany.taxCode = result.taxCode
     infoCompany.email = result.email
-    infoCompany.representative = result.representative
     infoCompany.phonenumber = result.phonenumber
-    infoCompany.address = result.address
-    infoCompany.bankId = result.bankId
-    infoCompany.accountName = result.accountName
-    infoCompany.accountNumber = result.accountNumber
-    infoCompany.bankName = result.bankName
-    infoCompany.CustomerId = result.CustomerId
-    infoCompany.cccd = result.cccd
-    infoCompany.cccdCreateAt = result.cccdCreateAt
-    infoCompany.cccdPlaceOfGrant = result.cccdPlaceOfGrant
-    infoCompany.sex = result.sex
-    infoCompany.doB = result.doB
     if (!infoCompany.bankId) {
       ElNotification({
         message: t('reuse.CustomersDoNotBankAccount'),
         type: 'warning'
       })
     }
+  } else {
+    customerAddress.value = ''
+  }
+}
+const changeStaff = (data) => {
+  if (data) {
+    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    const result = optionsStaffApi.value.find((e) => e.value == data)
+    customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = result.name
   } else {
     customerAddress.value = ''
   }
@@ -317,6 +336,7 @@ const createQuickCustomer = async () => {
       })
     )
 }
+
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
@@ -344,6 +364,7 @@ type FormDataInput = {
   customersValue: any
   isActive?: boolean
   status?: string
+  staffValue: any
 }
 type FormDataPost = {
   CustomerId: number
@@ -432,6 +453,8 @@ const setFormValue = async () => {
 onBeforeMount(async () => {
   callCustomersApi()
   await callApiProductList()
+  ListOfProductsForSale.value.push({ ...productForSale })
+  getStaffs()
 })
 let FileDeleteIds: any = []
 
@@ -536,13 +559,15 @@ const save = async () => {
     }
   }
 }
-const utility = 'Utility'
-const fix = async () => {
-  push({
-    name: `business.collaborators.collaboratorsList.${utility}`,
-    params: { id: id, type: 'edit' }
-  })
+const imageUrl = ref()
+let rawUploadFile = ref<UploadFile>()
+const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
+  rawUploadFile.value = uploadFile
+  imageUrl.value = URL.createObjectURL(uploadFile.raw!)
 }
+let fileList = ref<UploadUserFile[]>([])
+type ListImages = 'text' | 'picture' | 'picture-card'
+const listType = ref<ListImages>('text')
 const activeName = ref(collapse[0].name)
 </script>
 <template>
@@ -751,16 +776,15 @@ const activeName = ref(collapse[0].name)
                 <div class="flex">
                   <label><span class="text-red-600"> *</span></label>
                   <ElSelect
-                    v-model="FormData.customersValue"
+                    v-model="FormData.staffValue"
                     filterable
                     @clear="clear()"
                     :clearable="false"
                     size="default"
-                    :placeholder="t('formDemo.chooseACustomer')"
-                    @change="changeAddressCustomer"
+                    @change="changeStaff"
                   >
                     <ElOption
-                      v-for="item in optionsCustomerApi"
+                      v-for="item in optionsStaffApi"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value"
@@ -889,29 +913,24 @@ const activeName = ref(collapse[0].name)
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-table
-          :data="ListOfProductsForSale"
           border
           :class="[
             'bg-[var(--el-color-white)] dark:(text-white-800) border-[var(--el-border-color)] border-1px)'
           ]"
+          :data="ListOfProductsForSale"
         >
-          <el-table-column :label="t('reuse.productType')" min-width="200" prop="productType" />
           <el-table-column
             :label="t('formDemo.productManagementCode')"
             min-width="200"
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
@@ -948,6 +967,39 @@ const activeName = ref(collapse[0].name)
               />
             </template>
           </el-table-column>
+          <el-table-column :label="t('reuse.picture')" min-width="200">
+            <el-upload
+              action="#"
+              :auto-upload="false"
+              v-model:file-list="fileList"
+              :list-type="listType"
+              :limit="1"
+              :on-change="handleChange"
+              :multiple="false"
+            >
+              <div class="flex">
+                <div
+                  style="width: 50px; height: 50px; border-radius: 4px"
+                  class="flex justify-center relative mb-2"
+                >
+                  <ElImage fit="contain" :src="imageUrl" class="avatar" />
+                </div>
+                <el-button text>
+                  <span class="text-blue-500"> + {{ t('reuse.addImage') }}</span>
+                </el-button>
+              </div>
+            </el-upload>
+          </el-table-column>
+          <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
+            <div class="flex w-[100%] items-center">
+              <div class="w-[40%]">Còn hàng</div>
+              <div class="w-[60%]">
+                <el-button text @click="openDialogChooseWarehouse = true">
+                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                </el-button>
+              </div>
+            </div>
+          </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
@@ -978,16 +1030,7 @@ const activeName = ref(collapse[0].name)
             align="right"
             width="180"
           />
-          <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
-            <div class="flex w-[100%] items-center">
-              <div class="w-[40%]">Còn hàng</div>
-              <div class="w-[60%]">
-                <el-button text @click="openDialogChooseWarehouse = true">
-                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                </el-button>
-              </div>
-            </div>
-          </el-table-column>
+
           <el-table-column
             prop="quantity"
             :label="t('reuse.conditionProducts')"
@@ -1013,6 +1056,12 @@ const activeName = ref(collapse[0].name)
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('reuse.receiptStatus') }}</label>
         </div>
+        <div class="ml-[170px]">
+          <ElButton class="w-[150px]">{{ t('reuse.printAdmissionSlip') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.save') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.warehouseNow') }}</ElButton>
+          <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancelImport') }}</ElButton></div
+        >
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -1134,222 +1183,5 @@ const activeName = ref(collapse[0].name)
 .after {
   display: flex;
   align-items: center;
-}
-::v-deep(.el-select) {
-  width: 100%;
-}
-
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
-}
-
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: block;
-}
-
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-@media screen {
-  #recpPaymentPrint {
-    display: none;
-  }
-  #billDepositPrint {
-    display: none;
-  }
-}
-
-@media print {
-  #printPage {
-    display: block; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: white;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-
-.el-button--text {
-  margin-right: 15px;
-}
-
-::v-deep(.el-input) {
-  width: 100%;
-  height: fit-content;
-}
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
-::v-deep(.el-table th.el-table__cell) {
-  padding: 0 !important;
-}
-
-.example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-dropdown-menu__item) {
-  padding: 5px 30px;
-}
-
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.el-select .el-input) {
-  width: 100% !important;
-}
-
-::v-deep(.el-button--large) {
-  padding: 12px 18px;
-}
-
-.fix-label-color > .el-radio {
-  color: transparent;
-}
-
-::v-deep(.fix-label-color > .el-radio > .el-radio__label) {
-  color: transparent;
-}
-
-.fix-width > .el-form-item {
-  width: 80%;
-}
-
-::v-deep(.poi-self > .el-form-item__label) {
-  margin-top: 2px;
-  align-self: start;
-}
-
-::v-deep(.el-dialog__title) {
-  font-weight: bold;
-}
-
-.btn {
-  width: 150px;
-}
-
-.break-w {
-  word-break: break-word;
-}
-
-.box {
-  padding: 0 10px 0 20px;
-  position: relative;
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
-  background-color: #ccc;
-  opacity: 0.6;
-}
-.box_1 {
-  border: 1px solid #fff0d9;
-  background-color: #fff0d9;
-}
-
-.box_2 {
-  border: 1px solid #f4f8fd;
-  background-color: #f4f8fd;
-}
-
-.box_3 {
-  border: 1px solid #d9d9d9;
-  background-color: #d9d9d9;
-}
-
-.box_4 {
-  border: 1px solid #fce5e1;
-  background-color: #fce5e1;
-}
-
-.right_1 {
-  border-left: 11px solid #fff0d9 !important;
-}
-.right_2 {
-  border-left: 11px solid #f4f8fd !important;
-}
-
-.right_3 {
-  border-left: 11px solid #d9d9d9 !important;
-}
-
-.right_4 {
-  border-left: 11px solid #fce5e1 !important;
-}
-
-.triangle-left {
-  position: absolute;
-  z-index: 1998;
-  width: 0;
-  height: 0;
-}
-.triangle-right {
-  position: absolute;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 13px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 11px solid #ccc;
-}
-
-::v-deep(.el-table td.el-table__cell div) {
-  width: 100%;
-}
-
-::v-deep(.el-table) {
-  z-index: 0;
-}
-
-.duplicate-status + .duplicate-status {
-  margin-left: 10px;
-}
-.active {
-  opacity: 1 !important;
 }
 </style>

@@ -1635,6 +1635,10 @@ export default {
     cancellation: 'Hủy xuất kho',
     cancelTransfer: 'Hủy chuyển kho',
     printDeliveryNote: 'In phiếu xuất kho',
-    printTransferSlip: 'In phiếu chuyển kho'
+    printTransferSlip: 'In phiếu chuyển kho',
+    warehouse: 'Kho',
+    importExportTransferWarehouse: 'Nhập/xuất/chuyển',
+    importExportTransferWarehouseCode: 'Mã phiếu nhập/xuất/chuyển',
+    lotCode: 'Mã lot'
   }
 }

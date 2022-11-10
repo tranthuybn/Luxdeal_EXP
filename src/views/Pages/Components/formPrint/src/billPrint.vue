@@ -203,7 +203,7 @@ function getArraySum(arr) {
 </script>
 
 <style scoped>
->>> .el-divider--horizontal {
+.el-divider--horizontal {
   margin: 14px 0;
 }
 .bill:nth-child(1) {

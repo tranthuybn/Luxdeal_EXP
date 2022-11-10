@@ -23,7 +23,7 @@ import {
   UploadUserFile
 } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-
+import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import type { UploadFile } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 
@@ -55,7 +55,6 @@ const disabled = ref(false)
 const handleRemove = (file: UploadFile) => {
   console.log(file)
 }
-const value = ref('')
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
@@ -108,6 +107,24 @@ const collapse: Array<Collapse> = [
   },
   {
     icon: plusIcon,
+    name: 'debtHistory',
+    title: t('formDemo.debtHistory'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
+  },
+  {
+    icon: plusIcon,
     name: 'consignmentReturnHistoryForCustomers',
     title: t('reuse.internalPawnReturnAndRetentionHistoryForCustomers'),
     columns: [],
@@ -135,28 +152,51 @@ const codeProducts = [
 
 // handle input
 interface tableDataType {
-  dateOfPayment: string
-  col: number
-  content: string
+  initializationDate: string
+  certificateInformation: string
+  receiptOrPayment: string
+  quantity: number
+  unitPrice: string
+  intoMoney: string
   collected: string
-  spent: string
-  salesDebt: string
-  edited: boolean
-  paymentType: string
+  rentalFeeDebt: string
+  kindOfMoney: string
+  paymentProposal: string
+  payment: string
   alreadyPaidForTt: boolean
+  statusAccountingEntry: string
 }
 
 const debtTable = ref<Array<tableDataType>>([
   {
-    dateOfPayment: moment().format('L').toString(),
-    col: 1,
-    content: '',
-    collected: '',
-    spent: '',
-    salesDebt: '',
-    edited: true,
-    paymentType: '',
-    alreadyPaidForTt: false
+    initializationDate: moment().format('L').toString(),
+    certificateInformation: 'Thu tiền cọc thuê',
+    receiptOrPayment: 'PT354344',
+    quantity: 0,
+    unitPrice: '',
+    intoMoney: '',
+    collected: '95,000,000 đ',
+    rentalFeeDebt: '',
+    kindOfMoney: t('formDemo.deposit'),
+    paymentProposal: '',
+    payment: 'Thanh toán chuyển khoản',
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  },
+  {
+    initializationDate: moment().format('L').toString(),
+    certificateInformation: 'Kỳ thanh toán phí thuê theo tháng/ Ngày 22/02/2022/Tháng thứ 1',
+    receiptOrPayment: 'PT354344',
+    quantity: 0,
+    unitPrice: '',
+    intoMoney: '',
+    collected: '1,800,000 đ',
+    rentalFeeDebt: '1,800,000 đ',
+    kindOfMoney: t('formDemo.fee'),
+    paymentProposal: 'DNTT6543',
+    payment: 'Thanh toán chuyển khoản',
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
   }
 ])
 const optionsPawnTerm = [
@@ -182,6 +222,16 @@ const optionsPawnTerm = [
   }
 ]
 
+let customerID = ref()
+const getValueOfCustomerSelected = (value, obj) => {
+  changeAddressCustomer(value)
+  customerID.value = value
+  valueProvince.value = obj.provinceId
+  valueDistrict.value = obj.districtId
+  valueCommune.value = obj.wardId
+  enterdetailAddress.value = obj.address
+  ruleForm.customerName = obj.label
+}
 // tạo đơn hàng
 // const { push } = useRouter()
 const router = useRouter()
@@ -334,12 +384,6 @@ const optionsClassify = [
   }
 ]
 
-const dram = [
-  {
-    dramValue: 'psc',
-    label: t('formDemo.psc')
-  }
-]
 const loaiHinhValue = ref('')
 let customerAddress = ref('')
 
@@ -357,6 +401,7 @@ const chooseDelivery = [
   }
 ]
 const deliveryMethod = ref(chooseDelivery[0].value)
+const dialogDepositSlip = ref(false)
 
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -382,21 +427,6 @@ const changeAddressCustomer = (data) => {
   }
   console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
-
-const moneyVal = [
-  {
-    value: 'MoneyFee',
-    label: 'Tiền gốc cầm đồ'
-  },
-  {
-    value: 'pawnFee',
-    label: 'Tiền phí cầm đồ'
-  },
-  {
-    value: 'depositFee',
-    label: 'Tiền phí ký gửi'
-  }
-]
 
 const loaiHinh = [
   {
@@ -435,17 +465,19 @@ const callCustomersApi = async () => {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
-        name: product.name,
-        taxCode: product.taxCode,
-        phone: product.phonenumber,
-        email: product.email
+      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+        code: customer.code,
+        label: customer.isOrganization
+          ? customer.name + ' | MST ' + customer.taxCode
+          : customer.name + ' | ' + customer.phonenumber,
+        address: customer.address,
+        name: customer.name,
+        value: customer.id.toString(),
+        isOrganization: customer.isOrganization,
+        taxCode: customer.taxCode,
+        phone: customer.phonenumber,
+        email: customer.email,
+        id: customer.id.toString()
       }))
     }
   }
@@ -486,49 +518,15 @@ const postQuickCustomer = async () => {
   await createQuickProduct(payload)
 }
 
-const checked1 = ref(true)
+// const checked1 = ref(true)
 const checked2 = ref(false)
-const checked3 = ref(false)
-const checked4 = ref(false)
+// const checked3 = ref(false)
+// const checked4 = ref(false)
 const dialogAddQuick = ref(false)
 
-const checked7 = ref(false)
+// const checked7 = ref(false)
 
 const input = ref('')
-const tableData2 = [
-  {
-    name: '',
-    quantity: '',
-    unitPrice: '',
-    intoMoney: ''
-  }
-]
-const tableData = [
-  {
-    name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; không quai',
-    quantity: '2',
-    unitPrice: '10,000,000 đ',
-    intoMoney: '20,000,000 đ'
-  },
-  {
-    name: 'LV Flourine red X monogam bag da sần - Lage(.5.5 - 40.5)-Gently used / Đỏ; có quai',
-    quantity: '2',
-    unitPrice: '10,000,000 đ',
-    intoMoney: '20,000,000 đ'
-  },
-  {
-    name: 'Vòng cổ ngọc trai kim cương',
-    quantity: '1',
-    unitPrice: '150,000,000 đ',
-    intoMoney: '150,000,000 đ'
-  },
-  {
-    name: '',
-    quantity: '',
-    unitPrice: '',
-    intoMoney: ''
-  }
-]
 
 const historyTable = [
   {
@@ -538,6 +536,38 @@ const historyTable = [
     intoMoney: '//'
   }
 ]
+
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
+  console.log('prtHtml', prtHtml)
+  console.log('ifd:', id)
+
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=1,status=0'
+  )
+  WinPrint?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint?.document.close()
+  WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 500)
+}
 
 // Call api danh sách sản phẩm
 const listProducts = ref()
@@ -598,8 +628,6 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
 }
 
-const dramValue = ref('Chiếc')
-const moneyValue = ref('Tiền gốc')
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -634,6 +662,9 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
 }
 
+const dialogInformationReceipts = ref(false)
+const dialogPaymentVoucher = ref(false)
+const dialogIPRForm = ref(false)
 const valueProvince = ref('')
 const valueCommune = ref('')
 
@@ -643,7 +674,7 @@ const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
-  pawnTerm: '',
+  pawnTerm: [],
   paymentPeriod: '',
   collaboratorCommission: '',
   orderNotes: '',
@@ -938,6 +969,24 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
+const onAddDebtTableItem = () => {
+  debtTable.value.push({
+    initializationDate: moment().format('L').toString(),
+    certificateInformation: '',
+    receiptOrPayment: '',
+    quantity: 0,
+    unitPrice: '',
+    intoMoney: '',
+    collected: '',
+    rentalFeeDebt: '',
+    kindOfMoney: '',
+    paymentProposal: '',
+    payment: '',
+    alreadyPaidForTt: false,
+    statusAccountingEntry: ''
+  })
+}
+
 const activeName = ref(collapse[0].name)
 var curDate = 'DHxx' + moment().format('hhmmss')
 
@@ -1120,16 +1169,14 @@ onMounted(async () => {
                 />
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm" required>
-                <div class="custom-date">
-                  <el-date-picker
-                    v-model="ruleForm.pawnTerm"
-                    type="daterange"
-                    :start-placeholder="t('formDemo.startDay')"
-                    :end-placeholder="t('formDemo.endDay')"
-                    format="DD/MM/YYYY"
-                  />
-                </div>
+              <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
+                <el-date-picker
+                  v-model="ruleForm.pawnTerm"
+                  type="daterange"
+                  :start-placeholder="t('formDemo.startDay')"
+                  :end-placeholder="t('formDemo.endDay')"
+                  format="DD/MM/YYYY"
+                />
               </el-form-item>
 
               <el-form-item :label="t('formDemo.pawnFeePaymentTime')" prop="paymentPeriod">
@@ -1250,28 +1297,30 @@ onMounted(async () => {
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[25%] max-w-[180px] text-right pr-[12px] leading-5">
+                    <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
                       <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
-                    <el-form-item label-width="0" prop="customerName" width="79%">
+                    <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <el-select
-                            :disabled="checkDisabled"
-                            v-model="ruleForm.customerName"
+                          <MultipleOptionsBox
+                            :fields="[
+                              t('reuse.customerCode'),
+                              t('reuse.customerName'),
+                              t('reuse.customerInfo')
+                            ]"
                             filterable
-                            :clearable="true"
-                            placeholder="Select"
-                            @change="changeAddressCustomer"
-                          >
-                            <el-option
-                              v-for="item in optionsCustomerApi"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
+                            width="700px"
+                            :items="optionsCustomerApi"
+                            valueKey="value"
+                            labelKey="label"
+                            :hiddenKey="['id']"
+                            :placeHolder="'Chọn khách hàng'"
+                            :defaultValue="ruleForm.customerName"
+                            :clearable="false"
+                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                          />
                           <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
@@ -1280,6 +1329,7 @@ onMounted(async () => {
                     </el-form-item>
                   </div>
                 </div>
+
                 <div class="flex-1">
                   <el-form-item label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
@@ -1734,140 +1784,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <!-- s -->
-        <el-divider content-position="left">{{ t('formDemo.serviceTrackingTable') }}</el-divider>
-        <el-table :data="tableData" border class="pl-4 dark:text-[#fff]">
-          <el-table-column width="150">
-            <el-select v-model="value" class="m-2">
-              <el-option
-                v-for="item in codeProducts"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column prop="name" width="680" />
-          <el-table-column width="180">
-            <el-input v-model="input" :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
-          </el-table-column>
-          <el-table-column prop="quantity" align="center" width="90" />
-          <el-table-column align="center" width="140">
-            <el-select v-model="dramValue" class="m-2">
-              <el-option
-                v-for="item in dram"
-                :key="item.dramValue"
-                :label="item.label"
-                :value="item.dramValue"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column prop="unitPrice" align="center" width="90" />
-          <el-table-column align="center" width="100" />
-          <el-table-column width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">20%</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.edit') }}</div
-              >
-            </div>
-          </el-table-column>
-          <el-table-column align="center" width="100">36,000,000đ </el-table-column>
-          <el-table-column align="center" width="100">Bán</el-table-column>
-          <el-table-column width="100">ABafdw4</el-table-column>
-
-          <el-table-column align="center" width="90">
-            <!-- <el-button type="danger">{{ t('reuse.delete') }}</el-button> -->
-          </el-table-column>
-        </el-table>
-
-        <el-table :data="tableData2" class="pl-4 dark:text-[#fff]">
-          <el-table-column min-width="250" />
-          <el-table-column min-width="400" />
-          <el-table-column min-width="180" />
-          <el-table-column min-width="90" />
-          <el-table-column min-width="350">
-            <div class="dark:text-[#fff] text-right">Tổng tiền đàm phán ký gửi phải trả</div>
-            <div class="dark:text-[#fff] text-right">Tổng tiền phí ký gửi phải thu</div>
-            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ phải thu</div>
-            <div class="dark:text-[#fff] text-right">Tổng tiền phí cầm đồ</div>
-          </el-table-column>
-
-          <el-table-column align="right" min-width="100">
-            <div class="dark:text-[#fff]">190,000,000 đ</div>
-            <div class="dark:text-[#fff]">-95,000,000 đ</div>
-            <div class="dark:text-[#fff]">-95,000,000 đ</div>
-
-            <div class="dark:text-[#fff]">95,000,000 đ</div>
-          </el-table-column>
-
-          <el-table-column min-width="90" />
-        </el-table>
-
-        <el-divider content-position="left">{{ t('formDemo.debtTrackingSheet') }}</el-divider>
-        <el-table :data="debtTable" border>
-          <el-table-column
-            prop="dateOfPayment"
-            :label="`${t('formDemo.dateOfPayment')}`"
-            min-width="150"
-            align="center"
-          >
-            <template #default="data">
-              <el-date-picker
-                v-model="data.row.dateOfPayment"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column prop="col" :label="`${t('reuse.content')}`" width="240" />
-          <el-table-column :label="`${t('formDemo.receiptOrPayment')}`">
-            <div class="text-blue-500">+{{ t('formDemo.receiptOrPayment') }}</div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.paymentOrder')}`">
-            <div class="text-blue-500">+{{ t('formDemo.paymentOrder') }}</div>
-          </el-table-column>
-          <el-table-column :label="`${t('reuse.typeMoney')}`" align="center" width="100">
-            <el-select v-model="moneyValue" class="m-2">
-              <el-option
-                v-for="item in moneyVal"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.collected')}`">
-            <div>+ 95,000,000 đ</div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.spent')}`" />
-          <el-table-column :label="`${t('formDemo.unpaidDebt')}`">
-            <div>0 đ</div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.pawnFeeDebt')}`" align="right">
-            <div>+ 295,000,000 đ</div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.receivableOrPayable')}`" width="120">
-            <div>Phải thu</div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.choosePayment')}`">
-            <el-select class="m-2" v-model="value" placeholder="Select">
-              <el-option
-                v-for="item in codeProducts"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90" align="center">
-            <el-checkbox v-model="checked1" label="" size="large" />
-          </el-table-column>
-          <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
-            <el-button type="danger">{{ t('reuse.delete') }}</el-button>
-          </el-table-column>
-        </el-table>
         <button class="bg-none border-1 pt-2 pb-2 pl-4 pr-4 mt-2 text-[#cccccc]"
           >+ {{ t('formDemo.add') }}</button
         >
@@ -1878,27 +1794,120 @@ onMounted(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-checkbox v-model="checked2" :label="t('reuse.closedTheOrder')" size="large" />
-            <el-checkbox v-model="checked3" :label="t('formDemo.pawning')" size="large" />
+            <!-- <el-checkbox v-model="checked3" :label="t('formDemo.pawning')" size="large" />
             <el-checkbox v-model="checked4" :label="t('formDemo.renewingThePawn')" size="large" />
 
-            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
+            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" /> -->
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">
-              {{ t('formDemo.complete') }}
-            </el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{ t('reuse.cancel') }}</el-button>
+            <el-button class="min-w-42 min-h-11" @click="printPage('billDepositPrint')">{{
+              t('formDemo.billPawn')
+            }}</el-button>
+            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
+              t('formDemo.saveAndPending')
+            }}</el-button>
+            <el-button type="danger" class="min-w-42 min-h-11">{{
+              t('button.cancelOrder')
+            }}</el-button>
           </div>
         </div>
       </el-collapse-item>
+
+      <!-- phieu in -->
+      <div id="billDepositPrint">
+        <slot>
+          <liquidationContractPrint />
+        </slot>
+      </div>
+
       <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
+        </template>
+        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
+        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
+        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-table ref="multipleTableRef" :data="debtTable" border>
+          <el-table-column type="selection" width="40" />
+          <el-table-column
+            prop="initializationDate"
+            :label="t('formDemo.initializationDate')"
+            width="150"
+            align="center"
+          />
+          <el-table-column
+            prop="certificateInformation"
+            :label="t('formDemo.certificateInformation')"
+            width="240"
+          /><el-table-column
+            prop="certificateInformation"
+            :label="t('formDemo.negotiablePrice')"
+            width="240"
+          />
+          <el-table-column
+            prop="receiptOrPayment"
+            :label="t('formDemo.receiptOrPayment')"
+            align="right"
+          >
+            <template #default="props">
+              <div class="text-blue-500">{{ props.row.receiptOrPayment }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="paymentProposal"
+            :label="t('router.paymentProposal')"
+            align="right"
+          >
+            <template #default="props">
+              <div class="text-blue-500">{{ props.row.paymentProposal }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="collected" :label="t('formDemo.collected')" align="left">
+            <template #default="props">
+              <div class="text-right">{{ props.row.collected }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column :label="t('formDemo.spent')" align="right">đ</el-table-column>
+          <el-table-column
+            prop="rentalFeeDebt"
+            :label="`${t('reuse.outstandingDebt')}`"
+            align="right"
+          />
+          <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
+            <div>Phải thu</div>
+          </el-table-column>
+          <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
+            <template #default="props">
+              <div>{{ props.row.payment }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column :label="t('formDemo.alreadyPaidForTt')" align="center" width="90">
+            <template #default="props">
+              <el-checkbox v-model="props.row.alreadyPaidForTt" />
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="t('formDemo.statusAccountingEntry')"
+            prop="statusAccountingEntry"
+            align="center"
+            min-width="120"
+          />
+          <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
+            <el-button @click="dialogDepositSlip = true">{{ t('reuse.detail') }}</el-button>
+          </el-table-column>
+        </el-table>
+        <el-button class="ml-4 mt-4" @click="onAddDebtTableItem"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
+      </el-collapse-item>
+
+      <el-collapse-item :name="collapse[3].name">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[3].icon" link />
+          <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
           <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
@@ -1969,6 +1978,11 @@ onMounted(async () => {
   </div>
 </template>
 <style scoped>
+@media screen {
+  #billDepositPrint {
+    display: none;
+  }
+}
 ::v-deep(.el-select) {
   width: 100%;
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onBeforeMount, unref, onMounted } from 'vue'
+import { reactive, ref, onBeforeMount, unref, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -686,32 +686,33 @@ const optionsCustomer = [
   }
 ]
 
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
 //add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale,
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => ListOfProductsForSale,
+//   (...value) => {
+//     console.log('Giá trị lựa chọn:', value)
+
+//     if (
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
+//       forceRemove.value == false &&
+//       type !== 'detail'
+//     ) {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
-    forceRemove.value = true
     ListOfProductsForSale.value.splice(index, 1)
   }
 }
@@ -2090,7 +2091,9 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.spaFeePayment') }}</div>

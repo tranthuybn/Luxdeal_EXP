@@ -6,7 +6,8 @@ import {
   API_URL,
   ACCOUNTANT_API,
   CAMPAIGN_API,
-  LOGIN_API_URL
+  LOGIN_API_URL,
+  WAREHOUSE_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -478,7 +479,17 @@ export const getServiceSurveyList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const getWareHouseList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/warehouse/List', params })
+  const res = await request.get(
+    { url: `${WAREHOUSE_API.GET_WAREHOUSE_INVENTORY_API}?${objectToQueryParams(params)}` },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getWareHouseTransactionList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    { url: `${WAREHOUSE_API.GET_WAREHOUSE_TRANSACTION_API}?${objectToQueryParams(params)}` },
+    fixedBaseURL
+  )
   return res && res.data
 }
 export const getCustomerPointsList = async (params: any): Promise<IResponse> => {

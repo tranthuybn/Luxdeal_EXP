@@ -2924,7 +2924,23 @@ onBeforeMount(() => {
                       :value="item.value"
                     />
                   </el-select>
-                  <el-select v-model="ruleForm.rentalPaymentPeriod" placeholder="Select">
+                  <el-select
+                    v-if="ruleForm.rentalPaymentPeriod == '4'"
+                    v-model="ruleForm.rentalPaymentPeriod"
+                    placeholder="Select"
+                  >
+                    <el-option
+                      v-for="item in optionsRentalPaymentPeriod"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <el-select
+                    v-if="ruleForm.rentalPaymentPeriod == '5'"
+                    v-model="ruleForm.rentalPaymentPeriod"
+                    placeholder="Select"
+                  >
                     <el-option
                       v-for="item in optionsRentalPaymentPeriod"
                       :key="item.value"
@@ -2935,7 +2951,7 @@ onBeforeMount(() => {
                 </div>
               </el-form-item>
               <div class="flex gap-2 items-center">
-                <div class="w-[60%] max-w-[531.5px]">
+                <div class="w-[60%] max-w-[528px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
                       v-model="ruleForm.collaborators"
@@ -2956,7 +2972,7 @@ onBeforeMount(() => {
                     <div class="flex items-center">
                       <el-input
                         v-model="ruleForm.discount"
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        class="w-[100%] border-none outline-none bg-transparent"
                         :placeholder="`${t('formDemo.enterDiscount')}`"
                         :suffix-icon="percentageIcon"
                       />

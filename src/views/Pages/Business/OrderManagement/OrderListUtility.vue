@@ -277,7 +277,7 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  quantity: number | undefined
+  quantity: string
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -293,7 +293,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyName: '',
   id: '',
   productPropertyId: '',
-  quantity: 1,
+  quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: 0,
@@ -608,10 +608,6 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 
-// const handleTotal = (scope) => {
-//   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
-// }
-
 // Call api danh sách cộng tác viên
 const listCollaborators = ref()
 const optionsCollaborators = ref()
@@ -781,7 +777,7 @@ const autoCalculateOrder = async () => {
     ListOfProductsForSale.value.pop()
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
-    quantity: e.quantity,
+    quantity: parseInt(e.quantity),
     accessory: e.accessory,
     spaServiceIds: ''
   }))
@@ -1613,7 +1609,7 @@ function printPage(id: string) {
   const WinPrint = window.open(
     '',
     '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
@@ -1627,10 +1623,10 @@ function printPage(id: string) {
 
   WinPrint?.document.close()
   WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
+  // setTimeout(() => {
+  //   WinPrint?.print()
+  //   WinPrint?.close()
+  // }, 500)
 }
 
 const productAttributeValue = (data) => {
@@ -1675,16 +1671,6 @@ const handleChangePaymentRequest = () => {
     })
   }
 }
-
-// Open dialog tùy chọn
-// const openOptionsDialog = (data) => {
-//   console.log('data: ', data)
-//   data.row.certificateInformation.includes('Phiếu thanh toán')
-//     ? (dialogSalesSlipInfomation.value = true)
-//     : data.row.certificateInformation.includes('Phiếu đặt cọc/Tạm ứng')
-//     ? (dialogDepositSlipAdvance.value = true)
-//     : (dialogAccountingEntryAdditional.value = true)
-// }
 
 let moneyDeposit = ref()
 
@@ -2144,7 +2130,7 @@ onMounted(async () => {
       <!-- phieu in -->
       <div id="billDepositPrint">
         <slot>
-          <billPrint :dataEdit="dataEdit" :nameDialog="nameDialog" />
+          <billPrint class="w-[796px] h-[1123px]" :dataEdit="dataEdit" :nameDialog="nameDialog" />
         </slot>
       </div>
 
@@ -3781,7 +3767,6 @@ onMounted(async () => {
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
-              <!-- <div v-if="type === 'detail'">{{ data.row.accessory }}</div> -->
               <el-input
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
@@ -3793,7 +3778,12 @@ onMounted(async () => {
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
               </div>
-              <el-input v-else v-model="data.row.quantity" style="width: 100%" />
+              <el-input
+                v-else
+                @change="autoCalculateOrder"
+                v-model="data.row.quantity"
+                style="width: 100%"
+              />
             </template>
           </el-table-column>
           <el-table-column

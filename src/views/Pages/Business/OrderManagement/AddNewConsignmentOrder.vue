@@ -37,7 +37,7 @@ import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
@@ -80,7 +80,7 @@ const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((product) => ({
+    optionsCollaborators.value = listCollaborators.value.map((product: { name: any; id: any }) => ({
       label: product.name,
       value: product.id
     }))
@@ -97,18 +97,31 @@ const callCustomersApi = async () => {
     const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
     const getCustomerResult = res.data
     if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((product) => ({
-        label: product.representative
-          ? product.representative + ' | MST ' + product.taxCode
-          : product.name + ' | ' + product.phonenumber,
-        value: product.code,
-        address: product.address,
-        isOrganization: product.isOrganization,
-        name: product.name,
-        taxCode: product.taxCode,
-        phone: product.phonenumber,
-        email: product.email
-      }))
+      optionsCustomerApi.value = getCustomerResult.map(
+        (customer: {
+          code: any
+          isOrganization: any
+          name: string
+          taxCode: string
+          phonenumber: string
+          address: any
+          id: { toString: () => any }
+          email: any
+        }) => ({
+          code: customer.code,
+          label: customer.isOrganization
+            ? customer.name + ' | MST ' + customer.taxCode
+            : customer.name + ' | ' + customer.phonenumber,
+          address: customer.address,
+          name: customer.name,
+          value: customer.id.toString(),
+          isOrganization: customer.isOrganization,
+          taxCode: customer.taxCode,
+          phone: customer.phonenumber,
+          email: customer.email,
+          id: customer.id.toString()
+        })
+      )
     }
   }
   optionCallCustomerAPi++
@@ -335,7 +348,7 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 //   ListFileUpload.value = uploadFiles
 // }
 
-const removeListProductsSale = (index) => {
+const removeListProductsSale = (index: number) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
     forceRemove.value = true
     ListOfProductsForSale.value.splice(index, 1)
@@ -380,15 +393,17 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
+    orderObj.orderFiles.map(
+      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
+        if (element !== null) {
+          ListFileUpload.value.push({
+            url: `${element?.domainUrl}${element?.path}`,
+            name: element?.fileId,
+            uid: element?.id
+          })
+        }
       }
-    })
+    )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
     // debtTable.value.push({ ...addDebtTable })
@@ -503,14 +518,23 @@ const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
-    listProducts.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
-      name: product.name ?? '',
-      price: product.price.toString(),
-      productPropertyId: product.id.toString(),
-      productPropertyCode: product.productPropertyCode
-    }))
+    listProducts.value = res.data.map(
+      (product: {
+        code: any
+        productCode: any
+        name: any
+        price: { toString: () => any }
+        id: { toString: () => any }
+        productPropertyCode: any
+      }) => ({
+        productCode: product.code,
+        value: product.productCode,
+        name: product.name ?? '',
+        price: product.price.toString(),
+        productPropertyId: product.id.toString(),
+        productPropertyCode: product.productPropertyCode
+      })
+    )
   }
 }
 
@@ -531,15 +555,23 @@ const ScrollProductBottom = () => {
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
-            : res.data.map((product) =>
-                listProducts.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
-                  name: product.name ?? '',
-                  price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
-                  productPropertyCode: product.productPropertyCode
-                })
+            : res.data.map(
+                (product: {
+                  code: any
+                  productCode: any
+                  name: any
+                  price: { toString: () => any }
+                  id: { toString: () => any }
+                  productPropertyCode: any
+                }) =>
+                  listProducts.value.push({
+                    productCode: product.code,
+                    value: product.productCode,
+                    name: product.name ?? '',
+                    price: product.price.toString(),
+                    productPropertyId: product.id.toString(),
+                    productPropertyCode: product.productPropertyCode
+                  })
               )
         })
         .catch(() => {
@@ -547,7 +579,20 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
+const getValueOfSelected = (
+  _value: any,
+  obj: { productPropertyId: any; value: any; name: any; price: any },
+  scope: {
+    row: {
+      productPropertyId: any
+      productCode: any
+      productName: any
+      price: string
+      finalPrice: string
+      quantity: string
+    }
+  }
+) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
@@ -573,16 +618,18 @@ const getCategory = async () => {
       pageIndex: 1
     })
     categorySelect.value = res.data
-    optionsCategory.value = categorySelect.value.map((product) => ({
-      label: product.name,
-      value: product.id,
-      id: product.id,
-      children: product.children.map((child) => ({
-        value: child.name,
-        label: child.name,
-        id: child.id
-      }))
-    }))
+    optionsCategory.value = categorySelect.value.map(
+      (product: { name: any; id: any; children: any[] }) => ({
+        label: product.name,
+        value: product.id,
+        id: product.id,
+        children: product.children.map((child: { name: any; id: any }) => ({
+          value: child.name,
+          label: child.name,
+          id: child.id
+        }))
+      })
+    )
   }
   callCategoryAPI++
 }
@@ -598,7 +645,7 @@ const getBrandSelectOptions = async () => {
       pageIndex: 1
     })
     brandSelect.value = res.data
-    optionsBrand.value = brandSelect.value.map((product) => ({
+    optionsBrand.value = brandSelect.value.map((product: { name: any; id: any }) => ({
       label: product.name,
       value: product.id
     }))
@@ -618,7 +665,7 @@ const getUnitSelectOptions = async () => {
       pageIndex: 1
     })
     unitSelect.value = res.data
-    optionsUnit.value = unitSelect.value.map((product) => ({
+    optionsUnit.value = unitSelect.value.map((product: { name: any; id: any }) => ({
       label: product.name,
       value: product.id
     }))
@@ -637,7 +684,7 @@ const getOriginSelectOptions = async () => {
       pageIndex: 1
     })
     originSelect.value = res.data
-    optionsOrigin.value = originSelect.value.map((product) => ({
+    optionsOrigin.value = originSelect.value.map((product: { name: any; id: any }) => ({
       label: product.name,
       value: product.id
     }))
@@ -645,10 +692,12 @@ const getOriginSelectOptions = async () => {
   callOriginAPI++
 }
 
-const handleChangeQuickAddProduct = async (data) => {
+const handleChangeQuickAddProduct = async (data: any) => {
   console.log('data: ', data)
 
-  const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
+  const dataSelectedObj = listProducts.value.find(
+    (product: { productPropertyId: any }) => product.productPropertyId == data
+  )
   // quickProductName.value = dataSelectedObj.name
   console.log('dataSelectedObj: ', dataSelectedObj)
 
@@ -678,11 +727,13 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseUnit.value = formProductData.value.categories[2]?.id
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
-const handleTotal = (scope) => {
+const handleTotal = (scope: {
+  row: { intoMoney: string; quantity: string; unitPrice: string }
+}) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-const productAttributeValue = (data) => {
+const productAttributeValue = (data: any) => {
   console.log('data checked', data)
 }
 
@@ -698,7 +749,7 @@ const chooseDelivery = [
 ]
 const deliveryMethod = ref(chooseDelivery[0].value)
 
-const changeAddressCustomer = (data) => {
+const changeAddressCustomer = (data: any) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
@@ -820,10 +871,24 @@ const dram = [
   }
 ]
 
+let customerID = ref()
+
+const getValueOfCustomerSelected = (
+  value: any,
+  obj: { provinceId: string; districtId: string; wardId: string; address: never[]; label: string }
+) => {
+  changeAddressCustomer(value)
+  customerID.value = value
+  valueProvince.value = obj.provinceId
+  valueDistrict.value = obj.districtId
+  valueCommune.value = obj.wardId
+  enterdetailAddress.value = obj.address
+  ruleForm.customerName = obj.label
+}
+
 const checked7 = ref(false)
 const input = ref('')
 
-const dialogFormVisible = ref(false)
 const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
@@ -837,7 +902,7 @@ const historyTable = [
 ]
 const dramValue = ref('Chiếc')
 
-const collapseChangeEvent = (val) => {
+const collapseChangeEvent = (val: string | string[]) => {
   if (val) {
     collapse.forEach((el) => {
       if (val.includes(el.name)) el.icon = minusIcon
@@ -871,21 +936,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
       console.log('error submit!', fields)
     }
   })
-}
-const district = ref()
-const ward = ref()
-const street = ref()
-const cities = ref()
-const callApiCity = async () => {
-  cities.value = await getCity()
-}
-
-const CityChange = async (value) => {
-  district.value = await getDistrict(value)
-}
-
-const districtChange = async (value) => {
-  ward.value = await getWard(value)
 }
 
 const postData = () => {
@@ -973,6 +1023,39 @@ const postData = () => {
     addNewSpaOrders(formDataPayLoad)
   }
 }
+// const nameDialog = ref('')
+
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
+  console.log('prtHtml', prtHtml)
+  console.log('ifd:', id)
+
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+  )
+  WinPrint?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint?.document.close()
+  WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 500)
+}
 
 const checkDisabled = ref(false)
 var curDate = 'DHxx' + moment().format('hhmmss')
@@ -983,7 +1066,6 @@ onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
-  callApiCity()
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
@@ -1284,24 +1366,26 @@ onMounted(async () => {
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
                       <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
-                    <el-form-item label-width="0" prop="customerName" width="80%">
+                    <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <el-select
-                            :disabled="checkDisabled"
-                            v-model="ruleForm.customerName"
+                          <MultipleOptionsBox
+                            :fields="[
+                              t('reuse.customerCode'),
+                              t('reuse.customerName'),
+                              t('reuse.customerInfo')
+                            ]"
                             filterable
-                            :clearable="true"
-                            placeholder="Select"
-                            @change="changeAddressCustomer"
-                          >
-                            <el-option
-                              v-for="item in optionsCustomerApi"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
+                            width="700px"
+                            :items="optionsCustomerApi"
+                            valueKey="value"
+                            labelKey="label"
+                            :hiddenKey="['id']"
+                            :placeHolder="'Chọn khách hàng'"
+                            :defaultValue="ruleForm.customerName"
+                            :clearable="false"
+                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                          />
                           <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
@@ -1344,124 +1428,6 @@ onMounted(async () => {
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
-                </div>
-                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
-                  <p class="w-[150px] ml-2 text-[#828387] text-right">{{
-                    t('formDemo.deliveryAddress')
-                  }}</p>
-                  <p>{{ customerAddress }}</p>
-                  <p>
-                    <el-button
-                      class="hover:bg-transparent; focus:bg-transparent"
-                      text
-                      @click="dialogFormVisible = true"
-                      ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
-                    </el-button>
-                    <el-dialog
-                      v-model="dialogFormVisible"
-                      width="40%"
-                      align-center
-                      title="Địa chỉ nhận hàng"
-                    >
-                      <el-divider />
-                      <div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.provinceOrCity') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueProvince"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            @change="(data) => CityChange(data)"
-                          >
-                            <el-option
-                              v-for="item in cities"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.countyOrDistrict') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueDistrict"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            @change="(data) => districtChange(data)"
-                          >
-                            <el-option
-                              v-for="item in district"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.wardOrCommune') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueCommune"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                          >
-                            <el-option
-                              v-for="item in ward"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.detailedAddress') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="enterdetailAddress"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            clearable
-                            filterable
-                            allow-create
-                          >
-                            <el-option
-                              v-for="item in street"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                      </div>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            class="w-[150px]"
-                            type="primary"
-                            @click="dialogFormVisible = false"
-                            >{{ t('reuse.save') }}</el-button
-                          >
-                          <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
-                            t('reuse.exit')
-                          }}</el-button>
-                        </span>
-                      </template>
-                    </el-dialog>
-                  </p>
                 </div>
               </div>
               <el-form-item
@@ -1781,10 +1747,11 @@ onMounted(async () => {
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.printSalesSlip') }}</el-button>
-            <el-button class="min-w-42 min-h-11">{{ t('formDemo.temporaryStorage') }}</el-button>
+            <el-button class="min-w-42 min-h-11" @click="printPage('billDepositPrint')">{{
+              t('formDemo.printLiquidationContract')
+            }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.complete')
+              t('formDemo.saveAndPending')
             }}</el-button>
             <el-button type="danger" class="min-w-42 min-h-11">{{
               t('button.cancelOrder')
@@ -1792,6 +1759,13 @@ onMounted(async () => {
           </div>
         </div>
       </el-collapse-item>
+
+      <!-- phieu in -->
+      <div id="billDepositPrint">
+        <slot>
+          <liquidationContractPrint />
+        </slot>
+      </div>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
       <el-dialog
@@ -2402,7 +2376,7 @@ onMounted(async () => {
         </el-table>
         <el-button class="ml-4 mt-4" @click="onAddDebtTableItem"
           >+ {{ t('formDemo.add') }}</el-button
-        >
+        >onAddDebtTableItem
       </el-collapse-item>
       <el-collapse-item :name="collapse[3].name">
         <template #title>
@@ -2526,6 +2500,26 @@ onMounted(async () => {
 
 .dialog-footer button:first-child {
   margin-right: 10px;
+}
+
+@media print {
+  #printPage {
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: white;
+  }
+}
+
+@media screen {
+  #billDepositPrint {
+    display: none;
+  }
 }
 
 ::v-deep(.el-dialog__body) {

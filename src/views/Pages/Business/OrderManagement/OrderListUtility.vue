@@ -1521,6 +1521,8 @@ function openPaymentDialog() {
 
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
+  console.log('prtHtml', prtHtml)
+
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML

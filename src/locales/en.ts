@@ -492,7 +492,12 @@ export default {
     returnsExpired: 'Returns expired',
     aheadTimeReturns: 'Ahead of time returns',
     cancelled: 'Cancelled',
-    recorded: 'Recorded'
+    recorded: 'Recorded',
+    importExportHistoryExchange: 'Import export history exchange',
+    returnDepositCustomer: 'Return the deposit to the customer',
+    collectRentalDeposit: 'Collect rental deposit',
+    returnRentalDeposit: 'Return the rental deposit',
+    codePayment: 'Code payment'
   },
   button: {
     add: 'Add quick',

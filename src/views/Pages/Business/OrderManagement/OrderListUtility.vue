@@ -56,10 +56,11 @@ import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
-// import PaymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
+import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+// import { Qrcode } from '@/components/Qrcode'
 
 const { t } = useI18n()
 
@@ -72,6 +73,14 @@ const changeMoney = new Intl.NumberFormat('vi', {
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')
+var autoCodeSellOrder = 'BH' + moment().format('hmmss')
+var autoCodeReceipts = 'PT' + moment().format('hmmss')
+var autoCodeExpenditures = 'PC' + moment().format('hmmss')
+var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
+const sellOrderCode = ref()
+const codeReceipts = ref()
+const codeExpenditures = ref()
+const codePaymentRequest = ref()
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -227,7 +236,7 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'productImportHistory',
-    title: t('formDemo.productImportHistory'),
+    title: t('formDemo.importExportHistoryExchange'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -241,17 +250,6 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3
-  }
-]
-
-const choosePayment = [
-  {
-    value: 0,
-    label: t('formDemo.cashPayment')
-  },
-  {
-    value: 1,
-    label: t('formDemo.cardPayment')
   }
 ]
 
@@ -298,7 +296,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: 1,
   accessory: '',
   unitName: 'Cái',
-  price: '',
+  price: 0,
   finalPrice: '',
   paymentType: '',
   edited: true
@@ -354,10 +352,10 @@ const activeName = ref(collapse[0].name)
 
 // debtTable
 interface tableDataType {
-  createdAt: string
+  createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
-  paymentRequestId: number | undefined
+  paymentRequestId: string | undefined
   receiveMoney: string
   paidMoney: string
   debt: string
@@ -368,30 +366,69 @@ interface tableDataType {
   statusAccountingEntry: string
 }
 
-const addDebtTable = ref<Array<tableDataType>>([
-  {
-    createdAt: '',
-    content: '',
+let debtTable = ref<Array<tableDataType>>([])
+let newTable = ref()
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleSelectionChange = (val: tableDataType[]) => {
+  newTable.value = val
+}
+
+const onAddDebtTableBill = () => {
+  debtTable.value.push({
+    createdAt: moment().format('L').toString(),
+    content: t('formDemo.bill'),
     receiptOrPaymentVoucherId: undefined,
     paymentRequestId: undefined,
     receiveMoney: '',
     paidMoney: '',
     debt: '',
-    typeOfPayment: '',
-    paymentMethods: 0,
+    typeOfPayment: 0,
+    paymentMethods: 1,
     status: 0,
     alreadyPaidForTt: false,
     statusAccountingEntry: 'Đã ghi sổ'
-  }
-])
+  })
+}
 
-let debtTable = ref<Array<tableDataType>>([])
-
-const onAddDebtTableItem = () => {
+const onAddDebtTableDeposit = () => {
   debtTable.value.push({
-    createdAt: '',
-    content: '',
-    receiptOrPaymentVoucherId: 0,
+    createdAt: moment().format('L').toString(),
+    content: t('formDemo.depositSlipAdvance'),
+    receiptOrPaymentVoucherId: undefined,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    alreadyPaidForTt: false,
+    statusAccountingEntry: 'Đã ghi sổ'
+  })
+}
+
+// const onAddDebtTableExchange = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.exchangeReturnGoods'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
+
+const onAddDebtTableReturnDeposit = () => {
+  debtTable.value.push({
+    createdAt: moment().format('L').toString(),
+    content: t('formDemo.returnDepositCustomer'),
+    receiptOrPaymentVoucherId: undefined,
     paymentRequestId: undefined,
     receiveMoney: '',
     paidMoney: '',
@@ -458,12 +495,12 @@ const tableWarehouse = [
   }
 ]
 
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const multipleSelection = ref<tableDataType[]>([])
+// const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+// const multipleSelection = ref<tableDataType[]>([])
 
-const handleSelectionChange = (val: tableDataType[]) => {
-  multipleSelection.value = val
-}
+// const handleSelectionChange = (val: tableDataType[]) => {
+//   multipleSelection.value = val
+// }
 
 const radioVAT = ref(false)
 let infoCompany = reactive({
@@ -502,31 +539,61 @@ const callCustomersApi = async () => {
 }
 
 // Call api danh sách sản phẩm
-let listProductsTable = ref()
-let optionCallAPi = 0
+const listProductsTable = ref()
+
+const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList()
-    if (Array.isArray(res.data) && res.data.length > 0) {
-      listProductsTable.value = res.data.map((product) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      }))
-      optionCallAPi++
-    }
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  if (res.data && res.data?.length > 0) {
+    listProductsTable.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      name: product.name ?? '',
+      price: product.price.toString(),
+      productPropertyId: product.id.toString(),
+      productPropertyCode: product.productPropertyCode
+    }))
   }
+}
+
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProductsTable.value.push({
+                  productCode: product.code,
+                  value: product.productCode,
+                  name: product.name ?? '',
+                  price: product.price.toString(),
+                  productPropertyId: product.id.toString(),
+                  productPropertyCode: product.productPropertyCode
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
+        })
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+  scope.row.price = Number(obj.price)
 }
 
 let customerID = ref()
@@ -541,9 +608,9 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 
-const handleTotal = (scope) => {
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
-}
+// const handleTotal = (scope) => {
+//   scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+// }
 
 // Call api danh sách cộng tác viên
 const listCollaborators = ref()
@@ -630,7 +697,7 @@ const optionsCustomer = [
   }
 ]
 
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -702,6 +769,7 @@ interface tableOrderDetailType {
   productPropertyId: number
   quantity: number | undefined
   accessory: string | undefined
+  spaServiceIds: string
 }
 let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 
@@ -714,19 +782,22 @@ const autoCalculateOrder = async () => {
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    spaServiceIds: ''
   }))
   const payload = {
     serviceType: 1,
-    fromDate: '2022-10-31T09:15:56.106Z',
-    toDate: '2022-10-31T09:15:56.106Z',
+    fromDate: '2022-11-07T07:21:33.634Z',
+    toDate: '2022-12-07T07:21:33.634Z',
     paymentPeriod: 1,
     days: 1,
     campaignId: campaignId.value,
     orderDetail: tableOrderDetail.value
   }
   const res = await getTotalOrder(payload)
-
+  for (let i = 0; i < ListOfProductsForSale.value.length - 1; i++) {
+    ListOfProductsForSale.value[i].finalPrice = res[i].totalPrice
+  }
   totalPriceOrder.value = res.reduce((_total, e) => {
     _total += e.totalPrice
     return _total
@@ -737,15 +808,13 @@ const autoCalculateOrder = async () => {
   }, 0)
 }
 
+const forceRemove = ref(false)
 //add row to the end of table if fill all table
 watch(
-  () => ListOfProductsForSale,
+  () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1],
   () => {
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
       forceRemove.value == false &&
       type !== 'detail'
     ) {
@@ -770,7 +839,7 @@ let autoChangeProvince = ref()
 watch(
   () => enterdetailAddress.value,
   () => {
-    if (enterdetailAddress.value) {
+    if (enterdetailAddress.value && district.value && ward.value) {
       autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
       autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
       autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
@@ -786,13 +855,19 @@ watch(
   }
 )
 
+const inputDeposit = ref(0)
+
+watch(
+  () => inputDeposit.value,
+  () => {
+    moneyDeposit.value = totalPriceOrder.value - inputDeposit.value
+  }
+)
+
 let customerIdPromo = ref()
 
 const removeListProductsSale = (index) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
-    forceRemove.value = true
-    ListOfProductsForSale.value.splice(index, 1)
-  }
+  ListOfProductsForSale.value.splice(index, 1)
 }
 
 const checkDisabled = ref(false)
@@ -1092,12 +1167,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1112,7 +1187,6 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -1174,30 +1248,31 @@ const callPromoApi = async () => {
   }
 }
 
+const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    optionCallPromoAPi = 0
-    customerIdPromo.value = result.id
-    callPromoApi()
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
+  console.log('data: ', data)
+  infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  console.log('infoCustomerId', infoCustomerId.value)
+  console.log('optionsCustomerApi: ', optionsCustomerApi.value)
+  // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+  if (infoCustomerId.value.isOrganization) {
+    console.log('1', optionsCustomerApi)
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    customerAddress.value = ''
-    // deliveryMethod.value = ''
+    console.log('2')
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
+  optionCallPromoAPi = 0
+  customerIdPromo.value = infoCustomerId.value.id
+  callPromoApi()
 }
 
 // Thông tin phiếu thu
@@ -1231,7 +1306,6 @@ const detailedListExpenses = [
 
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
-const inputDeposit = ref('10,000,000 đ')
 
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
@@ -1266,22 +1340,22 @@ const tableInvoice = [
 const dialogSalesSlipInfomation = ref(false)
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
 
-const tableSalesSlip = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    quantity: '2',
-    unitPrices: '10,000,000 đ',
-    intoMoney: '20,000,000 đ'
-  },
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    quantity: '1',
-    unitPrices: '10,000,000 đ',
-    intoMoney: '10,000,000 đ'
-  }
-]
+// const tableSalesSlip = [
+//   {
+//     commodityName:
+//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
+//     quantity: '2',
+//     unitPrices: '10,000,000 đ',
+//     intoMoney: '20,000,000 đ'
+//   },
+//   {
+//     commodityName:
+//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
+//     quantity: '1',
+//     unitPrices: '10,000,000 đ',
+//     intoMoney: '10,000,000 đ'
+//   }
+// ]
 
 // Thông tin đổi/trả hàng
 const changeReturnGoods = ref(false)
@@ -1332,8 +1406,8 @@ const tableAccountingEntry = [
   {
     content: 'Trả lại tiền cọc cho khách',
     collected: '',
-    spent: '10,000,000 đ',
-    intoMoney: '10,000,000 đ'
+    spent: '',
+    intoMoney: ''
   }
 ]
 
@@ -1367,8 +1441,19 @@ const tableAccountingEntry = [
 // ]
 
 // fake tạm option thêm nhanh sản phẩm
+
+const choosePayment = [
+  {
+    value: 0,
+    label: t('formDemo.cashPayment')
+  },
+  {
+    value: 1,
+    label: t('formDemo.cardPayment')
+  }
+]
 const value = ref('')
-const payment = choosePayment[0].value
+let payment = ref(choosePayment[0].value)
 
 const options = [
   {
@@ -1397,11 +1482,10 @@ const addStatusDelay = () => {
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
 const priceChangeOrders = ref(false)
-let countPriceChange = 0
 const changePriceRowTable = (props) => {
+  let countPriceChange = ref(0)
   console.log('props: ', props)
-  // if (props.row.price != props.row.finalPrice && countPriceChange == 0 && type == 'add') {
-  countPriceChange++
+  countPriceChange.value++
   priceChangeOrders.value = true
   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
   arrayStatusOrder.value.push({
@@ -1409,7 +1493,6 @@ const changePriceRowTable = (props) => {
     value: 1,
     isActive: true
   })
-  // }
 }
 
 interface statusOrderType {
@@ -1497,7 +1580,7 @@ const addStatusOrder = (index) => {
 // dialog print
 
 const nameDialog = ref('')
-const testDialog = ref(false)
+// const testDialog = ref(false)
 
 function openBillDialog() {
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
@@ -1554,9 +1637,56 @@ const productAttributeValue = (data) => {
   console.log('data checked', data)
 }
 
-// const handleOpenDialog = () => {
-//   dialogAddQuick.value = true
+// Thêm mã phiếu thu vào debtTable
+const handleChangeReceipts = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeReceipts.value
+        }
+      })
+    })
+  }
+}
+
+// Thêm mã phiếu chi vào debtTable
+const handleChangeExpenditures = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeExpenditures.value
+        }
+      })
+    })
+  }
+}
+
+// Thêm mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentRequest = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.paymentRequestId = codePaymentRequest.value
+        }
+      })
+    })
+  }
+}
+
+// Open dialog tùy chọn
+// const openOptionsDialog = (data) => {
+//   console.log('data: ', data)
+//   data.row.certificateInformation.includes('Phiếu thanh toán')
+//     ? (dialogSalesSlipInfomation.value = true)
+//     : data.row.certificateInformation.includes('Phiếu đặt cọc/Tạm ứng')
+//     ? (dialogDepositSlipAdvance.value = true)
+//     : (dialogAccountingEntryAdditional.value = true)
 // }
+
+let moneyDeposit = ref()
 
 onBeforeMount(async () => {
   callCustomersApi()
@@ -1566,6 +1696,10 @@ onBeforeMount(async () => {
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
+    sellOrderCode.value = autoCodeSellOrder
+    codeReceipts.value = autoCodeReceipts
+    codeExpenditures.value = autoCodeExpenditures
+    codePaymentRequest.value = autoCodePaymentRequest
   }
 })
 onMounted(async () => {
@@ -1908,7 +2042,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -1917,7 +2051,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">PT890345</div>
+              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -1950,7 +2084,7 @@ onMounted(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
+            <label class="w-[30%] text-right">Số tiền thu</label>
             <div class="w-[100%] text-xl">105,000,000 đ</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -1988,9 +2122,16 @@ onMounted(async () => {
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogInformationReceipts = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogInformationReceipts = false
+                      handleChangeReceipts()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogInformationReceipts = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -2036,7 +2177,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2045,7 +2186,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">PT890345</div>
+              <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2078,7 +2219,7 @@ onMounted(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
+            <label class="w-[30%] text-right">Số tiền chi</label>
             <div class="w-[100%] text-xl">105,000,000 đ</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -2116,9 +2257,16 @@ onMounted(async () => {
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogPaymentVoucher = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogPaymentVoucher = false
+                      handleChangeExpenditures()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogPaymentVoucher = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
@@ -2142,7 +2290,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('router.analysis') }}</span>
@@ -2151,7 +2299,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl">DNTT890345</div>
+              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2278,9 +2426,16 @@ onMounted(async () => {
             <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogIPRForm = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogIPRForm = false
+                      handleChangePaymentRequest()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
@@ -2296,6 +2451,7 @@ onMounted(async () => {
         align-center
       >
         <div>
+          <!-- <Qrcode :text="'abc'" /> -->
           <el-divider />
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
@@ -2303,7 +2459,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2312,15 +2468,15 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+              <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">0932424343</div>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -2331,22 +2487,18 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="commodityName"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+            <el-table-column prop="price" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPrices }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -2357,9 +2509,17 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2">30,000,000 đ</p>
-              <p class="pr-2">đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">30,000,000 đ</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
+              }}</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined
+                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
+                  : '0 đ'
+              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              }}</p>
             </div>
           </div>
         </div>
@@ -2407,9 +2567,16 @@ onMounted(async () => {
             <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogSalesSlipInfomation = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogSalesSlipInfomation = false
+                      onAddDebtTableBill()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogSalesSlipInfomation = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -2434,7 +2601,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2443,15 +2610,15 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+              <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">0932424343</div>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -2462,22 +2629,18 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="commodityName"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+            <el-table-column prop="price" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPrices }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -2488,25 +2651,33 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2">30,000,000 đ</p>
-              <p class="pr-2">đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">30,000,000 đ</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
+              }}</p>
+              <p class="pr-2">{{
+                totalPriceOrder != undefined
+                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
+                  : '0 đ'
+              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              }}</p>
             </div>
           </div>
           <span
             class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
           ></span>
           <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-blue-400 mb-2">Đặt cọc <span class="text-red-500">*</span></p>
-              <p class="text-red-600">Còn lại</p>
+            <div class="w-[145px] text-right pr-2">
+              <p class="text-blue-400 h-[30px]">Đặt cọc <span class="text-red-500">*</span></p>
+
+              <p class="text-red-600 pt-2">Còn lại</p>
             </div>
             <div class="w-[145px] text-right">
-              <input
-                v-model="inputDeposit"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
-              />
-              <p class="pr-2 text-red-600">20,000,000 đ</p>
+              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
+              <p class="pr-2 text-red-600 pt-2">{{
+                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
+              }}</p>
             </div>
           </div>
         </div>
@@ -2554,9 +2725,16 @@ onMounted(async () => {
             <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogDepositSlipAdvance = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogDepositSlipAdvance = false
+                      onAddDebtTableDeposit()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogDepositSlipAdvance = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -2809,7 +2987,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2818,15 +2996,15 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+              <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">0932424343</div>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -2911,13 +3089,13 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    onAddDebtTableItem()
+                    onAddDebtTableReturnDeposit()
                     dialogAccountingEntryAdditional = false
                   }
                 "
                 >{{ t('formDemo.saveRecordDebts') }}</el-button
               >
-              <el-button @click="dialogAccountingEntryAdditional = true">{{
+              <el-button @click="dialogAccountingEntryAdditional = false">{{
                 t('reuse.exit')
               }}</el-button>
             </span>
@@ -3227,7 +3405,7 @@ onMounted(async () => {
                     <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
-                    <div>{{ infoCompany.phone }}</div>
+                    <div>Số điện thoại: {{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
@@ -3570,8 +3748,11 @@ onMounted(async () => {
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyCode"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
+                @change="autoCalculateOrder"
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
@@ -3600,10 +3781,8 @@ onMounted(async () => {
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
+              <!-- <div v-if="type === 'detail'">{{ data.row.accessory }}</div> -->
               <el-input
-                v-else
-                class="max-w-[150px]"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -3614,12 +3793,7 @@ onMounted(async () => {
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
               </div>
-              <el-input
-                v-else
-                v-model="data.row.quantity"
-                @change="handleTotal(data)"
-                style="width: 100%"
-              />
+              <el-input v-else v-model="data.row.quantity" style="width: 100%" />
             </template>
           </el-table-column>
           <el-table-column
@@ -3675,6 +3849,9 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
@@ -4118,6 +4295,9 @@ onMounted(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
+        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
+          >+ Thêm bút toán</el-button
+        >
         <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
         <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
@@ -4165,10 +4345,12 @@ onMounted(async () => {
             <template #default="data">
               <div
                 @click="
-                  data.row.formCode.includes('PT') ? openReceiptDialog() : openPaymentDialog()
+                  data.row.receiptOrPaymentVoucherId.includes('PT')
+                    ? openReceiptDialog()
+                    : openPaymentDialog()
                 "
                 class="cursor-pointer text-blue-500"
-                >{{ data.row.formCode }}</div
+                >{{ data.row.receiptOrPaymentVoucherId }}</div
               >
             </template>
           </el-table-column>
@@ -4178,7 +4360,11 @@ onMounted(async () => {
             align="left"
             min-width="150"
           >
-            <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">DNTT6543</div>
+            <template #default="props">
+              <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">{{
+                props.row.paymentRequestId
+              }}</div>
+            </template>
           </el-table-column>
           <el-table-column
             prop="receiveMoney"
@@ -4263,10 +4449,18 @@ onMounted(async () => {
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
-            <template #default>
+            <template #default="data">
               <div class="flex">
                 <button
-                  @click="dialogSalesSlipInfomation = true"
+                  @click="
+                    data.row.content.includes('Phiếu thanh toán')
+                      ? (dialogSalesSlipInfomation = true)
+                      : data.row.content.includes('Phiếu đặt cọc/Tạm ứng')
+                      ? (dialogDepositSlipAdvance = true)
+                      : data.row.content.includes('Trả lại tiền cọc cho khách')
+                      ? (dialogAccountingEntryAdditional = true)
+                      : (changeReturnGoods = true)
+                  "
                   v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
@@ -4277,12 +4471,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button
-          :disabled="checkDisabled"
-          class="ml-4 mt-4"
-          @click="dialogAccountingEntryAdditional = true"
-          >+ {{ t('formDemo.add') }}</el-button
-        >
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[3].name">
@@ -4291,9 +4479,9 @@ onMounted(async () => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">{{
+          <!-- <el-divider content-position="left">{{
             t('formDemo.completeEntryTrackingSheet')
-          }}</el-divider>
+          }}</el-divider> -->
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="startDay"
@@ -4589,5 +4777,9 @@ onMounted(async () => {
 }
 .active {
   opacity: 1 !important;
+}
+
+::v-deep(.handle-fix > .el-input > .el-input__wrapper > .el-input__inner) {
+  text-align: right;
 }
 </style>

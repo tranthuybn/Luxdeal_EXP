@@ -230,14 +230,14 @@ const addLastRowAttribute = () => {
       },
       {
         id: 2,
-        serviceType: 2,
+        serviceType: 3,
         key: 'KyGui',
         value: false,
         hasPrice: false
       },
       {
         id: 3,
-        serviceType: 3,
+        serviceType: 2,
         key: 'ChoThue',
         value: false,
         hasPrice: false
@@ -800,7 +800,7 @@ const openDepositTable = async (scope) => {
   } else {
     depositTableVisible.value = true
     const res = collapse[3].api
-      ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 3 })
+      ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
       : ''
     if (res.data.length == 0) {
       collapse[3].tableList = []
@@ -813,7 +813,7 @@ const openDepositTable = async (scope) => {
       collapse[3].tableList = res.data
     }
     collapse[3].tableList.productPropertyId = findPropertyId
-    collapse[3].tableList.serviceType = 3
+    collapse[3].tableList.serviceType = 2
     collapse[3].tableList.currentRow = scope.$index
   }
   collapse[3].loading = false
@@ -831,7 +831,7 @@ const openRentTable = async (scope) => {
   } else {
     rentTableVisible.value = true
     const res = collapse[2].api
-      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+      ? await collapse[2].api({ ProductPropertyId: findPropertyId, ServiceType: 3 })
       : ''
     if (res.data.length == 0) {
       collapse[2].tableList = []
@@ -849,7 +849,7 @@ const openRentTable = async (scope) => {
       collapse[2].tableList = res.data
     }
     collapse[2].tableList.productPropertyId = findPropertyId
-    collapse[2].tableList.serviceType = 2
+    collapse[2].tableList.serviceType = 3
     collapse[2].tableList.currentRow = scope.$index
   }
   collapse[2].loading = false
@@ -1054,7 +1054,7 @@ const saveDataRentTable = async () => {
   if (collapse[2].tableList.length == 0) {
     let emptyPrice: any = {}
     emptyPrice.productPropertyId = collapse[2].tableList.productPropertyId
-    emptyPrice.serviceType = 2
+    emptyPrice.serviceType = 3
     emptyPrice.productPropertyPrices = []
     changePriceProductProperty(JSON.stringify(emptyPrice))
       .then(() => {

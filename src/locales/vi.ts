@@ -476,6 +476,7 @@ export default {
     completeOrder: 'Hoàn thành đơn hàng',
     editOrder: 'Sửa đơn hàng',
     exchangeReturnGoods: 'Đổi/Trả hàng',
+    returnDepositCustomer: 'Trả lại tiền cọc cho khách',
     checkFinish: 'Đối soát & kết thúc',
     cancellationReturn: 'Hủy đổi/Trả hàng',
     completeExchangeReturn: 'Hoàn thành đổi/Trả hàng',
@@ -506,7 +507,11 @@ export default {
     returnsExpired: 'Trả hàng hết hạn',
     aheadTimeReturns: 'Trả hàng trước hạn',
     recorded: 'Đã ghi sổ',
-    cancelled: 'Đã hủy'
+    cancelled: 'Đã hủy',
+    importExportHistoryExchange: 'Lịch sử nhập/xuất đổi trả',
+    collectRentalDeposit: 'Thu tiền cọc thuê',
+    returnRentalDeposit: 'Trả lại tiền cọc thuê',
+    codePayment: 'Mã phiếu chi'
   },
   button: {
     add: 'Thêm nhanh',

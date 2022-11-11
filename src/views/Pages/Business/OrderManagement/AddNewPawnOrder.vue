@@ -283,7 +283,7 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 
 //add row to the end of table if fill all table
 // watch(
@@ -535,35 +535,73 @@ const historyTable = [
   }
 ]
 
-function printPage(id: string) {
-  const prtHtml = document.getElementById(id)?.innerHTML
-  console.log('prtHtml', prtHtml)
-  console.log('ifd:', id)
+function printPage(id: string, { url, title, w, h }) {
+  // const prtHtml = document.getElementById(id)?.innerHTML
 
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=1,status=0'
+  // const WinPrint = window.open(
+  //   '',
+  //   '',
+  //   'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
+  // )
+  // WinPrint?.document.write(`<!DOCTYPE html>
+  //               <html>
+  //                 <head>
+  //                   ${stylesHtml}
+  //                 </head>
+  //                 <body style="overflow-y: scroll">
+  //                   ${prtHtml}
+  //                 </body>
+  //               </html>`)
+
+  //get content need to print
+  const printContents = document.getElementById(id)?.innerHTML
+  // open new window at the center of screen
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+  const width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width
+  const height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height
+
+  const systemZoom = width / window.screen.availWidth
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+  const newWindow = window.open(
+    url,
+    title,
+    `
+				scrollbars=yes,
+				width=${w / systemZoom},
+				height=${h / systemZoom},
+				top=${top},
+				left=${left}      `
   )
-  WinPrint?.document.write(`<!DOCTYPE html>
+  newWindow?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
                   </head>
-                  <body style="overflow-y: scroll"> 
-                    ${prtHtml}
+                  <body>
+                    ${printContents}
                   </body>
                 </html>`)
 
-  WinPrint?.document.close()
-  WinPrint?.focus()
+  newWindow?.document.close()
+  newWindow?.focus()
   setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
+    newWindow?.print()
+    newWindow?.close()
   }, 500)
 }
 
@@ -987,7 +1025,7 @@ const onAddDebtTableItem = () => {
 
 const activeName = ref(collapse[0].name)
 var curDate = 'DHxx' + moment().format('hhmmss')
-
+const dialogBillLiquidation = ref(false)
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
@@ -1801,8 +1839,8 @@ onMounted(async () => {
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="printPage('billLPawn')">{{
-              t('formDemo.billPawn')
+            <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
+              t('formDemo.printLiquidationContract')
             }}</el-button>
             <el-button class="min-w-42 min-h-11">{{ t('formDemo.billInterest') }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
@@ -1816,11 +1854,52 @@ onMounted(async () => {
       </el-collapse-item>
 
       <!-- phieu in -->
-      <div id="billLPawn">
+      <div id="billPawn">
         <slot>
           <liquidationContractPrint />
         </slot>
       </div>
+
+      <!-- Dialog thông tin hợp đồng thanh lý-->
+      <el-dialog
+        v-model="dialogBillLiquidation"
+        title="Thông tin hợp đồng thanh lý"
+        class="font-bold"
+        width="40%"
+        align-center
+      >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPage('billPawn', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <liquidationContractPrint />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <el-collapse-item :name="collapse[2].name">
         <template #title>
@@ -1979,8 +2058,11 @@ onMounted(async () => {
 </template>
 <style scoped>
 @media screen {
-  #billLPawn {
+  #billPawn {
     display: none;
+  }
+  .dialog-content {
+    display: block;
   }
 }
 ::v-deep(.el-select) {

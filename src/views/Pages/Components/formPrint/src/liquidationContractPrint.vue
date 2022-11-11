@@ -1,37 +1,30 @@
 <script setup lang="ts">
-import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
+import { ElDivider } from 'element-plus'
 // import { useIcon } from '@/hooks/web/useIcon'
 
 import { useI18n } from '@/hooks/web/useI18n'
+
 const { t } = useI18n()
 
 // const locateIcon = useIcon({ icon: 'entypo:location' })
 
-const tableData = [
-  {
-    stt: 'da',
-    codeProduct: 'da',
-    name: 'da',
-    code: 'da',
-    assetsory: 'da',
-    price: 'da',
-    loai: 'da',
-    note: 'da'
-  }
-]
-
-const WinPrint = window.open()
-const printBill = () => {
-  WinPrint?.print()
-  WinPrint?.close()
-}
+// const tableData = [
+//   {, ElTable, ElTableColumn
+//     stt: 'da',
+//     codeProduct: 'da',
+//     name: 'da',
+//     code: 'da',
+//     assetsory: 'da',
+//     price: 'da',
+//     loai: 'da',
+//     note: 'da'
+//   }
+// ]
 </script>
 
 <template>
-  <div class="p-5 w-[798px] h-[1123px]">
-    <div class="flex flex-end">
-      <button @click="printBill">In phiếu</button>
-    </div>
+  <div class="p-5">
+    <div class="flex flex-end"> </div>
     <div class="flex items-end">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -60,7 +53,7 @@ const printBill = () => {
         <p class="trading-code">Mã Giao Dịch: NHSG440</p>
       </div>
       <div class="liquidation-contract-name">
-        <H2>HỢP ĐỒNG THANH LÝ HÀNG HÓA</H2>
+        <h2>HỢP ĐỒNG THANH LÝ HÀNG HÓA</h2>
       </div>
     </div>
     <div class="number-location">
@@ -120,7 +113,7 @@ const printBill = () => {
 
     <el-divider />
 
-    <div class="contract-and-signing">
+    <div class="contract-and-signing mb-5">
       <h4>Hai bên cùng thỏa thuận cùng ký kết hợp đồng với những nội dung sau:</h4>
       <h3 class="underline">ĐIỀU 1: ĐỐI TƯỢNG CỦA HỢP ĐỒNG</h3>
       <p
@@ -129,7 +122,7 @@ const printBill = () => {
         BÀNG MUC DUOI DÂY:
       </p>
 
-      <el-table :data="tableData" width="100" border>
+      <!-- <el-table :data="tableData" width="10" border>
         <el-table-column prop="stt" min-width="80" label="STT" align="center" />
         <el-table-column prop="codeProduct" label="MÃ HÀNG" align="center" />
         <el-table-column prop="name" label="TÊN HÀNG" align="center" />
@@ -138,8 +131,42 @@ const printBill = () => {
         <el-table-column prop="price" label="GIÁ NHẬP" align="center" />
         <el-table-column prop="loai" label="LOẠI HÀNG" align="center" />
         <el-table-column prop="note" label="GHI CHÚ" align="center" />
-      </el-table>
-      <div class="total-money text-end pr-[547px]">
+      </el-table> -->
+
+      <table>
+        <tr>
+          <th>STT</th>
+          <th>MÃ HÀNG</th>
+          <th>TÊN HÀNG</th>
+          <th>CODE</th>
+          <th>PHỤ KIỆN ĐI KÈM</th>
+          <th>GIÁ NHẬP</th>
+          <th>LOẠI HÀNG</th>
+          <th>GHI CHÚ</th>
+        </tr>
+        <tr>
+          <td>Alfreds Futterkiste</td>
+          <td>Alfreds Futterkiste</td>
+          <td>Alfreds Futterkiste</td>
+          <td>Alfreds Futterkiste</td>
+          <td>Maria Anders</td>
+          <td>Maria Anders</td>
+          <td>Germany</td>
+          <td>Germany</td>
+        </tr>
+        <tr>
+          <td>Centro comercial Moctezuma</td>
+          <td>Francisco Chang</td>
+          <td>Mexico</td>
+          <td>Francisco Chang</td>
+          <td>Alfreds Futterkiste</td>
+          <td>Alfreds Futterkiste</td>
+          <td>Mexico</td>
+          <td>Mexico</td>
+        </tr>
+      </table>
+
+      <div class="total-money text-end pr-[115px]">
         <p class="total"> TỔNG TIỀN | 400.000 VNĐ</p>
       </div>
     </div>
@@ -188,7 +215,7 @@ const printBill = () => {
       MUC DUOI DÂY:
     </p>
 
-    <div class="flex signature justify-around mb-5">
+    <div class="flex signature justify-around mb-15">
       <div class="receiving-party">
         <h5 class="text-center">BÊN NHẬN</h5>
         <p>(KÝ, GHI RÕ HỌ TÊN)</p>
@@ -206,7 +233,20 @@ const printBill = () => {
 .text-end {
   text-align: end;
 }
-::v-deep(.el-table .cell) {
+::v-deep(table) {
   word-break: break-word;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
 }
 </style>

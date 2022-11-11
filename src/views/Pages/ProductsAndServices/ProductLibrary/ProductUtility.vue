@@ -1914,14 +1914,6 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="130"
-            :label="t('reuse.quantity')"
-          >
-            <template #default> 1 </template>
-          </ElTableColumn>
-          <ElTableColumn
-            header-align="center"
-            align="center"
-            min-width="130"
             prop="unit"
             :label="t('reuse.unit')"
           >

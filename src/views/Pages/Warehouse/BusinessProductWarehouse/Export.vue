@@ -414,8 +414,7 @@ const setFormValue = async () => {
       if (element.file !== null) {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName,
-          id: element?.file?.id
+          name: element?.file?.fileName
         })
       }
     })

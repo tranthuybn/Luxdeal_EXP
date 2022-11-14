@@ -123,8 +123,7 @@ const pushAdd = () => {
           <TableExtension
             v-if="props.selection"
             :totalRecord="getTotalRecord"
-            :selectedRecord="getSelectedRecord"
-          />
+            :selectedRecord="getSelectedRecord" />
           <TableBase
             ref="tableBase01"
             :selection="selection"
@@ -133,8 +132,7 @@ const pushAdd = () => {
             :customOperator="item.customOperator"
             :delApi="item.delApi"
             :tabs="item.name"
-          />
-        </div>
+        /></div>
       </el-tab-pane>
     </el-tabs>
   </section>

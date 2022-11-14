@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, unref } from 'vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -318,26 +318,26 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
-const forceRemove = ref(false)
+// const forceRemove = ref(false)
 // Thông tin phiếu thanh toán tiền cọc thuê
 const dialogDepositSlip = ref(false)
 //add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale,
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => ListOfProductsForSale,
+//   () => {
+//     if (
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].accessory &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].quantity &&
+//       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productName &&
+//       forceRemove.value == false &&
+//       type !== 'detail'
+//     ) {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 // total order
 let totalOrder = ref(0)
 let dataEdit = ref()
@@ -348,9 +348,8 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 //   ListFileUpload.value = uploadFiles
 // }
 
-const removeListProductsSale = (index: number) => {
-  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1].accessory) {
-    forceRemove.value = true
+const removeListProductsSale = (index) => {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
   }
 }
@@ -1056,35 +1055,73 @@ const postData = () => {
 }
 // const nameDialog = ref('')
 
-function printPage(id: string) {
-  const prtHtml = document.getElementById(id)?.innerHTML
-  console.log('prtHtml', prtHtml)
-  console.log('ifd:', id)
+function printPage(id: string, { url, title, w, h }) {
+  // const prtHtml = document.getElementById(id)?.innerHTML
 
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+  // const WinPrint = window.open(
+  //   '',
+  //   '',
+  //   'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
+  // )
+  // WinPrint?.document.write(`<!DOCTYPE html>
+  //               <html>
+  //                 <head>
+  //                   ${stylesHtml}
+  //                 </head>
+  //                 <body style="overflow-y: scroll">
+  //                   ${prtHtml}
+  //                 </body>
+  //               </html>`)
+
+  //get content need to print
+  const printContents = document.getElementById(id)?.innerHTML
+  // open new window at the center of screen
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+  const width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width
+  const height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height
+
+  const systemZoom = width / window.screen.availWidth
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+  const newWindow = window.open(
+    url,
+    title,
+    `
+				scrollbars=yes,
+				width=${w / systemZoom},
+				height=${h / systemZoom},
+				top=${top},
+				left=${left}      `
   )
-  WinPrint?.document.write(`<!DOCTYPE html>
+  newWindow?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
                   </head>
                   <body>
-                    ${prtHtml}
+                    ${printContents}
                   </body>
                 </html>`)
 
-  WinPrint?.document.close()
-  WinPrint?.focus()
+  newWindow?.document.close()
+  newWindow?.focus()
   setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
+    newWindow?.print()
+    newWindow?.close()
   }, 500)
 }
 
@@ -1104,8 +1141,9 @@ const tableAccountingEntry = [
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 const codeExpenditures = ref()
 const checkDisabled = ref(false)
-var curDate = 'DHxx' + moment().format('hhmmss')
+var curDate = 'DHKG' + moment().format('hhmmss')
 
+const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])
 
 onBeforeMount(() => {
@@ -1774,7 +1812,9 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -1794,7 +1834,7 @@ onMounted(async () => {
         </div>
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="printPage('billDepositPrint')">{{
+            <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
               t('formDemo.printLiquidationContract')
             }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
@@ -1808,11 +1848,52 @@ onMounted(async () => {
       </el-collapse-item>
 
       <!-- phieu in -->
-      <div id="billDepositPrint">
+      <div id="billLiquidationContract">
         <slot>
           <liquidationContractPrint />
         </slot>
       </div>
+
+      <!-- Dialog thông tin hợp đồng thanh lý-->
+      <el-dialog
+        v-model="dialogBillLiquidation"
+        title="Thông tin hợp đồng thanh lý"
+        class="font-bold"
+        width="40%"
+        align-center
+      >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPage('billLiquidationContract', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <liquidationContractPrint />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
       <el-dialog
@@ -2699,8 +2780,11 @@ onMounted(async () => {
 }
 
 @media screen {
-  #billDepositPrint {
+  #billLiquidationContract {
     display: none;
+  }
+  .dialog-content {
+    display: block;
   }
 }
 

@@ -228,6 +228,18 @@ export const addTPV = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Thêm đề nghị thanh toán
+export const addDNTT = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.GET_NEW_RECEIPT_PAYMENT_REQUEST,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Thêm mới đổi trả đơn hàng
 export const createReturnRequest = async (params: any): Promise<IResponse> => {
   const res = await request.post(

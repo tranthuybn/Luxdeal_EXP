@@ -56,7 +56,8 @@ import {
   getReturnRequest,
   getReceiptPaymentVoucher,
   getDetailReceiptPaymentVoucher,
-  getCodePaymentRequest
+  getCodePaymentRequest,
+  addDNTT
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -1715,23 +1716,26 @@ const getDetailPayment = () => {
   console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
+let objIdPayment = ref()
+let idPayment = ref()
 // // Thêm mới phiếu đề nghị thanh toán
-// const postPaymentRequest = async () => {
-//   const payload = {
-//     Code: codePaymentRequest.value,
-//     TotalMoney: 121325,
-//     PaymentType : 0,
-//     PeopleId: ruleForm.orderNotes,
-//     status: ruleForm.collaborators,
-//     PeopleType: ruleForm.discount,
-//     OrderId: customerID.value,
-//     Description: ruleForm.delivery,
-//     Document: undefined,
-//     AccountingEntryId: undefined
-//   }
-//   const formDataPayLoad = FORM_IMAGES(payload)
-//   await addTPV(formDataPayLoad)
-// }
+const postPaymentRequest = async () => {
+  const payload = {
+    Code: codePaymentRequest.value,
+    TotalMoney: 121325,
+    PaymentType: 0,
+    PeopleId: 2,
+    status: 0,
+    PeopleType: 1,
+    OrderId: 117,
+    Description: '',
+    Document: undefined,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objIdPayment.value = await addDNTT(formDataPayLoad)
+  idPayment.value = objIdPayment.value.paymentRequestId
+}
 
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
@@ -2514,6 +2518,7 @@ onMounted(async () => {
                       dialogIPRForm = false
                       newCodePaymentRequest()
                       handleChangePaymentRequest()
+                      postPaymentRequest()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button

@@ -355,6 +355,104 @@ const removeListProductsSale = (index: number) => {
   }
 }
 
+interface tableDataType {
+  initializationDate: string
+  certificateInformation: string
+  receiptOrPayment: string
+  quantity: number
+  unitPrice: string
+  intoMoney: string
+  collected: string
+  rentalFeeDebt: string
+  kindOfMoney: string
+  paymentProposal: string
+  payment: string
+  alreadyPaidForTt: boolean
+  statusAccountingEntry: string
+}
+
+const debtTable = ref<Array<tableDataType>>([])
+let newTable = ref()
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleSelectionChange = (val: tableDataType[]) => {
+  newTable.value = val
+}
+
+// const onAddDebtTableItem = () => {
+//   debtTable.value.push({
+//     initializationDate: moment().format('L').toString(),
+//     certificateInformation: '',
+//     receiptOrPayment: '',
+//     quantity: 0,
+//     unitPrice: '',
+//     intoMoney: '',
+//     collected: '',
+//     rentalFeeDebt: '',
+//     kindOfMoney: t('formDemo.deposit'),
+//     paymentProposal: '',
+//     payment: '',
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: ''
+//   })
+// }
+
+const onAddDebtTableReturnDeposit = () => {
+  debtTable.value.push({
+    initializationDate: moment().format('L').toString(),
+    certificateInformation: 'Thu tiền phạt rút hàng trước 14 ngày',
+    receiptOrPayment: '',
+    quantity: 0,
+    unitPrice: '',
+    intoMoney: '',
+    collected: '',
+    rentalFeeDebt: '',
+    kindOfMoney: t('formDemo.deposit'),
+    paymentProposal: '',
+    payment: '',
+    alreadyPaidForTt: false,
+    statusAccountingEntry: ''
+  })
+}
+
+// Thêm mã phiếu thu vào debtTable
+// const handleChangeReceipts = () => {
+//   if (newTable.value?.length) {
+//     newTable.value.forEach((val) => {
+//       debtTable.value.forEach((e) => {
+//         if (e.content == val.content) {
+//           e.receiptOrPaymentVoucherId = codeReceipts.value
+//         }
+//       })
+//     })
+//   }
+// }
+
+// Thêm mã phiếu chi vào debtTable
+// const handleChangeExpenditures = () => {
+//   if (newTable.value?.length) {
+//     newTable.value.forEach((val) => {
+//       debtTable.value.forEach((e) => {
+//         if (e.content == val.content) {
+//           e.receiptOrPaymentVoucherId = codeExpenditures.value
+//         }
+//       })
+//     })
+//   }
+// }
+
+// Thêm mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentRequest = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.certificateInformation == val.certificateInformation) {
+          e.receiptOrPayment = codeExpenditures.value
+        }
+      })
+    })
+  }
+}
+
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -408,73 +506,6 @@ const editData = async () => {
     ListOfProductsForSale.value.push({ ...productForSale })
     // debtTable.value.push({ ...addDebtTable })
   }
-}
-
-interface tableDataType {
-  initializationDate: string
-  certificateInformation: string
-  receiptOrPayment: string
-  quantity: number
-  unitPrice: string
-  intoMoney: string
-  collected: string
-  rentalFeeDebt: string
-  kindOfMoney: string
-  paymentProposal: string
-  payment: string
-  alreadyPaidForTt: boolean
-  statusAccountingEntry: string
-}
-
-const debtTable = ref<Array<tableDataType>>([
-  {
-    initializationDate: moment().format('L').toString(),
-    certificateInformation: 'Thu tiền cọc thuê',
-    receiptOrPayment: 'PT354344',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '95,000,000 đ',
-    rentalFeeDebt: '',
-    kindOfMoney: t('formDemo.deposit'),
-    paymentProposal: '',
-    payment: 'Thanh toán chuyển khoản',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  },
-  {
-    initializationDate: moment().format('L').toString(),
-    certificateInformation: 'Kỳ thanh toán phí thuê theo tháng/ Ngày 22/02/2022/Tháng thứ 1',
-    receiptOrPayment: 'PT354344',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '1,800,000 đ',
-    rentalFeeDebt: '1,800,000 đ',
-    kindOfMoney: t('formDemo.fee'),
-    paymentProposal: 'DNTT6543',
-    payment: 'Thanh toán chuyển khoản',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  }
-])
-
-const onAddDebtTableItem = () => {
-  debtTable.value.push({
-    initializationDate: moment().format('L').toString(),
-    certificateInformation: '',
-    receiptOrPayment: '',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '',
-    rentalFeeDebt: '',
-    kindOfMoney: '',
-    paymentProposal: '',
-    payment: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
-  })
 }
 
 //thêm nahnh sp
@@ -1057,6 +1088,21 @@ function printPage(id: string) {
   }, 500)
 }
 
+// Bút toán bổ sung
+const dialogAccountingEntryAdditional = ref(false)
+const alreadyPaidForTt = ref(true)
+
+const tableAccountingEntry = [
+  {
+    content: 'Trả lại tiền cọc cho khách',
+    collected: '',
+    spent: '',
+    intoMoney: ''
+  }
+]
+
+var autoCodeExpenditures = 'PC' + moment().format('hmmss')
+const codeExpenditures = ref()
 const checkDisabled = ref(false)
 var curDate = 'DHxx' + moment().format('hhmmss')
 
@@ -1069,6 +1115,7 @@ onBeforeMount(() => {
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
+    codeExpenditures.value = autoCodeExpenditures
   }
 })
 
@@ -2297,15 +2344,153 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Bút toán bổ sung -->
+      <el-dialog
+        v-model="dialogAccountingEntryAdditional"
+        :title="t('formDemo.accountingEntryAdditional')"
+        width="40%"
+        align-center
+      >
+        <div>
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div class="flex gap-4 pt-4 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
+            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
+              <div class="w-[100%]">{{ customerAddress }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold break-w">{{
+              t('formDemo.certificateInformation')
+            }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="280" />
+            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
+              <template #default="props">
+                <div>{{ props.row.collected }} đ</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="spent" :label="t('formDemo.spent')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.spent }} đ</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.intoMoney }} đ</div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="flex justify-end">
+            <div class="w-[145px] text-right">
+              <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
+            </div>
+            <div class="w-[145px] text-right">
+              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
+          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">Thanh toán</label>
+            <div class="w-[100%]">
+              <el-checkbox
+                v-model="alreadyPaidForTt"
+                :label="t('formDemo.alreadyPaidForTt')"
+                size="large"
+              />
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
+            <el-select v-model="payment" placeholder="Select">
+              <el-option
+                v-for="item in choosePayment"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex gap-4 pb-2 items-center">
+            <label class="w-[30%] text-right">Trạng thái</label>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <div class="float-right">
+            <span class="dialog-footer">
+              <el-button
+                type="primary"
+                @click="
+                  () => {
+                    onAddDebtTableReturnDeposit()
+                    dialogAccountingEntryAdditional = false
+                  }
+                "
+                >{{ t('formDemo.saveRecordDebts') }}</el-button
+              >
+              <el-button @click="dialogAccountingEntryAdditional = false">{{
+                t('reuse.exit')
+              }}</el-button>
+            </span>
+          </div>
+        </template>
+      </el-dialog>
       <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
+        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
+          >+ Thêm bút toán</el-button
+        >
         <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
         <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
-        <el-table ref="multipleTableRef" :data="debtTable" border>
+        <el-table
+          ref="multipleTableRef"
+          :data="debtTable"
+          border
+          @selection-change="handleSelectionChange"
+        >
           <el-table-column type="selection" width="40" />
           <el-table-column
             prop="initializationDate"
@@ -2374,9 +2559,6 @@ onMounted(async () => {
             <el-button @click="dialogDepositSlip = true">{{ t('reuse.detail') }}</el-button>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="onAddDebtTableItem"
-          >+ {{ t('formDemo.add') }}</el-button
-        >onAddDebtTableItem
       </el-collapse-item>
       <el-collapse-item :name="collapse[3].name">
         <template #title>

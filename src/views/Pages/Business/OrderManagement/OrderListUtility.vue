@@ -50,7 +50,13 @@ import {
   getproductId,
   addQuickCustomer,
   getTotalOrder,
-  getOrderTransaction
+  getOrderTransaction,
+  addTPV,
+  createReturnRequest,
+  getReturnRequest,
+  getReceiptPaymentVoucher,
+  getDetailReceiptPaymentVoucher,
+  getCodePaymentRequest
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -74,9 +80,9 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
-var autoCodeReceipts = 'PT' + moment().format('hmmss')
-var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
+var autoCodeReturnRequest = 'DT' + moment().format('hms')
+const codeReturnRequest = ref()
 const sellOrderCode = ref()
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -303,38 +309,18 @@ const productForSale = reactive<ListOfProductsForSaleType>({
 })
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
-const historyTable = ref([
-  {
-    startDay: '02/07/2022',
-    productManagementCode: 'SPB34653',
-    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '01',
-    unit: t('formDemo.psc'),
-    invoiceGoodsEnteringWarehouse: 0,
-    inventoryStatus: 'Đã nhập kho'
-  },
-  {
-    startDay: '02/07/2022',
-    productManagementCode: 'SPB34653',
-    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '01',
-    unit: t('formDemo.psc'),
-    invoiceGoodsEnteringWarehouse: 0,
-    inventoryStatus: 'Chưa nhập kho'
-  },
-  {
-    startDay: '02/07/2022',
-    productManagementCode: 'SPB34653',
-    name: 'LV Flourine red X monogram bag da sần - Lage(35.5 - 40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '01',
-    unit: t('formDemo.psc'),
-    invoiceGoodsEnteringWarehouse: 1,
-    inventoryStatus: 'Đã hủy'
-  }
-])
+interface historyTableType {
+  createdAt: string
+  productPropertyId: string
+  productPropertyName: string
+  accessory?: string
+  quantity: string
+  unit?: string
+  invoiceGoodsEnteringWarehouse?: number
+  inventoryStatus?: string
+}
+
+const historyTable = ref<Array<historyTableType>>([])
 
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -359,10 +345,11 @@ interface tableDataType {
   receiveMoney: string
   paidMoney: string
   debt: string
-  typeOfPayment: string | number
+  typeOfPayment: string | number | undefined
   paymentMethods: number
   status: number
   alreadyPaidForTt: boolean
+  idPTC?: number
   statusAccountingEntry: string
 }
 
@@ -382,7 +369,7 @@ const onAddDebtTableBill = () => {
     receiveMoney: '',
     paidMoney: '',
     debt: '',
-    typeOfPayment: 0,
+    typeOfPayment: 1,
     paymentMethods: 1,
     status: 0,
     alreadyPaidForTt: false,
@@ -416,7 +403,7 @@ const onAddDebtTableDeposit = () => {
 //     receiveMoney: '',
 //     paidMoney: '',
 //     debt: '',
-//     typeOfPayment: 0,
+//     typeOfPayment: undefined,
 //     paymentMethods: 1,
 //     status: 0,
 //     alreadyPaidForTt: false,
@@ -433,7 +420,7 @@ const onAddDebtTableReturnDeposit = () => {
     receiveMoney: '',
     paidMoney: '',
     debt: '',
-    typeOfPayment: 0,
+    typeOfPayment: undefined,
     paymentMethods: 1,
     status: 0,
     alreadyPaidForTt: false,
@@ -443,9 +430,9 @@ const onAddDebtTableReturnDeposit = () => {
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
-    startDay: moment().format('L').toString(),
-    productManagementCode: '',
-    name: '',
+    createdAt: moment().format('L').toString(),
+    productPropertyId: '',
+    productPropertyName: '',
     accessory: '',
     quantity: '',
     unit: t('formDemo.psc'),
@@ -494,13 +481,6 @@ const tableWarehouse = [
     address: ''
   }
 ]
-
-// const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-// const multipleSelection = ref<tableDataType[]>([])
-
-// const handleSelectionChange = (val: tableDataType[]) => {
-//   multipleSelection.value = val
-// }
 
 const radioVAT = ref(false)
 let infoCompany = reactive({
@@ -1133,6 +1113,7 @@ const route = useRoute()
 const type = String(route.params.type)
 
 let dataEdit = ref()
+let getHistoryTable = ref()
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1141,11 +1122,15 @@ const editData = async () => {
     const transaction = await getOrderTransaction({ id: 10 })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
+    getHistoryTable.value = await getReturnRequest({ CustomerOrderId: id })
+    console.log('getHistoryTable: ', getHistoryTable.value)
+    console.log('historyTable: ', historyTable.value)
 
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      // sellOrderCode.value = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -1589,11 +1574,13 @@ function openDepositDialog() {
 }
 
 function openReceiptDialog() {
+  getReceiptCode()
   dialogInformationReceipts.value = !dialogInformationReceipts.value
   nameDialog.value = 'Phiếu thu'
 }
 
 function openPaymentDialog() {
+  getcodeExpenditures()
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
 }
@@ -1640,6 +1627,7 @@ const handleChangeReceipts = () => {
       debtTable.value.forEach((e) => {
         if (e.content == val.content) {
           e.receiptOrPaymentVoucherId = codeReceipts.value
+          e.idPTC = idPT.value
         }
       })
     })
@@ -1653,6 +1641,7 @@ const handleChangeExpenditures = () => {
       debtTable.value.forEach((e) => {
         if (e.content == val.content) {
           e.receiptOrPaymentVoucherId = codeExpenditures.value
+          e.idPTC = idPC.value
         }
       })
     })
@@ -1672,6 +1661,109 @@ const handleChangePaymentRequest = () => {
   }
 }
 
+// Lý do thu tiền
+const inputReasonCollectMoney = ref()
+
+let objidPT = ref()
+let idPT = ref()
+// Thêm mới phiếu thu
+const postPT = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: 117,
+    Type: 0,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPT.value = await addTPV(formDataPayLoad)
+  idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  console.log('idPT: ', idPT.value)
+}
+
+let objidPC = ref()
+let idPC = ref()
+// Thêm mới phiếu chi
+const postPC = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: 117,
+    Type: 1,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPC.value = await addTPV(formDataPayLoad)
+  idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  console.log('idPC: ', idPC.value)
+}
+
+let formDetailPaymentReceipt = ref()
+// Lấy chi tiết phiếu thu chi
+const getDetailPayment = () => {
+  openReceiptDialog()
+  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+}
+
+// // Thêm mới phiếu đề nghị thanh toán
+// const postPaymentRequest = async () => {
+//   const payload = {
+//     Code: codePaymentRequest.value,
+//     TotalMoney: 121325,
+//     PaymentType : 0,
+//     PeopleId: ruleForm.orderNotes,
+//     status: ruleForm.collaborators,
+//     PeopleType: ruleForm.discount,
+//     OrderId: customerID.value,
+//     Description: ruleForm.delivery,
+//     Document: undefined,
+//     AccountingEntryId: undefined
+//   }
+//   const formDataPayLoad = FORM_IMAGES(payload)
+//   await addTPV(formDataPayLoad)
+// }
+
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async () => {
+  codeReturnRequest.value = autoCodeReturnRequest
+  const payload = {
+    customerOrderId: 2,
+    code: codeReturnRequest.value,
+    name: 'Đổi trả đơn hàng ',
+    description: 'Khách yêu cầu đổi trả do sản phẩm lỗi',
+    returnRequestType: 1,
+    details: [
+      {
+        productPropertyId: 2,
+        quantity: 1
+      }
+    ]
+  }
+  await createReturnRequest(payload)
+}
+
+const getReceiptCode = async () => {
+  codeReceipts.value = await getReceiptPaymentVoucher()
+}
+
+const getcodeExpenditures = async () => {
+  codeExpenditures.value = await getReceiptPaymentVoucher()
+}
+
+const newCodePaymentRequest = async () => {
+  codePaymentRequest.value = await getCodePaymentRequest()
+}
+
 let moneyDeposit = ref()
 
 onBeforeMount(async () => {
@@ -1683,8 +1775,8 @@ onBeforeMount(async () => {
   if (type == 'add') {
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
-    codeReceipts.value = autoCodeReceipts
-    codeExpenditures.value = autoCodeExpenditures
+    // codeReceipts.value = autoCodeReceipts
+    // codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
 })
@@ -2058,6 +2150,7 @@ onMounted(async () => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2113,6 +2206,7 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogInformationReceipts = false
+                      postPT()
                       handleChangeReceipts()
                     }
                   "
@@ -2249,6 +2343,7 @@ onMounted(async () => {
                     () => {
                       dialogPaymentVoucher = false
                       handleChangeExpenditures()
+                      postPC()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2417,6 +2512,7 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogIPRForm = false
+                      newCodePaymentRequest()
                       handleChangePaymentRequest()
                     }
                   "
@@ -3542,7 +3638,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3551,19 +3647,19 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">Công ty cổ phần Sài Gòn</div>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">79 Khúc Thừa Dụ, phường Dịch Vọng, quận Cầu Giấy, Hà Nội</div>
+              <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">0932424343</div>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonReturn" class="w-[100%]">Hàng bị rách góc</el-input>
+              <el-input v-model="inputReasonReturn" class="w-[100%]" />
             </div>
           </div>
         </div>
@@ -4211,6 +4307,7 @@ onMounted(async () => {
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
+                  postReturnRequest()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
@@ -4280,6 +4377,7 @@ onMounted(async () => {
           </div>
         </div>
       </el-collapse-item>
+
       <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
@@ -4333,7 +4431,7 @@ onMounted(async () => {
             align="left"
           >
             <template #default="data">
-              <div
+              <!-- <div
                 @click="
                   data.row.receiptOrPaymentVoucherId.includes('PT')
                     ? openReceiptDialog()
@@ -4341,7 +4439,20 @@ onMounted(async () => {
                 "
                 class="cursor-pointer text-blue-500"
                 >{{ data.row.receiptOrPaymentVoucherId }}</div
+              > -->
+              <div
+                @click="
+                  () => {
+                    formDetailPaymentReceipt.value = getDetailReceiptPaymentVoucher({
+                      id: data.row.idPTC
+                    })
+                    getDetailPayment()
+                  }
+                "
+                class="cursor-pointer text-blue-500"
               >
+                {{ data.row.receiptOrPaymentVoucherId }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -4399,7 +4510,8 @@ onMounted(async () => {
             min-width="120"
           >
             <template #default="props">
-              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -4469,9 +4581,6 @@ onMounted(async () => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
-          <!-- <el-divider content-position="left">{{
-            t('formDemo.completeEntryTrackingSheet')
-          }}</el-divider> -->
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="startDay"

@@ -182,6 +182,76 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Lấy mã phiếu thu chi
+export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy chi tiết phiếu thu chi
+export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy mã phiếu đề nghị thanh toán
+export const getCodePaymentRequest = async (): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Thêm mới phiếu thu chi
+export const addTPV = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_NEW_RECEIPT_PAYMENTVOUCHER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Thêm mới đổi trả đơn hàng
+export const createReturnRequest = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.CREATE_RETURN_REQUEST,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// update lịch sử nhập xuất/đổi trả
+export const getReturnRequest = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_RETURN_REQUEST}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Thêm nhanh khách hàng
 export const addQuickCustomer = async (params: any): Promise<IResponse> => {
   const res = await request.post(

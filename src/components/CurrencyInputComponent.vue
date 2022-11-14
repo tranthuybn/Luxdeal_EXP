@@ -40,7 +40,7 @@ const displayValue = computed({
   set(modifiedValue) {
     // Recalculate value after ignoring "$" and "," in user input
     // eslint-disable-next-line no-useless-escape
-    let newValue = parseFloat(modifiedValue.toString().replace(/[^\d\.]/g, ''))
+    let newValue: string | number = parseFloat(modifiedValue.toString().replace(/[^\d\.]/g, ''))
     // Ensure that it is not NaN
     if (isNaN(newValue)) {
       newValue = 0

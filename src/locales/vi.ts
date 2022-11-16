@@ -520,7 +520,9 @@ export default {
     importExportHistoryExchange: 'Lịch sử nhập/xuất đổi trả',
     collectRentalDeposit: 'Thu tiền cọc thuê',
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
-    codePayment: 'Mã phiếu chi'
+    codePayment: 'Mã phiếu chi',
+    infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
+    infoReturnExpired: 'Trả hàng hết hạn'
   },
   button: {
     add: 'Thêm nhanh',

@@ -57,7 +57,8 @@ import {
   getReceiptPaymentVoucher,
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
-  addDNTT
+  addDNTT,
+  addOrderStransaction
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -312,16 +313,18 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 interface historyTableType {
   createdAt: string
-  productPropertyId: string
-  productPropertyName: string
+  productPropertyId: string | undefined
+  productPropertyName: string | undefined
   accessory?: string
-  quantity: string
+  quantity: string | undefined
   unit?: string
+  refundUnitPrice?: number
+  intoUnitPrice?: number
   invoiceGoodsEnteringWarehouse?: number
   inventoryStatus?: string
 }
 
-const historyTable = ref<Array<historyTableType>>([])
+const historyTable = ref<Array<any>>([])
 
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -412,35 +415,23 @@ const onAddDebtTableDeposit = () => {
 //   })
 // }
 
-const onAddDebtTableReturnDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.returnDepositCustomer'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    typeOfPayment: undefined,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const onAddDebtTableReturnDeposit = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.returnDepositCustomer'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     typeOfPayment: undefined,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
-const onAddHistoryTableItem = () => {
-  historyTable.value.push({
-    createdAt: moment().format('L').toString(),
-    productPropertyId: '',
-    productPropertyName: '',
-    accessory: '',
-    quantity: '',
-    unit: t('formDemo.psc'),
-    invoiceGoodsEnteringWarehouse: 0,
-    inventoryStatus: ''
-  })
-}
 // Dialog change address
 
 const dialogFormVisible = ref(false)
@@ -575,6 +566,12 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
   scope.row.price = Number(obj.price)
+}
+
+const updatePrice = (_value, obj, scope) => {
+  scope.row.productPropertyId = obj.productPropertyId
+  scope.row.refundUnitPrice = Number(obj.price)
+  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
 }
 
 let customerID = ref()
@@ -1116,11 +1113,16 @@ const type = String(route.params.type)
 let dataEdit = ref()
 let getHistoryTable = ref()
 
+const getOrderStransactionList = async () => {
+  const transaction = await getOrderTransaction({ id: id })
+  debtTable.value = transaction.data
+}
+
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 1 })
-    const transaction = await getOrderTransaction({ id: 10 })
+    const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getHistoryTable.value = await getReturnRequest({ CustomerOrderId: id })
@@ -1131,7 +1133,7 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      // sellOrderCode.value = orderObj.code
+      sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -1341,25 +1343,48 @@ const singleTableRef = ref<InstanceType<typeof ElTable>>()
 
 // Thông tin đổi/trả hàng
 const changeReturnGoods = ref(false)
-const inputReasonReturn = ref('Hàng bị rách góc')
+const inputReasonReturn = ref('')
 
-const tableReturnFullyIntegrated = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
+const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
+
+const addTableReturnFullyIntegrated = () => {
+  tableReturnFullyIntegrated.value.push({
+    createdAt: moment().format('L').toString(),
+    productPropertyId: undefined,
+    productPropertyName: undefined,
     accessory: '',
-    quantity: '2',
-    unitPrices: '10,000,000 đ',
-    intoMoney: '20,000,000 đ'
-  },
-  {
-    commodityName: '',
-    accessory: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ'
+    quantity: undefined,
+    unit: t('formDemo.psc'),
+    refundUnitPrice: 0,
+    intoUnitPrice: 0,
+    invoiceGoodsEnteringWarehouse: 0,
+    inventoryStatus: ''
+  })
+}
+
+// Lấy bảng lịch sử nhập xuất đổi trả
+const getReturnRequestTable = async () => {
+  const res = await getReturnRequest({ CustomerOrderId: id })
+  console.log('res: ', res.data)
+  const optionsReturnRequest = res.data
+  if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
+    historyTable.value = optionsReturnRequest.map((e) => ({
+      createdAt: e.returnRequestInfo?.createdAt ?? '',
+      productPropertyId: e.productPropertyId,
+      productPropertyName: e.productPropertyName,
+      accessory: e.accessory,
+      quantity: e.quantity,
+      unitName: e.unitName,
+      returnDetailType: e.returnDetailType,
+      returnDetailTypeName: e.returnDetailTypeName,
+      returnDetailStatusName: e.returnDetailStatusName
+    }))
   }
-]
+}
+
+// const updateTableReturnRequest = () => {
+//   console.log('updateTableReturnRequest: ')
+// }
 
 const tableProductInformationExportChange = [
   {
@@ -1384,46 +1409,17 @@ const alreadyPaidForTt = ref(true)
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 
-const tableAccountingEntry = [
+const tableAccountingEntry = ref([
   {
     content: 'Trả lại tiền cọc cho khách',
+    kindOfMoney: '',
     collected: '',
     spent: '',
     intoMoney: ''
   }
-]
-
-//data tbale nhập hoàn
-
-// const tableDataNhapHoan = [
-//   {
-//     date: '1',
-//     name: 'Tom',
-//     address: 'No. 189, Grove St, Los Angeles',
-//     amount: 2,
-//     unitPrice: 200000,
-//     intoCashback: 1500
-//   },
-//   {
-//     date: '1',
-//     name: 'Tom',
-//     address: 'No. 189, Grove St, Los Angeles',
-//     amount: 2,
-//     unitPrice: 20000,
-//     intoCashback: 1500
-//   },
-//   {
-//     date: '1',
-//     name: 'Tom',
-//     address: 'No. 189, Grove St, Los Angeles',
-//     amount: 2,
-//     unitPrice: 20000,
-//     intoCashback: 1500
-//   }
-// ]
+])
 
 // fake tạm option thêm nhanh sản phẩm
-
 const choosePayment = [
   {
     value: 0,
@@ -1559,8 +1555,23 @@ const addStatusOrder = (index) => {
   }
 }
 
-// dialog print
+// options loại tiền bút toán bổ sung
+const optionsKindOfMoney = [
+  {
+    value: 1,
+    label: 'Tiền cọc(Không tính vào Công nợ phí thuê)'
+  },
+  {
+    value: 2,
+    label: 'Tiền phí(Tính vào Công nợ phí thuê)'
+  },
+  {
+    value: 3,
+    label: 'Tiền khác(Không tính vào Công nợ phí thuê)'
+  }
+]
 
+// dialog print
 const nameDialog = ref('')
 // const testDialog = ref(false)
 
@@ -1665,9 +1676,9 @@ const handleChangePaymentRequest = () => {
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
 
+// Thêm mới phiếu thu
 let objidPT = ref()
 let idPT = ref()
-// Thêm mới phiếu thu
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
@@ -1687,9 +1698,9 @@ const postPT = async () => {
   console.log('idPT: ', idPT.value)
 }
 
+// Thêm mới phiếu chi
 let objidPC = ref()
 let idPC = ref()
-// Thêm mới phiếu chi
 const postPC = async () => {
   const payload = {
     Code: codeReceipts.value,
@@ -1709,16 +1720,16 @@ const postPC = async () => {
   console.log('idPC: ', idPC.value)
 }
 
-let formDetailPaymentReceipt = ref()
 // Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
   console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
+// // Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
-// // Thêm mới phiếu đề nghị thanh toán
 const postPaymentRequest = async () => {
   const payload = {
     Code: codePaymentRequest.value,
@@ -1737,21 +1748,51 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
+let objOrderStransaction = ref()
+let idStransaction = ref()
+// Thêm bút toán cho đơn hàng
+const postOrderStransaction = async () => {
+  codeReturnRequest.value = autoCodeReturnRequest
+  const payload = {
+    orderId: id,
+    content: tableAccountingEntry.value[0].content,
+    paymentRequestId: null,
+    receiptOrPaymentVoucherId: null,
+    receiveMoney: tableAccountingEntry.value[0].collected
+      ? parseInt(tableAccountingEntry.value[0].collected)
+      : 0,
+    paidMoney: tableAccountingEntry.value[0].spent
+      ? parseInt(tableAccountingEntry.value[0].spent)
+      : 0,
+    deibt: 0,
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    isReceiptedMoney: 0,
+    typeOfMoney: 1
+  }
+
+  objOrderStransaction.value = await addOrderStransaction(payload)
+  idStransaction.value = objOrderStransaction.value.paymentRequestId
+  getOrderStransactionList()
+}
+
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
+  const tableReturnPost = ref()
+  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
+    productPropertyId: e.productPropertyId,
+    quantity: e.quantity,
+    acessory: e.accessory ?? '2'
+  }))
   const payload = {
-    customerOrderId: 2,
+    customerOrderId: id,
     code: codeReturnRequest.value,
     name: 'Đổi trả đơn hàng ',
-    description: 'Khách yêu cầu đổi trả do sản phẩm lỗi',
+    description: inputReasonReturn.value,
     returnRequestType: 1,
-    details: [
-      {
-        productPropertyId: 2,
-        quantity: 1
-      }
-    ]
+    details: tableReturnPost.value
   }
   await createReturnRequest(payload)
 }
@@ -1779,8 +1820,6 @@ onBeforeMount(async () => {
   if (type == 'add') {
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
-    // codeReceipts.value = autoCodeReceipts
-    // codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
 })
@@ -1798,7 +1837,6 @@ onMounted(async () => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
-      <!-- <DialogOrder @openDialog="handleOpenDialog" dialogType="1" /> -->
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -3104,15 +3142,31 @@ onMounted(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="240">
+              <template #default="props">
+                <el-input v-model="props.row.content" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="kindOfMoney" :label="t('formDemo.kindOfMoney')" width="120">
+              <template #default="props">
+                <el-select v-model="props.row.kindOfMoney" class="m-2">
+                  <el-option
+                    v-for="item in optionsKindOfMoney"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
-                <div>{{ props.row.collected }} đ</div>
+                <el-input class="text-right" v-model="props.row.collected" />
               </template>
             </el-table-column>
             <el-table-column prop="spent" :label="t('formDemo.spent')">
               <template #default="props">
-                <div class="text-right">{{ props.row.spent }} đ</div>
+                <el-input class="text-right" v-model="props.row.spent" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
@@ -3176,7 +3230,8 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    onAddDebtTableReturnDeposit()
+                    postOrderStransaction()
+                    getOrderStransactionList()
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -3683,19 +3738,44 @@ onMounted(async () => {
           >
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
-            />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+            >
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPrices }}</div>
+                <MultipleOptionsBox
+                  :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('formDemo.productInformation')
+                  ]"
+                  filterable
+                  :items="listProductsTable"
+                  valueKey="productPropertyId"
+                  labelKey="name"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  :defaultValue="props.row.productPropertyCode"
+                  @scroll-top="ScrollProductTop"
+                  @scroll-bottom="ScrollProductBottom"
+                  :clearable="false"
+                  @update-value="(value, obj) => updatePrice(value, obj, props)"
+                />
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }}</div>
+                <el-input v-model="props.row.quantity" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
+              <template #default="props">
+                <el-input v-model="props.row.refundUnitPrice" class="text-right" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
+              <template #default="props">
+                <div class="text-right">{{ props.row.intoUnitPrice }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3789,9 +3869,16 @@ onMounted(async () => {
             <el-button @click="changeReturnGoods = false">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="changeReturnGoods = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      changeReturnGoods = false
+                      postReturnRequest()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
@@ -4307,12 +4394,11 @@ onMounted(async () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   changeReturnGoods = true
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
-                  postReturnRequest()
+                  addTableReturnFullyIntegrated()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
@@ -4346,6 +4432,7 @@ onMounted(async () => {
                   postData()
                   changeReturnGoods = true
                   statusOrder = 8
+                  getReturnRequestTable()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
@@ -4588,28 +4675,21 @@ onMounted(async () => {
         <div>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
-              prop="startDay"
-              :label="t('formDemo.productInformation')"
+              prop="createdAt"
+              :label="t('formDemo.initializationDate')"
               min-width="150"
             >
-              <template #default="data">
-                <el-date-picker
-                  v-model="data.row.startDay"
-                  v-if="type != 'detail'"
-                  type="date"
-                  placeholder="Pick a day"
-                  format="DD/MM/YYYY"
-                />
-                <div v-else>{{ data.row.startDay }}</div>
+              <template #default="props">
+                {{ dateTimeFormat(props.row.createdAt) }}
               </template>
             </el-table-column>
             <el-table-column
-              prop="productManagementCode"
+              prop="productPropertyId"
               :label="t('formDemo.productManagementCode')"
               width="150"
             />
             <el-table-column
-              prop="name"
+              prop="productPropertyName"
               :label="t('formDemo.productInformation')"
               min-width="720"
             />
@@ -4625,7 +4705,7 @@ onMounted(async () => {
             </el-table-column>
 
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
-            <el-table-column prop="dram" :label="t('reuse.dram')" align="center" width="120" />
+            <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
@@ -4653,9 +4733,6 @@ onMounted(async () => {
               width="200"
             />
           </el-table>
-          <el-button class="ml-4 mt-4" @click="onAddHistoryTableItem"
-            >+ {{ t('formDemo.add') }}</el-button
-          >
         </div>
       </el-collapse-item>
     </el-collapse>

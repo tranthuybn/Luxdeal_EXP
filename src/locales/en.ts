@@ -503,7 +503,9 @@ export default {
     returnDepositCustomer: 'Return the deposit to the customer',
     collectRentalDeposit: 'Collect rental deposit',
     returnRentalDeposit: 'Return the rental deposit',
-    codePayment: 'Code payment'
+    codePayment: 'Code payment',
+    infoReturnAheadOfTime: 'Information return ahead of time',
+    infoReturnExpired: 'Information return expired'
   },
   button: {
     add: 'Add quick',

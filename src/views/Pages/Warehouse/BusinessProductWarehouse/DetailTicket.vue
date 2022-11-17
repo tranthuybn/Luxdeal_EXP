@@ -7,6 +7,7 @@ import { ElButton, ElDivider, ElInput, ElForm, ElFormItem, FormRules } from 'ele
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
+import QuickAddCustomer from './QuickAddCustomer.vue'
 
 const { t } = useI18n()
 const { required } = useValidator()
@@ -22,7 +23,6 @@ defineProps({
     default: NaN
   }
 })
-const emit = defineEmits(['open-dialog'])
 onBeforeMount(() => {
   getListStaff(), callCustomersApi()
 })
@@ -91,21 +91,6 @@ const callCustomersApi = async () => {
     }))
   }
 }
-let customerAddress = ref('')
-const clear = () => {
-  infoCompany.name = ''
-  infoCompany.taxCode = ''
-  infoCompany.phone = ''
-  infoCompany.email = ''
-  infoCompany.representative = ''
-  infoCompany.phonenumber = ''
-  infoCompany.address = ''
-  infoCompany.bankId = ''
-  infoCompany.accountName = ''
-  infoCompany.accountNumber = ''
-  infoCompany.bankName = ''
-  infoCompany.CustomerId = ''
-}
 const getValueOfStaffSelected = (_value, __data) => {}
 
 const getValueOfCustomerSelected = (_value, obj) => {
@@ -113,9 +98,6 @@ const getValueOfCustomerSelected = (_value, obj) => {
   infoCompany.name = obj.name
   infoCompany.phonenumber = obj.phone
   infoCompany.email = obj.email
-}
-const openQuickAddDialog = () => {
-  emit('open-dialog')
 }
 const formattedToday = ref('')
 const getDateToday = () => {
@@ -198,8 +180,23 @@ const ScrollStaffBottom = () => {
           noMoreStaffData.value = true
         })
 }
+const dialogAddQuick = ref(false)
+
+const openQuickAddDialog = () => {
+  dialogAddQuick.value = true
+}
+const closeDialog = (value: any) => {
+  if (value != null) {
+  }
+  dialogAddQuick.value = false
+}
 </script>
 <template>
+  <QuickAddCustomer
+    v-if="dialogAddQuick"
+    :showDialog="dialogAddQuick"
+    @close-dialog="closeDialog"
+  />
   <div class="w-[50%]">
     <ElForm
       ref="ruleFormRef"

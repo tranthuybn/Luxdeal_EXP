@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { getProductsList } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElInput, ElTable, ElTableColumn } from 'element-plus'
-import { onBeforeMount, ref } from 'vue'
+import { ElButton, ElInput, ElNotification, ElTable, ElTableColumn } from 'element-plus'
+import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 const { t } = useI18n()
 defineProps({
@@ -16,34 +16,103 @@ const emit = defineEmits(['open-dialog-warehouse'])
 const openDialog = () => {
   emit('open-dialog-warehouse')
 }
-let ListOfProductsForSale = ref()
-// Call api danh sách sản phẩm
-let listProductsTable = ref()
-let optionCallAPi = 0
-const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList()
-    if (Array.isArray(res.data) && res.data.length > 0) {
-      listProductsTable.value = res.data.map((product) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      }))
-      optionCallAPi++
-    }
-  }
+type ExportLots = {
+  fromLotId: number
+  quantity: number
 }
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+type ProductWarehouse = {
+  productPropertyId: number | null
+  quantity: number | null
+  price: number | null
+  warehouseId: number | null
+  productPropertyQuality: string | null
+  accessory: string | null
+  fileId: number | null
+  fromLotId: number | null
+  toLotId: number | null
+  exportLots: Array<ExportLots> | null
+  productName: string | null
+}
+let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
+// Call api danh sách sản phẩm
+let listProducts = ref()
+const pageIndexProducts = ref(1)
+const callApiProductList = async () => {
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  listProducts.value = res.data.map((product) => ({
+    productCode: product.code,
+    value: product.productCode,
+    name: product.name ?? '',
+    price: product.price,
+    productPropertyId: product.id,
+    productPropertyCode: product.productPropertyCode
+  }))
 }
 onBeforeMount(async () => await callApiProductList())
+watch(
+  () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId,
+  () => {
+    if (
+      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId !=
+        null &&
+      forceRemove.value == false
+    ) {
+      ListOfProductsForSale.value.push({} as ProductWarehouse)
+    }
+  },
+  { deep: true }
+)
+const removeRow = (props) => {
+  ListOfProductsForSale.value.splice(props.$index, 1)
+}
+const forceRemove = ref(false)
+const getProductSelected = (_value, obj, scope) => {
+  scope.row.productName = obj.name
+  scope.row.productPropertyId = obj.id
+}
+const changeProduct = (data, scope) => {
+  forceRemove.value = false
+  const selected = ListOfProductsForSale.value.find((product) => product.productPropertyId == data)
+  if (selected !== undefined) {
+    scope.row.code = ''
+    scope.row.name = null
+    ElNotification({
+      message: t('reuse.productCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.productPropertyId = data
+  }
+}
+const scrollProductTop = ref(false)
+const scrollProductBottom = ref(false)
+
+const ScrollProductTop = () => {
+  scrollProductTop.value = true
+}
+const noMoreProductData = ref(false)
+
+const ScrollProductBottom = () => {
+  scrollProductBottom.value = true
+  pageIndexProducts.value++
+  noMoreProductData.value
+    ? ''
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreProductData.value = true)
+            : res.data.map((product) =>
+                listProducts.value.push({
+                  code: product.code,
+                  label: product.name,
+                  value: product.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreProductData.value = true
+        })
+}
 </script>
 <template>
   <el-table
@@ -58,31 +127,27 @@ onBeforeMount(async () => await callApiProductList())
       min-width="200"
       prop="productPropertyId"
     >
-      <template #default="props">
+      <template #default="scope">
         <MultipleOptionsBox
+          :defaultValue="scope.row.productPropertyId"
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
-            t('formDemo.productInformation')
+            t('reuse.productInformation')
           ]"
           filterable
-          :items="listProductsTable"
-          valueKey="productPropertyId"
-          labelKey="productCode"
+          width="500px"
+          :items="listProducts"
+          valueKey="value"
+          labelKey="code"
           :hiddenKey="['id']"
-          :placeHolder="'Chọn mã sản phẩm'"
-          :defaultValue="props.row.productPropertyCode"
+          :placeHolder="t('reuse.chooseProductCode')"
           :clearable="false"
-          @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-          ><template #underButton>
-            <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
-              <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-              <div class="text-base text-blue-400 cursor-pointer pl-2"
-                >+ {{ t('formDemo.quicklyAddProducts') }}</div
-              >
-            </div>
-          </template></MultipleOptionsBox
-        >
+          @update-value="(value, obj) => getProductSelected(value, obj, scope)"
+          @change="(option) => changeProduct(option, scope)"
+          @scroll-top="ScrollProductTop"
+          @scroll-bottom="ScrollProductBottom"
+        />
       </template>
     </el-table-column>
     <el-table-column prop="productName" :label="t('formDemo.productInformation')" min-width="620" />
@@ -150,9 +215,13 @@ onBeforeMount(async () => await callApiProductList())
       </template>
     </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
-      <button class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded">{{
-        t('reuse.delete')
-      }}</button>
+      <template #default="props">
+        <button
+          @click="removeRow(props)"
+          class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
+          >{{ t('reuse.delete') }}</button
+        >
+      </template>
     </el-table-column>
   </el-table>
 </template>

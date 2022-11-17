@@ -5,7 +5,6 @@ import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider } from 'element-plus'
-import QuickAddCustomer from './QuickAddCustomer.vue'
 import DetailTicket from './DetailTicket.vue'
 import ChooseWarehouse from './ChooseWarehouse.vue'
 import ProductWarehouse from './ProductWarehouse.vue'
@@ -52,26 +51,22 @@ const cancel = async () => {
     params: { backRoute: 'business.collaborators.collaboratorsList' }
   })
 }
-const dialogAddQuick = ref(false)
 
 const activeName = ref(collapse[0].name)
 
-const openQuickAddDialog = () => {
-  dialogAddQuick.value = true
+const dialogWarehouse = ref(false)
+const openDialogWarehouse = () => {
+  dialogWarehouse.value = true
 }
-const closeDialog = () => {
-  dialogAddQuick.value = false
+const closeDialogWarehouse = () => {
+  dialogWarehouse.value = false
 }
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <!-- Dialog Thêm nhanh khách hàng -->
-      <QuickAddCustomer
-        v-if="dialogAddQuick"
-        :showDialog="dialogAddQuick"
-        @close-dialog="closeDialog"
-      />
+
       <el-collapse-item :icon="false" :name="collapse[0].name">
         <template #title>
           <div class="flex w-[100%] justify-between">
@@ -86,16 +81,20 @@ const closeDialog = () => {
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket @open-dialog="openQuickAddDialog" :type="type" :id="id" />
+          <DetailTicket :type="type" :id="id" />
         </div>
       </el-collapse-item>
-      <ChooseWarehouse />
+      <ChooseWarehouse
+        v-if="dialogWarehouse"
+        :showDialog="dialogWarehouse"
+        @close-dialog-warehouse="closeDialogWarehouse"
+      />
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse :type="type" />
+        <ProductWarehouse :type="type" @open-dialog-warehouse="openDialogWarehouse" />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>

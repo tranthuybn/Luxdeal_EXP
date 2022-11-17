@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -56,32 +56,38 @@ const propsObj = defineProps({
   width: {
     type: String,
     default: '100%'
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
-let selected = ref()
+let selected = ref(propsObj.defaultValue)
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
-const identifyKey = computed(() => {
-  const { valueKey, items } = propsObj
-  if (valueKey) {
-    return valueKey
-  } else if (Array.isArray(items) && items.length > 0) {
-    //returns an array of a given object's own enumerable property
-    return Object.keys(items[0])[0]
-  } else return 'value'
-})
-const identifyLabel = computed(() => {
-  const { labelKey, items } = propsObj
-  if (labelKey) {
-    return labelKey
-  } else if (Array.isArray(items) && items.length > 0) {
-    return Object.keys(items[0])[0]
-  } else return 'label'
-})
+const identifyKey = ref(propsObj.valueKey)
+const identifyLabel = ref(propsObj.labelKey)
+// const identifyKey = computed(() => {
+//   const { valueKey, items } = propsObj
+//   if (valueKey) {
+//     return valueKey
+//   } else if (Array.isArray(items) && items.length > 0) {
+//     //returns an array of a given object's own enumerable property
+//     return Object.keys(items[0])[0]
+//   } else return 'value'
+// })
+// const identifyLabel = computed(() => {
+//   const { labelKey, items } = propsObj
+//   if (labelKey) {
+//     return labelKey
+//   } else if (Array.isArray(items) && items.length > 0) {
+//     return Object.keys(items[0])[0]
+//   } else return 'label'
+// })
 
 // set value for multiple select if defaultValue available
 watchEffect(() => {
@@ -89,13 +95,13 @@ watchEffect(() => {
     // set options for select box
     options.value = propsObj.items
 })
-watch(
-  () => propsObj.defaultValue,
-  () => {
-    selected.value = propsObj.defaultValue
-  },
-  { immediate: true }
-)
+// watch(
+//   () => propsObj.defaultValue,
+//   () => {
+//     selected.value = propsObj.defaultValue
+//   },
+//   { immediate: true }
+// )
 
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
@@ -121,8 +127,6 @@ const filter = (str) => {
     options.value = items
   }
 }
-
-const loadOption = ref(false)
 // const appearsEvent = () => {
 //   const { items } = propsObj
 //   options.value = items
@@ -157,8 +161,8 @@ const scrolling = (e) => {
 </script>
 <template>
   <ElSelect
-    :loading="loadOption"
     ref="MultipleSelect"
+    :loading="loading"
     v-model="selected"
     remote-show-suffix
     :placeholder="placeHolder"

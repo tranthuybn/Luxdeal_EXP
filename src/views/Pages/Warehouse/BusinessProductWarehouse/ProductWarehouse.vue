@@ -1,16 +1,33 @@
 <script setup lang="ts">
 import { getProductsList } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElInput, ElNotification, ElTable, ElTableColumn } from 'element-plus'
+import {
+  ElButton,
+  ElInput,
+  ElMessage,
+  ElNotification,
+  ElTable,
+  ElTableColumn,
+  ElUpload,
+  ElImage,
+  ElDialog
+} from 'element-plus'
+import type { UploadProps, UploadFile } from 'element-plus'
 import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import ChooseWarehouse from './ChooseWarehouse.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { moneyFormat } from '@/utils/format'
 
 const { t } = useI18n()
 defineProps({
   type: {
     type: String,
     default: ''
+  },
+  productData: {
+    type: Object,
+    default: () => {}
   }
 })
 type ExportLots = {
@@ -18,32 +35,38 @@ type ExportLots = {
   quantity: number
 }
 type ProductWarehouse = {
-  productPropertyId: number | null
-  quantity: number | null
-  price: number | null
-  warehouseId: number | null
-  productPropertyQuality: string | null
-  accessory: string | null
-  fileId: number | null
-  fromLotId: number | null
-  toLotId: number | null
-  exportLots: Array<ExportLots> | null
-  productName: string | null
+  productPropertyId?: number
+  quantity?: number
+  price?: number
+  warehouseId?: number
+  productPropertyQuality?: string
+  accessory?: string
+  fileId?: number
+  fromLotId?: number
+  toLotId?: number
+  exportLots?: Array<ExportLots>
+  productName?: string
+  finalPrice?: string
+  unitName?: string
 }
 let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
+const productLoading = ref(true)
 let listProducts = ref()
 const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  productLoading.value = true
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
   listProducts.value = res.data.map((product) => ({
     productCode: product.code,
     value: product.productCode,
     name: product.name ?? '',
     price: product.price,
+    unit: product.unitName,
     productPropertyId: product.id,
     productPropertyCode: product.productPropertyCode
   }))
+  productLoading.value = false
 }
 onBeforeMount(async () => await callApiProductList())
 watch(
@@ -60,12 +83,13 @@ watch(
   { deep: true }
 )
 const removeRow = (props) => {
-  ListOfProductsForSale.value.splice(props.$index, 1)
+  ListOfProductsForSale.value.length < 2 ? '' : ListOfProductsForSale.value.splice(props.$index, 1)
 }
 const forceRemove = ref(false)
 const getProductSelected = (_value, obj, scope) => {
   scope.row.productName = obj.name
   scope.row.productPropertyId = obj.id
+  scope.row.unitName = obj.unit
 }
 const changeProduct = (data, scope) => {
   forceRemove.value = false
@@ -90,11 +114,12 @@ const ScrollProductTop = () => {
 const noMoreProductData = ref(false)
 
 const ScrollProductBottom = () => {
+  productLoading.value = true
   scrollProductBottom.value = true
   pageIndexProducts.value++
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
@@ -109,6 +134,7 @@ const ScrollProductBottom = () => {
         .catch(() => {
           noMoreProductData.value = true
         })
+        .finally(() => (productLoading.value = false))
 }
 const dialogWarehouse = ref(false)
 const openDialogWarehouse = () => {
@@ -117,8 +143,43 @@ const openDialogWarehouse = () => {
 const closeDialogWarehouse = () => {
   dialogWarehouse.value = false
 }
+
+const imageUrl = ref('')
+
+const validImageType = ['jpeg', 'png']
+const beforeAvatarUpload = (rawFile) => {
+  if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+    ElMessage.error(t('reuse.notImageFile'))
+    return false
+  } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+    ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+    return false
+  } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+    ElMessage.error(t('reuse.imageOver4MB'))
+    return false
+  } else if (rawFile.name?.split('.')[0].length > 100) {
+    ElMessage.error(t('reuse.checkNameImageLength'))
+    return false
+  }
+  return true
+}
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
+const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
+  const validImage = await beforeAvatarUpload(uploadFile)
+  if (validImage) {
+    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+  }
+}
 </script>
 <template>
+  <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+    <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
+  </el-dialog>
   <ChooseWarehouse
     v-if="dialogWarehouse"
     :showDialog="dialogWarehouse"
@@ -131,11 +192,7 @@ const closeDialogWarehouse = () => {
     ]"
     :data="ListOfProductsForSale"
   >
-    <el-table-column
-      :label="t('formDemo.productManagementCode')"
-      min-width="200"
-      prop="productPropertyId"
-    >
+    <el-table-column :label="t('formDemo.productManagementCode')" min-width="200">
       <template #default="scope">
         <MultipleOptionsBox
           :defaultValue="scope.row.productPropertyId"
@@ -152,6 +209,7 @@ const closeDialogWarehouse = () => {
           :hiddenKey="['id']"
           :placeHolder="t('reuse.chooseProductCode')"
           :clearable="false"
+          :loading="productLoading"
           @update-value="(value, obj) => getProductSelected(value, obj, scope)"
           @change="(option) => changeProduct(option, scope)"
           @scroll-top="ScrollProductTop"
@@ -172,7 +230,21 @@ const closeDialogWarehouse = () => {
       </template>
     </el-table-column>
     <el-table-column :label="t('reuse.picture')" min-width="200">
-      <!-- add image -->
+      <template #default>
+        <el-upload
+          action="#"
+          :on-preview="handlePictureCardPreview"
+          :on-change="handleChange"
+          :before-upload="beforeAvatarUpload"
+          :auto-upload="false"
+          :show-file-list="false"
+        >
+          <el-image v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-button
+            ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
+          >
+        </el-upload>
+      </template>
     </el-table-column>
     <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
       <div class="flex w-[100%] items-center">
@@ -189,7 +261,7 @@ const closeDialogWarehouse = () => {
         <div v-if="type == 'detail'">
           {{ data.row.quantity }}
         </div>
-        <el-input v-else v-model="data.row.quantity" style="width: 100%" />
+        <el-input type="number" :min="0" v-else v-model="data.row.quantity" style="width: 100%" />
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
@@ -200,27 +272,24 @@ const closeDialogWarehouse = () => {
       width="180"
     >
       <template #default="props">
-        <el-input v-if="type != 'detail'" v-model="props.row.price" />
+        <div v-if="type == 'detail'">
+          {{ props.row.price }}
+        </div>
+        <CurrencyInputComponent v-else v-model="props.row.price" />
       </template>
     </el-table-column>
-    <el-table-column
-      prop="finalPrice"
-      :label="t('formDemo.intoMoneyWarehouse')"
-      align="right"
-      width="180"
-    />
-
-    <el-table-column
-      prop="quantity"
-      :label="t('reuse.conditionProducts')"
-      align="center"
-      width="180"
+    <el-table-column :label="t('formDemo.intoMoneyWarehouse')" align="right" width="180"
+      ><template #default="props">
+        {{ moneyFormat(props.row.price * props.row.quantity) }}
+      </template></el-table-column
     >
+
+    <el-table-column :label="t('reuse.conditionProducts')" align="center" width="180">
       <template #default="data">
         <div v-if="type == 'detail'">
-          {{ data.row.quantity }}
+          {{ data.row.productPropertyQuality }}
         </div>
-        <el-input v-else v-model="data.row.quantity" style="width: 100%" />
+        <el-input v-else v-model="data.row.productPropertyQuality" style="width: 100%" />
       </template>
     </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">

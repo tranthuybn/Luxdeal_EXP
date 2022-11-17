@@ -21,6 +21,10 @@ defineProps({
   id: {
     type: Number,
     default: NaN
+  },
+  ticketData: {
+    type: Object,
+    default: () => {}
   }
 })
 
@@ -176,16 +180,17 @@ defineExpose({
     :showDialog="dialogAddQuick"
     @close-dialog="closeDialog"
   />
-  <div class="w-[50%]">
-    <ElForm
-      ref="ruleFormRef"
-      :model="FormData"
-      :disabled="disabledForm"
-      :rules="rules"
-      hide-required-asterisk
-      label-width="170px"
-      status-icon
-    >
+  <ElForm
+    class="w-full flex"
+    ref="ruleFormRef"
+    :model="FormData"
+    :disabled="disabledForm"
+    :rules="rules"
+    label-width="170px"
+    status-icon
+    require-asterisk-position="right"
+  >
+    <div class="w-[50%]">
       <el-divider content-position="left">{{ t('reuse.profileWareHouse') }}</el-divider>
 
       <ElFormItem :label="t('reuse.formCode')" prop="TicketId" />
@@ -193,42 +198,35 @@ defineExpose({
         <div class="pl-6">{{ formattedToday }}</div>
       </ElFormItem>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')">
-        <div class="flex">
-          <label><span class="text-red-600"> *</span></label>
-          <MultipleOptionsBox
-            :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"
-            filterable
-            width="700px"
-            :items="optionsStaffApi"
-            valueKey="id"
-            labelKey="label"
-            :hiddenKey="['id']"
-            :placeHolder="t('formDemo.chooseASeller')"
-            :defaultValue="FormData.staffId"
-            :clearable="false"
-            @update-value="(value, obj) => getValueOfStaffSelected(value, obj)"
-            @scroll-bottom="ScrollStaffBottom"
-          />
-        </div>
+        <MultipleOptionsBox
+          :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"
+          filterable
+          width="700px"
+          :items="optionsStaffApi"
+          valueKey="id"
+          labelKey="label"
+          :hiddenKey="['id']"
+          :placeHolder="t('formDemo.chooseASeller')"
+          :defaultValue="FormData.staffId"
+          :clearable="false"
+          @update-value="(value, obj) => getValueOfStaffSelected(value, obj)"
+          @scroll-bottom="ScrollStaffBottom"
+        />
       </ElFormItem>
       <ElFormItem class="mb-7" :label="t('reuse.note')" prop="description">
-        <div class="flex">
-          <label><span class="text-red-600"> *</span></label>
-          <ElInput
-            v-model="FormData.description"
-            size="default"
-            :placeholder="t('reuse.enterNote')"
-            :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
-          />
-        </div>
+        <ElInput
+          v-model="FormData.description"
+          size="default"
+          :placeholder="t('reuse.enterNote')"
+        />
       </ElFormItem>
       <el-divider class="mt-10" content-position="left">{{ t('reuse.subject') }}</el-divider>
-      <ElFormItem class="mt-5" :label="t('reuse.selectObject')">
-        <div class="flex">
-          <label><span class="text-red-600"> *</span></label>
+      <div class="flex justify-between">
+        <ElFormItem :label="t('reuse.selectObject')" class="w-4/5">
           <MultipleOptionsBox
             :fields="[t('reuse.customerCode'), t('reuse.phoneNumber'), t('reuse.customerName')]"
             filterable
+            class="w-full"
             width="700px"
             :items="optionsCustomerApi"
             valueKey="id"
@@ -240,11 +238,13 @@ defineExpose({
             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
             @scroll-bottom="ScrollCustomerBottom"
           />
-          <el-button @click="openQuickAddDialog" :icon="plusIcon" style="padding: 8px 30px">{{
+        </ElFormItem>
+        <ElFormItem label-width="0px">
+          <el-button @click="openQuickAddDialog" :icon="plusIcon" class="pl-8">{{
             t('button.add')
           }}</el-button>
-        </div>
-      </ElFormItem>
+        </ElFormItem>
+      </div>
       <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">
         <div class="leading-4">
           <div class="ml-5">{{ infoCompany.name }}</div>
@@ -270,17 +270,12 @@ defineExpose({
           <div class="ml-5">{{ infoCompany.email }}</div>
         </div>
       </ElFormItem>
-    </ElForm>
-  </div>
-  <div class="w-[50%]">
-    <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-      <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
     </div>
-    <ElFormItem
-      class="w-[100%]"
-      style="display: inline-block"
-      :label="t('reuse.orderCode')"
-      v-if="infoCompany.email"
-    />
-  </div>
+    <div class="w-[50%]">
+      <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+        <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
+      </div>
+      <ElFormItem class="w-[100%]" style="display: inline-block" :label="t('reuse.orderCode')" />
+    </div>
+  </ElForm>
 </template>

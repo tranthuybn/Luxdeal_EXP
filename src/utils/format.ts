@@ -236,7 +236,11 @@ export const FORM_DATA1 = (data) => {
   }, new FormData())
 }
 export const moneyFormat = (money) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
+  if (isNaN(money)) {
+    return 0
+  } else {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
+  }
 }
 export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))

@@ -88,25 +88,22 @@ const filterLotData = (locationId) => {
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
       <el-divider />
     </template>
-    <div class="pl-4">{{ t('reuse.quantityWarehouse') }}<span class="text-red-600">*</span></div>
+
     <el-form
       ref="ruleFormRef"
       :model="warehouseForm"
       :rules="rules"
       label-width="120px"
-      class="demo-ruleForm"
-      status-icon
+      label-position="top"
     >
-      <el-form-item label-width="0">
+      <el-form-item label="1">
         <el-input v-model="warehouseForm.quantity" />
       </el-form-item>
       <div class="flex">
         <div class="w-1/2">
-          <div class="pl-4"
-            >{{ t('reuse.chooseWarehouse') }} <span class="text-red-600">*</span></div
-          >
-          <el-form-item label-width="0">
+          <el-form-item label="3" class="w-full">
             <el-select
+              class="w-full"
               v-model="warehouseForm.warehouseImportId"
               @click="callAPIWarehouse"
               :loading="loadingWarehouse"
@@ -121,10 +118,10 @@ const filterLotData = (locationId) => {
             </el-select>
           </el-form-item>
         </div>
-        <div class="w-1/2">
-          <div class="pl-4">{{ t('reuse.chooseLocation') }}</div>
-          <el-form-item label-width="0">
+        <div class="pl-8 w-1/2">
+          <el-form-item label="2" class="w-full">
             <el-select
+              class="w-full"
               v-model="warehouseForm.locationImportId"
               @click="
                 () => {

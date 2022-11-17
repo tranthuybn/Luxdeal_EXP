@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider } from 'element-plus'
@@ -19,12 +19,12 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.profileWareHouse')
+    title: t('reuse.detailImportTicket')
   },
   {
     icon: plusIcon,
     name: 'importedProductsWareHouse',
-    title: t('reuse.importedProductsWareHouse')
+    title: t('reuse.importProductWarehouse')
   }
 ]
 const collapseChangeEvent = (val) => {
@@ -43,6 +43,7 @@ const collapseChangeEvent = (val) => {
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const transactionType = 2
 
 const cancel = async () => {
   push({
@@ -56,6 +57,12 @@ const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const getData = () => {
   console.log('detailTicketRef', detailTicketRef.value)
 }
+const ticketData = ref()
+const productData = ref()
+
+onBeforeMount(() => {
+  console.log('id:', id)
+})
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -74,7 +81,12 @@ const getData = () => {
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket ref="detailTicketRef" :type="type" :id="id" />
+          <DetailTicket
+            ref="detailTicketRef"
+            :type="type"
+            :transactionType="transactionType"
+            :ticketData="ticketData"
+          />
         </div>
       </el-collapse-item>
 
@@ -83,141 +95,31 @@ const getData = () => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse :type="type" />
+        <ProductWarehouse
+          :type="type"
+          :transactionType="transactionType"
+          :productData="productData"
+        />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('reuse.receiptStatus') }}</label>
+          <label class="w-[9%] text-right">{{ t('reuse.importTicketStatus') }}</label>
         </div>
         <div class="ml-[170px]">
-          <ElButton class="w-[150px]">{{ t('reuse.printAdmissionSlip') }}</ElButton>
+          <ElButton class="w-[150px]">{{ t('reuse.printImportTicket') }}</ElButton>
           <ElButton class="w-[150px]" type="primary" @click="getData">{{
             t('reuse.save')
           }}</ElButton>
-          <ElButton class="w-[150px]" type="primary">{{ t('reuse.warehouseNow') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.importWarehouseNow') }}</ElButton>
           <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancelImport') }}</ElButton></div
         >
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
-
 <style scoped>
-::v-deep(.el-select) {
+::deep(.el-select) {
   width: 100%;
-}
-
-::v-deep(.el-textarea__inner) {
-  box-shadow: none;
-  padding: 5px 0;
-}
-
-::v-deep(.el-form-item) {
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
-}
-
-::v-deep(.d-block > .el-row) {
-  display: block;
-}
-
-::v-deep(.el-form-item__content) {
-  display: inline-block;
-}
-
-@media only screen and (min-width: 1920px) {
-  ::v-deep(.el-col-xl-12) {
-    max-width: 100%;
-  }
-}
-
-::v-deep(label) {
-  color: #828387;
-}
-
-::v-deep(.cell) {
-  color: #303133;
-}
-
-::v-deep(.el-divider__text) {
-  font-size: 16px;
-}
-
-.el-button--text {
-  margin-right: 15px;
-}
-::v-deep(.el-divider--horizontal) {
-  margin: 40px 0 24px 0;
-}
-::v-deep(.el-input) {
-  width: auto;
-}
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
-::v-deep(.el-table th.el-table__cell) {
-  padding: 0 !important;
-}
-
-::v-deep(.el-input) {
-  width: 100%;
-}
-
-.example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
-}
-
-::v-deep(.el-dropdown-menu__item) {
-  padding: 5px 30px;
-}
-
-::v-deep(.el-table .cell) {
-  word-break: break-word;
-}
-
-::v-deep(.input-width > .el-select .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-input) {
-  width: 100%;
-}
-
-::v-deep(.fix-full-width > .el-select .el-input) {
-  width: 100% !important;
-}
-::v-deep(.el-input__wrapper) {
-  margin-left: 15px;
-}
-
-.header-icon {
-  margin-right: 10px;
-}
-::v-deep(.el-form-item__label) {
-  padding: 0;
-}
-.after {
-  display: flex;
-  align-items: center;
 }
 </style>

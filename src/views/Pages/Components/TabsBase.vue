@@ -89,6 +89,9 @@ const pushAdd = () => {
     }
   })
 }
+const pushWarehouse = (type) => {
+  push({ path: `/inventory-management/business-product-warehouse/warehouse-transaction-${type}` })
+}
 </script>
 <template>
   <section>
@@ -109,9 +112,15 @@ const pushAdd = () => {
           <HeaderFiler @get-data="getData" @refresh-data="getData">
             <template #headerFilterSlot>
               <div v-if="customHeaderButton === 'Warehouse'">
-                <el-button type="primary" :icon="addIcon"> Nhập kho </el-button>
-                <el-button type="primary" :icon="dashIcon"> Xuất kho </el-button>
-                <el-button type="primary" :icon="changeIcon"> Chuyển kho </el-button>
+                <el-button type="primary" :icon="addIcon" @click="pushWarehouse(1)">
+                  Nhập kho
+                </el-button>
+                <el-button type="primary" :icon="dashIcon" @click="pushWarehouse(2)">
+                  Xuất kho
+                </el-button>
+                <el-button type="primary" :icon="changeIcon" @click="pushWarehouse(3)">
+                  Chuyển kho
+                </el-button>
               </div>
               <div v-if="customHeaderButton === 'Base'">
                 <el-button type="primary" :icon="createIcon" @click="pushAdd">

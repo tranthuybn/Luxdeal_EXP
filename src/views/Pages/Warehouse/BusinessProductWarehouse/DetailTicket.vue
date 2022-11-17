@@ -23,57 +23,28 @@ defineProps({
     default: NaN
   }
 })
-onBeforeMount(() => {
-  getListStaff(), callCustomersApi()
-})
 
 type FormDataInput = {
   TicketId: string
   CreatedAt: Date
-  CollaboratorStatus: boolean
-  Discount: string
-  customersValue: any
+  staffId: number
+  description: string
+  customerId: any
   isActive?: boolean
   status?: string
   staffValue: any
 }
 const EmptyCustomData = {} as FormDataInput
-let FormData = reactive(EmptyCustomData)
+const FormData = reactive(EmptyCustomData)
 const disabledForm = ref(false)
 const rules = reactive<FormRules>({
-  Discount: [
-    required(),
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (value > 100) {
-          callback(new Error(t('reuse.checkDiscount')))
-        }
-        callback()
-      },
-      required: false,
-      trigger: 'change'
-    }
-  ],
-  customersValue: [required()]
+  description: [required()],
+  customerId: [required()]
 })
 let infoCompany = reactive({
   name: '',
-  taxCode: '',
-  phone: '',
   email: '',
-  representative: '',
-  phonenumber: '',
-  address: '',
-  bankId: '',
-  accountName: '',
-  accountNumber: '',
-  bankName: '',
-  CustomerId: '',
-  cccd: '',
-  cccdCreateAt: '',
-  cccdPlaceOfGrant: '',
-  sex: '',
-  doB: ''
+  phonenumber: ''
 })
 const optionsStaffApi = ref()
 const optionsCustomerApi = ref<Array<any>>([])
@@ -94,7 +65,6 @@ const callCustomersApi = async () => {
 const getValueOfStaffSelected = (_value, __data) => {}
 
 const getValueOfCustomerSelected = (_value, obj) => {
-  console.log('obj Customer:', obj)
   infoCompany.name = obj.name
   infoCompany.phonenumber = obj.phone
   infoCompany.email = obj.email
@@ -186,10 +156,19 @@ const openQuickAddDialog = () => {
   dialogAddQuick.value = true
 }
 const closeDialog = (value: any) => {
-  if (value != null) {
+  if (value == null || value == 0) {
+  } else {
+    FormData.customerId = value
   }
   dialogAddQuick.value = false
 }
+
+onBeforeMount(() => {
+  getListStaff(), callCustomersApi()
+})
+defineExpose({
+  FormData
+})
 </script>
 <template>
   <QuickAddCustomer
@@ -225,18 +204,18 @@ const closeDialog = (value: any) => {
             labelKey="label"
             :hiddenKey="['id']"
             :placeHolder="t('formDemo.chooseASeller')"
-            :defaultValue="FormData.customersValue"
+            :defaultValue="FormData.staffId"
             :clearable="false"
             @update-value="(value, obj) => getValueOfStaffSelected(value, obj)"
             @scroll-bottom="ScrollStaffBottom"
           />
         </div>
       </ElFormItem>
-      <ElFormItem class="mb-7" :label="t('reuse.note')" prop="Discount">
+      <ElFormItem class="mb-7" :label="t('reuse.note')" prop="description">
         <div class="flex">
           <label><span class="text-red-600"> *</span></label>
           <ElInput
-            v-model="FormData.Discount"
+            v-model="FormData.description"
             size="default"
             :placeholder="t('reuse.enterNote')"
             :formatter="(value) => value.replace(/^\s+|\s+$/gm, '')"
@@ -256,7 +235,7 @@ const closeDialog = (value: any) => {
             labelKey="label"
             :hiddenKey="['id']"
             :placeHolder="t('formDemo.chooseACustomer')"
-            :defaultValue="FormData.customersValue"
+            :defaultValue="FormData.customerId"
             :clearable="false"
             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
             @scroll-bottom="ScrollCustomerBottom"

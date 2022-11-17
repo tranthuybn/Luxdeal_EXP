@@ -4,6 +4,8 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElInput, ElNotification, ElTable, ElTableColumn } from 'element-plus'
 import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import ChooseWarehouse from './ChooseWarehouse.vue'
+
 const { t } = useI18n()
 defineProps({
   type: {
@@ -11,11 +13,6 @@ defineProps({
     default: ''
   }
 })
-const emit = defineEmits(['open-dialog-warehouse'])
-
-const openDialog = () => {
-  emit('open-dialog-warehouse')
-}
 type ExportLots = {
   fromLotId: number
   quantity: number
@@ -113,8 +110,20 @@ const ScrollProductBottom = () => {
           noMoreProductData.value = true
         })
 }
+const dialogWarehouse = ref(false)
+const openDialogWarehouse = () => {
+  dialogWarehouse.value = true
+}
+const closeDialogWarehouse = () => {
+  dialogWarehouse.value = false
+}
 </script>
 <template>
+  <ChooseWarehouse
+    v-if="dialogWarehouse"
+    :showDialog="dialogWarehouse"
+    @close-dialog-warehouse="closeDialogWarehouse"
+  />
   <el-table
     border
     :class="[
@@ -169,7 +178,7 @@ const ScrollProductBottom = () => {
       <div class="flex w-[100%] items-center">
         <div class="w-[40%]">Còn hàng</div>
         <div class="w-[60%]">
-          <el-button text @click="openDialog">
+          <el-button text @click="openDialogWarehouse">
             <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
           </el-button>
         </div>

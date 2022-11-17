@@ -32,24 +32,27 @@ export default {
           }
         },
         {
-          path: 'ware-house',
-          component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/WareHouse.vue'),
-          name: 'Inventorymanagement.ListWarehouse.ware-house',
+          path: 'warehouse-transaction-1',
+          component: () =>
+            import('@/views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction.vue'),
+          name: 'Inventorymanagement.ListWarehouse.import',
           meta: {
             title: t('router.warehouse')
           }
         },
         {
-          path: 'export',
-          component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/Export.vue'),
+          path: 'warehouse-transaction-2',
+          component: () =>
+            import('@/views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.export',
           meta: {
             title: t('router.export')
           }
         },
         {
-          path: 'transfer',
-          component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/Transfer.vue'),
+          path: 'warehouse-transaction-3',
+          component: () =>
+            import('@/views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.transfer',
           meta: {
             title: t('reuse.transfer')

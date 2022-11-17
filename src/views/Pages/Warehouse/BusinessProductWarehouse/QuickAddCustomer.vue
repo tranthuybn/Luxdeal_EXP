@@ -9,7 +9,8 @@ import {
   ElDivider,
   ElInput,
   ElDialog,
-  ElNotification
+  ElNotification,
+  ElForm
 } from 'element-plus'
 import { ref } from 'vue'
 
@@ -53,7 +54,7 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
-const addStatus = ref(false)
+const customerId = ref(0)
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -70,12 +71,12 @@ const createQuickCustomer = async () => {
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
-    .then(() => {
+    .then((res) => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       }),
-        (addStatus.value = true)
+        (customerId.value = res.data)
     })
     .catch(() =>
       ElNotification({
@@ -85,7 +86,7 @@ const createQuickCustomer = async () => {
     )
 }
 const closeDialog = () => {
-  addStatus.value ? emit('close-dialog', customerData) : emit('close-dialog', null)
+  emit('close-dialog', customerId.value)
 }
 const customerData = ref()
 const rules = { companyName: { required: true } }

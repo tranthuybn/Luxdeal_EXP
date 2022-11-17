@@ -6,7 +6,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
-import ChooseWarehouse from './ChooseWarehouse.vue'
 import ProductWarehouse from './ProductWarehouse.vue'
 
 const { t } = useI18n()
@@ -53,20 +52,14 @@ const cancel = async () => {
 }
 
 const activeName = ref(collapse[0].name)
-
-const dialogWarehouse = ref(false)
-const openDialogWarehouse = () => {
-  dialogWarehouse.value = true
-}
-const closeDialogWarehouse = () => {
-  dialogWarehouse.value = false
+const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
+const getData = () => {
+  console.log('detailTicketRef', detailTicketRef.value)
 }
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
-      <!-- Dialog Thêm nhanh khách hàng -->
-
       <el-collapse-item :icon="false" :name="collapse[0].name">
         <template #title>
           <div class="flex w-[100%] justify-between">
@@ -81,20 +74,16 @@ const closeDialogWarehouse = () => {
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket :type="type" :id="id" />
+          <DetailTicket ref="detailTicketRef" :type="type" :id="id" />
         </div>
       </el-collapse-item>
-      <ChooseWarehouse
-        v-if="dialogWarehouse"
-        :showDialog="dialogWarehouse"
-        @close-dialog-warehouse="closeDialogWarehouse"
-      />
+
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse :type="type" @open-dialog-warehouse="openDialogWarehouse" />
+        <ProductWarehouse :type="type" />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
@@ -103,7 +92,9 @@ const closeDialogWarehouse = () => {
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]">{{ t('reuse.printAdmissionSlip') }}</ElButton>
-          <ElButton class="w-[150px]" type="primary">{{ t('reuse.save') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary" @click="getData">{{
+            t('reuse.save')
+          }}</ElButton>
           <ElButton class="w-[150px]" type="primary">{{ t('reuse.warehouseNow') }}</ElButton>
           <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancelImport') }}</ElButton></div
         >

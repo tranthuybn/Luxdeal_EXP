@@ -317,7 +317,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   paymentType: '',
   edited: true
 })
-const recharger = ref('Trần Hữu Dương | 0998844533')
+// const recharger = ref('Trần Hữu Dương | 0998844533')
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
@@ -380,22 +380,22 @@ const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
 }
 
-const onAddDebtTableReturnDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: 'Thông tin chứng từ',
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    typeOfPayment: 1,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const onAddDebtTableReturnDeposit = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: 'Thông tin chứng từ',
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     typeOfPayment: 1,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 // Thêm mã phiếu thu vào debtTable
 const handleChangeReceipts = () => {
@@ -1086,20 +1086,20 @@ const tableAccountingEntry = ref([
 const inputReasonCollectMoney = ref()
 
 // dialog print
-const nameDialog = ref('')
+// const nameDialog = ref('')
 // const testDialog = ref(false)
 
-function openReceiptDialog() {
-  getReceiptCode()
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
-  nameDialog.value = 'Phiếu thu'
-}
+// function openReceiptDialog() {
+//   getReceiptCode()
+//   dialogInformationReceipts.value = !dialogInformationReceipts.value
+//   nameDialog.value = 'Phiếu thu'
+// }
 
-function openPaymentDialog() {
-  getcodeExpenditures()
-  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-  nameDialog.value = 'Phiếu chi'
-}
+// function openPaymentDialog() {
+//   getcodeExpenditures()
+//   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+//   nameDialog.value = 'Phiếu chi'
+// }
 
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -1202,6 +1202,21 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
+const valueTypeMoney = ref(2)
+const optionsTypeMoney = [
+  {
+    value: 1,
+    label: 'Tiền giá đàm phán'
+  },
+  {
+    value: 2,
+    label: 'Tiền phí Spa'
+  },
+  {
+    value: 3,
+    label: 'Tiền khác'
+  }
+]
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
@@ -2579,12 +2594,23 @@ onMounted(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="260" />
+            <el-table-column :label="t('formDemo.kindOfMoney')" width="110">
+              <el-select v-model="valueTypeMoney" class="m-2" placeholder="Select">
+                <el-option
+                  v-for="item in optionsTypeMoney"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
                 <div>{{ props.row.collected }} đ</div>
               </template>
             </el-table-column>
+
             <el-table-column prop="spent" :label="t('formDemo.spent')">
               <template #default="props">
                 <div class="text-right">{{ props.row.spent }} đ</div>
@@ -2645,24 +2671,22 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right">
-            <span class="dialog-footer">
-              <el-button
-                type="primary"
-                @click="
-                  () => {
-                    // postOrderStransaction()
-                    dialogAccountingEntryAdditional = false
-                    onAddDebtTableReturnDeposit()
-                  }
-                "
-                >{{ t('formDemo.saveRecordDebts') }}</el-button
-              >
-              <el-button @click="dialogAccountingEntryAdditional = false">{{
-                t('reuse.exit')
-              }}</el-button>
-            </span>
-          </div>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  postOrderStransaction()
+                  dialogAccountingEntryAdditional = false
+                  // onAddDebtTableReturnDeposit()
+                }
+              "
+              >{{ t('formDemo.saveRecordDebts') }}</el-button
+            >
+            <el-button @click="dialogAccountingEntryAdditional = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
         </template>
       </el-dialog>
 

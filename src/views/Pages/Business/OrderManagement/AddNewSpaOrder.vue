@@ -53,7 +53,8 @@ import {
   addTPV,
   getDetailReceiptPaymentVoucher,
   addDNTT,
-  getCodePaymentRequest
+  getCodePaymentRequest,
+  addOrderStransaction
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
@@ -229,7 +230,8 @@ const autoCalculateOrder = async () => {
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    unitName: e.unitName
   }))
   const payload = {
     serviceType: 1,
@@ -628,14 +630,6 @@ const optionsClassify = [
     label: t('formDemo.individual')
   }
 ]
-const tableAccountingEntry = [
-  {
-    content: 'Trả lại tiền cọc cho khách',
-    collected: '',
-    spent: '',
-    intoMoney: ''
-  }
-]
 
 // form add quick customer
 const addQuickCustomerName = ref()
@@ -716,6 +710,8 @@ var curDate = 'DHSP' + moment().format('hhmmss')
 
 // tạo đơn hàng
 const { push } = useRouter()
+
+//lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 // const type = String(router.currentRoute.value.params.type)
@@ -1071,9 +1067,10 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 5 })
-    const transaction = await getOrderTransaction({ id: 10 })
+    const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
+    // getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
@@ -1119,6 +1116,12 @@ const editData = async () => {
     // debtTable.value.push({ ...addDebtTable })
   }
 }
+
+const getOrderStransactionList = async () => {
+  const transaction = await getOrderTransaction({ id: id })
+  debtTable.value = transaction.data
+}
+
 function printPage(id: string, { url, title, w, h }) {
   // const prtHtml = document.getElementById(id)?.innerHTML
 
@@ -1271,6 +1274,47 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
+let objOrderStransaction = ref()
+let idStransaction = ref()
+const tableAccountingEntry = ref([
+  {
+    content: 'Trả lại tiền cọc cho khách',
+    kindOfMoney: '',
+    collected: '',
+    spent: '',
+    intoMoney: ''
+  }
+])
+// Thêm bút toán cho đơn hàng
+const codeReturnRequest = ref()
+var autoCodeReturnRequest = 'DT' + moment().format('hms')
+
+const postOrderStransaction = async () => {
+  codeReturnRequest.value = autoCodeReturnRequest
+  const payload = {
+    orderId: id,
+    content: tableAccountingEntry.value[0].content,
+    paymentRequestId: null,
+    receiptOrPaymentVoucherId: null,
+    receiveMoney: tableAccountingEntry.value[0].collected
+      ? parseInt(tableAccountingEntry.value[0].collected)
+      : 0,
+    paidMoney: tableAccountingEntry.value[0].spent
+      ? parseInt(tableAccountingEntry.value[0].spent)
+      : 0,
+    deibt: 0,
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    isReceiptedMoney: 0,
+    typeOfMoney: 1
+  }
+
+  objOrderStransaction.value = await addOrderStransaction(payload)
+  idStransaction.value = objOrderStransaction.value.paymentRequestId
+  getOrderStransactionList()
+}
+
 // debtTable
 interface tableDataType {
   createdAt: string | Date
@@ -1308,23 +1352,23 @@ const addLastIndexTable2 = () => {
   })
 }
 
-const onAddDebtTableReturnDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.returnDepositCustomer'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    moneyType: 1,
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const onAddDebtTableReturnDeposit = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.returnDepositCustomer'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     moneyType: 1,
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 const optionsChooseMoneyType = [
   {
@@ -2458,11 +2502,19 @@ onMounted(async () => {
           </el-table-column>
 
           <el-table-column
-            prop="dram"
+            prop="unitName"
             :label="`${t('reuse.dram')}`"
             align="center"
             min-width="100"
-          />
+            ><template #default="data">
+              <el-input
+                v-model="data.row.unitName"
+                @change="handleTotal(data)"
+                v-if="data.row.edited"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
 
           <el-table-column
             prop="intoMoney"
@@ -2990,7 +3042,9 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    onAddDebtTableReturnDeposit()
+                    // onAddDebtTableReturnDeposit()
+                    postOrderStransaction()
+
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -3618,8 +3672,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
         </el-table>
-
-        <el-button @click="addLastIndexTable2">Thêm</el-button>
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[3].name">

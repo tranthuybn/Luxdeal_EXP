@@ -1068,9 +1068,9 @@ const postData = async () => {
       CustomerId: customerID.value,
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value,
-      DistrictId: valueDistrict.value,
-      WardId: valueCommune.value,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
       Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
@@ -1111,7 +1111,6 @@ const route = useRoute()
 const type = String(route.params.type)
 
 let dataEdit = ref()
-let getHistoryTable = ref()
 
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
@@ -1125,9 +1124,7 @@ const editData = async () => {
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
-    getHistoryTable.value = await getReturnRequest({ CustomerOrderId: id })
-    console.log('getHistoryTable: ', getHistoryTable.value)
-    console.log('historyTable: ', historyTable.value)
+    getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
@@ -1323,23 +1320,6 @@ const tableInvoice = [
 // Thông tin phiếu bán hàng
 const dialogSalesSlipInfomation = ref(false)
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
-
-// const tableSalesSlip = [
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '2',
-//     unitPrices: '10,000,000 đ',
-//     intoMoney: '20,000,000 đ'
-//   },
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '1',
-//     unitPrices: '10,000,000 đ',
-//     intoMoney: '10,000,000 đ'
-//   }
-// ]
 
 // Thông tin đổi/trả hàng
 const changeReturnGoods = ref(false)
@@ -1599,7 +1579,6 @@ function openPaymentDialog() {
 
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
-  console.log('prtHtml', prtHtml)
 
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -1622,10 +1601,10 @@ function printPage(id: string) {
 
   WinPrint?.document.close()
   WinPrint?.focus()
-  // setTimeout(() => {
-  //   WinPrint?.print()
-  //   WinPrint?.close()
-  // }, 500)
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 500)
 }
 
 const productAttributeValue = (data) => {
@@ -1645,6 +1624,9 @@ const handleChangeReceipts = () => {
     })
   }
 }
+
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
 
 // Thêm mã phiếu chi vào debtTable
 const handleChangeExpenditures = () => {
@@ -1687,7 +1669,7 @@ const postPT = async () => {
     status: 1,
     PeopleType: 1,
     PeopleId: 2,
-    OrderId: 117,
+    OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1709,7 +1691,7 @@ const postPC = async () => {
     status: 1,
     PeopleType: 1,
     PeopleId: 2,
-    OrderId: 117,
+    OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1738,7 +1720,7 @@ const postPaymentRequest = async () => {
     PeopleId: 2,
     status: 0,
     PeopleType: 1,
-    OrderId: 117,
+    OrderId: id,
     Description: '',
     Document: undefined,
     AccountingEntryId: undefined
@@ -1811,6 +1793,36 @@ const newCodePaymentRequest = async () => {
 
 let moneyDeposit = ref()
 
+const inputRecharger = ref()
+
+const PrintReceipts = ref(false)
+
+// form phiếu thu
+const formReceipts = ref()
+const moneyReceipts = ref(105000000)
+
+const getFormReceipts = () => {
+  if (enterMoney.value) {
+    formReceipts.value = {
+      sellOrderCode: sellOrderCode.value,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+
+    PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
+}
+
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
@@ -1837,6 +1849,59 @@ onMounted(async () => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
+      <!-- phieu in -->
+      <div id="billDepositPrint">
+        <slot>
+          <billPrint
+            class="w-[796px] h-[1123px]"
+            v-if="dataEdit"
+            :dataEdit="dataEdit"
+            :nameDialog="nameDialog"
+          />
+        </slot>
+      </div>
+
+      <div id="recpPaymentPrint">
+        <slot>
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+        </slot>
+      </div>
+
+      <!-- Dialog In phiếu thu chi -->
+      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <div id="IPRFormPrint">
+        <slot>
+          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
+        </slot>
+      </div>
+
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -2177,7 +2242,7 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2206,13 +2271,17 @@ onMounted(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2238,9 +2307,10 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -2262,27 +2332,6 @@ onMounted(async () => {
           </div>
         </template>
       </el-dialog>
-
-      <!-- phieu in -->
-      <div id="billDepositPrint">
-        <slot>
-          <billPrint class="w-[796px] h-[1123px]" :dataEdit="dataEdit" :nameDialog="nameDialog" />
-        </slot>
-      </div>
-
-      <div id="recpPaymentPrint">
-        <slot>
-          <receiptsPaymentPrint :nameDialog="nameDialog" />
-        </slot>
-      </div>
-
-      <div id="IPRFormPrint">
-        <slot>
-          <!-- <el-dialog v-model="testDialog" width="40%" align-center> -->
-          <paymentOrderPrint />
-          <!-- </el-dialog> -->
-        </slot>
-      </div>
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
@@ -2329,6 +2378,7 @@ onMounted(async () => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2348,7 +2398,11 @@ onMounted(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2376,7 +2430,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -2554,7 +2608,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogIPRForm = false
-                      newCodePaymentRequest()
                       handleChangePaymentRequest()
                       postPaymentRequest()
                     }
@@ -3231,7 +3284,6 @@ onMounted(async () => {
                 @click="
                   () => {
                     postOrderStransaction()
-                    getOrderStransactionList()
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -4480,7 +4532,16 @@ onMounted(async () => {
         >
         <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
         <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button
+          @click="
+            () => {
+              newCodePaymentRequest()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -4782,6 +4843,9 @@ onMounted(async () => {
   }
   #IPRFormPrint {
     display: none;
+  }
+  .dialog-content {
+    display: block;
   }
 }
 

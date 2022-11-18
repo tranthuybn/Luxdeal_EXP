@@ -1,16 +1,5 @@
 <script setup lang="ts">
 import { onBeforeMount, onMounted, reactive, ref, unref } from 'vue'
-import {
-  getProductsList,
-  getCollaboratorsInOrderList,
-  getAllCustomer,
-  addNewSpaOrders,
-  getCheckProduct,
-  getproductId,
-  getSellOrderList,
-  getOrderTransaction,
-  createQuickProduct
-} from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -37,7 +26,31 @@ import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { dateTimeFormat } from '@/utils/format'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
+import {
+  getProductsList,
+  getCollaboratorsInOrderList,
+  getAllCustomer,
+  addNewSpaOrders,
+  getPromotionsList,
+  addNewOrderList,
+  getSellOrderList,
+  createQuickProduct,
+  getCheckProduct,
+  getproductId,
+  addQuickCustomer,
+  getTotalOrder,
+  getOrderTransaction,
+  addTPV,
+  createReturnRequest,
+  getReturnRequest,
+  getReceiptPaymentVoucher,
+  getDetailReceiptPaymentVoucher,
+  getCodePaymentRequest,
+  addDNTT,
+  addOrderStransaction
+} from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
@@ -355,18 +368,18 @@ const removeListProductsSale = (index) => {
 }
 
 interface tableDataType {
-  initializationDate: string
-  certificateInformation: string
-  receiptOrPayment: string
-  quantity: number
-  unitPrice: string
-  intoMoney: string
-  collected: string
-  rentalFeeDebt: string
-  kindOfMoney: string
-  paymentProposal: string
-  payment: string
+  createdAt: string | Date
+  content: string
+  receiptOrPaymentVoucherId: number | undefined
+  paymentRequestId: string | undefined
+  receiveMoney: string
+  paidMoney: string
+  debt: string
+  typeOfPayment: string | number | undefined
+  paymentMethods: number
+  status: number
   alreadyPaidForTt: boolean
+  idPTC?: number
   statusAccountingEntry: string
 }
 
@@ -377,39 +390,20 @@ const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
 }
 
-// const onAddDebtTableItem = () => {
-//   debtTable.value.push({
-//     initializationDate: moment().format('L').toString(),
-//     certificateInformation: '',
-//     receiptOrPayment: '',
-//     quantity: 0,
-//     unitPrice: '',
-//     intoMoney: '',
-//     collected: '',
-//     rentalFeeDebt: '',
-//     kindOfMoney: t('formDemo.deposit'),
-//     paymentProposal: '',
-//     payment: '',
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: ''
-//   })
-// }
-
 const onAddDebtTableReturnDeposit = () => {
   debtTable.value.push({
-    initializationDate: moment().format('L').toString(),
-    certificateInformation: 'Thu tiền phạt rút hàng trước 14 ngày',
-    receiptOrPayment: '',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '',
-    rentalFeeDebt: '',
-    kindOfMoney: t('formDemo.deposit'),
-    paymentProposal: '',
-    payment: '',
+    createdAt: moment().format('L').toString(),
+    content: 'Thu tiền phạt rút hàng trước 14 ngày',
+    receiptOrPaymentVoucherId: undefined,
+    paymentRequestId: undefined,
+    receiveMoney: '',
+    paidMoney: '',
+    debt: '',
+    typeOfPayment: 1,
+    paymentMethods: 1,
+    status: 0,
     alreadyPaidForTt: false,
-    statusAccountingEntry: ''
+    statusAccountingEntry: 'Đã ghi sổ'
   })
 }
 
@@ -444,8 +438,8 @@ const handleChangePaymentRequest = () => {
   if (newTable.value?.length) {
     newTable.value.forEach((val) => {
       debtTable.value.forEach((e) => {
-        if (e.certificateInformation == val.certificateInformation) {
-          e.receiptOrPayment = codeExpenditures.value
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeExpenditures.value
         }
       })
     })
@@ -455,12 +449,13 @@ const handleChangePaymentRequest = () => {
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 5 })
-    const transaction = await getOrderTransaction({ id: 10 })
+    console.log('id: ', id)
+    const res = await getSellOrderList({ Id: id, ServiceType: 2 })
+    const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
 
-    const orderObj = { ...res.data[0] }
+    const orderObj = res.data[0]
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -1002,33 +997,6 @@ const postData = () => {
         Accessory: 'Accessory2'
       }
     ])
-    // if (ListOfProductsForSale.length > 0) {
-    // ListOfProductsForSale.forEach((element) => {
-    // if (element && Array.isArray(element) && element.length > 0)
-    // element.forEach(() => {
-    // productPayment.push(
-    //   // {
-    //   //   ProductPropertyId: 2,
-    //   //   Quantity: 1,
-    //   //   ProductPrice: 10000,
-    //   //   SoldPrice: 10000,
-    //   //   WarehouseId: 1,
-    //   //   IsPaid: true,
-    //   //   Accessory: 'Accessory1'
-    //   // },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 90000,
-    //     SoldPrice: 80000,
-    //     WarehouseId: 1,
-    //     IsPaid: true,
-    //     Accessory: 'Accessory2'
-    //   }
-    // )
-    // })
-    // })
-    // }
 
     const payload = {
       ServiceType: 2,
@@ -1062,21 +1030,6 @@ function printPage(id: string, { url, title, w, h }) {
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  // const WinPrint = window.open(
-  //   '',
-  //   '',
-  //   'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  // )
-  // WinPrint?.document.write(`<!DOCTYPE html>
-  //               <html>
-  //                 <head>
-  //                   ${stylesHtml}
-  //                 </head>
-  //                 <body style="overflow-y: scroll">
-  //                   ${prtHtml}
-  //                 </body>
-  //               </html>`)
-
   //get content need to print
   const printContents = document.getElementById(id)?.innerHTML
   // open new window at the center of screen
@@ -1129,22 +1082,163 @@ function printPage(id: string, { url, title, w, h }) {
 const dialogAccountingEntryAdditional = ref(false)
 const alreadyPaidForTt = ref(true)
 
-const tableAccountingEntry = [
+const tableAccountingEntry = ref([
   {
-    content: 'Trả lại tiền cọc cho khách',
+    content: 'Thu tiền phạt rút hàng trước 14 ngày',
     collected: '',
     spent: '',
     intoMoney: ''
   }
-]
+])
+
+// Lý do thu tiền
+const inputReasonCollectMoney = ref()
+
+// dialog print
+const nameDialog = ref('')
+// const testDialog = ref(false)
+
+function openReceiptDialog() {
+  getReceiptCode()
+  dialogInformationReceipts.value = !dialogInformationReceipts.value
+  nameDialog.value = 'Phiếu thu'
+}
+
+function openPaymentDialog() {
+  getcodeExpenditures()
+  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+  nameDialog.value = 'Phiếu chi'
+}
 
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
+var autoCodeReturnRequest = 'DT' + moment().format('hms')
+const codeReceipts = ref()
 const codeExpenditures = ref()
+const codePaymentRequest = ref()
+const codeReturnRequest = ref()
 const checkDisabled = ref(false)
 var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])
+
+const getReceiptCode = async () => {
+  codeReceipts.value = await getReceiptPaymentVoucher()
+}
+
+const getcodeExpenditures = async () => {
+  codeExpenditures.value = await getReceiptPaymentVoucher()
+}
+
+const newCodePaymentRequest = async () => {
+  codePaymentRequest.value = await getCodePaymentRequest()
+}
+
+const getOrderStransactionList = async () => {
+  const transaction = await getOrderTransaction({ id: id })
+  debtTable.value = transaction.data
+}
+
+// Thêm mới phiếu thu
+let objidPT = ref()
+let idPT = ref()
+const postPT = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: id,
+    Type: 0,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPT.value = await addTPV(formDataPayLoad)
+  idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  console.log('idPT: ', idPT.value)
+}
+
+// Thêm mới phiếu chi
+let objidPC = ref()
+let idPC = ref()
+const postPC = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: id,
+    Type: 1,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPC.value = await addTPV(formDataPayLoad)
+  idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  console.log('idPC: ', idPC.value)
+}
+
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = () => {
+  openReceiptDialog()
+  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+}
+
+// // Thêm mới phiếu đề nghị thanh toán
+let objIdPayment = ref()
+let idPayment = ref()
+const postPaymentRequest = async () => {
+  const payload = {
+    Code: codePaymentRequest.value,
+    TotalMoney: 121325,
+    PaymentType: 0,
+    PeopleId: 2,
+    status: 0,
+    PeopleType: 1,
+    OrderId: id,
+    Description: '',
+    Document: undefined,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objIdPayment.value = await addDNTT(formDataPayLoad)
+  idPayment.value = objIdPayment.value.paymentRequestId
+}
+
+let objOrderStransaction = ref()
+let idStransaction = ref()
+// Thêm bút toán cho đơn hàng
+const postOrderStransaction = async () => {
+  codeReturnRequest.value = autoCodeReturnRequest
+  const payload = {
+    orderId: id,
+    content: tableAccountingEntry.value[0].content,
+    paymentRequestId: null,
+    receiptOrPaymentVoucherId: null,
+    receiveMoney: tableAccountingEntry.value[0].collected
+      ? parseInt(tableAccountingEntry.value[0].collected)
+      : 0,
+    paidMoney: tableAccountingEntry.value[0].spent
+      ? parseInt(tableAccountingEntry.value[0].spent)
+      : 0,
+    deibt: 0,
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    isReceiptedMoney: 0,
+    typeOfMoney: 1
+  }
+
+  objOrderStransaction.value = await addOrderStransaction(payload)
+  idStransaction.value = objOrderStransaction.value.paymentRequestId
+  getOrderStransactionList()
+}
 
 onBeforeMount(() => {
   callCustomersApi()
@@ -1300,6 +1394,7 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -2542,7 +2637,7 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    onAddDebtTableReturnDeposit()
+                    postOrderStransaction()
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -2555,6 +2650,7 @@ onMounted(async () => {
           </div>
         </template>
       </el-dialog>
+
       <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
@@ -2574,13 +2670,17 @@ onMounted(async () => {
         >
           <el-table-column type="selection" width="40" />
           <el-table-column
-            prop="initializationDate"
+            prop="createdAt"
             :label="t('formDemo.initializationDate')"
             width="150"
             align="center"
-          />
+          >
+            <template #default="data">
+              {{ dateTimeFormat(data.row.createdAt) }}
+            </template>
+          </el-table-column>
           <el-table-column
-            prop="certificateInformation"
+            prop="content"
             :label="t('formDemo.certificateInformation')"
             width="240"
           /><el-table-column
@@ -2589,29 +2689,38 @@ onMounted(async () => {
             width="240"
           />
           <el-table-column
-            prop="receiptOrPayment"
+            prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
             align="right"
           >
             <template #default="props">
-              <div class="text-blue-500">{{ props.row.receiptOrPayment }}</div>
+              <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
             </template>
           </el-table-column>
           <el-table-column
-            prop="paymentProposal"
+            prop="paymentRequestId"
             :label="t('router.paymentProposal')"
             align="right"
           >
             <template #default="props">
-              <div class="text-blue-500">{{ props.row.paymentProposal }}</div>
+              <div class="text-blue-500">{{ props.row.paymentRequestId }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="collected" :label="t('formDemo.collected')" align="left">
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" align="left">
             <template #default="props">
-              <div class="text-right">{{ props.row.collected }}</div>
+              <div class="text-right">{{ props.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.spent')" align="right">đ</el-table-column>
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
+            <template #default="data">
+              <el-input
+                v-model="data.row.paidMoney"
+                v-if="type != 'detail'"
+                style="width: 100%; border: none; outline: none"
+              />
+              <div v-else>{{ data.row.paidMoney }}</div>
+            </template></el-table-column
+          >
           <el-table-column
             prop="rentalFeeDebt"
             :label="`${t('reuse.outstandingDebt')}`"
@@ -2637,7 +2746,19 @@ onMounted(async () => {
             min-width="120"
           />
           <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
-            <el-button @click="dialogDepositSlip = true">{{ t('reuse.detail') }}</el-button>
+            <template #default="data">
+              <button
+                @click="
+                  data.row.content.includes('Thu tiền phạt rút hàng trước 14 ngày')
+                    ? (dialogDepositSlip = true)
+                    : (dialogDepositSlip = true)
+                "
+                v-if="type != 'detail'"
+                class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+              >
+                {{ t('reuse.detail') }}
+              </button>
+            </template>
           </el-table-column>
         </el-table>
       </el-collapse-item>

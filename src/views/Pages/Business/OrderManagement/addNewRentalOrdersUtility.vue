@@ -52,7 +52,8 @@ import {
   addDNTT,
   addOrderStransaction,
   getOrderTransaction,
-  createReturnRequest
+  createReturnRequest,
+  getReceiptPaymentVoucher
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -131,7 +132,7 @@ let checkValidate = ref(false)
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
-var autoCodeReceipts = 'PT' + moment().format('hmmss')
+// var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -307,8 +308,8 @@ const productForSale = reactive<tableRentalProduct>({
 
 interface tableDataType {
   initializationDate: string
-  certificateInformation: string
-  receiptOrPayment: string
+  content: string
+  receiptOrPaymentVoucherId: string
   quantity: number
   unitPrice: string
   intoMoney: string
@@ -333,8 +334,8 @@ const handleSelectionChange = (val: tableDataType[]) => {
 const onAddDebtTableItem = () => {
   debtTable.value.push({
     initializationDate: moment().format('L').toString(),
-    certificateInformation: t('formDemo.collectRentalDeposit'),
-    receiptOrPayment: '',
+    content: t('formDemo.collectRentalDeposit'),
+    receiptOrPaymentVoucherId: '',
     quantity: 0,
     unitPrice: '',
     intoMoney: '',
@@ -352,8 +353,8 @@ const onAddDebtTableItem = () => {
 const onAddDebtTableDeposit = () => {
   debtTable.value.push({
     initializationDate: moment().format('L').toString(),
-    certificateInformation: feePaymentPeriod.value,
-    receiptOrPayment: '',
+    content: feePaymentPeriod.value,
+    receiptOrPaymentVoucherId: '',
     quantity: 0,
     unitPrice: '',
     intoMoney: '',
@@ -1031,17 +1032,17 @@ const type = String(router.currentRoute.value.params.type)
 
 let totalOrder = ref(0)
 let customerIdPromo = ref()
-let getHistoryTable = ref()
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
+    const transaction = await getOrderTransaction({ id: id })
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
+    getReturnRequestTable()
 
-    getHistoryTable.value = await getReturnRequest({ CustomerOrderId: id })
-    console.log('getHistoryTable: ', getHistoryTable.value)
-    console.log('historyTable: ', historyTable.value)
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
@@ -1601,6 +1602,7 @@ function openDepositDialog() {
 }
 
 function openReceiptDialog() {
+  getReceiptCode()
   dialogInformationReceipts.value = !dialogInformationReceipts.value
   nameDialog.value = 'Phiếu thu'
 }
@@ -1642,7 +1644,7 @@ function printPage(id: string) {
 const recharger = ref('Trần Hữu Dương | 0998844533')
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
-const inputReasonReturn = ref('')
+// const inputReasonReturn = ref('')
 
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
@@ -1654,8 +1656,8 @@ const handleChangeReceipts = () => {
   if (newTable.value?.length) {
     newTable.value.forEach((val) => {
       debtTable.value.forEach((e) => {
-        if (e.certificateInformation == val.certificateInformation) {
-          e.receiptOrPayment = codeReceipts.value
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeReceipts.value
         }
       })
     })
@@ -1667,8 +1669,8 @@ const handleChangeExpenditures = () => {
   if (newTable.value?.length) {
     newTable.value.forEach((val) => {
       debtTable.value.forEach((e) => {
-        if (e.certificateInformation == val.certificateInformation) {
-          e.receiptOrPayment = codeExpenditures.value
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeExpenditures.value
         }
       })
     })
@@ -1680,7 +1682,7 @@ const handleChangePaymentRequest = () => {
   if (newTable.value?.length) {
     newTable.value.forEach((val) => {
       debtTable.value.forEach((e) => {
-        if (e.certificateInformation == val.certificateInformation) {
+        if (e.content == val.content) {
           e.paymentProposal = codePaymentRequest.value
         }
       })
@@ -1719,7 +1721,7 @@ const postPT = async () => {
     status: 1,
     PeopleType: 1,
     PeopleId: 2,
-    OrderId: 117,
+    OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1770,7 +1772,7 @@ const postPaymentRequest = async () => {
     PeopleId: 2,
     status: 0,
     PeopleType: 1,
-    OrderId: 117,
+    OrderId: id,
     Description: '',
     Document: undefined,
     AccountingEntryId: undefined
@@ -1809,36 +1811,6 @@ const postOrderStransaction = async () => {
   getOrderStransactionList()
 }
 
-// interface historyTableType {
-//   createdAt: string
-//   productPropertyId: string | undefined
-//   productPropertyName: string | undefined
-//   accessory?: string
-//   quantity: string | undefined
-//   unit?: string
-//   refundUnitPrice?: number
-//   intoUnitPrice?: number
-//   invoiceGoodsEnteringWarehouse?: number
-//   inventoryStatus?: string
-// }
-
-// const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
-
-// const addTableReturnFullyIntegrated = () => {
-//   tableReturnFullyIntegrated.value.push({
-//     createdAt: moment().format('L').toString(),
-//     productPropertyId: undefined,
-//     productPropertyName: undefined,
-//     accessory: '',
-//     quantity: undefined,
-//     unit: t('formDemo.psc'),
-//     refundUnitPrice: 0,
-//     intoUnitPrice: 0,
-//     invoiceGoodsEnteringWarehouse: 0,
-//     inventoryStatus: ''
-//   })
-// }
-
 const inputReturnReason = ref('Trả hàng trước hạn')
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
@@ -1868,6 +1840,10 @@ const dialogReturnAheadOfTime = ref(false)
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
+const getReceiptCode = async () => {
+  codeReceipts.value = await getReceiptPaymentVoucher()
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
@@ -1876,7 +1852,6 @@ onBeforeMount(() => {
   if (type == 'add') {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
-    codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
@@ -2243,7 +2218,7 @@ onBeforeMount(() => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ rentalOrderCode }}</div>
+            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -4719,7 +4694,16 @@ onBeforeMount(() => {
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
         <el-button @click="dialogAccountingEntryAdditional = true" text>+ Thêm bút toán</el-button>
-        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
+        <el-button
+          @click="
+            () => {
+              dialogInformationReceipts = true
+              getReceiptCode()
+            }
+          "
+          text
+          >+ Thêm phiếu thu</el-button
+        >
         <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
         <el-table
@@ -4730,18 +4714,29 @@ onBeforeMount(() => {
         >
           <el-table-column type="selection" width="40" />
           <el-table-column
-            prop="initializationDate"
+            prop="createdAt"
             :label="t('formDemo.initializationDate')"
             width="150"
             align="center"
-          />
+          >
+            <template #default="data">
+              <el-date-picker
+                v-model="data.row.createdAt"
+                v-if="type != 'detail'"
+                type="date"
+                placeholder="Pick a day"
+                format="DD/MM/YYYY"
+              />
+              <div v-else>{{ data.row.createdAt }}</div>
+            </template>
+          </el-table-column>
           <el-table-column
-            prop="certificateInformation"
+            prop="content"
             :label="t('formDemo.certificateInformation')"
             width="240"
           />
           <el-table-column
-            prop="receiptOrPayment"
+            prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
             align="right"
           >
@@ -4781,15 +4776,14 @@ onBeforeMount(() => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.kindOfMoney')" prop="kindOfMoney">
+          <el-table-column prop="typeOfMoney" :label="t('formDemo.kindOfMoney')">
             <template #default="props">
-              <div>{{ props.row.kindOfMoney }}</div>
+              <div>{{ props.row.typeOfMoney }}</div>
             </template>
           </el-table-column>
           <el-table-column prop="collected" :label="t('formDemo.collected')" align="left">
             <template #default="props">
               <el-input v-model="props.row.collected" />
-              <!-- <div class="text-right">{{ props.row.collected }}</div> -->
             </template>
           </el-table-column>
           <el-table-column prop="spent" :label="t('formDemo.spent')" align="right">

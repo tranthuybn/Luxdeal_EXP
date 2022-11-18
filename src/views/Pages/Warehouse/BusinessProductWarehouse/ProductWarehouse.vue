@@ -25,6 +25,10 @@ defineProps({
     type: String,
     default: ''
   },
+  transactionType: {
+    type: Number,
+    default: 0
+  },
   productData: {
     type: Object,
     default: () => {}
@@ -48,6 +52,9 @@ type ProductWarehouse = {
   productName?: string
   finalPrice?: string
   unitName?: string
+  warehouse?: Object
+  location?: Object
+  lot?: Object
 }
 let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
@@ -137,10 +144,21 @@ const ScrollProductBottom = () => {
         .finally(() => (productLoading.value = false))
 }
 const dialogWarehouse = ref(false)
-const openDialogWarehouse = () => {
+const currentRow = ref(0)
+const openDialogWarehouse = (props) => {
   dialogWarehouse.value = true
+  currentRow.value = props.$index
 }
-const closeDialogWarehouse = () => {
+const closeDialogWarehouse = (warehouseData) => {
+  if (warehouseData != null) {
+    console.log('warehouseData', warehouseData)
+    ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
+    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
+    ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
+    ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
+    ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
+    console.log(' ListOfProductsForSale.value', ListOfProductsForSale.value)
+  }
   dialogWarehouse.value = false
 }
 
@@ -175,6 +193,10 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) =
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   }
 }
+
+const warehouseFormat = (props) => {
+  return props
+}
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
@@ -184,6 +206,7 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) =
     v-if="dialogWarehouse"
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
+    :transactionType="transactionType"
   />
   <el-table
     border
@@ -247,21 +270,20 @@ const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) =
       </template>
     </el-table-column>
     <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
-      <div class="flex w-[100%] items-center">
-        <div class="w-[40%]">Còn hàng</div>
-        <div class="w-[60%]">
-          <el-button text @click="openDialogWarehouse">
-            <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-          </el-button>
+      <template #default="props">
+        <div class="flex w-[100%] items-center">
+          <div class="w-[40%]">{{ warehouseFormat(props) }}</div>
+          <div class="w-[60%]">
+            <el-button text @click="openDialogWarehouse(props)">
+              <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+            </el-button>
+          </div>
         </div>
-      </div>
+      </template>
     </el-table-column>
     <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
       <template #default="data">
-        <div v-if="type == 'detail'">
-          {{ data.row.quantity }}
-        </div>
-        <el-input type="number" :min="0" v-else v-model="data.row.quantity" style="width: 100%" />
+        {{ data.row.quantity }}
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />

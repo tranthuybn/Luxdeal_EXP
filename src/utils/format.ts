@@ -144,6 +144,25 @@ export const businessStatusTransferToText = (val) => {
   return `${t('reuse.inactive')}`
 }
 
+export const orderType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.sell')
+    case 2:
+      return t('reuse.deposit')
+    case 3:
+      return t('reuse.rent')
+    case 4:
+      return t('reuse.pawn')
+    case 5:
+      return 'Spa'
+    case 6:
+      return t('reuse.internal')
+    default:
+      return ''
+  }
+}
+
 export const campaignType = (val) => {
   switch (val) {
     case 1:

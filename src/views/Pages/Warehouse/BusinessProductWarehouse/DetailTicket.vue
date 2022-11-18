@@ -42,6 +42,7 @@ const EmptyCustomData = {} as FormDataInput
 const FormData = reactive(EmptyCustomData)
 const disabledForm = ref(false)
 const rules = reactive<FormRules>({
+  staffId: [required()],
   description: [required()],
   customerId: [required()]
 })
@@ -197,7 +198,7 @@ defineExpose({
       <ElFormItem :label="t('reuse.createDate')">
         <div class="pl-6">{{ formattedToday }}</div>
       </ElFormItem>
-      <ElFormItem class="mt-5" :label="t('reuse.petitioner')">
+      <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
           :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"
           filterable
@@ -222,7 +223,7 @@ defineExpose({
       </ElFormItem>
       <el-divider class="mt-10" content-position="left">{{ t('reuse.subject') }}</el-divider>
       <div class="flex justify-between">
-        <ElFormItem :label="t('reuse.selectObject')" class="w-4/5">
+        <ElFormItem :label="t('reuse.selectObject')" class="w-4/5" prop="customerId">
           <MultipleOptionsBox
             :fields="[t('reuse.customerCode'), t('reuse.phoneNumber'), t('reuse.customerName')]"
             filterable

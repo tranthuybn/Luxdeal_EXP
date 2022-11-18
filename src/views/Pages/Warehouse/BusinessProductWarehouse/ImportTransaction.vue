@@ -81,12 +81,7 @@ onBeforeMount(() => {
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket
-            ref="detailTicketRef"
-            :type="type"
-            :transactionType="transactionType"
-            :ticketData="ticketData"
-          />
+          <DetailTicket ref="detailTicketRef" :type="type" :ticketData="ticketData" />
         </div>
       </el-collapse-item>
 

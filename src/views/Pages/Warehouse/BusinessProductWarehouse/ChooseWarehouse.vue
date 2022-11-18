@@ -2,6 +2,7 @@
 import { getWareHouseList } from '@/api/Business'
 import { getProductStorage } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
+import { orderType } from '@/utils/format'
 import {
   ElButton,
   ElDivider,
@@ -12,7 +13,8 @@ import {
   ElOption,
   ElInput,
   ElTable,
-  ElTableColumn
+  ElTableColumn,
+  ElRadio
 } from 'element-plus'
 import { reactive, ref } from 'vue'
 const { t } = useI18n()
@@ -21,17 +23,22 @@ defineProps({
     type: Boolean,
     default: false
   },
-  type: {
+  transactionType: {
     type: Number,
     default: 0
-    //1:Nhập, 2.Xuất, 3.Chuyển kho
   }
 })
 const closeDialog = () => {
-  emit('close-dialog-warehouse')
+  emit('close-dialog-warehouse', null)
+}
+const createNewLot = () => {
+  emit('close-dialog-warehouse', warehouseData.value)
+}
+const saveOldLot = () => {
+  emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
-const warehouseForm = reactive({ quantity: null, warehouseImportId: null, locationImportId: null })
+const warehouseForm = reactive({ quantity: 1, warehouseImportId: null, locationImportId: null })
 const rules = reactive({ quantity: [{ required: true }] })
 const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
@@ -58,22 +65,43 @@ const getLocation = async (parentId) => {
       label: item.name
     }))
     loadingWarehouse.value = false
-    callAPIWarehouseTimes++
   })
 }
 const lotData = ref()
+const tempLotData = ref()
 const loadingLot = ref(true)
 const changeWarehouseData = async (warehouseId) => {
   warehouseForm.locationImportId = null
   await getWareHouseList({ WarehouseId: warehouseId })
     .then((res) => {
-      lotData.value = res.data.map()
+      lotData.value = res.data.map((item) => ({
+        warehouseId: item.warehouseId,
+        locationId: item.locationId,
+        location: item.locationWarehouse,
+        lotCode: item.lotCode,
+        orderType: item.orderServiceType,
+        inventory: item.inventory,
+        unit: item?.productPropertyAttribute[2]?.value,
+        createdAt: item.createdAt
+      }))
     })
     .finally(() => (loadingLot.value = false))
+  tempLotData.value = lotData.value
+  warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
-  lotData.value.filter((lot) => (lot.LocationId = locationId))
+  lotData.value = tempLotData.value
+  lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
+  warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
 }
+const radioSelected = ref()
+const handleCurrentChangeSelection = (val) => {
+  const index = lotData.value.findIndex((lot) => lot == val)
+  radioSelected.value = index
+  warehouseData.value.lot = val
+}
+
+const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
 </script>
 <template>
   <el-dialog
@@ -86,7 +114,7 @@ const filterLotData = (locationId) => {
   >
     <template #header>
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
-      <el-divider />
+      <el-divider class="!mb-0" />
     </template>
 
     <el-form
@@ -97,11 +125,20 @@ const filterLotData = (locationId) => {
       label-position="top"
     >
       <el-form-item label="1">
-        <el-input v-model="warehouseForm.quantity" />
+        <el-input
+          v-model="warehouseForm.quantity"
+          type="number"
+          :min="1"
+          @change="
+            (data) => {
+              warehouseData.quantity = Number(data)
+            }
+          "
+        />
       </el-form-item>
-      <div class="flex">
+      <div class="flex import" v-if="transactionType != 2">
         <div class="w-1/2">
-          <el-form-item label="3" class="w-full">
+          <el-form-item label="2" class="w-full">
             <el-select
               class="w-full"
               v-model="warehouseForm.warehouseImportId"
@@ -119,7 +156,48 @@ const filterLotData = (locationId) => {
           </el-form-item>
         </div>
         <div class="pl-8 w-1/2">
+          <el-form-item label="3" class="w-full">
+            <el-select
+              class="w-full"
+              v-model="warehouseForm.locationImportId"
+              @click="
+                () => {
+                  getLocation(warehouseForm.warehouseImportId)
+                }
+              "
+              @change="filterLotData"
+            >
+              <el-option
+                v-for="item in locationOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+        </div>
+      </div>
+      <div class="flex export" v-if="transactionType != 1">
+        <div class="w-1/2">
           <el-form-item label="2" class="w-full">
+            <el-select
+              class="w-full"
+              v-model="warehouseForm.warehouseImportId"
+              @click="callAPIWarehouse"
+              :loading="loadingWarehouse"
+              @change="(data) => changeWarehouseData(data)"
+            >
+              <el-option
+                v-for="item in warehouseOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+        </div>
+        <div class="pl-8 w-1/2">
+          <el-form-item label="3" class="w-full">
             <el-select
               class="w-full"
               v-model="warehouseForm.locationImportId"
@@ -142,21 +220,41 @@ const filterLotData = (locationId) => {
       </div>
     </el-form>
     <div>{{ t('reuse.lotList') }}</div>
-    <el-table :data="lotData" style="width: 100%" :loading="loadingLot">
-      <el-table-column prop="location" label="location" width="180" />
-      <el-table-column prop="lotCode" label="lotCode" width="180" />
-      <el-table-column prop="orderType" label="orderType" width="180" />
-      <el-table-column prop="inventory" label="inventory" width="180" />
-      <el-table-column prop="quantity" label="quantity" width="180" />
-      <el-table-column prop="unit" label="unit" width="180" />
-      <el-table-column prop="createdAt" label="createdAt" width="180" />
+    <el-table
+      :data="lotData"
+      style="width: 100%"
+      :loading="loadingLot"
+      highlight-current-row
+      @current-change="handleCurrentChangeSelection"
+    >
+      <el-table-column label="" width="70">
+        <template #default="scope">
+          <el-radio
+            v-model="radioSelected"
+            :label="scope.$index"
+            style="color: #fff; margin-right: -25px"
+            ><span></span
+          ></el-radio>
+        </template>
+      </el-table-column>
+      <el-table-column prop="location" :label="t('reuse.location')" width="180" />
+      <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
+      <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
+        <template #default="props">
+          {{ orderType(props.row.orderType) }}
+        </template></el-table-column
+      >
+      <el-table-column prop="inventory" :label="t('reuse.inventory')" width="180" />
+      <el-table-column prop="quantity" :label="t('reuse.quantity')" width="180" />
+      <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
+      <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180" />
     </el-table>
     <template #footer>
       <span class="dialog-footer">
-        <el-button class="w-[150px]" type="primary" @click="closeDialog"
+        <el-button class="w-[150px]" type="primary" @click="saveOldLot"
           >{{ t('reuse.saveOldLot') }}
         </el-button>
-        <el-button class="w-[150px]" type="primary" @click="closeDialog"
+        <el-button class="w-[150px]" type="primary" @click="createNewLot"
           >{{ t('reuse.createNewLot') }}
         </el-button>
         <el-button class="w-[150px]" @click="closeDialog">{{ t('reuse.exit') }}</el-button>

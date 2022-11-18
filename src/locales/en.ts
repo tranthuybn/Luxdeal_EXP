@@ -150,6 +150,7 @@ export default {
     enterNumberMinute: 'Enter the number of minute',
     enterNumberDays: 'Enter the number of days',
     productInfomation: 'Product information',
+    payment: 'Payment',
     standardManagementMaterialsUsed: 'Standard management of materials used',
     orderInformation: 'Order information',
     generalInformation: 'General information',
@@ -295,6 +296,7 @@ export default {
     individual: 'Individual',
     deliveryDate: 'Delivery date',
     returnDate: 'Return date',
+    saleDate: 'Sale date',
     methodOfDeliverySpa: 'Method of deliverySpa',
     receiveGoodsAtCustomerAddress: 'Receive Goods At Customer Address',
     listProductSpa: 'List product Spa',
@@ -429,6 +431,7 @@ export default {
     reasonsSpendMoney: 'Reasons to spend money',
     enterReasonPaymentRequest: 'Enter the reason for the payment request',
     billingInformation: 'Billing Information',
+    negotiatedPaymentInformation: 'Negotiated payment information',
     pawnFeePaymentInformation: 'Pawn fee payment information',
     salesSlipInformation: 'Sales slip information',
     productInformationSale: 'Product information for sale',
@@ -510,7 +513,9 @@ export default {
     returnDepositCustomer: 'Return the deposit to the customer',
     collectRentalDeposit: 'Collect rental deposit',
     returnRentalDeposit: 'Return the rental deposit',
-    codePayment: 'Code payment'
+    codePayment: 'Code payment',
+    infoReturnAheadOfTime: 'Information return ahead of time',
+    infoReturnExpired: 'Information return expired'
   },
   button: {
     add: 'Add quick',

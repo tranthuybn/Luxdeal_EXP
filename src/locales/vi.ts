@@ -160,6 +160,7 @@ export default {
     enterNumberMinute: 'Nhập số phút',
     enterNumberDays: 'Nhập số ngày',
     productInfomation: 'Thông tin sản phẩm',
+    payment: 'Phải thanh toán',
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
     orderInformation: 'Thông tin đơn hàng',
     generalInformation: 'Thông tin chung',
@@ -320,6 +321,7 @@ export default {
     payAfterOneTime: 'Trả sau một lần',
     deliveryDate: 'Hạn trả hàng',
     returnDate: 'Ngày trả hàng',
+    saleDate: 'Ngày bán',
     methodOfDeliverySpa: 'Nhận hàng Spa',
     receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',
     listProductSpa: 'Danh sách sản phẩm Spa',
@@ -445,6 +447,7 @@ export default {
     reasonsSpendMoney: 'Lý do chi tiền',
     enterReasonPaymentRequest: 'Nhập lý do đề nghị thanh toán',
     billingInformation: 'Thông tin thanh toán',
+    negotiatedPaymentInformation: 'Thông tin thanh toán tiền đàm phán',
     pawnFeePaymentInformation: 'Thông tin thanh toán phí cầm đồ',
     salesSlipInformation: 'Thông tin phiếu bán hàng',
     productInformationSale: 'Thông tin sản phẩm bán',
@@ -527,7 +530,9 @@ export default {
     importExportHistoryExchange: 'Lịch sử nhập/xuất đổi trả',
     collectRentalDeposit: 'Thu tiền cọc thuê',
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
-    codePayment: 'Mã phiếu chi'
+    codePayment: 'Mã phiếu chi',
+    infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
+    infoReturnExpired: 'Trả hàng hết hạn'
   },
   button: {
     add: 'Thêm nhanh',

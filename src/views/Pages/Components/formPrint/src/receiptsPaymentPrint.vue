@@ -1,5 +1,23 @@
+<script setup lang="ts">
+import { useI18n } from '@/hooks/web/useI18n'
+
+const { t } = useI18n()
+const props = defineProps({
+  dataEdit: {
+    type: Object,
+    default: () => {}
+  },
+  nameDialog: {
+    type: String,
+    default: () => ''
+  }
+})
+
+console.log('dataEdit: ', props.dataEdit)
+</script>
+
 <template>
-  <div class="pt-[28px]">
+  <div class="pt-[28px] m-6">
     <div class="flex justify-between items-center pb-4">
       <div class="basis-6/12">
         <img
@@ -8,7 +26,7 @@
       </div>
       <div class="basis-6/12 text-right">
         <div>Mẫu số: 12-AU</div>
-        <div>Mã giao dịch: TC35109</div>
+        <div>Mã giao dịch: {{ props.dataEdit.codeReceipts }}</div>
         <div>Chi nhánh: Hồ Chí Minh</div>
       </div>
     </div>
@@ -91,20 +109,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { useI18n } from '@/hooks/web/useI18n'
-
-const { t } = useI18n()
-const props = defineProps({
-  dataEdit: {
-    type: Object,
-    default: () => {}
-  },
-  nameDialog: {
-    type: String,
-    default: () => ''
-  }
-})
-</script>
-
-<style scoped></style>
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+* {
+  font-family: 'Lora', serif;
+  font-weight: 500;
+}
+</style>

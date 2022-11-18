@@ -4211,8 +4211,26 @@ onBeforeMount(() => {
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
         <el-button @click="dialogAccountingEntryAdditional = true" text>+ Thêm bút toán</el-button>
-        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
-        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
+        <el-button
+          @click="
+            () => {
+              dialogInformationReceipts = true
+              getReceiptCode()
+            }
+          "
+          text
+          >+ Thêm phiếu thu</el-button
+        >
+        <el-button
+          @click="
+            () => {
+              dialogPaymentVoucher = true
+              getReceiptCode()
+            }
+          "
+          text
+          >+ Thêm phiếu chi</el-button
+        >
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
         <el-table
           ref="multipleTableRef"

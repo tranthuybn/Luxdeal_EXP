@@ -434,17 +434,17 @@ const onAddDebtTableReturnDeposit = () => {
 // }
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentRequest = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeExpenditures.value
-        }
-      })
-    })
-  }
-}
+// const handleChangePaymentRequest = () => {
+//   if (newTable.value?.length) {
+//     newTable.value.forEach((val) => {
+//       debtTable.value.forEach((e) => {
+//         if (e.content == val.content) {
+//           e.receiptOrPaymentVoucherId = codeExpenditures.value
+//         }
+//       })
+//     })
+//   }
+// }
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -476,12 +476,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phone
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -796,8 +796,8 @@ const changeAddressCustomer = (data: any) => {
     customerAddress.value = ''
     deliveryMethod.value = ''
   }
-  console.log('infoCompany: ', typeof infoCompany.taxCode)
 }
+
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -1110,7 +1110,6 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -1137,6 +1136,33 @@ const newCodePaymentRequest = async () => {
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
+}
+
+const inputRecharger = ref()
+const moneyReceipts = ref(105000000)
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
+
+const getFormReceipts = () => {
+  if (enterMoney.value) {
+    formReceipts.value = {
+      sellOrderCode: ruleForm.orderCode,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+
+    PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
 }
 
 // Thêm mới phiếu thu
@@ -1247,7 +1273,6 @@ onBeforeMount(() => {
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
-    codeExpenditures.value = autoCodeExpenditures
   }
 })
 
@@ -1621,7 +1646,7 @@ onMounted(async () => {
                     <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
                     >
-                    <div>{{ infoCompany.phone }}</div>
+                    <div>Số điện thoại: {{ infoCompany.phone ?? '' }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
                 </div>
@@ -2146,7 +2171,6 @@ onMounted(async () => {
       <el-dialog
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
-        class="font-bold"
         width="40%"
         align-center
       >
@@ -2158,7 +2182,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2167,13 +2191,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">PT890345</div>
+              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2188,6 +2212,7 @@ onMounted(async () => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2200,14 +2225,18 @@ onMounted(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <label class="w-[30%] text-right">Số tiền thu</label>
+            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2233,16 +2262,23 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogInformationReceipts = false">{{
-              t('button.print')
-            }}</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="dialogInformationReceipts = false">{{
-                  t('formDemo.saveRecordDebts')
-                }}</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      dialogInformationReceipts = false
+                      postPT()
+                      handleChangeReceipts()
+                    }
+                  "
+                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
                 <el-button @click="dialogInformationReceipts = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -2659,8 +2695,8 @@ onMounted(async () => {
         <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
           >+ Thêm bút toán</el-button
         >
-        <el-button @click="dialogInformationReceipts = true" text>+ Thêm phiếu thu</el-button>
-        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
+        <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
+        <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
         <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
         <el-table
           ref="multipleTableRef"
@@ -2745,13 +2781,13 @@ onMounted(async () => {
             align="center"
             min-width="120"
           />
-          <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
             <template #default="data">
               <button
                 @click="
                   data.row.content.includes('Thu tiền phạt rút hàng trước 14 ngày')
-                    ? (dialogDepositSlip = true)
-                    : (dialogDepositSlip = true)
+                    ? (dialogAccountingEntryAdditional = !dialogAccountingEntryAdditional)
+                    : (dialogAccountingEntryAdditional = !dialogAccountingEntryAdditional)
                 "
                 v-if="type != 'detail'"
                 class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"

@@ -3,11 +3,12 @@ import { getStaff } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElButton, ElDivider, ElInput, ElForm, ElFormItem, FormRules } from 'element-plus'
+import { ElButton, ElDivider, ElInput, ElForm, ElFormItem } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
 import QuickAddCustomer from './QuickAddCustomer.vue'
+import type { FormInstance, FormRules } from 'element-plus'
 
 const { t } = useI18n()
 const { required } = useValidator()
@@ -67,9 +68,12 @@ const callCustomersApi = async () => {
     }))
   }
 }
-const getValueOfStaffSelected = (_value, __data) => {}
+const getValueOfStaffSelected = (value, _obj) => {
+  FormData.staffId = value
+}
 
-const getValueOfCustomerSelected = (_value, obj) => {
+const getValueOfCustomerSelected = (value, obj) => {
+  FormData.customerId = value
   infoCompany.name = obj.name
   infoCompany.phonenumber = obj.phone
   infoCompany.email = obj.email
@@ -167,12 +171,23 @@ const closeDialog = (value: any) => {
   }
   dialogAddQuick.value = false
 }
-
+const ruleFormRef = ref<FormInstance>()
+const submitFormTicket = async () => {
+  if (!ruleFormRef.value) return
+  await ruleFormRef.value.validate((valid) => {
+    if (valid) {
+      return true
+    } else {
+      return false
+    }
+  })
+}
 onBeforeMount(() => {
   getListStaff(), callCustomersApi()
 })
 defineExpose({
-  FormData
+  FormData,
+  submitFormTicket
 })
 </script>
 <template>
@@ -251,22 +266,12 @@ defineExpose({
           <div class="ml-5">{{ infoCompany.name }}</div>
         </div>
       </ElFormItem>
-      <ElFormItem
-        class="w-[100%]"
-        style="display: inline-block"
-        :label="t('reuse.phoneNumber')"
-        v-if="infoCompany.phonenumber"
-      >
+      <ElFormItem class="w-[100%]" :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber">
         <div class="leading-4">
           <div class="ml-5">{{ infoCompany.phonenumber }}</div>
         </div>
       </ElFormItem>
-      <ElFormItem
-        class="w-[100%]"
-        style="display: inline-block"
-        :label="t('reuse.email')"
-        v-if="infoCompany.email"
-      >
+      <ElFormItem class="w-[100%]" :label="t('reuse.email')" v-if="infoCompany.email">
         <div class="leading-4">
           <div class="ml-5">{{ infoCompany.email }}</div>
         </div>

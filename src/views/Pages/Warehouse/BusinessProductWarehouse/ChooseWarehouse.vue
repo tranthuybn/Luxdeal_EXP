@@ -14,9 +14,14 @@ import {
   ElInput,
   ElTable,
   ElTableColumn,
-  ElRadio
+  ElRadio,
+  ElMessage
 } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { useValidator } from '@/hooks/web/useValidator'
+
+const { required } = useValidator()
 const { t } = useI18n()
 defineProps({
   showDialog: {
@@ -32,14 +37,24 @@ const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
 const createNewLot = () => {
+  warehouseData.value.lot = ''
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
-  emit('close-dialog-warehouse', warehouseData.value)
+  radioSelected.value == -1
+    ? ElMessage({
+        message: 'selected row',
+        type: 'warning'
+      })
+    : emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
 const warehouseForm = reactive({ quantity: 1, warehouseImportId: null, locationImportId: null })
-const rules = reactive({ quantity: [{ required: true }] })
+const rules = reactive<FormRules>({
+  quantity: [required()],
+  warehouseImportId: [required()],
+  locationImportId: [required()]
+})
 const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
 const locationOptions = ref()
@@ -94,14 +109,23 @@ const filterLotData = (locationId) => {
   lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
   warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
 }
-const radioSelected = ref()
-const handleCurrentChangeSelection = (val) => {
-  const index = lotData.value.findIndex((lot) => lot == val)
-  radioSelected.value = index
-  warehouseData.value.lot = val
+const radioSelected = ref(-1)
+const rowClick = (row, __column, _event) => {
+  const index = lotData.value.findIndex((lot) => lot == row)
+  index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
+  warehouseData.value.lot = row
 }
-
 const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
+
+const ruleFormRef = ref<FormInstance>()
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      createNewLot()
+    }
+  })
+}
 </script>
 <template>
   <el-dialog
@@ -124,7 +148,7 @@ const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
       label-width="120px"
       label-position="top"
     >
-      <el-form-item label="1">
+      <el-form-item label="quantity" prop="quantity">
         <el-input
           v-model="warehouseForm.quantity"
           type="number"
@@ -138,7 +162,7 @@ const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
       </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
         <div class="w-1/2">
-          <el-form-item label="2" class="w-full">
+          <el-form-item label="warehouseImportId" prop="warehouseImportId" class="w-full">
             <el-select
               class="w-full"
               v-model="warehouseForm.warehouseImportId"
@@ -156,7 +180,7 @@ const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
           </el-form-item>
         </div>
         <div class="pl-8 w-1/2">
-          <el-form-item label="3" class="w-full">
+          <el-form-item label="locationImportId" prop="locationImportId" class="w-full">
             <el-select
               class="w-full"
               v-model="warehouseForm.locationImportId"
@@ -225,7 +249,8 @@ const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row
-      @current-change="handleCurrentChangeSelection"
+      @row-click="rowClick"
+      ref="singleTableRef"
     >
       <el-table-column label="" width="70">
         <template #default="scope">
@@ -254,7 +279,11 @@ const warehouseData = ref({ quantity: 1, warehouse: '', location: '', lot: '' })
         <el-button class="w-[150px]" type="primary" @click="saveOldLot"
           >{{ t('reuse.saveOldLot') }}
         </el-button>
-        <el-button class="w-[150px]" type="primary" @click="createNewLot"
+        <el-button
+          class="w-[150px]"
+          type="primary"
+          :disabled="radioSelected !== -1"
+          @click="submitForm(ruleFormRef)"
           >{{ t('reuse.createNewLot') }}
         </el-button>
         <el-button class="w-[150px]" @click="closeDialog">{{ t('reuse.exit') }}</el-button>

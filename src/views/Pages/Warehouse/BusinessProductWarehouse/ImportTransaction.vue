@@ -54,8 +54,12 @@ const cancel = async () => {
 
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
+const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const getData = () => {
-  console.log('detailTicketRef', detailTicketRef.value)
+  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+    console.log('detailTicketRef', detailTicketRef.value?.FormData)
+    console.log('productWarehouseRef', productWarehouseRef.value?.ListOfProductsForSale)
+  }
 }
 const ticketData = ref()
 const productData = ref()
@@ -91,6 +95,7 @@ onBeforeMount(() => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <ProductWarehouse
+          ref="productWarehouseRef"
           :type="type"
           :transactionType="transactionType"
           :productData="productData"

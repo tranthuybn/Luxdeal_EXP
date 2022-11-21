@@ -12,12 +12,13 @@ import {
   ElImage,
   ElDialog
 } from 'element-plus'
-import type { UploadProps, UploadFile } from 'element-plus'
+import type { UploadFile } from 'element-plus'
 import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import ChooseWarehouse from './ChooseWarehouse.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
+import { createLotWarehouseImage } from '@/api/Warehouse'
 
 const { t } = useI18n()
 defineProps({
@@ -34,6 +35,7 @@ defineProps({
     default: () => {}
   }
 })
+
 type ExportLots = {
   fromLotId: number
   quantity: number
@@ -55,6 +57,7 @@ type ProductWarehouse = {
   warehouse?: Object
   location?: Object
   lot?: Object
+  imageUrl?: string
 }
 let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
@@ -94,8 +97,9 @@ const removeRow = (props) => {
 }
 const forceRemove = ref(false)
 const getProductSelected = (_value, obj, scope) => {
+  console.log('obj:', obj)
   scope.row.productName = obj.name
-  scope.row.productPropertyId = obj.id
+  scope.row.productPropertyId = obj.productPropertyId
   scope.row.unitName = obj.unit
 }
 const changeProduct = (data, scope) => {
@@ -145,8 +149,10 @@ const ScrollProductBottom = () => {
 }
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
+const curPPID = ref(0)
 const openDialogWarehouse = (props) => {
   dialogWarehouse.value = true
+  curPPID.value = props.row.productPropertyId
   currentRow.value = props.$index
 }
 const closeDialogWarehouse = (warehouseData) => {
@@ -161,8 +167,6 @@ const closeDialogWarehouse = (warehouseData) => {
   }
   dialogWarehouse.value = false
 }
-
-const imageUrl = ref('')
 
 const validImageType = ['jpeg', 'png']
 const beforeAvatarUpload = (rawFile) => {
@@ -187,26 +191,76 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
+const handleChange = async (props, uploadFile) => {
+  console.log(props, uploadFile)
   const validImage = await beforeAvatarUpload(uploadFile)
   if (validImage) {
-    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    props.row.imageUrl = URL.createObjectURL(uploadFile.raw!)
+    await createLotWarehouseImage(uploadFile.raw).then((res) => {
+      props.row.fileId = res.data
+    })
   }
 }
 
 const warehouseFormat = (props) => {
-  return props
+  if (props.row?.warehouse !== undefined) {
+    if (props.row?.lot?.label !== undefined) {
+      return `${props.row?.warehouse?.label}/${props.row?.location?.label}/${props.row?.lot?.lotCode}`
+    } else {
+      return `${props.row?.warehouse?.label}/${props.row?.location?.label}`
+    }
+  } else {
+    return ''
+  }
 }
+const checkValueOfTable = () => {
+  if (
+    ListOfProductsForSale.value.length > 1 &&
+    Object.keys(ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]).length === 0
+  ) {
+    // "empty" object
+    ListOfProductsForSale.value.splice(ListOfProductsForSale.value.length - 1, 1)
+    forceRemove.value = true
+  }
+  ListOfProductsForSale.value.forEach((row) => {
+    if (row.productPropertyId == undefined) {
+      ElMessage({
+        message: 'productPropertyId',
+        type: 'warning'
+      })
+      return false
+    }
+    if (row.warehouse == undefined || row.location == undefined) {
+      ElMessage({
+        message: 'warehouse',
+        type: 'warning'
+      })
+      return false
+    }
+    if (row.price == undefined) {
+      ElMessage({
+        message: 'price',
+        type: 'warning'
+      })
+      return false
+    }
+  })
+  return true
+}
+defineExpose({
+  ListOfProductsForSale,
+  checkValueOfTable
+})
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseWarehouse
-    v-if="dialogWarehouse"
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     :transactionType="transactionType"
+    :productPropertyId="curPPID"
   />
   <el-table
     border
@@ -240,7 +294,7 @@ const warehouseFormat = (props) => {
         />
       </template>
     </el-table-column>
-    <el-table-column prop="productName" :label="t('formDemo.productInformation')" min-width="620" />
+    <el-table-column prop="productName" :label="t('formDemo.productInformation')" min-width="420" />
     <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
       <template #default="data">
         <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
@@ -253,27 +307,27 @@ const warehouseFormat = (props) => {
       </template>
     </el-table-column>
     <el-table-column :label="t('reuse.picture')" min-width="200">
-      <template #default>
+      <template #default="props">
         <el-upload
           action="#"
           :on-preview="handlePictureCardPreview"
-          :on-change="handleChange"
+          :on-change="(data) => handleChange(props, data)"
           :before-upload="beforeAvatarUpload"
           :auto-upload="false"
           :show-file-list="false"
         >
-          <el-image v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-image v-if="props.row.imageUrl" :src="props.row.imageUrl" class="avatar" />
           <el-button
             ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
           >
         </el-upload>
       </template>
     </el-table-column>
-    <el-table-column :label="t('reuse.importWarehouse')" min-width="200">
+    <el-table-column :label="t('reuse.importWarehouse')" min-width="300">
       <template #default="props">
         <div class="flex w-[100%] items-center">
-          <div class="w-[40%]">{{ warehouseFormat(props) }}</div>
-          <div class="w-[60%]">
+          <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
+          <div class="w-[40%]">
             <el-button text @click="openDialogWarehouse(props)">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
@@ -325,3 +379,8 @@ const warehouseFormat = (props) => {
     </el-table-column>
   </el-table>
 </template>
+<style scoped>
+.cell {
+  word-break: break-word;
+}
+</style>

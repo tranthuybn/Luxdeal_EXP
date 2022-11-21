@@ -55,3 +55,14 @@ export const deleteProductStorage = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const createLotWarehouseImage = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${WAREHOUSE_API.CREATE_LOT_WAREHOUSE_IMAGE}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

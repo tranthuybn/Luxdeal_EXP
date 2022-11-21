@@ -446,6 +446,7 @@ export default {
     dayVouchers: 'Day vouchers',
     spendFor: 'Spend for',
     examinationContent: 'Examination content',
+    examinationContentProduct: 'Examination content product',
     sl: 'Quantity',
     amountSpent: 'Amount spent',
     inventoryStatus: 'Inventory status',

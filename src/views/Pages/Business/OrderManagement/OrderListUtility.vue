@@ -313,10 +313,11 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 interface historyTableType {
   createdAt: string
-  productPropertyId: string | undefined
+  productPropertyId: string
   productPropertyName: string | undefined
   accessory?: string
-  quantity: string | undefined
+  conditionProducts: string
+  quantity: string
   unit?: string
   refundUnitPrice?: number
   intoUnitPrice?: number
@@ -1327,12 +1328,28 @@ const inputReasonReturn = ref('')
 
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 
+if (tableReturnFullyIntegrated.value.length == 0)
+  tableReturnFullyIntegrated.value.push({
+    createdAt: '',
+    productPropertyId: '',
+    productPropertyName: '',
+    accessory: '0',
+    conditionProducts: '',
+    quantity: '1',
+    unit: '',
+    refundUnitPrice: 0,
+    intoUnitPrice: 0,
+    invoiceGoodsEnteringWarehouse: 0,
+    inventoryStatus: ''
+  })
+
 const addTableReturnFullyIntegrated = () => {
   tableReturnFullyIntegrated.value.push({
     createdAt: moment().format('L').toString(),
     productPropertyId: undefined,
     productPropertyName: undefined,
     accessory: '',
+    conditionProducts: '',
     quantity: undefined,
     unit: t('formDemo.psc'),
     refundUnitPrice: 0,
@@ -1367,14 +1384,6 @@ const getReturnRequestTable = async () => {
 // }
 
 const tableProductInformationExportChange = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '2',
-    unitPrices: '10,000,000 đ',
-    intoMoney: '20,000,000 đ'
-  },
   {
     commodityName: '',
     accessory: '',
@@ -1764,8 +1773,8 @@ const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
   tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: e.productPropertyId,
-    quantity: e.quantity,
+    productPropertyId: parseInt(e.productPropertyId),
+    quantity: parseInt(e.quantity),
     acessory: e.accessory ?? '2'
   }))
   const payload = {

@@ -34,6 +34,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
+import ckEditor from '@/components/Editor/src/Editor.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   getProductsList,
@@ -534,6 +535,8 @@ const handleCurrentChange = (val: undefined) => {
   changeRowPromo()
   checkPromo.value = true
 }
+
+const dialogexaminationContentSpa = ref(false)
 
 const changeRowPromo = () => {
   promoCode.value = currentRow.value.label
@@ -2455,7 +2458,7 @@ onMounted(async () => {
             <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra mặt trước, mặt sau</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormSettingServiceSpa = true"
+                <el-button text border @click="dialogexaminationContentSpa = true"
                   ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
                 ></div
               >
@@ -2865,6 +2868,37 @@ onMounted(async () => {
         </div>
       </el-dialog>
 
+      <!-- dialog nội dung thăm khám sản phẩm -->
+      <el-dialog
+        v-model="dialogexaminationContentSpa"
+        :title="t('formDemo.examinationContentProduct')"
+        width="40%"
+        class="font-bold"
+        align-center
+      >
+        <el-divider />
+        <div class="title-category flex gap-2 text-center items-center">
+          <p class="title font-normal">Danh mục:</p>
+          <p class="category font-bold text-xl">Túi /ví</p>
+        </div>
+        <hr />
+
+        <div class="content mt-2">
+          <p class="title-content w-[20%] my-2 font-normal"> Nội dung </p>
+          <div class="ck-editer"> <ckEditor /> </div>
+        </div>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="dialogexaminationContentSpa = false">{{
+              t('reuse.save')
+            }}</el-button>
+            <el-button @click="dialogexaminationContentSpa = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- dialog2 -->
       <el-dialog
         v-model="dialogFormSettingServiceSpa"

@@ -462,6 +462,7 @@ export default {
     dayVouchers: 'Ngày chứng từ',
     spendFor: 'Nội dung chi',
     examinationContent: 'Nội dung thăm khám',
+    examinationContentProduct: 'Nội dung thăm khám sản phẩm',
     sl: 'SL',
     amountSpent: 'Số tiền chi',
     inventoryStatus: 'Trạng thái nhập kho',

@@ -26,7 +26,7 @@ console.log('dataEdit: ', props.dataEdit)
       </div>
       <div class="basis-6/12 text-right">
         <div>Mẫu số: 12-AU</div>
-        <div>Mã giao dịch: {{ props.dataEdit.codeReceipts }}</div>
+        <div>Mã giao dịch: {{ props.dataEdit.codeReceipts ?? '' }}</div>
         <div>Chi nhánh: Hồ Chí Minh</div>
       </div>
     </div>

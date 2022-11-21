@@ -1288,6 +1288,7 @@ const tableAccountingEntry = ref([
 // Thêm bút toán cho đơn hàng
 const codeReturnRequest = ref()
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
+// Thêm bút toán cho đơn hàng
 
 const postOrderStransaction = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
@@ -2666,7 +2667,7 @@ onMounted(async () => {
               t('formDemo.bill')
             }}</el-button>
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.complete')
+              t('reuse.saveAndPending')
             }}</el-button>
             <el-button type="danger" class="min-w-42 min-h-11">{{
               t('button.cancelOrder')

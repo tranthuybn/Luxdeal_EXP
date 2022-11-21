@@ -1877,13 +1877,13 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="dram"
+            prop="unitName"
             :label="`${t('reuse.dram')}`"
             align="center"
             min-width="100"
           />
           <el-table-column
-            prop="intoMoney"
+            prop="price"
             :label="t('formDemo.consignmentPriceForSale')"
             align="right"
             width="150"

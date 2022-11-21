@@ -42,7 +42,8 @@ import {
   addDNTT,
   addTPV,
   getReceiptPaymentVoucher,
-  getDetailReceiptPaymentVoucher
+  getDetailReceiptPaymentVoucher,
+  addOrderStransaction
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -307,23 +308,23 @@ const addLastIndexTable2 = () => {
   })
 }
 
-const onAddDebtTableReturnDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.returnDepositCustomer'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    moneyType: 1,
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const onAddDebtTableReturnDeposit = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.returnDepositCustomer'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     moneyType: 1,
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 const onAddDebtTableDeposit = () => {
   debtTable.value.push({
@@ -378,7 +379,7 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 5 })
-    const transaction = await getOrderTransaction({ id: 10 })
+    const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
 
@@ -1101,15 +1102,6 @@ const CityChange = async (value) => {
   district.value = await getDistrict(value)
 }
 
-const tableAccountingEntry = [
-  {
-    content: 'Trả lại tiền cọc cho khách',
-    collected: '',
-    spent: '',
-    intoMoney: ''
-  }
-]
-
 const tableProductInformationExportChange = [
   {
     commodityName:
@@ -1245,6 +1237,11 @@ const handleChangeReceipts = () => {
   }
 }
 
+const getOrderStransactionList = async () => {
+  const transaction = await getOrderTransaction({ id: id })
+  debtTable.value = transaction.data
+}
+
 // Thêm mã phiếu chi vào debtTable
 const handleChangeExpenditures = () => {
   if (newTable.value?.length) {
@@ -1271,6 +1268,46 @@ const handleChangePaymentRequest = () => {
   }
 }
 const inputReasonReturn = ref('Hàng bị rách góc')
+const tableAccountingEntry = ref([
+  {
+    content: 'Trả lại tiền cọc cho khách',
+    kindOfMoney: '',
+    collected: '',
+    spent: '',
+    intoMoney: ''
+  }
+])
+var autoCodeReturnRequest = 'DT' + moment().format('hms')
+const codeReturnRequest = ref()
+
+let objOrderStransaction = ref()
+let idStransaction = ref()
+// Thêm bút toán cho đơn hàng
+const postOrderStransaction = async () => {
+  codeReturnRequest.value = autoCodeReturnRequest
+  const payload = {
+    orderId: id,
+    content: tableAccountingEntry.value[0].content,
+    paymentRequestId: null,
+    receiptOrPaymentVoucherId: null,
+    receiveMoney: tableAccountingEntry.value[0].collected
+      ? parseInt(tableAccountingEntry.value[0].collected)
+      : 0,
+    paidMoney: tableAccountingEntry.value[0].spent
+      ? parseInt(tableAccountingEntry.value[0].spent)
+      : 0,
+    deibt: 0,
+    typeOfPayment: 0,
+    paymentMethods: 1,
+    status: 0,
+    isReceiptedMoney: 0,
+    typeOfMoney: 1
+  }
+
+  objOrderStransaction.value = await addOrderStransaction(payload)
+  idStransaction.value = objOrderStransaction.value.paymentRequestId
+  getOrderStransactionList()
+}
 
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
@@ -3137,7 +3174,8 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    onAddDebtTableReturnDeposit()
+                    //onAddDebtTableReturnDeposit()
+                    postOrderStransaction()
                     dialogAccountingEntryAdditional = false
                   }
                 "

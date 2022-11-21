@@ -505,7 +505,8 @@ export default {
     returnRentalDeposit: 'Return the rental deposit',
     codePayment: 'Code payment',
     infoReturnAheadOfTime: 'Information return ahead of time',
-    infoReturnExpired: 'Information return expired'
+    infoReturnExpired: 'Information return expired',
+    negotiatedPaymentInformation: 'Negotiated payment information'
   },
   button: {
     add: 'Add quick',

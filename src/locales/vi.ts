@@ -522,7 +522,8 @@ export default {
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
     codePayment: 'Mã phiếu chi',
     infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
-    infoReturnExpired: 'Trả hàng hết hạn'
+    infoReturnExpired: 'Trả hàng hết hạn',
+    negotiatedPaymentInformation: 'Thông tin phiếu thanh toán tiền đàm phán'
   },
   button: {
     add: 'Thêm nhanh',

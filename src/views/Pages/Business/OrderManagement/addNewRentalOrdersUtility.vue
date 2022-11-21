@@ -24,7 +24,8 @@ import {
   ElFormItem,
   ElNotification,
   UploadUserFile,
-  ElTreeSelect
+  ElTreeSelect,
+  ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -1043,6 +1044,7 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
 
+    dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
@@ -1690,6 +1692,34 @@ const handleChangePaymentRequest = () => {
   }
 }
 
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
+const formReceipts = ref()
+const moneyReceipts = ref(105000000)
+const inputRecharger = ref()
+
+const getFormReceipts = () => {
+  if (enterMoney.value) {
+    formReceipts.value = {
+      sellOrderCode: ruleForm.orderCode,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+
+    // PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
+}
+
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
@@ -1843,7 +1873,6 @@ const dialogReturnExpired = ref(false)
 const getReceiptCode = async () => {
   codeReceipts.value = await getReceiptPaymentVoucher()
 }
-
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
@@ -1864,13 +1893,17 @@ onBeforeMount(() => {
       <!-- phieu in -->
       <div id="billDepositPrint">
         <slot>
-          <billPrint :dataEdit="dataEdit" :nameDialog="nameDialog" />
+          <billPrint :nameDialog="nameDialog" />
         </slot>
       </div>
 
       <div id="recpPaymentPrint">
         <slot>
-          <receiptsPaymentPrint :nameDialog="nameDialog" />
+          <receiptsPaymentPrint
+            :dataEdit="getFormReceipts"
+            getFormReceipts
+            :nameDialog="nameDialog"
+          />
         </slot>
       </div>
 
@@ -3507,6 +3540,7 @@ onBeforeMount(() => {
           </span>
         </template>
       </el-dialog>
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -4831,6 +4865,7 @@ onBeforeMount(() => {
           </el-table-column>
         </el-table>
       </el-collapse-item>
+
       <el-collapse-item :name="collapse[3].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[3].icon" link />

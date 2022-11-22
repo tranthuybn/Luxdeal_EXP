@@ -58,7 +58,8 @@ import {
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
   addDNTT,
-  addOrderStransaction
+  addOrderStransaction,
+  getDetailAccountingEntryById
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -364,74 +365,6 @@ const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
 }
-
-const onAddDebtTableBill = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.bill'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    typeOfPayment: 1,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
-
-const onAddDebtTableDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.depositSlipAdvance'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
-
-// const onAddDebtTableExchange = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.exchangeReturnGoods'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     typeOfPayment: undefined,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
-// const onAddDebtTableReturnDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.returnDepositCustomer'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     typeOfPayment: undefined,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
 
 // Dialog change address
 
@@ -1087,10 +1020,10 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 1 })
-    console.log('res: ', res.data)
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
+    console.log('debtTable: ', debtTable.value)
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
@@ -1139,6 +1072,19 @@ const editData = async () => {
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
+}
+
+let formAccountingId = ref()
+const getAccountingEntry = async (index, num) => {
+  const res = await getDetailAccountingEntryById({ id: index })
+  formAccountingId.value = { ...res.data }
+  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+  console.log('tableSalesSlip: ', tableSalesSlip.value)
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  if (num == 1) dialogSalesSlipInfomation.value = true
+  if (num == 2) dialogDepositSlipAdvance.value = true
+  if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
 // const dataTablePrint = reactive<TableColumn[]>([
@@ -1509,14 +1455,17 @@ const optionsKindOfMoney = [
 // dialog print
 const nameDialog = ref('')
 // const testDialog = ref(false)
+let tableSalesSlip = ref()
 
 function openBillDialog() {
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
 
 function openDepositDialog() {
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
+  tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
 }
 
@@ -1690,17 +1639,23 @@ let objOrderStransaction = ref()
 let idStransaction = ref()
 
 // Thêm bút toán cho đơn hàng
-const postOrderStransaction = async () => {
+const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
     quantity: parseInt(val.quantity)
   }))
 
   childrenTable.value.pop()
+  console.log('childrenTable: ', childrenTable.value)
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
-    content: tableAccountingEntry.value[0].content,
+    content:
+      index == 1
+        ? t('formDemo.bill')
+        : index == 2
+        ? t('formDemo.depositSlipAdvance')
+        : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney: tableAccountingEntry.value[0].collected
@@ -2585,7 +2540,7 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
-      <!-- Thông tin phiếu bán hàng -->
+      <!-- Thông tin phiếu thanh toán -->
       <el-dialog
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.salesSlipInformation')"
@@ -2629,7 +2584,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
@@ -2714,7 +2669,7 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      onAddDebtTableBill()
+                      postOrderStransaction(1)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2771,7 +2726,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
@@ -2872,7 +2827,7 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      onAddDebtTableDeposit()
+                      postOrderStransaction(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3247,7 +3202,7 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    postOrderStransaction()
+                    postOrderStransaction(3)
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -4673,17 +4628,17 @@ onMounted(async () => {
                 <button
                   @click="
                     data.row.content.includes('Phiếu thanh toán')
-                      ? (dialogSalesSlipInfomation = true)
+                      ? getAccountingEntry(data.row.id, 1)
                       : data.row.content.includes('Phiếu đặt cọc/Tạm ứng')
-                      ? (dialogDepositSlipAdvance = true)
+                      ? getAccountingEntry(data.row.id, 2)
                       : data.row.content.includes('Trả lại tiền cọc cho khách')
-                      ? (dialogAccountingEntryAdditional = true)
+                      ? getAccountingEntry(data.row.id, 3)
                       : (changeReturnGoods = true)
                   "
                   v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
-                  {{ t('reuse.detail') }}
+                  {{ t('reuse.detail') }} {{ data.row.id }}
                 </button>
                 <div v-else>{{ t('reuse.detail') }}</div>
               </div>

@@ -14,7 +14,8 @@ const tabs: Array<Tab> = [
     name: 'wareHouse',
     label: 'Lịch sử nhập/xuất/chuyển kho',
     api: getWareHouseTransactionList,
-    column: wareHouseContainer
+    column: wareHouseContainer,
+    customOperator: 3
   }
 ]
 const typeTable = 'Warehouse'

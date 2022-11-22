@@ -144,6 +144,25 @@ export const businessStatusTransferToText = (val) => {
   return `${t('reuse.inactive')}`
 }
 
+export const orderType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.sell')
+    case 2:
+      return t('reuse.deposit')
+    case 3:
+      return t('reuse.rent')
+    case 4:
+      return t('reuse.pawn')
+    case 5:
+      return 'Spa'
+    case 6:
+      return t('reuse.internal')
+    default:
+      return ''
+  }
+}
+
 export const campaignType = (val) => {
   switch (val) {
     case 1:
@@ -236,7 +255,11 @@ export const FORM_DATA1 = (data) => {
   }, new FormData())
 }
 export const moneyFormat = (money) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
+  if (isNaN(money)) {
+    return 0
+  } else {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(money)
+  }
 }
 export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))

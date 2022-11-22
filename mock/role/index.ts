@@ -834,24 +834,24 @@ const adminList = [
             }
           },
           {
-            path: 'ware-house',
-            component: 'views/Pages/Warehouse/BusinessProductWarehouse/WareHouse',
-            name: 'Inventorymanagement.ListWarehouse.ware-house',
+            path: 'warehouse-transaction-1',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction',
+            name: 'Inventorymanagement.ListWarehouse.import',
             meta: {
               title: 'router.warehouse'
             }
           },
           {
-            path: 'export',
-            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Export',
+            path: 'warehouse-transaction-2',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction',
             name: 'Inventorymanagement.ListWarehouse.export',
             meta: {
               title: 'router.export'
             }
           },
           {
-            path: 'transfer',
-            component: 'views/Pages/Warehouse/BusinessProductWarehouse/Transfer',
+            path: 'warehouse-transaction-3',
+            component: 'views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction',
             name: 'Inventorymanagement.ListWarehouse.transfer',
             meta: {
               title: 'router.transfer'
@@ -1423,9 +1423,9 @@ const testList: string[] = [
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
   '/inventory-management/business-product-warehouse/inventory-tracking',
-  '/inventory-management/business-product-warehouse/ware-house',
-  '/inventory-management/business-product-warehouse/export',
-  '/inventory-management/business-product-warehouse/transfer',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-1',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-2',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-3',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
   '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',

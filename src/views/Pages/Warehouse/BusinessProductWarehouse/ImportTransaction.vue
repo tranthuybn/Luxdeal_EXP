@@ -58,8 +58,6 @@ const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const getData = async () => {
   if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
-    console.log('detailTicketRef', detailTicketRef.value?.FormData)
-    console.log('productWarehouseRef', productWarehouseRef.value?.ListOfProductsForSale)
     let uploadData: any = {}
     uploadData.type = 1
     uploadData.warehouseProductJson = [{}]

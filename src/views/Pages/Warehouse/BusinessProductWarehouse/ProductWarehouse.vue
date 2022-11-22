@@ -102,7 +102,6 @@ const removeRow = (props) => {
 }
 const forceRemove = ref(false)
 const getProductSelected = (_value, obj, scope) => {
-  console.log('obj:', obj)
   scope.row.productName = obj.name
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.unitName = obj.unit
@@ -112,14 +111,12 @@ const changeProduct = (data, scope) => {
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
     .find((product) => product.productPropertyId == data)
-  console.log(selected, data)
   if (selected !== undefined) {
     scope.row.productPropertyId = null
     scope.row.productName = null
     scope.row.productPropertyId = null
     scope.row.unitName = null
     scope.row.productCode = null
-    console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
     ElMessage({
       message: t('reuse.productCodeExist'),
       type: 'warning'
@@ -207,7 +204,6 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 const handleChange = async (props, uploadFile) => {
-  console.log(props, uploadFile)
   const validImage = await beforeAvatarUpload(uploadFile)
   if (validImage) {
     props.row.imageUrl = URL.createObjectURL(uploadFile.raw!)

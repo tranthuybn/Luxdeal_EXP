@@ -154,4 +154,7 @@ onBeforeMount(() => {
 ::deep(.el-select) {
   width: 100%;
 }
+:deep(.cell) {
+  word-break: break-word;
+}
 </style>

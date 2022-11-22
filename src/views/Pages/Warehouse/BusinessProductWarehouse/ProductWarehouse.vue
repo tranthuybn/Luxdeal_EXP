@@ -401,8 +401,3 @@ defineExpose({
     </el-table-column>
   </el-table>
 </template>
-<style scoped>
-.cell {
-  word-break: break-word;
-}
-</style>

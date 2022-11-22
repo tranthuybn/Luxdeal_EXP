@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    chooseASeller: 'Choose seller',
     day: 'Ngày',
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',

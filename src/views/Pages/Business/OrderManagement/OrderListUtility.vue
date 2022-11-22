@@ -1080,6 +1080,8 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
+  console.log('tableSalesSlip: ', tableSalesSlip.value)
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogSalesSlipInfomation.value = true
   if (num == 2) dialogDepositSlipAdvance.value = true
   if (num == 3) dialogAccountingEntryAdditional.value = true
@@ -1644,6 +1646,7 @@ const postOrderStransaction = async (index: number) => {
   }))
 
   childrenTable.value.pop()
+  console.log('childrenTable: ', childrenTable.value)
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,

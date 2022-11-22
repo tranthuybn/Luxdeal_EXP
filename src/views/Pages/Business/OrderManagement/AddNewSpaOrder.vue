@@ -180,7 +180,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   spaServices: string
   amountSpa: number
-  quantity: number | undefined
+  quantity: string
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -199,7 +199,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: 1,
+  quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
@@ -220,6 +220,7 @@ interface tableOrderDetailType {
   productPropertyId: number
   quantity: number | undefined
   accessory: string | undefined
+  spaServiceIds: string
 }
 let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref()
@@ -230,9 +231,10 @@ const autoCalculateOrder = async () => {
     ListOfProductsForSale.value.pop()
   tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
-    quantity: e.quantity,
+    quantity: parseInt(e.quantity),
     accessory: e.accessory,
-    unitName: e.unitName
+
+    spaServiceIds: ''
   }))
   const payload = {
     serviceType: 1,
@@ -634,6 +636,8 @@ const optionsClassify = [
   }
 ]
 
+const dialogFormWarehouseSelected = ref(false)
+
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -709,7 +713,7 @@ const removeListProductsSale = (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'DHSP' + moment().format('hhmmss')
+var curDate = 'SPA' + moment().format('hhmmss')
 
 // tạo đơn hàng
 const { push } = useRouter()
@@ -720,10 +724,23 @@ const id = Number(router.currentRoute.value.params.id)
 // const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
+// let orderDetailsTable = reactive([{}])
 
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
+    // orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    //   ProductPropertyId: parseInt(val.productPropertyId),
+    //   Quantity: parseInt(val.quantity),
+    //   ProductPrice: val.price,
+    //   SoldPrice: val.finalPrice,
+    //   WarehouseId: 1,
+    //   IsPaid: true,
+    //   Accessory: val.accessory
+    // }))
+    // orderDetailsTable.pop()
+    // const productPayment = JSON.stringify([...orderDetailsTable])
+
     const productPayment = JSON.stringify([
       {
         ProductPropertyId: 2,
@@ -737,24 +754,14 @@ const postData = async () => {
       {
         ProductPropertyId: 3,
         Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
+        ProductPrice: 10000,
+        SoldPrice: 10000,
         WarehouseId: 1,
         SpaServiceIds: '47,48',
         Accessory: 'Accessory2'
       }
     ])
-    // const productPayment = JSON.stringify([
-    //   {
-    //     ProductPropertyId: 2,
-    //     Quantity: 1,
-    //     ProductPrice: 10000,
-    //     SoldPrice: 10000,
-    //     WarehouseId: 1,
-    //     SpaServiceIds: '47,48',
-    //     Accessory: 'Accessory1'
-    //   }
-    // ])
+    console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 5,
       OrderCode: ruleForm.orderCode,
@@ -807,12 +814,12 @@ const form = reactive({
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
-    label: t('formDemo.selfDelivery')
+    value: 1,
+    label: t('formDemo.pickUpGoodsAtTheCounter')
   },
   {
-    value: 'deliveryToYourPlace',
-    label: t('formDemo.deliveryToYourPlace')
+    value: 2,
+    label: t('formDemo.receiveGoodsAtCustomerAddress')
   }
 ]
 
@@ -828,7 +835,7 @@ const ruleForm = reactive({
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: 1
 })
 
 const rules = reactive<FormRules>({
@@ -1482,6 +1489,14 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
+const tableData = [
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles'
+  }
+]
+
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
 
@@ -1515,7 +1530,7 @@ const getReceiptCode = async () => {
 const getcodeExpenditures = async () => {
   codeExpenditures.value = await getReceiptPaymentVoucher()
 }
-
+const inputAmountSpa = ref()
 const dialogPrinBillSpa = ref(false)
 
 const valueTypeSpa = ref(optionsTypeSpa[0].value)
@@ -2456,7 +2471,7 @@ onMounted(async () => {
 
           <el-table-column :label="t('formDemo.examinationContent')" width="230">
             <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Kiểm tra mặt trước, mặt sau</div>
+              <div class="flex-1">Mặt trước mới 90%...</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
                 <el-button text border @click="dialogexaminationContentSpa = true"
                   ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
@@ -2480,7 +2495,7 @@ onMounted(async () => {
             <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormSettingServiceSpa = true"
+                <el-button text border @click="dialogFormWarehouseSelected = true"
                   ><span class="text-blue-500"
                     >+ {{ t('formDemo.chooseWarehouse') }}</span
                   ></el-button
@@ -2937,6 +2952,108 @@ onMounted(async () => {
         </template>
       </el-dialog>
       <!-- end dialog 2 -->
+
+      <!-- dialog chọn kho nhập xuất -->
+      <el-dialog
+        v-model="dialogFormWarehouseSelected"
+        title="Chọn kho nhập/xuất"
+        width="40%"
+        align-center
+      >
+        <el-divider />
+
+        <div class="contai">
+          <div class="amount-spa">
+            <p class="title">Số lượng Spa <span class="text-red-500">*</span></p>
+            <el-input v-model="inputAmountSpa" class="mt-2 w-[100%]" placeholder="Nhập số lượng"
+          /></div>
+
+          <div class="flex gap-2 mt-2">
+            <div class="flex-1">
+              <p class="select"> Chọn kho nhập <span class="text-red-500">*</span></p>
+              <el-select v-model="value" class="mt-2" placeholder="Select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+
+            <div class="flex-1">
+              <p class="select"> Chọn vị trí</p>
+              <el-select v-model="value" class="mt-2" placeholder="Select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-2">
+            <div class="flex-1">
+              <p class="select"> Chọn kho xuất </p>
+              <el-select v-model="value" class="mt-2" placeholder="Select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+
+            <div class="flex-1">
+              <p class="select"> Chọn vị trí </p>
+              <el-select v-model="value" class="mt-2" placeholder="Select">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
+          <div class="table-lot mt-3">
+            <p class="mt-2">Danh sách lot</p>
+            <el-table :data="tableData" border style="width: 100%">
+              <el-table-column type="selection" width="40" />
+              <el-table-column prop="date" label="Vị trí" width="180" />
+              <el-table-column prop="name" label="Mã lot" width="150" />
+              <el-table-column prop="address" label="Loại hình" width="150" />
+              <el-table-column prop="date" label="Tồn kho" width="150" />
+              <el-table-column prop="name" label="Số lượng spa" width="150" />
+              <el-table-column prop="address" label="Đơn vị" width="80" />
+              <el-table-column prop="date" label="Ngày nhập lot xuất" />
+            </el-table>
+          </div>
+
+          <div class="amount-spa flex font-bold gap-3 justify-end">
+            <div class="inventory"> 20 </div>
+            <div class="spa-amount"> 05 </div>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="dialogFormWarehouseSelected = false"
+              >Spa lot mới nhận</el-button
+            >
+            <el-button type="primary" @click="dialogFormWarehouseSelected = false"
+              >Spa lot đã chọn</el-button
+            >
+
+            <el-button @click="dialogFormWarehouseSelected = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <!-- Bút toán bổ sung -->
       <el-dialog

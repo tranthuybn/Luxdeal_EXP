@@ -324,6 +324,7 @@ export default {
     saleDate: 'Ngày bán',
     methodOfDeliverySpa: 'Nhận hàng Spa',
     receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',
+    pickUpGoodsAtTheCounter: 'Nhận hàng tại quầy',
     listProductSpa: 'Danh sách sản phẩm Spa',
     spaDeliveryHistory: 'Lịch sử xuất trả hàng Spa',
     renewingThePawn: 'Đang gia hạn cầm đồ',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -43,7 +43,9 @@ import {
   getReceiptPaymentVoucher,
   getCodePaymentRequest,
   addDNTT,
-  addOrderStransaction
+  addOrderStransaction,
+  createReturnRequest,
+  getReturnRequest
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -318,7 +320,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   paymentType: '',
   edited: true
 })
-// const recharger = ref('Trần Hữu Dương | 0998844533')
+const recharger = ref('Trần Hữu Dương | 0998844533')
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
@@ -394,31 +396,18 @@ const handleChangeReceipts = () => {
   }
 }
 
-// Thêm mã phiếu thu vào debtTable
-// const handleChangeReceipts = () => {
-//   if (newTable.value?.length) {
-//     newTable.value.forEach((val) => {
-//       debtTable.value.forEach((e) => {
-//         if (e.content == val.content) {
-//           e.receiptOrPaymentVoucherId = codeReceipts.value
-//         }
-//       })
-//     })
-//   }
-// }
-
 // Thêm mã phiếu chi vào debtTable
-// const handleChangeExpenditures = () => {
-//   if (newTable.value?.length) {
-//     newTable.value.forEach((val) => {
-//       debtTable.value.forEach((e) => {
-//         if (e.content == val.content) {
-//           e.receiptOrPaymentVoucherId = codeExpenditures.value
-//         }
-//       })
-//     })
-//   }
-// }
+const handleChangeExpenditures = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherId = codeExpenditures.value
+        }
+      })
+    })
+  }
+}
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
 const handleChangePaymentRequest = () => {
@@ -436,7 +425,6 @@ const handleChangePaymentRequest = () => {
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    console.log('id: ', id)
     const res = await getSellOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -712,7 +700,6 @@ const handleChangeQuickAddProduct = async (data: any) => {
     (product: { productPropertyId: any }) => product.productPropertyId == data
   )
   // quickProductName.value = dataSelectedObj.name
-  console.log('dataSelectedObj: ', dataSelectedObj)
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -746,9 +733,8 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-const productAttributeValue = (data: any) => {
-  console.log('data checked', data)
-}
+// const productAttributeValue = (data: any) => {
+// }
 
 const chooseDelivery = [
   {
@@ -766,7 +752,6 @@ const changeAddressCustomer = (data: any) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -862,12 +847,6 @@ const collapse: Array<Collapse> = [
 ]
 
 const value = ref('')
-const options1 = [
-  {
-    value: 'SP4330f',
-    label: 'SP4335'
-  }
-]
 
 const valueSelectCustomer = ref(t('formDemo.customer'))
 const optionsCustomer = [
@@ -877,12 +856,6 @@ const optionsCustomer = [
   }
 ]
 
-const dram = [
-  {
-    dramValue: 'psc',
-    label: t('formDemo.psc')
-  }
-]
 const pawnOrderCode = ref()
 
 let customerID = ref()
@@ -907,7 +880,6 @@ const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
 const historyTable = ref<Array<any>>([])
-const dramValue = ref('Chiếc')
 
 const collapseChangeEvent = (val: string | string[]) => {
   if (val) {
@@ -926,21 +898,16 @@ const dialogAddQuick = ref(false)
 
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
-  await formEl2.validate((valid, fields) => {
+  await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
 }
@@ -999,7 +966,6 @@ const postData = () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postData', payload)
     addNewSpaOrders(formDataPayLoad)
   }
 }
@@ -1077,20 +1043,20 @@ const tableAccountingEntry = ref([
 const inputReasonCollectMoney = ref()
 
 // dialog print
-// const nameDialog = ref('')
+const nameDialog = ref('')
 // const testDialog = ref(false)
 
-// function openReceiptDialog() {
-//   getReceiptCode()
-//   dialogInformationReceipts.value = !dialogInformationReceipts.value
-//   nameDialog.value = 'Phiếu thu'
-// }
+function openReceiptDialog() {
+  getReceiptCode()
+  dialogInformationReceipts.value = !dialogInformationReceipts.value
+  nameDialog.value = 'Phiếu thu'
+}
 
-// function openPaymentDialog() {
-//   getcodeExpenditures()
-//   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-//   nameDialog.value = 'Phiếu chi'
-// }
+function openPaymentDialog() {
+  getcodeExpenditures()
+  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+  nameDialog.value = 'Phiếu chi'
+}
 
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
@@ -1167,7 +1133,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1189,15 +1154,14 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
-let formDetailPaymentReceipt = ref()
-const getDetailPayment = () => {
-  openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
-}
+// let formDetailPaymentReceipt = ref()
+// const getDetailPayment = () => {
+//   openReceiptDialog()
+//   console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+// }
 
 // // Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
@@ -1318,7 +1282,6 @@ const postReturnRequest = async () => {
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({

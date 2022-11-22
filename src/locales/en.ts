@@ -299,6 +299,7 @@ export default {
     saleDate: 'Sale date',
     methodOfDeliverySpa: 'Method of deliverySpa',
     receiveGoodsAtCustomerAddress: 'Receive Goods At Customer Address',
+    pickUpGoodsAtTheCounter: 'Pick up goods at the counter',
     listProductSpa: 'List product Spa',
     spaDeliveryHistory: 'Spa delivery History',
     renewingTheSpa: 'Renewing the Spa',

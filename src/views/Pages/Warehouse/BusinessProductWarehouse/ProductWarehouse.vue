@@ -17,7 +17,7 @@ import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import ChooseWarehouse from './ChooseWarehouse.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-import { moneyFormat } from '@/utils/format'
+import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 
 const { t } = useI18n()
@@ -40,6 +40,11 @@ type ExportLots = {
   fromLotId: number
   quantity: number
 }
+type Options = {
+  value: number
+  label: string
+}
+
 type ProductWarehouse = {
   productPropertyId?: number
   quantity?: number
@@ -54,9 +59,9 @@ type ProductWarehouse = {
   productName?: string
   finalPrice?: string
   unitName?: string
-  warehouse?: Object
-  location?: Object
-  lot?: Object
+  warehouse?: Options
+  location?: Options
+  lot?: Options
   imageUrl?: string
 }
 let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
@@ -104,16 +109,21 @@ const getProductSelected = (_value, obj, scope) => {
 }
 const changeProduct = (data, scope) => {
   forceRemove.value = false
-  const selected = ListOfProductsForSale.value.find((product) => product.productPropertyId == data)
+  const selected = ListOfProductsForSale.value
+    .filter((row) => row !== scope.row)
+    .find((product) => product.productPropertyId == data)
+  console.log(selected, data)
   if (selected !== undefined) {
-    scope.row.code = ''
-    scope.row.name = null
-    ElNotification({
+    scope.row.productPropertyId = null
+    scope.row.productName = null
+    scope.row.productPropertyId = null
+    scope.row.unitName = null
+    scope.row.productCode = null
+    console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
+    ElMessage({
       message: t('reuse.productCodeExist'),
       type: 'warning'
     })
-  } else {
-    scope.row.productPropertyId = data
   }
 }
 const scrollProductTop = ref(false)
@@ -151,19 +161,24 @@ const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
 const openDialogWarehouse = (props) => {
-  dialogWarehouse.value = true
-  curPPID.value = props.row.productPropertyId
-  currentRow.value = props.$index
+  if (props.row.productPropertyId) {
+    dialogWarehouse.value = true
+    curPPID.value = props.row.productPropertyId
+    currentRow.value = props.$index
+  } else {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+  }
 }
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
-    console.log('warehouseData', warehouseData)
     ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
     ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
     ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
-    console.log(' ListOfProductsForSale.value', ListOfProductsForSale.value)
   }
   dialogWarehouse.value = false
 }
@@ -196,9 +211,20 @@ const handleChange = async (props, uploadFile) => {
   const validImage = await beforeAvatarUpload(uploadFile)
   if (validImage) {
     props.row.imageUrl = URL.createObjectURL(uploadFile.raw!)
-    await createLotWarehouseImage(uploadFile.raw).then((res) => {
-      props.row.fileId = res.data
-    })
+    await createLotWarehouseImage(FORM_IMAGES({ Image: uploadFile.raw }))
+      .then((res) => {
+        props.row.fileId = res.data
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 
@@ -223,23 +249,23 @@ const checkValueOfTable = () => {
     forceRemove.value = true
   }
   ListOfProductsForSale.value.forEach((row) => {
-    if (row.productPropertyId == undefined) {
+    if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
-        message: 'productPropertyId',
+        message: t('reuse.pleaseChooseProduct'),
         type: 'warning'
       })
       return false
     }
     if (row.warehouse == undefined || row.location == undefined) {
       ElMessage({
-        message: 'warehouse',
+        message: t('reuse.pleaseChooseWarehouse'),
         type: 'warning'
       })
       return false
     }
     if (row.price == undefined) {
       ElMessage({
-        message: 'price',
+        message: t('reuse.pleaseChoosePrice'),
         type: 'warning'
       })
       return false
@@ -281,8 +307,8 @@ defineExpose({
           filterable
           width="500px"
           :items="listProducts"
-          valueKey="value"
-          labelKey="code"
+          valueKey="productPropertyId"
+          labelKey="productCode"
           :hiddenKey="['id']"
           :placeHolder="t('reuse.chooseProductCode')"
           :clearable="false"

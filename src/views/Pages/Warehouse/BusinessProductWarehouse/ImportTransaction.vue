@@ -4,9 +4,10 @@ import { Collapse } from '../../Components/Type'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { ElCollapse, ElCollapseItem, ElButton, ElDivider } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElDivider, ElNotification } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
 import ProductWarehouse from './ProductWarehouse.vue'
+import { createTicketManually } from '@/api/Warehouse'
 
 const { t } = useI18n()
 
@@ -55,10 +56,43 @@ const cancel = async () => {
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
-const getData = () => {
+const getData = async () => {
   if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
     console.log('detailTicketRef', detailTicketRef.value?.FormData)
     console.log('productWarehouseRef', productWarehouseRef.value?.ListOfProductsForSale)
+    let uploadData: any = {}
+    uploadData.type = 1
+    uploadData.warehouseProductJson = [{}]
+    uploadData.warehouseProductJson = productWarehouseRef.value?.ListOfProductsForSale.map(
+      (row) => ({
+        productPropertyId: row.productPropertyId,
+        quantity: row.quantity,
+        price: row.price,
+        accessory: row.accessory,
+        productPropertyQuality: row.productPropertyQuality,
+        fileId: row.fileId,
+        toLotId: row.lot?.value,
+        warehouseId: row.warehouse?.value,
+        locationId: row.location?.value
+      })
+    )
+    uploadData.staffId = detailTicketRef.value?.FormData.staffId
+    uploadData.customerId = detailTicketRef.value?.FormData.customerId
+    uploadData.description = detailTicketRef.value?.FormData.description
+
+    await createTicketManually(JSON.stringify(uploadData))
+      .then(() =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 const ticketData = ref()
@@ -108,10 +142,10 @@ onBeforeMount(() => {
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]">{{ t('reuse.printImportTicket') }}</ElButton>
+          <ElButton class="w-[150px]" type="primary">{{ t('reuse.importWarehouseNow') }}</ElButton>
           <ElButton class="w-[150px]" type="primary" @click="getData">{{
             t('reuse.save')
           }}</ElButton>
-          <ElButton class="w-[150px]" type="primary">{{ t('reuse.importWarehouseNow') }}</ElButton>
           <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancelImport') }}</ElButton></div
         >
       </el-collapse-item>

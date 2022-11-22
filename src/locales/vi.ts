@@ -1654,6 +1654,21 @@ export default {
     warehouse: 'Kho',
     importExportTransferWarehouse: 'Nhập/xuất/chuyển',
     importExportTransferWarehouseCode: 'Mã phiếu nhập/xuất/chuyển',
-    lotCode: 'Mã lot'
+    lotCode: 'Mã lot',
+    detailImportTicket: 'Thông tin chi tiết phiếu nhập kho',
+    importProductWarehouse: 'Sản phẩm nhập kho',
+    importTicketStatus: 'Trạng thái phiếu nhập kho',
+    printImportTicket: 'In phiếu nhập kho',
+    importWarehouseNow: 'Nhập kho ngay',
+    pleaseChooseProduct: 'Chưa chọn sản phẩm',
+    pleaseChooseWarehouse: 'Chưa chọn kho',
+    pleaseChoosePrice: 'Chưa nhập giá tiền',
+    chooseWarehouse: 'Chọn kho',
+    chooseImportWarehouse: 'Chọn kho nhập',
+    chooseLocation: 'Chọn vị trí',
+    lotList: 'Danh sách lot',
+    iventoryy: 'Tồn kho',
+    importToSelectedLot: 'Nhập vào lot đã chọn',
+    createNewLot: 'Tạo lot mới'
   }
 }

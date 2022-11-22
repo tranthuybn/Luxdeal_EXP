@@ -111,7 +111,10 @@ export const WAREHOUSE_API = {
   DELETE_PRODUCT_STORAGE: '/api/v1/Warehouse/DeleteWarehouse',
   GET_WAREHOUSE_INVENTORY_API: '/api/v1/Warehouse/GetWarehouseInventory',
   GET_WAREHOUSE_TRANSACTION_API: 'api/v1/Warehouse/GetWarehouseTransaction',
-  CREATE_LOT_WAREHOUSE_IMAGE: 'api/v1/Warehouse/CreateWarehouseLotImage'
+  CREATE_LOT_WAREHOUSE_IMAGE: 'api/v1/Warehouse/CreateWarehouseLotImage',
+  GET_WAREHOUSE_LOT: 'api/v1/Warehouse/GetWarehouseLot',
+  CREATE_WAREHOUSE_LOT: 'api/v1/Warehouse/CreateWarehouseLot',
+  CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually'
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'

@@ -197,7 +197,7 @@ export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
 export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ORDER_API.GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE}`,
+      url: `${ORDER_API.GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE}?${objectToQueryParams(params)}`,
       data: params
     },
     fixedBaseURL
@@ -252,12 +252,34 @@ export const createReturnRequest = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Thêm mới bút toán cho đơn hàng
+export const addOrderStransaction = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.ADD_ORDER_STRANSACTION,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Lấy chi tiết bút toán theo id
+export const getDetailAccountingEntryById = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ACCOUNTING_ENTRY_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // update lịch sử nhập xuất/đổi trả
 export const getReturnRequest = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ORDER_API.GET_RETURN_REQUEST}`,
-      data: params
+      url: `${ORDER_API.GET_RETURN_REQUEST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

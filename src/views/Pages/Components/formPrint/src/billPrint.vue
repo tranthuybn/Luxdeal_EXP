@@ -45,18 +45,7 @@ const policyDeposit = [
   }
 ]
 
-// watch(
-//   () => props.dataEdit,
-//   () => {
-//     if (props.dataEdit) {
-//       console.log('abc')
-//     } else console.log('bnm')
-//   },
-//   {
-//     deep: true,
-//     immediate: true
-//   }
-// )
+console.log('dataEdit: ', props.dataEdit)
 
 function getArraySum(arr) {
   var total = 0

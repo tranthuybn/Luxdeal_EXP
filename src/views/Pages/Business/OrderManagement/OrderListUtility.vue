@@ -1075,12 +1075,14 @@ const editData = async () => {
 }
 
 let formAccountingId = ref()
-const getAccountingEntry = async (index) => {
+const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  dialogSalesSlipInfomation.value = true
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+  if (num == 1) dialogSalesSlipInfomation.value = true
+  if (num == 2) dialogDepositSlipAdvance.value = true
+  if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
 // const dataTablePrint = reactive<TableColumn[]>([
@@ -4623,11 +4625,11 @@ onMounted(async () => {
                 <button
                   @click="
                     data.row.content.includes('Phiếu thanh toán')
-                      ? getAccountingEntry(data.row.id)
+                      ? getAccountingEntry(data.row.id, 1)
                       : data.row.content.includes('Phiếu đặt cọc/Tạm ứng')
-                      ? (dialogDepositSlipAdvance = true)
+                      ? getAccountingEntry(data.row.id, 2)
                       : data.row.content.includes('Trả lại tiền cọc cho khách')
-                      ? (dialogAccountingEntryAdditional = true)
+                      ? getAccountingEntry(data.row.id, 3)
                       : (changeReturnGoods = true)
                   "
                   v-if="type != 'detail'"

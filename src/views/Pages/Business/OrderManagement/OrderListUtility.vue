@@ -291,7 +291,7 @@ interface ListOfProductsForSaleType {
   price: string | number | undefined
   finalPrice: string
   paymentType: string
-  edited: boolean
+  warehouseId: number
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -307,7 +307,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   price: 0,
   finalPrice: '',
   paymentType: '',
-  edited: true
+  warehouseId: 0
 })
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
@@ -974,7 +974,6 @@ const handleChangeQuickAddProduct = async (data) => {
     (product) => product.productPropertyId == data
   )
   // quickProductName.value = dataSelectedObj.name
-  console.log('dataSelectedObj: ', dataSelectedObj)
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1007,58 +1006,24 @@ const { push } = useRouter()
 const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
+let orderDetailsTable = reactive([{}])
+
 // Tạo đơn hàng
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const productPayment = JSON.stringify([
-      {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory1'
-      },
-      {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory2'
-      }
-    ])
-    console.log('ListOfProductsForSale-post: ', ListOfProductsForSale.value)
-    // if (ListOfProductsForSale.length > 0) {
-    // ListOfProductsForSale.forEach((element) => {
-    // if (element && Array.isArray(element) && element.length > 0)
-    // element.forEach(() => {
-    // productPayment.push(
-    //   // {
-    //   //   ProductPropertyId: 2,
-    //   //   Quantity: 1,
-    //   //   ProductPrice: 10000,
-    //   //   SoldPrice: 10000,
-    //   //   WarehouseId: 1,
-    //   //   IsPaid: true,
-    //   //   Accessory: 'Accessory1'
-    //   // },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 90000,
-    //     SoldPrice: 80000,
-    //     WarehouseId: 1,
-    //     IsPaid: true,
-    //     Accessory: 'Accessory2'
-    //   }
-    // )
-    // })
-    // })
-    // }
+    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: parseInt(val.quantity),
+      ProductPrice: val.price,
+      SoldPrice: val.finalPrice,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: val.accessory
+    }))
+    orderDetailsTable.pop()
+    const productPayment = JSON.stringify([...orderDetailsTable])
+    console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
@@ -1122,12 +1087,16 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 1 })
+    console.log('res: ', res.data)
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
+    arrayStatusOrder.value = orderObj.status
+    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    console.log('arrayStatusOrder: ', arrayStatusOrder.value)
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -1232,20 +1201,15 @@ const callPromoApi = async () => {
 
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  console.log('data: ', data)
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
-  console.log('infoCustomerId', infoCustomerId.value)
-  console.log('optionsCustomerApi: ', optionsCustomerApi.value)
   // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
   if (infoCustomerId.value.isOrganization) {
-    console.log('1', optionsCustomerApi)
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
     infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    console.log('2')
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
@@ -1343,26 +1307,9 @@ if (tableReturnFullyIntegrated.value.length == 0)
     inventoryStatus: ''
   })
 
-const addTableReturnFullyIntegrated = () => {
-  tableReturnFullyIntegrated.value.push({
-    createdAt: moment().format('L').toString(),
-    productPropertyId: undefined,
-    productPropertyName: undefined,
-    accessory: '',
-    conditionProducts: '',
-    quantity: undefined,
-    unit: t('formDemo.psc'),
-    refundUnitPrice: 0,
-    intoUnitPrice: 0,
-    invoiceGoodsEnteringWarehouse: 0,
-    inventoryStatus: ''
-  })
-}
-
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1449,30 +1396,29 @@ const addStatusDelay = () => {
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = () => {
   let countPriceChange = ref(0)
-  console.log('props: ', props)
   countPriceChange.value++
   priceChangeOrders.value = true
   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
   arrayStatusOrder.value.push({
-    label: 'Duyệt giá thay đổi',
-    value: 1,
+    statusName: 'Duyệt giá thay đổi',
+    status: 1,
     isActive: true
   })
 }
 
 interface statusOrderType {
-  label: string
-  value: number
+  statusName: string
+  status: number
   isActive?: boolean
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 if (type == 'add' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
-    label: 'Chốt đơn hàng',
-    value: 2,
+    statusName: 'Chốt đơn hàng',
+    status: 2,
     isActive: true
   })
 
@@ -1480,47 +1426,47 @@ const addStatusOrder = (index) => {
   switch (index) {
     case 1:
       arrayStatusOrder.value.push({
-        label: 'Duyệt giá thay đổi',
-        value: 1
+        statusName: 'Duyệt giá thay đổi',
+        status: 1
       })
       break
     case 2:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          label: 'Chốt đơn hàng',
-          value: 2,
+          statusName: 'Chốt đơn hàng',
+          status: 2,
           isActive: true
         })
       break
     case 3:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          label: 'Hoàn thành đơn hàng',
-          value: 3,
+          statusName: 'Hoàn thành đơn hàng',
+          status: 3,
           isActive: true
         })
       break
     case 4:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          label: 'Duyệt đổi/trả hàng',
-          value: 4,
+          statusName: 'Duyệt đổi/trả hàng',
+          status: 4,
           isActive: true
         })
       break
     case 5:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          label: 'Đối soát & kết thúc',
-          value: 5,
+          statusName: 'Đối soát & kết thúc',
+          status: 5,
           isActive: true
         })
       break
     case 6:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          label: 'Duyệt hủy đơn hàng',
-          value: 6,
+          statusName: 'Duyệt hủy đơn hàng',
+          status: 6,
           isActive: true
         })
       break
@@ -1528,14 +1474,14 @@ const addStatusOrder = (index) => {
       if (arrayStatusOrder.value.length > 0) {
         arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
         arrayStatusOrder.value.push({
-          label: 'Hủy đơn hàng',
-          value: 7,
+          statusName: 'Hủy đơn hàng',
+          status: 7,
           isActive: true
         })
       } else {
         arrayStatusOrder.value.push({
-          label: 'Hủy đơn hàng',
-          value: 7,
+          statusName: 'Hủy đơn hàng',
+          status: 7,
           isActive: true
         })
       }
@@ -1739,10 +1685,18 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
+let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
+
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async () => {
+  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    quantity: parseInt(val.quantity)
+  }))
+
+  childrenTable.value.pop()
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1760,7 +1714,8 @@ const postOrderStransaction = async () => {
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: 0,
-    typeOfMoney: 1
+    typeOfMoney: 1,
+    merchadiseTobePayfor: childrenTable.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -4209,8 +4164,8 @@ onMounted(async () => {
           <div class="w-[11%]"></div>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.value">
-                <div v-if="item.value == 1 || item.value == 4 || item.value == 6">
+              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
+                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4218,11 +4173,12 @@ onMounted(async () => {
                     class="box box_1 text-yellow-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.statusName }}
+
                     <span class="triangle-right right_1"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.value == 2 || item.value == 3">
+                <div v-else-if="item.status == 2 || item.status == 3">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4230,11 +4186,11 @@ onMounted(async () => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.statusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.value == 5">
+                <div v-else-if="item.status == 5">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4242,11 +4198,11 @@ onMounted(async () => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.statusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.value == 7">
+                <div v-else-if="item.status == 7">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4254,7 +4210,7 @@ onMounted(async () => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.statusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
                 </div>
@@ -4459,7 +4415,6 @@ onMounted(async () => {
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
-                  addTableReturnFullyIntegrated()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"

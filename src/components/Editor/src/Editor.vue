@@ -95,7 +95,14 @@ i18nAddResources('vi', {
     uploadVideo: 'Tải video từ máy'
   },
   tableModule: {
-    insertTable: 'Thêm bảng'
+    insertTable: 'Thêm bảng',
+    header: 'In đậm header bảng',
+    widthAuto: 'Tự động căn chỉnh chiều rộng',
+    insertRow: 'Thêm dòng',
+    deleteRow: 'Xóa dòng',
+    insertCol: 'Thêm cột',
+    deleteCol: 'Xóa cột',
+    deleteTable: 'Xóa bảng'
   },
   codeBlock: {
     title: 'Khối mã'
@@ -109,7 +116,11 @@ i18nAddResources('vi', {
   },
   fullScreen: {
     title: 'Toàn màn hình'
+  },
+  common: {
+    enter: 'Xuống dòng'
   }
+
   // ... Other language vocabulary, below...
 })
 const props = defineProps({

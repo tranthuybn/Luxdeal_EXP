@@ -34,23 +34,18 @@ import {
   getCollaboratorsInOrderList,
   getAllCustomer,
   addNewSpaOrders,
-  getPromotionsList,
-  addNewOrderList,
   getSellOrderList,
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  addQuickCustomer,
-  getTotalOrder,
   getOrderTransaction,
   addTPV,
-  createReturnRequest,
-  getReturnRequest,
   getReceiptPaymentVoucher,
-  getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
   addDNTT,
-  addOrderStransaction
+  addOrderStransaction,
+  createReturnRequest,
+  getReturnRequest
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -430,7 +425,6 @@ const handleChangePaymentRequest = () => {
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    console.log('id: ', id)
     const res = await getSellOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -706,7 +700,6 @@ const handleChangeQuickAddProduct = async (data: any) => {
     (product: { productPropertyId: any }) => product.productPropertyId == data
   )
   // quickProductName.value = dataSelectedObj.name
-  console.log('dataSelectedObj: ', dataSelectedObj)
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -740,9 +733,8 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-const productAttributeValue = (data: any) => {
-  console.log('data checked', data)
-}
+// const productAttributeValue = (data: any) => {
+// }
 
 const chooseDelivery = [
   {
@@ -760,7 +752,6 @@ const changeAddressCustomer = (data: any) => {
   if (data) {
     // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
-    console.log('result: ', result)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
       infoCompany.name = result.name
@@ -856,12 +847,6 @@ const collapse: Array<Collapse> = [
 ]
 
 const value = ref('')
-const options1 = [
-  {
-    value: 'SP4330f',
-    label: 'SP4335'
-  }
-]
 
 const valueSelectCustomer = ref(t('formDemo.customer'))
 const optionsCustomer = [
@@ -871,12 +856,6 @@ const optionsCustomer = [
   }
 ]
 
-const dram = [
-  {
-    dramValue: 'psc',
-    label: t('formDemo.psc')
-  }
-]
 const pawnOrderCode = ref()
 
 let customerID = ref()
@@ -901,7 +880,6 @@ const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
 const historyTable = ref<Array<any>>([])
-const dramValue = ref('Chiếc')
 
 const collapseChangeEvent = (val: string | string[]) => {
   if (val) {
@@ -920,21 +898,16 @@ const dialogAddQuick = ref(false)
 
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
-  await formEl2.validate((valid, fields) => {
+  await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
 }
@@ -993,7 +966,6 @@ const postData = () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postData', payload)
     addNewSpaOrders(formDataPayLoad)
   }
 }
@@ -1161,7 +1133,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1183,7 +1154,6 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
@@ -1214,6 +1184,21 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
+const valueTypeMoney = ref(2)
+const optionsTypeMoney = [
+  {
+    value: 1,
+    label: 'Tiền giá đàm phán'
+  },
+  {
+    value: 2,
+    label: 'Tiền phí Spa'
+  },
+  {
+    value: 3,
+    label: 'Tiền khác'
+  }
+]
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
@@ -1297,7 +1282,6 @@ const postReturnRequest = async () => {
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1832,7 +1816,8 @@ onMounted(async () => {
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"
-        :title="t('formDemo.informationPawn')"
+        :title="t('formDemo.informationReceipts')"
+        class="font-bold"
         width="40%"
         align-center
       >
@@ -1844,7 +1829,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
+            <div class="w-[100%] text-xl">BH24354</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -1853,13 +1838,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
+              <div class="w-[100%] text-xl">PT890345</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Select">
+              <el-select v-model="recharger" placeholder="Select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -1953,6 +1938,7 @@ onMounted(async () => {
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
         v-model="dialogPaymentVoucher"
+        class="font-bold"
         :title="t('formDemo.paymentVoucherInformation')"
         width="40%"
         align-center
@@ -2474,12 +2460,23 @@ onMounted(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="260" />
+            <el-table-column :label="t('formDemo.kindOfMoney')" width="110">
+              <el-select v-model="valueTypeMoney" class="m-2" placeholder="Select">
+                <el-option
+                  v-for="item in optionsTypeMoney"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
                 <div>{{ props.row.collected }} đ</div>
               </template>
             </el-table-column>
+
             <el-table-column prop="spent" :label="t('formDemo.spent')">
               <template #default="props">
                 <div class="text-right">{{ props.row.spent }} đ</div>
@@ -2540,23 +2537,22 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right">
-            <span class="dialog-footer">
-              <el-button
-                type="primary"
-                @click="
-                  () => {
-                    postOrderStransaction()
-                    dialogAccountingEntryAdditional = false
-                  }
-                "
-                >{{ t('formDemo.saveRecordDebts') }}</el-button
-              >
-              <el-button @click="dialogAccountingEntryAdditional = false">{{
-                t('reuse.exit')
-              }}</el-button>
-            </span>
-          </div>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  postOrderStransaction()
+                  dialogAccountingEntryAdditional = false
+                  // onAddDebtTableReturnDeposit()
+                }
+              "
+              >{{ t('formDemo.saveRecordDebts') }}</el-button
+            >
+            <el-button @click="dialogAccountingEntryAdditional = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
         </template>
       </el-dialog>
 

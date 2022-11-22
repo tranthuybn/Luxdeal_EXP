@@ -247,7 +247,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   spaServices: string
   amountSpa: number
-  quantity: number | undefined
+  quantity: string
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -266,7 +266,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: 1,
+  quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
@@ -1246,7 +1246,7 @@ const handleChangePaymentRequest = () => {
 const inputReasonReturn = ref('Hàng bị rách góc')
 const tableAccountingEntry = ref([
   {
-    content: 'Trả lại tiền cọc cho khách',
+    content: 'Thu tiền gốc cầm đồ',
     kindOfMoney: '',
     collected: '',
     spent: '',
@@ -1276,10 +1276,17 @@ const detailedListExpenses = [
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReturnRequest = ref()
 
+let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async () => {
+  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    quantity: parseInt(val.quantity)
+  }))
+
+  childrenTable.value.pop()
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1297,7 +1304,8 @@ const postOrderStransaction = async () => {
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: 0,
-    typeOfMoney: 1
+    typeOfMoney: 1,
+    merchadiseTobePayfor: childrenTable.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1352,24 +1360,24 @@ const postPC = async () => {
 
 const optionsChooseMoneyType = [
   {
-    value: 'Option1',
-    label: 'Option1'
+    value: 1,
+    label: 'Tiền gốc cầm đồ'
   },
   {
-    value: 'Option2',
-    label: 'Option2'
+    value: 2,
+    label: 'Tiền phí cầm đồ'
   },
   {
-    value: 'Option3',
-    label: 'Option3'
+    value: 3,
+    label: 'Tiền giá đàm phán'
   },
   {
-    value: 'Option4',
-    label: 'Option4'
+    value: 4,
+    label: 'Tiền phí spa'
   },
   {
-    value: 'Option5',
-    label: 'Option5'
+    value: 5,
+    label: 'Tiền khác'
   }
 ]
 
@@ -2621,7 +2629,7 @@ onMounted(async () => {
                       ? (dialogPawnCouponInfomation = true)
                       : data.row.content.includes('Phiếu thanh toán phí')
                       ? (dialogFeePaymentSlip = true)
-                      : data.row.content.includes('Trả lại tiền cọc cho khách')
+                      : data.row.content.includes('Thu tiền gốc cầm đồ')
                       ? (dialogAccountingEntryAdditional = true)
                       : (changeReturnGoods = true)
                   "
@@ -3013,7 +3021,7 @@ onMounted(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="250" />
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')" width="120">
               <el-select v-model="value" class="m-2" placeholder="Select">
                 <el-option
@@ -3249,7 +3257,7 @@ onMounted(async () => {
           </div>
           <div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
+              <label class="w-[30%] text-right">{{ t('formDemo.codePayment') }}</label>
               <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">

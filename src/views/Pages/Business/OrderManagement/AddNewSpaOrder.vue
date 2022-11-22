@@ -724,43 +724,44 @@ const id = Number(router.currentRoute.value.params.id)
 // const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
-// let orderDetailsTable = reactive([{}])
+let orderDetailsTable = reactive([{}])
 
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
-    // orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-    //   ProductPropertyId: parseInt(val.productPropertyId),
-    //   Quantity: parseInt(val.quantity),
-    //   ProductPrice: val.price,
-    //   SoldPrice: val.finalPrice,
-    //   WarehouseId: 1,
-    //   IsPaid: true,
-    //   Accessory: val.accessory
-    // }))
-    // orderDetailsTable.pop()
-    // const productPayment = JSON.stringify([...orderDetailsTable])
+    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: parseInt(val.quantity),
+      ProductPrice: val.price,
+      SoldPrice: val.finalPrice,
+      WarehouseId: 1,
+      SpaServiceIds: '47,48',
+      IsPaid: true,
+      Accessory: val.accessory
+    }))
+    orderDetailsTable.pop()
+    const productPayment = JSON.stringify([...orderDetailsTable])
 
-    const productPayment = JSON.stringify([
-      {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        SpaServiceIds: '47,48',
-        Accessory: 'Accessory1'
-      },
-      {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        SpaServiceIds: '47,48',
-        Accessory: 'Accessory2'
-      }
-    ])
+    // const productPayment = JSON.stringify([
+    //   {
+    //     ProductPropertyId: 2,
+    //     Quantity: 1,
+    //     ProductPrice: 10000,
+    //     SoldPrice: 10000,
+    //     WarehouseId: 1,
+    //     SpaServiceIds: '47,48',
+    //     Accessory: 'Accessory1'
+    //   },
+    //   {
+    //     ProductPropertyId: 3,
+    //     Quantity: 1,
+    //     ProductPrice: 10000,
+    //     SoldPrice: 10000,
+    //     WarehouseId: 1,
+    //     SpaServiceIds: '47,48',
+    //     Accessory: 'Accessory2'
+    //   }
+    // ])
     console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 5,
@@ -1288,7 +1289,7 @@ let objOrderStransaction = ref()
 let idStransaction = ref()
 const tableAccountingEntry = ref([
   {
-    content: 'Trả lại tiền cọc cho khách',
+    content: 'Thu tiền phí dịch vụ spa',
     kindOfMoney: '',
     collected: '',
     spent: '',
@@ -3083,12 +3084,6 @@ onMounted(async () => {
                 <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
                 <div class="text-xl">{{ pawnOrderCode }}</div>
               </div>
-              <div class="flex gap-4 pb-4 items-center">
-                <label class="text-right w-[170px]"
-                  >{{ t('formDemo.pawnTime') }}<span class="text-red-500">*</span></label
-                >
-                <div class="text-xl">20/20/2022</div>
-              </div>
             </div>
 
             <div class="flex-right"> Mã QR đơn hàng </div>
@@ -3102,18 +3097,18 @@ onMounted(async () => {
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
               <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
-            <div class="flex gap-4 pt-4 items-center">
+            <div class="flex gap-4 pt-2 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
               <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
+            <div class="flex gap-4 pt-2 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
               <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold break-w">{{
-              t('formDemo.certificateInformationAndServiceArising')
+              t('formDemo.certificateInformation')
             }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -3122,16 +3117,7 @@ onMounted(async () => {
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="content" :label="t('reuse.content')" width="280" />
-            <el-table-column prop="content" :label="t('formDemo.kindOfMoney')" width="120">
-              <el-select v-model="value" class="m-2" placeholder="Select">
-                <el-option
-                  v-for="item in optionsChooseMoneyType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-table-column>
+
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
                 <div>{{ props.row.collected }} đ</div>
@@ -3358,7 +3344,7 @@ onMounted(async () => {
           </div>
           <div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
+              <label class="w-[30%] text-right">{{ t('formDemo.codePayment') }}</label>
               <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
@@ -3819,7 +3805,7 @@ onMounted(async () => {
                       ? (dialogBillSpaInfomation = true)
                       : data.row.content.includes('Phiếu thanh toán phí')
                       ? (dialogFeePaymentSlip = true)
-                      : data.row.content.includes('Trả lại tiền cọc cho khách')
+                      : data.row.content.includes('Thu tiền phí dịch vụ spa')
                       ? (dialogAccountingEntryAdditional = true)
                       : (changeReturnGoods = true)
                   "

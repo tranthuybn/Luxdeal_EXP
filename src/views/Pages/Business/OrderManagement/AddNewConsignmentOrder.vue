@@ -293,7 +293,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   spaServices: string
   amountSpa: number
-  quantity: number | undefined
+  quantity: string
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -312,7 +312,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: 1,
+  quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
@@ -733,8 +733,9 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-// const productAttributeValue = (data: any) => {
-// }
+const productAttributeValue = (data) => {
+  console.log('data checked', data)
+}
 
 const chooseDelivery = [
   {
@@ -959,6 +960,9 @@ const postData = () => {
       ProvinceId: 1,
       DistrictId: 1,
       WardId: 1,
+      FromDate: '2022-11-12',
+      ToDate: '2022-11-30',
+      Days: 1, // 1 hoặc 7 hoặc 30
       Address: 'trieu khuc',
       OrderDetail: productPayment,
       CampaignId: 2,
@@ -1199,10 +1203,17 @@ const optionsTypeMoney = [
     label: 'Tiền khác'
   }
 ]
+let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async () => {
+  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    quantity: parseInt(val.quantity)
+  }))
+
+  childrenTable.value.pop()
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1220,7 +1231,8 @@ const postOrderStransaction = async () => {
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: 0,
-    typeOfMoney: 1
+    typeOfMoney: 1,
+    merchadiseTobePayfor: childrenTable.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)

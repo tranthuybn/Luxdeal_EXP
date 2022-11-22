@@ -264,6 +264,17 @@ export const addOrderStransaction = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Lấy chi tiết bút toán theo id
+export const getDetailAccountingEntryById = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ACCOUNTING_ENTRY_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // update lịch sử nhập xuất/đổi trả
 export const getReturnRequest = async (params): Promise<IResponse> => {
   const res = await request.get(

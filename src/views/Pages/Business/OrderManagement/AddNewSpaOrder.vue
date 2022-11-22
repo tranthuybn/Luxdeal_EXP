@@ -1299,8 +1299,16 @@ const tableAccountingEntry = ref([
 const codeReturnRequest = ref()
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 // Thêm bút toán cho đơn hàng
+let childrenTable = ref()
 
 const postOrderStransaction = async () => {
+  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    quantity: parseInt(val.quantity)
+  }))
+
+  childrenTable.value.pop()
+
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1318,7 +1326,8 @@ const postOrderStransaction = async () => {
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: 0,
-    typeOfMoney: 1
+    typeOfMoney: 1,
+    merchadiseTobePayfor: childrenTable.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)

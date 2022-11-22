@@ -482,14 +482,17 @@ const chooseDelivery = [
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  console.log('optionsCustomerApi: ', optionsCustomerApi.value)
   // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
   if (infoCustomerId.value.isOrganization) {
+    console.log('1', optionsCustomerApi)
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
     infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
+    console.log('2')
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
@@ -760,6 +763,7 @@ const dialogFormVisible = ref(false)
 
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {

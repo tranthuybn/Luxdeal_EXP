@@ -326,7 +326,7 @@ export default {
     receiveGoodsAtCustomerAddress: 'Nhận hàng tại địa chỉ khách hàng',
     pickUpGoodsAtTheCounter: 'Nhận hàng tại quầy',
     listProductSpa: 'Danh sách sản phẩm Spa',
-    spaDeliveryHistory: 'Lịch sử xuất trả hàng Spa',
+    spaDeliveryHistory: 'Lịch sử xuất/chuyển kho trả lại hàng Spa',
     renewingThePawn: 'Đang gia hạn cầm đồ',
     pawning: 'Đang cầm đồ',
     renewingTheSpa: 'Đang gia hạn Spa',

@@ -1074,6 +1074,7 @@ const editData = async () => {
   }
 }
 
+// Call api chi tiết bút toán theo id
 let formAccountingId = ref()
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
@@ -1646,7 +1647,6 @@ const postOrderStransaction = async (index: number) => {
   }))
 
   childrenTable.value.pop()
-  console.log('childrenTable: ', childrenTable.value)
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,

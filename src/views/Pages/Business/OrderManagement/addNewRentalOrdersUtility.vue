@@ -54,7 +54,8 @@ import {
   addOrderStransaction,
   getOrderTransaction,
   createReturnRequest,
-  getReceiptPaymentVoucher
+  getReceiptPaymentVoucher,
+  getDetailAccountingEntryById
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -332,25 +333,6 @@ const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
 }
 
-const onAddDebtTableItem = () => {
-  debtTable.value.push({
-    initializationDate: moment().format('L').toString(),
-    content: t('formDemo.collectRentalDeposit'),
-    receiptOrPaymentVoucherId: '',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '',
-    spent: '',
-    rentalFeeDebt: '',
-    kindOfMoney: '',
-    paymentProposal: '',
-    payment: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
-  })
-}
-
 const onAddDebtTableDeposit = () => {
   debtTable.value.push({
     initializationDate: moment().format('L').toString(),
@@ -369,25 +351,6 @@ const onAddDebtTableDeposit = () => {
     statusAccountingEntry: ''
   })
 }
-
-// const onAddDebtTableRentalDeposit = () => {
-//   debtTable.value.push({
-//     initializationDate: moment().format('L').toString(),
-//     certificateInformation: t('formDemo.returnRentalDeposit'),
-//     receiptOrPayment: '',
-//     quantity: 0,
-//     unitPrice: '',
-//     intoMoney: '',
-//     collected: '',
-//     spent: '',
-//     rentalFeeDebt: '',
-//     kindOfMoney: '',
-//     paymentProposal: '',
-//     payment: '',
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: ''
-//   })
-// }
 
 const historyTable = ref<Array<any>>([])
 
@@ -757,6 +720,7 @@ const districtChange = async (value) => {
 const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
+const { push } = useRouter()
 // tạo đơn hàng
 let postTable = ref()
 const postData = async () => {
@@ -766,16 +730,17 @@ const postData = async () => {
     Quantity: e.quantity,
     ProductPrice: e.hirePrice,
     SoldPrice: e.depositePrice,
-    accessory: e.accessory,
+    Accessory: e.accessory,
     WarehouseId: e.warehouseId,
     IsPaid: true
   }))
+  postTable.value.pop()
   if (checkValidate.value) {
     const productPayment = JSON.stringify([...postTable.value])
     const payload = {
       ServiceType: 3,
       OrderCode: ruleForm.orderCode,
-      PromotionCode: 'AA12',
+      PromotionCode: 'TEST',
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
@@ -784,9 +749,9 @@ const postData = async () => {
       toData: ruleForm.rentalPeriod[1],
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
       Address: 'trieu khuc',
       OrderDetail: productPayment,
       CampaignId: 2,
@@ -800,12 +765,12 @@ const postData = async () => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
           })
-        // () =>
-        //   push({
-        //     name: 'business/order-management/order-list-ad',
-        //     params: { backRoute: String(business/order-management/order-list-ad) }
-        //   })
       )
       .catch(() =>
         ElNotification({
@@ -1813,13 +1778,25 @@ const postPaymentRequest = async () => {
 }
 
 // Thêm bút toán cho đơn hàng
-let objOrderStransaction = ref()
+let childrenTable = ref()
 let idStransaction = ref()
-const postOrderStransaction = async () => {
+let objOrderStransaction = ref()
+const postOrderStransaction = async (index: number) => {
+  childrenTable.value = tableData.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    quantity: parseInt(val.quantity)
+  }))
+  childrenTable.value.pop()
+  codeReturnRequest.value = autoCodeReturnRequest
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
-    content: tableAccountingEntry.value[0].content,
+    content:
+      index == 1
+        ? t('formDemo.collectRentalDeposit')
+        : index == 2
+        ? feePaymentPeriod
+        : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney: tableAccountingEntry.value[0].collected
@@ -1833,7 +1810,8 @@ const postOrderStransaction = async () => {
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: 0,
-    typeOfMoney: 1
+    typeOfMoney: 1,
+    merchadiseTobePayfor: childrenTable.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1862,6 +1840,21 @@ const postReturnRequest = async () => {
     details: tableReturnPost.value
   }
   await createReturnRequest(payload)
+}
+
+// Call api chi tiết bút toán theo id
+let formAccountingId = ref()
+let tableSalesSlip = ref()
+const getAccountingEntry = async (index, num) => {
+  const res = await getDetailAccountingEntryById({ id: index })
+  formAccountingId.value = { ...res.data }
+  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+  console.log('tableSalesSlip: ', tableSalesSlip.value)
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  if (num == 1) dialogRentalPaymentInformation.value = true
+  if (num == 2) dialogDepositSlip.value = true
+  if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
 // Dialog trả hàng trước hạn
@@ -2802,7 +2795,7 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogRentalPaymentInformation = false
-                      onAddDebtTableDeposit()
+                      postOrderStransaction(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2956,7 +2949,7 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogDepositSlip = false
-                      onAddDebtTableItem()
+                      postOrderStransaction(1)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -4043,7 +4036,7 @@ onBeforeMount(() => {
                 type="primary"
                 @click="
                   () => {
-                    postOrderStransaction()
+                    postOrderStransaction(3)
                     getOrderStransactionList()
                     dialogAccountingEntryAdditional = false
                   }
@@ -4854,10 +4847,10 @@ onBeforeMount(() => {
               <el-button
                 @click="
                   data.row.certificateInformation.includes(feePaymentPeriod)
-                    ? (dialogRentalPaymentInformation = true)
+                    ? getAccountingEntry(data.row.id, 1)
                     : data.row.certificateInformation.includes('Thu tiền cọc thuê')
-                    ? (dialogDepositSlip = true)
-                    : (dialogAccountingEntryAdditional = true)
+                    ? getAccountingEntry(data.row.id, 2)
+                    : getAccountingEntry(data.row.id, 3)
                 "
                 >{{ t('reuse.detail') }}</el-button
               >

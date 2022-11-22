@@ -132,6 +132,11 @@ export const wareHouse = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100'
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '100'
   }
 ]
 

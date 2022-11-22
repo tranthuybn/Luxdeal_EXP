@@ -820,10 +820,8 @@ const conditionComboTable = reactive([
     parser: (value) => value.replace(/\$\s?|(,*)/g, '')
   }
 ])
-const currentRow = ref()
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleCurrentChangeSelection = (val) => {
-  currentRow.value = val
   radioSelected.value = val.id
   setValues({ condition: radioSelected.value })
 }

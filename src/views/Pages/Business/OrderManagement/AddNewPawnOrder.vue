@@ -49,7 +49,8 @@ import {
   addOrderStransaction,
   createReturnRequest,
   getReturnRequest,
-  addQuickCustomer
+  addQuickCustomer,
+  getDetailAccountingEntryById
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -300,23 +301,23 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 
-const addLastIndexTable2 = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.billPawn'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    moneyType: 1,
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const addLastIndexTable2 = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.billPawn'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     moneyType: 1,
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 // const onAddDebtTableReturnDeposit = () => {
 //   debtTable.value.push({
@@ -336,23 +337,23 @@ const addLastIndexTable2 = () => {
 //   })
 // }
 
-const onAddDebtTableDeposit = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.feePaymentSlip'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    moneyType: 1,
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const onAddDebtTableDeposit = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.feePaymentSlip'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     moneyType: 1,
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 const forceRemove = ref(false)
 
@@ -1280,7 +1281,7 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
-const postOrderStransaction = async () => {
+const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
     quantity: parseInt(val.quantity)
@@ -1290,7 +1291,12 @@ const postOrderStransaction = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
-    content: tableAccountingEntry.value[0].content,
+    content:
+      index == 1
+        ? t('formDemo.billPawn')
+        : index == 2
+        ? t('formDemo.feePaymentSlip')
+        : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney: tableAccountingEntry.value[0].collected
@@ -1463,6 +1469,26 @@ let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
 }
+const dialogAccountingEntryAdditional = ref(false)
+
+// xem chi tiết lịch sử công nợ theo id
+let tableSalesSlip = ref()
+let formAccountingId = ref()
+const getAccountingEntry = async (index, num) => {
+  console.log('num,index:', num, index)
+  const res = await getDetailAccountingEntryById({ id: index })
+  formAccountingId.value = { ...res.data }
+  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+
+  if (num == 1) {
+    dialogPawnCouponInfomation.value = true
+  } else if (num == 2) {
+    dialogFeePaymentSlip.value = true
+  } else {
+    dialogAccountingEntryAdditional.value = true
+  }
+}
 
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
@@ -1473,7 +1499,6 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 // Bút toán bổ sung
-const dialogAccountingEntryAdditional = ref(false)
 const alreadyPaidForTt = ref(true)
 
 const activeName = ref(collapse[0].name)
@@ -2283,12 +2308,29 @@ onMounted(async () => {
           />
           <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
           <el-table-column
-            prop="dram"
+            prop="unitName"
             :label="`${t('reuse.dram')}`"
             align="center"
             min-width="100"
-          />
-          <el-table-column :label="`${t('reuse.pawnMoney')}`" align="center" width="100" />
+            ><template #default="data">
+              <el-input
+                v-model="data.row.unitName"
+                @change="handleTotal(data)"
+                v-if="data.row.edited"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="price" :label="t('reuse.pawnMoney')" align="center" width="100"
+            ><template #default="data">
+              <el-input
+                v-model="data.row.price"
+                @change="handleTotal(data)"
+                v-if="data.row.edited"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
           <el-table-column prop="intoMoney" :label="`${t('reuse.pawnfeeMoney')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">200,000đ/1n</div>
@@ -2459,7 +2501,16 @@ onMounted(async () => {
           text
           >+ Thêm phiếu chi</el-button
         >
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button
+          @click="
+            () => {
+              newCodePaymentRequest()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -2626,11 +2677,11 @@ onMounted(async () => {
                 <button
                   @click="
                     data.row.content.includes('Phiếu cầm đồ')
-                      ? (dialogPawnCouponInfomation = true)
+                      ? getAccountingEntry(data.row.id, 1)
                       : data.row.content.includes('Phiếu thanh toán phí')
-                      ? (dialogFeePaymentSlip = true)
+                      ? getAccountingEntry(data.row.id, 2)
                       : data.row.content.includes('Thu tiền gốc cầm đồ')
-                      ? (dialogAccountingEntryAdditional = true)
+                      ? getAccountingEntry(data.row.id, 3)
                       : (changeReturnGoods = true)
                   "
                   v-if="type != 'detail'"
@@ -2796,7 +2847,8 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogPawnCouponInfomation = false
-                      addLastIndexTable2()
+                      // addLastIndexTable2()
+                      postOrderStransaction(1)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2952,7 +3004,8 @@ onMounted(async () => {
               @click="
                 () => {
                   dialogFeePaymentSlip = false
-                  onAddDebtTableDeposit()
+                  // onAddDebtTableDeposit()
+                  postOrderStransaction(2)
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3104,7 +3157,7 @@ onMounted(async () => {
                 @click="
                   () => {
                     //onAddDebtTableReturnDeposit()
-                    postOrderStransaction()
+                    postOrderStransaction(3)
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -3670,7 +3723,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogIPRForm = false
-                      newCodePaymentRequest()
                       handleChangePaymentRequest()
                       postPaymentRequest()
                     }

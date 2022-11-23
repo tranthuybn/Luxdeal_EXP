@@ -531,6 +531,7 @@ export default {
     cancelled: 'Đã hủy',
     importExportHistoryExchange: 'Lịch sử nhập/xuất đổi trả',
     collectRentalDeposit: 'Thu tiền cọc thuê',
+    collectionOfSpaServiceFees: 'Thu tiền phí dịch vụ spa',
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
     codePayment: 'Mã phiếu chi',
     infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',

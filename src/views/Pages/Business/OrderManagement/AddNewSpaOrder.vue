@@ -27,7 +27,8 @@ import {
   ElNotification,
   UploadUserFile,
   UploadProps,
-  ElTreeSelect
+  ElTreeSelect,
+  ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -57,13 +58,15 @@ import {
   getCodePaymentRequest,
   addOrderStransaction,
   createReturnRequest,
-  getReturnRequest
+  getReturnRequest,
+  getDetailAccountingEntryById
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 const { t } = useI18n()
@@ -1187,7 +1190,7 @@ const valueCommune = ref('')
 // Thông tin phiếu bán hàng
 const nameDialog = ref('')
 
-const dialogFeePaymentSlip = ref(false)
+// const dialogFeePaymentSlip = ref(false)
 
 const dialogBillSpaInfomation = ref(false)
 function openBillSpaDialog() {
@@ -1236,7 +1239,7 @@ let objOrderStransaction = ref()
 let idStransaction = ref()
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền phí dịch vụ spa',
+    content: 'Thu tiền DFDSF',
     kindOfMoney: '',
     collected: '',
     spent: '',
@@ -1251,7 +1254,7 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 // Thêm bút toán cho đơn hàng
 let childrenTable = ref()
 
-const postOrderStransaction = async () => {
+const postOrderStransaction = async (num: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
     quantity: parseInt(val.quantity)
@@ -1262,7 +1265,12 @@ const postOrderStransaction = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
-    content: tableAccountingEntry.value[0].content,
+    content:
+      num == 1
+        ? t('formDemo.collectionOfSpaServiceFees')
+        : num == 2
+        ? 'Thu tiền DFDSF'
+        : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney: tableAccountingEntry.value[0].collected
@@ -1304,23 +1312,23 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 
-const addLastIndexTable2 = () => {
-  debtTable.value.push({
-    createdAt: moment().format('L').toString(),
-    content: t('formDemo.billPawn'),
-    receiptOrPaymentVoucherId: undefined,
-    paymentRequestId: undefined,
-    receiveMoney: '',
-    paidMoney: '',
-    debt: '',
-    moneyType: 1,
-    typeOfPayment: 0,
-    paymentMethods: 1,
-    status: 0,
-    alreadyPaidForTt: false,
-    statusAccountingEntry: 'Đã ghi sổ'
-  })
-}
+// const addLastIndexTable2 = () => {
+//   debtTable.value.push({
+//     createdAt: moment().format('L').toString(),
+//     content: t('formDemo.collectionOfSpaServiceFees'),
+//     receiptOrPaymentVoucherId: undefined,
+//     paymentRequestId: undefined,
+//     receiveMoney: '',
+//     paidMoney: '',
+//     debt: '',
+//     moneyType: 1,
+//     typeOfPayment: 0,
+//     paymentMethods: 1,
+//     status: 0,
+//     alreadyPaidForTt: false,
+//     statusAccountingEntry: 'Đã ghi sổ'
+//   })
+// }
 
 // const onAddDebtTableReturnDeposit = () => {
 //   debtTable.value.push({
@@ -1593,6 +1601,22 @@ const editData = async () => {
   }
 }
 
+let tableSalesSlip = ref()
+let formAccountingId = ref()
+const getAccountingEntry = async (index, num) => {
+  console.log('num,index:', num, index)
+  const res = await getDetailAccountingEntryById({ id: index })
+  formAccountingId.value = { ...res.data }
+  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+
+  if (num == 1) {
+    dialogBillSpaInfomation.value = true
+  } else {
+    dialogAccountingEntryAdditional.value = true
+  }
+}
+
 const codeExpenditures = ref()
 
 const getReceiptCode = async () => {
@@ -1625,6 +1649,35 @@ const districtChange = async (value) => {
 
 const dialogInformationReceipts = ref(false)
 const pawnOrderCode = ref()
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
+// form phiếu thu
+const formReceipts = ref()
+const moneyReceipts = ref(105000000)
+const inputRecharger = ref()
+const PrintReceipts = ref(false)
+
+const getFormReceipts = () => {
+  if (enterMoney.value) {
+    formReceipts.value = {
+      sellOrderCode: pawnOrderCode.value,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+
+    PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
+}
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -1665,6 +1718,55 @@ onMounted(async () => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
+      <div id="recpPaymentPrint">
+        <slot>
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+        </slot>
+      </div>
+      <!-- Dialog In phiếu thu -->
+      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPage('recpPaymentPrint', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <div id="IPRFormPrint">
+        <slot>
+          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
+        </slot>
+      </div>
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -2527,7 +2629,7 @@ onMounted(async () => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="620"
+            min-width="550"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -2574,6 +2676,17 @@ onMounted(async () => {
                 ></div
               >
             </div>
+          </el-table-column>
+
+          <el-table-column prop="finalPrice" :label="t('reuse.type')" align="center" width="90">
+            <template #default="data">
+              <el-input
+                v-model="data.row.type"
+                @change="handleTotal(data)"
+                v-if="data.row.edited"
+                style="width: 100%"
+              />
+            </template>
           </el-table-column>
 
           <el-table-column
@@ -2908,7 +3021,8 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogBillSpaInfomation = false
-                      addLastIndexTable2()
+                      // addLastIndexTable2()
+                      postOrderStransaction(1)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3259,7 +3373,7 @@ onMounted(async () => {
                 @click="
                   () => {
                     // onAddDebtTableReturnDeposit()
-                    postOrderStransaction()
+                    postOrderStransaction(2)
 
                     dialogAccountingEntryAdditional = false
                   }
@@ -3277,7 +3391,7 @@ onMounted(async () => {
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"
-        :title="t('formDemo.informationPawn')"
+        :title="t('formDemo.informationReceipts')"
         width="40%"
         align-center
       >
@@ -3304,7 +3418,7 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3319,6 +3433,7 @@ onMounted(async () => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -3338,7 +3453,11 @@ onMounted(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -3366,8 +3485,8 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
+
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -3420,7 +3539,7 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3482,8 +3601,7 @@ onMounted(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -3662,7 +3780,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogIPRForm = false
-                      newCodePaymentRequest()
                       handleChangePaymentRequest()
                       postPaymentRequest()
                     }
@@ -3868,7 +3985,16 @@ onMounted(async () => {
           text
           >+ Thêm phiếu chi</el-button
         >
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button
+          @click="
+            () => {
+              newCodePaymentRequest()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -3991,7 +4117,8 @@ onMounted(async () => {
             min-width="120"
           >
             <template #default="props">
-              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -4034,12 +4161,10 @@ onMounted(async () => {
               <div class="flex">
                 <button
                   @click="
-                    data.row.content.includes('Phiếu cầm đồ')
-                      ? (dialogBillSpaInfomation = true)
-                      : data.row.content.includes('Phiếu thanh toán phí')
-                      ? (dialogFeePaymentSlip = true)
-                      : data.row.content.includes('Thu tiền phí dịch vụ spa')
-                      ? (dialogAccountingEntryAdditional = true)
+                    data.row.content.includes('Thu tiền phí dịch vụ spa')
+                      ? getAccountingEntry(data.row.id, 1)
+                      : data.row.content.includes('Thu tiền DFDSF')
+                      ? getAccountingEntry(data.row.id, 2)
                       : (changeReturnGoods = true)
                   "
                   v-if="type != 'detail'"
@@ -4254,6 +4379,9 @@ onMounted(async () => {
 <style scoped>
 @media screen {
   #billSpa {
+    display: none;
+  }
+  #recpPaymentPrint {
     display: none;
   }
   .dialog-content {

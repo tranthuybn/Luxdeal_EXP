@@ -12,8 +12,11 @@ import {
   ElNotification,
   ElForm
 } from 'element-plus'
-import { ref } from 'vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import { reactive, ref } from 'vue'
+import { useValidator } from '@/hooks/web/useValidator'
 
+const { required } = useValidator()
 const { t } = useI18n()
 defineProps({
   showDialog: {
@@ -89,7 +92,8 @@ const closeDialog = () => {
   emit('close-dialog', customerId.value)
 }
 const customerData = ref()
-const rules = { companyName: { required: true } }
+const rules = reactive<FormRules>({ companyName: [required()] })
+const ruleFormRef = ref<FormInstance>()
 </script>
 <template>
   <el-dialog

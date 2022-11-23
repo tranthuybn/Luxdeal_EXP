@@ -55,3 +55,45 @@ export const deleteProductStorage = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const createLotWarehouseImage = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${WAREHOUSE_API.CREATE_LOT_WAREHOUSE_IMAGE}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getWarehouseLot = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.GET_WAREHOUSE_LOT}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const createWarehouseLot = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${WAREHOUSE_API.CREATE_WAREHOUSE_LOT}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const createTicketManually = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${WAREHOUSE_API.CREATE_TICKET_MANUALLY}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

@@ -9,12 +9,13 @@ import { onBeforeMount, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
 import QuickAddCustomer from './QuickAddCustomer.vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 const { required } = useValidator()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 
-defineProps({
+const props = defineProps({
   type: {
     type: String,
     default: ''
@@ -28,20 +29,8 @@ defineProps({
     default: () => {}
   }
 })
-
-type FormDataInput = {
-  TicketId: string
-  CreatedAt: Date
-  staffId: number
-  description: string
-  customerId: any
-  isActive?: boolean
-  status?: string
-  staffValue: any
-}
-const EmptyCustomData = {} as FormDataInput
-const FormData = reactive(EmptyCustomData)
-const disabledForm = ref(false)
+const FormData = reactive(props.ticketData)
+console.log('formData:', FormData)
 const rules = reactive<FormRules>({
   staffId: [required()],
   description: [required()],
@@ -200,7 +189,7 @@ defineExpose({
     class="w-full flex"
     ref="ruleFormRef"
     :model="FormData"
-    :disabled="disabledForm"
+    :disabled="props.type == 'detail'"
     :rules="rules"
     label-width="170px"
     status-icon
@@ -209,9 +198,13 @@ defineExpose({
     <div class="w-[50%]">
       <el-divider content-position="left">{{ t('reuse.profileWareHouse') }}</el-divider>
 
-      <ElFormItem :label="t('reuse.formCode')" prop="TicketId" />
+      <ElFormItem :label="t('reuse.formCode')" prop="ticketCode">
+        <div class="pl-6">{{ FormData.ticketCode }}</div>
+      </ElFormItem>
       <ElFormItem :label="t('reuse.createDate')">
-        <div class="pl-6">{{ formattedToday }}</div>
+        <div class="pl-6">{{
+          FormData.createdAt ? dateTimeFormat(FormData.createdAt) : formattedToday
+        }}</div>
       </ElFormItem>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
@@ -256,9 +249,13 @@ defineExpose({
           />
         </ElFormItem>
         <ElFormItem label-width="0px">
-          <el-button @click="openQuickAddDialog" :icon="plusIcon" class="pl-8">{{
-            t('button.add')
-          }}</el-button>
+          <el-button
+            @click="openQuickAddDialog"
+            :icon="plusIcon"
+            class="pl-8"
+            :disabled="props.type == 'detail'"
+            >{{ t('button.add') }}</el-button
+          >
         </ElFormItem>
       </div>
       <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">

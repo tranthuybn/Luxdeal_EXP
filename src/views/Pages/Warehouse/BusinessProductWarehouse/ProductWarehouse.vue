@@ -21,7 +21,7 @@ import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 
 const { t } = useI18n()
-defineProps({
+const prop = defineProps({
   type: {
     type: String,
     default: ''
@@ -90,7 +90,8 @@ watch(
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId !=
         null &&
-      forceRemove.value == false
+      forceRemove.value == false &&
+      (prop.type == 'detail' || prop.type == 'edit')
     ) {
       ListOfProductsForSale.value.push({} as ProductWarehouse)
     }
@@ -339,7 +340,7 @@ defineExpose({
           :show-file-list="false"
         >
           <el-image v-if="props.row.imageUrl" :src="props.row.imageUrl" class="avatar" />
-          <el-button
+          <el-button :disabled="prop.type == 'detail'"
             ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
           >
         </el-upload>
@@ -350,7 +351,7 @@ defineExpose({
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)">
+            <el-button text @click="openDialogWarehouse(props)" :disabled="prop.type == 'detail'">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>
@@ -392,11 +393,9 @@ defineExpose({
     </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
-        <button
-          @click="removeRow(props)"
-          class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-          >{{ t('reuse.delete') }}</button
-        >
+        <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{
+          t('reuse.delete')
+        }}</el-button>
       </template>
     </el-table-column>
   </el-table>

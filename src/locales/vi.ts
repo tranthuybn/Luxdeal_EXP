@@ -1669,6 +1669,8 @@ export default {
     lotList: 'Danh sách lot',
     iventoryy: 'Tồn kho',
     importToSelectedLot: 'Nhập vào lot đã chọn',
-    createNewLot: 'Tạo lot mới'
+    createNewLot: 'Tạo lot mới',
+    import: 'Nhập kho',
+    export: 'Chuyển kho'
   }
 }

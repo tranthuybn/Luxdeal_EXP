@@ -3,14 +3,18 @@ import {
   filterIventory,
   filterDeposit,
   filterLocation,
-  filterWarehouseManagement
+  filterWarehouseManagement,
+  filterTransactionType
 } from '@/utils/filters'
 import { h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { dateTimeFormat, formatPotentialCustomerStatusIdToText } from '@/utils/format'
+import { dateTimeFormat, formatTransactionStatus, formatTransactionType } from '@/utils/format'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import router from '@/router'
 const { t } = useI18n()
-//Đơn bán hàng
+//Tồn kho
 export const wareHouse = [
   {
     field: 'index',
@@ -132,14 +136,10 @@ export const wareHouse = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100'
-  },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '100'
   }
 ]
 
+//Lsu gdich
 export const wareHouseContainer = [
   {
     field: 'index',
@@ -151,29 +151,32 @@ export const wareHouseContainer = [
     field: 'transactionType',
     label: t('reuse.importExportTransferWarehouse'),
     minWidth: '150',
-    filters: filterIventory
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatTransactionType(cellValue)
+    },
+    filters: filterTransactionType
   },
   {
     field: 'transactionCode',
     label: t('reuse.importExportTransferWarehouseCode'),
     minWidth: '150',
-    filters: filterIventory
+    sortable: true
   },
   {
     field: 'orderCode',
     label: t('reuse.orderCode'),
     minWidth: '150',
-    filters: filterIventory
+    sortable: true
   },
   {
-    field: 'orderDetails',
+    field: 'productCode',
     label: t('reuse.managementCode'),
     minWidth: '150',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.orderDetails.map(({ id, productCode }) => {
+        row.transactionDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
       )
@@ -187,7 +190,7 @@ export const wareHouseContainer = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.orderDetails.map(({ id, productName }) => {
+        row.transactionDetails.map(({ id, productName }) => {
           return h('li', { key: id }, productName)
         })
       )
@@ -205,19 +208,34 @@ export const wareHouseContainer = [
     filters: filterService
   },
   {
-    field: 'transactionDetails[0].warehouseName',
+    field: 'warehouse',
     label: t('reuse.warehouse'),
-    minWidth: '100',
-    filters: filterIventory
+    minWidth: '250',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.transactionDetails.map(({ id, warehouseName }) => {
+          return h('li', { key: id }, warehouseName)
+        })
+      )
+    }
   },
 
   {
-    field: 'transactionDetails[0].locationName',
+    field: 'location',
     label: t('reuse.location'),
-    minWidth: '100',
-    sortable: true
+    minWidth: '250',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.transactionDetails.map(({ id, locationName }) => {
+          return h('li', { key: id }, locationName)
+        })
+      )
+    }
   },
-
   {
     field: 'transactionDetails[0].lotCode',
     label: t('reuse.lotCode'),
@@ -236,9 +254,18 @@ export const wareHouseContainer = [
     minWidth: '100'
   },
   {
-    field: 'typeOfTransfer',
+    field: 'quantity',
     label: t('reuse.quantity'),
-    minWidth: '100'
+    minWidth: '250',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.transactionDetails.map(({ id, quantity }) => {
+          return h('li', { key: id }, quantity)
+        })
+      )
+    }
   },
   {
     field: 'orderDetails[0].unitName',
@@ -269,7 +296,45 @@ export const wareHouseContainer = [
     label: t('reuse.status'),
     minWidth: '100',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatPotentialCustomerStatusIdToText(cellValue)
+      return formatTransactionStatus(cellValue)
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', [h(ElButton, { icon: eyeIcon, onClick: () => action(row) })])
     }
   }
 ]
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+
+const action = (row: any) => {
+  const type = row.transactionType
+  console.log('type:', type)
+  switch (type) {
+    case 1:
+      router.push({
+        name: 'Inventorymanagement.ListWarehouse.import',
+        params: { id: row.id }
+      })
+      return
+    case 2:
+      router.push({
+        name: 'Inventorymanagement.ListWarehouse.export',
+        params: { id: row.id }
+      })
+      return
+
+    case 3:
+      router.push({
+        name: 'Inventorymanagement.ListWarehouse.transfer',
+        params: { id: row.id }
+      })
+      return
+
+    default:
+      return
+  }
+}

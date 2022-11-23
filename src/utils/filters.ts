@@ -31,6 +31,11 @@ export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.takingCare'), value: 2 },
   { text: t('common.doneLabel'), value: 3 }
 ]
+export const filterTransactionType: Array<Filter> = [
+  { text: t('reuse.import'), value: 1 },
+  { text: t('reuse.export'), value: 2 },
+  { text: t('reuse.transfer'), value: 3 }
+]
 export const filterIventory: Array<Filter> = [
   { text: t('reuse.outOfStock'), value: 0 },
   { text: t('reuse.stocking'), value: 1 }

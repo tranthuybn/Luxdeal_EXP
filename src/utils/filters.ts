@@ -5,6 +5,12 @@ interface Filter {
   text: string
   value: any
 }
+export const filterLotStatus: Array<Filter> = [
+  { text: t('reuse.inStock'), value: 1 },
+  { text: t('reuse.outOfStockInventory'), value: 2 },
+  { text: t('reuse.exporting'), value: 3 },
+  { text: t('reuse.importing'), value: 4 }
+]
 export const filterPaymentCheckbox: Array<Filter> = [
   { text: t('reuse.alreadyPaid'), value: true },
   { text: t('reuse.notPaid'), value: false }
@@ -172,7 +178,8 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.deposit'), value: 2 },
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
-  { text: t('workplace.spa'), value: 5 }
+  { text: t('workplace.spa'), value: 5 },
+  { text: t('reuse.internal'), value: 6 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },

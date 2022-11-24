@@ -1671,6 +1671,10 @@ export default {
     importToSelectedLot: 'Nhập vào lot đã chọn',
     createNewLot: 'Tạo lot mới',
     import: 'Nhập kho',
-    export: 'Chuyển kho'
+    export: 'Chuyển kho',
+    inStock: 'Đang tồn kho',
+    outOfStockInventory: 'Hết tồn kho',
+    exporting: 'Đang xuất kho',
+    importing: 'Đang chờ nhập kho'
   }
 }

@@ -45,7 +45,8 @@ import {
   addDNTT,
   addOrderStransaction,
   createReturnRequest,
-  getReturnRequest
+  getReturnRequest,
+  getDetailAccountingEntryById
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -1203,6 +1204,7 @@ const optionsTypeMoney = [
     label: 'Tiền khác'
   }
 ]
+
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
@@ -1327,6 +1329,23 @@ const updatePrice = (_value, obj, scope) => {
 //     intoMoney: 'đ'
 //   }
 // ]
+
+// Thông tin phiếu thanh toán phí ký gửi spa
+const dialogDepositFeeInformation = ref(false)
+// Call api chi tiết bút toán theo id
+let formAccountingId = ref()
+let tableSalesSlip = ref()
+const getAccountingEntry = async (index, num) => {
+  const res = await getDetailAccountingEntryById({ id: index })
+  formAccountingId.value = { ...res.data }
+  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tableAccountingEntry.value = formAccountingId.value.accountingEntry
+  console.log('tableSalesSlip: ', tableSalesSlip.value)
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  if (num == 1) dialogAccountingEntryAdditional.value = true
+  else if (num == 2) dialogDepositSlip.value = true
+  else dialogDepositFeeInformation.value = true
+}
 
 onBeforeMount(() => {
   callCustomersApi()
@@ -2706,6 +2725,144 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Dialog Thông tin thanh toán phiếu kí gửi spa -->
+      <el-dialog
+        v-model="dialogDepositFeeInformation"
+        :title="'Thông tin thanh toán phiếu kí gửi spa'"
+        width="40%"
+        align-center
+      >
+        <div>
+          <!-- <Qrcode :text="'abc'" /> -->
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div class="flex gap-2 justify-between">
+            <div class="flex-left">
+              <div class="flex gap-4 pt-4 items-center">
+                <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
+                <div class="text-xl">{{ ruleForm.orderCode }}</div>
+              </div>
+              <div class="flex gap-4 py-2 items-center">
+                <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
+                <div class="text-xl">20/20/2022</div>
+              </div>
+            </div>
+
+            <div class="flex-right"> Mã QR đơn hàng </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
+              <div class="w-[100%]">{{ customerAddress }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold break-w">{{
+              t('formDemo.productInformationSale')
+            }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+
+            <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
+
+            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
+            <el-table-column prop="price" :label="t('reuse.unitPrices')">
+              <!-- <template #default="props">
+                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
+              </template> -->
+            </el-table-column>
+            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')">
+              <!-- <template #default="props">
+                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
+              </template> -->
+            </el-table-column>
+          </el-table>
+          <div class="flex justify-end">
+            <div class="w-[145px] text-right">
+              <p class="text-black font-bold dark:text-white"
+                >{{ t('formDemo.negotiablePrice') }}
+              </p>
+            </div>
+            <div class="w-[145px] text-right">
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
+                '0 đ'
+              }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="w-[25%] text-base font-bold">{{ t('formDemo.payment') }}</span>
+          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">Thanh toán</label>
+            <div class="w-[100%]">
+              <el-checkbox
+                v-model="alreadyPaidForTt"
+                :label="t('formDemo.alreadyPaidForTt')"
+                size="large"
+              />
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
+            <el-select v-model="payment" placeholder="Select">
+              <el-option
+                v-for="item in choosePayment"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+          <div class="flex gap-4 pb-2 items-center">
+            <label class="w-[30%] text-right">Trạng thái</label>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <div class="flex justify-end">
+            <div>
+              <span class="dialog-footer">
+                <el-button class="min-w-42 min-h-11" @click="dialogDepositFeeInformation = false">{{
+                  t('reuse.exit')
+                }}</el-button>
+              </span>
+            </div>
+          </div>
+        </template>
+      </el-dialog>
+
       <!-- Thông tin trả hàng trước thời hạn-->
       <el-dialog
         v-model="changeReturnGoods"
@@ -3379,8 +3536,8 @@ onMounted(async () => {
               <button
                 @click="
                   data.row.content.includes('Thu tiền phạt rút hàng trước 14 ngày')
-                    ? (dialogAccountingEntryAdditional = !dialogAccountingEntryAdditional)
-                    : (dialogDepositSlip = !dialogDepositSlip)
+                    ? getAccountingEntry(data.row.id, 1)
+                    : getAccountingEntry(data.row.id, 2)
                 "
                 v-if="type != 'detail'"
                 class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"

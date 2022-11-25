@@ -3588,7 +3588,7 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == '4'"
+                    v-if="ruleForm.rentalPaymentPeriod == 4"
                     v-model="week"
                     placeholder="Select"
                   >
@@ -3600,7 +3600,7 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == '5'"
+                    v-if="ruleForm.rentalPaymentPeriod == 5"
                     v-model="month"
                     placeholder="Select"
                   >

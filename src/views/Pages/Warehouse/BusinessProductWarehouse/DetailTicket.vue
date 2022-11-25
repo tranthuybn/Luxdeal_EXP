@@ -5,7 +5,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElButton, ElDivider, ElInput, ElForm, ElFormItem } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { onBeforeMount, reactive, ref, unref } from 'vue'
+import { computed, onBeforeMount, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
 import QuickAddCustomer from './QuickAddCustomer.vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -29,8 +29,9 @@ const props = defineProps({
     default: () => {}
   }
 })
-const FormData = reactive(props.ticketData)
-console.log('formData:', FormData)
+const FormData = computed(() => {
+  return props.ticketData
+})
 const rules = reactive<FormRules>({
   staffId: [required()],
   description: [required()],
@@ -58,11 +59,12 @@ const callCustomersApi = async () => {
   }
 }
 const getValueOfStaffSelected = (value, _obj) => {
-  FormData.staffId = value
+  FormData.value.staffId = value
+  console.log('obj', _obj)
 }
 
 const getValueOfCustomerSelected = (value, obj) => {
-  FormData.customerId = value
+  FormData.value.customerId = value
   infoCompany.name = obj.name
   infoCompany.phonenumber = obj.phone
   infoCompany.email = obj.email
@@ -156,7 +158,7 @@ const openQuickAddDialog = () => {
 const closeDialog = (value: any) => {
   if (value == null || value == 0) {
   } else {
-    FormData.customerId = value
+    FormData.value.customerId = value
   }
   dialogAddQuick.value = false
 }
@@ -278,7 +280,9 @@ defineExpose({
       <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
         <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
       </div>
-      <ElFormItem class="w-[100%]" style="display: inline-block" :label="t('reuse.orderCode')" />
+      <ElFormItem class="w-[100%]" style="display: inline-block" :label="t('reuse.orderCode')">
+        {{ FormData.orderCode }}
+      </ElFormItem>
     </div>
   </ElForm>
 </template>

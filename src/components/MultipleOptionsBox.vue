@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
-import { ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 const propsObj = defineProps({
   // columns name
@@ -65,7 +65,9 @@ const propsObj = defineProps({
 
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
-let selected = ref(propsObj.defaultValue)
+let selected = computed(() => {
+  return propsObj.defaultValue
+})
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
@@ -142,9 +144,6 @@ const valueChangeEvent = (val) => {
       }
     })
     if (obj) emit('updateValue', val, obj ?? '')
-    if (propsObj.defaultValue !== null) {
-      selected.value = obj.productCode
-    }
   }
 }
 const scrolling = (e) => {

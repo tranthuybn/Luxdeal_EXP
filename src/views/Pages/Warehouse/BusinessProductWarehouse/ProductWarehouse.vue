@@ -13,12 +13,13 @@ import {
   ElDialog
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { onBeforeMount, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import ChooseWarehouse from './ChooseWarehouse.vue'
+import ChooseImportWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 const prop = defineProps({
@@ -31,8 +32,12 @@ const prop = defineProps({
     default: 0
   },
   productData: {
-    type: Object,
-    default: () => {}
+    type: Array<ProductWarehouse>,
+    default: () => [{}]
+  },
+  testReactive: {
+    type: String,
+    default: ''
   }
 })
 
@@ -49,7 +54,6 @@ type ProductWarehouse = {
   productPropertyId?: number
   quantity?: number
   price?: number
-  warehouseId?: number
   productPropertyQuality?: string
   accessory?: string
   fileId?: number
@@ -64,7 +68,13 @@ type ProductWarehouse = {
   lot?: Options
   imageUrl?: string
 }
-let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
+const ListOfProductsForSale = computed(() => {
+  return prop.productData
+})
+const listOfProduct = computed(() => {
+  return prop.productData
+})
+console.log('listOfProduct', listOfProduct)
 // Call api danh sách sản phẩm
 const productLoading = ref(true)
 let listProducts = ref()
@@ -91,7 +101,7 @@ watch(
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId !=
         null &&
       forceRemove.value == false &&
-      (prop.type == 'detail' || prop.type == 'edit')
+      prop.type == 'add'
     ) {
       ListOfProductsForSale.value.push({} as ProductWarehouse)
     }
@@ -155,6 +165,13 @@ const ScrollProductBottom = () => {
         })
         .finally(() => (productLoading.value = false))
 }
+type ChooseWarehouse = {
+  quantity: number | undefined
+  warehouseId: number | undefined
+  locationId: number | undefined
+  lotId: number | undefined
+}
+const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
@@ -163,6 +180,11 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
+    console.log('prop.productData[currentRow.value]', prop.productData[currentRow.value])
+    warehouseData.value.quantity = prop.productData[currentRow.value]?.quantity
+    warehouseData.value.warehouseId = prop.productData[currentRow.value].warehouse?.value
+    warehouseData.value.locationId = prop.productData[currentRow.value].location?.value
+    warehouseData.value.lotId = prop.productData[currentRow.value].lot?.value
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -207,34 +229,53 @@ const handlePictureCardPreview = (file: UploadFile) => {
 const handleChange = async (props, uploadFile) => {
   const validImage = await beforeAvatarUpload(uploadFile)
   if (validImage) {
-    props.row.imageUrl = URL.createObjectURL(uploadFile.raw!)
-    await createLotWarehouseImage(FORM_IMAGES({ Image: uploadFile.raw }))
-      .then((res) => {
-        props.row.fileId = res.data
+    await createLotWarehouseImage(
+      FORM_IMAGES({ Image: uploadFile.raw, WarehouseLotId: props.row.lot.value })
+    )
+      .then(() => {
+        props.row.imageUrl = URL.createObjectURL(uploadFile.raw!)
         ElNotification({
           message: t('reuse.addSuccess'),
           type: 'success'
         })
       })
-      .catch(() =>
+      .catch(() => {
+        props.row.imageUrl = ''
         ElNotification({
           message: t('reuse.addFail'),
           type: 'warning'
         })
-      )
+      })
   }
 }
 
 const warehouseFormat = (props) => {
-  if (props.row?.warehouse !== undefined) {
-    if (props.row?.lot?.label !== undefined) {
-      return `${props.row?.warehouse?.label}/${props.row?.location?.label}/${props.row?.lot?.lotCode}`
-    } else {
-      return `${props.row?.warehouse?.label}/${props.row?.location?.label}`
-    }
-  } else {
-    return ''
+  let warehouseName = ''
+  let locationName = ''
+  let lotName = ''
+
+  if (
+    props.row.warehouse !== undefined &&
+    props.row.warehouse?.label !== null &&
+    props.row.warehouse?.label !== undefined
+  ) {
+    warehouseName = props.row.warehouse?.label
   }
+  if (
+    props.row.location !== undefined &&
+    props.row.location?.label !== null &&
+    props.row.location?.label !== undefined
+  ) {
+    locationName = props.row.location?.label
+  }
+  if (
+    props.row.lot !== undefined &&
+    props.row.lot?.label !== null &&
+    props.row.lot?.label !== undefined
+  ) {
+    lotName = props.row.lot?.label
+  }
+  return `${warehouseName}/${locationName}/${lotName}`
 }
 const checkValueOfTable = () => {
   if (
@@ -245,30 +286,34 @@ const checkValueOfTable = () => {
     ListOfProductsForSale.value.splice(ListOfProductsForSale.value.length - 1, 1)
     forceRemove.value = true
   }
+  let valid = true
   ListOfProductsForSale.value.forEach((row) => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
         type: 'warning'
       })
-      return false
+      valid = false
+      return
     }
-    if (row.warehouse == undefined || row.location == undefined) {
+    if (row.warehouse?.value == undefined || row.location?.value == undefined) {
       ElMessage({
         message: t('reuse.pleaseChooseWarehouse'),
         type: 'warning'
       })
-      return false
+      valid = false
+      return
     }
     if (row.price == undefined) {
       ElMessage({
         message: t('reuse.pleaseChoosePrice'),
         type: 'warning'
       })
-      return false
+      valid = false
+      return
     }
   })
-  return true
+  return valid
 }
 defineExpose({
   ListOfProductsForSale,
@@ -279,11 +324,12 @@ defineExpose({
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
-  <ChooseWarehouse
+  <ChooseImportWarehouse
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     :transactionType="transactionType"
     :productPropertyId="curPPID"
+    :warehouseData="warehouseData"
   />
   <el-table
     border
@@ -338,8 +384,9 @@ defineExpose({
           :before-upload="beforeAvatarUpload"
           :auto-upload="false"
           :show-file-list="false"
+          :disabled="prop.type == 'detail'"
         >
-          <el-image v-if="props.row.imageUrl" :src="props.row.imageUrl" class="avatar" />
+          <el-image v-if="props.row.imageUrl" :src="API_URL + props.row.imageUrl" class="avatar" />
           <el-button :disabled="prop.type == 'detail'"
             ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
           >
@@ -351,7 +398,7 @@ defineExpose({
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)" :disabled="prop.type == 'detail'">
+            <el-button text @click="openDialogWarehouse(props)">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>

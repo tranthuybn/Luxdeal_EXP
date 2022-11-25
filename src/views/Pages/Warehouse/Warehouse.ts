@@ -1,6 +1,5 @@
 import {
   filterService,
-  filterIventory,
   filterDeposit,
   filterLocation,
   filterWarehouseManagement,
@@ -248,12 +247,14 @@ export const wareHouseContainer = [
   {
     field: 'category',
     label: t('reuse.category'),
-    minWidth: '100',
+    minWidth: '250',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
-        'span',
+        'ul',
         // assuming `items` is a ref with array value
-        `${row.ProductType1Name}/${row.ProductTypeName}`
+        row.transactionDetails.map((item) => {
+          return h('li', `${item.productType1Name}/${item.productTypeName}`)
+        })
       )
     }
   },
@@ -265,8 +266,16 @@ export const wareHouseContainer = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.transactionDetails.map(({ id, warehouseName }) => {
-          return h('li', { key: id }, warehouseName)
+        row.transactionDetails.map((item) => {
+          if (row.transactionType == 1) {
+            return h('li', item.toWarehouseName)
+          }
+          if (row.transactionType == 2) {
+            return h('li', item.fromWarehouseName)
+          }
+          if (row.transactionType == 3) {
+            return h('li', `${item.fromWarehouseName}->${item.toWarehouseName}`)
+          }
         })
       )
     }
@@ -280,8 +289,16 @@ export const wareHouseContainer = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.transactionDetails.map(({ id, locationName }) => {
-          return h('li', { key: id }, locationName)
+        row.transactionDetails.map((item) => {
+          if (row.transactionType == 1) {
+            return h('li', item.toLocationName)
+          }
+          if (row.transactionType == 2) {
+            return h('li', item.fromLocationName)
+          }
+          if (row.transactionType == 3) {
+            return h('li', `${item.fromLocationName}->${item.toLocationName}`)
+          }
         })
       )
     }

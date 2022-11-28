@@ -168,12 +168,12 @@ const beforeRemove = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      console.log('uploadFile', uploadFile?.uid)
+      // console.log('uploadFile', uploadFile?.uid)
       let imageRemove = uploadFile?.uid
-      console.log('imageRemove')
+      // console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      console.log('FileDeleteIds', FileDeleteIds)
+      // console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -893,8 +893,6 @@ const postQuickCustomer = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data) => {
-  console.log('data: ', data)
-
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
@@ -947,7 +945,6 @@ const postData = async () => {
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-    console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
@@ -1012,11 +1009,9 @@ const editData = async () => {
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
-    console.log('debtTable: ', debtTable.value)
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
-    console.log('orderObj: ', orderObj)
     arrayStatusOrder.value = orderObj.status
     arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
@@ -1072,8 +1067,6 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogSalesSlipInfomation.value = true
   else if (num == 2) dialogDepositSlipAdvance.value = true
   else if (num == 3) dialogAccountingEntryAdditional.value = true
@@ -1573,7 +1566,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
+  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1595,14 +1588,14 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
+  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
 // // Thêm mới phiếu đề nghị thanh toán

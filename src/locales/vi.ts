@@ -1691,6 +1691,7 @@ export default {
     inStock: 'Đang tồn kho',
     outOfStockInventory: 'Hết tồn kho',
     exporting: 'Đang xuất kho',
-    importing: 'Đang chờ nhập kho'
+    importing: 'Đang chờ nhập kho',
+    initializeAndWrite: 'Khởi tạo & ghi số'
   }
 }

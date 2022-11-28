@@ -1566,6 +1566,13 @@ export default {
     lotList: 'Lot list',
     iventoryy: 'Iventory',
     importToSelectedLot: 'Import to selected lot',
-    createNewLot: 'Create new lot'
+    createNewLot: 'Create new lot',
+    import: 'Import',
+    export: 'Export',
+    inStock: 'In stock',
+    outOfStockInventory: 'Out of stock',
+    exporting: 'Exporting',
+    importing: 'Importing',
+    initializeAndWrite: 'I1nitialize & Write'
   }
 }

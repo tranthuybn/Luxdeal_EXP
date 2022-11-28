@@ -219,6 +219,7 @@ onBeforeMount(async () => await callApiForData())
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('reuse.importTicketStatus') }}</label>
+          <span class="bg-gray-300">{{ t('reuse.initializeAndWrite') }}</span>
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{

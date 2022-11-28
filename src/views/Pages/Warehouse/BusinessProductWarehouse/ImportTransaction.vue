@@ -57,7 +57,6 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const addTransaction = async () => {
-  console.log('checkValueOfTable', productWarehouseRef.value?.checkValueOfTable())
   if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
     let uploadData: any = {}
     uploadData.type = 1
@@ -138,7 +137,7 @@ const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
 const testReactive = ref('test')
 const callApiForData = async () => {
-  if (id.value !== 0) {
+  if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
     const res = await getWareHouseTransactionList({ Id: id.value })
     if (res) {
@@ -164,7 +163,6 @@ const callApiForData = async () => {
       }))
       testReactive.value = 'success'
     }
-    console.log('ticketData.value', ticketData.value, 'productData.value', productData.value)
   } else {
     type.value = 'add'
   }

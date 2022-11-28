@@ -156,7 +156,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -168,12 +168,12 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      console.log('uploadFile', uploadFile?.uid)
+      // console.log('uploadFile', uploadFile?.uid)
       let imageRemove = uploadFile?.uid
-      console.log('imageRemove')
+      // console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      console.log('FileDeleteIds', FileDeleteIds)
+      // console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -310,6 +310,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   paymentType: '',
   warehouseId: 0
 })
+
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 interface historyTableType {
@@ -388,6 +389,9 @@ const callApiCity = async () => {
 }
 
 const CityChange = async (value) => {
+  valueDistrict.value = ''
+  valueCommune.value = ''
+  enterdetailAddress.value = ''
   district.value = await getDistrict(value)
 }
 
@@ -419,29 +423,29 @@ let infoCompany = reactive({
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
+// let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
-        code: customer.code,
-        label: customer.isOrganization
-          ? customer.name + ' | MST ' + customer.taxCode
-          : customer.name + ' | ' + customer.phonenumber,
-        address: customer.address,
-        name: customer.name,
-        value: customer.id.toString(),
-        isOrganization: customer.isOrganization,
-        taxCode: customer.taxCode,
-        phone: customer.phonenumber,
-        email: customer.email,
-        id: customer.id.toString()
-      }))
-    }
+  // if (optionCallCustomerAPi == 0) {
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const getCustomerResult = res.data
+  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id.toString(),
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id.toString()
+    }))
   }
-  optionCallCustomerAPi++
+  // }
+  // optionCallCustomerAPi++
 }
 
 // Call api danh sách sản phẩm
@@ -500,6 +504,11 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
   scope.row.price = Number(obj.price)
+
+  if (scope.$index == ListOfProductsForSale.value.length - 1) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+  autoCalculateOrder()
 }
 
 const updatePrice = (_value, obj, scope) => {
@@ -528,9 +537,9 @@ const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((product) => ({
-      label: product.name,
-      value: product.id
+    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
+      label: collaborator.name,
+      value: collaborator.id
     }))
   }
   optionCallCollaborators++
@@ -685,9 +694,11 @@ let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
 const autoCalculateOrder = async () => {
+  let newTable = ref<Array<ListOfProductsForSaleType>>([])
   if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    ListOfProductsForSale.value.pop()
-  tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
+    newTable.value = [...ListOfProductsForSale.value]
+  newTable.value.splice(newTable.value.length - 1)
+  tableOrderDetail.value = newTable.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: parseInt(e.quantity),
     accessory: e.accessory,
@@ -703,7 +714,7 @@ const autoCalculateOrder = async () => {
     orderDetail: tableOrderDetail.value
   }
   const res = await getTotalOrder(payload)
-  for (let i = 0; i < ListOfProductsForSale.value.length - 1; i++) {
+  for (let i = 0; i < newTable.value.length; i++) {
     ListOfProductsForSale.value[i].finalPrice = res[i].totalPrice
   }
   totalPriceOrder.value = res.reduce((_total, e) => {
@@ -716,21 +727,6 @@ const autoCalculateOrder = async () => {
   }, 0)
 }
 
-const forceRemove = ref(false)
-//add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1],
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
 watch(
   () => checkValidate.value,
   () => {
@@ -744,24 +740,20 @@ watch(
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
 let autoChangeProvince = ref()
-watch(
-  () => enterdetailAddress.value,
-  () => {
-    if (enterdetailAddress.value && district.value && ward.value) {
-      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
-      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
-      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
-      customerAddress.value =
-        enterdetailAddress.value +
-        ', ' +
-        autoChangeCommune.value.label +
-        ', ' +
-        autoChangeDistrict.value.label +
-        ', ' +
-        autoChangeProvince.value.label
-    }
-  }
-)
+
+const autoChangeAddress = () => {
+  autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
+  autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
+  autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
+  customerAddress.value =
+    enterdetailAddress.value +
+    ', ' +
+    autoChangeCommune.value.label +
+    ', ' +
+    autoChangeDistrict.value.label +
+    ', ' +
+    autoChangeProvince.value.label
+}
 
 const inputDeposit = ref(0)
 
@@ -901,8 +893,6 @@ const postQuickCustomer = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data) => {
-  console.log('data: ', data)
-
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
@@ -935,7 +925,6 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const { push } = useRouter()
 const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
@@ -956,7 +945,6 @@ const postData = async () => {
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-    console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
@@ -978,18 +966,16 @@ const postData = async () => {
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewOrderList(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name) }
+        })
+      })
       .catch(() =>
         ElNotification({
           message: t('reuse.addFail'),
@@ -1023,23 +1009,23 @@ const editData = async () => {
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
-    console.log('debtTable: ', debtTable.value)
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
     arrayStatusOrder.value = orderObj.status
     arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-    console.log('arrayStatusOrder: ', arrayStatusOrder.value)
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaboratorCode
+      ruleForm.collaborators = orderObj.collaborator.id
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      totalPriceOrder.value = orderObj.totalPrice
+      totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value.length > 0)
@@ -1051,12 +1037,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1081,11 +1067,9 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogSalesSlipInfomation.value = true
-  if (num == 2) dialogDepositSlipAdvance.value = true
-  if (num == 3) dialogAccountingEntryAdditional.value = true
+  else if (num == 2) dialogDepositSlipAdvance.value = true
+  else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
 // const dataTablePrint = reactive<TableColumn[]>([
@@ -1582,7 +1566,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
+  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1604,14 +1588,14 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
+  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
 // // Thêm mới phiếu đề nghị thanh toán
@@ -1696,6 +1680,7 @@ const postReturnRequest = async () => {
     details: tableReturnPost.value
   }
   await createReturnRequest(payload)
+  getReturnRequestTable()
 }
 
 const getReceiptCode = async () => {
@@ -1748,7 +1733,7 @@ onBeforeMount(async () => {
   await callApiProductList()
   callApiCity()
 
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
@@ -1977,6 +1962,7 @@ onMounted(async () => {
                 () => {
                   dialogAddQuick = false
                   createQuickCustomer()
+                  callCustomersApi()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3290,9 +3276,17 @@ onMounted(async () => {
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="dialogFormVisible = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              type="primary"
+              @click="
+                () => {
+                  autoChangeAddress()
+                  dialogFormVisible = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -3897,7 +3891,6 @@ onMounted(async () => {
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-                @change="autoCalculateOrder"
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>

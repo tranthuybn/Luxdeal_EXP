@@ -80,18 +80,14 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
-}
+const handleRemove = (file: UploadFile) => {}
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
 
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
-}
+const handleDownload = (file: UploadFile) => {}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -381,9 +377,7 @@ let infoCompany = reactive({
   email: ''
 })
 
-const productAttributeValue = (data) => {
-  console.log('data checked', data)
-}
+const productAttributeValue = (data) => {}
 
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -546,6 +540,11 @@ const handleCurrentChange = (val: undefined) => {
   checkPromo.value = true
 }
 
+const dialogPaymentVoucher = ref(false)
+const dialogIPRForm = ref(false)
+const valueProvince = ref('')
+const valueCommune = ref('')
+
 const dialogexaminationContentSpa = ref(false)
 
 const changeRowPromo = () => {
@@ -701,8 +700,6 @@ const addLastIndexSellTable = () => {
 watch(
   () => ListOfProductsForSale,
   (...value) => {
-    console.log('Giá trị lựa chọn:', value)
-
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       forceRemove.value == false &&
@@ -750,27 +747,6 @@ const postData = async () => {
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
 
-    // const productPayment = JSON.stringify([
-    //   {
-    //     ProductPropertyId: 2,
-    //     Quantity: 1,
-    //     ProductPrice: 10000,
-    //     SoldPrice: 10000,
-    //     WarehouseId: 1,
-    //     SpaServiceIds: '47,48',
-    //     Accessory: 'Accessory1'
-    //   },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 10000,
-    //     SoldPrice: 10000,
-    //     WarehouseId: 1,
-    //     SpaServiceIds: '47,48',
-    //     Accessory: 'Accessory2'
-    //   }
-    // ])
-    console.log('productPayment: ', productPayment)
     const payload = {
       ServiceType: 5,
       OrderCode: ruleForm.orderCode,
@@ -791,7 +767,6 @@ const postData = async () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    console.log('postData', payload)
     await addNewSpaOrders(formDataPayLoad)
       .then(
         () =>
@@ -890,17 +865,13 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
   await formEl2.validate((valid, fields) => {
     if (valid) {
       checkValidateForm.value = true
-      console.log('submit!')
     } else {
-      console.log('error submit!', fields)
     }
   })
 }
@@ -1027,11 +998,8 @@ const postQuickCustomer = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data) => {
-  console.log('data: ', data)
-
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
   // quickProductName.value = dataSelectedObj.name
-  console.log('dataSelectedObj: ', dataSelectedObj)
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1090,23 +1058,18 @@ function printPage(id: string, { url, title, w, h }) {
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  // const WinPrint = window.open(
-  //   '',
-  //   '',
-  //   'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  // )
-  // WinPrint?.document.write(`<!DOCTYPE html>
-  //               <html>
-  //                 <head>
-  //                   ${stylesHtml}
-  //                 </head>
-  //                 <body style="overflow-y: scroll">
-  //                   ${prtHtml}
-  //                 </body>
-  //               </html>`)
 
   //get content need to print
-  const printContents = document.getElementById(id)?.innerHTML
+  const child = document.getElementById('main-content')
+  const printContents = document.getElementById(id) ?? null
+  if (printContents) {
+    if (child) printContents.removeChild(child)
+    const tempNode = document.createElement('p')
+    tempNode.id = 'main-content'
+    tempNode.innerHTML = editor.value
+    printContents?.appendChild(tempNode)
+  }
+
   // open new window at the center of screen
   const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
   const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
@@ -1141,7 +1104,8 @@ function printPage(id: string, { url, title, w, h }) {
                     ${stylesHtml}
                   </head>
                   <body>
-                    ${printContents}
+                    ${printContents?.innerHTML}
+
                   </body>
                 </html>`)
 
@@ -1179,13 +1143,7 @@ let formDetailPaymentReceipt = ref()
 // Lấy chi tiết phiếu thu chi
 const getDetailPayment = () => {
   openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
-
-const dialogPaymentVoucher = ref(false)
-const dialogIPRForm = ref(false)
-const valueProvince = ref('')
-const valueCommune = ref('')
 
 // Thông tin phiếu bán hàng
 const nameDialog = ref('')
@@ -1463,7 +1421,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
 }
 
 // Thêm mã phiếu thu vào debtTable
@@ -1540,7 +1497,6 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
 }
 
 // total order
@@ -1604,7 +1560,6 @@ const editData = async () => {
 let tableSalesSlip = ref()
 let formAccountingId = ref()
 const getAccountingEntry = async (index, num) => {
-  console.log('num,index:', num, index)
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
@@ -1678,6 +1633,30 @@ const getFormReceipts = () => {
     })
   }
 }
+const editor = ref()
+
+// change address
+let autoChangeCommune = ref()
+let autoChangeDistrict = ref()
+let autoChangeProvince = ref()
+watch(
+  () => enterdetailAddress.value,
+  () => {
+    if (enterdetailAddress.value && district.value && ward.value) {
+      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
+      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
+      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
+      customerAddress.value =
+        enterdetailAddress.value +
+        ', ' +
+        autoChangeCommune.value.label +
+        ', ' +
+        autoChangeDistrict.value.label +
+        ', ' +
+        autoChangeProvince.value.label
+    }
+  }
+)
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -1762,11 +1741,6 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
-      <div id="IPRFormPrint">
-        <slot>
-          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
-        </slot>
-      </div>
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
         v-model="dialogAddQuick"
@@ -3039,11 +3013,11 @@ onMounted(async () => {
       <!-- phieu in -->
       <div id="billSpa">
         <slot>
-          <billSpaInspection />
+          <billSpaInspection :dataEditor="editor" />
         </slot>
       </div>
 
-      <!-- dialog In phiếu spa -->
+      <!-- dialog In Phiếu thăm khám sản phẩm" -->
       <el-dialog
         v-model="dialogPrinBillSpa"
         title="Phiếu thăm khám sản phẩm"
@@ -3070,7 +3044,7 @@ onMounted(async () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billSpaInspection />
+              <billSpaInspection :dataEditor="editor" />
             </slot>
           </div>
         </div>
@@ -3091,16 +3065,22 @@ onMounted(async () => {
         </div>
         <hr />
 
-        <div class="content mt-2">
+        <div class="content mt-2 font-normal">
           <p class="title-content w-[20%] my-2 font-normal"> Nội dung </p>
-          <div class="ck-editer"> <ckEditor /> </div>
+          <div class="ck-editer"> <ckEditor v-model="editor" /> </div>
         </div>
 
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="primary" @click="dialogexaminationContentSpa = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  dialogexaminationContentSpa = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button @click="dialogexaminationContentSpa = false">{{
               t('reuse.exit')
             }}</el-button>

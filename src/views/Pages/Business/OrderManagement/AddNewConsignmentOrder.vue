@@ -63,18 +63,14 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
-}
+const handleRemove = (file: UploadFile) => {}
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
 
-const handleDownload = (file: UploadFile) => {
-  console.log(file)
-}
+const handleDownload = (file: UploadFile) => {}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -694,8 +690,6 @@ const getOriginSelectOptions = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data: any) => {
-  console.log('data: ', data)
-
   const dataSelectedObj = listProducts.value.find(
     (product: { productPropertyId: any }) => product.productPropertyId == data
   )
@@ -733,9 +727,7 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-const productAttributeValue = (data) => {
-  console.log('data checked', data)
-}
+const productAttributeValue = (data) => {}
 
 const chooseDelivery = [
   {
@@ -1164,7 +1156,6 @@ const postPC = async () => {
 // let formDetailPaymentReceipt = ref()
 // const getDetailPayment = () => {
 //   openReceiptDialog()
-//   console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 // }
 
 // // Thêm mới phiếu đề nghị thanh toán

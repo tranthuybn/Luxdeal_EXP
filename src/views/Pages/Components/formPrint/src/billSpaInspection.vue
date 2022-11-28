@@ -3,9 +3,23 @@ import { ElDivider } from 'element-plus'
 // import { useIcon } from '@/hooks/web/useIcon'
 
 import { useI18n } from '@/hooks/web/useI18n'
+import { ref } from 'vue'
 
 const { t } = useI18n()
 
+const props = defineProps({
+  dataEditor: {
+    type: String,
+    default: ''
+  },
+  titleCategory: {
+    type: String,
+    default: ''
+  }
+})
+
+let dataEditor = ref(props.dataEditor)
+let titleCategory = ref(props.titleCategory)
 // const locateIcon = useIcon({ icon: 'entypo:location' })
 
 // const tableData = [
@@ -58,37 +72,12 @@ const { t } = useI18n()
     </div>
 
     <hr />
+    {{ titleCategory }}
     <h2 class="title-bill-spa font-medium text-2xl py-2">TÚI / VÍ</h2>
     <hr />
+    <div id="content-data"></div>
 
-    <div class="product-status mt-3">
-      <p class="before-product mb-1">MẶT TRƯỚC:</p>
-      <hr />
-    </div>
-
-    <div class="product-status my-2">
-      <p class="before-product mb-1">MẶT SAU:</p>
-      <hr />
-    </div>
-
-    <div class="product-status my-2">
-      <p class="before-product mb-1">HAI BÊN:</p>
-      <hr />
-    </div>
-
-    <div class="product-status my-2">
-      <p class="before-product mb-1">ĐÁY:</p>
-      <hr />
-    </div>
-    <div class="product-status my-2">
-      <p class="before-product mb-1">QUAI:</p>
-      <hr />
-    </div>
-
-    <div class="product-status my-2">
-      <p class="before-product mb-1">DÂY TÚI:</p>
-      <hr />
-    </div>
+    <p v-html="dataEditor"> </p>
   </div>
 </template>
 

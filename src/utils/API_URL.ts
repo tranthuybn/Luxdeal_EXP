@@ -84,11 +84,13 @@ export const ORDER_API = {
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
-  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
+  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
-  GET_NEW_RECEIPT_PAYMENT_REQUEST: '/api/v1/Accountant/CreateANewPaymentRequest'
+  GET_NEW_RECEIPT_PAYMENT_REQUEST: '/api/v1/Accountant/CreateANewPaymentRequest',
+  ADD_ORDER_STRANSACTION: '/api/v1/Accountant/AddAOrderStransaction',
+  GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

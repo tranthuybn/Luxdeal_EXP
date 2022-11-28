@@ -1,5 +1,25 @@
+<script setup lang="ts">
+import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
+
+import { useI18n } from '@/hooks/web/useI18n'
+
+const { t } = useI18n()
+const props = defineProps({
+  dataEdit: {
+    type: Object,
+    default: () => {}
+  },
+  nameDialog: {
+    type: String,
+    default: () => ''
+  }
+})
+
+console.log('dataEdit: ', props.dataEdit)
+</script>
+
 <template>
-  <div class="flex pt-6">
+  <div class="flex pt-6 m-6">
     <div class="basis-4/12">
       <img src="@/assets/imgs/images.png" />
     </div>
@@ -35,10 +55,10 @@
     </div>
   </div>
 
-  <div class="pb-1">
+  <div class="pb-1 m-6">
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
-      <div>Đặng Ngọc Tuyết</div>
+      <div>Đặng Ngọc Tuyết </div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3"
@@ -65,7 +85,7 @@
     </div>
   </div>
 
-  <div class="pb-4">
+  <div class="pb-4 m-6">
     <div class="font-bold text-[16px] pb-5">Bảng kê chi tiết các khoản chi</div>
     <el-table ref="singleTableRef" :data="[]" border style="width: 100%">
       <el-table-column label="Chứng từ" align="center">
@@ -102,15 +122,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ElButton, ElDivider, ElTable, ElTableColumn } from 'element-plus'
-
-import { useI18n } from '@/hooks/web/useI18n'
-
-const { t } = useI18n()
-</script>
-
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+* {
+  font-family: 'Lora', serif;
+  font-weight: 500;
+}
 .el-divider--horizontal {
   margin: 0;
 }

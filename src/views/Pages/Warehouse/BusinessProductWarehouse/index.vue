@@ -8,7 +8,8 @@ const tabs: Array<Tab> = [
     name: 'followinventory',
     label: 'Theo dõi tồn kho',
     api: getWareHouseList,
-    column: wareHouse
+    column: wareHouse,
+    customOperator: 4
   },
   {
     name: 'wareHouse',

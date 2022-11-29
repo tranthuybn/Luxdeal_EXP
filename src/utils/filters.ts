@@ -5,6 +5,12 @@ interface Filter {
   text: string
   value: any
 }
+export const filterLotStatus: Array<Filter> = [
+  { text: t('reuse.inStock'), value: 1 },
+  { text: t('reuse.outOfStockInventory'), value: 2 },
+  { text: t('reuse.exporting'), value: 3 },
+  { text: t('reuse.importing'), value: 4 }
+]
 export const filterPaymentCheckbox: Array<Filter> = [
   { text: t('reuse.alreadyPaid'), value: true },
   { text: t('reuse.notPaid'), value: false }
@@ -30,6 +36,11 @@ export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
   { text: t('reuse.takingCare'), value: 2 },
   { text: t('common.doneLabel'), value: 3 }
+]
+export const filterTransactionType: Array<Filter> = [
+  { text: t('reuse.import'), value: 1 },
+  { text: t('reuse.export'), value: 2 },
+  { text: t('reuse.transfer'), value: 3 }
 ]
 export const filterIventory: Array<Filter> = [
   { text: t('reuse.outOfStock'), value: 0 },
@@ -167,7 +178,8 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.deposit'), value: 2 },
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
-  { text: t('workplace.spa'), value: 5 }
+  { text: t('workplace.spa'), value: 5 },
+  { text: t('reuse.internal'), value: 6 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },

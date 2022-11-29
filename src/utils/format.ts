@@ -17,6 +17,18 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatTransactionType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.import')
+    case 2:
+      return t('reuse.export')
+    case 3:
+      return t('reuse.transfer')
+    default:
+      return ''
+  }
+}
 export const formatRankingCustomer = (val) => {
   switch (val) {
     case 1:
@@ -206,6 +218,18 @@ export const VoucherType = (val) => {
 
 export const dateTimeFormat = (val) => {
   return moment(val).format('DD/MM/YYYY')
+}
+export const formatTransactionStatus = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.waitingConfirm')
+    case 2:
+      return t('reuse.confirmed')
+    case 3:
+      return t('reuse.cancelled')
+    default:
+      return ''
+  }
 }
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'

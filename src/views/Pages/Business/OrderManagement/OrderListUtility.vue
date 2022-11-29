@@ -59,7 +59,8 @@ import {
   getCodePaymentRequest,
   addDNTT,
   addOrderStransaction,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -727,14 +728,14 @@ const autoCalculateOrder = async () => {
   }, 0)
 }
 
-watch(
-  () => checkValidate.value,
-  () => {
-    if (checkValidate.value === true) {
-      postData()
-    }
-  }
-)
+// watch(
+//   () => checkValidate.value,
+//   () => {
+//     if (checkValidate.value === true) {
+//       postData()
+//     }
+//   }
+// )
 
 // change address
 let autoChangeCommune = ref()
@@ -930,6 +931,7 @@ const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file
 
 let orderDetailsTable = reactive([{}])
 
+let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
@@ -965,7 +967,7 @@ const postData = async () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewOrderList(formDataPayLoad)
+    idOrderPost.value = await addNewOrderList(formDataPayLoad)
       .then(() => {
         ElNotification({
           message: t('reuse.addSuccess'),
@@ -983,6 +985,16 @@ const postData = async () => {
         })
       )
   }
+  automaticCouponWareHouse(2)
+}
+
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value.data,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(payload)
 }
 
 // total order

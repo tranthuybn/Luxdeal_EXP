@@ -17,7 +17,7 @@ import {
   ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { PropType, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 
 const { required } = useValidator()
@@ -34,8 +34,24 @@ const props = defineProps({
   productPropertyId: {
     type: Number,
     default: 0
+  },
+  warehouseFormData: {
+    type: Object as PropType<ChooseWarehouse>,
+    default: () => {}
   }
 })
+type ChooseWarehouse = {
+  quantity: number
+  warehouseId: number
+  locationId: number
+  lotId: number
+}
+type ImportWarehouse = {
+  quantity: number
+  warehouseImportId: number
+  locationImportId: number | undefined
+  lotId: number
+}
 const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
@@ -53,7 +69,12 @@ const createNewLot = async () => {
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
-  radioSelected.value == -1
+  warehouseData.value.quantity > totalInventory.value
+    ? ElMessage({
+        message: 'not enough',
+        type: 'warning'
+      })
+    : radioSelected.value == -1
     ? ElMessage({
         message: 'selected row',
         type: 'warning'
@@ -61,7 +82,17 @@ const saveOldLot = () => {
     : emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
-const warehouseForm = reactive({ quantity: 1, warehouseImportId: null, locationImportId: null })
+
+const warehouseForm = reactive<ImportWarehouse>({} as ImportWarehouse)
+watch(
+  () => props.warehouseFormData,
+  () => {
+    warehouseForm.quantity = props.warehouseFormData.quantity
+    warehouseForm.warehouseImportId = props.warehouseFormData.warehouseId
+    warehouseForm.locationImportId = props.warehouseFormData.locationId
+    radioSelected.value = lotData.value.findIndex((lot) => lot.Id == props.warehouseFormData.lotId)
+  }
+)
 const rules = reactive<FormRules>({
   quantity: [required()],
   warehouseImportId: [required()],
@@ -102,19 +133,20 @@ const tempLotData = ref()
 const loadingLot = ref(true)
 const totalInventory = ref(0)
 const changeWarehouseData = async (warehouseId) => {
-  warehouseForm.locationImportId = null
+  warehouseForm.locationImportId = undefined
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
         warehouseId: item.warehouseId,
         locationId: item.locationId,
-        location: item.locationWarehouse,
-        lotCode: item.lotCode,
-        orderType: item.orderServiceType,
+        location: item.locationName,
+        lotCode: item.code,
+        orderType: item.serviceType,
         inventory: item.inventory,
-        unit: item?.productPropertyAttribute[2]?.value,
+        unit: item?.unitName,
         createdAt: item.createdAt
       }))
+      console.log('res:', lotData.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
@@ -131,6 +163,13 @@ const calculateInventory = () => {
     return accumulator + curValue.inventory
   }, 0)
 }
+const calculateQuantity = (scope) => {
+  if (scope.row.inventory >= warehouseForm.quantity) {
+    return warehouseForm.quantity
+  } else {
+    return scope.row.inventory
+  }
+}
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
   const index = lotData.value.findIndex((lot) => lot == row)
@@ -138,7 +177,7 @@ const rowClick = (row, __column, _event) => {
   warehouseData.value.lot = row
 }
 const warehouseData = ref({
-  quantity: 1,
+  quantity: 0,
   warehouse: { value: undefined, label: undefined },
   location: { value: undefined, label: undefined },
   lot: { value: undefined, label: undefined }
@@ -306,7 +345,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         </template></el-table-column
       >
       <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
-      <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180" />
+      <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
+        <template #default="scope">
+          {{ calculateQuantity(scope) }}
+        </template>
+      </el-table-column>
       <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
       <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180" />
     </el-table>

@@ -834,7 +834,7 @@ const adminList = [
             }
           },
           {
-            path: 'warehouse-transaction-1',
+            path: 'warehouse-transaction-1/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction',
             name: 'Inventorymanagement.ListWarehouse.import',
             meta: {
@@ -842,7 +842,7 @@ const adminList = [
             }
           },
           {
-            path: 'warehouse-transaction-2',
+            path: 'warehouse-transaction-2/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction',
             name: 'Inventorymanagement.ListWarehouse.export',
             meta: {
@@ -850,7 +850,7 @@ const adminList = [
             }
           },
           {
-            path: 'warehouse-transaction-3',
+            path: 'warehouse-transaction-3/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction',
             name: 'Inventorymanagement.ListWarehouse.transfer',
             meta: {
@@ -1423,9 +1423,9 @@ const testList: string[] = [
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
   '/inventory-management/business-product-warehouse/inventory-tracking',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-1',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-2',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-3',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-1/:id?',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-2/:id?',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-3/:id?',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
   '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',

@@ -1692,6 +1692,11 @@ export default {
     outOfStockInventory: 'Hết tồn kho',
     exporting: 'Đang xuất kho',
     importing: 'Đang chờ nhập kho',
-    initializeAndWrite: 'Khởi tạo & ghi số'
+    initializeAndWrite: 'Khởi tạo & ghi số',
+    // exchange order
+    returnOrderPrice: 'Đơn giá hoàn',
+    totalReturnMoney: 'Thành tiền hoàn',
+    totalSellMoney: 'Thành tiền bán',
+    totalDiffMoney: 'Thành tiền chênh lệch'
   }
 }

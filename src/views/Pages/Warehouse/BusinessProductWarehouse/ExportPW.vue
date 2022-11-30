@@ -15,7 +15,6 @@ import {
 import type { UploadFile } from 'element-plus'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import ChooseImportWarehouse from './ChooseImportWH.vue'
 import ChooseExportWarehouse from './ChooseExportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { FORM_IMAGES, moneyFormat } from '@/utils/format'
@@ -331,16 +330,8 @@ defineExpose({
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
-  <ChooseImportWarehouse
-    v-if="transactionType == 1"
-    :showDialog="dialogWarehouse"
-    @close-dialog-warehouse="closeDialogWarehouse"
-    :transactionType="transactionType"
-    :productPropertyId="curPPID"
-    :warehouseData="warehouseData"
-  />
   <ChooseExportWarehouse
-    v-else-if="transactionType == 2"
+    v-if="transactionType == 2"
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     @close-dialog="closeDialogExport"

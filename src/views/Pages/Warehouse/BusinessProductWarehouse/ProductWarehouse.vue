@@ -15,7 +15,7 @@ import {
 import type { UploadFile } from 'element-plus'
 import { onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import ChooseWarehouse from './ChooseWarehouse.vue'
+import ChooseWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'

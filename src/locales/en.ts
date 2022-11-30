@@ -805,6 +805,7 @@ export default {
   },
   reuse: {
     accountBank: 'Account bank',
+    exportQuantity: 'Export quantity',
     index: 'Index',
     fix: 'Fix',
     receivedDate: 'Received Date',
@@ -1543,6 +1544,8 @@ export default {
     selectObject: 'Select object',
     importedProductsWareHouse: 'Import products',
     importedProductsExport: 'Export products',
+    productExport: 'Product export',
+    exportToSelectedLot: 'Export to selected lot',
     importedProductsTransfer: 'Transfer products',
     receiptStatus: 'Ticket status',
     productType: 'Product type',
@@ -1566,6 +1569,13 @@ export default {
     lotList: 'Lot list',
     iventoryy: 'Iventory',
     importToSelectedLot: 'Import to selected lot',
-    createNewLot: 'Create new lot'
+    createNewLot: 'Create new lot',
+    import: 'Import',
+    export: 'Export',
+    inStock: 'In stock',
+    outOfStockInventory: 'Out of stock',
+    exporting: 'Exporting',
+    importing: 'Importing',
+    initializeAndWrite: 'I1nitialize & Write'
   }
 }

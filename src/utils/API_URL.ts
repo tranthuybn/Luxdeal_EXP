@@ -117,7 +117,8 @@ export const WAREHOUSE_API = {
   CREATE_LOT_WAREHOUSE_IMAGE: 'api/v1/Warehouse/CreateWarehouseLotImage',
   GET_WAREHOUSE_LOT: 'api/v1/Warehouse/GetWarehouseLot',
   CREATE_WAREHOUSE_LOT: 'api/v1/Warehouse/CreateWarehouseLot',
-  CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually'
+  CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually',
+  CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket'
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'

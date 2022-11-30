@@ -828,6 +828,7 @@ export default {
   },
   reuse: {
     index: 'STT',
+    exportQuantity: 'Số lượng xuất',
     receivedDate: 'Ngày nhận',
     sale: 'Sale',
     customerInfo: 'Thông tin khách hàng',
@@ -1649,11 +1650,13 @@ export default {
     detailTransfer: 'Thông tin phiếu chuyển kho',
     detailWarehouse: 'Thông tin phiếu nhập kho',
     profileExport: 'Thông tin chi tiết phiếu xuất kho',
+    exportToSelectedLot: 'Xuất lot đã chọn',
     detailExport: 'Thông tin phiếu xuất kho',
     petitioner: 'Người yêu cầu',
     selectObject: 'Chọn đối tượng',
     importedProductsWareHouse: 'Sản phẩm nhập kho',
     importedProductsExport: 'Sản phẩm nhập kho',
+    productExport: 'Sản phẩm xuất kho',
     importedProductsTransfer: 'Sản phẩm chuyển kho',
     receiptStatus: 'Trạng thái phiếu nhập kho',
     productType: 'Loại hình sản phẩm',
@@ -1685,6 +1688,13 @@ export default {
     lotList: 'Danh sách lot',
     iventoryy: 'Tồn kho',
     importToSelectedLot: 'Nhập vào lot đã chọn',
-    createNewLot: 'Tạo lot mới'
+    createNewLot: 'Tạo lot mới',
+    import: 'Nhập kho',
+    export: 'Chuyển kho',
+    inStock: 'Đang tồn kho',
+    outOfStockInventory: 'Hết tồn kho',
+    exporting: 'Đang xuất kho',
+    importing: 'Đang chờ nhập kho',
+    initializeAndWrite: 'Khởi tạo & ghi số'
   }
 }

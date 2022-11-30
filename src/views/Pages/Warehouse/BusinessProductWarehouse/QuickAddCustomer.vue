@@ -10,13 +10,14 @@ import {
   ElInput,
   ElDialog,
   ElNotification,
-  ElForm
+  ElForm,
+  ElFormItem
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 
-const { required } = useValidator()
+const { required, ValidService } = useValidator()
 const { t } = useI18n()
 defineProps({
   showDialog: {
@@ -25,7 +26,6 @@ defineProps({
   }
 })
 const emit = defineEmits(['close-dialog'])
-const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
@@ -36,7 +36,6 @@ const optionsClassify = [
     label: t('formDemo.individual')
   }
 ]
-const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
     value: 1,
@@ -51,49 +50,79 @@ const optionsCustomer = [
     label: t('formDemo.joint')
   }
 ]
-const addQuickCustomerName = ref()
-const quickTaxCode = ref()
-const quickRepresentative = ref()
-const quickPhoneNumber = ref()
-const quickEmail = ref()
 
 const customerId = ref(0)
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
-  const payload = {
-    IsOrganization: valueClassify.value,
-    Name: addQuickCustomerName.value,
-    TaxCode: quickTaxCode.value,
-    Representative: quickRepresentative.value,
-    Phonenumber: quickPhoneNumber.value,
-    Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
-    CustomerType: valueSelectCustomer.value
-  }
-  const formCustomerPayLoad = FORM_IMAGES(payload)
-  await addQuickCustomer(formCustomerPayLoad)
-    .then((res) => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      }),
-        (customerId.value = res.data)
-    })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+  await customerFormRef.value?.validate(async (valid) => {
+    if (valid) {
+      const payload = {
+        IsOrganization: valueClassify.value,
+        Name: customerData.value.addQuickCustomerName,
+        TaxCode: customerData.value.quickTaxCode,
+        Representative: customerData.value.quickRepresentative,
+        Phonenumber: customerData.value.quickPhoneNumber,
+        Email: customerData.value.quickEmail,
+        DistrictId: 1,
+        WardId: 1,
+        Address: 1,
+        CustomerType: customerData.value.valueSelectCustomer
+      }
+      await addQuickCustomer(FORM_IMAGES(payload))
+        .then((res) => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            (customerId.value = res?.data)
+        })
+        .catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'error'
+          })
+        })
+        .finally(() => closeDialogAfterAdd())
+    } else {
+      console.log('invalid')
+    }
+  })
 }
-const closeDialog = () => {
+const exitDialog = () => {
+  emit('close-dialog', null)
+}
+const closeDialogAfterAdd = () => {
   emit('close-dialog', customerId.value)
 }
-const customerData = ref()
-const rules = reactive<FormRules>({ companyName: [required()] })
-const ruleFormRef = ref<FormInstance>()
+const valueClassify = ref(false)
+const customerData = ref({
+  valueSelectCustomer: 1,
+  addQuickCustomerName: '',
+  quickTaxCode: '',
+  quickRepresentative: '',
+  quickPhoneNumber: '',
+  quickEmail: ''
+})
+const rules = reactive<FormRules>({
+  quickTaxCode: [required()],
+  quickEmail: [ValidService.checkEmail],
+  link: [ValidService.checkLink],
+  quickPhoneNumber: [
+    required(),
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
+    ValidService.checkPhone
+  ],
+  addQuickCustomerName: [required()]
+})
+const customerFormRef = ref<FormInstance>()
 </script>
 <template>
   <el-dialog
@@ -101,164 +130,129 @@ const ruleFormRef = ref<FormInstance>()
     width="40%"
     align-center
     :title="t('formDemo.QuicklyAddCustomers')"
-    @close="closeDialog"
+    @close="exitDialog"
   >
-    <el-form ref="ruleFormRef" :model="customerData" :rules="rules" label-width="120px" status-icon>
+    <el-form
+      ref="customerFormRef"
+      :model="customerData"
+      :rules="rules"
+      label-width="120px"
+      status-icon
+    >
       <div v-if="valueClassify == true">
         <el-divider />
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right max-w-[162.73px]"
-              >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-            >
-            <div class="w-[80%] flex gap-2">
-              <div class="w-[50%] fix-full-width">
-                <el-select v-model="valueClassify" placeholder="Select">
-                  <el-option
-                    v-for="item in optionsClassify"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </div>
-              <div class="w-[50%] fix-full-width">
-                <el-select v-model="valueSelectCustomer" placeholder="Select">
-                  <el-option
-                    v-for="item in optionsCustomer"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="addQuickCustomerName"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterCompanyName')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickTaxCode"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterTaxCode')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-            <el-input
-              v-model="quickRepresentative"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterRepresentative')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickPhoneNumber"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterPhoneNumber')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-            <el-input
-              v-model="quickEmail"
-              style="width: 100%"
-              :placeholder="`${t('formDemo.enterEmail')}`"
-            />
-          </div>
+        <div class="flex">
+          <el-form-item :label="t('formDemo.classify')" prop="valueClassify">
+            <el-select v-model="valueClassify" placeholder="Select">
+              <el-option
+                v-for="item in optionsClassify"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item prop="valueSelectCustomer">
+            <el-select v-model="customerData.valueSelectCustomer" placeholder="Select">
+              <el-option
+                v-for="item in optionsCustomer"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
         </div>
+        <el-form-item :label="t('formDemo.companyName')" prop="addQuickCustomerName">
+          <el-input
+            v-model="customerData.addQuickCustomerName"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterCompanyName')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('formDemo.taxCode')" prop="quickTaxCode">
+          <el-input
+            v-model="customerData.quickTaxCode"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterTaxCode')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('formDemo.representative')" prop="quickRepresentative">
+          <el-input
+            v-model="customerData.quickRepresentative"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterRepresentative')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
+          <el-input
+            v-model="customerData.quickPhoneNumber"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterPhoneNumber')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('reuse.email')" prop="quickEmail">
+          <el-input
+            v-model="customerData.quickEmail"
+            style="width: 100%"
+            :placeholder="`${t('formDemo.enterEmail')}`"
+          />
+        </el-form-item>
       </div>
       <div v-else>
         <el-divider />
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right max-w-[162.73px]"
-              >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-            >
-            <div class="w-[80%] flex gap-2">
-              <div class="w-[50%] fix-full-width">
-                <el-select v-model="valueClassify" placeholder="Select">
-                  <el-option
-                    v-for="item in optionsClassify"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </div>
-              <div class="w-[50%] fix-full-width">
-                <el-select v-model="valueSelectCustomer" placeholder="Select">
-                  <el-option
-                    v-for="item in optionsCustomer"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="addQuickCustomerName"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterCustomerName')"
-            />
-          </div>
-
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickPhoneNumber"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterPhoneNumber')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-            <el-input
-              v-model="quickEmail"
-              style="width: 100%"
-              :placeholder="t('formDemo.enterEmail')"
-            />
-          </div>
+        <div class="flex">
+          <el-form-item :label="t('formDemo.classify')" prop="valueClassify">
+            <el-select v-model="valueClassify" placeholder="Select">
+              <el-option
+                v-for="item in optionsClassify"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item prop="valueSelectCustomer">
+            <el-select v-model="customerData.valueSelectCustomer" placeholder="Select">
+              <el-option
+                v-for="item in optionsCustomer"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
         </div>
+        <el-form-item :label="t('reuse.customerName')" prop="addQuickCustomerName">
+          <el-input
+            v-model="customerData.addQuickCustomerName"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterCustomerName')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
+          <el-input
+            v-model="customerData.quickPhoneNumber"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterPhoneNumber')"
+          />
+        </el-form-item>
+        <el-form-item :label="t('reuse.email')" prop="quickEmail">
+          <el-input
+            v-model="customerData.quickEmail"
+            style="width: 100%"
+            :placeholder="t('formDemo.enterEmail')"
+          />
+        </el-form-item>
       </div>
     </el-form>
+
     <template #footer>
       <span class="dialog-footer">
-        <el-button
-          type="primary"
-          class="w-[150px]"
-          @click.stop.prevent="
-            () => {
-              createQuickCustomer()
-              closeDialog()
-            }
-          "
-          >{{ t('reuse.save') }}</el-button
-        >
-        <el-button class="w-[150px]" @click.stop.prevent="closeDialog">{{
+        <el-button type="primary" class="w-[150px]" @click="createQuickCustomer">{{
+          t('reuse.save')
+        }}</el-button>
+        <el-button class="w-[150px]" @click.stop.prevent="exitDialog">{{
           t('reuse.exit')
         }}</el-button>
       </span>

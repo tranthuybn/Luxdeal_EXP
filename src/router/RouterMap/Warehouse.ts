@@ -32,7 +32,7 @@ export default {
           }
         },
         {
-          path: 'warehouse-transaction-1',
+          path: 'warehouse-transaction-1/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.import',
@@ -41,7 +41,7 @@ export default {
           }
         },
         {
-          path: 'warehouse-transaction-2',
+          path: 'warehouse-transaction-2/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.export',
@@ -50,7 +50,7 @@ export default {
           }
         },
         {
-          path: 'warehouse-transaction-3',
+          path: 'warehouse-transaction-3/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.transfer',

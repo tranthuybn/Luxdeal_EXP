@@ -3277,9 +3277,9 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Thông tin trả hàng hết hạn -->
-      <ReturnOrder :showDialog="dialogReturnExpired" :orderData="returnOrderData" />
+      <ReturnOrder :showDialog="true" :orderData="returnOrderData" />
       <el-dialog
-        v-model="dialogReturnExpired"
+        :model-Value="false"
         class="font-bold"
         :title="t('formDemo.infoReturnAheadOfTime')"
         width="40%"

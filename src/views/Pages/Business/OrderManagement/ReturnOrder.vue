@@ -2,6 +2,7 @@
 import { ElDivider, ElDialog, ElTable, ElTableColumn } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -92,7 +93,11 @@ console.log('orderData?', props.orderData)
       <el-table :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+        <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+          <template #default="scope">
+            <CurrencyInputComponent v-model="scope.row.quantity" />
+          </template>
+        </el-table-column>
         <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')">
           <template #default="scope">
             <div class="text-right">{{ scope.row.price }}</div>

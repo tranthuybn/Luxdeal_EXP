@@ -1263,15 +1263,16 @@ const getReturnRequestTable = async () => {
 //   console.log('updateTableReturnRequest: ')
 // }
 
-const tableProductInformationExportChange = [
+const tableProductInformationExportChange = ref([
   {
+    productPropertyId: 0,
     commodityName: '',
     accessory: '',
     quantity: 1,
-    unitPrices: 'đ',
-    intoMoney: 'đ'
+    unitPrices: 0,
+    intoMoney: 0
   }
-]
+])
 
 const alreadyPaidForTt = ref(false)
 
@@ -1668,11 +1669,20 @@ const postOrderStransaction = async (index: number) => {
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: e.quantity,
-    acessory: e.accessory ?? '2'
-  }))
+  tableReturnPost.value.push(
+    tableReturnFullyIntegrated.value.map((e) => ({
+      productPropertyId: parseInt(e.productPropertyId),
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
+  tableReturnPost.value.push(
+    tableProductInformationExportChange.value.map((e) => ({
+      productPropertyId: e.productPropertyId,
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
@@ -1746,23 +1756,29 @@ onMounted(async () => {
 })
 
 //Truong Ngo
-const calculateMoney = (quantity, prices, table) => {
-  let price = quantity * prices
-  switch (table) {
-    case 1:
-      refundPrice.value += price
-      return
-    case 2:
-      exportPrice.value += price
-      return
-  }
-  return price
-}
-const refundPrice = ref(0)
-const exportPrice = ref(0)
+const refundPrice = computed(() => {
+  return getRefundPrice()
+})
+const exportPrice = computed(() => {
+  return getExportPrice()
+})
 const exchangePrice = computed(() => {
   return refundPrice.value - exportPrice.value
 })
+const getRefundPrice = () => {
+  let price = 0
+  tableReturnFullyIntegrated.value.map((item) => {
+    item.intoUnitPrice !== undefined ? (price += item.intoUnitPrice) : ''
+  })
+  return price
+}
+const getExportPrice = () => {
+  let money = 0
+  tableProductInformationExportChange.value.map((item) => {
+    money += item.intoMoney
+  })
+  return money
+}
 </script>
 
 <template>
@@ -3762,7 +3778,9 @@ const exchangePrice = computed(() => {
             <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{
-                  moneyFormat(calculateMoney(props.row.quantity, props.row.refundUnitPrice, 1))
+                  moneyFormat(
+                    (props.row.intoUnitPrice = props.row.quantity * props.row.refundUnitPrice)
+                  )
                 }}</div>
               </template>
             </el-table-column>
@@ -3821,7 +3839,7 @@ const exchangePrice = computed(() => {
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{
-                  moneyFormat(calculateMoney(props.row.quantity, props.row.unitPrices, 2))
+                  moneyFormat((props.row.intoMoney = props.row.quantity * props.row.unitPrices))
                 }}</div>
               </template>
             </el-table-column>

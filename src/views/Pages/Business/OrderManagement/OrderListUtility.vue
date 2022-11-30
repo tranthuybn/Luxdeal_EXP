@@ -3784,7 +3784,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <el-input v-model="props.row.refundUnitPrice" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.refundUnitPrice" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
@@ -3845,7 +3845,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <el-input v-model="props.row.unitPrices" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrices" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">

@@ -283,7 +283,7 @@ interface tableRentalProduct {
   accessory: string
   fromDate: string
   toDate: string
-  quantity: string
+  quantity: Number
   hirePrice: string
   depositePrice: string
   warehouseId: number
@@ -300,7 +300,7 @@ const productForSale = reactive<tableRentalProduct>({
   accessory: '',
   fromDate: '',
   toDate: '',
-  quantity: '1',
+  quantity: 1,
   hirePrice: '',
   depositePrice: '',
   warehouseId: 0,
@@ -589,7 +589,7 @@ const changeAddressCustomer = (data) => {
 
 interface tableOrderDetailType {
   productPropertyId: number
-  quantity: number
+  quantity: Number
   accessory: string | undefined
   spaServiceIds: string
 }
@@ -602,7 +602,7 @@ const autoCalculateOrder = async () => {
   if (tableData.value[tableData.value.length - 1].productPropertyId == '') tableData.value.pop()
   tableOrderDetail.value = tableData.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
+    quantity: e.quantity,
     accessory: e.accessory,
     spaServiceIds: ''
   }))
@@ -999,13 +999,12 @@ const type = String(router.currentRoute.value.params.type)
 
 let totalOrder = ref(0)
 let customerIdPromo = ref()
-const returnOrderData = ref()
+const rentReturnOrder = ref({} as any)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
-    returnOrderData.value = orderObj
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
@@ -1786,7 +1785,7 @@ let objOrderStransaction = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = tableData.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
-    quantity: parseInt(val.quantity)
+    quantity: val.quantity
   }))
   childrenTable.value.pop()
   codeReturnRequest.value = autoCodeReturnRequest
@@ -1880,6 +1879,19 @@ onBeforeMount(() => {
     codePaymentRequest.value = autoCodePaymentRequest
   }
 })
+
+//TruongNgo
+const setDataForReturnOrder = () => {
+  dialogReturnAheadOfTime.value = true
+  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
+  rentReturnOrder.value.rentalPeriod = ruleForm.rentalPeriod
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.inputReturnReason = inputReturnReason
+  rentReturnOrder.value.tableData = tableData
+}
 </script>
 
 <template>
@@ -3108,7 +3120,13 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Thông tin trả hàng trước hạn -->
-      <el-dialog
+      <ReturnOrder
+        v-model="dialogReturnAheadOfTime"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listProductsTable"
+      />
+
+      <!-- <el-dialog
         v-model="dialogReturnAheadOfTime"
         class="font-bold"
         :title="t('formDemo.infoReturnAheadOfTime')"
@@ -3274,11 +3292,15 @@ onBeforeMount(() => {
             </div>
           </div>
         </template>
-      </el-dialog>
+      </el-dialog> -->
 
       <!-- Thông tin trả hàng hết hạn -->
-      <ReturnOrder :showDialog="true" :orderData="returnOrderData" />
-      <el-dialog
+      <ReturnOrder
+        :showDialog="dialogReturnExpired"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listProductsTable"
+      />
+      <!-- <el-dialog
         :model-Value="false"
         class="font-bold"
         :title="t('formDemo.infoReturnAheadOfTime')"
@@ -3450,7 +3472,7 @@ onBeforeMount(() => {
             </div>
           </div>
         </template>
-      </el-dialog>
+      </el-dialog> -->
 
       <!-- Dialog Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
@@ -4587,7 +4609,7 @@ onBeforeMount(() => {
               @click="
                 () => {
                   statusOrder = 6
-                  dialogReturnAheadOfTime = !dialogReturnAheadOfTime
+                  setDataForReturnOrder()
                   postReturnRequest()
                   addStatusOrder(5)
                   changeStatus(7)

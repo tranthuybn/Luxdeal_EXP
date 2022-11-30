@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ElDivider, ElDialog, ElTable, ElTableColumn } from 'element-plus'
+import { ElDivider, ElDialog, ElTable, ElTableColumn, ElButton, ElInput } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
-import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 
 const { t } = useI18n()
 const props = defineProps({
+  modelValue: Boolean,
   showDialog: {
     type: Boolean,
     default: false
@@ -17,13 +18,40 @@ const props = defineProps({
   orderData: {
     type: Object,
     default: () => {}
+  },
+  listProductsTable: {
+    type: Array<Product>,
+    default: () => [{}]
   }
 })
+const emit = defineEmits(['update:modelValue'])
+type Product = {
+  productCode: string
+  value: Number
+  name: string
+  price: Number
+  productPropertyId: Number
+  productPropertyCode: string
+  hirePrice: Number
+  finalPrice: Number
+  depositePrice: Number
+}
+const updateValue = (value, obj, scope) => {
+  console.log(value, obj, scope)
+}
+const open = () => {
+  emit('update:modelValue', true)
+}
+const close = () => {
+  emit('update:modelValue', false)
+}
 console.log('orderData?', props.orderData)
 </script>
 <template>
   <el-dialog
-    :model-Value="showDialog"
+    :model-Value="modelValue"
+    @open="open"
+    @close="close"
     class="font-bold"
     :title="t('formDemo.infoReturnAheadOfTime')"
     width="40%"
@@ -40,7 +68,7 @@ console.log('orderData?', props.orderData)
           <div class="flex gap-4">
             <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
             <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">{{
-              orderData?.rentalOrderCode
+              orderData?.orderCode
             }}</div>
           </div>
           <div class="flex gap-4">
@@ -90,25 +118,71 @@ console.log('orderData?', props.orderData)
       </div>
     </div>
     <div class="pt-2 pb-2">
-      <el-table :data="orderData?.tableData" border style="width: 100%">
+      <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+        <el-table-column
+          prop="productPropertyName"
+          :label="t('formDemo.commodityName')"
+          width="150"
+        >
+          <template #default="scope">
+            <MultipleOptionsBox
+              :defaultValue="scope.row.productPropertyId"
+              :fields="[
+                t('reuse.productCode'),
+                t('reuse.managementCode'),
+                t('formDemo.productInformation')
+              ]"
+              filterable
+              :items="listProductsTable"
+              valueKey="productPropertyId"
+              labelKey="name"
+              :hiddenKey="['id']"
+              :placeHolder="'Chọn mã sản phẩm'"
+              :clearable="false"
+              @update-value="(value, obj) => updateValue(value, obj, scope)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
+          <template #default="scope">
+            <el-input v-model="scope.row.accessory" />
+          </template>
+        </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
           <template #default="scope">
-            <CurrencyInputComponent v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" />
           </template>
         </el-table-column>
-        <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')">
+        <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <div class="text-right">{{ scope.row.price }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="hirePrice" :label="t('formDemo.rentalFee')">
-          <template #default="scope">
-            <div class="text-right">{{ scope.row.hirePrice }}</div>
+            <el-input v-model="scope.row.hirePrice" />
           </template>
         </el-table-column>
       </el-table>
+      <div class="flex gap-4 pb-2 items-center">
+        <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
+        <div class="flex items-center w-[100%]">
+          <span
+            class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+          ></span>
+          <span class="box dark:text-black">
+            {{ t('reuse.initializeAndWrite') }}
+            <span class="triangle-right"> </span>
+          </span>
+        </div>
+      </div>
     </div>
+
+    <template #footer>
+      <div class="flex justify-between">
+        <div>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="close">{{ t('formDemo.saveRecordDebts') }}</el-button>
+            <el-button @click="close">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </div>
+      </div>
+    </template>
   </el-dialog>
 </template>

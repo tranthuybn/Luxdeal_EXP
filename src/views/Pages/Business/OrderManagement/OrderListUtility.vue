@@ -4728,6 +4728,14 @@ onMounted(async () => {
   width: 100%;
 }
 
+::v-deep(.el-icon svg) {
+  font-size: 20px;
+}
+
+::v-deep(.el-button.is-link) {
+  padding: 20px;
+}
+
 ::v-deep(.el-textarea__inner) {
   box-shadow: none;
   padding: 5px 0;

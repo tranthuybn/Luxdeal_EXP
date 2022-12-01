@@ -976,6 +976,7 @@ const postData = async () => {
   automaticCouponWareHouse(2)
 }
 
+// Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
     OrderId: idOrderPost.value.data,
@@ -1132,7 +1133,6 @@ const callPromoApi = async () => {
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
-  // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
   if (infoCustomerId.value.isOrganization) {
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name

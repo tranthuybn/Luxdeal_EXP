@@ -135,7 +135,6 @@ type ProductWarehouse = {
 }
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
-const testReactive = ref('test')
 const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
@@ -161,7 +160,6 @@ const callApiForData = async () => {
         lot: { value: item?.lotId, label: item.lotCode },
         imageUrl: item?.imageUrl
       }))
-      testReactive.value = 'success'
     }
   } else {
     type.value = 'add'
@@ -215,7 +213,6 @@ onBeforeMount(async () => await callApiForData())
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :testReactive="testReactive"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

@@ -3332,7 +3332,7 @@ onMounted(async () => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="200"
+            min-width="190"
             prop="productPropertyId"
           >
             <template #default="props">
@@ -3383,7 +3383,7 @@ onMounted(async () => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="620"
+            min-width="400"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -3432,9 +3432,20 @@ onMounted(async () => {
 
           <el-table-column :label="`${t('reuse.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
-              <div class="flex-1">{{ t('reuse.sell') }} {{ t('workplace.lease') }}</div>
+              <div class="flex-1 flex flex-col">
+                <p>{{ t('reuse.sell') }} </p>
+                <p>{{ t('workplace.lease') }}</p>
+              </div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer"
                 >+ {{ t('router.business') }}</div
+              >
+            </div>
+          </el-table-column>
+          <el-table-column :label="t('reuse.importWarehouse')" width="200">
+            <div class="flex w-[100%]">
+              <div class="flex-1">Còn hàng</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                >+ {{ t('formDemo.chooseWarehouse') }}</div
               >
             </div>
           </el-table-column>

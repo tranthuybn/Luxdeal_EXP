@@ -80,14 +80,10 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {}
-
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-
-const handleDownload = (file: UploadFile) => {}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -376,8 +372,6 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
-const productAttributeValue = (data) => {}
 
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -699,7 +693,7 @@ const addLastIndexSellTable = () => {
 //add row to the end of table if fill all table
 watch(
   () => ListOfProductsForSale,
-  (...value) => {
+  () => {
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       forceRemove.value == false &&
@@ -731,6 +725,7 @@ const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
 
+const orderIdSpa = ref()
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
@@ -754,20 +749,20 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
-      CustomerId: 5,
+      CustomerId: customerID.value,
       Files: Files,
-      DeliveryOptionId: 1,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
+      Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewSpaOrders(formDataPayLoad)
+    orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
       .then(
         () =>
           ElNotification({
@@ -787,6 +782,16 @@ const postData = async () => {
         })
       )
   }
+  warehouseTranferAuto(3)
+}
+
+const warehouseTranferAuto = async (type) => {
+  const payload = {
+    OrderId: orderIdSpa.value.data,
+    Type: type
+  }
+
+  await apiWarehouseTranfer(payload)
 }
 
 const form = reactive({
@@ -863,12 +868,12 @@ const rules = reactive<FormRules>({
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
     } else {
     }
   })
-  await formEl2.validate((valid, fields) => {
+  await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
@@ -2168,17 +2173,8 @@ onMounted(async () => {
                         >
                           <ElButton :icon="viewIcon" />
                         </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
+                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
+                        <span v-if="!disabled" class="el-upload-list__item-delete">
                           <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
@@ -2983,29 +2979,24 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <!-- <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
-              t('formDemo.printLiquidationContract')
-            }}</el-button> -->
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  class="min-w-42 min-h-11"
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogBillSpaInfomation = false
-                      // addLastIndexTable2()
-                      postOrderStransaction(1)
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button class="min-w-42 min-h-11" @click="dialogBillSpaInfomation = false">{{
-                  t('reuse.exit')
-                }}</el-button>
-              </span>
-            </div>
+          <div>
+            <span class="dialog-footer">
+              <el-button
+                class="min-w-42 min-h-11"
+                type="primary"
+                @click="
+                  () => {
+                    dialogBillSpaInfomation = false
+                    // addLastIndexTable2()
+                    postOrderStransaction(1)
+                  }
+                "
+                >{{ t('formDemo.saveRecordDebts') }}</el-button
+              >
+              <el-button class="min-w-42 min-h-11" @click="dialogBillSpaInfomation = false">{{
+                t('reuse.exit')
+              }}</el-button>
+            </span>
           </div>
         </template>
       </el-dialog>

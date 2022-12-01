@@ -9,6 +9,7 @@ import { getCampaignList, addNewCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES } from '@/utils/format'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -177,18 +178,28 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = async (data) => {
-  console.log('run here', data.tableProductOfCombo)
+  console.log('run here', data.Image.name)
+  let postIdSpaService = ref('')
+  data.tableProductOfCombo.map((val) => {
+    postIdSpaService.value += val.service.toString()
+  })
+  let postSpaTable = data.tableProductOfCombo.map((val) => ({
+    Id: val.id,
+    IsActive: val.isActive,
+    SpaServiceIds: postIdSpaService.value
+  }))
   const payload = {
     Code: data.discountCode,
     Name: data.discountCode,
     Description: data.shortDescription,
     ReducePercent: 1,
-    // CustomerIds: ,
-    ProductPropertyIdJson: JSON.stringify(data.tableProductOfCombo),
-    StartDate: data.date[0],
-    EndDate: data.date[1],
+    CustomerIds: '2,3',
+    ProductPropertyIdJson: JSON.stringify(postSpaTable),
+    StartDate: moment(data.date[0]).format('YYYY-MM-DD'),
+    EndDate: moment(data.date[1]).format('YYYY-MM-DD'),
     CampaignType: 5,
     TargetType: 2,
+    ComboValue: data.spa,
     ServiceType: 1,
     Image: data.Image
   }

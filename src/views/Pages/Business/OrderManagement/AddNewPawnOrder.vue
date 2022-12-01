@@ -858,68 +858,24 @@ const optionsCustomer = [
     label: t('formDemo.customer')
   }
 ]
+let orderDetailsTable = reactive([{}])
+// tạo đơn hàng
+const { push } = useRouter()
 const checkDisabled = ref(false)
-const postData = () => {
-  // let productPayment = reactive<
-  //   Array<{
-  //     productPropertyId: number | string
-  //     quantity: Number
-  //     ProductPrice: Number
-  //     SoldPrice: Number
-  //     warehouseId: Number
-  //     isPaid: Boolean
-  //     accessory: String
-  //   }>
-  // >([])
+const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
-    const productPayment = JSON.stringify([
-      {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory1'
-      },
-      {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory2'
-      }
-    ])
-    // if (ListOfProductsForSale.length > 0) {
-    // ListOfProductsForSale.forEach((element) => {
-    // if (element && Array.isArray(element) && element.length > 0)
-    // element.forEach(() => {
-    // productPayment.push(
-    //   // {
-    //   //   ProductPropertyId: 2,
-    //   //   Quantity: 1,
-    //   //   ProductPrice: 10000,
-    //   //   SoldPrice: 10000,
-    //   //   WarehouseId: 1,
-    //   //   IsPaid: true,
-    //   //   Accessory: 'Accessory1'
-    //   // },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 90000,
-    //     SoldPrice: 80000,
-    //     WarehouseId: 1,
-    //     IsPaid: true,
-    //     Accessory: 'Accessory2'
-    //   }
-    // )
-    // })
-    // })
-    // }
+    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: parseInt(val.quantity),
+      ProductPrice: val.price,
+      SoldPrice: val.finalPrice,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: val.accessory
+    }))
+    orderDetailsTable.pop()
+    const productPayment = JSON.stringify([...orderDetailsTable])
 
     const payload = {
       ServiceType: 4,
@@ -929,18 +885,36 @@ const postData = () => {
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
       CustomerId: 2,
-      DeliveryOptionId: 1,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
+      Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    addNewSpaOrders(formDataPayLoad)
+    await addNewSpaOrders(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 

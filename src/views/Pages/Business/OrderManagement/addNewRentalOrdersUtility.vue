@@ -55,7 +55,8 @@ import {
   getOrderTransaction,
   createReturnRequest,
   getReceiptPaymentVoucher,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -147,7 +148,7 @@ const codeExpenditures = ref()
 const codePaymentRequest = ref()
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
+  // console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
@@ -330,7 +331,6 @@ let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log('val: ', val)
   newTable.value = val
 }
 
@@ -647,7 +647,7 @@ const callApiProductList = async () => {
     PageIndex: pageIndexProducts.value,
     PageSize: 20
   })
-  console.log('res: ', res.data)
+  // console.log('res: ', res.data)
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       productCode: product.code,
@@ -722,6 +722,8 @@ const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
 const { push } = useRouter()
+let idOrderPost = ref()
+
 // tạo đơn hàng
 let postTable = ref()
 const postData = async () => {
@@ -760,7 +762,7 @@ const postData = async () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewOrderList(formDataPayLoad)
+    idOrderPost.value = await addNewOrderList(formDataPayLoad)
       .then(
         () =>
           ElNotification({
@@ -780,6 +782,17 @@ const postData = async () => {
         })
       )
   }
+  automaticCouponWareHouse(2)
+}
+
+// Phiếu xuất kho tự động
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value.data,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(payload)
 }
 
 const hirePeriod = [
@@ -1018,7 +1031,7 @@ const editData = async () => {
       ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.leaseTerm = orderObj.days
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.fromDate]
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1061,7 +1074,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productName = obj.name
   scope.row.price = obj.price
-  console.log('getValueOfSelected')
+  // console.log('getValueOfSelected')
 }
 
 const dialogAddProduct = ref(false)
@@ -1691,7 +1704,7 @@ const getFormReceipts = () => {
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  console.log('res: ', res.data)
+  // console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1727,7 +1740,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
+  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1749,14 +1762,14 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
+  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
 // // Thêm mới phiếu đề nghị thanh toán
@@ -1833,7 +1846,7 @@ const postReturnRequest = async () => {
     acessory: e.accessory ?? '2'
   }))
   tableReturnPost.value.pop()
-  console.log('tableReturnPost: ', tableReturnPost.value)
+  // console.log('tableReturnPost: ', tableReturnPost.value)
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
@@ -1853,8 +1866,8 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  // console.log('tableSalesSlip: ', tableSalesSlip.value)
+  // console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogRentalPaymentInformation.value = true
   if (num == 2) dialogDepositSlip.value = true
   if (num == 3) dialogAccountingEntryAdditional.value = true

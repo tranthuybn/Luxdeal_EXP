@@ -278,6 +278,7 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
+        data.spa = spaMoney.value
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
@@ -841,6 +842,7 @@ const getSpaSelected = (spaServices) => {
     return accumulator + curValue.cost
   }, 0)
 }
+const spaMoney = ref(0)
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -1000,7 +1002,8 @@ const getSpaSelected = (spaServices) => {
                         t('reuse.explainEnterComboSpaMoney')
                       }}</div>
                     </span>
-                    <span><el-input /></span
+                    <!-- <span><el-input v-model="" /></span -->
+                    <span><CurrencyInputComponent v-model="spaMoney" /></span
                   ></div>
                 </div>
               </template>

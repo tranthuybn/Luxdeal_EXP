@@ -12,9 +12,7 @@ import {
   ElOption,
   ElInput,
   ElTable,
-  ElTableColumn,
-  ElRadio,
-  ElMessage
+  ElTableColumn
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { PropType, reactive, ref, watch } from 'vue'
@@ -69,20 +67,20 @@ const createNewLot = async () => {
   }
   emit('close-dialog-warehouse', warehouseData.value)
 }
-const saveOldLot = () => {
-  warehouseData.value.quantity > totalInventory.value
-    ? ElMessage({
-        message: 'not enough',
-        type: 'warning'
-      })
-    : radioSelected.value == -1
-    ? ElMessage({
-        message: 'selected row',
-        type: 'warning'
-      })
-    : emit('close-dialog-warehouse', warehouseData.value)
+const getSelection = () => {
+  const rowSelected = multipleTableRef.value!.getSelectionRows()
+  warehouseData.value.exportLots = rowSelected.map((item) => ({
+    value: item.id,
+    label: item.lotCode,
+    quantity: item.quantity
+  }))
+  console.log('rowSelected', rowSelected, warehouseData.value.exportLots)
 }
-const emit = defineEmits(['close-dialog-warehouse'])
+const saveOldLot = () => {
+  getSelection()
+  emit('close-dialog-warehouse', warehouseData.value)
+}
+const emit = defineEmits(['close-dialog-warehouse', 'close-dialog'])
 
 const warehouseForm = reactive<ImportWarehouse>({} as ImportWarehouse)
 watch(
@@ -138,6 +136,7 @@ const changeWarehouseData = async (warehouseId) => {
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
+        id: item.id,
         warehouseId: item.warehouseId,
         locationId: item.locationId,
         location: item.locationName,
@@ -171,15 +170,20 @@ const calculateQuantity = (scope) => {
     return scope.row.inventory
   }
 }
+
+const multipleSelection = ref()
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
-  const index = lotData.value.findIndex((lot) => lot == row)
-  index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
-  warehouseData.value.lot = row
+  console.log('multipleSelection', multipleSelection.value)
+  multipleSelection.value = row
+  // const index = lotData.value.findIndex((lot) => lot == row)
+  // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
+  // warehouseData.value.lot = row
 }
 const warehouseData = ref({
   quantity: 0,
   warehouse: { value: undefined, label: undefined },
+  exportLots: [{ value: undefined, label: undefined, quantity: undefined }],
   location: { value: undefined, label: undefined },
   lot: { value: undefined, label: undefined }
 })
@@ -193,6 +197,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+console.log(submitForm)
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const closeDialogExport = () => {
+  emit('close-dialog')
+}
 </script>
 <template>
   <el-dialog
@@ -201,7 +210,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     width="65%"
     align-center
     class="z-50"
-    @close="closeDialog"
+    @close="closeDialogExport"
   >
     <template #header>
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
@@ -317,27 +326,18 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     <div>{{ t('reuse.lotList') }}</div>
     <el-table
       :data="lotData"
+      ref="multipleTableRef"
+      @selection-change="rowClick"
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row
       border
-      @row-click="rowClick"
-      ref="singleTableRef"
     >
       <template #append>
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
         <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
       </template>
-      <el-table-column label="" width="70">
-        <template #default="scope">
-          <el-radio
-            v-model="radioSelected"
-            :label="scope.$index"
-            style="color: #fff; margin-right: -25px"
-            ><span></span
-          ></el-radio>
-        </template>
-      </el-table-column>
+      <el-table-column type="selection" width="55" />
       <el-table-column prop="location" :label="t('reuse.location')" width="180" />
       <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
       <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
@@ -346,13 +346,43 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         </template></el-table-column
       >
       <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
-      <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
+      <el-table-column
+        v-if="transactionType == 1"
+        prop="quantity"
+        :label="t('reuse.numberInput')"
+        width="180"
+      >
+        <template #default="scope">
+          {{ calculateQuantity(scope) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-else-if="transactionType == 2"
+        prop="quantity"
+        :label="t('reuse.exportQuantity')"
+        width="180"
+      >
         <template #default="scope">
           {{ calculateQuantity(scope) }}
         </template>
       </el-table-column>
       <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
-      <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180">
+      <el-table-column
+        v-if="transactionType == 1"
+        prop="createdAt"
+        :label="t('reuse.createDate')"
+        width="180"
+      >
+        <template #default="scope">
+          {{ dateTimeFormat(scope.row.createdAt) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-else-if="transactionType == 2"
+        prop="createdAt"
+        :label="t('reuse.firstEntryDate')"
+        width="180"
+      >
         <template #default="scope">
           {{ dateTimeFormat(scope.row.createdAt) }}
         </template>
@@ -365,14 +395,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           type="primary"
           @click="saveOldLot"
           :disabled="lotData == undefined || lotData?.length == 0"
-          >{{ t('reuse.importToSelectedLot') }}
-        </el-button>
-        <el-button
-          class="w-[150px]"
-          type="primary"
-          :disabled="radioSelected !== -1"
-          @click="submitForm(ruleFormRef)"
-          >{{ t('reuse.createNewLot') }}
+          >{{ t('reuse.exportToSelectedLot') }}
         </el-button>
         <el-button class="w-[150px]" @click="closeDialog">{{ t('reuse.exit') }}</el-button>
       </span>

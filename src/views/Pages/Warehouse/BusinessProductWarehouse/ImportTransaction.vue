@@ -196,7 +196,12 @@ onBeforeMount(async () => await callApiForData())
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket ref="detailTicketRef" :type="type" :ticketData="ticketData" />
+          <DetailTicket
+            ref="detailTicketRef"
+            :transactionType="transactionType"
+            :type="type"
+            :ticketData="ticketData"
+          />
         </div>
       </el-collapse-item>
 

@@ -275,6 +275,18 @@ export const getDetailAccountingEntryById = async (params): Promise<IResponse> =
   return res && res.data
 }
 
+// Phiếu nhập, xuất, chuyển kho tự động
+export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.POST_AUTOMATIC_WAREHOUSE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // update lịch sử nhập xuất/đổi trả
 export const getReturnRequest = async (params): Promise<IResponse> => {
   const res = await request.get(

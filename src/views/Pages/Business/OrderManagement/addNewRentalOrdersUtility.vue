@@ -1821,27 +1821,6 @@ const postOrderStransaction = async (index: number) => {
 }
 
 const inputReturnReason = ref('Trả hàng trước hạn')
-// Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableData.value.map((e) => ({
-    productPropertyId: e.productPropertyId,
-    quantity: e.quantity,
-    acessory: e.accessory ?? '2'
-  }))
-  tableReturnPost.value.pop()
-  console.log('tableReturnPost: ', tableReturnPost.value)
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng',
-    description: inputReturnReason.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
-  }
-  await createReturnRequest(payload)
-}
 
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
@@ -1882,7 +1861,6 @@ onBeforeMount(() => {
 
 //TruongNgo
 const setDataForReturnOrder = () => {
-  dialogReturnAheadOfTime.value = true
   rentReturnOrder.value.orderCode = curDate
   rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
   rentReturnOrder.value.rentalPeriod = ruleForm.rentalPeriod
@@ -1890,7 +1868,38 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReturnReason
-  rentReturnOrder.value.tableData = tableData
+  rentReturnOrder.value.tableData = [{ ...productForSale }]
+}
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async () => {
+  if (waitApprove) {
+    const tableReturnPost = [{}]
+    rentReturnOrder.value.tableData.pop()
+    tableReturnPost.push(
+      rentReturnOrder.value.tableData.map((e) => ({
+        productPropertyId: e.productPropertyId,
+        quantity: e.quantity,
+        accessory: e.accessory
+      }))
+    )
+    const payload = {
+      customerOrderId: id,
+      code: autoCodeReturnRequest,
+      name: 'Đổi trả đơn hàng',
+      description: rentReturnOrder.value.description,
+      returnRequestType: 1,
+      details: tableReturnPost
+    }
+    await createReturnRequest(payload)
+  }
+}
+let waitApprove = false
+const waitApproval = () => {
+  //goi api duyet
+  waitApprove = true
+}
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
 }
 </script>
 
@@ -3122,8 +3131,11 @@ const setDataForReturnOrder = () => {
       <!-- Thông tin trả hàng trước hạn -->
       <ReturnOrder
         v-model="dialogReturnAheadOfTime"
+        :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listProductsTable"
+        @add-row="addRow"
+        @wait-approve="waitApproval"
       />
 
       <!-- <el-dialog
@@ -3296,9 +3308,12 @@ const setDataForReturnOrder = () => {
 
       <!-- Thông tin trả hàng hết hạn -->
       <ReturnOrder
-        :showDialog="dialogReturnExpired"
+        v-model="dialogReturnExpired"
+        :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listProductsTable"
+        @add-row="addRow"
+        @wait-approve="waitApproval"
       />
       <!-- <el-dialog
         :model-Value="false"
@@ -4610,9 +4625,9 @@ const setDataForReturnOrder = () => {
                 () => {
                   statusOrder = 6
                   setDataForReturnOrder()
-                  postReturnRequest()
                   addStatusOrder(5)
                   changeStatus(7)
+                  dialogReturnAheadOfTime = true
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
@@ -4632,6 +4647,8 @@ const setDataForReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
+                  postReturnRequest()
+                  onAddDebtTableDeposit()
                   getReturnRequestTable()
                   statusOrder = 8
                 }
@@ -4696,6 +4713,7 @@ const setDataForReturnOrder = () => {
                 () => {
                   statusOrder = 8
                   addStatusOrder(7)
+                  setDataForReturnOrder()
                   dialogReturnExpired = !dialogReturnExpired
                 }
               "
@@ -4730,6 +4748,7 @@ const setDataForReturnOrder = () => {
                 () => {
                   postData()
                   statusOrder = 8
+                  setDataForReturnOrder()
                   addStatusOrder(7)
                 }
               "

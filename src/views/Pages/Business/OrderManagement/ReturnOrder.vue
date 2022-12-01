@@ -22,9 +22,13 @@ const props = defineProps({
   listProductsTable: {
     type: Array<Product>,
     default: () => [{}]
+  },
+  orderId: {
+    type: Number,
+    default: 0
   }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'add-row', 'post-return-request', 'wait-approve'])
 type Product = {
   productCode: string
   value: Number
@@ -38,6 +42,11 @@ type Product = {
 }
 const updateValue = (value, obj, scope) => {
   console.log(value, obj, scope)
+  scope.row.productPropertyId = value
+  addRow()
+}
+const addRow = () => {
+  emit('add-row')
 }
 const open = () => {
   emit('update:modelValue', true)
@@ -46,6 +55,10 @@ const close = () => {
   emit('update:modelValue', false)
 }
 console.log('orderData?', props.orderData)
+const postReturnRequest = async () => {
+  emit('wait-approve')
+  emit('update:modelValue', false)
+}
 </script>
 <template>
   <el-dialog
@@ -120,11 +133,7 @@ console.log('orderData?', props.orderData)
     <div class="pt-2 pb-2">
       <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column
-          prop="productPropertyName"
-          :label="t('formDemo.commodityName')"
-          width="150"
-        >
+        <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')">
           <template #default="scope">
             <MultipleOptionsBox
               :defaultValue="scope.row.productPropertyId"
@@ -144,12 +153,12 @@ console.log('orderData?', props.orderData)
             />
           </template>
         </el-table-column>
-        <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
+        <el-table-column prop="accessory" :label="t('reuse.accessory')">
           <template #default="scope">
             <el-input v-model="scope.row.accessory" />
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+        <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
             <el-input v-model="scope.row.quantity" />
           </template>
@@ -160,6 +169,10 @@ console.log('orderData?', props.orderData)
           </template>
         </el-table-column>
       </el-table>
+      <div class="flex items-center">
+        <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>
+        <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+      </div>
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
         <div class="flex items-center w-[100%]">
@@ -175,12 +188,12 @@ console.log('orderData?', props.orderData)
     </div>
 
     <template #footer>
-      <div class="flex justify-between">
+      <div class="flex justify-end">
         <div>
-          <span class="dialog-footer">
-            <el-button type="primary" @click="close">{{ t('formDemo.saveRecordDebts') }}</el-button>
-            <el-button @click="close">{{ t('reuse.exit') }}</el-button>
-          </span>
+          <el-button type="primary" @click="postReturnRequest">{{
+            t('formDemo.saveAndPending')
+          }}</el-button>
+          <el-button @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>

@@ -338,7 +338,7 @@ export default {
     pawnTerm: 'Kỳ hạn cầm đồ',
     atLeastTenDays: 'Ít nhất 10 ngày',
     listOfConsignmentProducts: 'Danh sách sản phẩm ký gửi',
-    listOfPawnProducts: 'Danh sách sản phẩm ký gửi',
+    listOfPawnProducts: 'Danh sách sản phẩm cầm đồ',
     serviceTrackingTable: 'Bảng theo dõi dịch vụ phát sinh',
     importTrackingTable: 'Bảng theo dõi hàng cầm đồ trả lại/nhập kho nội bộ',
     depositTerm: 'Kỳ hạn ký gửi',

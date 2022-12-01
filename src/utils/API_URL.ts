@@ -90,7 +90,8 @@ export const ORDER_API = {
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
   GET_NEW_RECEIPT_PAYMENT_REQUEST: '/api/v1/Accountant/CreateANewPaymentRequest',
   ADD_ORDER_STRANSACTION: '/api/v1/Accountant/AddAOrderStransaction',
-  GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry'
+  GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry',
+  POST_AUTOMATIC_WAREHOUSE: '/api/v1/Warehouse/CreateTicketFromOrder'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

@@ -80,14 +80,10 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {}
-
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-
-const handleDownload = (file: UploadFile) => {}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -376,8 +372,6 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
-const productAttributeValue = (data) => {}
 
 const changeAddressCustomer = (data) => {
   if (data) {
@@ -699,7 +693,7 @@ const addLastIndexSellTable = () => {
 //add row to the end of table if fill all table
 watch(
   () => ListOfProductsForSale,
-  (...value) => {
+  () => {
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
       forceRemove.value == false &&
@@ -874,12 +868,12 @@ const rules = reactive<FormRules>({
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
     if (valid) {
     } else {
     }
   })
-  await formEl2.validate((valid, fields) => {
+  await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
@@ -2179,17 +2173,8 @@ onMounted(async () => {
                         >
                           <ElButton :icon="viewIcon" />
                         </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
+                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
+                        <span v-if="!disabled" class="el-upload-list__item-delete">
                           <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
@@ -2994,29 +2979,24 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <!-- <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
-              t('formDemo.printLiquidationContract')
-            }}</el-button> -->
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  class="min-w-42 min-h-11"
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogBillSpaInfomation = false
-                      // addLastIndexTable2()
-                      postOrderStransaction(1)
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button class="min-w-42 min-h-11" @click="dialogBillSpaInfomation = false">{{
-                  t('reuse.exit')
-                }}</el-button>
-              </span>
-            </div>
+          <div>
+            <span class="dialog-footer">
+              <el-button
+                class="min-w-42 min-h-11"
+                type="primary"
+                @click="
+                  () => {
+                    dialogBillSpaInfomation = false
+                    // addLastIndexTable2()
+                    postOrderStransaction(1)
+                  }
+                "
+                >{{ t('formDemo.saveRecordDebts') }}</el-button
+              >
+              <el-button class="min-w-42 min-h-11" @click="dialogBillSpaInfomation = false">{{
+                t('reuse.exit')
+              }}</el-button>
+            </span>
           </div>
         </template>
       </el-dialog>

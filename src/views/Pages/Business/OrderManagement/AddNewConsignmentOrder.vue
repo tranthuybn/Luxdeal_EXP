@@ -21,7 +21,8 @@ import {
   FormRules,
   UploadUserFile,
   ElTreeSelect,
-  ElMessage
+  ElMessage,
+  ElNotification
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -64,14 +65,10 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {}
-
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-
-const handleDownload = (file: UploadFile) => {}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -728,19 +725,17 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-const productAttributeValue = (data) => {}
-
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 0,
     label: t('formDemo.selfDelivery')
   },
   {
-    value: 'deliveryToYourPlace',
+    value: 1,
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-const deliveryMethod = ref(chooseDelivery[0].value)
+// const deliveryMethod = ref(chooseDelivery[0].label)
 
 const changeAddressCustomer = (data: any) => {
   if (data) {
@@ -761,7 +756,6 @@ const changeAddressCustomer = (data: any) => {
     }
   } else {
     customerAddress.value = ''
-    deliveryMethod.value = ''
   }
 }
 
@@ -905,41 +899,23 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
     }
   })
 }
-
-const postData = () => {
-  // let productPayment = reactive<
-  //   Array<{
-  //     productPropertyId: number | string
-  //     quantity: Number
-  //     ProductPrice: Number
-  //     SoldPrice: Number
-  //     warehouseId: Number
-  //     isPaid: Boolean
-  //     accessory: String
-  //   }>
-  // >([])
+let orderDetailsTable = reactive([{}])
+// tạo đơn hàng
+const { push } = useRouter()
+const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
-    const productPayment = JSON.stringify([
-      {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory1'
-      },
-      {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory2'
-      }
-    ])
+    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: parseInt(val.quantity),
+      ProductPrice: val.price,
+      SoldPrice: val.finalPrice,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: val.accessory
+    }))
+    orderDetailsTable.pop()
+    const productPayment = JSON.stringify([...orderDetailsTable])
 
     const payload = {
       ServiceType: 2,
@@ -949,14 +925,14 @@ const postData = () => {
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
       CustomerId: 2,
-      DeliveryOptionId: 1,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      FromDate: '2022-11-12',
-      ToDate: '2022-11-30',
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
+      Address: enterdetailAddress.value,
+      fromDate: moment(ruleForm.rentalPeriod[0]).format('YYYY/MM/DD'),
+      toDate: moment(ruleForm.rentalPeriod[1]).format('YYYY/MM/DD'),
       Days: 1, // 1 hoặc 7 hoặc 30
-      Address: 'trieu khuc',
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
@@ -964,20 +940,35 @@ const postData = () => {
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     addNewSpaOrders(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
-// const nameDialog = ref('')
 
 function printPage(id: string, { url, title, w, h }) {
-  // const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  //get content need to print
+
   const printContents = document.getElementById(id)?.innerHTML
-  // open new window at the center of screen
+
   const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
   const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
 
@@ -1036,12 +1027,9 @@ const tableAccountingEntry = ref([
   }
 ])
 
-// Lý do thu tiền
 const inputReasonCollectMoney = ref()
 
-// dialog print
 const nameDialog = ref('')
-// const testDialog = ref(false)
 
 function openReceiptDialog() {
   getReceiptCode()
@@ -1609,10 +1597,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute
-              :value="productCharacteristics"
-              @change-value="productAttributeValue"
-            />
+            <ProductAttribute :value="productCharacteristics" />
           </div>
         </div>
         <template #footer>
@@ -3118,17 +3103,8 @@ onMounted(async () => {
                         >
                           <ElButton :icon="viewIcon" />
                         </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
+                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
+                        <span v-if="!disabled" class="el-upload-list__item-delete">
                           <ElButton :icon="deleteIcon" />
                         </span>
                       </span>

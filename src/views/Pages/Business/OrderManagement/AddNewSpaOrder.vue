@@ -731,6 +731,7 @@ const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
 
+const orderIdSpa = ref()
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
@@ -754,20 +755,20 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
-      CustomerId: 5,
+      CustomerId: customerID.value,
       Files: Files,
-      DeliveryOptionId: 1,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
+      Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewSpaOrders(formDataPayLoad)
+    orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
       .then(
         () =>
           ElNotification({
@@ -787,6 +788,16 @@ const postData = async () => {
         })
       )
   }
+  warehouseTranferAuto(3)
+}
+
+const warehouseTranferAuto = async (type) => {
+  const payload = {
+    OrderId: orderIdSpa.value.data,
+    Type: type
+  }
+
+  await apiWarehouseTranfer(payload)
 }
 
 const form = reactive({

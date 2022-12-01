@@ -999,7 +999,6 @@ const type = String(router.currentRoute.value.params.type)
 
 let totalOrder = ref(0)
 let customerIdPromo = ref()
-const rentReturnOrder = ref({} as any)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1860,6 +1859,7 @@ onBeforeMount(() => {
 })
 
 //TruongNgo
+const rentReturnOrder = ref({} as any)
 const setDataForReturnOrder = () => {
   rentReturnOrder.value.orderCode = curDate
   rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
@@ -3136,6 +3136,7 @@ const addRow = () => {
         :listProductsTable="listProductsTable"
         @add-row="addRow"
         @wait-approve="waitApproval"
+        :orderStatusType="2"
       />
 
       <!-- <el-dialog
@@ -3314,6 +3315,7 @@ const addRow = () => {
         :listProductsTable="listProductsTable"
         @add-row="addRow"
         @wait-approve="waitApproval"
+        :orderStatusType="3"
       />
       <!-- <el-dialog
         :model-Value="false"

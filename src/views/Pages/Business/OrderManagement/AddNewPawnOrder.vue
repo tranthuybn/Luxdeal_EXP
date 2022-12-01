@@ -27,7 +27,7 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
 import type { UploadFile } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
-
+import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -1155,23 +1155,26 @@ const handleSelectionChange = (val: tableDataType[]) => {
 
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory ?? '2'
-  }))
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
-    description: inputReasonReturn.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
+  if (waitApprove) {
+    const tableReturnPost = [{}]
+    rentReturnOrder.value.tableData.pop()
+    tableReturnPost.push(
+      rentReturnOrder.value.tableData.map((e) => ({
+        productPropertyId: e.productPropertyId,
+        quantity: e.quantity,
+        accessory: e.accessory
+      }))
+    )
+    const payload = {
+      customerOrderId: id,
+      code: autoCodeReturnRequest,
+      name: 'Đổi trả đơn hàng',
+      description: rentReturnOrder.value.description,
+      returnRequestType: 1,
+      details: tableReturnPost
+    }
+    await createReturnRequest(payload)
   }
-  await createReturnRequest(payload)
-  getReturnRequestTable()
 }
 
 // Lấy bảng lịch sử nhập xuất đổi trả
@@ -1195,11 +1198,14 @@ const getReturnRequestTable = async () => {
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
-const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-}
+const dutHang = ref(false)
+const giaHan = ref(false)
+
+// const updatePrice = (_value, obj, scope) => {
+//   scope.row.productPropertyId = obj.productPropertyId
+//   scope.row.refundUnitPrice = Number(obj.price)
+//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+// }
 
 // Thêm mã phiếu thu vào debtTable
 const handleChangeReceipts = () => {
@@ -1526,6 +1532,39 @@ onBeforeMount(() => {
 onMounted(async () => {
   await editData()
 })
+
+//TruongNgo
+const rentReturnOrder = ref({} as any)
+const setDataForReturnOrder = () => {
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.inputReturnReason = inputReasonReturn
+  rentReturnOrder.value.tableData = [
+    {
+      createdAt: '',
+      productPropertyId: '',
+      productPropertyName: '',
+      accessory: '0',
+      conditionProducts: '',
+      quantity: '1',
+      unit: '',
+      refundUnitPrice: 0,
+      intoUnitPrice: 0,
+      invoiceGoodsEnteringWarehouse: 0,
+      inventoryStatus: ''
+    }
+  ]
+}
+let waitApprove = false
+const waitApproval = () => {
+  //goi api duyet
+  waitApprove = true
+}
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
+}
 </script>
 
 <template>
@@ -2424,10 +2463,47 @@ onMounted(async () => {
               t('button.cancelOrder')
             }}</el-button>
             <el-button
-              @click="changeReturnGoods = !changeReturnGoods"
+              @click="
+                () => {
+                  changeReturnGoods = true
+                  setDataForReturnOrder()
+                }
+              "
               type="warning"
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  dutHang = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Đứt hàng hết hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  giaHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="danger"
+              class="min-w-42 min-h-11"
+              >Gia hạn cầm dồ</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  postReturnRequest()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hoàn thành đơn hàng</el-button
             >
           </div>
         </div>
@@ -3402,7 +3478,34 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin chuộc hàng trước thời hạn-->
-      <el-dialog
+      <ReturnOrder
+        v-model="changeReturnGoods"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listProducts"
+        @add-row="addRow"
+        @wait-approve="waitApproval"
+        :orderStatusType="4"
+      />
+      <ReturnOrder
+        v-model="dutHang"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listProducts"
+        @add-row="addRow"
+        @wait-approve="waitApproval"
+        :orderStatusType="6"
+      />
+      <ReturnOrder
+        v-model="giaHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listProducts"
+        @add-row="addRow"
+        @wait-approve="waitApproval"
+        :orderStatusType="7"
+      />
+      <!-- <el-dialog
         v-model="changeReturnGoods"
         title="Thông tin chuộc hàng trước hạn"
         width="40%"
@@ -3563,7 +3666,7 @@ onMounted(async () => {
             </div>
           </div>
         </template>
-      </el-dialog>
+      </el-dialog> -->
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog

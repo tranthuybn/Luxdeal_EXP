@@ -5,9 +5,11 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
-import { getCampaignList } from '@/api/Business'
+import { getCampaignList, addNewCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
+import { FORM_IMAGES } from '@/utils/format'
+
 const { t } = useI18n()
 
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
@@ -174,7 +176,26 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const postData = () => {}
+const postData = async (data) => {
+  console.log('run here', data.tableProductOfCombo)
+  const payload = {
+    Code: data.discountCode,
+    Name: data.discountCode,
+    Description: data.shortDescription,
+    ReducePercent: 1,
+    // CustomerIds: ,
+    ProductPropertyIdJson: JSON.stringify(data.tableProductOfCombo),
+    StartDate: data.date[0],
+    EndDate: data.date[1],
+    CampaignType: 5,
+    TargetType: 2,
+    ServiceType: 1,
+    Image: data.Image
+  }
+
+  let postPayload = FORM_IMAGES(payload)
+  await addNewCampaign(postPayload)
+}
 const customizeData = async (data) => {
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.products = data[0].productProperties
@@ -203,6 +224,7 @@ const editData = () => {}
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
+          :typeCombo="true"
         />
       </el-collapse-item>
     </el-collapse>

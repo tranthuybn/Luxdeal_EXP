@@ -116,7 +116,11 @@ const props = defineProps({
   },
   showProduct: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  typeCombo: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -233,10 +237,12 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-
-      if (data.target == 3) {
+      console.log('dataTable: ', dataTable)
+      console.log('data : ', data)
+      if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
+        // if (!props.typeCombo) {
         if (dataTable.customerData.length > 1) {
           if (
             dataTable.customerData[dataTable.customerData.length - 1].name == null ||
@@ -253,6 +259,7 @@ const save = async (type) => {
           loading.value = false
           return
         }
+        // } else return
       }
       if (props.showProduct) {
         if (dataTable.productData.length > 1) {
@@ -272,13 +279,16 @@ const save = async (type) => {
           return
         }
       }
+      data.spa = spaMoney.value
+      dataTable.spaData.pop()
+      data.tableProductOfCombo = dataTable.spaData
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        data.spa = spaMoney.value
+        console.log('data:', data)
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false

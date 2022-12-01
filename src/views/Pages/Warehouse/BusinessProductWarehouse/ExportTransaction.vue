@@ -6,7 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider, ElNotification } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
-import ProductWarehouse from './ProductWarehouse.vue'
+import ExportPW from './ExportPW.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 
@@ -21,12 +21,12 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.detailImportTicket')
+    title: t('reuse.profileExport')
   },
   {
     icon: plusIcon,
     name: 'importedProductsWareHouse',
-    title: t('reuse.importProductWarehouse')
+    title: t('reuse.productExport')
   }
 ]
 const collapseChangeEvent = (val) => {
@@ -55,29 +55,31 @@ const back = async () => {
 
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
-const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
+const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
 const addTransaction = async () => {
-  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+  if (detailTicketRef.value?.submitFormTicket() && ExportPWRef.value?.checkValueOfTable()) {
     let uploadData: any = {}
     uploadData.type = 2
     uploadData.warehouseProductJson = [{}]
-    uploadData.warehouseProductJson = productWarehouseRef.value?.ListOfProductsForSale.map(
-      (row) => ({
-        productPropertyId: row.productPropertyId,
-        quantity: row.quantity,
-        price: row.price,
-        accessory: row.accessory,
-        productPropertyQuality: row.productPropertyQuality,
-        fileId: row.fileId,
-        toLotId: row.lot?.value,
-        warehouseId: row.warehouse?.value,
-        locationId: row.location?.value
-      })
-    )
+    console.log('ExportPWRef: ', ExportPWRef.value)
+    uploadData.warehouseProductJson = ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
+      productPropertyId: row.productPropertyId,
+      quantity: row.quantity,
+      accessory: row.accessory,
+      productPropertyQuality: row.productPropertyQuality,
+      fileId: row.fileId,
+      exportLots: row.exportLots?.map((val) => ({
+        fromLotId: val.value,
+        quantity: val.quantity
+      })),
+      warehouseId: row.warehouse?.value,
+      locationId: row.location?.value
+    }))
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
 
+    console.log('uploadData: ', uploadData)
     await createTicketManually(JSON.stringify(uploadData))
       .then((res) => {
         ElNotification({
@@ -115,7 +117,7 @@ type Options = {
   label: string
 }
 
-type ProductWarehouse = {
+type ExportPW = {
   productPropertyId?: number
   quantity?: number
   price?: number
@@ -133,7 +135,7 @@ type ProductWarehouse = {
   lot?: Options
   imageUrl?: string
 }
-const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
+const productData = ref<ExportPW[]>([{} as ExportPW])
 const serviceType = ref(6)
 const testReactive = ref('test')
 const callApiForData = async () => {
@@ -150,12 +152,11 @@ const callApiForData = async () => {
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
-        quantity: item.quantity,
-        price: item.price,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
         productName: item.productPropertyName,
         unitName: item.unitName,
+        exportLots: {},
         warehouse: { value: item?.toWarehouseId, label: item.toWarehouseName },
         location: { value: item?.toLocationId, label: item.toLocationName },
         lot: { value: item?.lotId, label: item.lotCode },
@@ -196,7 +197,13 @@ onBeforeMount(async () => await callApiForData())
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket ref="detailTicketRef" :type="type" :ticketData="ticketData" />
+          <DetailTicket
+            ref="detailTicketRef"
+            v-if="transactionType"
+            :transactionType="transactionType"
+            :type="type"
+            :ticketData="ticketData"
+          />
         </div>
       </el-collapse-item>
 
@@ -205,8 +212,8 @@ onBeforeMount(async () => await callApiForData())
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse
-          ref="productWarehouseRef"
+        <ExportPW
+          ref="ExportPWRef"
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
@@ -221,10 +228,10 @@ onBeforeMount(async () => await callApiForData())
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.printImportTicket')
+            t('reuse.printDeliveryNote')
           }}</ElButton>
           <ElButton class="w-[150px]" type="primary" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.importWarehouseNow')
+            t('reuse.outStockNow')
           }}</ElButton>
           <ElButton
             class="w-[150px]"

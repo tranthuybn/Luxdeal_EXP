@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, onMounted } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, onMounted, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-
+import { moneyFormat } from '@/utils/format'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -59,7 +59,8 @@ import {
   getCodePaymentRequest,
   addDNTT,
   addOrderStransaction,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -286,7 +287,7 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  quantity: string
+  quantity: number
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -302,7 +303,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyName: '',
   id: '',
   productPropertyId: '',
-  quantity: '1',
+  quantity: 1,
   accessory: '',
   unitName: 'Cái',
   price: 0,
@@ -319,7 +320,7 @@ interface historyTableType {
   productPropertyName: string | undefined
   accessory?: string
   conditionProducts: string
-  quantity: string
+  quantity: number
   unit?: string
   refundUnitPrice?: number
   intoUnitPrice?: number
@@ -423,9 +424,7 @@ let infoCompany = reactive({
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-// let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  // if (optionCallCustomerAPi == 0) {
   const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
   const getCustomerResult = res.data
   if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
@@ -444,8 +443,6 @@ const callCustomersApi = async () => {
       id: customer.id.toString()
     }))
   }
-  // }
-  // optionCallCustomerAPi++
 }
 
 // Call api danh sách sản phẩm
@@ -460,7 +457,7 @@ const callApiProductList = async () => {
       value: product.productCode,
       name: product.name ?? '',
       price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
@@ -489,7 +486,7 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   name: product.name ?? '',
                   price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
+                  productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
                 })
               )
@@ -514,9 +511,11 @@ const getValueOfSelected = (_value, obj, scope) => {
 const updatePrice = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
 }
-
+const updateExchangePrice = (_value, obj, scope) => {
+  scope.row.productPropertyId = obj.productPropertyId
+  scope.row.unitPrices = Number(obj.price)
+}
 let customerID = ref()
 
 const getValueOfCustomerSelected = (value, obj) => {
@@ -700,7 +699,7 @@ const autoCalculateOrder = async () => {
   newTable.value.splice(newTable.value.length - 1)
   tableOrderDetail.value = newTable.value.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
+    quantity: e.quantity,
     accessory: e.accessory,
     spaServiceIds: ''
   }))
@@ -726,15 +725,6 @@ const autoCalculateOrder = async () => {
     return _total
   }, 0)
 }
-
-watch(
-  () => checkValidate.value,
-  () => {
-    if (checkValidate.value === true) {
-      postData()
-    }
-  }
-)
 
 // change address
 let autoChangeCommune = ref()
@@ -896,7 +886,6 @@ const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -930,13 +919,14 @@ const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file
 
 let orderDetailsTable = reactive([{}])
 
+let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
-      Quantity: parseInt(val.quantity),
+      Quantity: val.quantity,
       ProductPrice: val.price,
       SoldPrice: val.finalPrice,
       WarehouseId: 1,
@@ -965,7 +955,7 @@ const postData = async () => {
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewOrderList(formDataPayLoad)
+    idOrderPost.value = await addNewOrderList(formDataPayLoad)
       .then(() => {
         ElNotification({
           message: t('reuse.addSuccess'),
@@ -983,6 +973,16 @@ const postData = async () => {
         })
       )
   }
+  automaticCouponWareHouse(2)
+}
+
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value.data,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(payload)
 }
 
 // total order
@@ -991,7 +991,6 @@ let totalOrder = ref(0)
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -1230,7 +1229,7 @@ if (tableReturnFullyIntegrated.value.length == 0)
     productPropertyName: '',
     accessory: '0',
     conditionProducts: '',
-    quantity: '1',
+    quantity: 1,
     unit: '',
     refundUnitPrice: 0,
     intoUnitPrice: 0,
@@ -1257,21 +1256,18 @@ const getReturnRequestTable = async () => {
   }
 }
 
-// const updateTableReturnRequest = () => {
-//   console.log('updateTableReturnRequest: ')
-// }
-
-const tableProductInformationExportChange = [
+const tableProductInformationExportChange = ref([
   {
+    productPropertyId: 0,
     commodityName: '',
     accessory: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ'
+    quantity: 1,
+    unitPrices: 0,
+    intoMoney: 0
   }
-]
+])
 
-const alreadyPaidForTt = ref(true)
+const alreadyPaidForTt = ref(false)
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -1627,7 +1623,7 @@ let idStransaction = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
-    quantity: parseInt(val.quantity)
+    quantity: val.quantity
   }))
 
   childrenTable.value.pop()
@@ -1666,11 +1662,20 @@ const postOrderStransaction = async (index: number) => {
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    acessory: e.accessory ?? '2'
-  }))
+  tableReturnPost.value.push(
+    tableReturnFullyIntegrated.value.map((e) => ({
+      productPropertyId: parseInt(e.productPropertyId),
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
+  tableReturnPost.value.push(
+    tableProductInformationExportChange.value.map((e) => ({
+      productPropertyId: e.productPropertyId,
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
@@ -1742,6 +1747,31 @@ onBeforeMount(async () => {
 onMounted(async () => {
   await editData()
 })
+
+//Truong Ngo
+const refundPrice = computed(() => {
+  return getRefundPrice()
+})
+const exportPrice = computed(() => {
+  return getExportPrice()
+})
+const exchangePrice = computed(() => {
+  return refundPrice.value - exportPrice.value
+})
+const getRefundPrice = () => {
+  let price = 0
+  tableReturnFullyIntegrated.value.map((item) => {
+    item.intoUnitPrice !== undefined ? (price += item.intoUnitPrice) : ''
+  })
+  return price
+}
+const getExportPrice = () => {
+  let money = 0
+  tableProductInformationExportChange.value.map((item) => {
+    money += item.intoMoney
+  })
+  return money
+}
 </script>
 
 <template>
@@ -3709,6 +3739,7 @@ onMounted(async () => {
             >
               <template #default="props">
                 <MultipleOptionsBox
+                  :defaultValue="props.row.productPropertyId"
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
@@ -3720,7 +3751,6 @@ onMounted(async () => {
                   labelKey="name"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
-                  :defaultValue="props.row.productPropertyCode"
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
@@ -3740,7 +3770,11 @@ onMounted(async () => {
             </el-table-column>
             <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoUnitPrice }}</div>
+                <div class="text-right">{{
+                  moneyFormat(
+                    (props.row.intoUnitPrice = props.row.quantity * props.row.refundUnitPrice)
+                  )
+                }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3760,34 +3794,64 @@ onMounted(async () => {
           >
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
-            />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+            >
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPrices }}</div>
+                <MultipleOptionsBox
+                  :defaultValue="props.row.productPropertyId"
+                  :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('formDemo.productInformation')
+                  ]"
+                  filterable
+                  :items="listProductsTable"
+                  valueKey="productPropertyId"
+                  labelKey="name"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  @scroll-top="ScrollProductTop"
+                  @scroll-bottom="ScrollProductBottom"
+                  :clearable="false"
+                  @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+              <template #default="props">
+                <el-input v-model="props.row.quantity" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
+              <template #default="props">
+                <el-input v-model="props.row.unitPrices" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }}</div>
+                <div class="text-right">{{
+                  moneyFormat((props.row.intoMoney = props.row.quantity * props.row.unitPrices))
+                }}</div>
               </template>
             </el-table-column>
           </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p>Thành tiền bán</p>
-              <p>Thành tiền hoàn</p>
-              <p class="text-black font-bold dark:text-white">Thành tiền chênh lệch</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2">10,000,000 đ</p>
-              <p class="pr-2">8,000,000 đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">2,000,000 đ</p>
-              <p class="pr-2">Phải chi</p>
-            </div>
+        </div>
+        <div class="flex justify-end">
+          <div class="w-[145px] text-right">
+            <p>{{ t('reuse.totalSellMoney') }}</p>
+            <p>{{ t('reuse.totalReturnMoney') }}</p>
+            <p class="text-black font-bold dark:text-white">{{ t('reuse.totalDiffMoney') }}</p>
+          </div>
+          <div class="w-[145px] text-right">
+            <p class="pr-2">{{ moneyFormat(refundPrice) }}</p>
+            <p class="pr-2">{{ moneyFormat(exportPrice) }}</p>
+            <p class="pr-2 text-black font-bold dark:text-white">{{
+              moneyFormat(exchangePrice)
+            }}</p>
+            <p class="pr-2" v-if="exchangePrice > 0">{{ t('reuse.haveToCollect') }}</p>
+            <p class="pr-2" v-else>{{ t('reuse.havetoPay') }}</p>
           </div>
         </div>
         <div class="flex items-center">
@@ -4714,6 +4778,14 @@ onMounted(async () => {
 <style scoped>
 ::v-deep(.el-select) {
   width: 100%;
+}
+
+::v-deep(.el-icon svg) {
+  font-size: 20px;
+}
+
+::v-deep(.el-button.is-link) {
+  padding: 20px;
 }
 
 ::v-deep(.el-textarea__inner) {

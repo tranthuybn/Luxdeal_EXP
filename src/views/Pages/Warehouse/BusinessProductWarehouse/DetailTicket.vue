@@ -27,11 +27,19 @@ const props = defineProps({
   ticketData: {
     type: Object,
     default: () => {}
+  },
+  transactionType: {
+    type: Number,
+    default: 0
   }
 })
 const FormData = computed(() => {
   return props.ticketData
 })
+// const typeTransaction = computed(() => {
+//   return props.transactionType
+// })
+const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
   staffId: [required()],
   description: [required()],
@@ -60,7 +68,6 @@ const callCustomersApi = async () => {
 }
 const getValueOfStaffSelected = (value, _obj) => {
   FormData.value.staffId = value
-  console.log('obj', _obj)
 }
 
 const getValueOfCustomerSelected = (value, obj) => {
@@ -198,7 +205,13 @@ defineExpose({
     require-asterisk-position="right"
   >
     <div class="w-[50%]">
-      <el-divider content-position="left">{{ t('reuse.profileWareHouse') }}</el-divider>
+      <el-divider content-position="left">{{
+        typeTransaction == 1
+          ? t('reuse.profileWareHouse')
+          : typeTransaction == 2
+          ? t('reuse.profileExport')
+          : t('reuse.profileTransfer')
+      }}</el-divider>
 
       <ElFormItem :label="t('reuse.formCode')" prop="ticketCode">
         <div class="pl-6">{{ FormData.ticketCode }}</div>

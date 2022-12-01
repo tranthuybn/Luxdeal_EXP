@@ -34,7 +34,7 @@ import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, postDateTime } from '@/utils/format'
 import {
   getCollaboratorsInOrderList,
   getAllCustomer,
@@ -66,6 +66,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRouter } from 'vue-router'
+import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
 
@@ -745,8 +746,8 @@ const postData = async () => {
       CollaboratorCommission: ruleForm.discount,
       Description: ruleForm.orderNotes,
       CustomerId: customerID.value,
-      fromDate: ruleForm.rentalPeriod[0],
-      toData: ruleForm.rentalPeriod[1],
+      fromDate: postDateTime(ruleForm.rentalPeriod[0]),
+      toDate: postDateTime(ruleForm.rentalPeriod[1]),
       Files: Files,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
@@ -998,24 +999,26 @@ const type = String(router.currentRoute.value.params.type)
 
 let totalOrder = ref(0)
 let customerIdPromo = ref()
-
+const returnOrderData = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
+    returnOrderData.value = orderObj
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
     dataEdit.value = orderObj
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.CollaboratorCommission
       ruleForm.leaseTerm = orderObj.days
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.fromDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1893,8 +1896,8 @@ onBeforeMount(() => {
       <div id="recpPaymentPrint">
         <slot>
           <receiptsPaymentPrint
+            v-if="getFormReceipts"
             :dataEdit="getFormReceipts"
-            getFormReceipts
             :nameDialog="nameDialog"
           />
         </slot>
@@ -3275,6 +3278,7 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Thông tin trả hàng hết hạn -->
+      <ReturnOrder :showDialog="dialogReturnExpired" :orderData="returnOrderData" />
       <el-dialog
         v-model="dialogReturnExpired"
         class="font-bold"

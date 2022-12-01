@@ -1330,7 +1330,7 @@ export default {
     rentalPriceTableByQuantity: 'Bảng tính giá thuê theo số lượng',
     importExportDate: 'Ngày nhập/xuất',
     importExportCode: 'Mã đơn nhập/xuất',
-    importTransferWarehouseCode: 'Mã phiếu nhập/chuyển kho',
+    importTransferWarehouseCode: 'Mã phiếu nhập/ Chuyển kho',
     importExportForm: 'Hình thức nhập/xuất',
     importExportWarehouse: 'Kho nhập/xuất',
     importWarehouse: 'Kho nhập',

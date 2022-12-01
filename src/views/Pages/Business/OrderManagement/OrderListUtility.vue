@@ -424,9 +424,7 @@ let infoCompany = reactive({
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-// let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  // if (optionCallCustomerAPi == 0) {
   const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
   const getCustomerResult = res.data
   if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
@@ -445,8 +443,6 @@ const callCustomersApi = async () => {
       id: customer.id.toString()
     }))
   }
-  // }
-  // optionCallCustomerAPi++
 }
 
 // Call api danh sách sản phẩm
@@ -730,15 +726,6 @@ const autoCalculateOrder = async () => {
   }, 0)
 }
 
-// watch(
-//   () => checkValidate.value,
-//   () => {
-//     if (checkValidate.value === true) {
-//       postData()
-//     }
-//   }
-// )
-
 // change address
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -899,7 +886,6 @@ const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -990,6 +976,7 @@ const postData = async () => {
   automaticCouponWareHouse(2)
 }
 
+// Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
     OrderId: idOrderPost.value.data,
@@ -1005,7 +992,6 @@ let totalOrder = ref(0)
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -1147,7 +1133,6 @@ const callPromoApi = async () => {
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
-  // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
   if (infoCustomerId.value.isOrganization) {
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
@@ -1270,10 +1255,6 @@ const getReturnRequestTable = async () => {
     }))
   }
 }
-
-// const updateTableReturnRequest = () => {
-//   console.log('updateTableReturnRequest: ')
-// }
 
 const tableProductInformationExportChange = ref([
   {
@@ -4797,6 +4778,14 @@ const getExportPrice = () => {
 <style scoped>
 ::v-deep(.el-select) {
   width: 100%;
+}
+
+::v-deep(.el-icon svg) {
+  font-size: 20px;
+}
+
+::v-deep(.el-button.is-link) {
+  padding: 20px;
 }
 
 ::v-deep(.el-textarea__inner) {

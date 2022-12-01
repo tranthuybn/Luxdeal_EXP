@@ -12,8 +12,7 @@ import {
   ElOption,
   ElInput,
   ElTable,
-  ElTableColumn,
-  ElMessage
+  ElTableColumn
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { PropType, reactive, ref, watch } from 'vue'
@@ -198,6 +197,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+console.log(submitForm)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const closeDialogExport = () => {
   emit('close-dialog')

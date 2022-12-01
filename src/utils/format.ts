@@ -219,6 +219,10 @@ export const VoucherType = (val) => {
 export const dateTimeFormat = (val) => {
   return moment(val).format('DD/MM/YYYY')
 }
+
+export const postDateTime = (val) => {
+  return moment(val).format('YYYY/MM/DD')
+}
 export const formatTransactionStatus = (val) => {
   switch (val) {
     case 1:

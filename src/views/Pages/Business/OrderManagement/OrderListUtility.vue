@@ -1679,7 +1679,7 @@ const postReturnRequest = async () => {
   )
   tableReturnPost.value.push(
     tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: e.productPropertyId,
+      productPropertyId: parseInt(e.productPropertyId),
       quantity: e.quantity,
       accessory: e.accessory
     }))

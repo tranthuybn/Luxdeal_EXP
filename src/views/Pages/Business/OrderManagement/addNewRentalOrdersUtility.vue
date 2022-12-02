@@ -1891,18 +1891,17 @@ const setDataForReturnOrder = () => {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
-  const tableReturnPost = [{}]
+  let tableReturnPost = [{}]
   if (rentReturnOrder.value.tableData.length < 2) {
     return
   }
   rentReturnOrder.value.tableData.pop()
-  tableReturnPost.push(
-    rentReturnOrder.value.tableData.map((e) => ({
-      productPropertyId: e.productPropertyId,
-      quantity: e.quantity,
-      accessory: e.accessory
-    }))
-  )
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: parseInt(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,

@@ -1712,13 +1712,12 @@ const postReturnRequest = async (reason) => {
     return
   }
   rentReturnOrder.value.tableData.pop()
-  tableReturnPost.push(
-    rentReturnOrder.value.tableData.map((e) => ({
-      productPropertyId: e.productPropertyId,
-      quantity: e.quantity,
-      accessory: e.accessory
-    }))
-  )
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -13,7 +13,7 @@ import moment from 'moment'
 
 const { t } = useI18n()
 
-const params = { CampaignType: PROMOTION_STRATEGY[0].key }
+const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -166,6 +166,7 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  discountCode: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -208,10 +209,19 @@ const postData = async (data) => {
   await addNewCampaign(postPayload)
 }
 const customizeData = async (data) => {
-  setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.products = data[0].productProperties
+  setFormData.date = [data[0]?.fromDate, data[0]?.toDate]
+  setFormData.products = data[0]?.productProperties
+  setFormData.discountCode = data[0]?.code
+  setFormData.shortDescription = data[0]?.description
+  // setFormData.condition = data[0]?.description
 }
-const editData = () => {}
+const editData = () => {
+  console.log('edit data')
+}
+
+onBeforeMount(async () => {
+  await editData()
+})
 </script>
 
 <template>

@@ -123,6 +123,14 @@ const props = defineProps({
     default: false
   }
 })
+
+// eslint-disable-next-line vue/no-setup-props-destructure
+let schema = props.schema
+const { register, methods, elFormRef } = useForm({
+  schema
+})
+let fileList = ref<UploadUserFile[]>([])
+
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 const dataTable = reactive({
@@ -150,12 +158,6 @@ const getTableValue = async () => {
     }
   }
 }
-// eslint-disable-next-line vue/no-setup-props-destructure
-const schema = props.schema
-const { register, methods, elFormRef } = useForm({
-  schema
-})
-let fileList = ref<UploadUserFile[]>([])
 
 //formValue lay tu api
 const customizeData = async () => {
@@ -172,8 +174,10 @@ const setFormValue = async () => {
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
 
+    console.log('props.formDataCustomize: ', props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
+
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -187,6 +191,13 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
+
+watch(
+  () => props.params,
+  () => {
+    if (props.params.CampaignType == '5') console.log('true')
+  }
+)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
@@ -242,7 +253,6 @@ const save = async (type) => {
       if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
-        // if (!props.typeCombo) {
         if (dataTable.customerData.length > 1) {
           if (
             dataTable.customerData[dataTable.customerData.length - 1].name == null ||
@@ -259,7 +269,6 @@ const save = async (type) => {
           loading.value = false
           return
         }
-        // } else return
       }
       if (props.showProduct) {
         if (dataTable.productData.length > 1) {

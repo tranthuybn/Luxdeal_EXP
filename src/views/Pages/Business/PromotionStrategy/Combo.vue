@@ -7,7 +7,7 @@ import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/
 import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 const { t } = useI18n()
-const params = { CampaignType: PROMOTION_STRATEGY[0].key }
+const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 provide('parameters', {
   params
 })

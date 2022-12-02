@@ -858,68 +858,24 @@ const optionsCustomer = [
     label: t('formDemo.customer')
   }
 ]
+let orderDetailsTable = reactive([{}])
+// tạo đơn hàng
+const { push } = useRouter()
 const checkDisabled = ref(false)
-const postData = () => {
-  // let productPayment = reactive<
-  //   Array<{
-  //     productPropertyId: number | string
-  //     quantity: Number
-  //     ProductPrice: Number
-  //     SoldPrice: Number
-  //     warehouseId: Number
-  //     isPaid: Boolean
-  //     accessory: String
-  //   }>
-  // >([])
+const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
-    const productPayment = JSON.stringify([
-      {
-        ProductPropertyId: 2,
-        Quantity: 1,
-        ProductPrice: 10000,
-        SoldPrice: 10000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory1'
-      },
-      {
-        ProductPropertyId: 3,
-        Quantity: 1,
-        ProductPrice: 90000,
-        SoldPrice: 80000,
-        WarehouseId: 1,
-        IsPaid: true,
-        Accessory: 'Accessory2'
-      }
-    ])
-    // if (ListOfProductsForSale.length > 0) {
-    // ListOfProductsForSale.forEach((element) => {
-    // if (element && Array.isArray(element) && element.length > 0)
-    // element.forEach(() => {
-    // productPayment.push(
-    //   // {
-    //   //   ProductPropertyId: 2,
-    //   //   Quantity: 1,
-    //   //   ProductPrice: 10000,
-    //   //   SoldPrice: 10000,
-    //   //   WarehouseId: 1,
-    //   //   IsPaid: true,
-    //   //   Accessory: 'Accessory1'
-    //   // },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 90000,
-    //     SoldPrice: 80000,
-    //     WarehouseId: 1,
-    //     IsPaid: true,
-    //     Accessory: 'Accessory2'
-    //   }
-    // )
-    // })
-    // })
-    // }
+    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: parseInt(val.quantity),
+      ProductPrice: val.price,
+      SoldPrice: val.finalPrice,
+      WarehouseId: 1,
+      IsPaid: true,
+      Accessory: val.accessory
+    }))
+    orderDetailsTable.pop()
+    const productPayment = JSON.stringify([...orderDetailsTable])
 
     const payload = {
       ServiceType: 4,
@@ -929,18 +885,36 @@ const postData = () => {
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
       CustomerId: 2,
-      DeliveryOptionId: 1,
-      ProvinceId: 1,
-      DistrictId: 1,
-      WardId: 1,
-      Address: 'trieu khuc',
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: valueProvince.value ?? 1,
+      DistrictId: valueDistrict.value ?? 1,
+      WardId: valueCommune.value ?? 1,
+      Address: enterdetailAddress.value,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
       Status: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    addNewSpaOrders(formDataPayLoad)
+    await addNewSpaOrders(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 
@@ -2330,16 +2304,7 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
-          <el-table-column :label="t('reuse.quantitySold')" align="center" width="90" />
-          <el-table-column :label="t('formDemo.numberOfTimesRented')" align="center" width="100" />
-          <el-table-column :label="t('reuse.numberOfTimesSpa')" align="center" width="100" />
-          <el-table-column :label="t('reuse.currentlyLeased')" align="center" width="100" />
-          <el-table-column
-            :label="`${t('reuse.quantityImportedInternalWarehouse')}`"
-            align="center"
-            width="100"
-          />
-          <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
+
           <el-table-column
             prop="unitName"
             :label="`${t('reuse.dram')}`"
@@ -2354,30 +2319,20 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="price" :label="t('reuse.pawnMoney')" align="center" width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.price"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column prop="intoMoney" :label="`${t('reuse.pawnfeeMoney')}`" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">200,000đ/1n</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                + {{ t('reuse.fix') }}
-              </div>
-            </div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.intoMoneyPawn')}`" align="center" width="100" />
           <el-table-column :label="`${t('formDemo.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">...</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer"
                 >+ {{ t('router.business') }}</div
+              >
+            </div>
+          </el-table-column>
+
+          <el-table-column :label="t('reuse.importWarehouse')" width="200">
+            <div class="flex w-[100%]">
+              <div class="flex-1">Còn hàng</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                >+ {{ t('formDemo.chooseWarehouse') }}</div
               >
             </div>
           </el-table-column>

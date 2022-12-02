@@ -6,7 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider, ElNotification } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
-import ProductWarehouse from './ProductWarehouse.vue'
+import TransferPW from './TransferPW.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 
@@ -21,12 +21,12 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.detailImportTicket')
+    title: t('reuse.detailTransferTicket')
   },
   {
     icon: plusIcon,
     name: 'importedProductsWareHouse',
-    title: t('reuse.importProductWarehouse')
+    title: t('reuse.transferProductWarehouse')
   }
 ]
 const collapseChangeEvent = (val) => {
@@ -55,7 +55,7 @@ const back = async () => {
 
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
-const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
+const productWarehouseRef = ref<InstanceType<typeof TransferPW>>()
 const addTransaction = async () => {
   if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
     let uploadData: any = {}
@@ -68,15 +68,17 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        fileId: row.fileId,
-        toLotId: row.lot?.value,
-        warehouseId: row.warehouse?.value,
-        locationId: row.location?.value
+        toLotId: row.toLotId,
+        fromLotId: row.toLotId,
+        warehouseId: row.fromWarehouse?.value,
+        locationId: row.fromLocation?.value
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
+
+    console.log('ListOfProductsForSale', uploadData.warehouseProductJson)
 
     await createTicketManually(JSON.stringify(uploadData))
       .then((res) => {
@@ -205,7 +207,7 @@ onBeforeMount(async () => await callApiForData())
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse
+        <TransferPW
           ref="productWarehouseRef"
           :type="type"
           :transactionType="transactionType"
@@ -224,7 +226,7 @@ onBeforeMount(async () => await callApiForData())
             t('reuse.printImportTicket')
           }}</ElButton>
           <ElButton class="w-[150px]" type="primary" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.importWarehouseNow')
+            t('reuse.moveWarehouseNow')
           }}</ElButton>
           <ElButton
             class="w-[150px]"

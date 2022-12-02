@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
-import { getCampaignList } from '@/api/Business'
+import { getCampaignList, addNewCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
+import { FORM_IMAGES } from '@/utils/format'
+import moment from 'moment'
+
 const { t } = useI18n()
 
-const params = { CampaignType: PROMOTION_STRATEGY[0].key }
+const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 
 const schema = reactive<FormSchema[]>([
   {
@@ -163,6 +166,7 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  discountCode: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -174,12 +178,50 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const postData = () => {}
-const customizeData = async (data) => {
-  setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.products = data[0].productProperties
+const postData = async (data) => {
+  console.log('run here', data.Image.name)
+  let postIdSpaService = ref('')
+  data.tableProductOfCombo.map((val) => {
+    postIdSpaService.value += val.service.toString()
+  })
+  let postSpaTable = data.tableProductOfCombo.map((val) => ({
+    Id: val.id,
+    IsActive: val.isActive,
+    SpaServiceIds: postIdSpaService.value
+  }))
+  const payload = {
+    Code: data.discountCode,
+    Name: data.discountCode,
+    Description: data.shortDescription,
+    ReducePercent: 1,
+    CustomerIds: '2,3',
+    ProductPropertyIdJson: JSON.stringify(postSpaTable),
+    StartDate: moment(data.date[0]).format('YYYY-MM-DD'),
+    EndDate: moment(data.date[1]).format('YYYY-MM-DD'),
+    CampaignType: 5,
+    TargetType: 2,
+    ComboValue: data.spa,
+    ServiceType: 1,
+    Image: data.Image
+  }
+
+  let postPayload = FORM_IMAGES(payload)
+  await addNewCampaign(postPayload)
 }
-const editData = () => {}
+const customizeData = async (data) => {
+  setFormData.date = [data[0]?.fromDate, data[0]?.toDate]
+  setFormData.products = data[0]?.productProperties
+  setFormData.discountCode = data[0]?.code
+  setFormData.shortDescription = data[0]?.description
+  // setFormData.condition = data[0]?.description
+}
+const editData = () => {
+  console.log('edit data')
+}
+
+onBeforeMount(async () => {
+  await editData()
+})
 </script>
 
 <template>
@@ -203,6 +245,7 @@ const editData = () => {}
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
+          :typeCombo="true"
         />
       </el-collapse-item>
     </el-collapse>

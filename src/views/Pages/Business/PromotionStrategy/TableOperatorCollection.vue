@@ -116,15 +116,27 @@ const props = defineProps({
   },
   showProduct: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  typeCombo: {
+    type: Boolean,
+    default: false
   }
 })
+
+// eslint-disable-next-line vue/no-setup-props-destructure
+let schema = props.schema
+const { register, methods, elFormRef } = useForm({
+  schema
+})
+let fileList = ref<UploadUserFile[]>([])
+
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
-  spaData: [{ id: -1, code: '', name: null, service: [] }],
+  spaData: [{ id: -1, isActive: 1, code: '', name: null, service: [] }],
   auctionData: [{ id: -1, code: '', name: null }]
 })
 //get data from table
@@ -146,12 +158,6 @@ const getTableValue = async () => {
     }
   }
 }
-// eslint-disable-next-line vue/no-setup-props-destructure
-const schema = props.schema
-const { register, methods, elFormRef } = useForm({
-  schema
-})
-let fileList = ref<UploadUserFile[]>([])
 
 //formValue lay tu api
 const customizeData = async () => {
@@ -168,8 +174,10 @@ const setFormValue = async () => {
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
 
+    console.log('props.formDataCustomize: ', props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
+
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -183,6 +191,13 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
+
+watch(
+  () => props.params,
+  () => {
+    if (props.params.CampaignType == '5') console.log('true')
+  }
+)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
@@ -233,8 +248,9 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-
-      if (data.target == 3) {
+      console.log('dataTable: ', dataTable)
+      console.log('data : ', data)
+      if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
         if (dataTable.customerData.length > 1) {
@@ -272,13 +288,16 @@ const save = async (type) => {
           return
         }
       }
+      data.spa = spaMoney.value
+      dataTable.spaData.pop()
+      data.tableProductOfCombo = dataTable.spaData
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        data.spa = spaMoney.value
+        console.log('data:', data)
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
@@ -469,13 +488,13 @@ const listType = ref<ListImages>('text')
 
 //this is fake data if has api should do form['tableCustomer'] same for product
 
-type SpaProduct = {
-  id: number
-  code: string
-  name: string
-  service: Array<string>
-}
-const fakeSpaProductData = reactive<SpaProduct[]>([{ id: -1, code: '', name: '', service: [] }])
+// type SpaProduct = {
+//   id: number
+//   code: string
+//   name: string
+//   service: Array<string>
+// }
+// const fakeSpaProductData = reactive<SpaProduct[]>([{ id: -1, code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
   () => dataTable.customerData[dataTable.customerData?.length - 1],
@@ -556,7 +575,7 @@ const addLastIndexProductTable = () => {
 
 const addLastIndexProductOfComboTable = () => {
   let idTable3 = Date.now()
-  dataTable.spaData.push({ id: idTable3, code: '', name: null, service: [] })
+  dataTable.spaData.push({ id: idTable3, isActive: 1, code: '', name: null, service: [] })
 }
 
 const addLastIndexProductOfAuctionTable = () => {
@@ -564,12 +583,62 @@ const addLastIndexProductOfAuctionTable = () => {
   dataTable.auctionData.push({ id: idTable4, code: '', name: null })
 }
 
-//fake option
-const listProductsTable = reactive([
-  { value: 'dev1', label: '1', name: '111', id: 1 },
-  { value: '22', label: '2', name: '222', id: 2 },
-  { value: '33', label: '3', name: '333', id: 3 }
-])
+// //fake option
+// const listProductsTable = reactive([
+//   { value: 'dev1', label: '1', name: '111', id: 1 },
+//   { value: '22', label: '2', name: '222', id: 2 },
+//   { value: '33', label: '3', name: '333', id: 3 }
+// ])
+
+// const listProductsTable = ref()
+
+// // const pageIndexProducts = ref(1)
+// const callApiProductList = async () => {
+//   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+//   if (res.data && res.data?.length > 0) {
+//     listProductsTable.value = res.data.map((product) => ({
+//       productCode: product.code,
+//       value: product.productCode,
+//       name: product.name ?? '',
+//       price: product.price.toString(),
+//       productPropertyId: product.id,
+//       productPropertyCode: product.productPropertyCode
+//     }))
+//   }
+// }
+
+// // const scrollProductTop = ref(false)
+// // const scrollProductBottom = ref(false)
+
+// // const ScrollProductTop = () => {
+// //   scrollProductTop.value = true
+// // }
+// const noMoreProductData = ref(false)
+
+// const ScrollProductBottom = () => {
+//   scrollProductBottom.value = true
+//   pageIndexProducts.value++
+//   noMoreProductData.value
+//     ? ''
+//     : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+//         .then((res) => {
+//           res.data.length == 0
+//             ? (noMoreProductData.value = true)
+//             : res.data.map((product) =>
+//                 listProductsTable.value.push({
+//                   productCode: product.code,
+//                   value: product.productCode,
+//                   name: product.name ?? '',
+//                   price: product.price.toString(),
+//                   productPropertyId: product.id,
+//                   productPropertyCode: product.productPropertyCode
+//                 })
+//               )
+//         })
+//         .catch(() => {
+//           noMoreProductData.value = true
+//         })
+// }
 
 //get list customer
 const listCustomer = ref()
@@ -597,7 +666,8 @@ const callAPIProduct = async () => {
       value: product.productCode,
       label: product.code,
       name: product.name,
-      id: product.id
+      id: product.id,
+      Id: product.id
     }))
   }
 }
@@ -692,7 +762,8 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   label: product.code,
                   name: product.name,
-                  id: product.id
+                  id: product.id,
+                  Id: product.id
                 })
               )
         })
@@ -719,6 +790,8 @@ const removeAuctionProduct = (scope) => {
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
+  scope.row.id = obj.id
+  console.log('scope: ', scope.row)
 }
 const getProductSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
@@ -745,7 +818,7 @@ const getSpaOptions = async () => {
       (res) =>
         (SpaSelectOptions.value = res.data.map((spa) => ({
           name: spa.name,
-          value: spa.id,
+          value: spa.id.toString(),
           code: spa.code,
           label: spa.name,
           cost: spa.cost,
@@ -1017,8 +1090,8 @@ const spaMoney = ref(0)
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
-                    valueKey="value"
+                    :items="listProducts"
+                    valueKey="Id"
                     labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
@@ -1079,7 +1152,7 @@ const spaMoney = ref(0)
             </el-table>
           </template>
           <template #spaProduct>
-            <el-table :data="fakeSpaProductData" border>
+            <el-table :data="dataTable.spaData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -1090,8 +1163,8 @@ const spaMoney = ref(0)
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
-                    valueKey="value"
+                    :items="listProducts"
+                    valueKey="Id"
                     labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"

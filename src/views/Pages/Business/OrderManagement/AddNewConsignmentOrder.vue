@@ -25,7 +25,7 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { FORM_IMAGES } from '@/utils/format'
+import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
@@ -55,6 +55,7 @@ import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
+import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -1264,25 +1265,25 @@ interface historyTableType {
   inventoryStatus?: string
 }
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory ?? '2'
-  }))
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
-    description: inputReasonReturn.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
-  }
-  await createReturnRequest(payload)
-  getReturnRequestTable()
-}
+// const postReturnRequest = async () => {
+//   codeReturnRequest.value = autoCodeReturnRequest
+//   const tableReturnPost = ref()
+//   tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
+//     productPropertyId: parseInt(e.productPropertyId),
+//     quantity: parseInt(e.quantity),
+//     accessory: e.accessory ?? '2'
+//   }))
+//   const payload = {
+//     customerOrderId: id,
+//     code: codeReturnRequest.value,
+//     name: 'Đổi trả đơn hàng ',
+//     description: inputReasonReturn.value,
+//     returnRequestType: 1,
+//     details: tableReturnPost.value
+//   }
+//   await createReturnRequest(payload)
+//   getReturnRequestTable()
+// }
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
@@ -1305,11 +1306,11 @@ const getReturnRequestTable = async () => {
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
-const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-}
+// const updatePrice = (_value, obj, scope) => {
+//   scope.row.productPropertyId = obj.productPropertyId
+//   scope.row.refundUnitPrice = Number(obj.price)
+//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+// }
 
 // const tableProductInformationExportChange = [
 //   {
@@ -1351,6 +1352,60 @@ onBeforeMount(() => {
 onMounted(async () => {
   await editData()
 })
+
+//TruongNgo
+const truocHan = ref(false)
+const hetHan = ref(false)
+const giaHan = ref(false)
+
+const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const listOfOrderProduct = ref()
+const setDataForReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
+  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.period = ruleForm.rentalPeriod
+  rentReturnOrder.value.extendDate = ''
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.inputReturnReason = inputReasonReturn
+  rentReturnOrder.value.tableData = ListOfProductsForSale
+}
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async (reason) => {
+  const tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
+  }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost.push(
+    rentReturnOrder.value.tableData.map((e) => ({
+      productPropertyId: e.productPropertyId,
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
+}
+
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
+}
+const removeRow = (index) => {
+  rentReturnOrder.value.tableData.splice(index, 1)
+}
 </script>
 
 <template>
@@ -2855,7 +2910,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Thông tin trả hàng trước thời hạn-->
-      <el-dialog
+      <!-- <el-dialog
         v-model="changeReturnGoods"
         :title="t('formDemo.infoReturnAheadOfTime')"
         width="40%"
@@ -3016,7 +3071,40 @@ onMounted(async () => {
             </div>
           </div>
         </template>
-      </el-dialog>
+      </el-dialog> -->
+
+      <ReturnOrder
+        v-model="truocHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="2"
+        :type="3"
+      />
+      <ReturnOrder
+        v-model="hetHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="3"
+        :type="3"
+      />
+      <ReturnOrder
+        v-model="giaHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="8"
+        :type="3"
+      />
 
       <el-collapse-item :name="collapse[0].name">
         <template #title>
@@ -3419,10 +3507,37 @@ onMounted(async () => {
               t('button.cancelOrder')
             }}</el-button>
             <el-button
-              @click="changeReturnGoods = !changeReturnGoods"
+              @click="
+                () => {
+                  changeReturnGoods = !changeReturnGoods
+                  truocHan = true
+                  setDataForReturnOrder()
+                }
+              "
               type="warning"
               class="min-w-42 min-h-11"
               >Trả hàng trước thời hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Trả hàng hết hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  giaHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              class="min-w-42 min-h-11 !border-red-500"
+              ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
           </div>
         </div>

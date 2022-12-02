@@ -29,6 +29,28 @@ export const formatTransactionType = (val) => {
       return ''
   }
 }
+export const formatOrderReturnReason = (val) => {
+  switch (val) {
+    case 2:
+      return 'Trả hàng trước hạn'
+    case 3:
+      return 'Trả hàng hết hạn'
+    case 4:
+      return 'Chuộc hàng trước thời hạn'
+    case 5:
+      return 'Chuộc hàng trước hết hạn'
+    case 6:
+      return 'Đứt hàng'
+    case 7:
+      return 'Gia hạn cầm đồ'
+    case 8:
+      return 'Trả hàng Spa'
+    case 9:
+      return 'Gia hạn ký gửi'
+    default:
+      return ''
+  }
+}
 export const formatRankingCustomer = (val) => {
   switch (val) {
     case 1:

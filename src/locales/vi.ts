@@ -1700,6 +1700,11 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
-    totalDiffMoney: 'Thành tiền chênh lệch'
+    totalDiffMoney: 'Thành tiền chênh lệch',
+    depositPeriod: 'Thời gian ký gửi',
+    informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
+    informationRansomAfterDueDate: 'Thông tin chuộc hàng hết hạn',
+    pawnPeriod: 'Thời hạn cầm đồ',
+    extendPawn: 'Gia hạn cầm đồ'
   }
 }

@@ -31,7 +31,7 @@ import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { FORM_IMAGES } from '@/utils/format'
+import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { dateTimeFormat, postDateTime } from '@/utils/format'
@@ -1874,46 +1874,51 @@ onBeforeMount(() => {
 
 //TruongNgo
 const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const listOfOrderProduct = ref()
 const setDataForReturnOrder = () => {
+  productArray = tableData.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
   rentReturnOrder.value.orderCode = curDate
   rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
-  rentReturnOrder.value.rentalPeriod = ruleForm.rentalPeriod
+  rentReturnOrder.value.period = ruleForm.rentalPeriod
   rentReturnOrder.value.name = infoCompany.name
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
-  rentReturnOrder.value.inputReturnReason = inputReturnReason
-  rentReturnOrder.value.tableData = [{ ...productForSale }]
+  rentReturnOrder.value.tableData = tableData.value
 }
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  if (waitApprove) {
-    const tableReturnPost = [{}]
-    rentReturnOrder.value.tableData.pop()
-    tableReturnPost.push(
-      rentReturnOrder.value.tableData.map((e) => ({
-        productPropertyId: e.productPropertyId,
-        quantity: e.quantity,
-        accessory: e.accessory
-      }))
-    )
-    const payload = {
-      customerOrderId: id,
-      code: autoCodeReturnRequest,
-      name: 'Đổi trả đơn hàng',
-      description: rentReturnOrder.value.description,
-      returnRequestType: 1,
-      details: tableReturnPost
-    }
-    await createReturnRequest(payload)
+const postReturnRequest = async (reason) => {
+  const tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
   }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost.push(
+    rentReturnOrder.value.tableData.map((e) => ({
+      productPropertyId: e.productPropertyId,
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
 }
-let waitApprove = false
-const waitApproval = () => {
-  //goi api duyet
-  waitApprove = true
-}
+
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
+}
+const removeRow = (index) => {
+  rentReturnOrder.value.tableData.splice(index, 1)
 }
 </script>
 
@@ -3147,9 +3152,10 @@ const addRow = () => {
         v-model="dialogReturnAheadOfTime"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listProductsTable"
+        :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
-        @wait-approve="waitApproval"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
         :orderStatusType="2"
       />
 
@@ -3326,9 +3332,9 @@ const addRow = () => {
         v-model="dialogReturnExpired"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listProductsTable"
+        :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
-        @wait-approve="waitApproval"
+        @post-return-request="postReturnRequest"
         :orderStatusType="3"
       />
       <!-- <el-dialog
@@ -4663,7 +4669,6 @@ const addRow = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postReturnRequest()
                   onAddDebtTableDeposit()
                   getReturnRequestTable()
                   statusOrder = 8

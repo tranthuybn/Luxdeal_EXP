@@ -26,7 +26,7 @@ import {
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
 import type { UploadFile } from 'element-plus'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, formatOrderReturnReason } from '@/utils/format'
 import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 
@@ -1154,29 +1154,32 @@ const handleSelectionChange = (val: tableDataType[]) => {
 }
 
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  if (waitApprove) {
-    const tableReturnPost = [{}]
-    rentReturnOrder.value.tableData.pop()
-    tableReturnPost.push(
-      rentReturnOrder.value.tableData.map((e) => ({
-        productPropertyId: e.productPropertyId,
-        quantity: e.quantity,
-        accessory: e.accessory
-      }))
-    )
-    const payload = {
-      customerOrderId: id,
-      code: autoCodeReturnRequest,
-      name: 'Đổi trả đơn hàng',
-      description: rentReturnOrder.value.description,
-      returnRequestType: 1,
-      details: tableReturnPost
-    }
-    await createReturnRequest(payload)
+const postReturnRequest = async (reason) => {
+  const tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
   }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost.push(
+    rentReturnOrder.value.tableData.map((e) => ({
+      productPropertyId: e.productPropertyId,
+      quantity: e.quantity,
+      accessory: e.accessory
+    }))
+  )
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
 }
-
+const extendDate = (date) => {
+  rentReturnOrder.value.extendDate = date
+}
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
@@ -1535,35 +1538,27 @@ onMounted(async () => {
 
 //TruongNgo
 const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const listOfOrderProduct = ref()
 const setDataForReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
   rentReturnOrder.value.orderCode = ruleForm.orderCode
+  rentReturnOrder.value.period = ruleForm.pawnTerm
+  rentReturnOrder.value.extendDate = ''
   rentReturnOrder.value.name = infoCompany.name
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReasonReturn
-  rentReturnOrder.value.tableData = [
-    {
-      createdAt: '',
-      productPropertyId: '',
-      productPropertyName: '',
-      accessory: '0',
-      conditionProducts: '',
-      quantity: '1',
-      unit: '',
-      refundUnitPrice: 0,
-      intoUnitPrice: 0,
-      invoiceGoodsEnteringWarehouse: 0,
-      inventoryStatus: ''
-    }
-  ]
-}
-let waitApprove = false
-const waitApproval = () => {
-  //goi api duyet
-  waitApprove = true
+  rentReturnOrder.value.tableData = ListOfProductsForSale
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
+}
+const removeRow = (index) => {
+  rentReturnOrder.value.tableData.splice(index, 1)
 }
 </script>
 
@@ -2476,6 +2471,17 @@ const addRow = () => {
             <el-button
               @click="
                 () => {
+                  changeReturnGoods = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Chuộc hàng hết hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
                   dutHang = true
                   setDataForReturnOrder()
                 }
@@ -2491,18 +2497,10 @@ const addRow = () => {
                   setDataForReturnOrder()
                 }
               "
-              type="danger"
-              class="min-w-42 min-h-11"
-              >Gia hạn cầm dồ</el-button
+              class="min-w-42 min-h-11 !border-red-500"
+              ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
-            <el-button
-              @click="
-                () => {
-                  postReturnRequest()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
+            <el-button @click="() => {}" type="warning" class="min-w-42 min-h-11"
               >Hoàn thành đơn hàng</el-button
             >
           </div>
@@ -3482,19 +3480,32 @@ const addRow = () => {
         v-model="changeReturnGoods"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listProducts"
+        :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
-        @wait-approve="waitApproval"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
         :orderStatusType="4"
+        :type="4"
+      />
+      <ReturnOrder
+        v-model="changeReturnGoods"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="5"
+        :type="4"
       />
       <ReturnOrder
         v-model="dutHang"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listProducts"
+        :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
-        @wait-approve="waitApproval"
+        @post-return-request="postReturnRequest"
         :orderStatusType="6"
+        :type="4"
       />
       <ReturnOrder
         v-model="giaHan"
@@ -3502,8 +3513,10 @@ const addRow = () => {
         :orderData="rentReturnOrder"
         :listProductsTable="listProducts"
         @add-row="addRow"
-        @wait-approve="waitApproval"
+        @post-return-request="postReturnRequest"
         :orderStatusType="7"
+        @extend-date="extendDate"
+        :type="4"
       />
       <!-- <el-dialog
         v-model="changeReturnGoods"

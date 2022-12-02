@@ -1258,7 +1258,7 @@ const getReturnRequestTable = async () => {
 
 const tableProductInformationExportChange = ref([
   {
-    productPropertyId: 0,
+    productPropertyId: null,
     commodityName: '',
     accessory: '',
     quantity: 1,
@@ -1662,6 +1662,14 @@ const postOrderStransaction = async (index: number) => {
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
+  if (tableReturnFullyIntegrated.value.length < 2) {
+    return
+  }
+  if (tableProductInformationExportChange.value.length < 2) {
+    return
+  }
+  tableReturnFullyIntegrated.value.pop()
+  tableProductInformationExportChange.value.pop()
   tableReturnPost.value.push(
     tableReturnFullyIntegrated.value.map((e) => ({
       productPropertyId: parseInt(e.productPropertyId),
@@ -1679,7 +1687,7 @@ const postReturnRequest = async () => {
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
+    name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
     details: tableReturnPost.value
@@ -1748,7 +1756,7 @@ onMounted(async () => {
   await editData()
 })
 
-//Truong Ngo
+//TruongNgo
 const refundPrice = computed(() => {
   return getRefundPrice()
 })
@@ -1771,6 +1779,14 @@ const getExportPrice = () => {
     money += item.intoMoney
   })
   return money
+}
+let productArray: any = []
+const listOfOrderProduct = ref()
+const getReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
 }
 </script>
 
@@ -3746,7 +3762,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -3807,7 +3823,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -4427,6 +4443,7 @@ const getExportPrice = () => {
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
+                  getReturnOrder()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"

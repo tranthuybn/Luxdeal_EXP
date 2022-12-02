@@ -1586,6 +1586,8 @@ export default {
     informationRansomBeforeDueDate: 'Information ransom before due date',
     informationRansomAfterDueDate: 'Information ransom after due date',
     pawnPeriod: 'Pawn period',
-    extendPawn: 'Extend pawn'
+    extendPawn: 'Extend pawn',
+    informationReturnAfterDueDate: 'Information return after due date',
+    informationReturnExportProduct: 'Information return export product'
   }
 }

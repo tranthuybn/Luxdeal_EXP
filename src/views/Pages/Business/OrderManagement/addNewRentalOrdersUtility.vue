@@ -3156,6 +3156,7 @@ const removeRow = (index) => {
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
         :orderStatusType="2"
+        :type="2"
       />
 
       <!-- <el-dialog
@@ -3335,6 +3336,7 @@ const removeRow = (index) => {
         @add-row="addRow"
         @post-return-request="postReturnRequest"
         :orderStatusType="3"
+        :type="2"
       />
       <!-- <el-dialog
         :model-Value="false"

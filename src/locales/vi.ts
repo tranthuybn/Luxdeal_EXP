@@ -1705,6 +1705,8 @@ export default {
     informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
     informationRansomAfterDueDate: 'Thông tin chuộc hàng hết hạn',
     pawnPeriod: 'Thời hạn cầm đồ',
-    extendPawn: 'Gia hạn cầm đồ'
+    extendPawn: 'Gia hạn cầm đồ',
+    informationReturnAfterDueDate: 'Thông tin trả hàng hết hạn',
+    informationReturnExportProduct: 'Thông tin sản phẩm xuất trả'
   }
 }

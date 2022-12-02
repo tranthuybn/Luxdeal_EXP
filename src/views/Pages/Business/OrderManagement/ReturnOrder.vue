@@ -180,8 +180,11 @@ const removeRow = (scope) => {
         </div>
       </div>
       <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">{{
-          t('formDemo.rentalProductInformation')
+        <span class="w-[30%] text-base font-bold break-w" v-if="type == 2">{{
+          t('formDemo.fullyIntegrated')
+        }}</span>
+        <span class="w-[30%] text-base font-bold break-w" v-if="type == 3">{{
+          t('formDemo.productInformationExportChange')
         }}</span>
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
@@ -216,7 +219,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -266,7 +269,7 @@ const removeRow = (scope) => {
     @open="open"
     @close="close"
     class="font-bold"
-    :title="t('formDemo.infoReturnAheadOfTime')"
+    :title="t('reuse.informationReturnAfterDueDate')"
     width="40%"
     align-center
   >
@@ -335,9 +338,13 @@ const removeRow = (scope) => {
         </div>
       </div>
       <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">{{
-          t('formDemo.rentalProductInformation')
+        <span class="w-[30%] text-base font-bold break-w" v-if="type == 2">{{
+          t('formDemo.fullyIntegrated')
         }}</span>
+        <span class="w-[30%] text-base font-bold break-w" v-if="type == 3">{{
+          t('formDemo.productInformationExportChange')
+        }}</span>
+
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
     </div>
@@ -434,7 +441,9 @@ const removeRow = (scope) => {
         </div>
       </div>
       <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">Thông tin sản phẩm xuất trả</span>
+        <span class="w-[30%] text-base font-bold break-w">{{
+          t('reuse.informationReturnExportProduct')
+        }}</span>
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
     </div>
@@ -468,7 +477,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -563,7 +572,9 @@ const removeRow = (scope) => {
         </div>
       </div>
       <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">Thông tin sản phẩm xuất trả</span>
+        <span class="w-[30%] text-base font-bold break-w">{{
+          t('reuse.informationReturnExportProduct')
+        }}</span>
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
     </div>
@@ -597,7 +608,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -687,7 +698,9 @@ const removeRow = (scope) => {
         </div>
       </div>
       <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">Thông tin sản phẩm xuất trả</span>
+        <span class="w-[30%] text-base font-bold break-w">{{
+          t('reuse.informationReturnExportProduct')
+        }}</span>
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
     </div>
@@ -721,7 +734,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -863,7 +876,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1000,7 +1013,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1111,7 +1124,7 @@ const removeRow = (scope) => {
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number"/>
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('formDemo.conditionProducts')">

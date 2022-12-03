@@ -208,9 +208,9 @@ export const TargetType = (val) => {
 export const VoucherType = (val) => {
   switch (val) {
     case 1:
-      return t('formDemo.giftSpa')
-    case 2:
       return t('formDemo.giftDiscount')
+    case 2:
+      return t('formDemo.giftSpa')
     default:
       return ''
   }

@@ -310,7 +310,7 @@ const customPostDataFlashSale = (data) => {
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 1
-  customData.ServiceType = 1
+  customData.ServiceType = data.order
   customData.Image = data.Image
 
   if (valueRadioOjbApply.value == 3) {
@@ -322,7 +322,7 @@ const customPostDataFlashSale = (data) => {
   }
   customData.ProductPropertyIdJson = JSON.stringify(data.products)
   customData.VoucherType = 2
-  customData.VoucherConditionType = 2
+  customData.VoucherConditionType = data.conditon
   return customData
 }
 
@@ -386,12 +386,16 @@ const postData = async (data) => {
   console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.flash-sale',
+          params: { backRoute: 'business.promotion-strategy.flash-sale' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -490,6 +494,7 @@ onBeforeMount(() => {
           @customize-form-data="customizeData"
           :formDataCustomize="setFormData"
           @edit-data="editData"
+          :show-product="true"
         />
       </el-collapse-item>
     </el-collapse>

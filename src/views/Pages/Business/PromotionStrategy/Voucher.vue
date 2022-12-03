@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h, ref } from 'vue'
+import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
@@ -28,7 +28,7 @@ const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 provide('parameters', {
   params
 })
-const tabName = ref()
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'id',
@@ -129,27 +129,24 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.operator'),
     minWidth: '200',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', [
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
-        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') }),
-        h(ElButton, { icon: trashIcon, onClick: () => action(row, 'delete') })
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') })
       ])
     }
   }
 ])
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
 const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 const action = (row: any, type: string) => {
-  console.log('tabName', tabName.value)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: row.targetType }
+      params: { id: row.id, type: type, tab: row.voucherType }
     })
   }
 }

@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { getAllCustomer, getProductsList } from '@/api/Business'
+import { deleteCampaign, getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -117,10 +117,6 @@ const props = defineProps({
   showProduct: {
     type: Boolean,
     default: false
-  },
-  typeCombo: {
-    type: Boolean,
-    default: false
   }
 })
 
@@ -174,7 +170,6 @@ const setFormValue = async () => {
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
 
-    console.log('props.formDataCustomize: ', props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
 
@@ -217,6 +212,20 @@ watch(
     immediate: true
   }
 )
+
+watch(
+  () => formValue.value,
+  () => {
+    if (formValue.value) {
+      console.log('formValue: ', formValue.value)
+      if (props.type === 'detail' || props.type === 'edit') {
+        dataTable.spaData = formValue.value[0].productProperties
+        spaMoney.value = formValue.value[0].comboValue
+        imageUrl.value = formValue.value[0].images
+      }
+    }
+  }
+)
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -225,7 +234,7 @@ defineExpose({
 const loading = ref(false)
 
 //doc du lieu tu bang roi emit len goi API
-const { go } = useRouter()
+// const { go } = useRouter()
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
@@ -308,6 +317,8 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
+        data.Name = formValue.value.campaignTypeName
+        console.log('formValue: ', formValue.value)
         emit('edit-data', data)
         loading.value = false
       }
@@ -425,19 +436,19 @@ const delAction = async () => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
+        deleteCampaign({ id: props.id })
+          .then(() =>
+            ElNotification({
+              message: t('reuse.deleteSuccess'),
+              type: 'success'
+            })
+          )
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'warning'
+            })
           })
-        }
       })
       .catch(() => {
         ElNotification({

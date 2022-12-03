@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -208,20 +208,29 @@ const postData = async (data) => {
   let postPayload = FORM_IMAGES(payload)
   await addNewCampaign(postPayload)
 }
+// let apiData = ref()
 const customizeData = async (data) => {
+  // apiData.value = data
   setFormData.date = [data[0]?.fromDate, data[0]?.toDate]
   setFormData.products = data[0]?.productProperties
   setFormData.discountCode = data[0]?.code
   setFormData.shortDescription = data[0]?.description
-  // setFormData.condition = data[0]?.description
-}
-const editData = () => {
-  console.log('edit data')
+  setFormData.Images = data[0]?.Images
 }
 
-onBeforeMount(async () => {
-  await editData()
-})
+// watch(
+//   () => apiData.value,
+//   () => {
+//     if (apiData.value) editData()
+//   }
+// )
+const editData = (data) => {
+  console.log('edit data', data)
+  // const payload = {
+  //   Id: id,
+  //   Name:
+  // }
+}
 </script>
 
 <template>
@@ -245,7 +254,6 @@ onBeforeMount(async () => {
           :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
-          :typeCombo="true"
         />
       </el-collapse-item>
     </el-collapse>

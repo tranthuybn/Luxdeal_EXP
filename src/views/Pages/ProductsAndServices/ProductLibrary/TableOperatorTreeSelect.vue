@@ -17,7 +17,6 @@ import {
   ElNotification,
   ElImage,
   ElTreeSelect,
-  ElCheckbox,
   ElSelect,
   ElOption
 } from 'element-plus'
@@ -37,6 +36,8 @@ import {
   getOriginSelectOptions,
   getUnitSelectOptions
 } from './ProductLibraryManagement'
+import { isEqual } from 'lodash'
+import { formatProductStatus } from '@/utils/format'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -99,6 +100,10 @@ const props = defineProps({
   formDataCustomize: {
     type: Object,
     default: () => {}
+  },
+  apiStatus: {
+    type: Boolean,
+    default: true
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -190,7 +195,6 @@ defineExpose({
   getFormData: methods.getFormData
 })
 
-const loading = ref(false)
 let treeSelectData = ref()
 
 //doc du lieu tu bang roi emit len goi API
@@ -216,13 +220,13 @@ const save = async (type) => {
       return
     }
     if (isValid && validateFile) {
-      loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       if (treeSelectData.value == undefined) {
         await apiTreeSelect()
       }
       let parentNode = true
+      console.log('treeSelectData', treeSelectData)
       let ProductTypeId = treeSelectData.value.find((tree) => {
         if (tree.children.length > 0) {
           parentNode = false
@@ -250,24 +254,33 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         data.disabledTabOpen = false
-        emit('post-data', data)
-        setValues({ ProductStatus: 0 })
-        loading.value = false
+        emit('post-data', data, () => {
+          console.log('run here', props.apiStatus)
+          // if (props.apiStatus) {
+          //   disabledEverything()
+          //   setValues({ ProductStatus: 0 })
+          // }
+        })
+        console.log('run here', props.apiStatus)
       }
       if (type == 'saveAndAdd') {
         data.disabledTabOpen = true
-        emit('post-data', data)
-        unref(elFormRef)!.resetFields()
-        props.multipleImages
-          ? ListFileUpload.value.map((file) => handleRemove(file))
-          : removeImage()
-        loading.value = false
+        console.log('help', props.apiStatus)
+        emit('post-data', data, () => {
+          console.log('props.apiStatus', props.apiStatus)
+          if (props.apiStatus) {
+            unref(elFormRef)!.resetFields()
+            props.multipleImages
+              ? ListFileUpload.value.map((file) => handleRemove(file))
+              : removeImage()
+          }
+        })
+        console.log('tf')
       }
       if (type == 'edit') {
         data.Id = props.id
         data.DeleteFileIds = DeleteFileIds.toString()
         emit('edit-data', data, go(-1))
-        loading.value = false
       }
     }
     if (!isValid) {
@@ -434,7 +447,7 @@ const listType = ref<ListImages>('text')
 let timeCallAPI = 0
 const apiTreeSelect = async () => {
   if (timeCallAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 100, pageIndex: 1 })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 1000, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           treeSelectData.value = res.data.map((index) => ({
@@ -459,7 +472,7 @@ let CodeAndNameSelect = ref()
 let CodeOptions = ref()
 let NameAndCodeSelect = ref()
 const getCodeAndNameSelect = async () => {
-  const res = await getCodeAndNameProductLibrary()
+  const res = await getCodeAndNameProductLibrary({ pageIndex: 1, pageSize: 20 })
   CodeAndNameSelect.value = res.data.map((val) => ({
     label: val.productCode,
     value: val.productCode,
@@ -499,77 +512,198 @@ const remoteProductName = async (query: string) => {
   }
 }
 const sameProductCode = ref(false)
+const lastCodeObj = ref()
 const fillAllInformation = async (data) => {
   const codeObj = CodeOptions.value.find((code) => code.value == data)
-
-  codeObj
-    ? //ask if they want to change value of product type, brand ..
-      ElMessageBox.confirm(t('reuse.fillProductInformation'), t('reuse.notification'), {
-        confirmButtonText: t('reuse.confirm'),
-        cancelButtonText: t('reuse.cancel'),
-        type: 'info'
-      })
-        .then(() => {
-          getBusinessProductLibrary({ Id: codeObj?.id })
-            .then((res) => {
-              if (res.data.length == 0) {
-                ElNotification({
-                  message: t('reuse.cantFindData'),
-                  type: 'warning'
-                })
-              } else {
-                const fillValue = res.data[0]
-                const BrandId = fillValue.categories[0].id
-                const UnitId = fillValue.categories[2].id
-                const OriginId = fillValue.categories[3].id
-                setValues({
-                  Name: fillValue.name,
-                  ShortDescription: fillValue.shortDescription,
-                  VerificationInfo: fillValue.verificationInfo,
-                  ProductTypeId: fillValue.categories[1].value,
-                  BrandId: BrandId,
-                  UnitId: UnitId,
-                  OriginId: OriginId,
-                  Description: fillValue.description
-                })
-                const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
-                customPostData(checkData)
-              }
-              sameProductCode.value = true
-            })
-            .catch(() =>
+  //for fix bug purpose
+  if (isEqual(codeObj, lastCodeObj.value) && codeObj !== undefined) {
+    ElMessageBox.confirm(t('reuse.fillProductInformationAgain'), t('reuse.notification'), {
+      confirmButtonText: t('reuse.confirm'),
+      cancelButtonText: t('reuse.cancel'),
+      type: 'info'
+    })
+      .then(() => {
+        getBusinessProductLibrary({ Id: codeObj?.id })
+          .then((res) => {
+            if (res.data.length == 0) {
               ElNotification({
                 message: t('reuse.cantFindData'),
                 type: 'warning'
               })
-            )
+            } else {
+              const fillValue = res.data[0]
+              const BrandId = fillValue.categories[0].id
+              const UnitId = fillValue.categories[2].id
+              const OriginId = fillValue.categories[3].id
+              setValues({
+                ProductCode: null,
+                Name: fillValue.name,
+                ShortDescription: fillValue.shortDescription,
+                VerificationInfo: fillValue.verificationInfo,
+                ProductTypeId: fillValue.categories[1].value,
+                BrandId: BrandId,
+                UnitId: UnitId,
+                OriginId: OriginId,
+                Description: fillValue.description
+              })
+              const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
+              customPostData(checkData)
+            }
+            sameProductCode.value = true
+          })
+          .catch(() =>
+            ElNotification({
+              message: t('reuse.cantFindData'),
+              type: 'warning'
+            })
+          )
+      })
+      .catch(() => {})
+      .finally(() => {
+        setValues({ ProductCode: null })
+      })
+    return
+  } else {
+    lastCodeObj.value = codeObj
+    //if find code in api
+    codeObj
+      ? //ask if they want to change value of product type, brand ..
+        ElMessageBox.confirm(t('reuse.fillProductInformation'), t('reuse.notification'), {
+          confirmButtonText: t('reuse.confirm'),
+          cancelButtonText: t('reuse.cancel'),
+          type: 'info'
         })
-        .catch(() => {})
-        .finally(() => {
-          setValues({ ProductCode: '' })
-        })
-    : (sameProductCode.value = false)
-  // .finally(() => {
-  //   setValues({ ProductCode: '' })
-  // })
+          .then(() => {
+            getBusinessProductLibrary({ Id: codeObj?.id })
+              .then((res) => {
+                if (res.data.length == 0) {
+                  ElNotification({
+                    message: t('reuse.cantFindData'),
+                    type: 'warning'
+                  })
+                } else {
+                  const fillValue = res.data[0]
+                  const BrandId = fillValue.categories[0].id
+                  const UnitId = fillValue.categories[2].id
+                  const OriginId = fillValue.categories[3].id
+                  setValues({
+                    ProductCode: null,
+                    Name: fillValue.name,
+                    ShortDescription: fillValue.shortDescription,
+                    VerificationInfo: fillValue.verificationInfo,
+                    ProductTypeId: fillValue.categories[1].value,
+                    BrandId: BrandId,
+                    UnitId: UnitId,
+                    OriginId: OriginId,
+                    Description: fillValue.description
+                  })
+                  const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
+                  customPostData(checkData)
+                }
+                sameProductCode.value = true
+              })
+              .catch(() =>
+                ElNotification({
+                  message: t('reuse.cantFindData'),
+                  type: 'warning'
+                })
+              )
+          })
+          .catch(() => {})
+          .finally(() => {
+            setValues({ ProductCode: null })
+          })
+      : (sameProductCode.value = false)
+    // .finally(() => {
+    //   setValues({ ProductCode: '' })
+    // })
+  }
 }
 
 const callApiAttribute = async () => {
-  await getUnitSelectOptions(), await getBrandSelectOptions(), await getOriginSelectOptions()
+  await getUnitSelectOptions(),
+    await getBrandSelectOptions(),
+    await getOriginSelectOptions(),
+    await apiTreeSelect()
 }
-//for infinite scroll
-// const scrollMethod = () => {
-// console.log('scroll value', scrollTop)
-// console.log('height', divRef.value?.clientHeight)
-// }
-// const divRef = ref<HTMLDivElement>()
+
 onBeforeMount(() => {
   callApiAttribute()
-  // console.log('height', divRef.value)
+  setValues({ ProductStatus: 1 })
 })
 //key up enter
 const changeTreeData = (data) => {
   setValues({ ProductTypeId: data })
+}
+//fixbug
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    infiniteProduct()
+  }
+}
+let pageSize = 2
+const infiniteProduct = async () => {
+  const res = await getCodeAndNameProductLibrary({ pageIndex: pageSize, pageSize: 20 })
+  if (res) {
+    res.data.map((val) =>
+      CodeAndNameSelect.value.push({
+        label: val.productCode,
+        value: val.productCode,
+        name: val.name,
+        id: val.id
+      })
+    )
+    res.data.map((val) =>
+      NameAndCodeSelect.value.push({
+        label: val.name,
+        value: val.name,
+        productCode: val.productCode
+      })
+    )
+    CodeOptions.value = CodeAndNameSelect.value
+    pageSize++
+  }
+}
+const productCode = ref('')
+const productName = ref('')
+
+const setProductCode = () => {
+  setValues({ ProductCode: productCode.value })
+  fillAllInformation(productCode)
+}
+const setProductName = () => {
+  setValues({ ProductName: productName.value })
+}
+const resetForm = () => {
+  unref(elFormRef)!.resetFields()
+}
+const disabledUpload = ref(false)
+const disabledEverything = () => {
+  disabledUpload.value = true
+  const { setProps, setSchema } = methods
+  setProps({
+    disabled: true
+  })
+  setSchema(
+    schema.map((component) => ({
+      field: component.field,
+      path: 'componentProps.placeholder',
+      value: ''
+    }))
+  )
+  setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
+}
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
 }
 </script>
 <template>
@@ -624,25 +758,33 @@ const changeTreeData = (data) => {
               :remote-method="remoteProductCode"
               default-first-option
               @change="(data) => fillAllInformation(data)"
+              @input="(event) => (productCode = event.target.value)"
+              @blur="setProductCode"
+              @keyup.enter="setProductCode"
               popper-class="max-w-600px"
             >
               <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
                 <div ref="divRef" class="whereisthis"> -->
-              <el-option
-                ref="optionCodeHeight"
-                v-for="item in CodeOptions"
-                :key="item.id"
-                :label="item.label"
-                :value="item.value"
-              >
-                <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
-                <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                  >{{ t('reuse.productName') }}: {{ item.name }}</span
+              <div @scroll="scrolling" id="content">
+                <el-option
+                  ref="optionCodeHeight"
+                  v-for="item in CodeOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.value"
                 >
-              </el-option>
+                  <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
+                  <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                    >{{ t('reuse.productName') }}: {{ item.value }}</span
+                  >
+                </el-option>
+              </div>
               <!-- </div>
               </el-scrollbar> -->
             </el-select>
+            <el-button @click="resetForm" type="danger" size="small">{{
+              t('reuse.resetForm')
+            }}</el-button>
           </template>
           <template #Name="form">
             <el-select
@@ -657,6 +799,8 @@ const changeTreeData = (data) => {
               :remote-method="remoteProductName"
               default-first-option
               popper-class="max-w-600px"
+              @input="(event) => (productName = event.target.value)"
+              @blur="setProductName"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"
@@ -678,18 +822,9 @@ const changeTreeData = (data) => {
             </div>
           </template>
           <template #ProductStatus="form">
-            <!-- fix cung -->
-            <div v-if="form['ProductStatus'] == 0">{{ t('reuse.pending') }}</div>
-            <div v-else>
-              <el-checkbox v-model="form['ProductStatus']" :label="1" size="large" :disabled="true"
-                ><template #default>
-                  <label>{{ t('reuse.active') }}</label>
-                  <span class="text-[#FECB80]"
-                    >({{ t('reuse.allBusinessRelatedActivities') }})</span
-                  >
-                </template></el-checkbox
-              >
-            </div>
+            <!-- formatProductStatus cái này chưa chính xác trạng thái nên sửa lại -->
+            <div class="bg-gray-300">{{ formatProductStatus(form['ProductStatus']) }}</div>
+            <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
           </template>
         </Form>
       </ElCol>
@@ -699,10 +834,11 @@ const changeTreeData = (data) => {
         class="max-h-400px overflow-y-auto shadow-inner p-1"
       >
         <h3 class="text-center font-bold">{{ t('reuse.addImage') }}</h3>
+        <span class="text-[#FECB80]">({{ t('reuse.lessThanTenImages') }})</span>
         <el-upload
           action="#"
           class="avatar-uploader"
-          :disabled="props.type === 'detail'"
+          :disabled="props.type === 'detail' || disabledUpload"
           :auto-upload="false"
           :show-file-list="multipleImages"
           :multiple="multipleImages"
@@ -710,6 +846,7 @@ const changeTreeData = (data) => {
           :list-type="listType"
           :limit="10"
           :on-change="handleChange"
+          :on-exceed="handleExceed"
         >
           <div v-if="!multipleImages">
             <div v-if="imageUrl" class="relative">
@@ -728,7 +865,7 @@ const changeTreeData = (data) => {
                   <el-button :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="props.type !== 'detail'"
+                  v-if="props.type !== 'detail' && !disabledUpload"
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
@@ -750,44 +887,44 @@ const changeTreeData = (data) => {
     <template #under>
       <div v-if="props.type === 'add' || isNaN(props.id)">
         <!-- <div v-if="props.typeButton === 'form01'">
-              <ElButton type="primary" :loading="loading" @click="save('add')">
+              <ElButton type="primary"  @click="save('add')">
                 {{ t('reuse.save') }}
               </ElButton>
-              <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+              <ElButton type="primary"  @click="save('saveAndAdd')">
                 {{ t('reuse.addNew') }}
               </ElButton>
             </div>
             <div v-if="props.typeButton === 'form02'">
-              <ElButton type="primary" :loading="loading" @click="save">
+              <ElButton type="primary"  @click="save">
                 {{ t('reuse.fix') }}
               </ElButton>
             </div> -->
-        <ElButton type="primary" :loading="loading" @click="save('add')">
+        <ElButton type="primary" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+        <ElButton type="primary" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
-        <ElButton :loading="loading" @click="cancel">
+        <ElButton @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">
-        <ElButton :loading="loading" @click="edit">
+        <ElButton @click="edit">
           {{ t('reuse.edit') }}
         </ElButton>
-        <!-- <ElButton type="danger" :loading="loading" @click="delAction">
+        <!-- <ElButton type="danger"  @click="delAction">
           {{ t('reuse.delete') }}
         </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save('edit')">
+        <ElButton type="primary" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
-        <!-- <ElButton :loading="loading" @click="cancel">
+        <!-- <ElButton  @click="cancel">
           {{ t('reuse.cancel') }}
         </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <ElButton type="danger"  @click="delAction">
           {{ t('reuse.delete') }}
         </ElButton> -->
       </div>
@@ -822,5 +959,10 @@ const changeTreeData = (data) => {
   overflow: auto;
   display: flex;
   justify-content: center;
+}
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

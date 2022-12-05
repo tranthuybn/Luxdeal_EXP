@@ -273,7 +273,7 @@ const OpenCollapse = () => {
   }
   openLastCollapse.value = true
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name])
 const handleDeleteRow = async (scope) => {
   //newValue : newly created (havent post api)
   scope.row.newValue
@@ -316,7 +316,6 @@ const handleDeleteRow = async (scope) => {
         })
 }
 const handleEditRow = (data) => {
-  console.log('edit:', data)
   data.edited = true //change table cell to tree select
   data.categoriesValue = [] //convert obj to array
   //push data to tree select
@@ -349,13 +348,11 @@ const changeDataSwitch = (scope, dataSwitch) => {
 const emptyUpdateProductPropertyObj = {} as ProductProperty
 const customUpdateData = reactive(emptyUpdateProductPropertyObj)
 const customUpdate = async (data) => {
-  console.log('data:', data)
   //return newProductPropertyId when newValue post success
   customUpdateData.id = data.id ? data.id : newProductPropertyId.value
   customUpdateData.code = data.code
   customUpdateData.categories = data.categories
   customUpdateData.bussinessSetups = data.bussinessSetups
-  console.log('customUpdateData:', customUpdateData)
 
   return customUpdateData
 }
@@ -373,7 +370,6 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
       //   scope.row.categories.push({ id: element })
       // })
       scope.row.edited = false
-      console.log('scope', scope.row)
       //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
@@ -496,16 +492,16 @@ const rules = reactive({
   UnitId: [required()],
   OriginId: [required()],
   ProductCode: [
+    required(),
     { validator: notSpace },
     { validator: notSpecialCharacters },
-    { validator: ValidService.checkCodeServiceLength.validator },
-    required()
+    { validator: ValidService.checkCodeServiceLength.validator }
   ],
   Name: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
-    { validator: ValidService.checkSpaceBeforeAndAfter.validator },
-    required()
+    { validator: ValidService.checkSpaceBeforeAndAfter.validator }
   ],
   ShortDescription: [
     { validator: ValidService.checkNameLength.validator },
@@ -556,24 +552,39 @@ const getUnitValue = async (UnitId) => {
   }
 }
 // if(postSuccess)  api return newId and use this newId to add product property
+const apiStatus = ref(true)
 const postData = async (data) => {
   const UnitId = data.UnitId
   await postProductLibrary(FORM_IMAGES(data))
-    .then((res) => {
+    .then(async (res) => {
       newId.value = res.data
       ElNotification({
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
-      //disable tab when click saveAndAdd button
-      disabledTabOpen.value = data.disabledTabOpen
+
+      //disabledTabOpen = false when click button Add
+      //disabledTabOpen = true when click button SaveAndAdd
+      if (data.disabledTabOpen) {
+        disabledTabOpen.value = data.disabledTabOpen
+      } else {
+        disabledTabOpen.value = false
+        //open collapse 1
+        activeName.value = [collapse[1].name]
+        await collapse[1].api({ ProductId: newId.value }).then((res) => {
+          collapse[1].tableList = res.data
+        })
+        collapse[1].loading = false
+        await getAttributeData()
+      }
     })
-    .catch(() =>
+    .catch(() => {
       ElNotification({
         message: t('reuse.saveFail'),
         type: 'error'
       })
-    )
+      apiStatus.value = false
+    })
     //maybe use async await
     .finally(() => {
       getUnitValue(UnitId)
@@ -623,7 +634,6 @@ const customSeoData = (formData) => {
 }
 //manipulate data so can sent to form(Table Operator)
 const customizeData = async (formData) => {
-  console.log(formData)
   setFormData.BrandId = formData.categories[0].id
   setFormData.ProductTypeId = formData.categories[1].value
   setFormData.UnitId = formData.categories[2].id
@@ -1304,7 +1314,6 @@ watch(
 )
 // const arrayCategories = ref([])
 const productAttributeValue = (obj, scope) => {
-  console.log('data checked', obj, scope)
   scope.row.categories = obj.map((element) => ({ id: element.value, value: element.label }))
   // arrayCategories.value = obj.value
 }
@@ -1346,6 +1355,7 @@ const categoriesToString = (categories) => {
         :class="[
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]"
+        :apiStatus="apiStatus"
       />
     </el-collapse-item>
     <el-dialog

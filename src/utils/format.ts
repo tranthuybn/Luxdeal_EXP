@@ -17,6 +17,18 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatProductStatus = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.notActive')
+    case 2:
+      return t('reuse.active') + t('reuse.finishPending')
+    default:
+      return ''
+  }
+}
 export const formatTransactionType = (val) => {
   switch (val) {
     case 1:

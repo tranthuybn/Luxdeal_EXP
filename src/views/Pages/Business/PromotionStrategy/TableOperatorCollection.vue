@@ -129,6 +129,8 @@ let fileList = ref<UploadUserFile[]>([])
 
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+
+console.log('type: ', props.type)
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
@@ -300,6 +302,7 @@ const save = async (type) => {
       data.spa = spaMoney.value
       dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
+      data.name = formValue.value[0].descriptions
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)

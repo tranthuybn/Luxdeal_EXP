@@ -5,7 +5,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
-import { getCampaignList, addNewCampaign } from '@/api/Business'
+import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES } from '@/utils/format'
@@ -218,18 +218,31 @@ const customizeData = async (data) => {
   setFormData.Images = data[0]?.Images
 }
 
-// watch(
-//   () => apiData.value,
-//   () => {
-//     if (apiData.value) editData()
-//   }
-// )
-const editData = (data) => {
+const editData = async (data) => {
   console.log('edit data', data)
-  // const payload = {
-  //   Id: id,
-  //   Name:
-  // }
+  let postIdSpaService = ref('')
+  data.tableProductOfCombo.map((val) => {
+    postIdSpaService.value += val.service?.toString()
+  })
+  let postSpaTable = data.tableProductOfCombo.map((val) => ({
+    Id: val.id,
+    IsActive: val.isActive,
+    SpaServiceIds: postIdSpaService.value ?? '2,3'
+  }))
+  console.log('postSpaTable: ', postSpaTable)
+  const payload = {
+    Id: id,
+    Name: data.name,
+    Description: data.Description,
+    ProductPropertyIdJson: JSON.stringify(postSpaTable),
+    StartDate: data.date[0],
+    EndDate: data.date[1],
+    ExchangeValue: data.spa,
+    Image: data.Image
+  }
+
+  const updateForm = FORM_IMAGES(payload)
+  await updateCampaign(updateForm)
 }
 </script>
 

@@ -59,7 +59,8 @@ import {
   addOrderStransaction,
   createReturnRequest,
   getReturnRequest,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
@@ -784,14 +785,14 @@ const postData = async () => {
   }
   warehouseTranferAuto(3)
 }
-
+// chuyển kho auto
 const warehouseTranferAuto = async (type) => {
   const payload = {
     OrderId: orderIdSpa.value.data,
     Type: type
   }
 
-  await apiWarehouseTranfer(payload)
+  await postAutomaticWarehouse(payload)
 }
 
 const form = reactive({
@@ -2030,10 +2031,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute
-              :value="productCharacteristics"
-              @change-value="productAttributeValue"
-            />
+            <ProductAttribute :value="productCharacteristics" />
           </div>
         </div>
         <template #footer>
@@ -2548,7 +2546,7 @@ onMounted(async () => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="130"
+            min-width="150"
             prop="productPropertyId"
           >
             <template #default="props">
@@ -2599,7 +2597,7 @@ onMounted(async () => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="550"
+            min-width="400"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -2694,7 +2692,7 @@ onMounted(async () => {
             prop="intoMoney"
             :label="t('formDemo.spaFeePayment')"
             align="right"
-            width="150"
+            width="100"
           />
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center">

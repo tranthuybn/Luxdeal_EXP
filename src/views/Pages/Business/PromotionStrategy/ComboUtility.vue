@@ -179,12 +179,12 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 const postData = async (data) => {
-  console.log('run here', data.Image.name)
   let postIdSpaService = ref('')
-  data.tableProductOfCombo.map((val) => {
+  data.tableProductOfCombo.pop()
+  data.tableProductOfCombo?.map((val) => {
     postIdSpaService.value += val.service.toString()
   })
-  let postSpaTable = data.tableProductOfCombo.map((val) => ({
+  let postSpaTable = data.tableProductOfCombo?.map((val) => ({
     Id: val.id,
     IsActive: val.isActive,
     SpaServiceIds: postIdSpaService.value
@@ -205,6 +205,7 @@ const postData = async (data) => {
     Image: data.Image
   }
 
+  console.log('payload: ', payload)
   let postPayload = FORM_IMAGES(payload)
   await addNewCampaign(postPayload)
 }

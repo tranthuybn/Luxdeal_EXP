@@ -2271,16 +2271,7 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column :label="t('reuse.quantitySold')" align="center" width="90" />
-          <el-table-column :label="t('formDemo.numberOfTimesRented')" align="center" width="100" />
-          <el-table-column :label="t('reuse.numberOfTimesSpa')" align="center" width="100" />
-          <el-table-column :label="t('reuse.currentlyLeased')" align="center" width="100" />
-          <el-table-column
-            :label="`${t('reuse.quantityImportedInternalWarehouse')}`"
-            align="center"
-            width="100"
-          />
-          <el-table-column :label="`${t('reuse.returnedNumber')}`" align="center" width="100" />
+
           <el-table-column
             prop="unitName"
             :label="`${t('reuse.dram')}`"
@@ -2295,30 +2286,20 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="price" :label="t('reuse.pawnMoney')" align="center" width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.price"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column prop="intoMoney" :label="`${t('reuse.pawnfeeMoney')}`" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">200,000đ/1n</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                + {{ t('reuse.fix') }}
-              </div>
-            </div>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.intoMoneyPawn')}`" align="center" width="100" />
           <el-table-column :label="`${t('formDemo.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">...</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer"
                 >+ {{ t('router.business') }}</div
+              >
+            </div>
+          </el-table-column>
+
+          <el-table-column :label="t('reuse.importWarehouse')" width="200">
+            <div class="flex w-[100%]">
+              <div class="flex-1">Còn hàng</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                >+ {{ t('formDemo.chooseWarehouse') }}</div
               >
             </div>
           </el-table-column>

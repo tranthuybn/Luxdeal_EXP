@@ -47,7 +47,8 @@ import {
   addOrderStransaction,
   createReturnRequest,
   getReturnRequest,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  addQuickCustomer
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -130,15 +131,70 @@ const callCustomersApi = async () => {
   optionCallCustomerAPi++
 }
 
-const valueClassify = ref('individual')
+// phân loại khách hàng: 1: công ty, 2: cá nhân
+const valueClassify = ref(false)
 const optionsClassify = [
   {
-    value: 'company',
+    value: true,
     label: t('formDemo.company')
   },
   {
-    value: 'individual',
+    value: false,
     label: t('formDemo.individual')
+  }
+]
+
+// form add quick customer
+const addQuickCustomerName = ref()
+const quickTaxCode = ref()
+const quickRepresentative = ref()
+const quickPhoneNumber = ref()
+const quickEmail = ref()
+
+// Thêm nhanh khách hàng
+const createQuickCustomer = async () => {
+  const payload = {
+    IsOrganization: valueClassify.value,
+    Name: addQuickCustomerName.value,
+    TaxCode: quickTaxCode.value,
+    Representative: quickRepresentative.value,
+    Phonenumber: quickPhoneNumber.value,
+    Email: quickEmail.value,
+    DistrictId: 1,
+    WardId: 1,
+    Address: 1,
+    CustomerType: valueSelectCustomer.value
+  }
+  const formCustomerPayLoad = FORM_IMAGES(payload)
+  await addQuickCustomer(formCustomerPayLoad)
+    .then(() =>
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
+
+// select khách hàng
+const valueSelectCustomer = ref(1)
+const optionsCustomer = [
+  {
+    value: 1,
+    label: t('formDemo.customer')
+  },
+  {
+    value: 2,
+    label: t('reuse.supplier')
+  },
+  {
+    value: 3,
+    label: t('formDemo.joint')
   }
 ]
 
@@ -836,14 +892,6 @@ const collapse: Array<Collapse> = [
 
 const value = ref('')
 
-const valueSelectCustomer = ref(t('formDemo.customer'))
-const optionsCustomer = [
-  {
-    value: 'customer',
-    label: t('formDemo.customer')
-  }
-]
-
 const pawnOrderCode = ref()
 
 let customerID = ref()
@@ -1355,9 +1403,9 @@ onMounted(async () => {
         v-model="dialogAddQuick"
         width="40%"
         align-center
-        :title="`${t('formDemo.QuicklyAddCustomers')}`"
+        :title="t('formDemo.QuicklyAddCustomers')"
       >
-        <div v-if="valueClassify == 'company'">
+        <div v-if="valueClassify == true">
           <el-divider />
           <div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -1391,27 +1439,47 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterCompanyName')}`" />
+              <el-input
+                v-model="addQuickCustomerName"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterCompanyName')"
+              />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterTaxCode')}`" />
+              <el-input
+                v-model="quickTaxCode"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterTaxCode')"
+              />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterRepresentative')}`" />
+              <el-input
+                v-model="quickRepresentative"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterRepresentative')"
+              />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right"
                 >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterPhoneNumber')}`" />
+              <el-input
+                v-model="quickPhoneNumber"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterPhoneNumber')"
+              />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterEmail')}`" />
+              <el-input
+                v-model="quickEmail"
+                style="width: 100%"
+                :placeholder="`${t('formDemo.enterEmail')}`"
+              />
             </div>
           </div>
         </div>
@@ -1450,18 +1518,30 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterCustomerName')}`" />
+              <el-input
+                v-model="addQuickCustomerName"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterCustomerName')"
+              />
             </div>
 
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right"
                 >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterPhoneNumber')}`" />
+              <el-input
+                v-model="quickPhoneNumber"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterPhoneNumber')"
+              />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input style="width: 100%" :placeholder="`${t('formDemo.enterEmail')}`" />
+              <el-input
+                v-model="quickEmail"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterEmail')"
+              />
             </div>
           </div>
         </div>
@@ -1470,7 +1550,13 @@ onMounted(async () => {
             <el-button
               type="primary"
               class="w-[150px]"
-              @click.stop.prevent="dialogAddQuick = false"
+              @click.stop.prevent="
+                () => {
+                  dialogAddQuick = false
+                  createQuickCustomer()
+                  callCustomersApi()
+                }
+              "
               >{{ t('reuse.save') }}</el-button
             >
             <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
@@ -1479,7 +1565,6 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
-
       <!-- Dialog Thêm nhanh sản phẩm -->
       <el-dialog
         v-model="dialogAddProduct"
@@ -3247,7 +3332,7 @@ onMounted(async () => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="200"
+            min-width="190"
             prop="productPropertyId"
           >
             <template #default="props">
@@ -3298,7 +3383,7 @@ onMounted(async () => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="620"
+            min-width="400"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -3347,9 +3432,20 @@ onMounted(async () => {
 
           <el-table-column :label="`${t('reuse.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
-              <div class="flex-1">{{ t('reuse.sell') }} {{ t('workplace.lease') }}</div>
+              <div class="flex-1 flex flex-col">
+                <p>{{ t('reuse.sell') }} </p>
+                <p>{{ t('workplace.lease') }}</p>
+              </div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer"
                 >+ {{ t('router.business') }}</div
+              >
+            </div>
+          </el-table-column>
+          <el-table-column :label="t('reuse.importWarehouse')" width="200">
+            <div class="flex w-[100%]">
+              <div class="flex-1">Còn hàng</div>
+              <div class="flex-1 text-right text-blue-500 cursor-pointer"
+                >+ {{ t('formDemo.chooseWarehouse') }}</div
               >
             </div>
           </el-table-column>

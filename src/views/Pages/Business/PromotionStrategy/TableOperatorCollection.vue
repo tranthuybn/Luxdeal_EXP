@@ -221,7 +221,22 @@ watch(
     if (formValue.value) {
       console.log('formValue: ', formValue.value)
       if (props.type === 'detail' || props.type === 'edit') {
-        dataTable.spaData = formValue.value[0].productProperties
+        console.log('productProperties: ', formValue.value[0].productProperties)
+        let newArr = ref(formValue.value[0].productProperties)
+        console.log('newArr: ', newArr)
+        console.log('newArr: ', newArr.value[0].spaServices)
+        let formService = ref([])
+        newArr.value[0]?.spaServices.map((e) => {
+          formService.value.push(e.name)
+        })
+        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+          code: val.code,
+          id: val.id,
+          isActive: val.isActive,
+          service: formService.value
+        }))
+        console.log('formDataTable: ', formDataTable)
+        dataTable.spaData = formDataTable
         spaMoney.value = formValue.value[0].comboValue
         imageUrl.value = formValue.value[0].images
       }
@@ -300,10 +315,10 @@ const save = async (type) => {
         }
       }
       data.spa = spaMoney.value
-      dataTable.spaData.pop()
+      // dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
-      data.name = formValue.value[0].code
-      data.Description = formValue.value[0].descriptions
+      // data.name = formValue.value[0]?.code
+      // data.Description = formValue.value[0]?.descriptions
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)

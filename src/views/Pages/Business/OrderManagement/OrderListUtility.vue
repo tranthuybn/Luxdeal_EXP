@@ -49,7 +49,7 @@ import {
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getTotalOrder,
+  getPriceOfSpecificProduct,
   getOrderTransaction,
   addTPV,
   createReturnRequest,
@@ -496,17 +496,33 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = Number(obj.price)
-
+let totalPriceOrder = ref(0)
+let totalFinalOrder = ref(0)
+let promoValue = ref(0)
+let promoCash = ref(0)
+const getValueOfSelected = async (_value, obj, scope) => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
+  //TODO
+  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
+  data.finalPrice = data.price * data.quantity
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
-  autoCalculateOrder()
 }
+
+// const handleChangeQuantity = (data) => {
+//   console.log('data: ', data)
+// }
 
 const updatePrice = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
@@ -633,6 +649,10 @@ let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -658,6 +678,9 @@ const changeRowPromo = () => {
 
 const handleChangePromo = (data) => {
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -681,49 +704,41 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number | undefined
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-
-let totalPriceOrder = ref()
-let totalFinalOrder = ref()
 // Total order
-const autoCalculateOrder = async () => {
-  let newTable = ref<Array<ListOfProductsForSaleType>>([])
-  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    newTable.value = [...ListOfProductsForSale.value]
-  newTable.value.splice(newTable.value.length - 1)
-  tableOrderDetail.value = newTable.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: e.quantity,
-    accessory: e.accessory,
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 1,
-    fromDate: '2022-11-07T07:21:33.634Z',
-    toDate: '2022-12-07T07:21:33.634Z',
-    paymentPeriod: 1,
-    days: 1,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
+const getProductPropertyPrice = async (
+  productPropertyId = 0,
+  quantity = 0,
+  serviceType = 1,
+  startDate = null,
+  endDate = null
+): Promise<number> => {
+  const getPricePayload = {
+    productPropertyId: productPropertyId,
+    quantity: quantity,
+    serviceType: serviceType,
+    statDate: startDate,
+    endDate: endDate
   }
-  const res = await getTotalOrder(payload)
-  for (let i = 0; i < newTable.value.length; i++) {
-    ListOfProductsForSale.value[i].finalPrice = res[i].totalPrice
-  }
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
-  }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
-  }, 0)
+  // lấy giá tiền của một sản phẩm
+  const res = await getPriceOfSpecificProduct(getPricePayload)
+  const price = res.data.price ?? 0
+  return price
+}
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  // promo.value?.reduceCash != 0
+  //   ? (promoValue.value = promo.value.reduceCash)
+  //   : (promoCash.value = promo.value.reducePercent)
+
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 }
 
 // change address
@@ -1110,6 +1125,8 @@ const callPromoApi = async () => {
       label: product.code,
       value: product.name,
       description: product.description,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
       voucherConditionTypeName:
@@ -3599,10 +3616,10 @@ const getExportPrice = () => {
         <div>
           <div class="flex items-center gap-3">
             <el-select
-              @change="(data) => handleChangePromo(data)"
               v-model="input"
               filterable
               :placeholder="t('formDemo.enterPromoCode')"
+              @change="(data) => handleChangePromo(data)"
             >
               <el-option
                 v-for="item in promoTable"
@@ -3947,7 +3964,7 @@ const getExportPrice = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="productPropertyId"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyCode"
@@ -3996,7 +4013,12 @@ const getExportPrice = () => {
               </div>
               <el-input
                 v-else
-                @change="autoCalculateOrder"
+                @change="
+                  () => {
+                    data.row.finalPrice = data.row.price * data.row.quantity
+                    autoCalculateOrder()
+                  }
+                "
                 v-model="data.row.quantity"
                 style="width: 100%"
               />
@@ -4027,11 +4049,7 @@ const getExportPrice = () => {
             width="180"
           >
             <template #default="props">
-              {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
-                  : '0 đ'
-              }}
+              {{ changeMoney.format(props.row.finalPrice) }}
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
@@ -4127,13 +4145,8 @@ const getExportPrice = () => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

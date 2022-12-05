@@ -25,22 +25,23 @@ export const wareHouse = [
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
-    align: 'center'
+    align: 'center',
+    width: '60'
   },
   {
     field: 'ticketCode',
     label: t('reuse.importTransferWarehouseCode'),
-    minWidth: '150'
+    minWidth: '100'
   },
   {
     field: 'ticketCode',
     label: t('reuse.inputLotCode'),
-    minWidth: '150'
+    minWidth: '100'
   },
   {
     field: 'orderCode',
     label: t('reuse.orderCode'),
-    minWidth: '150'
+    minWidth: '100'
   },
   {
     field: 'productCode',
@@ -55,26 +56,26 @@ export const wareHouse = [
   {
     field: 'productPropertyName',
     label: t('reuse.productInformation'),
-    minWidth: '100'
+    minWidth: '120'
   },
 
   {
     field: 'accessory',
     label: t('reuse.accessory'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterService
   },
   {
     field: 'LotImageUrl',
     label: t('reuse.image'),
-    minWidth: '100',
+    minWidth: '150',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
     field: 'typeOfTransfer',
     label: t('reuse.category'),
-    minWidth: '100',
+    minWidth: '120',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'span',
@@ -86,13 +87,13 @@ export const wareHouse = [
   {
     field: 'warehouse',
     label: t('router.warehouse'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterWarehouseManagement
   },
   {
     field: 'locationWarehouse',
     label: t('reuse.location'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterLocation
   },
   {
@@ -124,13 +125,13 @@ export const wareHouse = [
   {
     field: 'inputPrice',
     label: t('reuse.priceImport'),
-    minWidth: '100',
+    minWidth: '150',
     sortable: true
   },
   {
     field: 'CashIntoInventory',
     label: t('reuse.CashIntoInventory'),
-    minWidth: '100',
+    minWidth: '150',
     sortable: true,
     formatter: (row, _column, _cellValue, _index) => {
       return h(
@@ -143,7 +144,7 @@ export const wareHouse = [
   {
     field: 'businessManagement',
     label: t('reuse.businessManagement'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterDeposit,
     formatter: (row, _column, _cellValue, _index) => {
       return h(

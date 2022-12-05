@@ -1713,7 +1713,7 @@ const addRow = () => {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
-  const tableReturnPost = [{}]
+  let tableReturnPost = [{}]
   if (rentReturnOrder.value.tableData.length < 2) {
     return
   }

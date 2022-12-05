@@ -302,7 +302,8 @@ const save = async (type) => {
       data.spa = spaMoney.value
       dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
-      data.name = formValue.value[0].descriptions
+      data.name = formValue.value[0].code
+      data.Description = formValue.value[0].descriptions
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)

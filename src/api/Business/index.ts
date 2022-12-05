@@ -735,11 +735,14 @@ export const getBalanceList = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  console.log('data: ', res.data)
   return res && res.data
 }
 
 export const getaddNewPotenialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/addNewPotenialCustomer/List', params })
+  return res && res.data
+}
+export const getPriceOfSpecificProduct = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/order/getPriceOfSpecificProduct', params })
   return res && res.data
 }

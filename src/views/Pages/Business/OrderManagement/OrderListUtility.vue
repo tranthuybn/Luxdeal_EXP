@@ -520,10 +520,6 @@ const getValueOfSelected = async (_value, obj, scope) => {
   }
 }
 
-// const handleChangeQuantity = (data) => {
-//   console.log('data: ', data)
-// }
-
 const updatePrice = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.refundUnitPrice = Number(obj.price)
@@ -730,10 +726,6 @@ const autoCalculateOrder = () => {
   ListOfProductsForSale.value.map((val) => {
     if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
   })
-  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
-  // promo.value?.reduceCash != 0
-  //   ? (promoValue.value = promo.value.reduceCash)
-  //   : (promoCash.value = promo.value.reducePercent)
 
   promoCash.value != 0
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)

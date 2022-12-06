@@ -146,6 +146,7 @@ export default {
     enterServiceCode: 'Nhập mã dịch vụ',
     enterServiceName: 'Nhập tên dịch vụ',
     voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
+    priceSpaService: 'Đơn giá phí dịch vụ Spa',
     voucherDiscount: 'Voucher giảm giá đơn hàng',
     giftSpa: 'Tặng dịch vụ Spa',
     giftDiscount: 'Giảm giá đơn hàng',

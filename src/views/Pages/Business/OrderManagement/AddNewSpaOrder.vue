@@ -48,7 +48,6 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  getTotalOrder,
   getSellOrderList,
   getOrderTransaction,
   getReceiptPaymentVoucher,
@@ -215,46 +214,16 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number | undefined
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+// interface tableOrderDetailType {
+//   productPropertyId: number
+//   quantity: number | undefined
+//   accessory: string | undefined
+//   spaServiceIds: string
+// }
+// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
-const autoCalculateOrder = async () => {
-  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    ListOfProductsForSale.value.pop()
-  tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
-
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 1,
-    fromDate: '2022-10-31T09:15:56.106Z',
-    toDate: '2022-10-31T09:15:56.106Z',
-    paymentPeriod: 1,
-    days: 1,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
-  }
-  const res = await getTotalOrder(payload)
-
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
-  }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
-  }, 0)
-}
 
 const historyTable = ref([
   {
@@ -447,13 +416,41 @@ const ScrollProductBottom = () => {
           noMoreProductData.value = true
         })
 }
+let idProductP = ref()
+const getValueOfSelected = async (_value, obj, scope) => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
 
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+  console.log('id va scope', scope)
+  console.log('value:', _value)
+  idProductP.value = _value
+  //TODO
+  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
+  data.finalPrice = data.price * data.quantity
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  // add new row
+  if (scope.$index == ListOfProductsForSale.value.length - 1) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 }
 
 const handleTotal = (scope) => {
@@ -512,7 +509,8 @@ const callPromoApi = async () => {
     optionCallPromoAPi++
   }
 }
-
+let promoValue = ref(0)
+let promoCash = ref(0)
 const currentRow = ref()
 let checkPromo = ref(false)
 let promo = ref()
@@ -527,6 +525,10 @@ let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -580,6 +582,9 @@ const detailedListExpenses = [
 
 const handleChangePromo = (data) => {
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -607,18 +612,15 @@ const changeNamePromo = () => {
 
 const listServicesSpa = ref()
 const optionsApiServicesSpa = ref()
-let optionCallAPiServicesSpa = 0
-const callApiServicesSpa = async () => {
-  if (optionCallAPiServicesSpa == 0) {
-    const res = await getSpaListByProduct({ ProductPropertyId: 1 })
-    listServicesSpa.value = res.data
-    optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
-      id: product.id,
-      value: product.price,
-      name: product.spaServiceName
-    }))
-  }
-  optionCallAPiServicesSpa++
+
+const callApiServicesSpa = async (val) => {
+  const res = await getSpaListByProduct({ ProductPropertyId: parseInt(val) })
+  listServicesSpa.value = res.data
+  optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
+    id: product.id,
+    value: product.price,
+    name: product.spaServiceName
+  }))
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -1048,6 +1050,32 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
+let totalOrder = ref(0)
+let dataEdit = ref()
+
+// total order
+const getProductPropertyPrice = async (
+  productPropertyId = 0,
+  quantity = 0,
+  serviceType = 1,
+  startDate = null,
+  endDate = null
+): Promise<number> => {
+  const getPricePayload = {
+    productPropertyId: productPropertyId,
+    quantity: quantity,
+    serviceType: serviceType,
+    statDate: startDate,
+    endDate: endDate
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await getPriceOfSpecificProduct(getPricePayload)
+  const price = res.data.price ?? 0
+  console.log('data mook:', res)
+
+  return price
+}
+
 function printPage(id: string, { url, title, w, h }) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -1437,10 +1465,6 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 
-// total order
-let totalOrder = ref(0)
-let dataEdit = ref()
-
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1614,13 +1638,11 @@ var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 
 onBeforeMount(async () => {
-  callApiServicesSpa()
   callCustomersApi()
   callApiCollaborators()
   callApiCity()
   callAPIProduct()
   callApiPrice()
-
   if (type == 'add') {
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -2605,14 +2627,24 @@ const postReturnRequest = async (reason) => {
           </el-table-column>
 
           <el-table-column :label="t('router.ServiceLibrarySpaService')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Kiểm tra</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormSettingServiceSpa = true"
-                  ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
-                ></div
-              >
-            </div>
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1">Kiểm tra</div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        callApiServicesSpa(data.row.productPropertyId)
+                        dialogFormSettingServiceSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
           <el-table-column :label="t('reuse.importExportWarehouse')" width="230">
@@ -2628,7 +2660,7 @@ const postReturnRequest = async (reason) => {
             </div>
           </el-table-column>
 
-          <el-table-column prop="finalPrice" :label="t('reuse.type')" align="center" width="90">
+          <el-table-column prop="typeSpa" :label="t('reuse.type')" align="center" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.type"
@@ -2646,10 +2678,18 @@ const postReturnRequest = async (reason) => {
             width="90"
           >
             <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.quantity }}
+              </div>
               <el-input
+                v-else
+                @change="
+                  () => {
+                    data.row.finalPrice = data.row.price * data.row.quantity
+                    autoCalculateOrder()
+                  }
+                "
                 v-model="data.row.quantity"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
@@ -2671,7 +2711,7 @@ const postReturnRequest = async (reason) => {
           </el-table-column>
 
           <el-table-column
-            prop="intoMoney"
+            prop="finalPrice"
             :label="t('formDemo.spaFeePayment')"
             align="right"
             width="100"
@@ -2892,21 +2932,21 @@ const postReturnRequest = async (reason) => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="180" />
 
             <el-table-column
               prop="productName"
               :label="t('router.ServiceLibrarySpaService')"
-              width="280"
+              width="120"
             />
-
-            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.intoMoneyByday')">
+            <el-table-column prop="type" :label="t('reuse.type')" width="90" />
+            <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="90" />
+            <el-table-column prop="price" :label="t('formDemo.priceSpaService')" width="120">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('reuse.pawnMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
               </template>
@@ -2914,7 +2954,7 @@ const postReturnRequest = async (reason) => {
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
+              <p class="text-black font-bold dark:text-white">{{ t('formDemo.spaFeePayment') }} </p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>

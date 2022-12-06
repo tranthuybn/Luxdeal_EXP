@@ -346,6 +346,7 @@ export default {
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
     voucherGiftSpa: 'Voucher gift Spa',
+    priceSpaService: 'Price spa service',
     giftSpa: 'Gift spa',
     giftDiscount: 'Gift discount',
     appliesToOrdersFrom: 'Applies to orders from',

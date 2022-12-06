@@ -9,8 +9,9 @@ import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import moment from 'moment'
-import { FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const curDate = 'VC' + moment().format('hhmmss')
 
@@ -100,8 +101,8 @@ const schema = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         { label: t('reuse.sellOrderList'), value: 1 },
-        { label: t('reuse.leaseOrderList'), value: 2 },
-        { label: t('reuse.spaOrderList'), value: 3 }
+        { label: t('reuse.leaseOrderList'), value: 3 },
+        { label: t('reuse.spaOrderList'), value: 5 }
       ]
     },
     value: 1
@@ -258,8 +259,6 @@ const rules = reactive({
 })
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  console.log(data)
-
   data == 3 ? (schema[13].hidden = true) : (schema[13].hidden = false)
   valueRadioOjbApply.value = data
 }
@@ -338,6 +337,8 @@ type FormDataEdit = {
   VoucherConditionType?: number
   ExchangeValue?: number
   CampaignType: number
+  MinimumPriceToGetReduce: number
+  MaximumReduce: number
 }
 
 const customEditDataVoucher = (data) => {
@@ -355,10 +356,13 @@ const customEditDataVoucher = (data) => {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
+  customData.MinimumPriceToGetReduce = 10000
+  customData.MaximumReduce = 10000
+  customData.VoucherConditionType = data.condition.value
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
   customData.CampaignType = 4
-  customData.ServiceType = 1
+  customData.ServiceType = data.order
   customData.Image = data.Image
   if (data.target == 3) {
     customData.CustomerIds = null
@@ -367,15 +371,14 @@ const customEditDataVoucher = (data) => {
     customData.TargetType = 2
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
+  customData.ExchangeValue = 1
+  customData.ProductPropertyIdJson = '[]'
   customData.ProductPropertyIdJson = JSON.stringify(
     data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 
@@ -401,10 +404,14 @@ type FormDataPost = {
   ServiceType: number
   Image: any
   CampaignType: number
+  MinimumPriceToGetReduce: number
+  MaximumReduce: number
 }
 
 const customPostDataVoucher = (data) => {
   const customData = {} as FormDataPost
+  customData.VoucherType = 1
+  customData.CampaignType = 4
 
   if (data.promotion == 1) {
     customData.ReducePercent = data.percent
@@ -416,12 +423,14 @@ const customPostDataVoucher = (data) => {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
+  customData.MinimumPriceToGetReduce = 10000
+  customData.MaximumReduce = 10000
   customData.Code = data.code
   customData.Name = data.code
   customData.Description = data.shortDescription
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
-  customData.ServiceType = 1
+  customData.ServiceType = data.order
   customData.Image = data.Image
 
   if (valueRadioOjbApply.value == 3) {
@@ -432,24 +441,25 @@ const customPostDataVoucher = (data) => {
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = '[]'
-  customData.VoucherType = 2
   customData.ExchangeValue = 1
-  customData.VoucherConditionType = 2
-  customData.CampaignType = 4
+  customData.VoucherConditionType = data.condition
   return customData
 }
 
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.voucher',
+          params: { backRoute: 'business.promotion-strategy.voucher' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -464,29 +474,51 @@ type SetFormData = {
   date: any
   shortDescription: string
   customers: any
+  condition: string
+  Image: any
+  target: number
+  percent: number
+  money: number
+  imageurl?: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
 const customizeData = async (data) => {
+  if (data[0].reduce) {
+    const moneyType = data[0].reduce.split(' ')
+    moneyType[1] == '%'
+      ? ((setFormData.promotion = 1), (setFormData.percent = moneyToNumber(data[0].reduce)))
+      : ((setFormData.promotion = 2), (setFormData.money = moneyToNumber(data[0].reduce)))
+  } else {
+    setFormData.promotion = 3
+  }
+  changeSuffixIcon(setFormData.promotion)
+
+  setFormData.condition = data[0].voucherConditionTypeName
   setFormData.code = data[0].code
-  setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
-  setFormData.shortDescription = data[0].shortDescription
+  setFormData.shortDescription = data[0].description
   setFormData.customers = data[0].customers
-  console.log('setFormDataAfterChange: ', setFormData)
+  setFormData.Image = data[0].images[0].path
+  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
 }
+const { push } = useRouter()
 
 const editData = async (data) => {
   data = customEditDataVoucher(data)
 
   await updateCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.voucher',
+          params: { backRoute: 'business.promotion-strategy.voucher' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -515,7 +547,6 @@ onBeforeMount(() => {
           :schema="schema"
           :type="type"
           :id="id"
-          :showProduct="false"
           :params="params"
           :apiId="getCampaignList"
           @post-data="postData"

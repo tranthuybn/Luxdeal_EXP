@@ -26,7 +26,7 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { FORM_IMAGES } from '@/utils/format'
+import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
@@ -57,6 +57,7 @@ import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
+import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -76,7 +77,6 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 // Call api danh sách cộng tác viên
-// const collaboratorsValue = ref()
 const listCollaborators = ref()
 const optionsCollaborators = ref()
 let optionCallCollaborators = 0
@@ -93,7 +93,6 @@ const callApiCollaborators = async () => {
 }
 
 // Call api danh sách khách hàng
-// const customersValue = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -326,10 +325,8 @@ const dialogIPRForm = ref(false)
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
 // tạo đơn hàng
-// const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -399,10 +396,6 @@ let totalOrder = ref(0)
 let dataEdit = ref()
 
 const ListFileUpload = ref<UploadUserFile[]>([])
-// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-//   ListFileUpload.value = uploadFiles
-// }
 
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
@@ -524,7 +517,6 @@ const editData = async () => {
     )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    // debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -747,7 +739,6 @@ const handleChangeQuickAddProduct = async (data: any) => {
   const dataSelectedObj = listProducts.value.find(
     (product: { productPropertyId: any }) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -791,11 +782,8 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].label)
-
 const changeAddressCustomer = (data: any) => {
   if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
@@ -980,7 +968,7 @@ const postData = async () => {
       Address: enterdetailAddress.value,
       fromDate: moment(ruleForm.rentalPeriod[0]).format('YYYY/MM/DD'),
       toDate: moment(ruleForm.rentalPeriod[1]).format('YYYY/MM/DD'),
-      Days: 1, // 1 hoặc 7 hoặc 30
+      Days: 1,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
@@ -1136,8 +1124,6 @@ const getFormReceipts = () => {
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
     }
-
-    // PrintReceipts.value = !PrintReceipts.value
   } else {
     ElMessage({
       showClose: true,
@@ -1190,12 +1176,7 @@ const postPC = async () => {
 }
 
 // Lấy chi tiết phiếu thu chi
-// let formDetailPaymentReceipt = ref()
-// const getDetailPayment = () => {
-//   openReceiptDialog()
-// }
-
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
@@ -1299,26 +1280,6 @@ interface historyTableType {
   invoiceGoodsEnteringWarehouse?: number
   inventoryStatus?: string
 }
-// Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory ?? '2'
-  }))
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
-    description: inputReasonReturn.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
-  }
-  await createReturnRequest(payload)
-  getReturnRequestTable()
-}
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
@@ -1347,16 +1308,6 @@ const updatePrice = (_value, obj, scope) => {
   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
 }
 
-// const tableProductInformationExportChange = [
-//   {
-//     commodityName: '',
-//     accessory: '',
-//     quantity: '',
-//     unitPrices: 'đ',
-//     intoMoney: 'đ'
-//   }
-// ]
-
 // Thông tin phiếu thanh toán phí ký gửi spa
 const dialogDepositFeeInformation = ref(false)
 // Call api chi tiết bút toán theo id
@@ -1367,8 +1318,6 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogAccountingEntryAdditional.value = true
   else if (num == 2) dialogDepositSlip.value = true
   else dialogDepositFeeInformation.value = true
@@ -1387,6 +1336,59 @@ onBeforeMount(() => {
 onMounted(async () => {
   await editData()
 })
+
+//TruongNgo
+const truocHan = ref(false)
+const hetHan = ref(false)
+const giaHan = ref(false)
+
+const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const listOfOrderProduct = ref()
+const setDataForReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
+  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.period = ruleForm.rentalPeriod
+  rentReturnOrder.value.extendDate = ''
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.inputReturnReason = inputReasonReturn
+  rentReturnOrder.value.tableData = ListOfProductsForSale
+}
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async (reason) => {
+  let tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
+  }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
+}
+
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
+}
+const removeRow = (index) => {
+  rentReturnOrder.value.tableData.splice(index, 1)
+}
 </script>
 
 <template>
@@ -2636,7 +2638,6 @@ onMounted(async () => {
                 () => {
                   postOrderStransaction()
                   dialogAccountingEntryAdditional = false
-                  // onAddDebtTableReturnDeposit()
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2709,16 +2710,8 @@ onMounted(async () => {
             <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template> -->
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template> -->
-            </el-table-column>
+            <el-table-column prop="price" :label="t('reuse.unitPrices')" />
+            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
@@ -2727,10 +2720,7 @@ onMounted(async () => {
               </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2847,16 +2837,8 @@ onMounted(async () => {
             <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template> -->
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template> -->
-            </el-table-column>
+            <el-table-column prop="price" :label="t('reuse.unitPrices')" />
+            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
@@ -2865,10 +2847,7 @@ onMounted(async () => {
               </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2924,169 +2903,38 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
-      <!-- Thông tin trả hàng trước thời hạn-->
-      <el-dialog
-        v-model="changeReturnGoods"
-        :title="t('formDemo.infoReturnAheadOfTime')"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">{{ infoCompany.phone }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonReturn" class="w-[100%]" />
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.fullyIntegrated')
-          }}</span>
-          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table
-            ref="singleTableRef"
-            :data="tableReturnFullyIntegrated"
-            border
-            style="width: 100%"
-          >
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="productPropertyId"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            >
-              <template #default="props">
-                <MultipleOptionsBox
-                  :fields="[
-                    t('reuse.productCode'),
-                    t('reuse.managementCode'),
-                    t('formDemo.productInformation')
-                  ]"
-                  filterable
-                  :items="listProducts"
-                  valueKey="productPropertyId"
-                  labelKey="name"
-                  :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
-                  :defaultValue="props.row.productPropertyCode"
-                  @scroll-top="ScrollProductTop"
-                  @scroll-bottom="ScrollProductBottom"
-                  :clearable="false"
-                  @update-value="(value, obj) => updatePrice(value, obj, props)"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')">
-              <template #default="props">
-                <el-input v-model="props.row.accessory" class="text-right" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
-              <template #default="props">
-                <el-input v-model="props.row.quantity" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="conditionProducts" :label="t('formDemo.conditionProducts')">
-              <template #default="props">
-                <el-input v-model="props.row.conditionProducts" />
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div class="flex items-center pt-4">
-          <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationExportChange')
-          }}</span>
-          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="changeReturnGoods = false">{{ t('button.print') }}</el-button>
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      changeReturnGoods = false
-                      postReturnRequest()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
+      <ReturnOrder
+        v-model="truocHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="2"
+        :type="3"
+      />
+      <ReturnOrder
+        v-model="hetHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="3"
+        :type="3"
+      />
+      <ReturnOrder
+        v-model="giaHan"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="8"
+        :type="3"
+      />
 
       <el-collapse-item :name="collapse[0].name">
         <template #title>
@@ -3491,10 +3339,37 @@ onMounted(async () => {
               t('button.cancelOrder')
             }}</el-button>
             <el-button
-              @click="changeReturnGoods = !changeReturnGoods"
+              @click="
+                () => {
+                  changeReturnGoods = !changeReturnGoods
+                  truocHan = true
+                  setDataForReturnOrder()
+                }
+              "
               type="warning"
               class="min-w-42 min-h-11"
               >Trả hàng trước thời hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Trả hàng hết hạn</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  giaHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              class="min-w-42 min-h-11 !border-red-500"
+              ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
           </div>
         </div>

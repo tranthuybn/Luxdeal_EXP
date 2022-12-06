@@ -1584,6 +1584,18 @@ export default {
     outOfStockInventory: 'Out of stock',
     exporting: 'Exporting',
     importing: 'Importing',
-    initializeAndWrite: 'I1nitialize & Write'
+    initializeAndWrite: 'I1nitialize & Write',
+    // exchange order
+    returnOrderPrice: 'Return order price',
+    totalReturnMoney: 'Total return money',
+    totalSellMoney: 'Total sell money',
+    totalDiffMoney: 'Total diff money',
+    depositPeriod: 'Deposit period',
+    informationRansomBeforeDueDate: 'Information ransom before due date',
+    informationRansomAfterDueDate: 'Information ransom after due date',
+    pawnPeriod: 'Pawn period',
+    extendPawn: 'Extend pawn',
+    informationReturnAfterDueDate: 'Information return after due date',
+    informationReturnExportProduct: 'Information return export product'
   }
 }

@@ -60,7 +60,8 @@ import {
   createReturnRequest,
   getReturnRequest,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  getPriceOfSpecificProduct
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
@@ -1290,7 +1291,7 @@ interface historyTableType {
   inventoryStatus?: string
 }
 
-const inputReasonChange = ref('')
+// const inputReasonChange = ref('')
 // const updatePrice = (_value, obj, scope) => {
 //   scope.row.productPropertyId = obj.productPropertyId
 //   scope.row.refundUnitPrice = Number(obj.price)
@@ -1594,6 +1595,15 @@ watch(
   }
 )
 
+//call api mook giá sản phẩm
+const priceItem = ref()
+
+const callApiPrice = async () => {
+  const res = await getPriceOfSpecificProduct({ id: id })
+  priceItem.value = res.data[0]
+  console.log('response', res)
+}
+
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 const changeReturnGoods = ref(false)
@@ -1609,6 +1619,7 @@ onBeforeMount(async () => {
   callApiCollaborators()
   callApiCity()
   callAPIProduct()
+  callApiPrice()
 
   if (type == 'add') {
     ruleForm.orderCode = curDate

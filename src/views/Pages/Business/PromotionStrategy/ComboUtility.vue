@@ -149,8 +149,6 @@ const collapseChangeEvent = (val) => {
     })
 }
 
-//upload image
-
 type SetFormData = {
   code: string
   promotion: number

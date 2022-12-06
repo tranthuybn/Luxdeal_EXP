@@ -231,8 +231,6 @@ const collapseChangeEvent = (val) => {
     })
 }
 
-//upload image
-
 const activeName = ref(collapse[0].name)
 const rules = reactive({})
 

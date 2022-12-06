@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h, ref } from 'vue'
+import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
@@ -28,7 +28,6 @@ const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 provide('parameters', {
   params
 })
-const tabName = ref()
 const columns = reactive<TableColumn[]>([
   {
     field: 'id',
@@ -145,7 +144,6 @@ const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 const action = (row: any, type: string) => {
-  console.log('tabName', tabName.value)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,

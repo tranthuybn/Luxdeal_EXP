@@ -18,7 +18,6 @@ const props = defineProps({
     default: () => {}
   }
 })
-console.log('orderData?', props.orderData)
 </script>
 <template>
   <el-dialog

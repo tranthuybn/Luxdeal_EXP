@@ -239,12 +239,9 @@ const customEditDataVoucher = (data) => {
   customData.ProductPropertyIdJson = JSON.stringify(
     data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 const rules = reactive({})
@@ -311,7 +308,6 @@ const customPostDataVoucher = (data) => {
 
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
     .then(() =>
@@ -338,14 +334,12 @@ type SetFormData = {
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
 const customizeData = async (data) => {
-  console.log('data here', data)
   setFormData.code = data[0].code
   setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
-  console.log('setFormDataAfterChange: ', setFormData)
 }
 
 const editData = async (data) => {

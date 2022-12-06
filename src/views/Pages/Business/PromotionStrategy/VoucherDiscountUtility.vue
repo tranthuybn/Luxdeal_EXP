@@ -258,8 +258,6 @@ const rules = reactive({
 })
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  console.log(data)
-
   data == 3 ? (schema[13].hidden = true) : (schema[13].hidden = false)
   valueRadioOjbApply.value = data
 }
@@ -370,12 +368,9 @@ const customEditDataVoucher = (data) => {
   customData.ProductPropertyIdJson = JSON.stringify(
     data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 
@@ -441,7 +436,6 @@ const customPostDataVoucher = (data) => {
 
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
     .then(() =>
@@ -474,7 +468,6 @@ const customizeData = async (data) => {
   setFormData.reduce = data[0].reduce
   setFormData.shortDescription = data[0].shortDescription
   setFormData.customers = data[0].customers
-  console.log('setFormDataAfterChange: ', setFormData)
 }
 
 const editData = async (data) => {

@@ -68,7 +68,7 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 
 const handleRemove = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -77,7 +77,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
 }
 
 const handleDownload = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -170,55 +170,6 @@ const options = [
     label: 'Option2'
   }
 ]
-// handle input
-// interface tableDataType {
-//   initializationDate: string
-//   certificateInformation: string
-//   receiptOrPayment: string
-//   quantity: number
-//   unitPrice: string
-//   intoMoney: string
-//   collected: string
-//   rentalFeeDebt: string
-//   kindOfMoney: string
-//   paymentProposal: string
-//   payment: string
-//   alreadyPaidForTt: boolean
-//   statusAccountingEntry: string
-// }
-
-// const debtTable = ref<Array<tableDataType>>([
-//   {
-//     initializationDate: moment().format('L').toString(),
-//     certificateInformation: 'Thu tiền cọc thuê',
-//     receiptOrPayment: 'PT354344',
-//     quantity: 0,
-//     unitPrice: '',
-//     intoMoney: '',
-//     collected: '95,000,000 đ',
-//     rentalFeeDebt: '',
-//     kindOfMoney: t('formDemo.deposit'),
-//     paymentProposal: '',
-//     payment: 'Thanh toán chuyển khoản',
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   },
-//   {
-//     initializationDate: moment().format('L').toString(),
-//     certificateInformation: 'Kỳ thanh toán phí thuê theo tháng/ Ngày 22/02/2022/Tháng thứ 1',
-//     receiptOrPayment: 'PT354344',
-//     quantity: 0,
-//     unitPrice: '',
-//     intoMoney: '',
-//     collected: '1,800,000 đ',
-//     rentalFeeDebt: '1,800,000 đ',
-//     kindOfMoney: t('formDemo.fee'),
-//     paymentProposal: 'DNTT6543',
-//     payment: 'Thanh toán chuyển khoản',
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   }
-// ])
 
 let customerID = ref()
 const getValueOfCustomerSelected = (value, obj) => {
@@ -230,11 +181,8 @@ const getValueOfCustomerSelected = (value, obj) => {
   enterdetailAddress.value = obj.address
   ruleForm.customerName = obj.label
 }
-// tạo đơn hàng
-// const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -301,60 +249,6 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 
-// const addLastIndexTable2 = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.billPawn'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
-// const onAddDebtTableReturnDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.returnDepositCustomer'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
-// const onAddDebtTableDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.feePaymentSlip'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
 const forceRemove = ref(false)
 
 //add row to the end of table if fill all table
@@ -376,17 +270,12 @@ let totalOrder = ref(0)
 let dataEdit = ref()
 
 const ListFileUpload = ref<UploadUserFile[]>([])
-// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-//   ListFileUpload.value = uploadFiles
-// }
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
   }
 }
 
-// phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref(false)
 const optionsClassify = [
   {
@@ -400,7 +289,6 @@ const optionsClassify = [
 ]
 
 // Call api danh sách khách hàng
-// const customersValue = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -427,7 +315,6 @@ const callCustomersApi = async () => {
   optionCallCustomerAPi++
 }
 
-// Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
     IsOrganization: valueClassify.value,
@@ -456,7 +343,6 @@ const createQuickCustomer = async () => {
       })
     )
 }
-// form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
 const quickRepresentative = ref()
@@ -478,22 +364,17 @@ const chooseDelivery = [
     label: t('reuse.receivePawnGoodsAtCounter')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].value)
 
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
-  console.log('optionsCustomerApi: ', optionsCustomerApi.value)
-  // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
   if (infoCustomerId.value.isOrganization) {
-    console.log('1', optionsCustomerApi)
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
     infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    console.log('2')
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
     infoCompany.taxCode = infoCustomerId.value.taxCode
@@ -503,7 +384,6 @@ const changeAddressCustomer = (data) => {
 }
 
 // Call api danh sách cộng tác viên
-// const collaboratorsValue = ref()
 const listCollaborators = ref()
 const optionsCollaborators = ref()
 let optionCallCollaborators = 0
@@ -521,7 +401,7 @@ const callApiCollaborators = async () => {
 
 let objIdPayment = ref()
 let idPayment = ref()
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 const postPaymentRequest = async () => {
   const payload = {
     Code: codePaymentRequest.value,
@@ -573,13 +453,8 @@ const postQuickCustomer = async () => {
   await createQuickProduct(payload)
 }
 
-// const checked1 = ref(true)
 const checked2 = ref(false)
-// const checked3 = ref(false)
-// const checked4 = ref(false)
 const dialogAddQuick = ref(false)
-
-// const checked7 = ref(false)
 const historyTable = ref<Array<any>>([])
 
 const input = ref('')
@@ -617,30 +492,11 @@ interface historyTableType {
 const pawnOrderCode = ref()
 
 function printPage(id: string, { url, title, w, h }) {
-  // const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-  // const WinPrint = window.open(
-  //   '',
-  //   '',
-  //   'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  // )
-  // WinPrint?.document.write(`<!DOCTYPE html>
-  //               <html>
-  //                 <head>
-  //                   ${stylesHtml}
-  //                 </head>
-  //                 <body style="overflow-y: scroll">
-  //                   ${prtHtml}
-  //                 </body>
-  //               </html>`)
-
-  //get content need to print
   const printContents = document.getElementById(id)?.innerHTML
-  // open new window at the center of screen
   const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
   const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
 
@@ -764,21 +620,20 @@ const dialogFormVisible = ref(false)
 
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
+      return 'submit'
     } else {
-      console.log('error submit!', fields)
+      return fields
     }
   })
   await formEl2.validate((valid, fields) => {
     if (valid) {
       checkValidateForm.value = true
-      console.log('submit!')
+      return 'submit!'
     } else {
-      console.log('error submit!', fields)
+      return fields
     }
   })
 }
@@ -804,8 +659,6 @@ const ruleForm = reactive({
 })
 const inputDeposit = ref(0)
 
-//[{"ProductPropertyId":2,"Quantity":1,"ProductPrice":10000,"SoldPrice":10000,"WarehouseId":1,"SpaServiceIds":"47,48","Accessory":"Accessory1"}]
-
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
   collaborators: [
@@ -822,14 +675,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  // pawnTerm: [
-  //   {
-  //     type: 'date',
-  //     required: true,
-  //     message: 'Please pick a date',
-  //     trigger: 'change'
-  //   }
-  // ],
   paymentPeriod: [
     {
       required: true,
@@ -1012,7 +857,6 @@ const changeMoney = new Intl.NumberFormat('vi', {
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1045,7 +889,7 @@ const handleTotal = (scope) => {
 }
 
 const productAttributeValue = (data) => {
-  console.log('data checked', data)
+  return data
 }
 
 const district = ref()
@@ -1076,28 +920,8 @@ const choosePayment = [
     label: t('formDemo.cardPayment')
   }
 ]
-// const value = ref('')
 let payment = ref(choosePayment[0].value)
 
-// const onAddDebtTableItem = () => {
-//   debtTable.value.push({
-//     initializationDate: moment().format('L').toString(),
-//     certificateInformation: '',
-//     receiptOrPayment: '',
-//     quantity: 0,
-//     unitPrice: '',
-//     intoMoney: '',
-//     collected: '',
-//     rentalFeeDebt: '',
-//     kindOfMoney: '',
-//     paymentProposal: '',
-//     payment: '',
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: ''
-//   })
-// }
-
-// Thông tin phiếu bán hàng
 const nameDialog = ref('')
 
 const dialogFeePaymentSlip = ref(false)
@@ -1427,7 +1251,6 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    // debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -1449,7 +1272,6 @@ const dialogAccountingEntryAdditional = ref(false)
 let tableSalesSlip = ref()
 let formAccountingId = ref()
 const getAccountingEntry = async (index, num) => {
-  console.log('num,index:', num, index)
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
@@ -2743,10 +2565,7 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2802,7 +2621,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogPawnCouponInfomation = false
-                      // addLastIndexTable2()
                       postOrderStransaction(1)
                     }
                   "
@@ -2905,10 +2723,7 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">{{ t('formDemo.intoMoneyPawn') }}</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2959,7 +2774,6 @@ onMounted(async () => {
               @click="
                 () => {
                   dialogFeePaymentSlip = false
-                  // onAddDebtTableDeposit()
                   postOrderStransaction(2)
                 }
               "
@@ -3111,7 +2925,6 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    //onAddDebtTableReturnDeposit()
                     postOrderStransaction(3)
                     dialogAccountingEntryAdditional = false
                   }

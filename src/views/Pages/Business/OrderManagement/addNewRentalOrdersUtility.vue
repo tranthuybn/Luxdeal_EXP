@@ -136,7 +136,6 @@ let checkValidate = ref(false)
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
-// var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -148,21 +147,19 @@ const codeExpenditures = ref()
 const codePaymentRequest = ref()
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  // console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
+      return 'submit!'
     } else {
-      console.log('error submit!', fields)
+      return fields
     }
   })
   await formEl2.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
-      checkValidate.value = true
+      return 'submit!'
     } else {
-      console.log('error submit!', fields)
+      return fields
     }
   })
 }
@@ -172,7 +169,7 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 
 const handleRemove = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -181,7 +178,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
 }
 
 const handleDownload = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -370,7 +367,6 @@ const collapseChangeEvent = (val) => {
 const activeName = ref(collapse[0].name)
 
 const dialogAddQuick = ref(false)
-// phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref(false)
 const optionsClassify = [
   {
@@ -392,14 +388,10 @@ const optionsCustomer = [
   }
 ]
 
-// const openDialogChoosePromotion = ref(false)
 const radioVAT = ref(false)
 const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
-
-// Chọn kỳ thanh toán phí thuê
-// const chooseRentalPaymentPeriod = ref(t('reuse.byMonth'))
 
 // Call api danh sách cộng tác viên
 const listCollaborators = ref()
@@ -563,7 +555,6 @@ const changeNamePromo = () => {
 
 const changeAddressCustomer = (data) => {
   if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     optionCallPromoAPi = 0
     customerIdPromo.value = result.id
@@ -583,7 +574,6 @@ const changeAddressCustomer = (data) => {
     }
   } else {
     customerAddress.value = ''
-    // deliveryMethod.value = ''
   }
 }
 
@@ -647,7 +637,6 @@ const callApiProductList = async () => {
     PageIndex: pageIndexProducts.value,
     PageSize: 20
   })
-  // console.log('res: ', res.data)
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       productCode: product.code,
@@ -1074,7 +1063,6 @@ const getValueOfSelected = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.productName = obj.name
   scope.row.price = obj.price
-  // console.log('getValueOfSelected')
 }
 
 const dialogAddProduct = ref(false)
@@ -1204,7 +1192,6 @@ const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1338,30 +1325,10 @@ const alreadyPaidForTt = ref(true)
 const dialogRentalPaymentInformation = ref(false)
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
 
-// const tableSalesSlip = [
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '2',
-//     rentalUnitPrice: '2,000,000 đ',
-//     rentalFee: '4,000,000 đ'
-//   }
-// ]
-
 const feePaymentPeriod = ref('Kỳ thanh toán phí thuê theo tháng/Ngày 22/02/2022/ Tháng thứ 2')
 
 // Thông tin phiếu thanh toán tiền cọc thuê
 const dialogDepositSlip = ref(false)
-// let totalDepositPrice = ref
-
-// const tableDeposit = [
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '2',
-//     intoARentalDeposit: '15,000,000 đ'
-//   }
-// ]
 
 // Thông tin phiếu nhập kho trả hàng cho thuê
 const dialogWarehouseRentalPayment = ref(false)
@@ -1437,7 +1404,6 @@ const addStatusDelay = (index) => {
 }
 
 // fake trạng thái đơn hàng cho thuê
-// bắt thay đổi đơn hàng
 
 const priceChangeOrders = ref(false)
 let countPriceChange = 0
@@ -1590,11 +1556,6 @@ function openReceiptDialog() {
   nameDialog.value = 'Phiếu thu'
 }
 
-// function openPaymentDialog() {
-//   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-//   nameDialog.value = 'Phiếu chi'
-// }
-
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
@@ -1627,7 +1588,6 @@ function printPage(id: string) {
 const recharger = ref('Trần Hữu Dương | 0998844533')
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
-// const inputReasonReturn = ref('')
 
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
@@ -1690,8 +1650,6 @@ const getFormReceipts = () => {
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
     }
-
-    // PrintReceipts.value = !PrintReceipts.value
   } else {
     ElMessage({
       showClose: true,
@@ -1704,7 +1662,6 @@ const getFormReceipts = () => {
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  // console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1740,7 +1697,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1762,17 +1718,15 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
@@ -1846,7 +1800,6 @@ const postReturnRequest = async () => {
     acessory: e.accessory ?? '2'
   }))
   tableReturnPost.value.pop()
-  // console.log('tableReturnPost: ', tableReturnPost.value)
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
@@ -1866,8 +1819,6 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  // console.log('tableSalesSlip: ', tableSalesSlip.value)
-  // console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogRentalPaymentInformation.value = true
   if (num == 2) dialogDepositSlip.value = true
   if (num == 3) dialogAccountingEntryAdditional.value = true

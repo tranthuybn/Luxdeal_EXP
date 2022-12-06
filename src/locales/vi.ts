@@ -1722,6 +1722,7 @@ export default {
     notActive: 'Không hoạt động',
     lessThanTenImages: 'Không quá 10 ảnh',
     limitUploadImages: 'Số ảnh tối đa là 10',
-    imagesYouChoose: 'Số ảnh bạn chọn là'
+    imagesYouChoose: 'Số ảnh bạn chọn là',
+    haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm'
   }
 }

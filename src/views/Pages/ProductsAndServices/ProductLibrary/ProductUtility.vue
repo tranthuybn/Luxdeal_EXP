@@ -210,7 +210,16 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
-  let randomCode = Math.random().toString(36).substr(2, 5)
+  console.log('asd', collapse[1].tableList)
+  if (
+    collapse[1].tableList.length > 0 &&
+    (collapse[1].tableList[collapse[1].tableList.length - 1].categories == undefined ||
+      collapse[1].tableList[collapse[1].tableList.length - 1].categories.length == 0)
+  ) {
+    ElMessage.error(t('reuse.haveNotChooseProperty'))
+    return
+  }
+  let randomCode = `SP${Date.now()}`
   //have id when in edit mode
   //newId: when click save and add return id
   const findId = isNaN(id) ? newId.value : id
@@ -321,7 +330,7 @@ const handleEditRow = (data) => {
   //push data to tree select
   if (!data.newValue) {
     for (let i = 0; i <= 4; i++) {
-      if (data.categories[i]?.id !== 0) {
+      if (data.categories[i] !== undefined && data.categories[i].id !== 0) {
         data.categoriesValue.push(data.categories[i]?.id)
       }
     }
@@ -363,14 +372,13 @@ const handleSaveRow = (scope, formEl: FormInstance | undefined) => {
   if (!formEl) return
   //validate for its own row not all table
   //but i dont use it anymore, used to be validate if user enter all field
+  if (scope.row.categories.length == 0) {
+    ElMessage.error(t('reuse.haveNotChooseProperty'))
+    return
+  }
   formEl.validateField('', async (valid) => {
     if (valid) {
-      // scope.row.categories = []
-      // arrayCategories.value.forEach((element) => {
-      //   scope.row.categories.push({ id: element })
-      // })
       scope.row.edited = false
-      //newValue ? post api : update api
       if (scope.row?.newValue == true) {
         await postProductProperty(JSON.stringify(scope.row))
           .then((res) => {
@@ -555,6 +563,7 @@ const getUnitValue = async (UnitId) => {
 const apiStatus = ref(true)
 const postData = async (data) => {
   const UnitId = data.UnitId
+  data.ProductTypeId = data.ProductType
   await postProductLibrary(FORM_IMAGES(data))
     .then(async (res) => {
       newId.value = res.data
@@ -697,7 +706,6 @@ const depositTableVisible = ref(false)
 const pawnTableVisible = ref(false)
 const spaTableVisible = ref(false)
 const warehouseTableVisible = ref(false)
-let callApiWarehouseTable = 0
 
 //same logic for table in product property(spa,rent,sell,deposit,pawn)
 // findPropertyId: id of product(father)
@@ -753,15 +761,12 @@ const openSpaTable = async (scope) => {
 }
 //chua co api sau nay se lam
 let warehouseDialogTitle = ref('')
-const openWarehouseTable = async (dialogTitle) => {
-  warehouseDialogTitle.value = dialogTitle
+const openWarehouseTable = async (scope) => {
+  warehouseDialogTitle.value = categoriesToString(scope.row.categories)
   warehouseTableVisible.value = true
-  if (callApiWarehouseTable == 0) {
-    const res = collapse[6].api ? await collapse[6].api({ pageSize: 10, pageIndex: 1 }) : ''
-    collapse[6].tableList = res.data
-    collapse[6].loading = false
-    callApiWarehouseTable++
-  }
+  const res = collapse[6].api ? await collapse[6].api({ pageSize: 10, pageIndex: 1 }) : ''
+  collapse[6].tableList = res.data
+  collapse[6].loading = false
 }
 //same logic
 let pawnDialogTitle = ref('')
@@ -1646,7 +1651,7 @@ const categoriesToString = (categories) => {
                   link
                   type="primary"
                   :disabled="type == 'detail'"
-                  @click="openWarehouseTable(scope.row.featureGroup)"
+                  @click="openWarehouseTable(scope)"
                   >{{ t('reuse.detail') }}</el-button
                 >
               </div>

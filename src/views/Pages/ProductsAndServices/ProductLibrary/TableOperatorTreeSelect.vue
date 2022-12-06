@@ -226,7 +226,6 @@ const save = async (type) => {
         await apiTreeSelect()
       }
       let parentNode = true
-      console.log('treeSelectData', treeSelectData)
       let ProductTypeId = treeSelectData.value.find((tree) => {
         if (tree.children.length > 0) {
           parentNode = false
@@ -242,7 +241,7 @@ const save = async (type) => {
             (options) => options.label === data.ProductTypeId
           ))
       ProductTypeId
-        ? (data.ProductTypeId = ProductTypeId.id)
+        ? (data.ProductType = ProductTypeId.id)
         : ElNotification({
             message: t('reuse.cantFindProductData'),
             type: 'warning'
@@ -254,14 +253,11 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         data.disabledTabOpen = false
-        emit('post-data', data, () => {
-          console.log('run here', props.apiStatus)
-          // if (props.apiStatus) {
-          //   disabledEverything()
-          //   setValues({ ProductStatus: 0 })
-          // }
-        })
-        console.log('run here', props.apiStatus)
+        emit('post-data', data)
+        if (props.apiStatus) {
+          disabledEverything()
+          setValues({ ProductStatus: 0, ProductTypeId: ProductTypeId })
+        }
       }
       if (type == 'saveAndAdd') {
         data.disabledTabOpen = true

@@ -61,7 +61,6 @@ export const sellOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
@@ -76,7 +75,6 @@ export const sellOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productName, productPropertyName }) => {
           return h('li', { key: id }, `${productName}${productPropertyName}`)
         })
@@ -188,7 +186,6 @@ export const rentalorder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
@@ -203,7 +200,6 @@ export const rentalorder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productName, productPropertyName }) => {
           return h('li', { key: id }, `${productName}${productPropertyName}`)
         })
@@ -369,7 +365,6 @@ export const orderDeposit = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
@@ -384,7 +379,6 @@ export const orderDeposit = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productName, productPropertyName }) => {
           return h('li', { key: id }, `${productName}${productPropertyName}`)
         })
@@ -544,7 +538,6 @@ export const orderPawn = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
@@ -559,7 +552,6 @@ export const orderPawn = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productName, productPropertyName }) => {
           return h('li', { key: id }, `${productName}${productPropertyName}`)
         })
@@ -741,7 +733,6 @@ export const orderSpa = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productCode }) => {
           return h('li', { key: id }, productCode)
         })
@@ -756,7 +747,6 @@ export const orderSpa = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.orderDetails.map(({ id, productName, productPropertyName }) => {
           return h('li', { key: id }, `${productName}${productPropertyName}`)
         })

@@ -259,8 +259,6 @@ const rules = reactive({
 })
 let valueRadioOjbApply = ref(2)
 const hideTableCustomer = (data) => {
-  console.log(data)
-
   data == 3 ? (schema[13].hidden = true) : (schema[13].hidden = false)
   valueRadioOjbApply.value = data
 }
@@ -375,12 +373,12 @@ const customEditDataVoucher = (data) => {
   }
   customData.ExchangeValue = 1
   customData.ProductPropertyIdJson = '[]'
-  console.log('data edit', data, customData)
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+  )
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 
@@ -451,7 +449,6 @@ const customPostDataVoucher = (data) => {
 
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
     .then(() => {
@@ -506,7 +503,6 @@ const customizeData = async (data) => {
   setFormData.customers = data[0].customers
   setFormData.Image = data[0].images[0].path
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
-  console.log('setFormDataAfterChange: ', setFormData)
 }
 const { push } = useRouter()
 

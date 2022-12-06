@@ -111,5 +111,36 @@ export default [
         ...responseStructure
       }
     }
+  },
+  {
+    url: '/order/getPriceOfSpecificProduct',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { id, quantity, serviceType, statDate, endDate } = query
+      const price = (Math.floor(Math.random() * 100) + 1) * 10000
+      const responseStructure = new serviceResponse(
+        {
+          id: id,
+          price: price,
+          serviceType: serviceType,
+          quantity: quantity,
+          statDate: statDate ?? null,
+          endDate: endDate ?? null
+        },
+        200,
+        true,
+        result_code,
+        'Succeed',
+        {
+          pageSize: 0,
+          pageIndex: 0,
+          count: 0
+        }
+      )
+      return {
+        ...responseStructure
+      }
+    }
   }
 ]

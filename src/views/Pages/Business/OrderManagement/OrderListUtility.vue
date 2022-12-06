@@ -49,7 +49,7 @@ import {
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getTotalOrder,
+  getPriceOfSpecificProduct,
   getOrderTransaction,
   addTPV,
   createReturnRequest,
@@ -492,15 +492,19 @@ const ScrollProductBottom = () => {
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = Number(obj.price)
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
+  //TODO
+  data.price = getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
+  data.finalPrice = (data.price?.value * data.quantity).toString() + 'đ'
+  console.log(data.price?.value, data)
 
+  // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
-  autoCalculateOrder()
 }
 
 const updatePrice = (_value, obj, scope) => {
@@ -673,50 +677,29 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number | undefined
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 // Total order
-const autoCalculateOrder = async () => {
-  let newTable = ref<Array<ListOfProductsForSaleType>>([])
-  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    newTable.value = [...ListOfProductsForSale.value]
-  newTable.value.splice(newTable.value.length - 1)
-  tableOrderDetail.value = newTable.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: e.quantity,
-    accessory: e.accessory,
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 1,
-    fromDate: '2022-11-07T07:21:33.634Z',
-    toDate: '2022-12-07T07:21:33.634Z',
-    paymentPeriod: 1,
-    days: 1,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
+const getProductPropertyPrice = async (
+  productPropertyId = 0,
+  quantity = 0,
+  serviceType = 1,
+  startDate = null,
+  endDate = null
+): Promise<number> => {
+  const getPricePayload = {
+    productPropertyId: productPropertyId,
+    quantity: quantity,
+    serviceType: serviceType,
+    statDate: startDate,
+    endDate: endDate
   }
-  const res = await getTotalOrder(payload)
-  for (let i = 0; i < newTable.value.length; i++) {
-    ListOfProductsForSale.value[i].finalPrice = res[i].totalPrice
-  }
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
-  }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
-  }, 0)
+  // lấy giá tiền của một sản phẩm
+  const res = await getPriceOfSpecificProduct(getPricePayload)
+  const price = res.data.price ?? 0
+  return price
 }
+const autoCalculateOrder = () => {}
 
 // change address
 let autoChangeCommune = ref()
@@ -3974,7 +3957,7 @@ const getReturnOrder = () => {
               </div>
               <el-input
                 v-else
-                @change="autoCalculateOrder"
+                @change="autoCalculateOrder()"
                 v-model="data.row.quantity"
                 style="width: 100%"
               />
@@ -4003,15 +3986,7 @@ const getReturnOrder = () => {
             :label="t('formDemo.intoMoney')"
             align="right"
             width="180"
-          >
-            <template #default="props">
-              {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
-                  : '0 đ'
-              }}
-            </template>
-          </el-table-column>
+          />
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
             <div class="flex w-[100%] items-center">
               <div class="w-[40%]">Còn hàng</div>

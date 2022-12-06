@@ -1402,7 +1402,7 @@ const addLastIndexSellTable = () => {
 }
 
 watch(
-  () => tableData,
+  () => tableData.value[tableData.value.length - 1],
   () => {
     if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
       addLastIndexSellTable()

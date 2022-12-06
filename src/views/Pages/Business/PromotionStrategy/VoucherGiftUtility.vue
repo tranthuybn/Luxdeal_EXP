@@ -249,12 +249,9 @@ const customEditDataVoucher = (data) => {
       SpaServiceIds: item.service.toString()
     }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 const rules = reactive({})
@@ -328,7 +325,6 @@ const customPostDataVoucher = (data) => {
 const { push } = useRouter()
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
     .then(() => {
@@ -370,8 +366,6 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.customers = data[0].customers
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
-
-  console.log('data load:', data)
 }
 
 const editData = async (data) => {

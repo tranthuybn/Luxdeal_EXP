@@ -73,7 +73,6 @@ import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
 
-// const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
@@ -295,7 +294,6 @@ const onAddHistoryTableItem = () => {
     unit: t('formDemo.psc')
   })
 }
-//wetf
 
 // Thông tin phiếu nhập kho hoàn hàng đổi/trả
 const informationWarehouseReceipt = ref(false)
@@ -334,8 +332,6 @@ const tableWarehouse = [
     address: ''
   }
 ]
-
-// const checkDiscount = ref(false)
 
 const radioVAT = ref(false)
 
@@ -377,7 +373,6 @@ let infoCompany = reactive({
 
 const changeAddressCustomer = (data) => {
   if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     optionCallPromoAPi = 0
     customerIdPromo.value = result.id
@@ -397,7 +392,6 @@ const changeAddressCustomer = (data) => {
     }
   } else {
     customerAddress.value = ''
-    // deliveryMethod.value = ''
   }
 }
 const inputDeposit = ref(0)
@@ -722,7 +716,6 @@ const { push } = useRouter()
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
@@ -866,7 +859,6 @@ const rules = reactive<FormRules>({
   ]
 })
 
-// const deliveryMethod = ref(chooseDelivery[0].value)
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
@@ -896,8 +888,6 @@ const dialogAddProduct = ref(false)
 const addnewproduct = () => {
   dialogAddProduct.value = true
 }
-//end thêm nhanh sp
-
 // Danh mục brand unit origin api
 
 const chooseCategory = ref()
@@ -1006,7 +996,6 @@ const postQuickCustomer = async () => {
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1059,14 +1048,11 @@ const getOrderStransactionList = async () => {
 }
 
 function printPage(id: string, { url, title, w, h }) {
-  // const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
 
-  //get content need to print
   const child = document.getElementById('main-content')
   const printContents = document.getElementById(id) ?? null
   if (printContents) {
@@ -1155,8 +1141,6 @@ const getDetailPayment = () => {
 // Thông tin phiếu bán hàng
 const nameDialog = ref('')
 
-// const dialogFeePaymentSlip = ref(false)
-
 const dialogBillSpaInfomation = ref(false)
 function openBillSpaDialog() {
   dialogBillSpaInfomation.value = !dialogBillSpaInfomation.value
@@ -1181,7 +1165,7 @@ const handleSelectionChange = (val: tableDataType[]) => {
 
 let objIdPayment = ref()
 let idPayment = ref()
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 const postPaymentRequest = async () => {
   const payload = {
     Code: codePaymentRequest.value,
@@ -1216,7 +1200,6 @@ const invoiceForGoodsEntering = ref(false)
 // Thêm bút toán cho đơn hàng
 const codeReturnRequest = ref()
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
-// Thêm bút toán cho đơn hàng
 let childrenTable = ref()
 
 const postOrderStransaction = async (num: number) => {
@@ -1276,42 +1259,6 @@ interface tableDataType {
 }
 
 let debtTable = ref<Array<tableDataType>>([])
-
-// const addLastIndexTable2 = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.collectionOfSpaServiceFees'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
-// const onAddDebtTableReturnDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.returnDepositCustomer'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
 
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 if (tableReturnFullyIntegrated.value.length == 0)
@@ -1390,23 +1337,6 @@ const getReturnRequestTable = async () => {
   }
 }
 
-// const onAddDebtTableDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.feePaymentSlip'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
 const codeReceipts = ref()
 
 let objidPT = ref()
@@ -1560,7 +1490,6 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    // debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -2977,10 +2906,7 @@ const postReturnRequest = async (reason) => {
               <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -3032,7 +2958,6 @@ const postReturnRequest = async (reason) => {
                 @click="
                   () => {
                     dialogBillSpaInfomation = false
-                    // addLastIndexTable2()
                     postOrderStransaction(1)
                   }
                 "
@@ -3388,7 +3313,6 @@ const postReturnRequest = async (reason) => {
                 type="primary"
                 @click="
                   () => {
-                    // onAddDebtTableReturnDeposit()
                     postOrderStransaction(2)
 
                     dialogAccountingEntryAdditional = false

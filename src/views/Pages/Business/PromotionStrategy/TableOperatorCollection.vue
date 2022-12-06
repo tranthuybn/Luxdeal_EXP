@@ -690,10 +690,8 @@ const callAPIProduct = async () => {
 //process logic data when click select
 const changeName = (data, scope) => {
   forceRemove.value = false
-  //change data of code
+
   scope.row.code = data
-  // need a function to find the name of the option selected
-  //then scope.row.name = result find
 }
 const changeProduct = (data, scope) => {
   forceRemove.value = false

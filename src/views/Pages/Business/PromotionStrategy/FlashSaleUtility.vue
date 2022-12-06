@@ -376,14 +376,12 @@ const customEditDataFlashSale = (data) => {
   customData.ProductPropertyIdJson = JSON.stringify(
     data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
 
 const postData = async (data) => {
   data = customPostDataFlashSale(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
     .then(() => {

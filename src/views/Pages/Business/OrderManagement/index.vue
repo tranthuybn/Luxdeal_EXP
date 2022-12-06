@@ -3,7 +3,7 @@ import AddNewConsignment from './AddNewConsignmentOrder.vue'
 import AddNewPawn from './AddNewPawnOrder.vue'
 import AddNewSpa from './AddNewSpaOrder.vue'
 import { ref } from 'vue'
-import { TabsPaneContext, ElTabs, ElTabPane } from 'element-plus'
+import { ElTabs, ElTabPane } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import OrderListUtility from './OrderListUtility.vue'
 import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
@@ -13,13 +13,9 @@ const { t } = useI18n()
 const route = useRoute()
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)
-
-const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
-}
 </script>
 <template>
-  <ElTabs v-model="tabPosition" class="demo-tabs" @tab-click="handleClick">
+  <ElTabs v-model="tabPosition" class="demo-tabs">
     <ElTabPane lazy :label="t('formDemo.addNewSalesOrders')" name="orderSell"
       ><OrderListUtility
     /></ElTabPane>

@@ -77,7 +77,6 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 // Call api danh sách cộng tác viên
-// const collaboratorsValue = ref()
 const listCollaborators = ref()
 const optionsCollaborators = ref()
 let optionCallCollaborators = 0
@@ -94,7 +93,6 @@ const callApiCollaborators = async () => {
 }
 
 // Call api danh sách khách hàng
-// const customersValue = ref('')
 const optionsCustomerApi = ref<Array<any>>([])
 let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
@@ -327,10 +325,8 @@ const dialogIPRForm = ref(false)
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
 // tạo đơn hàng
-// const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -400,10 +396,6 @@ let totalOrder = ref(0)
 let dataEdit = ref()
 
 const ListFileUpload = ref<UploadUserFile[]>([])
-// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-//   ListFileUpload.value = uploadFiles
-// }
 
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
@@ -525,7 +517,6 @@ const editData = async () => {
     )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    // debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -748,7 +739,6 @@ const handleChangeQuickAddProduct = async (data: any) => {
   const dataSelectedObj = listProducts.value.find(
     (product: { productPropertyId: any }) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -792,11 +782,8 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].label)
-
 const changeAddressCustomer = (data: any) => {
   if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     if (result.isOrganization) {
       customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
@@ -981,7 +968,7 @@ const postData = async () => {
       Address: enterdetailAddress.value,
       fromDate: moment(ruleForm.rentalPeriod[0]).format('YYYY/MM/DD'),
       toDate: moment(ruleForm.rentalPeriod[1]).format('YYYY/MM/DD'),
-      Days: 1, // 1 hoặc 7 hoặc 30
+      Days: 1,
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
@@ -1137,8 +1124,6 @@ const getFormReceipts = () => {
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
     }
-
-    // PrintReceipts.value = !PrintReceipts.value
   } else {
     ElMessage({
       showClose: true,
@@ -1191,12 +1176,7 @@ const postPC = async () => {
 }
 
 // Lấy chi tiết phiếu thu chi
-// let formDetailPaymentReceipt = ref()
-// const getDetailPayment = () => {
-//   openReceiptDialog()
-// }
-
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
@@ -1322,6 +1302,11 @@ const getReturnRequestTable = async () => {
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
+const updatePrice = (_value, obj, scope) => {
+  scope.row.productPropertyId = obj.productPropertyId
+  scope.row.refundUnitPrice = Number(obj.price)
+  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+}
 
 // Thông tin phiếu thanh toán phí ký gửi spa
 const dialogDepositFeeInformation = ref(false)
@@ -1333,8 +1318,6 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
   if (num == 1) dialogAccountingEntryAdditional.value = true
   else if (num == 2) dialogDepositSlip.value = true
   else dialogDepositFeeInformation.value = true
@@ -2655,7 +2638,6 @@ const removeRow = (index) => {
                 () => {
                   postOrderStransaction()
                   dialogAccountingEntryAdditional = false
-                  // onAddDebtTableReturnDeposit()
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2728,16 +2710,8 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template> -->
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template> -->
-            </el-table-column>
+            <el-table-column prop="price" :label="t('reuse.unitPrices')" />
+            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
@@ -2746,10 +2720,7 @@ const removeRow = (index) => {
               </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2866,16 +2837,8 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template> -->
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')">
-              <!-- <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template> -->
-            </el-table-column>
+            <el-table-column prop="price" :label="t('reuse.unitPrices')" />
+            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
@@ -2884,10 +2847,7 @@ const removeRow = (index) => {
               </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>

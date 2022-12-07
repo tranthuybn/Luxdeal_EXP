@@ -135,6 +135,7 @@ const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
   spaData: [{ id: -1, isActive: 1, code: '', name: null, service: [] }],
+  spaVoucherData: [{ id: -1, code: '', name: null, service: [] }],
   auctionData: [{ id: -1, code: '', name: null }]
 })
 //get data from table
@@ -275,7 +276,7 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       console.log('dataTable: ', dataTable)
-      console.log('data : ', data)
+      console.log(' data 1 : ', data)
       if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
@@ -317,8 +318,10 @@ const save = async (type) => {
       data.spa = spaMoney.value
       // dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
-      // data.name = formValue.value[0]?.code
-      // data.Description = formValue.value[0]?.descriptions
+      //voucher product
+      dataTable.spaVoucherData.pop()
+      data.spaVoucher = dataTable.spaVoucherData
+
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)
@@ -516,15 +519,6 @@ type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
-//this is fake data if has api should do form['tableCustomer'] same for product
-
-// type SpaProduct = {
-//   id: number
-//   code: string
-//   name: string
-//   service: Array<string>
-// }
-// const fakeSpaProductData = reactive<SpaProduct[]>([{ id: -1, code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
   () => dataTable.customerData[dataTable.customerData?.length - 1],
@@ -536,6 +530,21 @@ watch(
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1],
+  () => {
+    if (
+      dataTable.spaVoucherData?.length < 1 ||
+      (dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1].code !== '' &&
+        dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1].name !== null &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexSpaProductVoucher()
     }
   },
   { deep: true }
@@ -611,6 +620,10 @@ const addLastIndexProductOfComboTable = () => {
 const addLastIndexProductOfAuctionTable = () => {
   let idTable4 = Date.now()
   dataTable.auctionData.push({ id: idTable4, code: '', name: null })
+}
+const addLastIndexSpaProductVoucher = () => {
+  let idTable5 = Date.now()
+  dataTable.spaVoucherData.push({ id: idTable5, code: '', name: null, service: [] })
 }
 
 // //fake option
@@ -705,10 +718,8 @@ const callAPIProduct = async () => {
 //process logic data when click select
 const changeName = (data, scope) => {
   forceRemove.value = false
-  //change data of code
+
   scope.row.code = data
-  // need a function to find the name of the option selected
-  //then scope.row.name = result find
 }
 const changeProduct = (data, scope) => {
   forceRemove.value = false
@@ -813,7 +824,10 @@ const removeSpaProduct = (scope) => {
   forceRemove.value = true
   dataTable.spaData.splice(scope.$index, 1)
 }
-
+const removeSpaProductVoucher = (scope) => {
+  forceRemove.value = true
+  dataTable.spaVoucherData.splice(scope.$index, 1)
+}
 const removeAuctionProduct = (scope) => {
   forceRemove.value = true
   dataTable.auctionData.splice(scope.$index, 1)
@@ -930,11 +944,6 @@ const handleCurrentChangeSelection = (val) => {
   setValues({ condition: radioSelected.value })
 }
 const radioSelected = ref()
-
-onBeforeMount(() => {
-  callAPICustomer(), getSpaOptions()
-  callAPIProduct()
-})
 const selectLoading = ref(true)
 const spaCost = ref()
 const getSpaSelected = (spaServices) => {
@@ -945,6 +954,11 @@ const getSpaSelected = (spaServices) => {
     return accumulator + curValue.cost
   }, 0)
 }
+onBeforeMount(() => {
+  callAPICustomer(), getSpaOptions()
+  callAPIProduct()
+})
+
 const spaMoney = ref(0)
 </script>
 <template>
@@ -1182,7 +1196,7 @@ const spaMoney = ref(0)
             </el-table>
           </template>
           <template #spaProduct>
-            <el-table :data="dataTable.spaData" border>
+            <el-table :data="dataTable.spaVoucherData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -1246,9 +1260,12 @@ const spaMoney = ref(0)
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
-                    t('reuse.delete')
-                  }}</el-button>
+                  <el-button
+                    type="danger"
+                    v-if="scope.row.code"
+                    @click="removeSpaProductVoucher(scope)"
+                    >{{ t('reuse.delete') }}</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>

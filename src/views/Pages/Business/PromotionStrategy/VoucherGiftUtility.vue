@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const curDate = 'VC' + moment().format('hhmmss')
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
@@ -207,6 +208,8 @@ type FormDataEdit = {
   VoucherConditionType?: number
   ExchangeValue?: number
   CampaignType: number
+  MinimumPriceToGetReduce: number
+  MaximumReduce: number
 }
 
 const customEditDataVoucher = (data) => {
@@ -224,8 +227,12 @@ const customEditDataVoucher = (data) => {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
-  customData.StartDate = data.date[0]
-  customData.EndDate = data.date[1]
+  customData.MinimumPriceToGetReduce = 10000
+  customData.MaximumReduce = 10000
+  const dateStart = moment(data.date[0]).format('YYYY-MM-DD')
+  const dateEnd = moment(data.date[1]).format('YYYY-MM-DD')
+  customData.StartDate = dateStart
+  customData.EndDate = dateEnd
   customData.CampaignType = 4
   customData.ServiceType = 1
   customData.Image = data.Image
@@ -237,14 +244,14 @@ const customEditDataVoucher = (data) => {
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
   customData.ProductPropertyIdJson = JSON.stringify(
-    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+    data.spaVoucher.map((item) => ({
+      Id: item.id,
+      SpaServiceIds: item.service.toString()
+    }))
   )
-  console.log('data edit', data, customData)
 
   return customData
 }
-
-//upload image
 
 const activeName = ref(collapse[0].name)
 const rules = reactive({})
@@ -262,7 +269,9 @@ type FormDataPost = {
   ReduceCash?: number | null
   CustomerIds?: string | null
   ProductPropertyIdJson?: string
+  MinimumPriceToGetReduce: number
   StartDate: string
+  MaximumReduce: number
   EndDate: string
   TargetType: number
   VoucherType?: number
@@ -275,22 +284,21 @@ type FormDataPost = {
 
 const customPostDataVoucher = (data) => {
   const customData = {} as FormDataPost
+  const dateStart = moment(data.date[0]).format('YYYY-MM-DD')
+  const dateEnd = moment(data.date[1]).format('YYYY-MM-DD')
+  customData.ReducePercent = null
+  customData.ReduceCash = null
+  customData.VoucherType = 2
+  customData.CampaignType = 4
 
-  if (data.promotion == 1) {
-    customData.ReducePercent = data.percent
-    customData.ReduceCash = null
-  } else if (data.promotion == 2) {
-    customData.ReduceCash = data.money
-    customData.ReducePercent = null
-  } else {
-    customData.ReducePercent = null
-    customData.ReduceCash = null
-  }
+  customData.MinimumPriceToGetReduce = 10000
+  customData.MaximumReduce = 10000
+
   customData.Code = data.code
   customData.Name = data.code
   customData.Description = data.shortDescription
-  customData.StartDate = data.date[0]
-  customData.EndDate = data.date[1]
+  customData.StartDate = dateStart
+  customData.EndDate = dateEnd
   customData.ServiceType = 1
   customData.Image = data.Image
 
@@ -301,25 +309,34 @@ const customPostDataVoucher = (data) => {
     customData.TargetType = 2
     customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
   }
-  customData.ProductPropertyIdJson = '[]'
-  customData.VoucherType = 2
+
   customData.ExchangeValue = 1
   customData.VoucherConditionType = 2
-  customData.CampaignType = 4
+
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.spaVoucher.map((item) => ({
+      Id: item.id,
+      SpaServiceIds: item.service.toString()
+    }))
+  )
+  console.log('run here', data)
   return customData
 }
-
+const { push } = useRouter()
 const postData = async (data) => {
   data = customPostDataVoucher(data)
-  console.log('data post:', data)
 
   await addNewCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.voucher',
+          params: { backRoute: 'business.promotion-strategy.voucher' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -332,32 +349,39 @@ type SetFormData = {
   promotion: number
   reduce: number
   date: any
+  Image: any
   shortDescription: string
   customers: any
+  products: any
+  imageurl?: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
 const customizeData = async (data) => {
-  console.log('data here', data)
   setFormData.code = data[0].code
-  setFormData.promotion = 2
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
-  setFormData.shortDescription = data[0].shortDescription
+  setFormData.shortDescription = data[0].description
+  setFormData.products = data[0].productProperties
+  setFormData.Image = data[0].images[0].path
   setFormData.customers = data[0].customers
-  console.log('setFormDataAfterChange: ', setFormData)
+  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
 }
 
 const editData = async (data) => {
   data = customEditDataVoucher(data)
 
   await updateCampaign(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.promotion-strategy.voucher',
+          params: { backRoute: 'business.promotion-strategy.voucher' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -383,7 +407,6 @@ const editData = async (data) => {
           :id="id"
           :params="params"
           @post-data="postData"
-          :showProduct="false"
           :rules="rules"
           @customize-form-data="customizeData"
           :formDataCustomize="setFormData"

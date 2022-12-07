@@ -70,7 +70,6 @@ import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import { Qrcode } from '@/components/Qrcode'
 
 const { t } = useI18n()
 
@@ -169,12 +168,9 @@ const beforeRemove = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      // console.log('uploadFile', uploadFile?.uid)
       let imageRemove = uploadFile?.uid
-      // console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      // console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -273,7 +269,6 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].value)
 
 const radio1 = ref('')
 
@@ -569,8 +564,6 @@ const optionsClassify = [
   }
 ]
 
-// const checkedDonePay = ref(false)
-
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -625,7 +618,6 @@ const optionsCustomer = [
   }
 ]
 
-// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -1079,30 +1071,6 @@ const getAccountingEntry = async (index, num) => {
   else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
-// const dataTablePrint = reactive<TableColumn[]>([
-//   {
-//     field: 'index',
-//     label: t('reuse.index'),
-//     type: 'index',
-//     align: 'center'
-//   },
-//   {
-//     field: 'employeeCode',
-//     label: t('reuse.employeeCode'),
-//     minWidth: '250'
-//   },
-//   {
-//     field: 'employeeName',
-//     label: t('reuse.employeeName'),
-//     minWidth: '150'
-//   },
-//   {
-//     field: 'gender',
-//     label: t('reuse.gender'),
-//     minWidth: '100'
-//   }
-// ])
-
 // Call api danh sách mã giảm giá
 let promoTable = ref()
 const promoLoading = ref(true)
@@ -1186,9 +1154,6 @@ const detailedListExpenses = [
     note: ''
   }
 ]
-// dialogInformationExchangeAndReturnPaymentVouchers
-// const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
-
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
 
@@ -1267,7 +1232,7 @@ const getReturnRequestTable = async () => {
 
 const tableProductInformationExportChange = ref([
   {
-    productPropertyId: 0,
+    productPropertyId: null,
     commodityName: '',
     accessory: '',
     quantity: 1,
@@ -1502,7 +1467,7 @@ function printPage(id: string) {
 }
 
 const productAttributeValue = (data) => {
-  console.log('data checked', data)
+  return data
 }
 
 // Thêm mã phiếu thu vào debtTable
@@ -1571,7 +1536,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1593,17 +1557,15 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
@@ -1671,6 +1633,14 @@ const postOrderStransaction = async (index: number) => {
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
+  if (tableReturnFullyIntegrated.value.length < 2) {
+    return
+  }
+  if (tableProductInformationExportChange.value.length < 2) {
+    return
+  }
+  tableReturnFullyIntegrated.value.pop()
+  tableProductInformationExportChange.value.pop()
   tableReturnPost.value.push(
     tableReturnFullyIntegrated.value.map((e) => ({
       productPropertyId: parseInt(e.productPropertyId),
@@ -1680,7 +1650,7 @@ const postReturnRequest = async () => {
   )
   tableReturnPost.value.push(
     tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: e.productPropertyId,
+      productPropertyId: parseInt(e.productPropertyId),
       quantity: e.quantity,
       accessory: e.accessory
     }))
@@ -1688,7 +1658,7 @@ const postReturnRequest = async () => {
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
+    name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
     details: tableReturnPost.value
@@ -1757,7 +1727,7 @@ onMounted(async () => {
   await editData()
 })
 
-//Truong Ngo
+//TruongNgo
 const refundPrice = computed(() => {
   return getRefundPrice()
 })
@@ -1780,6 +1750,14 @@ const getExportPrice = () => {
     money += item.intoMoney
   })
   return money
+}
+let productArray: any = []
+const listOfOrderProduct = ref()
+const getReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
 }
 </script>
 
@@ -3755,7 +3733,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -3774,7 +3752,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <el-input v-model="props.row.refundUnitPrice" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.refundUnitPrice" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
@@ -3816,7 +3794,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -3835,7 +3813,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <el-input v-model="props.row.unitPrices" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrices" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
@@ -4432,6 +4410,7 @@ const getExportPrice = () => {
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
+                  getReturnOrder()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"

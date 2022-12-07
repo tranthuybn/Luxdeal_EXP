@@ -16,7 +16,6 @@ const tabName = String(router.currentRoute.value.params.tab)
 
 onBeforeMount(() => changeTab())
 const changeTab = () => {
-  console.log('tabName', tabName)
   activeName.value = tabName
   switch (tabName) {
     case '1':

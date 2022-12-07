@@ -59,8 +59,7 @@ import {
   createReturnRequest,
   getReturnRequest,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
-  getPriceOfSpecificProduct
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
@@ -340,29 +339,25 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
+const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  if (data) {
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    optionCallPromoAPi = 0
-    customerIdPromo.value = result.id
-    callPromoApi()
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
+  infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  if (infoCustomerId.value.isOrganization) {
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    customerAddress.value = ''
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
+  optionCallPromoAPi = 0
+  customerIdPromo.value = infoCustomerId.value.id
+  callPromoApi()
 }
 const inputDeposit = ref(0)
 
@@ -433,7 +428,8 @@ const handleSelectionChange = (val: tableDataType[]) => {
 const getPriceSpaService = () => {
   ListOfProductsForSale.value[currentRow2.value].finalPrice = totalSettingSpa.value
 }
-
+let promoValue = ref(0)
+let promoCash = ref(0)
 const getValueOfSelected = async (_value, obj, scope) => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
@@ -525,8 +521,7 @@ const callPromoApi = async () => {
     optionCallPromoAPi++
   }
 }
-let promoValue = ref(0)
-let promoCash = ref(0)
+
 const currentRow = ref()
 let checkPromo = ref(false)
 let promo = ref()
@@ -1611,15 +1606,6 @@ watch(
   }
 )
 
-//call api mook giá sản phẩm
-const priceItem = ref()
-
-const callApiPrice = async () => {
-  const res = await getPriceOfSpecificProduct({ id: id })
-  priceItem.value = res.data[0]
-  console.log('response', res)
-}
-
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 const changeReturnGoods = ref(false)
@@ -1634,7 +1620,6 @@ onBeforeMount(async () => {
   callApiCollaborators()
   callApiCity()
   callAPIProduct()
-  callApiPrice()
   if (type == 'add') {
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -2798,13 +2783,8 @@ const postReturnRequest = async (reason) => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

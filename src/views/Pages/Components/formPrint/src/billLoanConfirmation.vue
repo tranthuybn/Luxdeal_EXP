@@ -1,7 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
+const props = defineProps({
+  priceBillPawn: {
+    type: Number,
+    default: NaN
+  },
+  formData: {
+    type: Object,
+    // eslint-disable-next-line vue/require-valid-default-prop
+    default: {}
+  }
+})
 const tradingCode = ref('CDSG0273')
+
+let selected = computed(() => {
+  return props.formData
+})
+console.log('selected: ', selected)
 
 const infomation = [
   {
@@ -67,7 +83,7 @@ const infomation = [
 
         <div class="flex gap-3">
           <p class="font-bold w-[160px]">Giá trị hàng cầm đồ:</p>
-          <p>{{ infomation[0].pricePawn }}</p>
+          <p>{{ props.priceBillPawn }}</p>
         </div>
 
         <div class="flex gap-3">

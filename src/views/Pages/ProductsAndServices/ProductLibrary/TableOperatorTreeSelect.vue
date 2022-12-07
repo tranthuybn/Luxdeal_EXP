@@ -109,6 +109,22 @@ const props = defineProps({
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 
+const disabledUpload = ref(false)
+const disabledEverything = () => {
+  disabledUpload.value = true
+  const { setProps, setSchema } = methods
+  setProps({
+    disabled: true
+  })
+  setSchema(
+    schema.map((component) => ({
+      field: component.field,
+      path: 'componentProps.placeholder',
+      value: ''
+    }))
+  )
+  setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
+}
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
@@ -168,18 +184,7 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps, setSchema } = methods
-      setProps({
-        disabled: true
-      })
-      setSchema(
-        schema.map((component) => ({
-          field: component.field,
-          path: 'componentProps.placeholder',
-          value: ''
-        }))
-      )
-      setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
+      disabledEverything()
     }
     if (props.type === 'detail' || props.type === 'edit') {
       getTableValue()
@@ -254,24 +259,26 @@ const save = async (type) => {
       if (type == 'add') {
         data.disabledTabOpen = false
         emit('post-data', data)
-        if (props.apiStatus) {
-          disabledEverything()
-          setValues({ ProductStatus: 0, ProductTypeId: ProductTypeId })
-        }
+        //emit a callback function to check if Promise success or fail
+        //use this to get the statusResult of emit event
+        //in the parent component should use resolve('abcd')
+        //    var promise =  new Promise((resolve) => emit('post-data',data,resolve))
+        //   console.log('promise:', promise)
+        //   promise.then(value => console.log(value))
+        //   console.log('run here first??')
+        // }
+        disabledEverything()
+        setValues({ ProductStatus: 0, ProductTypeId: ProductTypeId })
       }
       if (type == 'saveAndAdd') {
         data.disabledTabOpen = true
-        console.log('help', props.apiStatus)
-        emit('post-data', data, () => {
-          console.log('props.apiStatus', props.apiStatus)
-          if (props.apiStatus) {
-            unref(elFormRef)!.resetFields()
-            props.multipleImages
-              ? ListFileUpload.value.map((file) => handleRemove(file))
-              : removeImage()
-          }
-        })
-        console.log('tf')
+        emit('post-data', data)
+        if (props.apiStatus) {
+          unref(elFormRef)!.resetFields()
+          props.multipleImages
+            ? ListFileUpload.value.map((file) => handleRemove(file))
+            : removeImage()
+        }
       }
       if (type == 'edit') {
         data.Id = props.id
@@ -678,22 +685,7 @@ const setProductName = () => {
 const resetForm = () => {
   unref(elFormRef)!.resetFields()
 }
-const disabledUpload = ref(false)
-const disabledEverything = () => {
-  disabledUpload.value = true
-  const { setProps, setSchema } = methods
-  setProps({
-    disabled: true
-  })
-  setSchema(
-    schema.map((component) => ({
-      field: component.field,
-      path: 'componentProps.placeholder',
-      value: ''
-    }))
-  )
-  setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
-}
+
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(

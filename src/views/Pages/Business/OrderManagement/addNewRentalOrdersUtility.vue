@@ -1788,26 +1788,6 @@ const postOrderStransaction = async (index: number) => {
 }
 
 const inputReturnReason = ref('Trả hàng trước hạn')
-// Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableData.value.map((e) => ({
-    productPropertyId: e.productPropertyId,
-    quantity: e.quantity,
-    acessory: e.accessory ?? '2'
-  }))
-  tableReturnPost.value.pop()
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng',
-    description: inputReturnReason.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
-  }
-  await createReturnRequest(payload)
-}
 
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()

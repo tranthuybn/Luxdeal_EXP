@@ -684,6 +684,8 @@ const setProductName = () => {
 }
 const resetForm = () => {
   unref(elFormRef)!.resetFields()
+  productCode.value = ''
+  productName.value = ''
 }
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {

@@ -119,11 +119,13 @@ export default [
     response: ({ query }) => {
       const { id, quantity, serviceType, statDate, endDate } = query
       const price = (Math.floor(Math.random() * 100) + 1) * 10000
+      const deposit = (Math.floor(Math.random() * 100) + 1) * 10000
       const responseStructure = new serviceResponse(
         {
           id: id,
           price: price,
-          serviceType: serviceType,
+          deposit: deposit,
+          serviceType: serviceType && serviceType === 3 ? serviceType : null,
           quantity: quantity,
           statDate: statDate ?? null,
           endDate: endDate ?? null

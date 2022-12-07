@@ -252,6 +252,7 @@ export default {
           path: 'voucher',
           name: 'business.promotion-strategy.voucher',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Voucher.vue'),
+
           meta: {
             title: t('router.voucher')
           }

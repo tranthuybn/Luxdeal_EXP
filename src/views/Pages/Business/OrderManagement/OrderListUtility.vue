@@ -70,7 +70,6 @@ import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import { Qrcode } from '@/components/Qrcode'
 
 const { t } = useI18n()
 
@@ -169,12 +168,9 @@ const beforeRemove = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      // console.log('uploadFile', uploadFile?.uid)
       let imageRemove = uploadFile?.uid
-      // console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      // console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -273,7 +269,6 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].value)
 
 const radio1 = ref('')
 
@@ -557,8 +552,6 @@ const optionsClassify = [
   }
 ]
 
-// const checkedDonePay = ref(false)
-
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -613,7 +606,6 @@ const optionsCustomer = [
   }
 ]
 
-// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -1072,30 +1064,6 @@ const getAccountingEntry = async (index, num) => {
   else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
-// const dataTablePrint = reactive<TableColumn[]>([
-//   {
-//     field: 'index',
-//     label: t('reuse.index'),
-//     type: 'index',
-//     align: 'center'
-//   },
-//   {
-//     field: 'employeeCode',
-//     label: t('reuse.employeeCode'),
-//     minWidth: '250'
-//   },
-//   {
-//     field: 'employeeName',
-//     label: t('reuse.employeeName'),
-//     minWidth: '150'
-//   },
-//   {
-//     field: 'gender',
-//     label: t('reuse.gender'),
-//     minWidth: '100'
-//   }
-// ])
-
 // Call api danh sách mã giảm giá
 let promoTable = ref()
 const promoLoading = ref(true)
@@ -1177,9 +1145,6 @@ const detailedListExpenses = [
     note: ''
   }
 ]
-// dialogInformationExchangeAndReturnPaymentVouchers
-// const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
-
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
 
@@ -1493,7 +1458,7 @@ function printPage(id: string) {
 }
 
 const productAttributeValue = (data) => {
-  console.log('data checked', data)
+  return data
 }
 
 // Thêm mã phiếu thu vào debtTable
@@ -1562,7 +1527,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1584,17 +1548,15 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {

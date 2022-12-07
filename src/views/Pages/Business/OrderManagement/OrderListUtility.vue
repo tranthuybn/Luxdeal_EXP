@@ -1232,7 +1232,7 @@ const getReturnRequestTable = async () => {
 
 const tableProductInformationExportChange = ref([
   {
-    productPropertyId: null,
+    productPropertyId: 0,
     commodityName: '',
     accessory: '',
     quantity: 1,
@@ -1650,7 +1650,7 @@ const postReturnRequest = async () => {
   )
   tableReturnPost.value.push(
     tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: parseInt(e.productPropertyId),
+      productPropertyId: e.productPropertyId,
       quantity: e.quantity,
       accessory: e.accessory
     }))

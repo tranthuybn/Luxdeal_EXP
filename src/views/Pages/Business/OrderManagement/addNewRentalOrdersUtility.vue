@@ -613,7 +613,7 @@ const getProductPropertyPrice = async (
   serviceType = 3,
   startDate = '',
   endDate = ''
-): Promise<number> => {
+): Promise<any> => {
   const getPricePayload = {
     productPropertyId: productPropertyId,
     quantity: quantity,
@@ -623,16 +623,15 @@ const getProductPropertyPrice = async (
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
-  const price = res.data.price ?? 0
-  return price
+  const objPrice = res.data
+  return objPrice
 }
 
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
-  totalDeposit.value = 0
   tableData.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+    if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
   })
 
   promoCash.value != 0
@@ -1079,18 +1078,22 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.productPropertyId = obj.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
+
   if (data.fromDate && data.toDate) {
-    data.price = await getProductPropertyPrice(
+    let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       data.quantity,
       3,
       data.fromDate.toString(),
       data.toDate.toString()
     )
-    data.finalPrice = data.price * data.quantity
+    data.price = objPrice.price
+    data.depositePrice = objPrice.deposit
+    data.hirePrice = data.price * data.quantity
+    console.log('table: ', data)
     tableData.value.map((val) => {
-      if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
-      totalDeposit.value += parseInt(val.finalPrice)
+      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+      totalDeposit.value += parseInt(val.depositePrice)
     })
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
@@ -1105,19 +1108,24 @@ const handleGetTotal = async (_value, props) => {
   totalFinalOrder.value = 0
   totalDeposit.value = 0
   const data = props.row
+  console.log('data: ', data)
   if (data.fromDate && data.toDate) {
-    data.price = await getProductPropertyPrice(
+    let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       data.quantity,
       3,
       data.fromDate.toString(),
       data.toDate.toString()
     )
-    data.finalPrice = data.price * data.quantity
+    console.log('objPrice: ', objPrice.deposit)
+    data.price = objPrice.price
+    data.depositePrice = objPrice.deposit
+    data.hirePrice = data.price * data.quantity
     tableData.value.map((val) => {
-      if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
-      totalDeposit.value += parseInt(val.finalPrice)
+      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
     })
+    console.log('data_after: ', data)
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
       : (totalFinalOrder.value =
@@ -3884,7 +3892,7 @@ const removeRow = (index) => {
                 v-else
                 @change="
                   () => {
-                    data.row.finalPrice = data.row.price * data.row.quantity
+                    data.row.hirePrice = data.row.price * data.row.quantity
                     autoCalculateOrder()
                   }
                 "
@@ -3919,8 +3927,8 @@ const removeRow = (index) => {
           >
             <template #default="props">
               {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
+                props.row.hirePrice != ''
+                  ? changeMoney.format(parseInt(props.row.hirePrice))
                   : '0 đ'
               }}
             </template>

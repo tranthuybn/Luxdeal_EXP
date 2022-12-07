@@ -81,7 +81,7 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
-  leaseTerm: t('reuse.byMonth'),
+  leaseTerm: 30,
   rentalPeriod: [],
   rentalPaymentPeriod: 1,
   collaborators: '',
@@ -506,6 +506,8 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
   promo.value = val
   promo.value?.reduceCash != 0
@@ -535,6 +537,8 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
@@ -586,20 +590,6 @@ const changeAddressCustomer = (data) => {
   }
 }
 
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: Number
-//   accessory: string | undefined
-//   spaServiceIds: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: number
-//   accessory: string | undefined
-//   spaServiceIds: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 let promoValue = ref(0)
@@ -609,17 +599,15 @@ let totalDeposit = ref(0)
 // Total order
 const getProductPropertyPrice = async (
   productPropertyId = 0,
-  quantity = 0,
   serviceType = 3,
-  startDate = '',
-  endDate = ''
+  quantity: 1,
+  period: 1
 ): Promise<any> => {
   const getPricePayload = {
-    productPropertyId: productPropertyId,
-    quantity: quantity,
+    Id: productPropertyId,
     serviceType: serviceType,
-    statDate: startDate ?? null,
-    endDate: endDate ?? null
+    Quantity: quantity,
+    Period: period
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
@@ -630,14 +618,22 @@ const getProductPropertyPrice = async (
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
+  totalDeposit.value = 0
   tableData.value.map((val) => {
     if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+    if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
   })
 
+  console.log('totalPriceOrder: ', totalPriceOrder.value)
+  console.log('totalDeposit: ', totalDeposit.value)
+
   promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
     : (totalFinalOrder.value =
-        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+        totalPriceOrder.value -
+        (totalPriceOrder.value * promoValue.value) / 100 +
+        totalDeposit.value)
+  console.log('totalFinalOrder: ', totalFinalOrder.value)
 }
 
 // Call api danh sách sản phẩm
@@ -1071,65 +1067,61 @@ const editData = async () => {
 }
 
 const getValueOfSelected = async (_value, obj, scope) => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
-  totalDeposit.value = 0
   const data = scope.row
   data.productPropertyId = obj.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
 
   if (data.fromDate && data.toDate) {
-    let objPrice = await getProductPropertyPrice(
-      data.productPropertyId,
-      data.quantity,
-      3,
-      data.fromDate.toString(),
-      data.toDate.toString()
-    )
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    totalDeposit.value = 0
+    let newDate = new Date(data.toDate - data.fromDate)
+    let days = newDate.getDate()
+    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
     data.depositePrice = objPrice.deposit
-    data.hirePrice = data.price * data.quantity
+    data.hirePrice = data.price * data.quantity * days
     console.log('table: ', data)
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
-      totalDeposit.value += parseInt(val.depositePrice)
+      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
     })
     promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
       : (totalFinalOrder.value =
-          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
+    console.log()
   }
 }
 
 // chọn ngày thì ra giá tiền
 const handleGetTotal = async (_value, props) => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
-  totalDeposit.value = 0
   const data = props.row
-  console.log('data: ', data)
   if (data.fromDate && data.toDate) {
-    let objPrice = await getProductPropertyPrice(
-      data.productPropertyId,
-      data.quantity,
-      3,
-      data.fromDate.toString(),
-      data.toDate.toString()
-    )
-    console.log('objPrice: ', objPrice.deposit)
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    totalDeposit.value = 0
+    let newDate = new Date(data.toDate - data.fromDate)
+    let days = newDate.getDate()
+    console.log('days: ', days)
+    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
     data.depositePrice = objPrice.deposit
-    data.hirePrice = data.price * data.quantity
+    data.hirePrice = data.price * data.quantity * days
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
     })
     console.log('data_after: ', data)
     promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
       : (totalFinalOrder.value =
-          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
   }
 }
 
@@ -2718,9 +2710,9 @@ const removeRow = (index) => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -2894,9 +2886,9 @@ const removeRow = (index) => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -4030,7 +4022,7 @@ const removeRow = (index) => {
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
-              totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
             <div class="text-right dark:text-[#fff]">{{
               totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'

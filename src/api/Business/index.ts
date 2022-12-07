@@ -743,6 +743,11 @@ export const getaddNewPotenialCustomerList = async (params: any): Promise<IRespo
   return res && res.data
 }
 export const getPriceOfSpecificProduct = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/order/getPriceOfSpecificProduct', params })
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_PRODUCT_PROPERTY_ORDER_PRICE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }

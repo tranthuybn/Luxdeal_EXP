@@ -11,6 +11,7 @@ import {
   ElButton,
   ElDivider,
   ElTable,
+  ElRadio,
   ElTableColumn,
   ElInput,
   ElDialog,
@@ -1164,6 +1165,42 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 
+const radioSelected = ref(-1)
+const openDialogChooseWarehouse = ref(false)
+const dialogbusinessManagement = ref(false)
+const tableWarehouse = [
+  {
+    warehouseCheckbox: '',
+    name: 'Kho Hà Nội',
+    address: ''
+  },
+  {
+    warehouseCheckbox: '',
+    name: 'Kho Hồ Chí Minh',
+    address: ''
+  }
+]
+
+const formBusuness = reactive({
+  check: '',
+  applyExport: ''
+})
+
+const listApplyExport = [
+  {
+    check: true,
+    applyExport: 'Ký gửi bán'
+  },
+  {
+    check: true,
+    applyExport: 'Ký gửi cho thuê'
+  },
+  {
+    check: true,
+    applyExport: 'spa'
+  }
+]
+
 const optionsChooseMoneyType = [
   {
     value: 1,
@@ -1201,6 +1238,17 @@ const optionsFeePaymentTime = [
     label: 'Option3'
   }
 ]
+
+let formData = reactive({})
+const handle = () => {
+  formData = {
+    customerName: ruleForm.customerName,
+    date: new Date(),
+    priceBillPawn: priceintoMoneyPawnGOC.value,
+    phone: 1212321
+  }
+  console.log('formData: ', formData)
+}
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1538,8 +1586,8 @@ const removeRow = (index) => {
               ref="ruleFormRef"
               :model="ruleForm"
               :rules="rules"
-              label-width="180px"
-              class="de,p-ruleForm"
+              label-width="181px"
+              class="demo-ruleForm"
               status-icon
             >
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
@@ -1562,18 +1610,22 @@ const removeRow = (index) => {
                 />
               </el-form-item>
 
-              <div class="s">
-                <el-form-item :label="t('formDemo.pawnFeePaymentTime')" prop="paymentPeriod">
+              <div class="css-form_has-child mb-2">
+                <el-form-item
+                  :label="t('formDemo.pawnFeePaymentTime')"
+                  prop="paymentPeriod"
+                  class="m-0"
+                >
                   <el-input
                     v-model="ruleForm.paymentPeriod"
                     style="width: 100%"
                     :placeholder="t('reuse.byDay')"
                   />
                 </el-form-item>
-
-                <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
+                <p class="text-right text-[#FECB80] w-[165px]">{{
+                  t('formDemo.atLeastTenDays')
+                }}</p>
               </div>
-
               <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                 <div class="flex gap-2">
                   <el-form-item style="flex: 1">
@@ -2121,35 +2173,29 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="unitName"
-            :label="`${t('reuse.dram')}`"
-            align="center"
-            min-width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.unitName"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column :label="`${t('formDemo.businessManagement')}`" width="200">
+          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
+          <el-table-column :label="t('formDemo.businessManagement')" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">...</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('router.business') }}</div
-              >
+              <div class="flex-1 text-right">
+                <el-button
+                  text
+                  border
+                  class="text-blue-500"
+                  @click="dialogbusinessManagement = true"
+                >
+                  <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
+                >
+              </div>
             </div>
           </el-table-column>
 
           <el-table-column :label="t('reuse.importWarehouse')" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">Còn hàng</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
+              <el-button text @click="openDialogChooseWarehouse = true">
+                <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+              </el-button>
             </div>
           </el-table-column>
 
@@ -2210,6 +2256,19 @@ const removeRow = (index) => {
             <el-checkbox v-model="checked4" :label="t('formDemo.renewingThePawn')" size="large" />
 
             <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" /> -->
+          </div>
+        </div>
+        <div class="flex w-[100%] ml-1 items-center pb-3">
+          <label class="w-[11%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[89%] pl-1">
+            <span
+              class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+            ></span>
+            <span class="box box_1 text-yellow-500 dark:text-black">
+              Đang duyệt
+
+              <span class="triangle-right right_1"> </span>
+            </span>
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
@@ -2280,7 +2339,11 @@ const removeRow = (index) => {
       <!-- phieu in -->
       <div id="billPawn">
         <slot>
-          <billLoanConfirmation />
+          <billLoanConfirmation
+            v-if="ruleForm.customerName"
+            :formData="formData"
+            :priceBillPawn="priceintoMoneyPawnGOC"
+          />
         </slot>
       </div>
 
@@ -2311,10 +2374,90 @@ const removeRow = (index) => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billLoanConfirmation />
+              <billLoanConfirmation
+                v-if="formData"
+                :formData="formData"
+                :priceBillPawn="priceintoMoneyPawnGOC"
+              />
             </slot>
           </div>
         </div>
+      </el-dialog>
+
+      <!-- dialog quản lý kinh doanh -->
+      <el-dialog
+        v-model="dialogbusinessManagement"
+        :title="t('formDemo.businessManagement')"
+        width="40%"
+        align-center
+      >
+        <el-divider />
+        <el-form :model="formBusuness">
+          <el-table
+            ref="multipleTableRef"
+            border
+            :data="listApplyExport"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column type="selection" width="55" />
+            <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
+          </el-table>
+        </el-form>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  dialogbusinessManagement = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button @click="dialogbusinessManagement = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- DialogChooseWarehouse -->
+      <el-dialog
+        v-model="openDialogChooseWarehouse"
+        :title="t('formDemo.inventoryInformation')"
+        width="35%"
+        align-center
+        class="z-50"
+      >
+        <el-divider />
+        <el-table :data="tableWarehouse" border>
+          <el-table-column label="" width="50">
+            <template #default="scope">
+              <el-radio
+                v-model="radioSelected"
+                :label="scope.$index"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
+          <el-table-column :label="t('reuse.inventory')">
+            <div class="flex">
+              <span class="flex-1">20</span>
+              <span class="flex-1 text-right">Chiếc</span>
+            </div> </el-table-column
+          >>
+        </el-table>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
+            <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
       </el-dialog>
 
       <el-collapse-item :name="collapse[2].name">
@@ -2391,15 +2534,6 @@ const removeRow = (index) => {
             align="left"
           >
             <template #default="data">
-              <!-- <div
-                @click="
-                  data.row.receiptOrPaymentVoucherId.includes('PT')
-                    ? openReceiptDialog()
-                    : openPaymentDialog()
-                "
-                class="cursor-pointer text-blue-500"
-                >{{ data.row.receiptOrPaymentVoucherId }}</div
-              > -->
               <div
                 @click="
                   () => {
@@ -2429,7 +2563,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.kindOfMoney')" align="right">đ</el-table-column>
+          <el-table-column :label="t('formDemo.kindOfMoney')">đ</el-table-column>
 
           <el-table-column
             prop="receiveMoney"
@@ -2474,7 +2608,7 @@ const removeRow = (index) => {
           <el-table-column
             prop="typeOfPayment"
             :label="t('formDemo.receivableOrPayable')"
-            min-width="120"
+            min-width="100"
           >
             <template #default="props">
               <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
@@ -2483,7 +2617,7 @@ const removeRow = (index) => {
           <el-table-column
             prop="paymentMethods"
             :label="t('formDemo.choosePayment')"
-            min-width="180"
+            min-width="160"
           >
             <template #default="props">
               <div>{{
@@ -2497,7 +2631,7 @@ const removeRow = (index) => {
             prop="alreadyPaidForTt"
             :label="t('formDemo.alreadyPaidForTt')"
             align="center"
-            min-width="70"
+            min-width="80"
           >
             <template #default="scope">
               <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
@@ -2515,7 +2649,7 @@ const removeRow = (index) => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="data">
               <div class="flex">
                 <button
@@ -2592,11 +2726,11 @@ const removeRow = (index) => {
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
               <div class="w-[100%]">{{ infoCompany.name }}</div>
             </div>
-            <div class="flex gap-4 pt-4 items-center">
+            <div class="flex gap-4 mt-2 pitems-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
               <div class="w-[100%]">{{ customerAddress }}</div>
             </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
+            <div class="flex gap-4 mt-2 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
               <div class="w-[100%]">{{ infoCompany.phone }}</div>
             </div>
@@ -2611,28 +2745,28 @@ const removeRow = (index) => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="300" />
 
-            <el-table-column prop="productName" :label="t('reuse.accessory')" width="280" />
+            <el-table-column prop="productName" :label="t('reuse.accessory')" width="120" />
 
-            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.intoMoneyByday')">
-              <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('reuse.pawnMoney')">
-              <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template>
-            </el-table-column>
+            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="150" />
+            <el-table-column prop="unit" :label="t('reuse.unit')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
               <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ priceintoMoneyPawnGOC }} đ</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end mt-2">
+            <div class="w-[145px] text-right">
+              <p class="text-black font-bold dark:text-white">{{ t('reuse.intoMoneyByday') }} </p>
+            </div>
+            <div class="w-[145px] text-right">
+              <p class="pr-2 text-black font-bold dark:text-white">{{ priceintoMoneyByday }} đ</p>
             </div>
           </div>
         </div>
@@ -2677,9 +2811,16 @@ const removeRow = (index) => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
-              t('formDemo.printLiquidationContract')
-            }}</el-button>
+            <el-button
+              class="min-w-42 min-h-11"
+              @click="
+                () => {
+                  handle()
+                  dialogBillLiquidation = true
+                }
+              "
+              >{{ t('formDemo.printLiquidationContract') }}</el-button
+            >
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -3459,11 +3600,7 @@ const removeRow = (index) => {
         <div>
           <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
-            <el-table-column
-              prop="createdAt"
-              :label="t('formDemo.initializationDate')"
-              min-width="150"
-            >
+            <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" width="150">
               <template #default="props">
                 {{ dateTimeFormat(props.row.createdAt) }}
               </template>
@@ -3476,7 +3613,7 @@ const removeRow = (index) => {
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.productInformation')"
-              min-width="720"
+              min-width="600"
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
@@ -3494,7 +3631,7 @@ const removeRow = (index) => {
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
-              :label="t('formDemo.invoiceForGoodsEnteringTheWarehouse')"
+              :label="t('formDemo.deliveryNotesExportWarehouse')"
               align="left"
               width="200"
             >
@@ -3509,12 +3646,7 @@ const removeRow = (index) => {
                 </div>
               </template>
             </el-table-column>
-            <el-table-column
-              prop="inventoryStatus"
-              :label="t('formDemo.inventoryStatus')"
-              align="left"
-              width="200"
-            />
+            <el-table-column prop="inventoryStatus" :label="t('formDemo.status')" align="center" />
           </el-table>
         </div>
       </el-collapse-item>
@@ -3529,6 +3661,10 @@ const removeRow = (index) => {
   .dialog-content {
     display: block;
   }
+}
+
+.css-form_has-child > .el-form-item {
+  margin: 0;
 }
 ::v-deep(.el-select) {
   width: 100%;
@@ -3575,11 +3711,27 @@ const removeRow = (index) => {
   height: 40px;
   border: 1px solid #409eff;
 }
-
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
 ::v-deep(.d-block > .el-row) {
   display: block;
 }
-
+::v-deep(.el-dialog__title) {
+  font-weight: bold;
+}
 ::v-deep(.el-form-item__content) {
   display: block;
 }

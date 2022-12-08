@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
-const activeName = ref('first-page')
+const activeName = ref('1')
 const disabledTab1 = ref(false)
 const disabledTab2 = ref(false)
 const router = useRouter()
@@ -27,6 +27,7 @@ const changeTab = () => {
     default:
       activeName.value = '1'
   }
+  console.log('tabName', tabName)
 }
 </script>
 <template>

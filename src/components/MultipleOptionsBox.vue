@@ -146,6 +146,7 @@ const valueChangeEvent = (val) => {
     if (obj) emit('updateValue', val, obj ?? '')
   }
 }
+
 const scrolling = (e) => {
   const clientHeight = e.target.clientHeight
   const scrollHeight = e.target.scrollHeight

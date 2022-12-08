@@ -15,6 +15,7 @@ import {
   ElInput,
   ElDialog,
   ElForm,
+  ElRadio,
   ElFormItem,
   ElDatePicker,
   FormInstance,
@@ -25,6 +26,7 @@ import {
   ElNotification
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -344,6 +346,8 @@ interface ListOfProductsForSaleType {
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
+  priceConsign: string | number | undefined
+  priceConsignByDay: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
@@ -362,6 +366,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
+  priceConsign: 0,
+  priceConsignByDay: 0,
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -1062,6 +1068,42 @@ const tableAccountingEntry = ref([
     intoMoney: ''
   }
 ])
+
+const radioSelected = ref(-1)
+const openDialogChooseWarehouse = ref(false)
+const dialogbusinessManagement = ref(false)
+const tableWarehouse = [
+  {
+    warehouseCheckbox: '',
+    name: 'Kho Hà Nội',
+    address: ''
+  },
+  {
+    warehouseCheckbox: '',
+    name: 'Kho Hồ Chí Minh',
+    address: ''
+  }
+]
+
+const formBusuness = reactive({
+  check: '',
+  applyExport: ''
+})
+
+const listApplyExport = [
+  {
+    check: true,
+    applyExport: 'Bán'
+  },
+  {
+    check: true,
+    applyExport: 'Cho thuê'
+  },
+  {
+    check: true,
+    applyExport: 'spa'
+  }
+]
 
 const inputReasonCollectMoney = ref()
 
@@ -3260,23 +3302,32 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="dram"
-            :label="`${t('reuse.dram')}`"
+            prop="unitName"
+            :label="t('reuse.dram')"
             align="center"
             min-width="100"
           />
+
           <el-table-column
-            prop="intoMoney"
+            prop="price"
             :label="t('formDemo.consignmentPriceForSale')"
             align="right"
-            width="150"
-          />
+            width="160"
+          >
+            <template #default="props">
+              <CurrencyInputComponent v-model="props.row.priceConsign" />
+            </template>
+          </el-table-column>
           <el-table-column
-            prop="intoMoney"
+            prop="price"
             :label="t('formDemo.depositpriceForRentalByDay')"
             align="right"
-            width="150"
-          />
+            width="160"
+          >
+            <template #default="props">
+              <CurrencyInputComponent v-model="props.row.priceConsignByDay" />
+            </template>
+          </el-table-column>
 
           <el-table-column :label="`${t('reuse.businessManagement')}`" width="200">
             <div class="flex w-[100%]">
@@ -3284,17 +3335,23 @@ const removeRow = (index) => {
                 <p>{{ t('reuse.sell') }} </p>
                 <p>{{ t('workplace.lease') }}</p>
               </div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('router.business') }}</div
+              <el-button
+                text
+                border
+                class="text-blue-500"
+                el-
+                @click="dialogbusinessManagement = true"
+              >
+                <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
               >
             </div>
           </el-table-column>
           <el-table-column :label="t('reuse.importWarehouse')" width="200">
             <div class="flex w-[100%]">
               <div class="flex-1">Còn hàng</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
+              <el-button text @click="openDialogChooseWarehouse = true">
+                <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+              </el-button>
             </div>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
@@ -3375,6 +3432,82 @@ const removeRow = (index) => {
         </div>
       </el-collapse-item>
 
+      <!-- dialog quản lý kinh doanh -->
+      <el-dialog
+        v-model="dialogbusinessManagement"
+        :title="t('formDemo.businessManagement')"
+        width="40%"
+        align-center
+      >
+        <el-divider />
+        <el-form :model="formBusuness">
+          <el-table
+            ref="multipleTableRef"
+            border
+            :data="listApplyExport"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column type="selection" width="55" />
+            <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
+          </el-table>
+        </el-form>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  dialogbusinessManagement = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button @click="dialogbusinessManagement = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- DialogChooseWarehouse -->
+      <el-dialog
+        v-model="openDialogChooseWarehouse"
+        :title="t('formDemo.inventoryInformation')"
+        width="35%"
+        align-center
+        class="z-50"
+      >
+        <el-divider />
+        <el-table :data="tableWarehouse" border>
+          <el-table-column label="" width="50">
+            <template #default="scope">
+              <el-radio
+                v-model="radioSelected"
+                :label="scope.$index"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
+          <el-table-column :label="t('reuse.inventory')">
+            <div class="flex">
+              <span class="flex-1">20</span>
+              <span class="flex-1 text-right">Chiếc</span>
+            </div> </el-table-column
+          >>
+        </el-table>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
+            <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <el-collapse-item :name="collapse[2].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[2].icon" link />
@@ -3405,17 +3538,14 @@ const removeRow = (index) => {
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="t('formDemo.certificateInformation')"
-            width="240"
-          /><el-table-column
-            prop="certificateInformation"
-            :label="t('formDemo.negotiablePrice')"
+            :label="t('formDemo.certificateInformationAndServiceArising')"
             width="240"
           />
           <el-table-column
             prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
             align="right"
+            width="150"
           >
             <template #default="props">
               <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
@@ -3467,9 +3597,9 @@ const removeRow = (index) => {
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
             align="center"
-            min-width="120"
+            min-width="100"
           />
-          <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="data">
               <button
                 @click="
@@ -3530,7 +3660,7 @@ const removeRow = (index) => {
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
-              :label="t('formDemo.invoiceForGoodsEnteringTheWarehouse')"
+              :label="t('reuse.billExport')"
               align="left"
               width="200"
             >
@@ -3547,7 +3677,7 @@ const removeRow = (index) => {
             </el-table-column>
             <el-table-column
               prop="inventoryStatus"
-              :label="t('formDemo.inventoryStatus')"
+              :label="t('formDemo.status')"
               align="left"
               width="200"
             />

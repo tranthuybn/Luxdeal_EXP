@@ -48,7 +48,6 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  getTotalOrder,
   getSellOrderList,
   getOrderTransaction,
   getReceiptPaymentVoucher,
@@ -176,13 +175,14 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  spaServices: string
+  spaServices: {}
   amountSpa: number
   quantity: string
   accessory: string | undefined
   unitName: string
+  examinationContent: string
   price: string | number | undefined
-  finalPrice: string
+  finalPrice: number
   paymentType: string
   edited: boolean
 }
@@ -194,14 +194,15 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: '',
+  spaServices: {},
   amountSpa: 2,
   productPropertyId: '',
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
-  finalPrice: '',
+  examinationContent: '',
+  finalPrice: 0,
   paymentType: '',
   edited: true
 })
@@ -214,46 +215,16 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number | undefined
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-let totalPriceOrder = ref()
-let totalFinalOrder = ref()
+// interface tableOrderDetailType {
+//   productPropertyId: number
+//   quantity: number | undefined
+//   accessory: string | undefined
+//   spaServiceIds: string
+// }
+// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+let totalPriceOrder = ref(0)
+let totalFinalOrder = ref(0)
 // Total order
-const autoCalculateOrder = async () => {
-  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    ListOfProductsForSale.value.pop()
-  tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
-
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 1,
-    fromDate: '2022-10-31T09:15:56.106Z',
-    toDate: '2022-10-31T09:15:56.106Z',
-    paymentPeriod: 1,
-    days: 1,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
-  }
-  const res = await getTotalOrder(payload)
-
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
-  }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
-  }, 0)
-}
 
 const historyTable = ref([
   {
@@ -370,29 +341,25 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
+const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  if (data) {
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    optionCallPromoAPi = 0
-    customerIdPromo.value = result.id
-    callPromoApi()
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
+  infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  if (infoCustomerId.value.isOrganization) {
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    customerAddress.value = ''
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
+  optionCallPromoAPi = 0
+  customerIdPromo.value = infoCustomerId.value.id
+  callPromoApi()
 }
 const inputDeposit = ref(0)
 
@@ -447,12 +414,63 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+let totalSettingSpa = ref(0)
+
+let newTable = ref()
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleSelectionChange = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
+    label: e.spaServiceName,
+    value: e.id
+  }))
+  newTable.value = val
+  totalSettingSpa.value = 0
+  newTable.value.map((val) => {
+    totalSettingSpa.value += val.price
+  })
+}
+
+const getPriceSpaService = () => {
+  ListOfProductsForSale.value[currentRow2.value].finalPrice = totalSettingSpa.value
+}
+let promoValue = ref(0)
+let promoCash = ref(0)
+const getValueOfSelected = async (_value, obj, scope) => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
+
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+  // add new row
+  if (scope.$index == ListOfProductsForSale.value.length - 1) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
+const totalPriceSpa = (scope) => {
+  let quantityInput = scope.row.quantity
+  scope.row.finalPrice = quantityInput * totalSettingSpa.value
+}
+
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 }
 
 const handleTotal = (scope) => {
@@ -494,6 +512,8 @@ const callPromoApi = async () => {
       description: product.description,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       voucherConditionTypeName:
         product.voucherConditionType == 1
           ? 'Nhận voucher miễn phí'
@@ -525,7 +545,13 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -578,7 +604,12 @@ const detailedListExpenses = [
 ]
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -606,18 +637,21 @@ const changeNamePromo = () => {
 
 const listServicesSpa = ref()
 const optionsApiServicesSpa = ref()
-let optionCallAPiServicesSpa = 0
-const callApiServicesSpa = async () => {
-  if (optionCallAPiServicesSpa == 0) {
-    const res = await getSpaListByProduct({ ProductPropertyId: 1 })
-    listServicesSpa.value = res.data
-    optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
-      id: product.id,
-      value: product.price,
-      name: product.spaServiceName
-    }))
-  }
-  optionCallAPiServicesSpa++
+
+const currentRow2 = ref(0)
+const callApiServicesSpa = async (scope) => {
+  indexSpa.value = scope.$index
+  const res = await getSpaListByProduct({
+    ProductPropertyId: parseInt(scope.row.productPropertyId)
+  })
+  listServicesSpa.value = res.data
+  optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
+    id: product.id,
+    value: product.price,
+    name: product.spaServiceName
+  }))
+
+  currentRow2.value = scope.$index
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -1047,6 +1081,12 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
+let totalOrder = ref(0)
+let dataEdit = ref()
+const saveContentEditor = () => {
+  ListOfProductsForSale.value[currentRow2.value].examinationContent = editor.value
+}
+
 function printPage(id: string, { url, title, w, h }) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -1157,12 +1197,6 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-let newTable = ref()
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const handleSelectionChange = (val: tableDataType[]) => {
-  newTable.value = val
-}
-
 let objIdPayment = ref()
 let idPayment = ref()
 // Thêm mới phiếu đề nghị thanh toán
@@ -1243,6 +1277,7 @@ const postOrderStransaction = async (num: number) => {
 
 // debtTable
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -1290,7 +1325,7 @@ interface historyTableType {
   inventoryStatus?: string
 }
 
-const inputReasonChange = ref('')
+// const inputReasonChange = ref('')
 // const updatePrice = (_value, obj, scope) => {
 //   scope.row.productPropertyId = obj.productPropertyId
 //   scope.row.refundUnitPrice = Number(obj.price)
@@ -1436,10 +1471,6 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 
-// total order
-let totalOrder = ref(0)
-let dataEdit = ref()
-
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1571,6 +1602,8 @@ const getFormReceipts = () => {
 }
 const editor = ref()
 
+const indexSpa = ref()
+
 // change address
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -1604,12 +1637,10 @@ var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 
 onBeforeMount(async () => {
-  callApiServicesSpa()
   callCustomersApi()
   callApiCollaborators()
   callApiCity()
   callAPIProduct()
-
   if (type == 'add') {
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -2568,7 +2599,7 @@ const postReturnRequest = async (reason) => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="400"
+            min-width="300"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -2582,29 +2613,62 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.examinationContent')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Mặt trước mới 90%...</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogexaminationContentSpa = true"
-                  ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
-                ></div
-              >
-            </div>
+          <el-table-column
+            prop="examinationContent"
+            :label="t('formDemo.examinationContent')"
+            width="230"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        currentRow2 = data.$index
+                        editor = data.row.examinationContent
+                        dialogexaminationContentSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
-          <el-table-column :label="t('router.ServiceLibrarySpaService')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Kiểm tra</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormSettingServiceSpa = true"
-                  ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
-                ></div
-              >
-            </div>
+          <el-table-column
+            :label="t('router.ServiceLibrarySpaService')"
+            prop="spaServices"
+            width="220"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.spaServices" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        callApiServicesSpa(data)
+                        dialogFormSettingServiceSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importExportWarehouse')" width="230">
+          <el-table-column :label="t('reuse.importExportWarehouse')" width="180">
             <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -2617,7 +2681,7 @@ const postReturnRequest = async (reason) => {
             </div>
           </el-table-column>
 
-          <el-table-column prop="finalPrice" :label="t('reuse.type')" align="center" width="90">
+          <el-table-column prop="typeSpa" :label="t('reuse.type')" align="center" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.type"
@@ -2635,32 +2699,27 @@ const postReturnRequest = async (reason) => {
             width="90"
           >
             <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.quantity }}
+              </div>
               <el-input
+                v-else
+                @change="
+                  () => {
+                    totalPriceSpa(data)
+                    autoCalculateOrder()
+                  }
+                "
                 v-model="data.row.quantity"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="unitName"
-            :label="`${t('reuse.dram')}`"
-            align="center"
-            min-width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.unitName"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
+          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
           <el-table-column
-            prop="intoMoney"
+            prop="finalPrice"
             :label="t('formDemo.spaFeePayment')"
             align="right"
             width="100"
@@ -2751,13 +2810,8 @@ const postReturnRequest = async (reason) => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
@@ -2881,21 +2935,21 @@ const postReturnRequest = async (reason) => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="180" />
 
             <el-table-column
               prop="productName"
               :label="t('router.ServiceLibrarySpaService')"
-              width="280"
+              width="120"
             />
-
-            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.intoMoneyByday')">
+            <el-table-column prop="type" :label="t('reuse.type')" width="90" />
+            <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="90" />
+            <el-table-column prop="price" :label="t('formDemo.priceSpaService')" width="120">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('reuse.pawnMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
               </template>
@@ -2903,7 +2957,7 @@ const postReturnRequest = async (reason) => {
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
+              <p class="text-black font-bold dark:text-white">{{ t('formDemo.spaFeePayment') }} </p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
@@ -3037,6 +3091,7 @@ const postReturnRequest = async (reason) => {
               type="primary"
               @click="
                 () => {
+                  saveContentEditor()
                   dialogexaminationContentSpa = false
                 }
               "
@@ -3071,14 +3126,22 @@ const postReturnRequest = async (reason) => {
         </el-form>
         <div class="flex justify-between px-3 mt-2">
           <strong>Thành tiền phí dịch vụ Spa</strong>
-          <p class="price font-medium">50000</p>
+          <p class="price font-medium">{{ totalSettingSpa }}</p>
         </div>
 
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="primary" @click="dialogFormSettingServiceSpa = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  getPriceSpaService()
+                  autoCalculateOrder()
+                  dialogFormSettingServiceSpa = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button @click="dialogFormSettingServiceSpa = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -4201,6 +4264,13 @@ const postReturnRequest = async (reason) => {
 }
 .fix-width > .el-form-item {
   width: 80%;
+}
+
+.limit-text {
+  white-space: nowrap;
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 ::v-deep(.el-form-item__content) {

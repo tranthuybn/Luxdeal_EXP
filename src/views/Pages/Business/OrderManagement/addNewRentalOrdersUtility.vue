@@ -1848,7 +1848,6 @@ const postOrderStransaction = async (index: number) => {
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   getOrderStransactionList()
 }
-
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
 let tableSalesSlip = ref()
@@ -3814,7 +3813,7 @@ const removeRow = (index) => {
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"

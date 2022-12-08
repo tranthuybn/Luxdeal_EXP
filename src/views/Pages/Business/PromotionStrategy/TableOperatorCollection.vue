@@ -121,6 +121,10 @@ const props = defineProps({
   typeCombo: {
     type: Boolean,
     default: false
+  },
+  tabActive: {
+    type: Number,
+    default: NaN
   }
 })
 
@@ -416,7 +420,7 @@ const router = useRouter()
 const edit = () => {
   push({
     name: `${String(router.currentRoute.value.name)}`,
-    params: { id: props.id, type: 'edit' }
+    params: { id: props.id, type: 'edit', tab: props.tabActive }
   })
 }
 //xóa dữ liệu sản phẩm

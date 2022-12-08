@@ -81,7 +81,7 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
-  leaseTerm: t('reuse.byMonth'),
+  leaseTerm: 30,
   rentalPeriod: [],
   rentalPaymentPeriod: 1,
   collaborators: '',
@@ -279,8 +279,8 @@ interface tableRentalProduct {
   productPropertyId: string
   productName: string
   accessory: string
-  fromDate: string
-  toDate: string
+  fromDate: any
+  toDate: any
   quantity: Number
   hirePrice: string
   depositePrice: string
@@ -506,6 +506,8 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
   promo.value = val
   promo.value?.reduceCash != 0
@@ -535,6 +537,8 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
@@ -586,51 +590,50 @@ const changeAddressCustomer = (data) => {
   }
 }
 
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: number
-//   accessory: string | undefined
-//   spaServiceIds: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
 let promoValue = ref(0)
 let promoCash = ref(0)
-let totalDeposit = ref()
+let totalDeposit = ref(0)
 
 // Total order
 const getProductPropertyPrice = async (
   productPropertyId = 0,
-  quantity = 0,
-  serviceType = 1,
-  startDate = null,
-  endDate = null
-): Promise<number> => {
+  serviceType = 3,
+  quantity: 1,
+  period: 1
+): Promise<any> => {
   const getPricePayload = {
-    productPropertyId: productPropertyId,
-    quantity: quantity,
+    Id: productPropertyId,
     serviceType: serviceType,
-    statDate: startDate,
-    endDate: endDate
+    Quantity: quantity,
+    Period: period
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
-  const price = res.data.price ?? 0
-  return price
+  const objPrice = res.data
+  return objPrice
 }
 
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
+  totalDeposit.value = 0
   tableData.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+    if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+    if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
   })
 
+  console.log('totalPriceOrder: ', totalPriceOrder.value)
+  console.log('totalDeposit: ', totalDeposit.value)
+
   promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
     : (totalFinalOrder.value =
-        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+        totalPriceOrder.value -
+        (totalPriceOrder.value * promoValue.value) / 100 +
+        totalDeposit.value)
+  console.log('totalFinalOrder: ', totalFinalOrder.value)
 }
 
 // Call api danh sách sản phẩm
@@ -1064,21 +1067,61 @@ const editData = async () => {
 }
 
 const getValueOfSelected = async (_value, obj, scope) => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
   const data = scope.row
   data.productPropertyId = obj.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
-  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
-  data.finalPrice = data.price * data.quantity
-  tableData.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
-  })
-  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
-  // add new row
-  if (scope.$index == tableData.value.length - 1) {
-    tableData.value.push({ ...productForSale })
+
+  if (data.fromDate && data.toDate) {
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    totalDeposit.value = 0
+    let newDate = new Date(data.toDate - data.fromDate)
+    let days = newDate.getDate()
+    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
+    data.price = objPrice.price
+    data.depositePrice = objPrice.deposit
+    data.hirePrice = data.price * data.quantity * days
+    console.log('table: ', data)
+    tableData.value.map((val) => {
+      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+    })
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
+    console.log()
+  }
+}
+
+// chọn ngày thì ra giá tiền
+const handleGetTotal = async (_value, props) => {
+  const data = props.row
+  if (data.fromDate && data.toDate) {
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    totalDeposit.value = 0
+    let newDate = new Date(data.toDate - data.fromDate)
+    let days = newDate.getDate()
+    console.log('days: ', days)
+    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
+    data.price = objPrice.price
+    data.depositePrice = objPrice.deposit
+    data.hirePrice = data.price * data.quantity * days
+    tableData.value.map((val) => {
+      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+    })
+    console.log('data_after: ', data)
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
   }
 }
 
@@ -1806,28 +1849,6 @@ const postOrderStransaction = async (index: number) => {
   getOrderStransactionList()
 }
 
-// const inputReturnReason = ref('Trả hàng trước hạn')
-// Tạo mới yêu cầu đổi trả
-// const postReturnRequest = async () => {
-//   codeReturnRequest.value = autoCodeReturnRequest
-//   const tableReturnPost = ref()
-//   tableReturnPost.value = tableData.value.map((e) => ({
-//     productPropertyId: e.productPropertyId,
-//     quantity: e.quantity,
-//     acessory: e.accessory ?? '2'
-//   }))
-//   tableReturnPost.value.pop()
-//   const payload = {
-//     customerOrderId: id,
-//     code: codeReturnRequest.value,
-//     name: 'Đổi trả đơn hàng',
-//     description: inputReturnReason.value,
-//     returnRequestType: 1,
-//     details: tableReturnPost.value
-//   }
-//   await createReturnRequest(payload)
-// }
-
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
 let tableSalesSlip = ref()
@@ -1837,8 +1858,8 @@ const getAccountingEntry = async (index, num) => {
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
   if (num == 1) dialogRentalPaymentInformation.value = true
-  if (num == 2) dialogDepositSlip.value = true
-  if (num == 3) dialogAccountingEntryAdditional.value = true
+  else if (num == 2) dialogDepositSlip.value = true
+  else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
 // Dialog trả hàng trước hạn
@@ -2689,9 +2710,9 @@ const removeRow = (index) => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -2865,9 +2886,9 @@ const removeRow = (index) => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -3825,13 +3846,14 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
-            <template #default="props">
-              <div v-if="props.row.fromDate != ''">
-                {{ dateTimeFormat(props.row.fromDate) }}
+            <template #default="scope">
+              <div v-if="type == 'detail'">
+                {{ dateTimeFormat(scope.row.fromDate) }}
               </div>
               <el-date-picker
                 v-else
-                v-model="props.row.fromDate"
+                v-model="scope.row.fromDate"
+                @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
                 format="DD/MM/YYYY"
@@ -3839,13 +3861,14 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
-            <template #default="props">
-              <div v-if="props.row.toDate != ''">
-                {{ dateTimeFormat(props.row.toDate) }}
+            <template #default="scope">
+              <div v-if="type == 'detail'">
+                {{ dateTimeFormat(scope.row.toDate) }}
               </div>
               <el-date-picker
                 v-else
-                v-model="props.row.toDate"
+                v-model="scope.row.toDate"
+                @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
                 format="DD/MM/YYYY"
@@ -3861,7 +3884,7 @@ const removeRow = (index) => {
                 v-else
                 @change="
                   () => {
-                    data.row.finalPrice = data.row.price * data.row.quantity
+                    data.row.hirePrice = data.row.price * data.row.quantity
                     autoCalculateOrder()
                   }
                 "
@@ -3896,8 +3919,8 @@ const removeRow = (index) => {
           >
             <template #default="props">
               {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
+                props.row.hirePrice != ''
+                  ? changeMoney.format(parseInt(props.row.hirePrice))
                   : '0 đ'
               }}
             </template>
@@ -3999,7 +4022,7 @@ const removeRow = (index) => {
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
-              totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
             <div class="text-right dark:text-[#fff]">{{
               totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'

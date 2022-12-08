@@ -503,12 +503,15 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.productCode = obj.value
   data.productName = obj.name
   //TODO
-  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
+  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
   data.finalPrice = data.price * data.quantity
   ListOfProductsForSale.value.map((val) => {
     if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
   })
-  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
   // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -636,6 +639,8 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
   promo.value = val
   promo.value?.reduceCash != 0
@@ -665,6 +670,8 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
@@ -695,17 +702,13 @@ const changeNamePromo = () => {
 // Total order
 const getProductPropertyPrice = async (
   productPropertyId = 0,
-  quantity = 0,
   serviceType = 1,
-  startDate = null,
-  endDate = null
+  quantity: 1
 ): Promise<number> => {
   const getPricePayload = {
-    productPropertyId: productPropertyId,
-    quantity: quantity,
+    id: productPropertyId,
     serviceType: serviceType,
-    statDate: startDate,
-    endDate: endDate
+    Quantity: quantity
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
@@ -1234,7 +1237,7 @@ const getReturnRequestTable = async () => {
 
 const tableProductInformationExportChange = ref([
   {
-    productPropertyId: null,
+    productPropertyId: 0,
     commodityName: '',
     accessory: '',
     quantity: 1,
@@ -1652,7 +1655,7 @@ const postReturnRequest = async () => {
   )
   tableReturnPost.value.push(
     tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: parseInt(e.productPropertyId),
+      productPropertyId: e.productPropertyId,
       quantity: e.quantity,
       accessory: e.accessory
     }))
@@ -2614,11 +2617,7 @@ const getReturnOrder = () => {
               <p class="pr-2">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
               }}</p>
-              <p class="pr-2">{{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}</p>
+              <p class="pr-2">{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}</p>
               <p class="pr-2 text-black font-bold dark:text-white">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
               }}</p>

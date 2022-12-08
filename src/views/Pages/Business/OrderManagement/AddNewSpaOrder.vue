@@ -175,11 +175,12 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  spaServices: string
+  spaServices: {}
   amountSpa: number
   quantity: string
   accessory: string | undefined
   unitName: string
+  examinationContent: string
   price: string | number | undefined
   finalPrice: number
   paymentType: string
@@ -193,13 +194,14 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: '',
+  spaServices: {},
   amountSpa: 2,
   productPropertyId: '',
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
+  examinationContent: '',
   finalPrice: 0,
   paymentType: '',
   edited: true
@@ -220,8 +222,8 @@ const changeMoney = new Intl.NumberFormat('vi', {
 //   spaServiceIds: string
 // }
 // let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-let totalPriceOrder = ref()
-let totalFinalOrder = ref()
+let totalPriceOrder = ref(0)
+let totalFinalOrder = ref(0)
 // Total order
 
 const historyTable = ref([
@@ -418,6 +420,10 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   console.log('val', val)
+  ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
+    label: e.spaServiceName,
+    value: e.id
+  }))
   newTable.value = val
   totalSettingSpa.value = 0
   newTable.value.map((val) => {
@@ -441,7 +447,10 @@ const getValueOfSelected = async (_value, obj, scope) => {
   ListOfProductsForSale.value.map((val) => {
     if (val.finalPrice) totalPriceOrder.value += val.finalPrice
   })
-  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
   // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -504,6 +513,8 @@ const callPromoApi = async () => {
       description: product.description,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       voucherConditionTypeName:
         product.voucherConditionType == 1
           ? 'Nhận voucher miễn phí'
@@ -535,8 +546,12 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
   promo.value = val
+  console.log('promoCash: ', promoCash.value)
+  console.log('promoValue: ', promoValue.value)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
     : (promoValue.value = promo.value?.reducePercent)
@@ -592,6 +607,8 @@ const detailedListExpenses = [
 ]
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
@@ -626,6 +643,8 @@ const optionsApiServicesSpa = ref()
 
 const currentRow2 = ref(0)
 const callApiServicesSpa = async (scope) => {
+  console.log('scope: ', scope)
+  indexSpa.value = scope.$index
   const res = await getSpaListByProduct({
     ProductPropertyId: parseInt(scope.row.productPropertyId)
   })
@@ -1068,6 +1087,11 @@ const getOrderStransactionList = async () => {
 
 let totalOrder = ref(0)
 let dataEdit = ref()
+const saveContentEditor = () => {
+  console.log('edit', editor.value)
+
+  ListOfProductsForSale.value[currentRow2.value].examinationContent = editor.value
+}
 
 function printPage(id: string, { url, title, w, h }) {
   let stylesHtml = ''
@@ -1259,6 +1283,7 @@ const postOrderStransaction = async (num: number) => {
 
 // debtTable
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -1582,6 +1607,8 @@ const getFormReceipts = () => {
   }
 }
 const editor = ref()
+
+const indexSpa = ref()
 
 // change address
 let autoChangeCommune = ref()
@@ -2578,7 +2605,7 @@ const postReturnRequest = async (reason) => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="400"
+            min-width="300"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -2592,25 +2619,35 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.examinationContent')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Mặt trước mới 90%...</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogexaminationContentSpa = true"
-                  ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
-                ></div
-              >
-            </div>
+          <el-table-column
+            prop="examinationContent"
+            :label="t('formDemo.examinationContent')"
+            width="230"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button text border @click="dialogexaminationContentSpa = true"
+                    ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
           <el-table-column
             :label="t('router.ServiceLibrarySpaService')"
             prop="spaServices"
-            width="230"
+            width="220"
           >
             <template #default="data">
               <div class="flex w-[100%] items-center text-center">
-                <div class="flex-1">Kiểm tra</div>
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.spaServices" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
                     text
@@ -2628,7 +2665,7 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importExportWarehouse')" width="230">
+          <el-table-column :label="t('reuse.importExportWarehouse')" width="180">
             <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -3064,6 +3101,7 @@ const postReturnRequest = async (reason) => {
               type="primary"
               @click="
                 () => {
+                  saveContentEditor()
                   dialogexaminationContentSpa = false
                 }
               "
@@ -3108,6 +3146,7 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   getPriceSpaService()
+                  autoCalculateOrder()
                   dialogFormSettingServiceSpa = false
                 }
               "
@@ -4235,6 +4274,13 @@ const postReturnRequest = async (reason) => {
 }
 .fix-width > .el-form-item {
   width: 80%;
+}
+
+.limit-text {
+  white-space: nowrap;
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 ::v-deep(.el-form-item__content) {

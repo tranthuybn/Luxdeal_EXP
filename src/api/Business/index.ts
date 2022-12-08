@@ -275,6 +275,17 @@ export const getDetailAccountingEntryById = async (params): Promise<IResponse> =
   return res && res.data
 }
 
+// Lấy danh sách kho theo mã sản phẩm và serviceType
+export const GetProductPropertyInventory = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_PRODUCT_PROPERTY_INVENTORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Phiếu nhập, xuất, chuyển kho tự động
 export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
   const res = await request.post(

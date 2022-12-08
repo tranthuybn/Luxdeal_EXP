@@ -60,7 +60,8 @@ import {
   addDNTT,
   addOrderStransaction,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  GetProductPropertyInventory
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -288,7 +289,8 @@ interface ListOfProductsForSaleType {
   price: string | number | undefined
   finalPrice: string
   paymentType: string
-  warehouseId: number
+  warehouseId: number | undefined
+  warehouseName: string
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -304,7 +306,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   price: 0,
   finalPrice: '',
   paymentType: '',
-  warehouseId: 0
+  warehouseId: undefined,
+  warehouseName: ''
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -395,18 +398,7 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
+const tableWarehouse = ref([])
 
 const radioVAT = ref(false)
 let infoCompany = reactive({
@@ -451,7 +443,8 @@ const callApiProductList = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
-      price: product.price.toString(),
+      price: product.price,
+      unit: product.unitName,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -1714,6 +1707,30 @@ const getFormReceipts = () => {
       type: 'error'
     })
   }
+}
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+  tableWarehouse.value = res.data.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
 }
 
 onBeforeMount(async () => {
@@ -3332,10 +3349,6 @@ const getReturnOrder = () => {
                   t('formDemo.orderInformation')
                 }}</el-divider>
               </div>
-              <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
-              <!-- <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
-                >open a Form thông tin phiếu thanh toán trả hàng</el-button
-              > -->
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"
@@ -3552,16 +3565,24 @@ const getReturnOrder = () => {
         <el-table :data="tableWarehouse" border>
           <el-table-column prop="warehouseCheckbox" width="90" align="center">
             <template #default="props">
-              <el-checkbox v-model="props.row.warehouseCheckbox" />
+              <el-radio
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
             </template>
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1">{{ props.row.inventory }}</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
         <template #footer>
           <span class="dialog-footer">
@@ -3935,10 +3956,10 @@ const getReturnOrder = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productPropertyId"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
@@ -4023,15 +4044,29 @@ const getReturnOrder = () => {
               {{ changeMoney.format(props.row.finalPrice) }}
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
-            <div class="flex w-[100%] items-center">
-              <div class="w-[40%]">Còn hàng</div>
-              <div class="w-[60%]">
-                <el-button text @click="openDialogChooseWarehouse = true">
-                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                </el-button>
+          <el-table-column
+            prop="warehouseName"
+            :label="t('formDemo.exportWarehouse')"
+            min-width="200"
+          >
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
+                <div class="w-[60%]">
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        callApiWarehouse(props)
+                        openDialogChooseWarehouse = true
+                      }
+                    "
+                  >
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
               </div>
-            </div>
+            </template>
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">

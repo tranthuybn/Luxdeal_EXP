@@ -419,7 +419,6 @@ let totalSettingSpa = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log('val', val)
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
     label: e.spaServiceName,
     value: e.id
@@ -550,8 +549,6 @@ const handleCurrentChange = (val: undefined) => {
   promoValue.value = 0
   currentRow.value = val
   promo.value = val
-  console.log('promoCash: ', promoCash.value)
-  console.log('promoValue: ', promoValue.value)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
     : (promoValue.value = promo.value?.reducePercent)
@@ -643,7 +640,6 @@ const optionsApiServicesSpa = ref()
 
 const currentRow2 = ref(0)
 const callApiServicesSpa = async (scope) => {
-  console.log('scope: ', scope)
   indexSpa.value = scope.$index
   const res = await getSpaListByProduct({
     ProductPropertyId: parseInt(scope.row.productPropertyId)
@@ -1088,8 +1084,6 @@ const getOrderStransactionList = async () => {
 let totalOrder = ref(0)
 let dataEdit = ref()
 const saveContentEditor = () => {
-  console.log('edit', editor.value)
-
   ListOfProductsForSale.value[currentRow2.value].examinationContent = editor.value
 }
 
@@ -2628,7 +2622,16 @@ const postReturnRequest = async (reason) => {
               <div class="flex w-[100%] items-center text-center">
                 <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                  <el-button text border @click="dialogexaminationContentSpa = true"
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        currentRow2 = data.$index
+                        editor = data.row.examinationContent
+                        dialogexaminationContentSpa = true
+                      }
+                    "
                     ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
                   ></div
                 >

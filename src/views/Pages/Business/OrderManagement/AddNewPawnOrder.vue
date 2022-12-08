@@ -51,12 +51,12 @@ import {
   createReturnRequest,
   getReturnRequest,
   addQuickCustomer,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  GetProductPropertyInventory
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import { useRoute, useRouter } from 'vue-router'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -198,12 +198,16 @@ interface ListOfProductsForSaleType {
   spaServices: string
   amountSpa: number
   quantity: string
+  businessManagement: {}
   accessory: string | undefined
+  warehouseInfo: {}
   unitName: string
   price: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
+  warehouseId: number | undefined
+  warehouseName: string
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -218,11 +222,15 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: '1',
   accessory: '',
+  businessManagement: {},
+  warehouseInfo: {},
   unitName: 'Cái',
   price: '',
   finalPrice: '',
   paymentType: '',
-  edited: true
+  edited: true,
+  warehouseId: undefined,
+  warehouseName: ''
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -233,6 +241,7 @@ const addLastIndexSellTable = () => {
 
 // debtTable
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -927,12 +936,6 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-let newTable = ref()
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const handleSelectionChange = (val: tableDataType[]) => {
-  newTable.value = val
-}
-
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
   let tableReturnPost = [{}]
@@ -1146,41 +1149,73 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 
-const radioSelected = ref(-1)
 const openDialogChooseWarehouse = ref(false)
 const dialogbusinessManagement = ref(false)
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
+
+const tableWarehouse = ref([])
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+  tableWarehouse.value = res.data.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+}
 
 const formBusuness = reactive({
+  id: 1,
   check: '',
   applyExport: ''
 })
 
 const listApplyExport = [
   {
+    id: 1,
     check: true,
     applyExport: 'Ký gửi bán'
   },
   {
+    id: 2,
     check: true,
     applyExport: 'Ký gửi cho thuê'
   },
   {
+    id: 3,
     check: true,
     applyExport: 'spa'
   }
 ]
+const indexRow = ref()
+
+let newTable = ref()
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleSelectionChange = (val: tableDataType[]) => {
+  console.log(indexRow)
+
+  newTable.value = val
+}
+const handleSelectionbusinessManagement = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
+    label: e.applyExport,
+    value: e.id
+  }))
+}
 
 const optionsChooseMoneyType = [
   {
@@ -1204,6 +1239,16 @@ const optionsChooseMoneyType = [
     label: 'Tiền khác'
   }
 ]
+const ckeckChooseProduct = (scope) => {
+  if (!scope.row.productPropertyId) {
+    ElNotification({
+      message: 'Ban phai chon san pham truoc',
+      type: 'info'
+    })
+  } else {
+    dialogbusinessManagement.value = true
+  }
+}
 
 const optionsFeePaymentTime = [
   {
@@ -1981,7 +2026,7 @@ const removeRow = (index) => {
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 :clearable="false"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
@@ -2036,29 +2081,56 @@ const removeRow = (index) => {
           </el-table-column>
 
           <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
-          <el-table-column :label="t('formDemo.businessManagement')" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">...</div>
-              <div class="flex-1 text-right">
-                <el-button
-                  text
-                  border
-                  class="text-blue-500"
-                  @click="dialogbusinessManagement = true"
-                >
-                  <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
-                >
+          <el-table-column
+            :label="t('formDemo.businessManagement')"
+            width="200"
+            prop="businessManagement"
+          >
+            <template #default="data">
+              <div class="flex w-[100%]">
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
+                <div class="flex-1 text-right">
+                  <el-button
+                    text
+                    border
+                    class="text-blue-500"
+                    @click="
+                      () => {
+                        indexRow = data.$index
+                        ckeckChooseProduct(data)
+                      }
+                    "
+                  >
+                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
+                  >
+                </div>
               </div>
-            </div>
+            </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importWarehouse')" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">Còn hàng</div>
-              <el-button text @click="openDialogChooseWarehouse = true">
-                <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-              </el-button>
-            </div>
+          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" width="200">
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
+                <div class="w-[60%]">
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        callApiWarehouse(props)
+                        openDialogChooseWarehouse = true
+                      }
+                    "
+                  >
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
@@ -2114,10 +2186,6 @@ const removeRow = (index) => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-checkbox v-model="checked2" :label="t('reuse.closedTheOrder')" size="large" />
-            <!-- <el-checkbox v-model="checked3" :label="t('formDemo.pawning')" size="large" />
-            <el-checkbox v-model="checked4" :label="t('formDemo.renewingThePawn')" size="large" />
-
-            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" /> -->
           </div>
         </div>
         <div class="flex w-[100%] ml-1 items-center pb-3">
@@ -2259,7 +2327,7 @@ const removeRow = (index) => {
             ref="multipleTableRef"
             border
             :data="listApplyExport"
-            @selection-change="handleSelectionChange"
+            @selection-change="handleSelectionbusinessManagement"
           >
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
@@ -2293,10 +2361,11 @@ const removeRow = (index) => {
         <el-divider />
         <el-table :data="tableWarehouse" border>
           <el-table-column label="" width="50">
-            <template #default="scope">
+            <template #default="props">
               <el-radio
-                v-model="radioSelected"
-                :label="scope.$index"
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
                 style="color: #fff; margin-right: -25px"
                 ><span></span
               ></el-radio>
@@ -3546,6 +3615,12 @@ const removeRow = (index) => {
   border: 1px solid #ccc;
   background-color: #ccc;
   opacity: 0.6;
+}
+.limit-text {
+  white-space: nowrap;
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .triangle-left {
   position: absolute;

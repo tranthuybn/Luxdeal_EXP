@@ -3243,7 +3243,7 @@ const removeRow = (index) => {
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 :clearable="false"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"

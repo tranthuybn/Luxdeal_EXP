@@ -2716,20 +2716,7 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="unitName"
-            :label="`${t('reuse.dram')}`"
-            align="center"
-            min-width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.unitName"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
+          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
           <el-table-column
             prop="finalPrice"

@@ -15,6 +15,7 @@ import {
   ElInput,
   ElDialog,
   ElForm,
+  ElRadio,
   ElFormItem,
   ElDatePicker,
   FormInstance,
@@ -3537,17 +3538,14 @@ const removeRow = (index) => {
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="t('formDemo.certificateInformation')"
-            width="240"
-          /><el-table-column
-            prop="certificateInformation"
-            :label="t('formDemo.negotiablePrice')"
+            :label="t('formDemo.certificateInformationAndServiceArising')"
             width="240"
           />
           <el-table-column
             prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
             align="right"
+            width="150"
           >
             <template #default="props">
               <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
@@ -3599,9 +3597,9 @@ const removeRow = (index) => {
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
             align="center"
-            min-width="120"
+            min-width="100"
           />
-          <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="data">
               <button
                 @click="
@@ -3662,7 +3660,7 @@ const removeRow = (index) => {
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
-              :label="t('formDemo.invoiceForGoodsEnteringTheWarehouse')"
+              :label="t('reuse.billExport')"
               align="left"
               width="200"
             >
@@ -3679,7 +3677,7 @@ const removeRow = (index) => {
             </el-table-column>
             <el-table-column
               prop="inventoryStatus"
-              :label="t('formDemo.inventoryStatus')"
+              :label="t('formDemo.status')"
               align="left"
               width="200"
             />

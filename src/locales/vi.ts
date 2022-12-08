@@ -205,6 +205,7 @@ export default {
     deliveryToYourPlace: 'Giao hàng tận nơi',
     printSalesSlip: 'In phiếu bán hàng',
     printLiquidationContract: 'In hợp đồng thanh lý',
+    deliveryNotesExportWarehouse: 'Phiếu xuất/chuyển kho',
     deliveryNotes: 'Phiếu xuất trả hàng',
     deliveryNotesAndImport: 'Phiếu xuất trả/nhập hàng',
     printSpaBill: 'In phiếu thăm khám sản phẩm',
@@ -1344,8 +1345,7 @@ export default {
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
     importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
-    internalPawnReturnAndRetentionHistoryForCustomers:
-      'Lịch sử trả lại/nhập kho nội bộ hàng cầm đồ cho khách hàng',
+    internalPawnReturnAndRetentionHistoryForCustomers: 'Lịch sử trả lại/Đứt hàng cầm đồ',
 
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
@@ -1654,6 +1654,7 @@ export default {
     detailTransfer: 'Thông tin phiếu chuyển kho',
     detailWarehouse: 'Thông tin phiếu nhập kho',
     profileExport: 'Thông tin chi tiết phiếu xuất kho',
+    billExport: 'Phiếu xuất kho',
     exportToSelectedLot: 'Xuất lot đã chọn',
     detailExport: 'Thông tin phiếu xuất kho',
     petitioner: 'Người yêu cầu',

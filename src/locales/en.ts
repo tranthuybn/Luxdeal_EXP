@@ -187,6 +187,7 @@ export default {
     deliveryToYourPlace: 'delivery to your place',
     printSalesSlip: 'Print sales slip',
     deliveryNotes: 'Delivery note',
+    deliveryNotesExportWarehouse: 'Delivery notes export warehouse',
     printLiquidationContract: 'Print liquidation contract',
     printSpaBill: 'Print spa bill',
     printDepositSlip: 'Print deposit slip',
@@ -346,6 +347,7 @@ export default {
     change: 'Change',
     voucherDiscount: 'Voucher Discount',
     voucherGiftSpa: 'Voucher gift Spa',
+    priceSpaService: 'Price spa service',
     giftSpa: 'Gift spa',
     giftDiscount: 'Gift discount',
     appliesToOrdersFrom: 'Applies to orders from',
@@ -1542,6 +1544,7 @@ export default {
     detailTransfer: 'Information transfer ticket',
     detailWarehouse: 'Information import ticket',
     profileExport: 'Detail export ticket',
+    billExport: 'Bill export',
     detailExport: 'Information export ticket',
     petitioner: 'Petitioner',
     selectObject: 'Select object',
@@ -1584,6 +1587,26 @@ export default {
     outOfStockInventory: 'Out of stock',
     exporting: 'Exporting',
     importing: 'Importing',
-    initializeAndWrite: 'I1nitialize & Write'
+    initializeAndWrite: 'I1nitialize & Write',
+    // exchange order
+    returnOrderPrice: 'Return order price',
+    totalReturnMoney: 'Total return money',
+    totalSellMoney: 'Total sell money',
+    totalDiffMoney: 'Total diff money',
+    depositPeriod: 'Deposit period',
+    informationRansomBeforeDueDate: 'Information ransom before due date',
+    informationRansomAfterDueDate: 'Information ransom after due date',
+    pawnPeriod: 'Pawn period',
+    extendPawn: 'Extend pawn',
+    informationReturnAfterDueDate: 'Information return after due date',
+    informationReturnExportProduct: 'Information return export product',
+    //fix bug sp kinh doan
+    resetForm: 'Reset form data',
+    fillProductInformationAgain: 'Fill product information again',
+    notActive: 'Not active',
+    lessThanTenImages: 'Less than than images',
+    limitUploadImages: 'Maximum upload is 10',
+    imagesYouChoose: 'Images you choose is ',
+    haveNotChooseProperty: 'Have not choose property'
   }
 }

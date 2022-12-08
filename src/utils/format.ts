@@ -17,6 +17,18 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
+export const formatProductStatus = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.notActive')
+    case 2:
+      return t('reuse.active') + t('reuse.finishPending')
+    default:
+      return ''
+  }
+}
 export const formatTransactionType = (val) => {
   switch (val) {
     case 1:
@@ -25,6 +37,28 @@ export const formatTransactionType = (val) => {
       return t('reuse.export')
     case 3:
       return t('reuse.transfer')
+    default:
+      return ''
+  }
+}
+export const formatOrderReturnReason = (val) => {
+  switch (val) {
+    case 2:
+      return 'Trả hàng trước hạn'
+    case 3:
+      return 'Trả hàng hết hạn'
+    case 4:
+      return 'Chuộc hàng trước thời hạn'
+    case 5:
+      return 'Chuộc hàng trước hết hạn'
+    case 6:
+      return 'Đứt hàng'
+    case 7:
+      return 'Gia hạn cầm đồ'
+    case 8:
+      return 'Trả hàng Spa'
+    case 9:
+      return 'Gia hạn ký gửi'
     default:
       return ''
   }
@@ -208,9 +242,9 @@ export const TargetType = (val) => {
 export const VoucherType = (val) => {
   switch (val) {
     case 1:
-      return t('formDemo.giftSpa')
-    case 2:
       return t('formDemo.giftDiscount')
+    case 2:
+      return t('formDemo.giftSpa')
     default:
       return ''
   }

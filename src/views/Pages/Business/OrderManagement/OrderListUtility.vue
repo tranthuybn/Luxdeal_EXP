@@ -60,7 +60,8 @@ import {
   addDNTT,
   addOrderStransaction,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  GetProductPropertyInventory
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -70,7 +71,6 @@ import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import { Qrcode } from '@/components/Qrcode'
 
 const { t } = useI18n()
 
@@ -169,12 +169,9 @@ const beforeRemove = (uploadFile) => {
         type: 'success',
         message: 'Delete completed'
       })
-      // console.log('uploadFile', uploadFile?.uid)
       let imageRemove = uploadFile?.uid
-      // console.log('imageRemove')
 
       FileDeleteIds.push(imageRemove)
-      // console.log('FileDeleteIds', FileDeleteIds)
     })
     .catch(() => {
       ElMessage({
@@ -273,7 +270,6 @@ const chooseDelivery = [
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
-// const deliveryMethod = ref(chooseDelivery[0].value)
 
 const radio1 = ref('')
 
@@ -293,7 +289,8 @@ interface ListOfProductsForSaleType {
   price: string | number | undefined
   finalPrice: string
   paymentType: string
-  warehouseId: number
+  warehouseId: number | undefined
+  warehouseName: string
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -309,7 +306,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   price: 0,
   finalPrice: '',
   paymentType: '',
-  warehouseId: 0
+  warehouseId: undefined,
+  warehouseName: ''
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -400,18 +398,7 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
+const tableWarehouse = ref([])
 
 const radioVAT = ref(false)
 let infoCompany = reactive({
@@ -456,7 +443,8 @@ const callApiProductList = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
-      price: product.price.toString(),
+      price: product.price,
+      unit: product.unitName,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -508,12 +496,15 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.productCode = obj.value
   data.productName = obj.name
   //TODO
-  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
+  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
   data.finalPrice = data.price * data.quantity
   ListOfProductsForSale.value.map((val) => {
     if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
   })
-  totalFinalOrder.value = totalPriceOrder.value - promoValue.value
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
   // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -569,8 +560,6 @@ const optionsClassify = [
   }
 ]
 
-// const checkedDonePay = ref(false)
-
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -625,7 +614,6 @@ const optionsCustomer = [
   }
 ]
 
-// const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -644,6 +632,8 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
   promo.value = val
   promo.value?.reduceCash != 0
@@ -673,6 +663,8 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
   promo.value?.reduceCash != 0
     ? (promoCash.value = promo.value.reduceCash)
@@ -703,21 +695,19 @@ const changeNamePromo = () => {
 // Total order
 const getProductPropertyPrice = async (
   productPropertyId = 0,
-  quantity = 0,
   serviceType = 1,
-  startDate = null,
-  endDate = null
+  quantity: 1
 ): Promise<number> => {
   const getPricePayload = {
-    productPropertyId: productPropertyId,
-    quantity: quantity,
+    id: productPropertyId,
     serviceType: serviceType,
-    statDate: startDate,
-    endDate: endDate
+    Quantity: quantity
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
   const price = res.data.price ?? 0
+  console.log('data mook:', res)
+
   return price
 }
 const autoCalculateOrder = () => {
@@ -1079,30 +1069,6 @@ const getAccountingEntry = async (index, num) => {
   else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
 
-// const dataTablePrint = reactive<TableColumn[]>([
-//   {
-//     field: 'index',
-//     label: t('reuse.index'),
-//     type: 'index',
-//     align: 'center'
-//   },
-//   {
-//     field: 'employeeCode',
-//     label: t('reuse.employeeCode'),
-//     minWidth: '250'
-//   },
-//   {
-//     field: 'employeeName',
-//     label: t('reuse.employeeName'),
-//     minWidth: '150'
-//   },
-//   {
-//     field: 'gender',
-//     label: t('reuse.gender'),
-//     minWidth: '100'
-//   }
-// ])
-
 // Call api danh sách mã giảm giá
 let promoTable = ref()
 const promoLoading = ref(true)
@@ -1186,9 +1152,6 @@ const detailedListExpenses = [
     note: ''
   }
 ]
-// dialogInformationExchangeAndReturnPaymentVouchers
-// const dialogInformationExchangeAndReturnPaymentVouchers = ref(false)
-
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
 
@@ -1502,7 +1465,7 @@ function printPage(id: string) {
 }
 
 const productAttributeValue = (data) => {
-  console.log('data checked', data)
+  return data
 }
 
 // Thêm mã phiếu thu vào debtTable
@@ -1571,7 +1534,6 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  // console.log('idPT: ', idPT.value)
 }
 
 // Thêm mới phiếu chi
@@ -1593,17 +1555,15 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  // console.log('idPC: ', idPC.value)
 }
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = () => {
   openReceiptDialog()
-  // console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
 }
 
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
@@ -1671,6 +1631,14 @@ const postOrderStransaction = async (index: number) => {
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
   const tableReturnPost = ref()
+  if (tableReturnFullyIntegrated.value.length < 2) {
+    return
+  }
+  if (tableProductInformationExportChange.value.length < 2) {
+    return
+  }
+  tableReturnFullyIntegrated.value.pop()
+  tableProductInformationExportChange.value.pop()
   tableReturnPost.value.push(
     tableReturnFullyIntegrated.value.map((e) => ({
       productPropertyId: parseInt(e.productPropertyId),
@@ -1688,7 +1656,7 @@ const postReturnRequest = async () => {
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng ',
+    name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
     details: tableReturnPost.value
@@ -1741,6 +1709,30 @@ const getFormReceipts = () => {
   }
 }
 
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+  tableWarehouse.value = res.data.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+}
+
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
@@ -1757,7 +1749,7 @@ onMounted(async () => {
   await editData()
 })
 
-//Truong Ngo
+//TruongNgo
 const refundPrice = computed(() => {
   return getRefundPrice()
 })
@@ -1780,6 +1772,14 @@ const getExportPrice = () => {
     money += item.intoMoney
   })
   return money
+}
+let productArray: any = []
+const listOfOrderProduct = ref()
+const getReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
 }
 </script>
 
@@ -2634,11 +2634,7 @@ const getExportPrice = () => {
               <p class="pr-2">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
               }}</p>
-              <p class="pr-2">{{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}</p>
+              <p class="pr-2">{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}</p>
               <p class="pr-2 text-black font-bold dark:text-white">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
               }}</p>
@@ -3353,10 +3349,6 @@ const getExportPrice = () => {
                   t('formDemo.orderInformation')
                 }}</el-divider>
               </div>
-              <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
-              <!-- <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
-                >open a Form thông tin phiếu thanh toán trả hàng</el-button
-              > -->
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"
@@ -3573,16 +3565,24 @@ const getExportPrice = () => {
         <el-table :data="tableWarehouse" border>
           <el-table-column prop="warehouseCheckbox" width="90" align="center">
             <template #default="props">
-              <el-checkbox v-model="props.row.warehouseCheckbox" />
+              <el-radio
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
             </template>
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1">{{ props.row.inventory }}</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
         <template #footer>
           <span class="dialog-footer">
@@ -3755,7 +3755,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -3774,7 +3774,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <el-input v-model="props.row.refundUnitPrice" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.refundUnitPrice" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
@@ -3816,7 +3816,7 @@ const getExportPrice = () => {
                     t('formDemo.productInformation')
                   ]"
                   filterable
-                  :items="listProductsTable"
+                  :items="listOfOrderProduct"
                   valueKey="productPropertyId"
                   labelKey="name"
                   :hiddenKey="['id']"
@@ -3835,7 +3835,7 @@ const getExportPrice = () => {
             </el-table-column>
             <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <el-input v-model="props.row.unitPrices" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrices" class="text-right" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
@@ -3956,10 +3956,10 @@ const getExportPrice = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productPropertyId"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
@@ -4044,15 +4044,29 @@ const getExportPrice = () => {
               {{ changeMoney.format(props.row.finalPrice) }}
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
-            <div class="flex w-[100%] items-center">
-              <div class="w-[40%]">Còn hàng</div>
-              <div class="w-[60%]">
-                <el-button text @click="openDialogChooseWarehouse = true">
-                  <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                </el-button>
+          <el-table-column
+            prop="warehouseName"
+            :label="t('formDemo.exportWarehouse')"
+            min-width="200"
+          >
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
+                <div class="w-[60%]">
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        callApiWarehouse(props)
+                        openDialogChooseWarehouse = true
+                      }
+                    "
+                  >
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
               </div>
-            </div>
+            </template>
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
@@ -4432,6 +4446,7 @@ const getExportPrice = () => {
                   statusOrder = 6
                   addStatusOrder(4)
                   changeStatus(7)
+                  getReturnOrder()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"

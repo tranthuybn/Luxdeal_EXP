@@ -32,7 +32,7 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
+import { dateTimeFormat, formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import ckEditor from '@/components/Editor/src/Editor.vue'
@@ -48,7 +48,6 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  getTotalOrder,
   getSellOrderList,
   getOrderTransaction,
   getReceiptPaymentVoucher,
@@ -69,10 +68,10 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
 
-// const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
@@ -176,13 +175,14 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  spaServices: string
+  spaServices: {}
   amountSpa: number
   quantity: string
   accessory: string | undefined
   unitName: string
+  examinationContent: string
   price: string | number | undefined
-  finalPrice: string
+  finalPrice: number
   paymentType: string
   edited: boolean
 }
@@ -194,14 +194,15 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: '',
+  spaServices: {},
   amountSpa: 2,
   productPropertyId: '',
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: '',
-  finalPrice: '',
+  examinationContent: '',
+  finalPrice: 0,
   paymentType: '',
   edited: true
 })
@@ -214,46 +215,16 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number | undefined
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
-let totalPriceOrder = ref()
-let totalFinalOrder = ref()
+// interface tableOrderDetailType {
+//   productPropertyId: number
+//   quantity: number | undefined
+//   accessory: string | undefined
+//   spaServiceIds: string
+// }
+// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
+let totalPriceOrder = ref(0)
+let totalFinalOrder = ref(0)
 // Total order
-const autoCalculateOrder = async () => {
-  if (ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId == '')
-    ListOfProductsForSale.value.pop()
-  tableOrderDetail.value = ListOfProductsForSale.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
-
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 1,
-    fromDate: '2022-10-31T09:15:56.106Z',
-    toDate: '2022-10-31T09:15:56.106Z',
-    paymentPeriod: 1,
-    days: 1,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
-  }
-  const res = await getTotalOrder(payload)
-
-  totalPriceOrder.value = res.reduce((_total, e) => {
-    _total += e.totalPrice
-    return _total
-  }, 0)
-  totalFinalOrder.value = res.reduce((_total, e) => {
-    _total += e.finalPrice
-    return _total
-  }, 0)
-}
 
 const historyTable = ref([
   {
@@ -294,7 +265,6 @@ const onAddHistoryTableItem = () => {
     unit: t('formDemo.psc')
   })
 }
-//wetf
 
 // Thông tin phiếu nhập kho hoàn hàng đổi/trả
 const informationWarehouseReceipt = ref(false)
@@ -334,8 +304,6 @@ const tableWarehouse = [
   }
 ]
 
-// const checkDiscount = ref(false)
-
 const radioVAT = ref(false)
 
 // Call api danh sách khách hàng
@@ -373,31 +341,25 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
-
+const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
-  if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-    const result = optionsCustomerApi.value.find((e) => e.value == data)
-    optionCallPromoAPi = 0
-    customerIdPromo.value = result.id
-    callPromoApi()
-    if (result.isOrganization) {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    } else {
-      customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
-      infoCompany.name = result.name
-      infoCompany.taxCode = result.taxCode
-      infoCompany.phone = 'Số điện thoại: ' + result.phone
-      infoCompany.email = 'Email: ' + result.email
-    }
+  infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value == data)
+  if (infoCustomerId.value.isOrganization) {
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   } else {
-    customerAddress.value = ''
-    // deliveryMethod.value = ''
+    customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
+    infoCompany.name = infoCustomerId.value.name
+    infoCompany.taxCode = infoCustomerId.value.taxCode
+    infoCompany.phone = infoCustomerId.value.phone
+    infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
+  optionCallPromoAPi = 0
+  customerIdPromo.value = infoCustomerId.value.id
+  callPromoApi()
 }
 const inputDeposit = ref(0)
 
@@ -452,12 +414,63 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+let totalSettingSpa = ref(0)
+
+let newTable = ref()
+const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const handleSelectionChange = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
+    label: e.spaServiceName,
+    value: e.id
+  }))
+  newTable.value = val
+  totalSettingSpa.value = 0
+  newTable.value.map((val) => {
+    totalSettingSpa.value += val.price
+  })
+}
+
+const getPriceSpaService = () => {
+  ListOfProductsForSale.value[currentRow2.value].finalPrice = totalSettingSpa.value
+}
+let promoValue = ref(0)
+let promoCash = ref(0)
+const getValueOfSelected = async (_value, obj, scope) => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
+
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+  // add new row
+  if (scope.$index == ListOfProductsForSale.value.length - 1) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
+const totalPriceSpa = (scope) => {
+  let quantityInput = scope.row.quantity
+  scope.row.finalPrice = quantityInput * totalSettingSpa.value
+}
+
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 }
 
 const handleTotal = (scope) => {
@@ -499,6 +512,8 @@ const callPromoApi = async () => {
       description: product.description,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       voucherConditionTypeName:
         product.voucherConditionType == 1
           ? 'Nhận voucher miễn phí'
@@ -530,7 +545,13 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -583,7 +604,12 @@ const detailedListExpenses = [
 ]
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -611,18 +637,21 @@ const changeNamePromo = () => {
 
 const listServicesSpa = ref()
 const optionsApiServicesSpa = ref()
-let optionCallAPiServicesSpa = 0
-const callApiServicesSpa = async () => {
-  if (optionCallAPiServicesSpa == 0) {
-    const res = await getSpaListByProduct({ ProductPropertyId: 1 })
-    listServicesSpa.value = res.data
-    optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
-      id: product.id,
-      value: product.price,
-      name: product.spaServiceName
-    }))
-  }
-  optionCallAPiServicesSpa++
+
+const currentRow2 = ref(0)
+const callApiServicesSpa = async (scope) => {
+  indexSpa.value = scope.$index
+  const res = await getSpaListByProduct({
+    ProductPropertyId: parseInt(scope.row.productPropertyId)
+  })
+  listServicesSpa.value = res.data
+  optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
+    id: product.id,
+    value: product.price,
+    name: product.spaServiceName
+  }))
+
+  currentRow2.value = scope.$index
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -721,7 +750,6 @@ const { push } = useRouter()
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
@@ -865,7 +893,6 @@ const rules = reactive<FormRules>({
   ]
 })
 
-// const deliveryMethod = ref(chooseDelivery[0].value)
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
@@ -895,8 +922,6 @@ const dialogAddProduct = ref(false)
 const addnewproduct = () => {
   dialogAddProduct.value = true
 }
-//end thêm nhanh sp
-
 // Danh mục brand unit origin api
 
 const chooseCategory = ref()
@@ -1005,7 +1030,6 @@ const postQuickCustomer = async () => {
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1057,15 +1081,18 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
-function printPage(id: string, { url, title, w, h }) {
-  // const prtHtml = document.getElementById(id)?.innerHTML
+let totalOrder = ref(0)
+let dataEdit = ref()
+const saveContentEditor = () => {
+  ListOfProductsForSale.value[currentRow2.value].examinationContent = editor.value
+}
 
+function printPage(id: string, { url, title, w, h }) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
 
-  //get content need to print
   const child = document.getElementById('main-content')
   const printContents = document.getElementById(id) ?? null
   if (printContents) {
@@ -1154,8 +1181,6 @@ const getDetailPayment = () => {
 // Thông tin phiếu bán hàng
 const nameDialog = ref('')
 
-// const dialogFeePaymentSlip = ref(false)
-
 const dialogBillSpaInfomation = ref(false)
 function openBillSpaDialog() {
   dialogBillSpaInfomation.value = !dialogBillSpaInfomation.value
@@ -1172,15 +1197,9 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-let newTable = ref()
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const handleSelectionChange = (val: tableDataType[]) => {
-  newTable.value = val
-}
-
 let objIdPayment = ref()
 let idPayment = ref()
-// // Thêm mới phiếu đề nghị thanh toán
+// Thêm mới phiếu đề nghị thanh toán
 const postPaymentRequest = async () => {
   const payload = {
     Code: codePaymentRequest.value,
@@ -1215,7 +1234,6 @@ const invoiceForGoodsEntering = ref(false)
 // Thêm bút toán cho đơn hàng
 const codeReturnRequest = ref()
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
-// Thêm bút toán cho đơn hàng
 let childrenTable = ref()
 
 const postOrderStransaction = async (num: number) => {
@@ -1259,6 +1277,7 @@ const postOrderStransaction = async (num: number) => {
 
 // debtTable
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -1275,42 +1294,6 @@ interface tableDataType {
 }
 
 let debtTable = ref<Array<tableDataType>>([])
-
-// const addLastIndexTable2 = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.collectionOfSpaServiceFees'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
-
-// const onAddDebtTableReturnDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.returnDepositCustomer'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
 
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 if (tableReturnFullyIntegrated.value.length == 0)
@@ -1342,33 +1325,33 @@ interface historyTableType {
   inventoryStatus?: string
 }
 
-const inputReasonChange = ref('')
-const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-}
+// const inputReasonChange = ref('')
+// const updatePrice = (_value, obj, scope) => {
+//   scope.row.productPropertyId = obj.productPropertyId
+//   scope.row.refundUnitPrice = Number(obj.price)
+//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+// }
 
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory ?? '2'
-  }))
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Thay đổi dịch vụ spa',
-    description: inputReasonChange.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
-  }
-  await createReturnRequest(payload)
-  getReturnRequestTable()
-}
+// const postReturnRequest = async () => {
+//   codeReturnRequest.value = autoCodeReturnRequest
+//   const tableReturnPost = ref()
+//   tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
+//     productPropertyId: parseInt(e.productPropertyId),
+//     quantity: parseInt(e.quantity),
+//     accessory: e.accessory ?? '2'
+//   }))
+//   const payload = {
+//     customerOrderId: id,
+//     code: codeReturnRequest.value,
+//     name: 'Thay đổi dịch vụ spa',
+//     description: inputReasonChange.value,
+//     returnRequestType: 1,
+//     details: tableReturnPost.value
+//   }
+//   await createReturnRequest(payload)
+//   getReturnRequestTable()
+// }
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
@@ -1389,23 +1372,6 @@ const getReturnRequestTable = async () => {
   }
 }
 
-// const onAddDebtTableDeposit = () => {
-//   debtTable.value.push({
-//     createdAt: moment().format('L').toString(),
-//     content: t('formDemo.feePaymentSlip'),
-//     receiptOrPaymentVoucherId: undefined,
-//     paymentRequestId: undefined,
-//     receiveMoney: '',
-//     paidMoney: '',
-//     debt: '',
-//     moneyType: 1,
-//     typeOfPayment: 0,
-//     paymentMethods: 1,
-//     status: 0,
-//     alreadyPaidForTt: false,
-//     statusAccountingEntry: 'Đã ghi sổ'
-//   })
-// }
 const codeReceipts = ref()
 
 let objidPT = ref()
@@ -1505,10 +1471,6 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 
-// total order
-let totalOrder = ref(0)
-let dataEdit = ref()
-
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1559,7 +1521,6 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    // debtTable.value.push({ ...addDebtTable })
   }
 }
 
@@ -1641,6 +1602,8 @@ const getFormReceipts = () => {
 }
 const editor = ref()
 
+const indexSpa = ref()
+
 // change address
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -1674,12 +1637,10 @@ var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 
 onBeforeMount(async () => {
-  callApiServicesSpa()
   callCustomersApi()
   callApiCollaborators()
   callApiCity()
   callAPIProduct()
-
   if (type == 'add') {
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -1692,6 +1653,47 @@ onBeforeMount(async () => {
 onMounted(async () => {
   await editData()
 })
+//TruongNgo
+const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const listOfOrderProduct = ref()
+const setDataForReturnOrder = () => {
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.tableData = ListOfProductsForSale
+}
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
+}
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async (reason) => {
+  let tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
+  }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
+}
 </script>
 
 <template>
@@ -2597,7 +2599,7 @@ onMounted(async () => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="400"
+            min-width="300"
           />
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
@@ -2611,29 +2613,62 @@ onMounted(async () => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.examinationContent')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Mặt trước mới 90%...</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogexaminationContentSpa = true"
-                  ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
-                ></div
-              >
-            </div>
+          <el-table-column
+            prop="examinationContent"
+            :label="t('formDemo.examinationContent')"
+            width="230"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        currentRow2 = data.$index
+                        editor = data.row.examinationContent
+                        dialogexaminationContentSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
-          <el-table-column :label="t('router.ServiceLibrarySpaService')" width="230">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Kiểm tra</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormSettingServiceSpa = true"
-                  ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
-                ></div
-              >
-            </div>
+          <el-table-column
+            :label="t('router.ServiceLibrarySpaService')"
+            prop="spaServices"
+            width="220"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.spaServices" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    text
+                    border
+                    @click="
+                      () => {
+                        callApiServicesSpa(data)
+                        dialogFormSettingServiceSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
+                  ></div
+                >
+              </div>
+            </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importExportWarehouse')" width="230">
+          <el-table-column :label="t('reuse.importExportWarehouse')" width="180">
             <div class="flex w-[100%] items-center text-center">
               <div class="flex-1">Kiểm tra</div>
               <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -2646,7 +2681,7 @@ onMounted(async () => {
             </div>
           </el-table-column>
 
-          <el-table-column prop="finalPrice" :label="t('reuse.type')" align="center" width="90">
+          <el-table-column prop="typeSpa" :label="t('reuse.type')" align="center" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.type"
@@ -2664,32 +2699,27 @@ onMounted(async () => {
             width="90"
           >
             <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.quantity }}
+              </div>
               <el-input
+                v-else
+                @change="
+                  () => {
+                    totalPriceSpa(data)
+                    autoCalculateOrder()
+                  }
+                "
                 v-model="data.row.quantity"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="unitName"
-            :label="`${t('reuse.dram')}`"
-            align="center"
-            min-width="100"
-            ><template #default="data">
-              <el-input
-                v-model="data.row.unitName"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
+          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
           <el-table-column
-            prop="intoMoney"
+            prop="finalPrice"
             :label="t('formDemo.spaFeePayment')"
             align="right"
             width="100"
@@ -2780,13 +2810,8 @@ onMounted(async () => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
@@ -2845,10 +2870,15 @@ onMounted(async () => {
             }}</el-button>
             <el-button
               v-if="type == 'edit'"
-              @click="changeReturnGoods = !changeReturnGoods"
+              @click="
+                () => {
+                  changeReturnGoods = true
+                  setDataForReturnOrder()
+                }
+              "
               type="warning"
               class="min-w-42 min-h-11"
-              >Thay đổi dịch vụ Spa</el-button
+              >Trả hàng Spa</el-button
             >
           </div>
         </div>
@@ -2905,21 +2935,21 @@ onMounted(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="180" />
 
             <el-table-column
               prop="productName"
               :label="t('router.ServiceLibrarySpaService')"
-              width="280"
+              width="120"
             />
-
-            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.intoMoneyByday')">
+            <el-table-column prop="type" :label="t('reuse.type')" width="90" />
+            <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="90" />
+            <el-table-column prop="price" :label="t('formDemo.priceSpaService')" width="120">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('reuse.pawnMoney')">
+            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
               </template>
@@ -2927,13 +2957,10 @@ onMounted(async () => {
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
+              <p class="text-black font-bold dark:text-white">{{ t('formDemo.spaFeePayment') }} </p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                // totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) :
-                '0 đ'
-              }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -2985,7 +3012,6 @@ onMounted(async () => {
                 @click="
                   () => {
                     dialogBillSpaInfomation = false
-                    // addLastIndexTable2()
                     postOrderStransaction(1)
                   }
                 "
@@ -3065,6 +3091,7 @@ onMounted(async () => {
               type="primary"
               @click="
                 () => {
+                  saveContentEditor()
                   dialogexaminationContentSpa = false
                 }
               "
@@ -3099,14 +3126,22 @@ onMounted(async () => {
         </el-form>
         <div class="flex justify-between px-3 mt-2">
           <strong>Thành tiền phí dịch vụ Spa</strong>
-          <p class="price font-medium">50000</p>
+          <p class="price font-medium">{{ totalSettingSpa }}</p>
         </div>
 
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="primary" @click="dialogFormSettingServiceSpa = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  getPriceSpaService()
+                  autoCalculateOrder()
+                  dialogFormSettingServiceSpa = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button @click="dialogFormSettingServiceSpa = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -3341,7 +3376,6 @@ onMounted(async () => {
                 type="primary"
                 @click="
                   () => {
-                    // onAddDebtTableReturnDeposit()
                     postOrderStransaction(2)
 
                     dialogAccountingEntryAdditional = false
@@ -3762,169 +3796,16 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
-      <!-- Thông tin thay đổi dịch vụ spa-->
-      <el-dialog
+      <ReturnOrder
         v-model="changeReturnGoods"
-        title="Thông tin thay đổi dịch vụ spa"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">{{ infoCompany.phone }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonChange" class="w-[100%]" />
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.fullyIntegrated')
-          }}</span>
-          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table
-            ref="singleTableRef"
-            :data="tableReturnFullyIntegrated"
-            border
-            style="width: 100%"
-          >
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="productPropertyId"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            >
-              <template #default="props">
-                <MultipleOptionsBox
-                  :fields="[
-                    t('reuse.productCode'),
-                    t('reuse.managementCode'),
-                    t('formDemo.productInformation')
-                  ]"
-                  filterable
-                  :items="listProducts"
-                  valueKey="productPropertyId"
-                  labelKey="name"
-                  :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
-                  :defaultValue="props.row.productPropertyCode"
-                  @scroll-top="ScrollProductTop"
-                  @scroll-bottom="ScrollProductBottom"
-                  :clearable="false"
-                  @update-value="(value, obj) => updatePrice(value, obj, props)"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')">
-              <template #default="props">
-                <el-input v-model="props.row.accessory" class="text-right" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
-              <template #default="props">
-                <el-input v-model="props.row.quantity" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="conditionProducts" :label="t('formDemo.conditionProducts')">
-              <template #default="props">
-                <el-input v-model="props.row.conditionProducts" />
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div class="flex items-center pt-4">
-          <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationExportChange')
-          }}</span>
-          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="changeReturnGoods = false">{{ t('button.print') }}</el-button>
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      changeReturnGoods = false
-                      postReturnRequest()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="4"
+        :type="4"
+      />
 
       <el-collapse-item :name="collapse[2].name">
         <template #title>
@@ -4383,6 +4264,13 @@ onMounted(async () => {
 }
 .fix-width > .el-form-item {
   width: 80%;
+}
+
+.limit-text {
+  white-space: nowrap;
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 ::v-deep(.el-form-item__content) {

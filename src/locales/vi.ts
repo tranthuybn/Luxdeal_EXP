@@ -146,6 +146,7 @@ export default {
     enterServiceCode: 'Nhập mã dịch vụ',
     enterServiceName: 'Nhập tên dịch vụ',
     voucherGiftSpa: 'Voucher tặng dịch vụ Spa',
+    priceSpaService: 'Đơn giá phí dịch vụ Spa',
     voucherDiscount: 'Voucher giảm giá đơn hàng',
     giftSpa: 'Tặng dịch vụ Spa',
     giftDiscount: 'Giảm giá đơn hàng',
@@ -204,6 +205,7 @@ export default {
     deliveryToYourPlace: 'Giao hàng tận nơi',
     printSalesSlip: 'In phiếu bán hàng',
     printLiquidationContract: 'In hợp đồng thanh lý',
+    deliveryNotesExportWarehouse: 'Phiếu xuất/chuyển kho',
     deliveryNotes: 'Phiếu xuất trả hàng',
     deliveryNotesAndImport: 'Phiếu xuất trả/nhập hàng',
     printSpaBill: 'In phiếu thăm khám sản phẩm',
@@ -1343,8 +1345,7 @@ export default {
     spaWarehouse: 'Kho Spa',
     totalInventory: 'Tổng tồn',
     importAndExportHistoryByProductLine: 'Lịch sử nhập/xuất kho theo lót sản phẩm',
-    internalPawnReturnAndRetentionHistoryForCustomers:
-      'Lịch sử trả lại/nhập kho nội bộ hàng cầm đồ cho khách hàng',
+    internalPawnReturnAndRetentionHistoryForCustomers: 'Lịch sử trả lại/Đứt hàng cầm đồ',
 
     //Chat
     shoppingConsult: 'Tư vấn mua hàng',
@@ -1653,6 +1654,7 @@ export default {
     detailTransfer: 'Thông tin phiếu chuyển kho',
     detailWarehouse: 'Thông tin phiếu nhập kho',
     profileExport: 'Thông tin chi tiết phiếu xuất kho',
+    billExport: 'Phiếu xuất kho',
     exportToSelectedLot: 'Xuất lot đã chọn',
     detailExport: 'Thông tin phiếu xuất kho',
     petitioner: 'Người yêu cầu',
@@ -1708,6 +1710,21 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
-    totalDiffMoney: 'Thành tiền chênh lệch'
+    totalDiffMoney: 'Thành tiền chênh lệch',
+    depositPeriod: 'Thời gian ký gửi',
+    informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
+    informationRansomAfterDueDate: 'Thông tin chuộc hàng hết hạn',
+    pawnPeriod: 'Thời hạn cầm đồ',
+    extendPawn: 'Gia hạn cầm đồ',
+    informationReturnAfterDueDate: 'Thông tin trả hàng hết hạn',
+    informationReturnExportProduct: 'Thông tin sản phẩm xuất trả',
+    //fix bug sp kinh doan
+    resetForm: 'Xóa toàn bộ dữ liệu đã nhập',
+    fillProductInformationAgain: 'Có muốn điền lại thông tin của sản phẩm không ?',
+    notActive: 'Không hoạt động',
+    lessThanTenImages: 'Không quá 10 ảnh',
+    limitUploadImages: 'Số ảnh tối đa là 10',
+    imagesYouChoose: 'Số ảnh bạn chọn là',
+    haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm'
   }
 }

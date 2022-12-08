@@ -1715,6 +1715,14 @@ export default {
     pawnPeriod: 'Thời hạn cầm đồ',
     extendPawn: 'Gia hạn cầm đồ',
     informationReturnAfterDueDate: 'Thông tin trả hàng hết hạn',
-    informationReturnExportProduct: 'Thông tin sản phẩm xuất trả'
+    informationReturnExportProduct: 'Thông tin sản phẩm xuất trả',
+    //fix bug sp kinh doan
+    resetForm: 'Xóa toàn bộ dữ liệu đã nhập',
+    fillProductInformationAgain: 'Có muốn điền lại thông tin của sản phẩm không ?',
+    notActive: 'Không hoạt động',
+    lessThanTenImages: 'Không quá 10 ảnh',
+    limitUploadImages: 'Số ảnh tối đa là 10',
+    imagesYouChoose: 'Số ảnh bạn chọn là',
+    haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm'
   }
 }

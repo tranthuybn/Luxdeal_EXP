@@ -491,16 +491,27 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
+let totalPriceOrder = ref(0)
+let totalFinalOrder = ref(0)
+let promoValue = ref(0)
+let promoCash = ref(0)
+const getValueOfSelected = async (_value, obj, scope) => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
   const data = scope.row
   data.productPropertyId = obj.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
   //TODO
-  data.price = getProductPropertyPrice(data.productPropertyId, 1, 1, null, null)
-  data.finalPrice = (data.price?.value * data.quantity).toString() + 'đ'
-  console.log(data.price?.value, data)
-
+  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+  data.finalPrice = data.price * data.quantity
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
   // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -628,7 +639,13 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -653,7 +670,12 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -677,29 +699,34 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
-let totalPriceOrder = ref()
-let totalFinalOrder = ref()
 // Total order
 const getProductPropertyPrice = async (
   productPropertyId = 0,
-  quantity = 0,
   serviceType = 1,
-  startDate = null,
-  endDate = null
+  quantity: 1
 ): Promise<number> => {
   const getPricePayload = {
-    productPropertyId: productPropertyId,
-    quantity: quantity,
+    id: productPropertyId,
     serviceType: serviceType,
-    statDate: startDate,
-    endDate: endDate
+    Quantity: quantity
   }
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
   const price = res.data.price ?? 0
   return price
 }
-const autoCalculateOrder = () => {}
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  ListOfProductsForSale.value.map((val) => {
+    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+  })
+
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+}
 
 // change address
 let autoChangeCommune = ref()
@@ -1061,6 +1088,8 @@ const callPromoApi = async () => {
       label: product.code,
       value: product.name,
       description: product.description,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
       voucherConditionTypeName:
@@ -1206,7 +1235,7 @@ const getReturnRequestTable = async () => {
 
 const tableProductInformationExportChange = ref([
   {
-    productPropertyId: null,
+    productPropertyId: 0,
     commodityName: '',
     accessory: '',
     quantity: 1,
@@ -1624,7 +1653,7 @@ const postReturnRequest = async () => {
   )
   tableReturnPost.value.push(
     tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: parseInt(e.productPropertyId),
+      productPropertyId: e.productPropertyId,
       quantity: e.quantity,
       accessory: e.accessory
     }))
@@ -2586,11 +2615,7 @@ const getReturnOrder = () => {
               <p class="pr-2">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
               }}</p>
-              <p class="pr-2">{{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}</p>
+              <p class="pr-2">{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}</p>
               <p class="pr-2 text-black font-bold dark:text-white">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
               }}</p>
@@ -3560,10 +3585,10 @@ const getReturnOrder = () => {
         <div>
           <div class="flex items-center gap-3">
             <el-select
-              @change="(data) => handleChangePromo(data)"
               v-model="input"
               filterable
               :placeholder="t('formDemo.enterPromoCode')"
+              @change="(data) => handleChangePromo(data)"
             >
               <el-option
                 v-for="item in promoTable"
@@ -3908,7 +3933,7 @@ const getReturnOrder = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="productPropertyId"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyCode"
@@ -3957,7 +3982,12 @@ const getReturnOrder = () => {
               </div>
               <el-input
                 v-else
-                @change="autoCalculateOrder()"
+                @change="
+                  () => {
+                    data.row.finalPrice = data.row.price * data.row.quantity
+                    autoCalculateOrder()
+                  }
+                "
                 v-model="data.row.quantity"
                 style="width: 100%"
               />
@@ -3986,7 +4016,11 @@ const getReturnOrder = () => {
             :label="t('formDemo.intoMoney')"
             align="right"
             width="180"
-          />
+          >
+            <template #default="props">
+              {{ changeMoney.format(props.row.finalPrice) }}
+            </template>
+          </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" min-width="200">
             <div class="flex w-[100%] items-center">
               <div class="w-[40%]">Còn hàng</div>
@@ -4080,13 +4114,8 @@ const getReturnOrder = () => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

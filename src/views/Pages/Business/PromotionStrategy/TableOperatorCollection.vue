@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { getAllCustomer, getProductsList } from '@/api/Business'
+import { deleteCampaign, getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -137,6 +137,8 @@ let fileList = ref<UploadUserFile[]>([])
 
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+
+console.log('type: ', props.type)
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
@@ -179,7 +181,6 @@ const setFormValue = async () => {
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
 
-    console.log('props.formDataCustomize: ', props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
 
@@ -222,6 +223,35 @@ watch(
     immediate: true
   }
 )
+
+watch(
+  () => formValue.value,
+  () => {
+    if (formValue.value) {
+      console.log('formValue: ', formValue.value)
+      if (props.type === 'detail' || props.type === 'edit') {
+        console.log('productProperties: ', formValue.value[0].productProperties)
+        let newArr = ref(formValue.value[0].productProperties)
+        console.log('newArr: ', newArr)
+        console.log('newArr: ', newArr.value[0].spaServices)
+        let formService = ref([])
+        newArr.value[0]?.spaServices.map((e) => {
+          formService.value.push(e.name)
+        })
+        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+          code: val.code,
+          id: val.id,
+          isActive: val.isActive,
+          service: formService.value
+        }))
+        console.log('formDataTable: ', formDataTable)
+        dataTable.spaData = formDataTable
+        spaMoney.value = formValue.value[0].comboValue
+        imageUrl.value = formValue.value[0].images
+      }
+    }
+  }
+)
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -230,7 +260,7 @@ defineExpose({
 const loading = ref(false)
 
 //doc du lieu tu bang roi emit len goi API
-const { go } = useRouter()
+// const { go } = useRouter()
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
@@ -294,7 +324,7 @@ const save = async (type) => {
         }
       }
       data.spa = spaMoney.value
-      dataTable.spaData.pop()
+      // dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
       //voucher product
       dataTable.spaVoucherData.pop()
@@ -317,6 +347,8 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
+        data.Name = formValue.value.campaignTypeName
+        console.log('formValue: ', formValue.value)
         emit('edit-data', data)
         loading.value = false
       }
@@ -434,19 +466,19 @@ const delAction = async () => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
+        deleteCampaign({ id: props.id })
+          .then(() =>
+            ElNotification({
+              message: t('reuse.deleteSuccess'),
+              type: 'success'
+            })
+          )
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'warning'
+            })
           })
-        }
       })
       .catch(() => {
         ElNotification({

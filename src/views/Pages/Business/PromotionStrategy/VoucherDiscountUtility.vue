@@ -385,6 +385,7 @@ const activeName = ref(collapse[0].name)
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const tab = Number(router.currentRoute.value.params.tab)
 
 //post data api
 type FormDataPost = {
@@ -555,6 +556,7 @@ onBeforeMount(() => {
           :formDataCustomize="setFormData"
           :multipleImages="false"
           @edit-data="editData"
+          :tabActive="tab"
         />
       </el-collapse-item>
     </el-collapse>

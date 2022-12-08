@@ -1848,7 +1848,6 @@ const postOrderStransaction = async (index: number) => {
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   getOrderStransactionList()
 }
-
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
 let tableSalesSlip = ref()

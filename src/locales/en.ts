@@ -1597,6 +1597,14 @@ export default {
     pawnPeriod: 'Pawn period',
     extendPawn: 'Extend pawn',
     informationReturnAfterDueDate: 'Information return after due date',
-    informationReturnExportProduct: 'Information return export product'
+    informationReturnExportProduct: 'Information return export product',
+    //fix bug sp kinh doan
+    resetForm: 'Reset form data',
+    fillProductInformationAgain: 'Fill product information again',
+    notActive: 'Not active',
+    lessThanTenImages: 'Less than than images',
+    limitUploadImages: 'Maximum upload is 10',
+    imagesYouChoose: 'Images you choose is ',
+    haveNotChooseProperty: 'Have not choose property'
   }
 }

@@ -1562,6 +1562,9 @@ const callApiCity = async () => {
 }
 
 const CityChange = async (value) => {
+  valueDistrict.value = ''
+  valueCommune.value = ''
+  enterdetailAddress.value = ''
   district.value = await getDistrict(value)
 }
 

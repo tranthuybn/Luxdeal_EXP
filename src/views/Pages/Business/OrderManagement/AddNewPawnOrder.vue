@@ -617,7 +617,6 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-const dialogFormVisible = ref(false)
 
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
@@ -891,24 +890,6 @@ const handleTotal = (scope) => {
 
 const productAttributeValue = (data) => {
   return data
-}
-
-const district = ref()
-const ward = ref()
-const street = ref()
-
-const cities = ref()
-
-const callApiCity = async () => {
-  cities.value = await getCity()
-}
-
-const CityChange = async (value) => {
-  district.value = await getDistrict(value)
-}
-
-const districtChange = async (value) => {
-  ward.value = await getWard(value)
 }
 
 const choosePayment = [
@@ -1358,7 +1339,6 @@ onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
-  callApiCity()
 
   if (type == 'add') {
     ruleForm.orderCode = curDate
@@ -1799,124 +1779,6 @@ const removeRow = (index) => {
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
-                </div>
-                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
-                  <p class="w-[150px] ml-2 text-[#828387] text-right">{{
-                    t('formDemo.deliveryAddress')
-                  }}</p>
-                  <p>{{ customerAddress }}</p>
-                  <p>
-                    <el-button
-                      class="hover:bg-transparent; focus:bg-transparent"
-                      text
-                      @click="dialogFormVisible = true"
-                      ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
-                    </el-button>
-                    <el-dialog
-                      v-model="dialogFormVisible"
-                      width="40%"
-                      align-center
-                      title="Địa chỉ nhận hàng"
-                    >
-                      <el-divider />
-                      <div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.provinceOrCity') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueProvince"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            @change="(data) => CityChange(data)"
-                          >
-                            <el-option
-                              v-for="item in cities"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.countyOrDistrict') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueDistrict"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            @change="(data) => districtChange(data)"
-                          >
-                            <el-option
-                              v-for="item in district"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.wardOrCommune') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="valueCommune"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                          >
-                            <el-option
-                              v-for="item in ward"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.detailedAddress') }}
-                            <span class="text-red-500">*</span></label
-                          >
-                          <el-select
-                            v-model="enterdetailAddress"
-                            style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
-                            clearable
-                            filterable
-                            allow-create
-                          >
-                            <el-option
-                              v-for="item in street"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </div>
-                      </div>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            class="w-[150px]"
-                            type="primary"
-                            @click="dialogFormVisible = false"
-                            >{{ t('reuse.save') }}</el-button
-                          >
-                          <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
-                            t('reuse.exit')
-                          }}</el-button>
-                        </span>
-                      </template>
-                    </el-dialog>
-                  </p>
                 </div>
               </div>
               <el-form-item

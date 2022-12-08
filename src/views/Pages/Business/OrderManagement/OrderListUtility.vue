@@ -451,7 +451,8 @@ const callApiProductList = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
-      price: product.price.toString(),
+      price: product.price,
+      unit: product.unitName,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -499,9 +500,12 @@ const getValueOfSelected = async (_value, obj, scope) => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   const data = scope.row
+  console.log('scope: ', scope)
+  console.log('obj: ', obj)
   data.productPropertyId = obj.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
+  console.log('table: ', data)
   //TODO
   data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
   data.finalPrice = data.price * data.quantity
@@ -3330,10 +3334,6 @@ const getReturnOrder = () => {
                   t('formDemo.orderInformation')
                 }}</el-divider>
               </div>
-              <!-- button mở đialog thông tin phiếu thanh toán trả hàng -->
-              <!-- <el-button text @click="dialogInformationExchangeAndReturnPaymentVouchers = true"
-                >open a Form thông tin phiếu thanh toán trả hàng</el-button
-              > -->
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   :disabled="checkDisabled"
@@ -3933,10 +3933,10 @@ const getReturnOrder = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productPropertyId"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"

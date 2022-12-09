@@ -1193,7 +1193,7 @@ export default {
     //approve management
     categoriesInfor: 'Thông tin danh mục',
     approvalManagement: 'Quản lý danh mục duyệt',
-    browseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
+    browseNewlyLaunchedProducts: 'Duyệt sản phẩm/dịch vụ mới khởi tạo',
     //banner advertisement
     bannerCode: 'Mã banner',
     linkBanner: 'Link Banner',

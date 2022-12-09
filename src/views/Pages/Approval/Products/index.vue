@@ -92,8 +92,8 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
 <template>
   <ContentWrap
     class="relative"
-    :title="t('reuse.BrowseNewlyLaunchedProducts')"
-    :message="t('reuse.BrowseNewlyLaunchedProducts')"
+    :title="t('reuse.browseNewlyLaunchedProducts')"
+    :message="t('reuse.browseNewlyLaunchedProducts')"
   >
     <TableType01
       :columns="columns"

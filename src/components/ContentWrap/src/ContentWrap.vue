@@ -32,7 +32,7 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
 <template>
   <ElCard :class="[prefixCls, 'mb-20px']" shadow="never">
     <template v-if="props.title" #header>
-      <div class="flex items-center">
+      <div class="flex items-center max-w-350px">
         <ElTooltip
           :disabled="props.message === ''"
           effect="dark"
@@ -40,7 +40,7 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
           :content="props.message"
         >
           <div class="flex justify-between w-full">
-            <div class="max-w-250px font-medium">{{ t(`${props.title}`) }}</div>
+            <div class="font-medium">{{ t(`${props.title}`) }}</div>
             <el-button v-if="backButton" @click="go(-1)" :icon="deleteIcon">{{
               t('reuse.exit')
             }}</el-button>

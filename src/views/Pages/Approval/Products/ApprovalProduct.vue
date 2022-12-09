@@ -6,6 +6,8 @@ import TableType01 from '../../Components/TableDataBase.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { filterTableCategory, filterTableStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
+import { useRouter } from 'vue-router'
+import { ElButton } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -16,7 +18,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'productCode',
-    label: t('reuse.productCode'),
+    label: t('reuse.productCode') + '/' + t('reuse.service'),
     minWidth: '150'
   },
   {
@@ -64,30 +66,26 @@ const columns = reactive<TableColumn[]>([
     filters: filterTableStatus
   },
   {
-    field: 'detail',
+    field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '170',
-    fixed: false,
-    align: 'center',
-    formatter: (record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(
-        'ElButton',
-        {
-          style: { margin: 'auto' },
-          type: 'primary',
-          onClick: () => seeDetail(record, cellValue)
-        },
-        h('div', [
-          h('div', { style: 'display:inline-block;padding-right:1em' }, 'Duyệt chi tiết'),
-          h('span', { class: 'arrowRight' })
-        ])
-      )
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { class: 'btn-detail_Approval' }, [
+        h(ElButton, { type: 'primary', onClick: () => action(row, 'detail') }, 'Duyệt chi tiết '),
+        h('span', { class: 'arrowRight' })
+      ])
     }
   }
 ])
-const seeDetail = (record: Recordable, data: TableSlotDefault) => {
-  console.log(record, data)
+
+const { push } = useRouter()
+const action = (row: any, type: string) => {
+  push({
+    name: `products-services.productLibrary.Products.${utility}`,
+    params: { id: row.id, type: 'detail' }
+  })
 }
+const utility = 'Utility'
 </script>
 <template>
   <ContentWrap
@@ -101,6 +99,24 @@ const seeDetail = (record: Recordable, data: TableSlotDefault) => {
       isOperatorColumnCustomize
       :selection="false"
       :removeHeaderFilter="true"
+      :customOperator="3"
     />
   </ContentWrap>
 </template>
+
+<style scoped>
+::v-deep(.arrowRight) {
+  position: relative;
+  height: 0;
+  right: 20px;
+  top: 12px;
+}
+::v-deep(.btn-detail_Approval) {
+  display: flex;
+  justify-content: center;
+}
+
+::v-deep(.btn-detail_Approval > button) {
+  padding: 8px 24px 8px 10px;
+}
+</style>

@@ -36,7 +36,7 @@ import {
   getOriginSelectOptions,
   getUnitSelectOptions
 } from './ProductLibraryManagement'
-import { isEqual } from '../../../../../node_modules/lodash/index.js'
+import { isEqual } from 'lodash-es'
 import { formatProductStatus } from '@/utils/format'
 const { t } = useI18n()
 

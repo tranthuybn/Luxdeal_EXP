@@ -1083,9 +1083,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
     let days = newDate.getDate()
     let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
-    data.depositePrice = objPrice.deposit
+    data.depositePrice = objPrice.deposite
     data.hirePrice = data.price * data.quantity * days
-    console.log('table: ', data)
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
@@ -1109,16 +1108,14 @@ const handleGetTotal = async (_value, props) => {
     totalDeposit.value = 0
     let newDate = new Date(data.toDate - data.fromDate)
     let days = newDate.getDate()
-    console.log('days: ', days)
     let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
-    data.depositePrice = objPrice.deposit
+    data.depositePrice = objPrice.deposite
     data.hirePrice = data.price * data.quantity * days
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
     })
-    console.log('data_after: ', data)
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
       : (totalFinalOrder.value =
@@ -4102,7 +4099,7 @@ const removeRow = (index) => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]"
-              >{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
+              >{{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

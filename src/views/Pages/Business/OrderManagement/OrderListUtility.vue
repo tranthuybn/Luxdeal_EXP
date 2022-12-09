@@ -340,7 +340,7 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 // debtTable
 interface tableDataType {
@@ -4152,7 +4152,7 @@ const getReturnOrder = () => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

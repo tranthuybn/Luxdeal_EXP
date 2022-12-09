@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-import { getProductsApproval } from '@/api/Approval'
-import { h, reactive } from 'vue'
+import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { h } from 'vue'
 import TableType01 from '../../Components/TableDataBase.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { filterTableCategory, filterTableStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
+import { businessStatusTransferToText, dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
-const columns = reactive<TableColumn[]>([
+
+const columnsApprovalProduct = [
   {
     field: 'index',
     label: t('reuse.index'),
@@ -22,48 +24,61 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'productName',
-    label: t('reuse.productName'),
-    minWidth: '150'
+    field: 'name',
+    label: t('reuse.productName') + '/' + t('reuse.service'),
+    minWidth: '250'
   },
   {
     field: 'description',
     label: t('reuse.description'),
-    minWidth: '200'
+    minWidth: '250',
+    formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
+      return h('span', { innerHTML: cellValue })
+    }
   },
-
   {
-    field: 'category',
+    field: 'categories[1].value',
     label: t('reuse.category'),
     minWidth: '150',
     filters: filterTableCategory
   },
   {
-    field: 'image',
+    field: 'productImages[0].path',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+    formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.productImages[0].path)
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate') + '/' + t('reuse.edit'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator') + '/' + t('reuse.edit'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'conditions',
+    label: t('reuse.approveCondition'),
+    minWidth: '150'
+  },
+  {
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filters: filterTableStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', businessStatusTransferToText(cellValue))
+    }
   },
   {
     field: 'operator',
@@ -76,7 +91,7 @@ const columns = reactive<TableColumn[]>([
       ])
     }
   }
-])
+]
 
 const { push } = useRouter()
 const action = (row: any, type: string) => {
@@ -94,8 +109,8 @@ const utility = 'Utility'
     :message="t('reuse.browseNewlyLaunchedProducts')"
   >
     <TableType01
-      :columns="columns"
-      :api="getProductsApproval"
+      :columns="columnsApprovalProduct"
+      :api="getBusinessProductLibrary"
       isOperatorColumnCustomize
       :selection="false"
       :removeHeaderFilter="true"

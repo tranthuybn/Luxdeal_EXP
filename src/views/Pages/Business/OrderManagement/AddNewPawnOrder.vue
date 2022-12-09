@@ -2372,7 +2372,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column :label="t('reuse.inventory')">
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
             <div class="flex">
               <span class="flex-1">20</span>
               <span class="flex-1 text-right">Chiếc</span>

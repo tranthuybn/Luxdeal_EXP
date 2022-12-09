@@ -62,6 +62,8 @@ import {
   postAutomaticWarehouse
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import ChooseTransferWarehouse from './ChooseTransferWH.vue'
+
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
@@ -166,7 +168,10 @@ const collapse: Array<Collapse> = [
 const radio1 = ref('')
 
 const input = ref('')
-
+type Options = {
+  value: number
+  label: string
+}
 interface ListOfProductsForSaleType {
   name: string
   productCode: string
@@ -185,6 +190,13 @@ interface ListOfProductsForSaleType {
   finalPrice: number
   paymentType: string
   edited: boolean
+  fromLotId?: number
+  fromWarehouse?: Options
+  fromLocation?: Options
+  toWarehouse?: Options
+  toLocation?: Options
+  lot?: Options
+  toLotId?: number
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -1525,6 +1537,106 @@ const editData = async () => {
   }
 }
 
+type ChooseWarehouse = {
+  quantity: number | undefined
+  fromWarehouseId: number | undefined
+  fromLocationId: number | undefined
+  toWarehouseId: number | undefined
+  toLocationId: number | undefined
+  tolotId: number | undefined
+}
+
+const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
+//dialog warehouse chuyen kho
+const dialogWarehouseTransfer = ref(false)
+const currentRowWHTrans = ref(0)
+const curPPIDWHTrans = ref(0)
+const openDialogWarehouseTransfer = (props) => {
+  if (props.row.productPropertyId) {
+    dialogWarehouseTransfer.value = true
+    curPPIDWHTrans.value = props.row.productPropertyId
+    currentRowWHTrans.value = props.$index
+  } else {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+  }
+}
+const closeDialogWarehouseTrasfer = (warehouseData) => {
+  if (warehouseData != null) {
+    ListOfProductsForSale.value[currentRowWHTrans.value].quantity = warehouseData.quantity
+    ListOfProductsForSale.value[currentRowWHTrans.value].unitName = warehouseData.lot.unit
+    ListOfProductsForSale.value[currentRowWHTrans.value].fromWarehouse = warehouseData.fromWarehouse
+    ListOfProductsForSale.value[currentRowWHTrans.value].toWarehouse = warehouseData.toWarehouse
+    ListOfProductsForSale.value[currentRowWHTrans.value].fromLocation = warehouseData.fromLocation
+    ListOfProductsForSale.value[currentRowWHTrans.value].toLocation = warehouseData.toLocation
+    ListOfProductsForSale.value[currentRowWHTrans.value].fromLotId = warehouseData.fromLotId
+    ListOfProductsForSale.value[currentRowWHTrans.value].toLotId = warehouseData.toLot
+  }
+  dialogWarehouseTransfer.value = false
+  // toLotId
+  console.log('warehouseData:', warehouseData)
+}
+
+const fromWarehouseFormat = (props) => {
+  let fromWarehouseName = ''
+  let fromLocationName = ''
+  let lotName = ''
+
+  if (
+    props.row.fromWarehouse !== undefined &&
+    props.row.fromWarehouse?.label !== null &&
+    props.row.fromWarehouse?.label !== undefined
+  ) {
+    fromWarehouseName = props.row.fromWarehouse?.label
+  }
+  if (
+    props.row.fromLocation !== undefined &&
+    props.row.fromLocation?.label !== null &&
+    props.row.fromLocation?.label !== undefined
+  ) {
+    fromLocationName = props.row.fromLocation?.label
+  }
+  if (
+    props.row.fromLotId !== undefined &&
+    props.row.fromLotId?.label !== null &&
+    props.row.fromLotId?.label !== undefined
+  ) {
+    lotName = props.row.lot?.label
+  }
+  return `${fromWarehouseName}/${fromLocationName}/${lotName}`
+}
+
+const toWarehouseFormat = (props) => {
+  let toWarehouseName = ''
+  let toLocationName = ''
+  let toLotName = ''
+
+  if (
+    props.row.toWarehouse !== undefined &&
+    props.row.toWarehouse?.label !== null &&
+    props.row.toWarehouse?.label !== undefined
+  ) {
+    toWarehouseName = props.row.toWarehouse?.label
+  }
+  if (
+    props.row.toLocation !== undefined &&
+    props.row.toLocation?.label !== null &&
+    props.row.toLocation?.label !== undefined
+  ) {
+    toLocationName = props.row.toLocation?.label
+  }
+  if (
+    props.row.toLotId !== undefined &&
+    props.row.toLotId?.label !== null &&
+    props.row.toLotId?.label !== undefined
+  ) {
+    toLotName = props.row.lot?.label
+  }
+  return `${toWarehouseName}/${toLocationName}/${toLotName}`
+}
+
 let tableSalesSlip = ref()
 let formAccountingId = ref()
 const getAccountingEntry = async (index, num) => {
@@ -1718,6 +1830,13 @@ const postReturnRequest = async (reason) => {
           />
         </slot>
       </div>
+
+      <ChooseTransferWarehouse
+        :showDialog="dialogWarehouseTransfer"
+        @close-dialog-warehouse="closeDialogWarehouseTrasfer"
+        :productPropertyId="curPPIDWHTrans"
+        :warehouseData="warehouseData"
+      />
       <!-- Dialog In phiếu thu -->
       <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
         <div class="section-bill">
@@ -2672,17 +2791,20 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importExportWarehouse')" width="180">
-            <div class="flex w-[100%] items-center text-center">
-              <div class="flex-1">Kiểm tra</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                <el-button text border @click="dialogFormWarehouseSelected = true"
-                  ><span class="text-blue-500"
-                    >+ {{ t('formDemo.chooseWarehouse') }}</span
-                  ></el-button
-                ></div
-              >
-            </div>
+          <el-table-column :label="t('reuse.importExportWarehouse')" min-width="250">
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="flex-left w-[60%]">
+                  <div class="break-words">Từ kho:{{ fromWarehouseFormat(props) }}</div>
+                  <div class="break-words">Đến kho:{{ toWarehouseFormat(props) }}</div>
+                </div>
+                <div class="w-[40%]">
+                  <el-button text @click="openDialogWarehouseTransfer(props)">
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
           </el-table-column>
 
           <el-table-column prop="typeSpa" :label="t('reuse.type')" align="center" width="90">
@@ -2815,7 +2937,7 @@ const postReturnRequest = async (reason) => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

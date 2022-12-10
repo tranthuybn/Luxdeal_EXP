@@ -367,7 +367,7 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
 const valueClassify = ref(false)

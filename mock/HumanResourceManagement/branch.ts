@@ -4,7 +4,7 @@ interface productBranchList {
   id: number
   managementCode: string
   branchName: Date
-  numberOfEmployees: string
+  numberPersonnel: string
   createDate: Date
   creator: string
   status: boolean
@@ -17,7 +17,7 @@ for (let i = 0; i < count; i++) {
       id: '@id',
       managementCode: '@string',
       branchName: '@name',
-      numberOfEmployees: '@string',
+      numberPersonnel: '@natural(1,100)',
       createDate: '@date("dd/MM/yyyy")',
       creator: '@name',
       status: '@boolean'

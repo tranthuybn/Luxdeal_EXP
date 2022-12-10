@@ -1033,19 +1033,27 @@ const adminList = [
         },
         children: [
           {
-            path: 'oders-new',
+            path: 'orders-new',
             component: 'views/Pages/Approval/Orders/index',
-            name: 'approve.orders-approval.oders-new',
+            name: 'approve.orders-approval.orders-new',
             meta: {
-              title: 'router.odersNew'
+              title: 'router.ordersNew'
             }
           },
           {
-            path: 'oders-cancel',
+            path: 'orders-edit',
             component: 'views/Pages/Approval/Orders/index',
-            name: 'approve.orders-approval.oders-cancel',
+            name: 'approve.orders-approval.orders-edit',
             meta: {
-              title: 'router.odersCancel'
+              title: 'router.ordersEdit'
+            }
+          },
+          {
+            path: 'orders-cancel',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.orders-cancel',
+            meta: {
+              title: 'router.ordersCancel'
             }
           }
         ]
@@ -1446,8 +1454,9 @@ const testList: string[] = [
   '/approve/products-approval/newly-initialized',
   '/approve/products-approval/edit',
   '/approve/orders-approval',
-  '/approve/orders-approval/oders-new',
-  '/approve/orders-approval/oders-cancel',
+  '/approve/orders-approval/orders-new',
+  '/approve/orders-approval/orders-edit',
+  '/approve/orders-approval/orders-cancel',
   '/approve/payment-approval',
   '/approve/payment-approval/proposal',
   '/approve/payment-approval/receipts-and-expenditures',

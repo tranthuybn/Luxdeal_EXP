@@ -124,8 +124,18 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    numberPersonnel: 'Number of personnel',
+    TypeOfferPayment: 'Type of offer for payment',
+    BrowseDetails: 'Browse details',
+    BrowseNewlyCreatedOrders: 'Browse newly created orders',
+    BrowseEditOrders: 'Browse edit orders',
+    BrowseCanceledOrders: 'Browse canceled orders',
+    browsingConditions: 'browsing conditions',
+    createdAtEdit: 'Created at or edit',
+    createdByEdit: 'created by or edit',
+    orderType: 'Order type',
     chooseASeller: 'Choose seller',
-    day: 'Ngày',
+    day: 'day',
     generalServiceInformation: 'General service information',
     serviceCode: 'Service code',
     serviceName: 'Service name',
@@ -536,6 +546,7 @@ export default {
     print: 'Print'
   },
   router: {
+    notApproval: 'Not approval',
     login: 'Login',
     level: 'Multi level menu',
     menu: 'Menu',
@@ -665,6 +676,7 @@ export default {
     newlyInitialized: 'Newly initialized',
     edit: 'Edit',
     odersNew: 'Orders new',
+    odersEdit: 'Orders edit',
     odersCancel: 'Orders Cancel',
     userAccount: 'User account',
     collaboratorAccount: 'Collaborator account',

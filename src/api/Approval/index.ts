@@ -9,3 +9,13 @@ export const getProductsApproval = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/ProductsApproval/List', params })
   return res && res.data
 }
+
+export const getOrderApproval = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/OrdersApproval/List', params })
+  return res && res.data
+}
+
+export const getOrderPayments = async (params: any): Promise<IResponse> => {
+  const res = await request.get({ url: '/OrdersApproval/Payments', params })
+  return res && res.data
+}

@@ -123,6 +123,16 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    numberPersonnel: 'Số lượng nhân sự',
+    TypeOfferPayment: 'Loại đề nghị thanh toán',
+    BrowseDetails: 'Duyệt chi tiết',
+    BrowseNewlyCreatedOrders: 'Duyệt đơn hàng mới khởi tạo',
+    BrowseEditOrders: 'Duyệt đơn hàng chỉnh sửa',
+    BrowseCanceledOrders: 'Duyệt đơn hàng hủy',
+    browsingConditions: 'Điều kiện duyệt',
+    createdAtEdit: 'Ngày tạo/chỉnh sửa',
+    createdByEdit: 'Người tạo/chỉnh sửa',
+    orderType: 'Loại đơn hàng',
     day: 'Ngày',
     generalServiceInformation: 'Thông tin chung dịch vụ',
     serviceCode: 'Mã dịch vụ',
@@ -552,6 +562,7 @@ export default {
     print: 'In phiếu'
   },
   router: {
+    notApproval: 'Không duyệt',
     login: 'Đăng nhập',
     level: 'Menu đa cấp',
     menu: 'Menu',
@@ -602,6 +613,7 @@ export default {
     approveProducts: 'Duyệt sản phẩm',
     newlyInitialized: 'Mới khởi tạo',
     odersNew: 'Đơn hàng mới',
+    odersEdit: 'Đơn hàng chỉnh sửa',
     odersCancel: 'Đơn hàng hủy',
     edit: 'Chỉnh sửa',
     approveOrders: 'Duyệt đơn hàng',

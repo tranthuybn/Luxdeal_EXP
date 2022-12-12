@@ -127,8 +127,8 @@ function fnGetSelectedRecord(val) {
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
         <el-button type="primary" :icon="createIcon" @click="pushAdd">
-          {{ t(`${props.titleAdd}`) }}</el-button
-        >
+          {{ t(`${props.titleAdd}`) }}
+        </el-button>
       </template>
     </HeaderFiler>
     <TableExtension

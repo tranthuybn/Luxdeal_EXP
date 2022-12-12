@@ -340,7 +340,7 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 // debtTable
 interface tableDataType {
@@ -1009,6 +1009,8 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
+    // statusOrder.value = 15
+    // if (orderObj.status.status == 1) statusOrder.value = 15
     arrayStatusOrder.value = orderObj.status
     arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
@@ -3466,6 +3468,7 @@ const getReturnOrder = () => {
                               t('reuse.customerInfo')
                             ]"
                             filterable
+                            :disabled="checkDisabled"
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
@@ -4152,7 +4155,7 @@ const getReturnOrder = () => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              {{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
+              {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
@@ -4514,6 +4517,14 @@ const getReturnOrder = () => {
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
+          </div>
+          <div v-else-if="statusOrder == 15" class="w-[100%] flex ml-1 gap-4">
+            <el-button type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
           </div>
         </div>
       </el-collapse-item>

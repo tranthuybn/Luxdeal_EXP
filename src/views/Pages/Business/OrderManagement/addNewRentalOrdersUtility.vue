@@ -56,7 +56,8 @@ import {
   createReturnRequest,
   getReceiptPaymentVoucher,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  GetProductPropertyInventory
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -285,6 +286,7 @@ interface tableRentalProduct {
   hirePrice: string
   depositePrice: string
   warehouseId: number
+  warehouseName: string
   finalPrice: string
   unitName: string
   intoARentalDeposit: string
@@ -302,6 +304,7 @@ const productForSale = reactive<tableRentalProduct>({
   hirePrice: '',
   depositePrice: '',
   warehouseId: 0,
+  warehouseName: '',
   finalPrice: '',
   unitName: t('formDemo.psc'),
   intoARentalDeposit: ''
@@ -364,7 +367,7 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
 const valueClassify = ref(false)
@@ -1080,9 +1083,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
     let days = newDate.getDate()
     let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
-    data.depositePrice = objPrice.deposit
+    data.depositePrice = objPrice.deposite
     data.hirePrice = data.price * data.quantity * days
-    console.log('table: ', data)
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
@@ -1106,16 +1108,14 @@ const handleGetTotal = async (_value, props) => {
     totalDeposit.value = 0
     let newDate = new Date(data.toDate - data.fromDate)
     let days = newDate.getDate()
-    console.log('days: ', days)
     let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
     data.price = objPrice.price
-    data.depositePrice = objPrice.deposit
+    data.depositePrice = objPrice.deposite
     data.hirePrice = data.price * data.quantity * days
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
     })
-    console.log('data_after: ', data)
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
       : (totalFinalOrder.value =
@@ -1405,13 +1405,15 @@ const tableWarehouse = [
   }
 ]
 
+const tableChooseWarehouse = ref([])
+
 //add row to the end of table if fill all table
 const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
 }
 
 watch(
-  () => tableData,
+  () => tableData.value[tableData.value.length - 1],
   () => {
     if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
       addLastIndexSellTable()
@@ -1922,6 +1924,31 @@ const postReturnRequest = async (reason) => {
     details: tableReturnPost
   }
   await createReturnRequest(payload)
+}
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+  tableChooseWarehouse.value = res.data.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const openDialogChooseWarehouse = ref(false)
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  tableData.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  tableData.value[indexRowWarehouse.value].warehouseName = scope.row.name
 }
 
 const addRow = () => {
@@ -3648,6 +3675,49 @@ const removeRow = (index) => {
         </template>
       </el-dialog>
 
+      <!-- DialogChooseWarehouse -->
+      <el-dialog
+        v-model="openDialogChooseWarehouse"
+        :title="t('formDemo.inventoryInformation')"
+        width="35%"
+        align-center
+        class="z-50"
+      >
+        <el-divider />
+        <el-table :data="tableChooseWarehouse" border>
+          <el-table-column prop="warehouseCheckbox" width="90" align="center">
+            <template #default="props">
+              <el-radio
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1">{{ props.row.inventory }}</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
+            <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <!-- Bút toán bổ sung -->
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
@@ -3939,12 +4009,24 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">Còn hàng</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
-            </div>
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
+                <div class="w-[60%]">
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        callApiWarehouse(props)
+                        openDialogChooseWarehouse = true
+                      }
+                    "
+                  >
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" width="90">
             <button class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded">{{
@@ -4017,7 +4099,7 @@ const removeRow = (index) => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]"
-              >{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}
+              >{{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
             <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

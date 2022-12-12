@@ -82,6 +82,10 @@ const props = defineProps({
     type: String,
     default: 'Warning',
     description: 'Tiêu đề thông báo khi ấn nút xóa'
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -156,6 +160,20 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
+const utility = 'Utility'
+
+const handleClickAdd = () => {
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.typeButton,
+      type: 'add'
+    }
+  })
+
+  console.log('router', router)
+}
 const sortValue = ref()
 const sortObj = {}
 const sortChange = (column) => {
@@ -197,15 +215,19 @@ const filterSelect = (value) => {
 }
 const { push } = useRouter()
 const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tabs }
+      name: `human-resource-management.department-directory.${utility}`,
+      // params: { id: row.id, type: type, tab: props.tabs }
+      params: {
+        backRoute: 'human-resource-management.department-directory',
+        tab: props.typeButton,
+        type: type,
+        id: row.id
+      }
     })
   } else {
     if (buttonShow === true) {
@@ -407,7 +429,13 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton v-if="!(props.titleButtons === '')" id="bt-add" :icon="plusIcon" class="mx-12">
+    <ElButton
+      v-if="!(props.titleButtons === '')"
+      @click="handleClickAdd"
+      id="bt-add"
+      :icon="plusIcon"
+      class="mx-12"
+    >
       {{ props.titleButtons }}</ElButton
     >
   </ContentWrap>

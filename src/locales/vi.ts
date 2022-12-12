@@ -123,6 +123,11 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    typeCode: 'Mã loại hình',
+    typeName: 'Tên loại hình',
+    rankCode: 'Mã cấp bậc',
+    rankName: 'Tên cấp bậc',
+    departmentCode: 'Mã phòng ban',
     numberPersonnel: 'Số lượng nhân sự',
     TypeOfferPayment: 'Loại đề nghị thanh toán',
     BrowseDetails: 'Duyệt chi tiết',
@@ -843,6 +848,10 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    addNewBranch: 'Thêm mới chi nhánh',
+    addNewDepartment: 'Thêm mới phòng ban',
+    addNewTypePersonnel: 'Thêm mới loại hình nhân sự',
+    addNewRank: 'Thêm mới cấp bậc',
     index: 'STT',
     exportQuantity: 'Số lượng xuất',
     receivedDate: 'Ngày nhận',
@@ -1205,7 +1214,7 @@ export default {
     //approve management
     categoriesInfor: 'Thông tin danh mục',
     approvalManagement: 'Quản lý danh mục duyệt',
-    browseNewlyLaunchedProducts: 'Duyệt sản phẩm mới khởi tạo',
+    browseNewlyLaunchedProducts: 'Duyệt sản phẩm/dịch vụ mới khởi tạo',
     //banner advertisement
     bannerCode: 'Mã banner',
     linkBanner: 'Link Banner',
@@ -1241,7 +1250,6 @@ export default {
     //san pham va dich vu
     timeMinute: 'Thời gian (Phút)',
     insuranceDate: 'Bảo hành (Ngày)',
-    addNewBranch: 'Thêm mới chi nhánh',
     branchCode: 'Mã chi nhánh',
     branchName: 'Tên chi nhánh',
     numberOfEmployees: 'Số lượng nhân sự',

@@ -111,10 +111,14 @@ const props = defineProps({
     type: String,
     default: 'reuse.addCategory',
     Descriptions: 'tiêu đề nút thêm mới'
+  },
+  tab: {
+    type: String,
+    default: ''
   }
 })
-const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 
 //get data from table
 const getTableValue = async () => {
@@ -218,7 +222,6 @@ const save = async (type) => {
 
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
-    console.log('type1', type)
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
@@ -229,9 +232,7 @@ const save = async (type) => {
     } else {
       validateFile = true
     }
-    console.log('type2', type)
     if (isValid && validateFile) {
-      console.log('type', type)
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
@@ -241,9 +242,10 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
-      console.log('type', type)
       if (type == 'add') {
         data.backRouter = true
+        data.tab =
+          props.tab == 'branch' ? 1 : props.tab == 'department' ? 2 : props.tab == 'rank' ? 3 : 4
         emit('post-data', data)
         loading.value = false
       }
@@ -362,11 +364,22 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
-const router = useRouter()
+// const router = useRouter()
+const utility = 'Utility'
 const edit = () => {
+  // push({
+  //   name: `${String(router.currentRoute.value.name)}`,
+  //   params: { id: props.id, type: 'edit' }
+  // })
   push({
-    name: `${String(router.currentRoute.value.name)}`,
-    params: { id: props.id, type: 'edit' }
+    name: `human-resource-management.department-directory.${utility}`,
+    // params: { id: row.id, type: type, tab: props.tabs }
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.tab,
+      type: 'edit',
+      id: props.id
+    }
   })
 }
 //xóa dữ liệu sản phẩm
@@ -508,7 +521,7 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
-      <div v-if="props.type === 'add' || isNaN(props.id)">
+      <div v-if="props.type === 'add'">
         <ElButton type="primary" :loading="loading" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
@@ -519,24 +532,24 @@ const listType = ref<ListImages>('text')
           {{ t('reuse.cancel') }}
         </ElButton>
       </div>
-      <div v-if="props.type === 'detail'">
-        <ElButton :loading="loading" @click="edit">
-          {{ t('reuse.edit') }}
+      <div v-if="props.type === 'edit'">
+        <ElButton :loading="loading" type="primary" @click="save('edit')">
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="cancel">
+          {{ t('reuse.cancel') }}
         </ElButton>
         <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
         </ElButton> -->
       </div>
-      <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save('edit')">
-          {{ t('reuse.save') }}
+      <div v-if="props.type === 'detail'">
+        <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+          {{ t('reuse.fix') }}
         </ElButton>
-        <!-- <ElButton :loading="loading" @click="cancel">
-          {{ t('reuse.cancel') }}
-        </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton> -->
+        </ElButton>
       </div>
     </template>
   </ContentWrap>

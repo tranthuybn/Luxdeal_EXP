@@ -82,6 +82,10 @@ const props = defineProps({
     type: String,
     default: 'Warning',
     description: 'Tiêu đề thông báo khi ấn nút xóa'
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -155,6 +159,20 @@ const filterChange = (filterValue) => {
         filterValue[key] = Object.values(filterValue[key]).toString()
     }
   setSearchParams(filterValue)
+}
+const utility = 'Utility'
+
+const handleClickAdd = () => {
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.typeButton,
+      type: 'add'
+    }
+  })
+
+  console.log('router', router)
 }
 const sortValue = ref()
 const sortObj = {}
@@ -407,7 +425,13 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton v-if="!(props.titleButtons === '')" id="bt-add" :icon="plusIcon" class="mx-12">
+    <ElButton
+      v-if="!(props.titleButtons === '')"
+      @click="handleClickAdd"
+      id="bt-add"
+      :icon="plusIcon"
+      class="mx-12"
+    >
       {{ props.titleButtons }}</ElButton
     >
   </ContentWrap>

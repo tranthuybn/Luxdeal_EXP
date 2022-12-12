@@ -1318,14 +1318,14 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}/:type?/:id?`,
+            path: `department-directory-utility/:type?/:tab?/:id?`,
             component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
             name: `human-resource-management.department-directory.${utility}`,
             meta: {
               title: 'reuse.addNewBranch',
-              noTagsView: true,
               noCache: true,
               hidden: true,
+              canTo: true,
               showMainRoute: true
             }
           }
@@ -1480,7 +1480,7 @@ const testList: string[] = [
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory-utility/:type?/:id?`
+  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`
 ]
 
 export default [

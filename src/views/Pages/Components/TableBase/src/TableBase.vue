@@ -171,8 +171,6 @@ const handleClickAdd = () => {
       type: 'add'
     }
   })
-
-  console.log('router', router)
 }
 const sortValue = ref()
 const sortObj = {}

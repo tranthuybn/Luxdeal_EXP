@@ -3,7 +3,7 @@ import Mock from 'mockjs'
 interface productDepartmentList {
   id: number
   managementCode: string
-  DepartmentName: Date
+  DepartmentName: string
   numberPersonnel: string
   createDate: Date
   creator: string

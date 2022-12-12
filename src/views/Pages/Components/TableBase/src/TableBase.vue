@@ -171,8 +171,6 @@ const handleClickAdd = () => {
       type: 'add'
     }
   })
-
-  console.log('router', router)
 }
 const sortValue = ref()
 const sortObj = {}
@@ -223,7 +221,7 @@ const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tabs }
+      params: { id: row.id, type: type, tab: props.typeButton }
     })
   } else {
     if (buttonShow === true) {

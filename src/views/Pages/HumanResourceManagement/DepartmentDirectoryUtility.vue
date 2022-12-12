@@ -13,7 +13,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field2',
+    field: 'Machinhanh',
     label: t('reuse.branchCode'),
     component: 'Input',
     colProps: {
@@ -21,7 +21,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field3',
+    field: 'TenChinhanh',
     label: t('reuse.branchName'),
     component: 'Input',
     colProps: {
@@ -29,12 +29,12 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'field41',
+    field: 'statusAnd',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -206,10 +206,90 @@ const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = router.currentRoute.value.meta.title
 const tab = router.currentRoute.value.params.tab
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
+// custom api form post
+type FormDataPost = {
+  MachiNhanh?: string
+  NameChiNhanh?: string
+  status?: string
+}
+const customPostDataBranch = (data) => {
+  const customData = {} as FormDataPost
+
+  customData.MachiNhanh = data.Machinhanh
+  customData.NameChiNhanh = data.TenChinhanh
+  customData.status = data.status
+
+  return customData
+}
+
+// custom api form edit
+type FormDataEdit = {
+  MachiNhanh?: string
+  NameChiNhanh?: string
+  status?: string
+}
+const customEditDataBranch = (data) => {
+  const getData = {} as FormDataEdit
+
+  getData.MachiNhanh = data.Machinhanh
+  getData.NameChiNhanh = data.TenChinhanh
+  getData.status = data.status
+
+  return getData
+}
+// const { push } = useRouter()
+const postData = (data) => {
+  data = customPostDataBranch(data)
+  console.log('data post', data)
+
+  // await API_POST_BRANCH(FORM_IMAGES(data))
+  // .then(() => {
+  //   ElNotification({
+  //     message: t('reuse.addSuccess'),
+  //     type: 'success'
+  //   }),
+  //     push({
+  //       name: 'human-resource-management.department-directory'
+  //     })
+  // })
+  // .catch(() =>
+  //   ElNotification({
+  //     message: t('reuse.addFail'),
+  //     type: 'warning'
+  //   })
+  // )
+}
+
+const editData = (data) => {
+  data = customEditDataBranch(data)
+}
+//fill dữ liệu từ data ra...
+type SetFormData = {
+  MachiNhanh: string
+}
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+const customizeData = (data) => {
+  setFormData.MachiNhanh = data.aa
+}
 </script>
 
 <template>
-  <TableOperator v-if="tab == 'branch'" :schema="schema" :nameBack="currentRoute" :title="title" />
+  <TableOperator
+    v-if="tab == 'branch'"
+    :schema="schema"
+    :nameBack="currentRoute"
+    :id="id"
+    :title="title"
+    @customize-form-data="customizeData"
+    @edit-data="editData"
+    :type="type"
+    :tab="tab"
+    @post-data="postData"
+  />
   <TableOperator
     v-if="tab == 'department'"
     :schema="schema2"

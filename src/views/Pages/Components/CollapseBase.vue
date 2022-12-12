@@ -18,6 +18,18 @@ const props = defineProps({
   default: {
     type: String,
     default: ''
+  },
+  type: {
+    type: String,
+    default: ''
+  },
+  tabs: {
+    type: String,
+    default: ''
+  },
+  id: {
+    type: Number,
+    default: NaN
   }
 })
 const { getPrefixCls } = useDesign()
@@ -47,6 +59,9 @@ const postData = (data) => {
   console.log('runhere', data)
   emit('post-data', data)
 }
+console.log('type', props.type)
+console.log('tab', props.tabs)
+console.log('id', props.id)
 </script>
 
 <template>

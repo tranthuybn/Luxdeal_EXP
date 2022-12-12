@@ -50,7 +50,8 @@ import {
   createReturnRequest,
   getReturnRequest,
   getDetailAccountingEntryById,
-  addQuickCustomer
+  addQuickCustomer,
+  GetProductPropertyInventory
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -341,16 +342,21 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   spaServices: string
+  businessManagement: {}
+
   amountSpa: number
   quantity: string
   accessory: string | undefined
   unitName: string
+
   price: string | number | undefined
   priceConsign: string | number | undefined
   priceConsignByDay: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
+  warehouseId: number | undefined
+  warehouseName: string
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -365,13 +371,17 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: '1',
   accessory: '',
+  businessManagement: {},
+
   unitName: 'Cái',
   priceConsign: 0,
   priceConsignByDay: 0,
   price: '',
   finalPrice: '',
   paymentType: '',
-  edited: true
+  edited: true,
+  warehouseId: undefined,
+  warehouseName: ''
 })
 const recharger = ref('Trần Hữu Dương | 0998844533')
 
@@ -410,6 +420,7 @@ const removeListProductsSale = (index) => {
 }
 
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -884,6 +895,32 @@ const collapse: Array<Collapse> = [
   }
 ]
 
+const tableWarehouse = ref([])
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+  tableWarehouse.value = res.data.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+}
+
 const value = ref('')
 
 const pawnOrderCode = ref()
@@ -1069,37 +1106,28 @@ const tableAccountingEntry = ref([
   }
 ])
 
-const radioSelected = ref(-1)
 const openDialogChooseWarehouse = ref(false)
 const dialogbusinessManagement = ref(false)
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
 
 const formBusuness = reactive({
+  id: 1,
   check: '',
   applyExport: ''
 })
 
 const listApplyExport = [
   {
+    id: 1,
     check: true,
-    applyExport: 'Bán'
+    applyExport: 'Ký gửi bán'
   },
   {
+    id: 2,
     check: true,
-    applyExport: 'Cho thuê'
+    applyExport: 'Ký gửi cho thuê'
   },
   {
+    id: 3,
     check: true,
     applyExport: 'spa'
   }
@@ -1364,20 +1392,25 @@ const getAccountingEntry = async (index, num) => {
   else if (num == 2) dialogDepositSlip.value = true
   else dialogDepositFeeInformation.value = true
 }
+const indexRow = ref()
 
-onBeforeMount(() => {
-  callCustomersApi()
-  callApiCollaborators()
-  callAPIProduct()
+const handleSelectionbusinessManagement = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
+    label: e.applyExport,
+    value: e.id
+  }))
+}
 
-  if (type == 'add') {
-    ruleForm.orderCode = curDate
+const ckeckChooseProduct = (scope) => {
+  if (!scope.row.productPropertyId) {
+    ElNotification({
+      message: 'Ban phai chon san pham truoc',
+      type: 'info'
+    })
+  } else {
+    dialogbusinessManagement.value = true
   }
-})
-
-onMounted(async () => {
-  await editData()
-})
+}
 
 //TruongNgo
 const truocHan = ref(false)
@@ -1431,6 +1464,20 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+onBeforeMount(() => {
+  callCustomersApi()
+  callApiCollaborators()
+  callAPIProduct()
+
+  if (type == 'add') {
+    ruleForm.orderCode = curDate
+  }
+})
+
+onMounted(async () => {
+  await editData()
+})
 </script>
 
 <template>
@@ -3329,30 +3376,55 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="`${t('reuse.businessManagement')}`" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1 flex flex-col">
-                <p>{{ t('reuse.sell') }} </p>
-                <p>{{ t('workplace.lease') }}</p>
+          <el-table-column
+            :label="t('reuse.businessManagement')"
+            width="200"
+            prop="businessManagement"
+          >
+            <template #default="data">
+              <div class="flex w-[100%]">
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
+                <div class="flex-1 text-right">
+                  <el-button
+                    text
+                    border
+                    class="text-blue-500"
+                    @click="
+                      () => {
+                        indexRow = data.$index
+                        ckeckChooseProduct(data)
+                      }
+                    "
+                  >
+                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
+                  >
+                </div>
               </div>
-              <el-button
-                text
-                border
-                class="text-blue-500"
-                el-
-                @click="dialogbusinessManagement = true"
-              >
-                <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
-              >
-            </div>
+            </template>
           </el-table-column>
-          <el-table-column :label="t('reuse.importWarehouse')" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">Còn hàng</div>
-              <el-button text @click="openDialogChooseWarehouse = true">
-                <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-              </el-button>
-            </div>
+          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" width="200">
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
+                <div class="w-[60%]">
+                  <el-button
+                    text
+                    @click="
+                      () => {
+                        callApiWarehouse(props)
+                        openDialogChooseWarehouse = true
+                      }
+                    "
+                  >
+                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
@@ -3445,7 +3517,7 @@ const removeRow = (index) => {
             ref="multipleTableRef"
             border
             :data="listApplyExport"
-            @selection-change="handleSelectionChange"
+            @selection-change="handleSelectionbusinessManagement"
           >
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
@@ -3479,17 +3551,18 @@ const removeRow = (index) => {
         <el-divider />
         <el-table :data="tableWarehouse" border>
           <el-table-column label="" width="50">
-            <template #default="scope">
+            <template #default="props">
               <el-radio
-                v-model="radioSelected"
-                :label="scope.$index"
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
                 style="color: #fff; margin-right: -25px"
                 ><span></span
               ></el-radio>
             </template>
           </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column :label="t('reuse.inventory')">
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
             <div class="flex">
               <span class="flex-1">20</span>
               <span class="flex-1 text-right">Chiếc</span>
@@ -3781,6 +3854,12 @@ const removeRow = (index) => {
 
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
+}
+.limit-text {
+  white-space: nowrap;
+  width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .example-showcase .el-dropdown-link {

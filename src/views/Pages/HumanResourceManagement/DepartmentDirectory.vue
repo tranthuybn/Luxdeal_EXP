@@ -200,7 +200,8 @@ const collapse: Array<Collapse> = [
     customOperator: 1,
     removeHeaderFilter: true,
     removeDrawer: true,
-    buttonAdd: 'Thêm chi nhánh'
+    buttonAdd: 'Thêm chi nhánh',
+    typeButton: 'branch'
   },
   {
     icon: plusIcon,
@@ -214,7 +215,8 @@ const collapse: Array<Collapse> = [
     customOperator: 1,
     removeHeaderFilter: true,
     removeDrawer: true,
-    buttonAdd: 'Thêm Phòng ban'
+    buttonAdd: 'Thêm Phòng ban',
+    typeButton: 'department'
   },
   {
     icon: plusIcon,
@@ -228,7 +230,8 @@ const collapse: Array<Collapse> = [
     customOperator: 1,
     removeHeaderFilter: true,
     removeDrawer: true,
-    buttonAdd: 'Thêm cấp bậc'
+    buttonAdd: 'Thêm cấp bậc',
+    typeButton: 'rank'
   },
   {
     icon: plusIcon,
@@ -242,7 +245,8 @@ const collapse: Array<Collapse> = [
     customOperator: 1,
     removeHeaderFilter: true,
     removeDrawer: true,
-    buttonAdd: 'Thêm loại hình'
+    buttonAdd: 'Thêm loại hình',
+    typeButton: 'tyOfPersonel'
   }
 ]
 const router = useRouter()

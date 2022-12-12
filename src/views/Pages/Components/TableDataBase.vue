@@ -79,6 +79,10 @@ const props = defineProps({
   removeHeaderFilterSlot: {
     type: Boolean,
     default: false
+  },
+  typeButton: {
+    type: String,
+    default: ''
   }
 })
 
@@ -136,6 +140,7 @@ function fnGetSelectedRecord(val) {
       :removeDrawer="removeDrawer"
       :expand="expand"
       :titleButtons="props.titleButtons"
+      :typeButton="props.typeButton"
       :customOperator="customOperator"
       :apiTableChild="apiTableChild"
       :delApi="delApi"

@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import {
-  ElSelect,
-  ElOption,
   ElCol,
   ElRow,
   ElButton,
@@ -24,7 +22,6 @@ const { ValidService } = useValidator()
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
-type momentDateType = Date | moment.Moment | null
 const periodSelected = ref<string>('')
 // disable when selection have value
 let dateTimeDisable = ref<boolean>(false)
@@ -92,75 +89,13 @@ const rule = reactive({
   startDate: [{ validator: checkEndDate, trigger: 'change' }],
   endDate: [{ validator: checkStartDate, trigger: 'change' }]
 })
-const periodFilter = reactive([
-  { value: '3', label: 'Hôm qua' },
-  { value: '1', label: 'Hôm nay' },
-  { value: '4', label: 'Tuần này' },
-  { value: '2', label: 'Tháng này' },
-  { value: '5', label: 'Quý này' },
-  { value: '6', label: 'Năm nay' },
-  { value: '7', label: 'Năm trước' }
-])
-const reloadIcon = useIcon({ icon: 'uiw:reload' })
-function periodChange(val): void {
-  dateTimeDisable.value = !!val
-  if (val) {
-    let start: momentDateType = null
-    let end: momentDateType = null
-    switch (val) {
-      case '1':
-        dateFormType.value = 'date'
-        start = moment().set('hour', 0).set('minute', 0).set('second', 0)
-        end = moment().set('hour', 23).set('minute', 59).set('second', 59)
-        break
-      case '2':
-        dateFormType.value = 'date'
-        start = moment([new Date().getFullYear(), new Date().getMonth()]).toDate()
-        end = moment().endOf('month').toDate()
-        break
-      case '3':
-        dateFormType.value = 'date'
-        start = moment().subtract(1, 'days').set('hour', 0).set('minute', 0).set('second', 0)
-        end = moment().subtract(1, 'days').set('hour', 23).set('minute', 59).set('second', 59)
-        break
-      case '4':
-        dateFormType.value = 'date'
-        start = moment().clone().startOf('isoWeek')
-        end = moment().clone().endOf('isoWeek')
-        break
-      case '5':
-        dateFormType.value = 'date'
-        start = moment().startOf('quarter')
-        end = moment().endOf('quarter')
-        break
-      case '6':
-        dateFormType.value = 'date'
-        start = moment().startOf('year')
-        end = moment().endOf('year')
-        break
-      case '7':
-        dateFormType.value = 'date'
-        start = moment().subtract(1, 'years').startOf('year')
-        end = moment().subtract(1, 'years').endOf('year')
 
-        break
-    }
-    setStartDateAndEndDate(start, end)
-  } else {
-    ;(dateFormType.value = 'date'), verifyReset()
-  }
-}
+const reloadIcon = useIcon({ icon: 'uiw:reload' })
 const verifyReset = () => {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.resetFields()
 }
-const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
-  unref(dateFilterFormRefer)?.setValues({
-    startDate: start ? moment(start).format('YYYY-MM-DD HH:mm:ss') : '',
-    endDate: end ? moment(end).format('YYYY-MM-DD HH:mm:ss') : ''
-  })
-  forceDisable.value = false
-}
+
 async function reLoadEvent() {
   const dateFormData = await getFormData()
   if (
@@ -264,23 +199,7 @@ const formRef = ref<FormInstance>()
           </ElFormItem>
         </ElForm>
       </el-col>
-      <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
-        <el-select
-          v-model="periodSelected"
-          :disabled="disableChooseDate && forceDisable"
-          :placeholder="t('reuse.dateRange')"
-          class="w-full"
-          clearable
-          @change="periodChange"
-        >
-          <el-option
-            v-for="item in periodFilter"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-col>
+
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
         <Form
           :rules="rule"

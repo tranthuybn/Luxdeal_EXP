@@ -156,10 +156,15 @@ const setFormValue = async () => {
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-    if (props.hasImage && !props.multipleImages) {
+    const ImageNull = props.formDataCustomize.imageurl
+    const linkNull = 'https://dev-luxdeal-api.cftsoft.com/null'
+    if (ImageNull == linkNull) {
+      imageUrl.value = ''
+      imageUrl.value.disable = true
+    } else if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
-      console.log('imageUrl', imageUrl)
     }
+
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>

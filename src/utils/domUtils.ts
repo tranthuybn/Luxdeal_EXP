@@ -296,9 +296,9 @@ export const setImageDisplayInDOm = (
   cellValue: TableSlotDefault,
   content = ''
 ) =>
-  h('div', { class: 'flex justify-start items-center' }, [
+  h('div', { class: 'flex justify-start items-center custom-empty' }, [
     cellValue
-      ? h(ElImage, { src: API_URL + cellValue, style: 'width: 120px', fit: 'contain' })
-      : h(ElEmpty, { imageSize: 120 }),
+      ? h(ElImage, { src: API_URL + cellValue, style: 'width: 70px', fit: 'contain' })
+      : h(ElEmpty, { imageSize: 50 }),
     content ? h('h3', { style: 'font-weight:500; margin-left:10px' }, content) : null
   ])

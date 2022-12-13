@@ -71,6 +71,13 @@ export const updateCategory = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const hideCategory = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.HIDE_CATEGORY}?${objectToQueryParams(params)}` },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 export const deleteCategory = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {

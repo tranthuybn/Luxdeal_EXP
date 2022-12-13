@@ -292,10 +292,12 @@ const customizeData = async (formData) => {
   if (formData.isHide == true) {
     formDataCustomize.value['status'].push('hide')
   }
-  formDataCustomize.value.isDelete = false
+
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
     ? (formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`)
     : null
+
+  formDataCustomize.value.isDelete = false
 }
 type FormDataPost = {
   Id: number
@@ -310,7 +312,7 @@ type FormDataPost = {
   index: number
   imageurl?: string
 }
-const customPostData = (data) => {
+const customPostData = async (data) => {
   const customData = {} as FormDataPost
   customData.Id = data.id
   customData.Name = data.name
@@ -323,10 +325,13 @@ const customPostData = (data) => {
   data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
+
 const { push } = useRouter()
 const editData = async (data) => {
+  console.log('data:', data)
+
   data = customPostData(data)
-  await updateCategory({ ...params, ...data })
+  await updateCategory(data)
     .then(() =>
       ElMessage({
         message: t('reuse.updateSuccess'),

@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import {
-  ElCol,
-  ElRow,
-  ElButton,
-  ElFormItem,
-  ElForm,
-  FormInstance,
-  ElInput,
-  ElMessage
-} from 'element-plus'
+import { ElCol, ElRow, ElButton, ElFormItem, ElForm, FormInstance, ElInput } from 'element-plus'
 import { reactive, ref, unref } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
@@ -16,9 +7,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { useValidator } from '@/hooks/web/useValidator'
 
-const { ValidService } = useValidator()
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
@@ -35,14 +24,14 @@ const { register, methods } = useForm()
 
 const { getFormData } = methods
 //validation
-const checkStartDate = (_, endDate: any, __callback: Callback) => {
-  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
-  getFormData().then((res) => {
+const checkStartDate = (_, endDate: any, callback: Callback) => {
+  getFormData().then((res) =>
     res?.startDate && moment(endDate).isBefore(res?.startDate)
-      ? elFormRef?.validateField('startDate', () => null)
-      : elFormRef?.validateField('startDate', () => null)
-  })
-  disableChooseDate.value = true
+      ? callback(new Error(t('reuse.warningDate')))
+      : callback()
+  )
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.validateField('startDate', () => null)
 }
 const checkEndDate = (_, startDate: any, callback: Callback) => {
   getFormData().then((res) =>
@@ -50,10 +39,7 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
   )
-  disableChooseDate.value = true
 }
-const disableChooseDate = ref(false)
-const forceDisable = ref(true)
 // form data
 const schema = reactive<FormSchema[]>([
   {
@@ -62,7 +48,6 @@ const schema = reactive<FormSchema[]>([
     value: '',
     colProps: { md: 12, xs: 24 },
     componentProps: {
-      editable: false,
       placeholder: t('reuse.startDate'),
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
@@ -76,7 +61,6 @@ const schema = reactive<FormSchema[]>([
     value: '',
     colProps: { md: 12, xs: 24 },
     componentProps: {
-      editable: false,
       placeholder: t('reuse.endDate'),
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
@@ -86,88 +70,107 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 const rule = reactive({
-  startDate: [{ validator: checkEndDate, trigger: 'change' }],
-  endDate: [{ validator: checkStartDate, trigger: 'change' }]
+  startDate: [{ validator: checkEndDate }],
+  endDate: [{ validator: checkStartDate }]
 })
 
 const reloadIcon = useIcon({ icon: 'uiw:reload' })
+function periodChange(val): void {
+  dateTimeDisable.value = !!val
+  if (val) {
+    let start: momentDateType = null
+    let end: momentDateType = null
+    switch (val) {
+      case '1':
+        dateFormType.value = 'datetime'
+        start = moment().set('hour', 0).set('minute', 0).set('second', 0)
+        end = moment().set('hour', 23).set('minute', 59).set('second', 59)
+        break
+      case '2':
+        dateFormType.value = 'date'
+        start = moment([new Date().getFullYear(), new Date().getMonth()]).toDate()
+        end = moment().endOf('month').toDate()
+        break
+      case '3':
+        dateFormType.value = 'datetime'
+        start = moment().subtract(1, 'days').set('hour', 0).set('minute', 0).set('second', 0)
+        end = moment().subtract(1, 'days').set('hour', 23).set('minute', 59).set('second', 59)
+        break
+      case '4':
+        dateFormType.value = 'date'
+        start = moment().clone().startOf('isoWeek')
+        end = moment().clone().endOf('isoWeek')
+        break
+      case '5':
+        dateFormType.value = 'date'
+        start = moment().startOf('quarter')
+        end = moment().endOf('quarter')
+        break
+      case '6':
+        dateFormType.value = 'date'
+        start = moment().startOf('year')
+        end = moment().endOf('year')
+        break
+      case '7':
+        dateFormType.value = 'date'
+        start = moment().subtract(1, 'years').startOf('year')
+        end = moment().subtract(1, 'years').endOf('year')
+
+        break
+    }
+    setStartDateAndEndDate(start, end)
+  } else {
+    ;(dateFormType.value = 'date'), verifyReset()
+  }
+}
 const verifyReset = () => {
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.resetFields()
 }
-
-async function reLoadEvent() {
-  const dateFormData = await getFormData()
-  if (
-    validateHeaderInput.searchingKey == '' &&
-    dateFormData?.startDate == '' &&
-    dateFormData?.endDate == ''
-  ) {
-    return
-  }
-  verifyReset()
+const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
+  unref(dateFilterFormRefer)?.setValues({
+    startDate: start ? moment(start).format('YYYY-MM-DD HH:mm:ss') : '',
+    endDate: end ? moment(end).format('YYYY-MM-DD HH:mm:ss') : ''
+  })
+}
+function reLoadEvent() {
   validateHeaderInput.searchingKey = ''
   periodSelected.value = ''
   dateTimeDisable.value = false
-  disableChooseDate.value = false
-  forceDisable.value = true
+  verifyReset()
   emit('refreshData', { Keyword: null, startDate: null, endDate: null })
 }
 async function getDataEvent() {
-  //if there is value it will validate and return value, if not valid == null
-  let inputValid: any = null
-  let noSearchingKey = false
-  if (validateHeaderInput.searchingKey !== '') {
-    const formEl = unref(formRef)
-    await formEl?.validate((valid) => {
-      if (valid) {
-        inputValid = true
-      } else {
-        inputValid = false
-      }
-    })
-  } else {
-    noSearchingKey = true
-  }
-  let dateValid: any = null
-  const dateFormData = await getFormData()
-  if (dateFormData?.startDate !== '' || dateFormData?.endDate !== '') {
-    const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
-    await elFormRef?.validate((valid) => {
-      if (valid) {
-        dateValid = true
-      } else {
-        dateValid = false
-      }
-    })
-  } else {
-    noSearchingKey = true
-  }
+  let inputValid = false
 
-  if (noSearchingKey) {
-    ElMessage(t('reuse.enterSearchingData'))
-    return
-  }
-  //if not false then run ( false when there is a value and is inValid)
-  if (inputValid !== false && dateValid !== false) {
-    dateTimeDisable.value = false
-    disableChooseDate.value = false
-    forceDisable.value = true
-    getFormData()
-      .then((res) => {
-        res?.endDate
-          ? (res['endDate'] = moment(res?.endDate)
-              .set('hour', 23)
-              .set('minute', 59)
-              .set('second', 59)
-              .format('YYYY-MM-DD HH:mm:ss'))
-          : ''
-        emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
+  const formEl = unref(formRef)
+  formEl?.validate((valid) => {
+    if (valid) {
+      inputValid = true
+    } else {
+      inputValid = false
+    }
+  })
+
+  const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
+  elFormRef?.validate((valid) => {
+    if (valid && inputValid) {
+      getFormData()
+        .then((res) => {
+          res?.endDate
+            ? (res['endDate'] = moment(res?.endDate)
+                .set('hour', 23)
+                .set('minute', 59)
+                .set('second', 59)
+                .format('YYYY-MM-DD HH:mm:ss'))
+            : ''
+          emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }
+  })
 }
 
 //validate input header
@@ -182,24 +185,33 @@ const formRef = ref<FormInstance>()
       </el-col>
       <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
         <ElForm ref="formRef" :model="validateHeaderInput">
-          <ElFormItem
-            prop="searchingKey"
-            :rules="[
-              { validator: ValidService.checkEmojiValidator.validator },
-              { validator: ValidService.checkNameLength.validator }
-            ]"
-          >
+          <ElFormItem prop="searchingKey">
             <ElInput
               clearable
               class="w-full"
               v-model="validateHeaderInput.searchingKey"
               :placeholder="t('reuse.enterKeyWords')"
-              @keydown.enter.prevent="getDataEvent"
             />
           </ElFormItem>
         </ElForm>
       </el-col>
 
+      <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
+        <el-select
+          v-model="periodSelected"
+          :placeholder="t('reuse.dateRange')"
+          class="w-full"
+          clearable
+          @change="periodChange"
+        >
+          <el-option
+            v-for="item in periodFilter"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-col>
       <el-col :xl="7" :lg="8" :xs="24" class="<xl:mb-2">
         <Form
           :rules="rule"

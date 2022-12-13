@@ -111,10 +111,14 @@ const props = defineProps({
     type: String,
     default: 'reuse.addCategory',
     Descriptions: 'tiêu đề nút thêm mới'
+  },
+  tab: {
+    type: String,
+    default: ''
   }
 })
-const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 
 //get data from table
 const getTableValue = async () => {
@@ -161,7 +165,9 @@ const setFormValue = async () => {
     if (ImageNull == linkNull) {
       imageUrl.value = ''
       imageUrl.value.disable = true
-    } else if (props.hasImage && !props.multipleImages) {
+    }
+
+    if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
 
@@ -223,7 +229,6 @@ const save = async (type) => {
 
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
-    console.log('type1', type)
     let validateFile = false
     if (props.hasImage) {
       if (props.multipleImages) {
@@ -234,9 +239,7 @@ const save = async (type) => {
     } else {
       validateFile = true
     }
-    console.log('type2', type)
     if (isValid && validateFile) {
-      console.log('type', type)
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
@@ -246,9 +249,10 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
-      console.log('type', type)
       if (type == 'add') {
         data.backRouter = true
+        data.tab =
+          props.tab == 'branch' ? 1 : props.tab == 'department' ? 2 : props.tab == 'rank' ? 3 : 4
         emit('post-data', data)
         loading.value = false
       }
@@ -280,7 +284,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 let rawUploadFile = ref<UploadFile>()
-props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
+props.hasImage ? (fullSpan.value = 12) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
@@ -367,11 +371,22 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
-const router = useRouter()
+// const router = useRouter()
+const utility = 'Utility'
 const edit = () => {
+  // push({
+  //   name: `${String(router.currentRoute.value.name)}`,
+  //   params: { id: props.id, type: 'edit' }
+  // })
   push({
-    name: `${String(router.currentRoute.value.name)}`,
-    params: { id: props.id, type: 'edit' }
+    name: `human-resource-management.department-directory.${utility}`,
+    // params: { id: row.id, type: type, tab: props.tabs }
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.tab,
+      type: 'edit',
+      id: props.id
+    }
   })
 }
 //xóa dữ liệu sản phẩm
@@ -441,15 +456,11 @@ const listType = ref<ListImages>('text')
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
-    <ElRow :gutter="20" justify="space-between">
+    <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
       </ElCol>
-      <ElCol
-        :span="hasImage ? 8 : 0"
-        v-if="hasImage"
-        class="max-h-400px overflow-y-auto shadow-inner p-1"
-      >
+      <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
@@ -461,9 +472,9 @@ const listType = ref<ListImages>('text')
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          :class="multipleImages ?? 'avatar-uploader'"
         >
-          <div v-if="!multipleImages" class="one-avatar-uploader">
+          <div v-if="!multipleImages">
             <div
               v-if="imageUrl"
               style="width: 148px; height: 148px; border-radius: 4px"
@@ -513,35 +524,37 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
-      <div v-if="props.type === 'add' || isNaN(props.id)">
-        <ElButton type="primary" :loading="loading" @click="save('add')">
+      <div class="w-[100%]" v-if="props.type === 'add'">
+        <div class="w-[50%] flex justify-center gap-2">
+          <ElButton type="primary" :loading="loading" @click="save('add')">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="cancel()">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+        </div>
+      </div>
+      <div v-if="props.type === 'edit'">
+        <ElButton :loading="loading" type="primary" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-          {{ t('reuse.saveAndAdd') }}
-        </ElButton>
-        <ElButton :loading="loading" @click="cancel()">
+        <ElButton :loading="loading" @click="cancel">
           {{ t('reuse.cancel') }}
-        </ElButton>
-      </div>
-      <div v-if="props.type === 'detail'">
-        <ElButton :loading="loading" @click="edit">
-          {{ t('reuse.edit') }}
         </ElButton>
         <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
         </ElButton> -->
       </div>
-      <div v-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save('edit')">
-          {{ t('reuse.save') }}
+      <div v-if="props.type === 'detail'">
+        <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+          {{ t('reuse.fix') }}
         </ElButton>
-        <!-- <ElButton :loading="loading" @click="cancel">
-          {{ t('reuse.cancel') }}
-        </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
+        <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
-        </ElButton> -->
+        </ElButton>
       </div>
     </template>
   </ContentWrap>
@@ -579,5 +592,9 @@ const listType = ref<ListImages>('text')
   overflow: auto;
   display: flex;
   justify-content: center;
+}
+:deep(.el-button) {
+  min-width: 150px;
+  min-height: 40px;
 }
 </style>

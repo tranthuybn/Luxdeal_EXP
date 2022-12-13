@@ -124,6 +124,11 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    typeCode: 'Type code',
+    typeName: 'Type name',
+    rankCode: 'Rank code',
+    rankName: 'Rank name',
+    departmentCode: 'Department code',
     numberPersonnel: 'Number of personnel',
     TypeOfferPayment: 'Type of offer for payment',
     BrowseDetails: 'Browse details',
@@ -820,6 +825,10 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    addNewBranch: 'Add new branch',
+    addNewDepartment: 'Add new department',
+    addNewTypePersonnel: 'Add new type of personnel',
+    addNewRank: 'Add new rank',
     accountBank: 'Account bank',
     exportQuantity: 'Export quantity',
     index: 'Index',
@@ -1137,7 +1146,7 @@ export default {
     nameRank1Category: 'Name of Rank1 Category',
     displayPosition: 'Display Position',
     statusAndFunction: 'Status And Function',
-    stopShowAppWeb: 'Stop show app/web user',
+    stopShowAppWeb: 'Stop show app/Web user',
     stopActive: 'Stop active',
     addImage: 'Add Image',
     //banner advertisement
@@ -1164,7 +1173,6 @@ export default {
     //san pham va dich vu
     timeMinute: 'Time (Minute)',
     insuranceDate: 'Insurance (Day)',
-    addNewBranch: 'Add New Branch',
     numberOfEmployees: 'Number of employees',
     DepartmentName: 'Department of name',
     informationServices: 'Information services',

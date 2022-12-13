@@ -24,6 +24,18 @@ const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const tabs = String(router.currentRoute.value.params.tab)
+
+watch(
+  () => tabs,
+  () => {
+    console.log('tabs: ', tabs)
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 let title = ref()
 let disableCheckBox = ref(false)
 
@@ -42,7 +54,7 @@ const schema = reactive<FormSchema[]>([
     modelValue: 1,
     value: 1,
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       style: 'width: 100%',
@@ -80,7 +92,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.InputNameAttributeLevel1'),
@@ -93,7 +105,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel1'),
     component: 'Select',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       options: [],
@@ -108,7 +120,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel2'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.InputNameAttributeLevel2'),
@@ -121,7 +133,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.displayPosition'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.EnterDisplayPosition'),
@@ -140,33 +152,30 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Checkbox',
-    value: [],
+    component: 'Radio',
     colProps: {
-      span: 7
+      span: 12
     },
     componentProps: {
-      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
-          value: 'active'
+          value: 1
         }
       ]
     }
   },
   {
     field: 'status',
-    component: 'Checkbox',
-    value: [],
+    component: 'Radio',
     colProps: {
-      span: 11
+      span: 12
     },
     componentProps: {
       options: [
         {
           label: t('reuse.stopShowAppWeb'),
-          value: 'hide'
+          value: 2
         }
       ]
     }
@@ -243,19 +252,20 @@ const removeFormSchema = () => {
 }
 const postData = async (data) => {
   //manipulate Data
-  if (data.ParentId == undefined) {
-    data.ParentId = 0
-  }
-  if (data.status[0] === 'active') {
+
+  if (data.status === 1) {
     data.isActive = true
   } else {
     data.isActive = false
   }
-  if (data.status[1] === 'hide') {
+  if (data.status === 2) {
     data.isHide = true
   } else {
     data.isHide = false
   }
+
+  console.log('dataPost', data)
+
   await postCategory({ ...params, ...data })
     .then(() =>
       ElMessage({
@@ -309,24 +319,30 @@ type FormDataPost = {
   CreatedBy: string
   isHide: boolean
   isActive: boolean
-  index: number
+  Index: number
   imageurl?: string
 }
-const customPostData = async (data) => {
+const customPostData = (data) => {
   const customData = {} as FormDataPost
+  if (data.ParentId == undefined) {
+    data.ParentId = 0
+  }
+  console.log('datadata', data)
+
   customData.Id = data.id
   customData.Name = data.name
   customData.TypeName = data.typeName
   customData.ParentId = data.parentid
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
-  customData.index = data.index
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
-  data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
+  customData.Index = parseInt(data.index)
+  customData.isActive = true
+
   return customData
 }
 
 const { push } = useRouter()
+
 const editData = async (data) => {
   console.log('data:', data)
 

@@ -107,7 +107,7 @@ export default {
           }
         },
         {
-          path: 'attribute-category',
+          path: 'attribute-category/:tab?',
           component: () => import('@/views/Pages/ProductsAndServices/Category/Attribute.vue'),
           name: 'products-services.AttributeCategory',
           meta: {

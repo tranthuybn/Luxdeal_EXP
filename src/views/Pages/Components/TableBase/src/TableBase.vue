@@ -17,7 +17,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStore } from '@/store/modules/app'
+// import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
@@ -213,14 +213,21 @@ const filterSelect = (value) => {
 }
 const { push } = useRouter()
 const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
+    // push({
+    //   name: `human-resource-management.department-directory.${utility}`,
+    //   params: {
+    //     backRoute: 'human-resource-management.department-directory',
+    //     tab: props.typeButton,
+    //     type: type,
+    //     id: row.id
+    //   }
+    // })
     push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      name: `${String(router.currentRoute.value.name)}.${utility}`,
       params: { id: row.id, type: type, tab: props.typeButton }
     })
   } else {

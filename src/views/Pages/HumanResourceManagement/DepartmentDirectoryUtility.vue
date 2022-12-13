@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onBeforeMount, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -14,6 +14,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'branchCode',
+    field: 'branchCode',
     label: t('reuse.branchCode'),
     component: 'Input',
     colProps: {
@@ -22,7 +23,59 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'branchName',
+    field: 'branchName',
     label: t('reuse.branchName'),
+    component: 'Input',
+    colProps: {
+      span: 13
+    }
+  },
+  {
+    field: 'statusAndFunction',
+    field: 'statusAndFunction',
+    label: t('reuse.statusAndFunction'),
+    component: 'Divider'
+  },
+  {
+    field: 'status',
+    field: 'status',
+    label: t('reuse.status'),
+    component: 'Checkbox',
+    value: [],
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      options: [
+        {
+          label: t('reuse.active'),
+          value: '1'
+        },
+        {
+          label: t('reuse.stopActive'),
+          value: '2'
+        }
+      ]
+    }
+  }
+])
+const schema2 = reactive<FormSchema[]>([
+  {
+    field: 'field1',
+    label: t('reuse.generalInformation'),
+    component: 'Divider'
+  },
+  {
+    field: 'departmentCode',
+    label: t('formDemo.departmentCode'),
+    component: 'Input',
+    colProps: {
+      span: 13
+    }
+  },
+  {
+    field: 'DepartmentName',
+    label: t('reuse.DepartmentName'),
     component: 'Input',
     colProps: {
       span: 13
@@ -55,55 +108,6 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-const schema2 = reactive<FormSchema[]>([
-  {
-    field: 'field1',
-    label: t('reuse.generalInformation'),
-    component: 'Divider'
-  },
-  {
-    field: 'field2',
-    label: t('reuse.branchCode'),
-    component: 'Input',
-    colProps: {
-      span: 13
-    }
-  },
-  {
-    field: 'field3',
-    label: t('reuse.branchName'),
-    component: 'Input',
-    colProps: {
-      span: 13
-    }
-  },
-  {
-    field: 'field41',
-    label: t('reuse.statusAndFunction'),
-    component: 'Divider'
-  },
-  {
-    field: 'field42',
-    label: t('reuse.status'),
-    component: 'Checkbox',
-    value: [],
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      options: [
-        {
-          label: t('reuse.active'),
-          value: '1'
-        },
-        {
-          label: t('reuse.stopActive'),
-          value: '2'
-        }
-      ]
-    }
-  }
-])
 const schema3 = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -111,28 +115,28 @@ const schema3 = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field2',
-    label: t('reuse.branchCode'),
+    field: 'rankCode',
+    label: t('formDemo.rankCode'),
     component: 'Input',
     colProps: {
       span: 13
     }
   },
   {
-    field: 'field3',
-    label: t('reuse.branchName'),
+    field: 'rankName',
+    label: t('formDemo.rankName'),
     component: 'Input',
     colProps: {
       span: 13
     }
   },
   {
-    field: 'field41',
+    field: 'statusAndFunction',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -153,6 +157,7 @@ const schema3 = reactive<FormSchema[]>([
     }
   }
 ])
+
 const schema4 = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -160,28 +165,28 @@ const schema4 = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'field2',
-    label: t('reuse.branchCode'),
+    field: 'typeCode',
+    label: t('formDemo.typeCode'),
     component: 'Input',
     colProps: {
       span: 13
     }
   },
   {
-    field: 'field3',
-    label: t('reuse.branchName'),
+    field: 'typeName',
+    label: t('formDemo.typeName'),
     component: 'Input',
     colProps: {
       span: 13
     }
   },
   {
-    field: 'field41',
+    field: 'statusAndFunction',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
   {
-    field: 'field42',
+    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],
@@ -204,7 +209,7 @@ const schema4 = reactive<FormSchema[]>([
 ])
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
+// const title = router.currentRoute.value.meta.title
 const tab = router.currentRoute.value.params.tab
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
@@ -238,43 +243,32 @@ const customEditDataBranch = (data) => {
   getData.NameChiNhanh = data.branchName
   getData.status = data.status
 
-  return getData
-}
-// const { push } = useRouter()
 const postData = (data) => {
-  data = customPostDataBranch(data)
-  console.log('data post', data)
+  console.log('data: ', data)
+  const payload = {
+    code: data.branchCode,
+    name: data.branchName,
+    image: data.Images[0],
+    status: data.status,
+    typeService: data.tab
+  }
 
-  // await API_POST_BRANCH(FORM_IMAGES(data))
-  // .then(() => {
-  //   ElNotification({
-  //     message: t('reuse.addSuccess'),
-  //     type: 'success'
-  //   }),
-  //     push({
-  //       name: 'human-resource-management.department-directory'
-  //     })
-  // })
-  // .catch(() =>
-  //   ElNotification({
-  //     message: t('reuse.addFail'),
-  //     type: 'warning'
-  //   })
-  // )
+  console.log('payload: ', payload)
 }
 
-const editData = (data) => {
-  data = customEditDataBranch(data)
+const putData = (data) => {
+  console.log('putData: ', data)
 }
-//fill dữ liệu từ data ra...
-type SetFormData = {
-  MachiNhanh: string
+
+const editData = () => {
+  if (type != 'add') {
+    console.log('type: ', type)
+  }
 }
-const emptyFormData = {} as SetFormData
-const setFormData = reactive(emptyFormData)
-const customizeData = (data) => {
-  setFormData.MachiNhanh = data.aa
-}
+
+onBeforeMount(() => {
+  editData()
+})
 </script>
 
 <template>
@@ -282,25 +276,34 @@ const customizeData = (data) => {
     v-if="tab == 'branch'"
     :schema="schema"
     :nameBack="currentRoute"
-    :id="id"
-    :title="title"
-    @customize-form-data="customizeData"
-    @edit-data="editData"
-    :type="type"
+    :title="t('reuse.addNewBranch')"
     :tab="tab"
+    :type="type"
     @post-data="postData"
+    @edit-data="putData"
   />
   <TableOperator
     v-if="tab == 'department'"
     :schema="schema2"
+    :type="type"
     :nameBack="currentRoute"
-    :title="title"
+    :title="t('reuse.addNewDepartment')"
+    @post-data="postData"
   />
-  <TableOperator v-if="tab == 'rank'" :schema="schema3" :nameBack="currentRoute" :title="title" />
+  <TableOperator
+    v-if="tab == 'rank'"
+    :schema="schema3"
+    :type="type"
+    :nameBack="currentRoute"
+    :title="t('reuse.addNewRank')"
+    @post-data="postData"
+  />
   <TableOperator
     v-if="tab == 'tyOfPersonel'"
     :schema="schema4"
+    :type="type"
     :nameBack="currentRoute"
-    :title="title"
+    :title="t('reuse.addNewTypePersonnel')"
+    @post-data="postData"
   />
 </template>

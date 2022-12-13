@@ -149,6 +149,7 @@ const schema = reactive<FormSchema[]>([
     field: 'condition',
     component: 'Select',
     label: t('formDemo.condition'),
+    value: 1,
     colProps: {
       span: 20
     },

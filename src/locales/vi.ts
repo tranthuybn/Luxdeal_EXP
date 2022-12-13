@@ -1197,7 +1197,7 @@ export default {
     EnterDisplayPosition: 'Nhập vị trí hiển thị',
     statusAndFunction: 'Trạng thái và chức năng',
     statusAndAccount: 'Trạng thái và tài khoản',
-    stopShowAppWeb: 'Dừng hiển thị app/web user',
+    stopShowAppWeb: 'Dừng hiển thị app/Web user',
     stopActive: 'Dừng hoạt động',
     addImage: 'Thêm ảnh',
     transfer: 'Chuyển kho',

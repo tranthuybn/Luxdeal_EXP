@@ -1146,7 +1146,7 @@ export default {
     nameRank1Category: 'Name of Rank1 Category',
     displayPosition: 'Display Position',
     statusAndFunction: 'Status And Function',
-    stopShowAppWeb: 'Stop show app/web user',
+    stopShowAppWeb: 'Stop show app/Web user',
     stopActive: 'Stop active',
     addImage: 'Add Image',
     //banner advertisement

@@ -140,7 +140,7 @@ const adminList = [
             ]
           },
           {
-            path: 'attribute-category',
+            path: 'attribute-category/:tab?',
             component: 'views/Pages/ProductsAndServices/Category/Attribute',
             name: 'products-services.AttributeCategory',
             meta: {
@@ -1357,7 +1357,7 @@ const testList: string[] = [
   '/products-services/product-property',
   '/products-services/product-property/product-category',
   `/products-services/product-property/product-category-utility/:type?/:id?`,
-  '/products-services/product-property/attribute-category',
+  '/products-services/product-property/attribute-category/:tab?',
   `/products-services/product-property/attribute-category-utility/:type?/:id?/:tab?`,
   '/products-services/product-property/unit-category',
   `/products-services/product-property/unit-category-utility/:type?/:id?`,

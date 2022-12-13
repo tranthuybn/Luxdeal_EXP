@@ -277,7 +277,7 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 //if schema has image then split screen
 let fullSpan = ref<number>()
 let rawUploadFile = ref<UploadFile>()
-props.hasImage ? (fullSpan.value = 16) : (fullSpan.value = 24)
+props.hasImage ? (fullSpan.value = 12) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
@@ -449,15 +449,11 @@ const listType = ref<ListImages>('text')
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
-    <ElRow :gutter="20" justify="space-between">
+    <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" />
       </ElCol>
-      <ElCol
-        :span="hasImage ? 8 : 0"
-        v-if="hasImage"
-        class="max-h-400px overflow-y-auto shadow-inner p-1"
-      >
+      <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
@@ -469,9 +465,9 @@ const listType = ref<ListImages>('text')
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          :class="multipleImages ?? 'avatar-uploader'"
         >
-          <div v-if="!multipleImages" class="one-avatar-uploader">
+          <div v-if="!multipleImages">
             <div
               v-if="imageUrl"
               style="width: 148px; height: 148px; border-radius: 4px"
@@ -521,16 +517,18 @@ const listType = ref<ListImages>('text')
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
-      <div v-if="props.type === 'add'">
-        <ElButton type="primary" :loading="loading" @click="save('add')">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-          {{ t('reuse.saveAndAdd') }}
-        </ElButton>
-        <ElButton :loading="loading" @click="cancel()">
-          {{ t('reuse.cancel') }}
-        </ElButton>
+      <div class="w-[100%]" v-if="props.type === 'add'">
+        <div class="w-[50%] flex justify-center gap-2">
+          <ElButton type="primary" :loading="loading" @click="save('add')">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="cancel()">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+        </div>
       </div>
       <div v-if="props.type === 'edit'">
         <ElButton :loading="loading" type="primary" @click="save('edit')">
@@ -587,5 +585,9 @@ const listType = ref<ListImages>('text')
   overflow: auto;
   display: flex;
   justify-content: center;
+}
+:deep(.el-button) {
+  min-width: 150px;
+  min-height: 40px;
 }
 </style>

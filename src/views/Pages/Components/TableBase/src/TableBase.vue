@@ -17,7 +17,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStore } from '@/store/modules/app'
+// import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
@@ -212,7 +212,7 @@ const filterSelect = (value) => {
   setSearchParams(value)
 }
 const { push } = useRouter()
-const router = useRouter()
+// const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {

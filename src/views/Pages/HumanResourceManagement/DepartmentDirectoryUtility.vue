@@ -13,7 +13,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'Machinhanh',
+    field: 'branchCode',
     label: t('reuse.branchCode'),
     component: 'Input',
     colProps: {
@@ -21,7 +21,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'TenChinhanh',
+    field: 'branchName',
     label: t('reuse.branchName'),
     component: 'Input',
     colProps: {
@@ -29,7 +29,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'statusAnd',
+    field: 'statusAndFunction',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
   },
@@ -234,8 +234,8 @@ type FormDataEdit = {
 const customEditDataBranch = (data) => {
   const getData = {} as FormDataEdit
 
-  getData.MachiNhanh = data.Machinhanh
-  getData.NameChiNhanh = data.TenChinhanh
+  getData.MachiNhanh = data.branchCode
+  getData.NameChiNhanh = data.branchName
   getData.status = data.status
 
   return getData

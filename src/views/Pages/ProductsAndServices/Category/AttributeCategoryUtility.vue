@@ -286,21 +286,23 @@ const postData = async (data) => {
     })
   }
 }
+
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
-  formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
     formDataCustomize.value.rankCategory = 1
   } else {
     formDataCustomize.value.rankCategory = 2
     await addFormSchema(timesCallAPI, formData.name)
   }
+  console.log('formData', formData)
+
   if (formData.isActive == true) {
-    formDataCustomize.value['status'].push('active')
+    formDataCustomize.value['status'] = 1
   }
   if (formData.isHide == true) {
-    formDataCustomize.value['status'].push('hide')
+    formDataCustomize.value['status'] = 2
   }
 
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`

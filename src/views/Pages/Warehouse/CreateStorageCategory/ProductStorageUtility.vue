@@ -13,6 +13,7 @@ import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
+import moment from 'moment'
 const { t } = useI18n()
 const params = {}
 let timesCallAPI = 0
@@ -159,7 +160,25 @@ if (type === 'add') {
 } else if (type === 'edit') {
   title.value = t('reuse.editProductCategory')
 }
-const formDataCustomize = ref()
+
+//set up empty form customize
+type SetFormData = {
+  name: string
+  rankWarehouse: number
+  reduce: number
+  status: any
+  isDelete: boolean
+  customers: any
+  products: any
+  Image: any
+  target: number
+  percent: number
+  money: number
+  imageurl?: string
+}
+const emptyFormData = {} as SetFormData
+const formDataCustomize = reactive(emptyFormData)
+
 //custom data before set Value to Form
 const customizeData = async (formData) => {
   //disable parent select
@@ -169,22 +188,27 @@ const customizeData = async (formData) => {
   if (schema[1].componentProps !== undefined) {
     schema[1].componentProps.disabled = true
   }
-  formDataCustomize.value = formData[0]
-  formDataCustomize.value['status'] = []
+  formDataCustomize.status = []
   if (formData[0].parentid == 0) {
-    formDataCustomize.value.rankWarehouse = 1
+    formDataCustomize.rankWarehouse = 1
   } else {
-    formDataCustomize.value.rankWarehouse = 2
+    formDataCustomize.rankWarehouse = 2
     await addFormSchema(timesCallAPI, formData[0].name)
   }
   if (formData[0].isActive == true) {
-    formDataCustomize.value['status'].push('active')
+    formDataCustomize.status.push('active')
   }
   if (formData[0].isHide == true) {
-    formDataCustomize.value['status'].push('hide')
+    formDataCustomize.status.push('hide')
   }
-  formDataCustomize.value.imageurl = `${API_URL}${formData[0].imageurl}`
-  formDataCustomize.value.isDelete = false
+  formDataCustomize.name = formData[0].name
+  console.log('formDatra', formData)
+  console.log('formDataCustomize', formDataCustomize)
+
+  formDataCustomize.Image = formData[0].warehouseImages[0].path
+  formDataCustomize.imageurl = `${API_URL}${formData[0].warehouseImages[0].path}`
+
+  formDataCustomize.isDelete = false
 }
 
 //call api for select options
@@ -234,12 +258,13 @@ type FormDataPost = {
   isActive: boolean
   DeleteFileIds: string
 }
+var curDate = 'WH' + moment().format('hhmmss')
 
 const customPostData = (data) => {
   const customData = {} as FormDataPost
   customData.Id = data.id
   customData.Name = data.name
-  customData.Code = data.name
+  customData.Code = curDate
   customData.ParentId = data.parentid
   customData.Images = data.Images
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
@@ -256,7 +281,7 @@ const postData = async (data) => {
   } else {
     data.isActive = false
   }
-  data.Code = 'HN91ads'
+  data.Code = curDate
 
   await createNewProductStorage(FORM_IMAGES(data))
     .then(() => {

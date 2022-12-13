@@ -7,7 +7,7 @@ import {
   getRankList,
   getTypePersonnelList
 } from '@/api/HumanResourceManagement'
-import { filterGender, filterDepartment } from '@/utils/filters'
+import { filterDepartment } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../Components/Type'
@@ -38,10 +38,9 @@ const columnsBranch = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numberOfEmployees',
-    label: t('reuse.gender'),
-    minWidth: '200',
-    filters: filterGender
+    field: 'numberPersonnel',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '200'
   },
   {
     field: 'createDate',
@@ -80,10 +79,9 @@ const columnsBDepartment = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numberOfEmployees',
-    label: t('reuse.gender'),
-    minWidth: '200',
-    filters: filterGender
+    field: 'numberPersonnel',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '200'
   },
   {
     field: 'createDate',
@@ -122,10 +120,9 @@ const columnsRank = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numberOfEmployees',
-    label: t('reuse.gender'),
-    minWidth: '200',
-    filters: filterGender
+    field: 'numberPersonnel',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '200'
   },
   {
     field: 'createDate',
@@ -164,10 +161,9 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numberOfEmployees',
-    label: t('reuse.gender'),
-    minWidth: '200',
-    filters: filterGender
+    field: 'numberPersonnel',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '200'
   },
   {
     field: 'createDate',

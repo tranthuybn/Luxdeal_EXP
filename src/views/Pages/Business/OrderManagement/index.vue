@@ -11,6 +11,7 @@ import { useRoute } from 'vue-router'
 const { t } = useI18n()
 
 const route = useRoute()
+console.log('route: ', route.params)
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)
 </script>

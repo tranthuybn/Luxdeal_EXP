@@ -6,7 +6,7 @@ import { h } from 'vue'
 
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 export const productCategories = [
-  { field: '', width: '50' },
+  { field: 'dsad', width: '50' },
   {
     field: 'imageurl',
     label: t('reuse.categoryTitle'),

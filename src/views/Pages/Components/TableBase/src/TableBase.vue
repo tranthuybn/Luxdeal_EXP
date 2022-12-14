@@ -217,18 +217,9 @@ let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
-    // push({
-    //   name: `human-resource-management.department-directory.${utility}`,
-    //   params: {
-    //     backRoute: 'human-resource-management.department-directory',
-    //     tab: props.typeButton,
-    //     type: type,
-    //     id: row.id
-    //   }
-    // })
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
-      params: { id: row.id, type: type, tab: props.typeButton }
+      params: { id: row.id, type: type, tab: row.typeName }
     })
   } else {
     if (buttonShow === true) {

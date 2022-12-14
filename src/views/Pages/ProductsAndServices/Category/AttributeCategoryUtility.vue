@@ -26,18 +26,7 @@ const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const tabs = String(router.currentRoute.value.params.tab)
 
-watch(
-  () => tabs,
-  () => {
-    console.log('tabs: ', tabs)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 let title = ref()
 let disableCheckBox = ref(false)
 
@@ -266,6 +255,15 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
+  console.log('data: ', data)
+  console.log('params: ', params)
+  const payload = {
+    Name: data.name,
+    Image: data.Image,
+    ParentId: 0,
+    Index: parseInt(data.index)
+  }
+  await postCategory({ ...params, ...payload })
 
   console.log('dataPost', data)
 
@@ -282,10 +280,11 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  // TODO (FIX BUG ROUTER DAC TINH )
   if (data.backRouter == true) {
     push({
       name: 'products-services.AttributeCategory',
-      params: { backRoute: 'products-services.AttributeCategory' }
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.tabs }
     })
   }
 }
@@ -373,7 +372,7 @@ const editData = async (data) => {
     ),
     push({
       name: 'products-services.AttributeCategory',
-      params: { backRoute: 'products-services.AttributeCategory' }
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.TypeName }
     })
 }
 </script>

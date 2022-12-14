@@ -66,7 +66,7 @@ onBeforeMount(() => {
      * if api and column had been not assigned before then no content should be render
      */
     if (tab != ':tab') currentTab.value = tab
-    else currentTab.value = theFirstTab.name
+    if (tab == 'undefined' || tab == ':tab') currentTab.value = theFirstTab.name
   }
 })
 emit('tabChangeEvent', currentTab.value)

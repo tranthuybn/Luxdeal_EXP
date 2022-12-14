@@ -265,7 +265,6 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
-        console.log('data: ', data)
         emit('edit-data', data)
         loading.value = false
       }

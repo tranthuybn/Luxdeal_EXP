@@ -66,7 +66,6 @@ const route = useRoute()
 
 const getCurrentTab = () => {
   const tab = String(route.params.tab)
-  console.log('tab: ', tab)
   if (tab != ':tab') {
     changeParam(tab)
   } else {

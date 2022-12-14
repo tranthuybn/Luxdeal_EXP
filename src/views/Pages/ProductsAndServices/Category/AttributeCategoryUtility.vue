@@ -24,6 +24,7 @@ const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+
 let title = ref()
 let disableCheckBox = ref(false)
 
@@ -42,7 +43,7 @@ const schema = reactive<FormSchema[]>([
     modelValue: 1,
     value: 1,
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       style: 'width: 100%',
@@ -80,7 +81,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel1'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.InputNameAttributeLevel1'),
@@ -93,7 +94,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel1'),
     component: 'Select',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       options: [],
@@ -108,7 +109,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameAttributeLevel2'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.InputNameAttributeLevel2'),
@@ -121,7 +122,7 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.displayPosition'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.EnterDisplayPosition'),
@@ -140,33 +141,32 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Checkbox',
-    value: [],
+    component: 'Radio',
+    value: t('reuse.active'),
     colProps: {
-      span: 7
+      span: 12
     },
     componentProps: {
-      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
-          value: 'active'
+          value: 1
         }
       ]
     }
   },
   {
     field: 'status',
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
-      span: 11
+      span: 12
     },
     componentProps: {
       options: [
         {
           label: t('reuse.stopShowAppWeb'),
-          value: 'hide'
+          value: 2
         }
       ]
     }
@@ -256,7 +256,15 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  await postCategory({ ...params, ...data })
+  console.log('data: ', data)
+  console.log('params: ', params)
+  const payload = {
+    Name: data.name,
+    Image: data.Image,
+    ParentId: 0,
+    Index: parseInt(data.index)
+  }
+  await postCategory({ ...params, ...payload })
     .then(() =>
       ElMessage({
         message: t('reuse.addSuccess'),
@@ -269,10 +277,11 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  // TODO (FIX BUG ROUTER DAC TINH )
   if (data.backRouter == true) {
     push({
       name: 'products-services.AttributeCategory',
-      params: { backRoute: 'products-services.AttributeCategory' }
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.tabs }
     })
   }
 }
@@ -319,13 +328,16 @@ const customPostData = (data) => {
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
   customData.index = data.index
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
-  data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
+  customData.isActive = true
+  // data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  // data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
   return customData
 }
 const { push } = useRouter()
+
 const editData = async (data) => {
   data = customPostData(data)
+  console.log('data: ', data)
   await updateCategory({ ...params, ...data })
     .then(() =>
       ElMessage({
@@ -341,7 +353,7 @@ const editData = async (data) => {
     ),
     push({
       name: 'products-services.AttributeCategory',
-      params: { backRoute: 'products-services.AttributeCategory' }
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.TypeName }
     })
 }
 </script>

@@ -17,7 +17,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStore } from '@/store/modules/app'
+// import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
@@ -171,8 +171,6 @@ const handleClickAdd = () => {
       type: 'add'
     }
   })
-
-  console.log('router', router)
 }
 const sortValue = ref()
 const sortObj = {}
@@ -215,15 +213,13 @@ const filterSelect = (value) => {
 }
 const { push } = useRouter()
 const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tabs }
+      name: `${String(router.currentRoute.value.name)}.${utility}`,
+      params: { id: row.id, type: type, tab: row.typeName }
     })
   } else {
     if (buttonShow === true) {

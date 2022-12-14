@@ -1027,7 +1027,7 @@ const editData = async () => {
       totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
-      if (ListOfProductsForSale.value.length > 0)
+      if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
       customerAddress.value = orderObj.address

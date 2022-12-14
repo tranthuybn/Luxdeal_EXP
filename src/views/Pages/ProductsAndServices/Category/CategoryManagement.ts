@@ -48,6 +48,7 @@ export const colorCategories = [
   {
     field: 'imageurl',
     label: t('reuse.categoryColorTitle'),
+    align: 'left',
     minWidth: '650',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>

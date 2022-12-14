@@ -246,8 +246,10 @@ const collapse: Array<Collapse> = [
   }
 ]
 const router = useRouter()
-const id = String(router.currentRoute.value.params.id)
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const tab = String(router.currentRoute.value.params.tab)
 </script>
 <template>
-  <CollapseBase :collapse="collapse" :default="'branch'" :id="id" />
+  <CollapseBase :collapse="collapse" :type="type" :tabs="tab" :default="'branch'" :id="id" />
 </template>

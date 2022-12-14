@@ -373,7 +373,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
@@ -1405,7 +1405,7 @@ const testList: string[] = [
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
   '/business/accumulate-points/settings-points',
-  '/business/accumulate-points/settings-points-utility/:id?/type?',
+  '/business/accumulate-points/settings-points-utility/:type?/:id?',
 
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',

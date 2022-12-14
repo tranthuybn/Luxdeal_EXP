@@ -8,11 +8,13 @@ import {
   getCategoryById,
   postCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  hideCategory
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElMessage } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
+
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
@@ -260,6 +262,7 @@ const postData = async (data) => {
   }
   if (data.status === 2) {
     data.isHide = true
+    await hideCategory(data.id)
   } else {
     data.isHide = false
   }
@@ -324,13 +327,22 @@ type FormDataPost = {
   Index: number
   imageurl?: string
 }
-const customPostData = (data) => {
+const customPostData = async (data) => {
   const customData = {} as FormDataPost
   if (data.ParentId == undefined) {
     data.ParentId = 0
   }
-  console.log('datadata', data)
-
+  if (data.status == 1) {
+    customData.isActive = true
+    customData.isHide = false
+  } else if (data.status == 2) {
+    customData.isActive = false
+    customData.isHide = true
+    await hideCategory({ Id: data.id })
+  } else {
+    customData.isActive = true
+    customData.isHide = false
+  }
   customData.Id = data.id
   customData.Name = data.name
   customData.TypeName = data.typeName
@@ -338,7 +350,6 @@ const customPostData = (data) => {
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
   customData.Index = parseInt(data.index)
-  customData.isActive = true
 
   return customData
 }
@@ -346,9 +357,7 @@ const customPostData = (data) => {
 const { push } = useRouter()
 
 const editData = async (data) => {
-  console.log('data:', data)
-
-  data = customPostData(data)
+  data = await customPostData(data)
   await updateCategory(data)
     .then(() =>
       ElMessage({

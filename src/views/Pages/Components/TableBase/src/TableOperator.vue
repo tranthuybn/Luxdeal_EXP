@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref } from 'vue'
+import { PropType, watch, ref, unref, onBeforeMount } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -22,7 +22,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Type'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
@@ -213,10 +213,12 @@ defineExpose({
   getFormData: methods.getFormData
 })
 
+const route = useRoute()
 const loading = ref(false)
 
 //doc du lieu tu bang roi emit len goi API
-const { go } = useRouter()
+
+const tabs = ref()
 const save = async (type) => {
   console.log('type', type)
 
@@ -244,6 +246,7 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
+        data.tabs = tabs
         data.tab =
           props.tab == 'branch' ? 1 : props.tab == 'department' ? 2 : props.tab == 'rank' ? 3 : 4
         emit('post-data', data)
@@ -255,11 +258,14 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'edit') {
+        data.backRouter = true
         data.Id = props.id
+        data.tabs = tabs
         // fix cung theo api (nen theo 1 quy tac)
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
+        console.log('data: ', data)
         emit('edit-data', data)
         loading.value = false
       }
@@ -364,7 +370,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
-// const router = useRouter()
+const router = useRouter()
 const utility = 'Utility'
 const edit = () => {
   // push({
@@ -398,7 +404,7 @@ const delAction = async () => {
             message: t('reuse.deleteSuccess'),
             type: 'success'
           }),
-            go(-1)
+            router.go(-1)
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
@@ -415,7 +421,7 @@ const delAction = async () => {
   }
 }
 const cancel = () => {
-  go(-1)
+  router.go(-1)
 }
 //xử lí ảnh
 const ListFileUpload = ref()
@@ -446,6 +452,10 @@ const removeImage = () => {
 type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
+
+onBeforeMount(() => {
+  tabs.value = String(route.params.tab)
+})
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">

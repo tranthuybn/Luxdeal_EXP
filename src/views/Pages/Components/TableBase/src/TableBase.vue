@@ -226,9 +226,12 @@ const action = (row: TableData, type: string) => {
     //     id: row.id
     //   }
     // })
+    console.log('row: ', row)
+    console.log('type: ', type)
+    console.log('tab: ', props.typeButton)
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
-      params: { id: row.id, type: type, tab: props.typeButton }
+      params: { id: row.id, type: type, tab: row.typeName }
     })
   } else {
     if (buttonShow === true) {

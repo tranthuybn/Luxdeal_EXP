@@ -140,7 +140,7 @@ const adminList = [
             ]
           },
           {
-            path: 'attribute-category/:tab?',
+            path: 'attribute-category',
             component: 'views/Pages/ProductsAndServices/Category/Attribute',
             name: 'products-services.AttributeCategory',
             meta: {

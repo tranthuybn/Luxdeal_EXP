@@ -24,18 +24,7 @@ const tab = String(route.params.tab)
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const tabs = String(router.currentRoute.value.params.tab)
 
-watch(
-  () => tabs,
-  () => {
-    console.log('tabs: ', tabs)
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
 let title = ref()
 let disableCheckBox = ref(false)
 
@@ -267,15 +256,15 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('params: ', params)
   console.log('data: ', data)
-  // const payload = {
-  //   Name: data.name,
-  //   Image: data.Image,
-  //   ParentId: 0,
-  //   Index: parseInt(data.index)
-  // }
-  await postCategory({ ...params, ...data })
+  console.log('params: ', params)
+  const payload = {
+    Name: data.name,
+    Image: data.Image,
+    ParentId: 0,
+    Index: parseInt(data.index)
+  }
+  await postCategory({ ...params, ...payload })
     .then(() =>
       ElMessage({
         message: t('reuse.addSuccess'),
@@ -288,11 +277,12 @@ const postData = async (data) => {
         type: 'warning'
       })
     )
+  // TODO (FIX BUG ROUTER DAC TINH )
   if (data.backRouter == true) {
-    // push({
-    //   name: 'products-services.AttributeCategory',
-    //   params: { backRoute: 'products-services.AttributeCategory' }
-    // })
+    push({
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.tabs }
+    })
   }
 }
 const formDataCustomize = ref()
@@ -347,6 +337,7 @@ const { push } = useRouter()
 
 const editData = async (data) => {
   data = customPostData(data)
+  console.log('data: ', data)
   await updateCategory({ ...params, ...data })
     .then(() =>
       ElMessage({
@@ -362,7 +353,7 @@ const editData = async (data) => {
     ),
     push({
       name: 'products-services.AttributeCategory',
-      params: { backRoute: 'products-services.AttributeCategory' }
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.TypeName }
     })
 }
 </script>

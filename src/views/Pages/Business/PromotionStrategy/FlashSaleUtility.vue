@@ -437,7 +437,8 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
-
+  console.log('formDatra', data)
+  console.log('formDataCustomize', setFormData)
   hideTableCustomer(data[0].targetType)
 }
 const { push } = useRouter()

@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    importExportWarehouse: 'Import and export warehouse',
     typeCode: 'Type code',
     typeName: 'Type name',
     rankCode: 'Rank code',

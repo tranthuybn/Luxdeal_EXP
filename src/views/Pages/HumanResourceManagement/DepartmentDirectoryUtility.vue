@@ -35,7 +35,6 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'status',
-    field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
     value: [],

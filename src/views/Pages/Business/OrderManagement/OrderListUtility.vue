@@ -82,6 +82,7 @@ const changeMoney = new Intl.NumberFormat('vi', {
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
+const ruleFormAddress = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
@@ -100,6 +101,7 @@ const ruleForm = reactive({
   delivery: '',
   orderFiles: []
 })
+
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
@@ -129,7 +131,37 @@ const rules = reactive<FormRules>({
   ]
 })
 
-let checkValidate = ref(false)
+const formAddress = reactive({
+  province: '',
+  district: '',
+  wardCommune: '',
+  detailedAddress: ''
+})
+const rulesAddress = reactive<FormRules>({
+  province: [
+    {
+      required: true,
+      message: 'Không được để trống',
+      trigger: 'blur'
+    }
+  ],
+  district: [
+    {
+      required: true,
+      message: 'Không được để trống',
+      trigger: 'blur'
+    }
+  ],
+  wardCommune: [
+    {
+      required: true,
+      message: 'Không được để trống',
+      trigger: 'blur'
+    }
+  ],
+  detailedAddress: [{ required: true, message: 'Không được để trống', trigger: 'blur' }]
+})
+
 let checkValidateForm = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
@@ -143,11 +175,23 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
-      ElMessage.success(t('reuse.addSuccess'))
-      checkValidate.value = true
+      postData()
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
+    }
+  })
+}
+
+const submitFormAddress = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+      autoChangeAddress()
+      dialogFormVisible.value = false
+    } else {
+      console.log('error submit!', fields)
     }
   })
 }
@@ -373,12 +417,6 @@ let dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
 
-// api địa chỉ
-const valueProvince = ref('')
-const valueDistrict = ref('')
-const valueCommune = ref('')
-const enterdetailAddress = ref()
-
 const cities = ref()
 const district = ref()
 const ward = ref()
@@ -388,9 +426,9 @@ const callApiCity = async () => {
 }
 
 const CityChange = async (value) => {
-  valueDistrict.value = ''
-  valueCommune.value = ''
-  enterdetailAddress.value = ''
+  formAddress.district = ''
+  formAddress.wardCommune = ''
+  formAddress.detailedAddress = ''
   district.value = await getDistrict(value)
 }
 
@@ -400,7 +438,7 @@ const districtChange = async (value) => {
 
 const tableWarehouse = ref([])
 
-const radioVAT = ref(false)
+const radioVAT = ref(0)
 let infoCompany = reactive({
   name: '',
   taxCode: '',
@@ -440,8 +478,8 @@ const callApiProductList = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
-      productCode: product.code,
       value: product.productCode,
+      productCode: product.code,
       name: product.name ?? '',
       price: product.price,
       unit: product.unitName,
@@ -488,27 +526,45 @@ let totalPriceOrder = ref(0)
 let totalFinalOrder = ref(0)
 let promoValue = ref(0)
 let promoCash = ref(0)
+const duplicateProduct = ref()
+
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
+
 const getValueOfSelected = async (_value, obj, scope) => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productCode = obj.value
-  data.productName = obj.name
-  //TODO
-  data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
-  data.finalPrice = data.price * data.quantity
-  ListOfProductsForSale.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
-  })
-  promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-    : (totalFinalOrder.value =
-        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-  // add new row
-  if (scope.$index == ListOfProductsForSale.value.length - 1) {
-    ListOfProductsForSale.value.push({ ...productForSale })
+  duplicateProduct.value = undefined
+  duplicateProduct.value = ListOfProductsForSale.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+
+    //TODO
+    data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+    data.finalPrice = data.price * data.quantity
+    ListOfProductsForSale.value.map((val) => {
+      if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+    })
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+    // add new row
+    if (scope.$index == ListOfProductsForSale.value.length - 1) {
+      ListOfProductsForSale.value.push({ ...productForSale })
+    }
   }
+
+  console.log('duplicateProduct: ', duplicateProduct.value)
 }
 
 const updatePrice = (_value, obj, scope) => {
@@ -524,10 +580,10 @@ let customerID = ref()
 const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
-  valueProvince.value = obj.provinceId
-  valueDistrict.value = obj.districtId
-  valueCommune.value = obj.wardId
-  enterdetailAddress.value = obj.address
+  formAddress.province = obj.provinceId
+  formAddress.district = obj.districtId
+  formAddress.wardCommune = obj.wardId
+  formAddress.detailedAddress = obj.address
   ruleForm.customerName = obj.label
 }
 
@@ -729,11 +785,11 @@ let autoChangeDistrict = ref()
 let autoChangeProvince = ref()
 
 const autoChangeAddress = () => {
-  autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
-  autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
-  autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
+  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
+  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
+  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
   customerAddress.value =
-    enterdetailAddress.value +
+    formAddress.detailedAddress +
     ', ' +
     autoChangeCommune.value.label +
     ', ' +
@@ -859,7 +915,7 @@ const getOriginSelectOptions = async () => {
   callOriginAPI++
 }
 
-const postQuickCustomer = async () => {
+const postQuickProduct = async () => {
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
@@ -877,6 +933,7 @@ const postQuickCustomer = async () => {
     ]
   }
   await createQuickProduct(payload)
+  callApiProductList()
 }
 
 const handleChangeQuickAddProduct = async (data) => {
@@ -919,57 +976,55 @@ let orderDetailsTable = reactive([{}])
 let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
-  if (checkValidate.value) {
-    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-      ProductPropertyId: parseInt(val.productPropertyId),
-      Quantity: val.quantity,
-      ProductPrice: val.price,
-      SoldPrice: val.finalPrice,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: val.accessory
-    }))
-    orderDetailsTable.pop()
-    const productPayment = JSON.stringify([...orderDetailsTable])
-    const payload = {
-      ServiceType: 1,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'AA12',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.discount,
-      Description: ruleForm.orderNotes,
-      CustomerId: customerID.value,
-      Files: Files,
-      DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: enterdetailAddress.value,
-      OrderDetail: productPayment,
-      CampaignId: 2,
-      VAT: 1,
-      Status: 1
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    idOrderPost.value = await addNewOrderList(formDataPayLoad)
-      .then(() => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        })
-        router.push({
-          name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name) }
-        })
-      })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    ProductPropertyId: parseInt(val.productPropertyId),
+    Quantity: val.quantity,
+    ProductPrice: val.price,
+    SoldPrice: val.finalPrice,
+    WarehouseId: 1,
+    IsPaid: true,
+    Accessory: val.accessory
+  }))
+  orderDetailsTable.pop()
+  const productPayment = JSON.stringify([...orderDetailsTable])
+  const payload = {
+    ServiceType: 1,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'AA12',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.discount,
+    Description: ruleForm.orderNotes,
+    CustomerId: customerID.value,
+    Files: Files,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: formAddress.province ?? 1,
+    DistrictId: formAddress.district ?? 1,
+    WardId: formAddress.wardCommune ?? 1,
+    Address: formAddress.detailedAddress,
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1,
+    Status: 1
   }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  idOrderPost.value = await addNewOrderList(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name) }
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+
   automaticCouponWareHouse(2)
 }
 
@@ -1004,11 +1059,11 @@ const editData = async () => {
   if (type == 'edit' || type == 'detail') {
     const res = await getSellOrderList({ Id: id, ServiceType: 1 })
     const transaction = await getOrderTransaction({ id: id })
-    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    if (debtTable.value?.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    const orderObj = { ...res.data[0] }
+    const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15
     // if (orderObj.status.status == 1) statusOrder.value = 15
     arrayStatusOrder.value = orderObj.status
@@ -2146,7 +2201,7 @@ const getReturnOrder = () => {
               @click="
                 () => {
                   dialogAddProduct = false
-                  postQuickCustomer()
+                  postQuickProduct()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3242,15 +3297,19 @@ const getReturnOrder = () => {
       <!-- Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
-        <div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.provinceOrCity') }} <span class="text-red-500">*</span></label
-            >
+        <el-form
+          ref="ruleFormAddress"
+          :model="formAddress"
+          :rules="rulesAddress"
+          label-width="150px"
+          class="demo-ruleForm"
+          status-icon
+        >
+          <el-form-item :label="t('formDemo.countyOrDistrict')" prop="province">
             <el-select
-              v-model="valueProvince"
+              v-model="formAddress.province"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectProvinceCity')"
               @change="(data) => CityChange(data)"
             >
@@ -3261,15 +3320,12 @@ const getReturnOrder = () => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.countyOrDistrict') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.wardOrCommune')" prop="district">
             <el-select
-              v-model="valueDistrict"
+              v-model="formAddress.district"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectDistrict')"
               @change="(data) => districtChange(data)"
             >
@@ -3280,15 +3336,12 @@ const getReturnOrder = () => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.wardOrCommune') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
             <el-select
-              v-model="valueCommune"
+              v-model="formAddress.wardCommune"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.chooseWard')"
             >
               <el-option
@@ -3298,19 +3351,16 @@ const getReturnOrder = () => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.detailedAddress') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
             <el-input
-              v-model="enterdetailAddress"
+              v-model="formAddress.detailedAddress"
               style="width: 96%"
-              class="m-2 fix-full-width"
-              :placeholder="t('formDemo.enterDetailAddress')"
+              class="fix-full-width"
+              :placeholder="t('formDemo.detailedAddress')"
             />
-          </div>
-        </div>
+          </el-form-item>
+        </el-form>
         <template #footer>
           <span class="dialog-footer">
             <el-button
@@ -3318,8 +3368,7 @@ const getReturnOrder = () => {
               type="primary"
               @click="
                 () => {
-                  autoChangeAddress()
-                  dialogFormVisible = false
+                  submitFormAddress(ruleFormAddress)
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3377,13 +3426,13 @@ const getReturnOrder = () => {
                   </el-form-item>
                 </div>
                 <div class="w-[40%]">
-                  <el-form-item prop="discount" label-width="0">
+                  <el-form-item prop="discount" class="fix-err" label-width="0">
                     <div class="flex items-center">
                       <el-input
                         :disabled="checkDisabled"
                         v-model="ruleForm.discount"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
-                        :placeholder="`${t('formDemo.enterDiscount')}`"
+                        :placeholder="t('formDemo.enterDiscount')"
                         :suffix-icon="percentageIcon"
                       />
                     </div>
@@ -3959,7 +4008,7 @@ const getReturnOrder = () => {
                 filterable
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -4115,27 +4164,27 @@ const getReturnOrder = () => {
                     <el-dropdown-item>
                       <el-radio-group v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="1">{{
+                          <el-radio class="text-left" style="color: blue" label="0">{{
                             t('formDemo.VATNotIncluded')
                           }}</el-radio>
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="2"
+                          <el-radio class="text-left" style="color: blue" label="10%"
                             >VAT 10%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="3"
+                          <el-radio class="text-left" style="color: blue" label="8%"
                             >VAT 8%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="4"
+                          <el-radio class="text-left" style="color: blue" label="5%"
                             >VAT 5%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="5"
+                          <el-radio class="text-left" style="color: blue" label="0%"
                             >VAT 0%</el-radio
                           >
                         </div>
@@ -4157,7 +4206,7 @@ const getReturnOrder = () => {
             <div class="h-[32px] text-right dark:text-[#fff]">
               {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
             </div>
-            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">{{ radioVAT ?? '' }}</div>
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
@@ -4253,6 +4302,17 @@ const getReturnOrder = () => {
           </div>
         </div>
 
+        <el-button
+          :disabled="checkDisabled"
+          @click="
+            () => {
+              submitForm(ruleFormRef, ruleFormRef2)
+            }
+          "
+          type="primary"
+          class="min-w-42 min-h-11"
+          >{{ t('button.saveAndWaitApproval') }}</el-button
+        >
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
@@ -4273,7 +4333,7 @@ const getReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
+                  submitForm(ruleFormRef, ruleFormRef2)
                   statusOrder = 3
                 }
               "
@@ -4285,7 +4345,6 @@ const getReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   statusOrder = 5
                   addStatusOrder(3)
                 }
@@ -4381,7 +4440,6 @@ const getReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   addStatusOrder(3)
                   statusOrder = 5
                 }
@@ -4415,7 +4473,6 @@ const getReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData
                   statusOrder = 3
                 }
               "
@@ -4480,7 +4537,6 @@ const getReturnOrder = () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   changeReturnGoods = true
                   statusOrder = 8
                   getReturnRequestTable()
@@ -4559,7 +4615,7 @@ const getReturnOrder = () => {
           <el-table-column type="selection" width="40" align="center" />
           <el-table-column
             prop="createdAt"
-            :label="t('formDemo.dateOfPayment')"
+            :label="t('formDemo.initializationDate')"
             min-width="150"
             align="center"
           >
@@ -4777,7 +4833,7 @@ const getReturnOrder = () => {
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
-              :label="t('formDemo.invoiceForGoodsEnteringTheWarehouse')"
+              :label="t('formDemo.importExportWarehouse')"
               align="left"
               width="200"
             >
@@ -4796,7 +4852,7 @@ const getReturnOrder = () => {
             </el-table-column>
             <el-table-column
               prop="inventoryStatus"
-              :label="t('formDemo.inventoryStatus')"
+              :label="t('formDemo.status')"
               align="left"
               width="200"
             />
@@ -5041,5 +5097,9 @@ const getReturnOrder = () => {
 
 ::v-deep(.handle-fix > .el-input > .el-input__wrapper > .el-input__inner) {
   text-align: right;
+}
+
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  padding-left: 8px;
 }
 </style>

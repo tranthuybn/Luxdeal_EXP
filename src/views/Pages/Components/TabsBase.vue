@@ -146,6 +146,7 @@ const pushWarehouse = (type) => {
             :customOperator="item.customOperator"
             :delApi="item.delApi"
             :tabs="item.name"
+            :currentT="currentTab"
         /></div>
       </el-tab-pane>
     </el-tabs>

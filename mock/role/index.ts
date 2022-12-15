@@ -831,7 +831,23 @@ const adminList = [
             name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
             meta: {
               title: 'router.inventoryTracking'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:type?/:id?`,
+                component:
+                  'views/Pages/Warehouse/BusinessProductWarehouse/FollowInventoryUtility.vue',
+                name: `Inventorymanagement.ListWarehouse.inventory-tracking.${utility}`,
+                meta: {
+                  title: 'reuse.addNewWarehouse',
+                  noTagsView: true,
+                  noCache: true,
+                  canTo: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'warehouse-transaction-1/:id?',
@@ -883,6 +899,7 @@ const adminList = [
                   title: 'reuse.addNewWarehouse',
                   noTagsView: true,
                   noCache: true,
+                  canTo: true,
                   hidden: true,
                   showMainRoute: true
                 }
@@ -1431,6 +1448,8 @@ const testList: string[] = [
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
   '/inventory-management/business-product-warehouse/inventory-tracking',
+
+  '/inventory-management/business-product-warehouse/inventory-tracking-utility/:type?/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-1/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-2/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-3/:id?',

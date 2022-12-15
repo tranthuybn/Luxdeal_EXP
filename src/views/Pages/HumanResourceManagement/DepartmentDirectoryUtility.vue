@@ -242,7 +242,7 @@ const customEditDataBranch = (data) => {
   getData.MachiNhanh = data.branchCode
   getData.NameChiNhanh = data.branchName
   getData.status = data.status
-
+}
 const postData = (data) => {
   console.log('data: ', data)
   const payload = {

@@ -6,7 +6,7 @@ import { h } from 'vue'
 
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 export const productCategories = [
-  { field: 'dsad', width: '50' },
+  { field: '', width: '50' },
   {
     field: 'imageurl',
     label: t('reuse.categoryTitle'),
@@ -34,10 +34,10 @@ export const productCategories = [
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', productStatusTransferToText(_))
     }
   }
 ]
@@ -240,7 +240,7 @@ export const unitCategories = [
   {
     field: 'imageurl',
     label: t('reuse.categoryUnitTitle'),
-    minWidth: '650',
+    minWidth: '950',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
@@ -268,10 +268,10 @@ export const unitCategories = [
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', productStatusTransferToText(_))
     }
   }
 ]
@@ -280,7 +280,7 @@ export const brandCategories = [
   {
     field: 'imageurl',
     label: t('reuse.categoryBrandTitle'),
-    minWidth: '450',
+    minWidth: '950',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
@@ -306,11 +306,11 @@ export const brandCategories = [
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '100',
+    minWidth: '150',
     align: 'center',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', productStatusTransferToText(_))
     }
   }
 ]
@@ -319,7 +319,7 @@ export const originCategories = [
   {
     field: 'imageurl',
     label: t('reuse.categoryOriginTitle'),
-    minWidth: '650',
+    minWidth: '950',
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
@@ -345,10 +345,10 @@ export const originCategories = [
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', productStatusTransferToText(_))
     }
   }
 ]

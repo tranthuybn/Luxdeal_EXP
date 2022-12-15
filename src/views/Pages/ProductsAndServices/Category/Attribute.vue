@@ -71,6 +71,7 @@ const getCurrentTab = () => {
   } else {
     params.TypeName = 'chatlieu'
   }
+  console.log('tab', tab)
 }
 let currentTab = ref('')
 
@@ -89,6 +90,7 @@ const changeParam = (val = '') => {
   provide('parameters', {
     params
   })
+  console.log('val', val)
 }
 
 onBeforeMount(() => {
@@ -104,5 +106,9 @@ onBeforeMount(() => {
 }
 ::v-deep(.custom-empty .el-empty > .el-empty__description) {
   margin-top: 5px;
+}
+
+::v-deep(.el-table__row--level-1 > td > .cell > .custom-empty) {
+  padding-left: 5rem;
 }
 </style>

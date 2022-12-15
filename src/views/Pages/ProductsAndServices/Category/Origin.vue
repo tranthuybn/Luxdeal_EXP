@@ -22,3 +22,11 @@ const deleteOrigin = t('reuse.deleteOrigin')
     :titleAdd="'reuse.addNewOrigin'"
   />
 </template>
+<style scoped>
+::v-deep(.custom-empty > .el-empty) {
+  padding: 5px 0;
+}
+::v-deep(.custom-empty .el-empty > .el-empty__description) {
+  margin-top: 5px;
+}
+</style>

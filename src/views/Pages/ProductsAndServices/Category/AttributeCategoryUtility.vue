@@ -148,6 +148,7 @@ const schema = reactive<FormSchema[]>([
       span: 12
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
@@ -163,6 +164,7 @@ const schema = reactive<FormSchema[]>([
       span: 12
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.stopShowAppWeb'),
@@ -187,17 +189,18 @@ const rules = reactive({
     { validator: ValidService.checkSpace.validator }
   ]
 })
+
 watch(
   () => type,
   () => {
     if (type === 'add') {
-      title.value = router.currentRoute?.value?.meta?.title
+      title.value = router.currentRoute.value.meta.title
       disableCheckBox.value = true
-      schema[8].value = ['active']
+      schema[8].value = 1
     } else if (type === 'detail') {
-      title.value = t('reuse.detailCharacteristic')
+      title.value = t('reuse.detailProductCategory')
     } else if (type === 'edit') {
-      title.value = t('reuse.editCharacteristic')
+      title.value = t('reuse.editProductCategory')
     }
   },
   {
@@ -257,13 +260,13 @@ const postData = async (data) => {
   }
   console.log('data: ', data)
   console.log('params: ', params)
-  const payload = {
-    Name: data.name,
-    Image: data.Image,
-    ParentId: 0,
-    Index: parseInt(data.index)
-  }
-  await postCategory({ ...params, ...payload })
+  // const payload = {
+  //   Name: data.name,
+  //   Image: data.Image,
+  //   ParentId: 0,
+  //   Index: parseInt(data.index)
+  // }
+  // await postCategory({ ...params, ...payload })
 
   console.log('dataPost', data)
 
@@ -292,6 +295,12 @@ const postData = async (data) => {
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   if (formData.parentid == 0) {
     formDataCustomize.value.rankCategory = 1
   } else {

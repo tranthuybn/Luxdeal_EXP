@@ -8,7 +8,8 @@ import {
   getCategoryById,
   postCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  hideCategory
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
@@ -115,8 +116,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Checkbox',
-    value: [],
+    component: 'Radio',
     colProps: {
       span: 7
     },
@@ -125,23 +125,23 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.active'),
-          value: 'active'
+          value: 1
         }
       ]
     }
   },
   {
     field: 'status',
-    component: 'Checkbox',
-    value: [],
+    component: 'Radio',
     colProps: {
       span: 11
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.stopShowAppWeb'),
-          value: 'hide'
+          value: 2
         }
       ]
     }
@@ -194,12 +194,12 @@ const postData = async (data) => {
   if (data.ParentId == undefined) {
     data.ParentId = 0
   }
-  if (data.status[0] === 'active') {
+  if (data.status == 1) {
     data.isActive = true
   } else {
     data.isActive = false
   }
-  if (data.status[1] === 'hide') {
+  if (data.status == 2) {
     data.isHide = true
   } else {
     data.isHide = false
@@ -236,7 +236,7 @@ watch(
     if (type === 'add') {
       title.value = router.currentRoute?.value?.meta?.title
       disableCheckBox.value = true
-      schema[8].value = ['active']
+      schema[8].value = 1
     } else if (type === 'detail') {
       title.value = t('reuse.detailOrigin')
     } else if (type === 'edit') {
@@ -259,7 +259,6 @@ const customizeData = async (formData) => {
     schema[1].componentProps.disabled = true
   }
   formDataCustomize.value = formData
-  formDataCustomize.value['status'] = []
   if (formData.parentid == 0) {
     formDataCustomize.value.rankCategory = 1
   } else {
@@ -267,10 +266,10 @@ const customizeData = async (formData) => {
     await addFormSchema(timesCallAPI, formData.name)
   }
   if (formData.isActive == true) {
-    formDataCustomize.value['status'].push('active')
+    formDataCustomize.value['status'] = 1
   }
   if (formData.isHide == true) {
-    formDataCustomize.value['status'].push('hide')
+    formDataCustomize.value['status'] = 2
   }
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
   formDataCustomize.value.isDelete = false
@@ -286,25 +285,37 @@ type FormDataPost = {
   CreatedBy: string
   isHide: boolean
   isActive: boolean
-  index: number
+  Index: number
   imageurl?: string
 }
-const customPostData = (data) => {
+const customPostData = async (data) => {
   const customData = {} as FormDataPost
+  if (data.ParentId == undefined) {
+    data.ParentId = 0
+  }
+  if (data.status == 1) {
+    customData.isActive = true
+    customData.isHide = false
+  } else if (data.status == 2) {
+    customData.isActive = false
+    customData.isHide = true
+    await hideCategory({ Id: data.id })
+  } else {
+    customData.isActive = true
+    customData.isHide = false
+  }
   customData.Id = data.id
   customData.Name = data.name
   customData.TypeName = data.typeName
-  customData.ParentId = data.parentid
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
-  customData.index = data.index
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
-  data.status.includes('hide') ? (customData.isHide = true) : (customData.isHide = false)
+  customData.Index = parseInt(data.index)
+
   return customData
 }
 const { push } = useRouter()
 const editData = async (data) => {
-  data = customPostData(data)
+  data = await customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
     .then(() =>
       ElNotification({

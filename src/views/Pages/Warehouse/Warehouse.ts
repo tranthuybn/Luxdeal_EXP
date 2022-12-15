@@ -31,32 +31,27 @@ export const wareHouse = [
   {
     field: 'ticketCode',
     label: t('reuse.importTransferWarehouseCode'),
-    minWidth: '100'
-  },
-  {
-    field: 'ticketCode',
-    label: t('reuse.inputLotCode'),
-    minWidth: '100'
+    minWidth: '130'
   },
   {
     field: 'orderCode',
     label: t('reuse.orderCode'),
-    minWidth: '100'
+    minWidth: '130'
   },
   {
     field: 'productCode',
     label: t('reuse.productCode'),
-    minWidth: '100'
+    minWidth: '130'
   },
   {
     field: 'productPropertyCode',
     label: t('reuse.managementCode'),
-    minWidth: '100'
+    minWidth: '130'
   },
   {
     field: 'productPropertyName',
     label: t('reuse.productInformation'),
-    minWidth: '120'
+    minWidth: '160'
   },
 
   {
@@ -95,6 +90,11 @@ export const wareHouse = [
     label: t('reuse.location'),
     minWidth: '150',
     filters: filterLocation
+  },
+  {
+    field: 'ticketCode',
+    label: t('reuse.lotCode'),
+    minWidth: '100'
   },
   {
     field: 'orderServiceType',
@@ -169,7 +169,7 @@ export const wareHouse = [
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterLotStatus
   }
 ]

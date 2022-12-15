@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { ElCol, ElRow, ElButton, ElFormItem, ElForm, FormInstance, ElInput } from 'element-plus'
+import {
+  ElSelect,
+  ElOption,
+  ElCol,
+  ElRow,
+  ElButton,
+  ElFormItem,
+  ElForm,
+  FormInstance,
+  ElInput
+} from 'element-plus'
 import { reactive, ref, unref } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
@@ -11,6 +21,7 @@ import { useForm } from '@/hooks/web/useForm'
 // declare variables
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
+type momentDateType = Date | moment.Moment | null
 const periodSelected = ref<string>('')
 // disable when selection have value
 let dateTimeDisable = ref<boolean>(false)
@@ -73,7 +84,15 @@ const rule = reactive({
   startDate: [{ validator: checkEndDate }],
   endDate: [{ validator: checkStartDate }]
 })
-
+const periodFilter = reactive([
+  { value: '3', label: 'Hôm qua' },
+  { value: '1', label: 'Hôm nay' },
+  { value: '4', label: 'Tuần này' },
+  { value: '2', label: 'Tháng này' },
+  { value: '5', label: 'Quý này' },
+  { value: '6', label: 'Năm nay' },
+  { value: '7', label: 'Năm trước' }
+])
 const reloadIcon = useIcon({ icon: 'uiw:reload' })
 function periodChange(val): void {
   dateTimeDisable.value = !!val
@@ -195,7 +214,6 @@ const formRef = ref<FormInstance>()
           </ElFormItem>
         </ElForm>
       </el-col>
-
       <el-col :xl="3" :lg="3" :xs="12" class="<xl:mb-2">
         <el-select
           v-model="periodSelected"

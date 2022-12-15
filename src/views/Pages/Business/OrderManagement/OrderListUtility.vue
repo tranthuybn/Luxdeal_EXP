@@ -80,6 +80,13 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
+const props = defineProps({
+  tabSelect: {
+    type: String,
+    default: ''
+  }
+})
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')

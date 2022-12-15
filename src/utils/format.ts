@@ -123,8 +123,8 @@ export const productStatusPending = (val) => {
   return `${t('reuse.pending')}`
 }
 export const productStatusTransferToText = (val) => {
-  if (val) return `${t('reuse.active')}`
-  return `${t('reuse.inactive')}`
+  if (val.isActive) return `${t('reuse.active')}`
+  else return `${t('reuse.inactive')}`
 }
 export const collaboratorStatusTransferToText = (val) => {
   if (val == 0) return `${t('reuse.pending')}`

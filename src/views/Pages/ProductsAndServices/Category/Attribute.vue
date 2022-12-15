@@ -98,3 +98,11 @@ onBeforeMount(() => {
 <template>
   <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" />
 </template>
+<style scoped>
+::v-deep(.custom-empty > .el-empty) {
+  padding: 5px 0;
+}
+::v-deep(.custom-empty .el-empty > .el-empty__description) {
+  margin-top: 5px;
+}
+</style>

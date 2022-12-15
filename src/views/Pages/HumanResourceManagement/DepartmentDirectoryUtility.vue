@@ -14,6 +14,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'branchCode',
+    field: 'branchCode',
     label: t('reuse.branchCode'),
     component: 'Input',
     colProps: {
@@ -22,6 +23,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'branchName',
+    field: 'branchName',
     label: t('reuse.branchName'),
     component: 'Input',
     colProps: {
@@ -29,6 +31,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
+    field: 'statusAndFunction',
     field: 'statusAndFunction',
     label: t('reuse.statusAndFunction'),
     component: 'Divider'
@@ -208,7 +211,37 @@ const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 // const title = router.currentRoute.value.meta.title
 const tab = router.currentRoute.value.params.tab
-const type = router.currentRoute.value.params.type
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+
+// custom api form post
+type FormDataPost = {
+  MachiNhanh?: string
+  NameChiNhanh?: string
+  status?: string
+}
+const customPostDataBranch = (data) => {
+  const customData = {} as FormDataPost
+
+  customData.MachiNhanh = data.Machinhanh
+  customData.NameChiNhanh = data.TenChinhanh
+  customData.status = data.status
+
+  return customData
+}
+
+// custom api form edit
+type FormDataEdit = {
+  MachiNhanh?: string
+  NameChiNhanh?: string
+  status?: string
+}
+const customEditDataBranch = (data) => {
+  const getData = {} as FormDataEdit
+
+  getData.MachiNhanh = data.branchCode
+  getData.NameChiNhanh = data.branchName
+  getData.status = data.status
 
 const postData = (data) => {
   console.log('data: ', data)

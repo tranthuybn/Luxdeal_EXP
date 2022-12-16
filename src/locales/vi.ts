@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    importExportWarehouse: 'Phiếu nhập/Xuất kho',
     typeCode: 'Mã loại hình',
     typeName: 'Tên loại hình',
     rankCode: 'Mã cấp bậc',
@@ -1523,7 +1524,7 @@ export default {
     insuranceMoneyFor1trPerDay: 'Tiền bảo hiểm/1tr/ngày',
     moneyFee: ' Thành tiền phí',
     inventoryTracking: 'Theo dõi tồn kho',
-    importExportBillCode: 'Mã phiếu nhập/xuất kho',
+    importExportBillCode: 'Mã phiếu nhập/Xuất kho',
     warehouseInformation: 'Thông tin kho',
     internal: 'Nội bộ',
     chooseService: 'Chọn dịch vụ',

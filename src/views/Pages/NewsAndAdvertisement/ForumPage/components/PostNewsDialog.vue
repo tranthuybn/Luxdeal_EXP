@@ -65,9 +65,9 @@ const getAllTags = () => {
 }
 const searchTags = () => {
   if (searchingKey.value.length > 0) {
-    currentTags = tags.value.filter((el) => el.name.includes(searchingKey))
+    currentTags.value = tags.value.filter((el) => el.name.includes(searchingKey))
   } else {
-    currentTags = tags
+    currentTags.value = tags
   }
 }
 const removeTag = (val) => {

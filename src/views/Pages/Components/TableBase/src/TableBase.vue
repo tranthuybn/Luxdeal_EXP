@@ -86,6 +86,10 @@ const props = defineProps({
   typeButton: {
     type: String,
     default: ''
+  },
+  currentT: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -216,10 +220,12 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
+  console.log('row: ', row)
+  console.log('props.currentT: ', props.currentT)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
-      params: { id: row.id, type: type, tab: row.typeName }
+      params: { id: row.id, type: type, tab: row.typeName ?? props.currentT }
     })
   } else {
     if (buttonShow === true) {

@@ -65,13 +65,13 @@ export const formatOrderReturnReason = (val) => {
 }
 export const formatRankingCustomer = (val) => {
   switch (val) {
-    case 1:
+    case 0:
       return t('reuse.silver')
-    case 2:
+    case 1:
       return t('reuse.gold')
-    case 3:
+    case 2:
       return t('reuse.platinum')
-    case 4:
+    case 3:
       return 'Titan'
     default:
       return ''

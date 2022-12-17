@@ -17,19 +17,19 @@ const tabPosition = ref(tab)
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs">
     <ElTabPane :label="t('formDemo.addNewSalesOrders')" name="orderSell"
-      ><OrderListUtility :tabSelect="tabPosition" v-if="tabPosition === 'orderSell'"
+      ><OrderListUtility v-if="tabPosition === 'orderSell'"
     /></ElTabPane>
     <ElTabPane :label="t('formDemo.addNewRentalOrders')" name="orderRental"
       ><AddNewRentalOrdersUtility v-if="tabPosition === 'orderRental'"
     /></ElTabPane>
     <ElTabPane :label="t('formDemo.addNewConsignmentOrders')" name="orderDeposit">
-      <AddNewConsignment :tabSelect="tabPosition" v-if="tabPosition === 'orderDeposit'" />
+      <AddNewConsignment v-if="tabPosition === 'orderDeposit'" />
     </ElTabPane>
     <ElTabPane :label="t('formDemo.addNewPawnOrders')" name="orderPawn">
-      <AddNewPawn :tabSelect="tabPosition" v-if="tabPosition === 'orderPawn'" />
+      <AddNewPawn v-if="tabPosition === 'orderPawn'" />
     </ElTabPane>
     <ElTabPane :label="t('formDemo.addNewSpaOrders')" name="orderSpa">
-      <AddNewSpa :tabSelect="tabPosition" v-if="tabPosition === 'orderSpa'" />
+      <AddNewSpa v-if="tabPosition === 'orderSpa'" />
     </ElTabPane>
   </ElTabs>
 </template>

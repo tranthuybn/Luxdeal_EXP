@@ -71,6 +71,7 @@ const getCurrentTab = () => {
   } else {
     params.TypeName = 'mausac'
   }
+  console.log('tab', tab)
 }
 let currentTab = ref('')
 

@@ -209,7 +209,7 @@ const getTableValue = async () => {
     const res = await getCustomerById({ Id: id })
     if (res) {
       if (res.data?.list !== undefined) {
-        formValue.value = res.data.list[0]
+        formValue.value = res.data?.list[0]
       } else {
         formValue.value = res.data
       }
@@ -221,15 +221,15 @@ const getTableValue = async () => {
     }
   }
   if (type == 'detail' || type == 'edit') {
-    ruleForm.isActive = formValue.value.isActive
-    ruleForm.customerCode = formValue.value.code
-    ruleForm.referralCode = formValue.value.referralCode
-    if (formValue.value.isOrganization) {
+    ruleForm.isActive = formValue.value?.isActive
+    ruleForm.customerCode = formValue.value?.code
+    ruleForm.referralCode = formValue.value?.referralCode
+    if (formValue.value?.isOrganization) {
       ruleForm.businessClassification = true
     } else {
       ruleForm.businessClassification = false
     }
-    if (formValue.value.sex) {
+    if (formValue.value?.sex) {
       ruleForm.sex = true
     } else {
       ruleForm.sex = false
@@ -266,12 +266,12 @@ const getTableValue = async () => {
     await CityChange(formValue.value.provinceId)
     await districtChange(formValue.value.districtId)
     const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
-    valueProvince.value = result1.label
+    valueProvince.value = result1?.label
     const result2 = district.value.find((e) => e.value == formValue.value.districtId)
-    valueDistrict.value = result2.label
+    valueDistrict.value = result2?.label
 
     const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
-    valueCommune.value = result3.label
+    valueCommune.value = result3?.label
   }
 }
 
@@ -433,13 +433,14 @@ const postCustomer = async (typebtn) => {
   clear()
 }
 const postData = async (typebtn) => {
+  console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const payloadAcc = {
       fullName: ruleForm.name,
       email: ruleForm.email,
       password: ruleForm.password,
-      confirmPassword: ruleForm.confirmPassword,
+      confirmPassword: ruleForm.password,
       userName: ruleForm.userName,
       phoneNumber: ruleForm.phonenumber
     }
@@ -507,6 +508,7 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
       })
     })
 }
+
 onBeforeMount(() => {
   change()
   callApiCity()
@@ -872,8 +874,9 @@ onBeforeMount(() => {
                       {{ t('login.password') }} <span class="text-red-600">*</span>
                     </label>
                     <el-input
+                      v-model="ruleForm.password"
                       class="w-[50%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
+                      type="password"
                       :placeholder="t('formDemo.enterPassword')"
                       :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
@@ -900,6 +903,7 @@ onBeforeMount(() => {
                             {{ t('reuse.newPassword') }} <span class="text-red-600">*</span>
                           </label>
                           <el-input
+                            v-model="ruleForm.password"
                             class="w-[80%] outline-none pl-2 dark:bg-transparent"
                             type="text"
                             :placeholder="t('reuse.enterNewPassword')"
@@ -1024,7 +1028,7 @@ onBeforeMount(() => {
                 </el-dialog>
               </div>
               <div v-else-if="type === 'edit'" class="flex justify-center">
-                <el-button type="primary" class="min-w-42 min-h-11">{{
+                <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
                 <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{

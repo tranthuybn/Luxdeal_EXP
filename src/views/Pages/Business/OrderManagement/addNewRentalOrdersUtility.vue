@@ -41,7 +41,7 @@ import {
   getPromotionsList,
   getProductsList,
   addNewOrderList,
-  getSellOrderList,
+  getOrderList,
   createQuickProduct,
   getCheckProduct,
   getproductId,
@@ -1059,7 +1059,7 @@ let customerIdPromo = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 3 })
+    const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)

@@ -36,7 +36,7 @@ import {
   getPromotionsList,
   getAllCustomer,
   addNewOrderList,
-  getSellOrderList
+  getOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -607,7 +607,7 @@ const type = String(route.params.type)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id })
+    const res = await getOrderList({ Id: id })
     const orderObj = { ...res.data[0] }
     if (res.data) {
       ruleForm.orderCode = orderObj.code

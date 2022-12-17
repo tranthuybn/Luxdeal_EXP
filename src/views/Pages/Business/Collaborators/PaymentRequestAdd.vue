@@ -216,7 +216,6 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
-  console.log('formValue', formValue)
   if (!isNaN(id)) {
     const res = await getCommissionPaymentByIdList({ id: id })
     if (res && res.data) {
@@ -458,7 +457,6 @@ const save = async () => {
         FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
         Files: data.Files.filter((file) => file !== undefined)
       }
-      console.log('FORM_IMAGES(data)', data)
       await updateCommissionPayment({ ...payload, ...data })
         .then(() => {
           ElNotification({

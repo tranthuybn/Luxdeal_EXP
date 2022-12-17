@@ -74,7 +74,6 @@ type Product = {
   hirePrice: Number
 }
 const updateValue = (value, obj, scope) => {
-  console.log(value, obj, scope)
   scope.row.productPropertyId = value
   addRow()
 }
@@ -87,7 +86,6 @@ const open = () => {
 const close = () => {
   emit('update:modelValue', false)
 }
-console.log('orderData?', props.orderData)
 const postReturnRequest = async (orderStatusType) => {
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)

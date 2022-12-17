@@ -216,7 +216,6 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
 }
 const postData = async (data) => {
   //manipulate Data
-  console.log('2')
   if (data.ParentId == undefined) {
     data.ParentId = 0
   }
@@ -230,7 +229,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('data', data)
 
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
@@ -348,8 +346,6 @@ const customPostData = async (data) => {
 const { push } = useRouter()
 
 const editData = async (data) => {
-  console.log('data edit', data)
-
   data = await customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>

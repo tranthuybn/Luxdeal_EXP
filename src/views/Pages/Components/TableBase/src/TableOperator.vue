@@ -227,8 +227,6 @@ const loading = ref(false)
 
 const tabs = ref()
 const save = async (type) => {
-  console.log('type', type)
-
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
     let validateFile = false

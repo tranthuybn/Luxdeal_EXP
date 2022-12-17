@@ -68,12 +68,12 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const props = defineProps({
-  tabSelect: {
-    type: String,
-    default: ''
-  }
-})
+// const props = defineProps({
+//   tabSelect: {
+//     type: String,
+//     default: ''
+//   }
+// })
 
 const handleRemove = (file: UploadFile) => {
   return file
@@ -1213,8 +1213,6 @@ const indexRow = ref()
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log(indexRow)
-
   newTable.value = val
 }
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
@@ -1280,7 +1278,6 @@ const handle = () => {
     priceBillPawn: priceintoMoneyPawnGOC.value,
     phone: 1212321
   }
-  console.log('formData: ', formData)
 }
 
 const editData = async () => {

@@ -203,7 +203,6 @@ const postData = async (data) => {
     Image: data.Image
   }
 
-  console.log('payload: ', payload)
   let postPayload = FORM_IMAGES(payload)
   await addNewCampaign(postPayload)
 }
@@ -218,7 +217,6 @@ const customizeData = async (data) => {
 }
 
 const editData = async (data) => {
-  console.log('edit data', data)
   let postIdSpaService = ref('')
   data.tableProductOfCombo.map((val) => {
     postIdSpaService.value += val.service?.toString()
@@ -228,7 +226,6 @@ const editData = async (data) => {
     IsActive: val.isActive,
     SpaServiceIds: postIdSpaService.value ?? '2,3'
   }))
-  console.log('postSpaTable: ', postSpaTable)
   const payload = {
     Id: id,
     Name: data.name,

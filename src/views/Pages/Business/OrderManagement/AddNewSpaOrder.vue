@@ -436,7 +436,6 @@ let totalSettingSpa = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log('a', indexSpa)
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
     label: e.spaServiceName,
     value: e.id
@@ -1581,7 +1580,6 @@ const closeDialogWarehouseTrasfer = (warehouseData) => {
   }
   dialogWarehouseTransfer.value = false
   // toLotId
-  console.log('warehouseData:', warehouseData)
 }
 
 const fromWarehouseFormat = (props) => {

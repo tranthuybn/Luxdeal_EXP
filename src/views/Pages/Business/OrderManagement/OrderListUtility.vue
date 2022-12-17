@@ -196,13 +196,11 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 
 const submitFormAddress = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
-      console.log('submit!')
       autoChangeAddress()
       dialogFormVisible.value = false
     } else {
-      console.log('error submit!', fields)
     }
   })
 }
@@ -574,8 +572,6 @@ const getValueOfSelected = async (_value, obj, scope) => {
       ListOfProductsForSale.value.push({ ...productForSale })
     }
   }
-
-  console.log('duplicateProduct: ', duplicateProduct.value)
 }
 
 const updatePrice = (_value, obj, scope) => {
@@ -773,7 +769,6 @@ const getProductPropertyPrice = async (
   // lấy giá tiền của một sản phẩm
   const res = await getPriceOfSpecificProduct(getPricePayload)
   const price = res.data.price ?? 0
-  console.log('data mook:', res)
 
   return price
 }
@@ -927,7 +922,6 @@ const getOriginSelectOptions = async () => {
 }
 
 const postQuickProduct = async () => {
-  console.log('productCharacteristics: ', productCharacteristics.value)
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,

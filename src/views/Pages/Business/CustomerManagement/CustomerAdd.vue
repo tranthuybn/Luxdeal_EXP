@@ -264,7 +264,6 @@ const getTableValue = async () => {
   }
   if (type == 'detail' || type == 'edit') {
     ruleForm.isActive = formValue.value.isActive
-    console.log(ruleForm.isActive)
     ruleForm.customerCode = formValue.value.code
     ruleForm.referralCode = formValue.value.referralCode
     if (formValue.value.isOrganization) {
@@ -308,7 +307,6 @@ const getTableValue = async () => {
     await callApiCity()
     await CityChange(formValue.value.provinceId)
     await districtChange(formValue.value.districtId)
-    console.log('cities.value', cities, cities.value, formValue.value.provinceId)
     const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
     valueProvince.value = result1.label
     const result2 = district.value.find((e) => e.value == formValue.value.districtId)
@@ -536,7 +534,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   ListFileUpload.value = uploadFiles
 }
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',

@@ -136,8 +136,6 @@ const changeDataWarehouseImport = async (warehouseId) => {
   warehouseData.value.toWarehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const changeDataWarehouseExport = async (warehouseId) => {
-  console.log(' props.productPropertyId', props.productPropertyId)
-
   warehouseForm.locationExportId = undefined
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {

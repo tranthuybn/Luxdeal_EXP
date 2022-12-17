@@ -458,7 +458,6 @@ const save = async () => {
         FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
         Files: data.Files.filter((file) => file !== undefined)
       }
-      console.log('FORM_IMAGES(data)', data)
       await updateCommissionPayment({ ...payload, ...data })
         .then(() => {
           ElNotification({
@@ -771,8 +770,8 @@ const activeName = ref(collapse[0].title)
                 >
                   <el-dialog v-model="dialogVisible">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}
+                    </div>
                   </el-dialog>
                 </el-upload>
               </div>
@@ -852,9 +851,11 @@ const activeName = ref(collapse[0].title)
 .el-button--text {
   margin-right: 15px;
 }
+
 ::v-deep(.el-divider--horizontal) {
   margin: 40px 0 24px 0;
 }
+
 ::v-deep(.el-input) {
   width: auto;
 }
@@ -905,9 +906,11 @@ const activeName = ref(collapse[0].title)
 ::v-deep(.fix-full-width > .el-select .el-input) {
   width: 100% !important;
 }
+
 .header-icon {
   margin-right: 10px;
 }
+
 .after {
   display: flex;
   align-items: center;

@@ -73,8 +73,6 @@ console.log('router', route)
 
 const getCurrentTab = () => {
   const tab = String(route.currentRoute.value.params.tab)
-
-  console.log('tab', tab)
 }
 let currentTab = ref('')
 
@@ -105,7 +103,6 @@ const changeParam = (val = '') => {
   provide('parameters', {
     params
   })
-  console.log('val', val)
 }
 
 onBeforeMount(() => {

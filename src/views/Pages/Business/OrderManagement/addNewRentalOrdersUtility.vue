@@ -627,16 +627,12 @@ const autoCalculateOrder = () => {
     if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
   })
 
-  console.log('totalPriceOrder: ', totalPriceOrder.value)
-  console.log('totalDeposit: ', totalDeposit.value)
-
   promoCash.value != 0
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
     : (totalFinalOrder.value =
         totalPriceOrder.value -
         (totalPriceOrder.value * promoValue.value) / 100 +
         totalDeposit.value)
-  console.log('totalFinalOrder: ', totalFinalOrder.value)
 }
 
 // Call api danh sách sản phẩm

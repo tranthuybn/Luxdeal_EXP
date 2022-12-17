@@ -31,6 +31,7 @@ const getTotalRecord = ref(0)
 const getSelectedRecord = ref<Array<any>>([])
 function fnGetTotalRecord(val) {
   getTotalRecord.value = val ?? 0
+  console.log(getTotalRecord.value)
 }
 function fnGetSelectedRecord(val) {
   getSelectedRecord.value = val ?? []

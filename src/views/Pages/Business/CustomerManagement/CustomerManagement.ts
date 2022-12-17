@@ -51,6 +51,7 @@ export const CustomerList = [
     field: 'contact',
     label: t('reuse.contact'),
     minWidth: '400',
+    align: 'left',
     formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
       return h('ul', [
         h('li', [

@@ -465,7 +465,7 @@ export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-export const getSellOrderList = async (params: any): Promise<IResponse> => {
+export const getOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`

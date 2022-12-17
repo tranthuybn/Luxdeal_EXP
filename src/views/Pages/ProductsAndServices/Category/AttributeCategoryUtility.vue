@@ -258,8 +258,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('data: ', data)
-  console.log('params: ', params)
   // const payload = {
   //   Name: data.name,
   //   Image: data.Image,
@@ -267,8 +265,6 @@ const postData = async (data) => {
   //   Index: parseInt(data.index)
   // }
   // await postCategory({ ...params, ...payload })
-
-  console.log('dataPost', data)
 
   await postCategory({ ...params, ...data })
     .then(() =>

@@ -75,7 +75,6 @@ const ListOfProductsForSale = computed(() => {
 const listOfProduct = computed(() => {
   return prop.productData
 })
-console.log('listOfProduct', listOfProduct)
 // Call api danh sách sản phẩm
 const productLoading = ref(true)
 let listProducts = ref()
@@ -181,7 +180,6 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
-    console.log('prop.productData[currentRow.value]', prop.productData[currentRow.value])
     warehouseData.value.quantity = prop.productData[currentRow.value]?.quantity
     warehouseData.value.warehouseId = prop.productData[currentRow.value].warehouse?.value
     warehouseData.value.locationId = prop.productData[currentRow.value].location?.value
@@ -202,7 +200,6 @@ const closeDialogWarehouse = (warehouseData) => {
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
   }
-  console.log('warehouseData: ', warehouseData)
   dialogWarehouse.value = false
 }
 

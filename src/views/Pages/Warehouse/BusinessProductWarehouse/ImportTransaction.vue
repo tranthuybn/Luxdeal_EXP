@@ -57,12 +57,6 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const addTransaction = async () => {
-  console.log(
-    'submitFormTicket',
-    await detailTicketRef.value?.submitFormTicket(),
-    '',
-    productWarehouseRef.value?.checkValueOfTable()
-  )
   if (
     (await detailTicketRef.value?.submitFormTicket()) &&
     productWarehouseRef.value?.checkValueOfTable()

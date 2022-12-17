@@ -337,7 +337,7 @@ export default {
           }
         },
         {
-          path: 'settings-points-utility/:id?/type?',
+          path: 'settings-points-utility/:type?/:id?',
           name: `business.accumulate-points.settings-points.${utility}`,
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPointsAdd.vue'),
           meta: {

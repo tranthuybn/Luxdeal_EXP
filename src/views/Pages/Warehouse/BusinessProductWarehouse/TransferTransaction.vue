@@ -9,6 +9,7 @@ import DetailTicket from './DetailTicket.vue'
 import TransferPW from './TransferPW.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -135,6 +136,8 @@ type ProductWarehouse = {
   lot?: Options
   imageUrl?: string
 }
+var curDate = 'CK' + moment().format('hhmms')
+
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
 const testReactive = ref('test')
@@ -167,6 +170,7 @@ const callApiForData = async () => {
     }
   } else {
     type.value = 'add'
+    ticketData.value.ticketCode = curDate
   }
 }
 const cancelTicketWarehouse = async () => {

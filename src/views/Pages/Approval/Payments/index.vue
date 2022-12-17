@@ -62,11 +62,11 @@ onBeforeMount(() => {
         width="180"
       />
       <el-table-column prop="status" :label="t('formDemo.status')" width="180" />
-      <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="120">
+      <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="150">
         <template #default="props">
-          <el-button @click="() => detailedBrowsing(props)" class="w-[100%]" type="primary">{{
-            t('formDemo.BrowseDetails')
-          }}</el-button>
+          <el-button @click="() => detailedBrowsing(props)" type="primary"
+            ><span class="text-sm">{{ t('formDemo.BrowseDetails') }} ></span>
+          </el-button>
         </template>
       </el-table-column>
     </el-table>

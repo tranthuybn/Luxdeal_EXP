@@ -12,7 +12,7 @@ import {
   getTotalRecord,
   getSelectedRecord
 } from './TablesReusabilityFunction'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 const { t } = useI18n()
@@ -58,10 +58,14 @@ function fnGetSelectedRecord(val) {
 }
 
 // tab logic
+const route = useRoute()
+
 const currentTab = ref<string>('')
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
+    const tab = String(route.params.tab)
+
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
     addOperatorColumn(dynamicColumns.value)
@@ -71,7 +75,8 @@ onBeforeMount(() => {
      * if current tab changes table will immediate reload
      * if api and column had been not assigned before then no content should be render
      */
-    currentTab.value = theFirstTab.name
+    if (tab != ':tab') currentTab.value = tab
+    if (tab == 'undefined' || tab == ':tab') currentTab.value = theFirstTab.name
   }
 })
 emit('tabChangeEvent', currentTab.value)

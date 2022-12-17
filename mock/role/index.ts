@@ -373,7 +373,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
@@ -831,7 +831,23 @@ const adminList = [
             name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
             meta: {
               title: 'router.inventoryTracking'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:type?/:id?`,
+                component:
+                  'views/Pages/Warehouse/BusinessProductWarehouse/FollowInventoryUtility.vue',
+                name: `Inventorymanagement.ListWarehouse.inventory-tracking.${utility}`,
+                meta: {
+                  title: 'reuse.addNewWarehouse',
+                  noTagsView: true,
+                  noCache: true,
+                  canTo: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
             path: 'warehouse-transaction-1/:id?',
@@ -883,6 +899,7 @@ const adminList = [
                   title: 'reuse.addNewWarehouse',
                   noTagsView: true,
                   noCache: true,
+                  canTo: true,
                   hidden: true,
                   showMainRoute: true
                 }
@@ -1357,7 +1374,7 @@ const testList: string[] = [
   '/products-services/product-property',
   '/products-services/product-property/product-category',
   `/products-services/product-property/product-category-utility/:type?/:id?`,
-  '/products-services/product-property/attribute-category',
+  '/products-services/product-property/attribute-category/:tab?',
   `/products-services/product-property/attribute-category-utility/:type?/:id?/:tab?`,
   '/products-services/product-property/unit-category',
   `/products-services/product-property/unit-category-utility/:type?/:id?`,
@@ -1405,7 +1422,7 @@ const testList: string[] = [
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
   '/business/accumulate-points/settings-points',
-  '/business/accumulate-points/settings-points-utility/:id?/type?',
+  '/business/accumulate-points/settings-points-utility/:type?/:id?',
 
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',
@@ -1431,6 +1448,8 @@ const testList: string[] = [
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
   '/inventory-management/business-product-warehouse/inventory-tracking',
+
+  '/inventory-management/business-product-warehouse/inventory-tracking-utility/:type?/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-1/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-2/:id?',
   '/inventory-management/business-product-warehouse/warehouse-transaction-3/:id?',

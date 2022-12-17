@@ -16,20 +16,20 @@ const tabPosition = ref(tab)
 </script>
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs">
-    <ElTabPane lazy :label="t('formDemo.addNewSalesOrders')" name="orderSell"
-      ><OrderListUtility
+    <ElTabPane :label="t('formDemo.addNewSalesOrders')" name="orderSell"
+      ><OrderListUtility :tabSelect="tabPosition" v-if="tabPosition === 'orderSell'"
     /></ElTabPane>
-    <ElTabPane lazy :label="t('formDemo.addNewRentalOrders')" name="orderRental"
-      ><AddNewRentalOrdersUtility
+    <ElTabPane :label="t('formDemo.addNewRentalOrders')" name="orderRental"
+      ><AddNewRentalOrdersUtility v-if="tabPosition === 'orderRental'"
     /></ElTabPane>
-    <ElTabPane lazy :label="t('formDemo.addNewConsignmentOrders')" name="orderDeposit">
-      <AddNewConsignment />
+    <ElTabPane :label="t('formDemo.addNewConsignmentOrders')" name="orderDeposit">
+      <AddNewConsignment :tabSelect="tabPosition" v-if="tabPosition === 'orderDeposit'" />
     </ElTabPane>
-    <ElTabPane lazy :label="t('formDemo.addNewPawnOrders')" name="orderPawn">
-      <AddNewPawn />
+    <ElTabPane :label="t('formDemo.addNewPawnOrders')" name="orderPawn">
+      <AddNewPawn :tabSelect="tabPosition" v-if="tabPosition === 'orderPawn'" />
     </ElTabPane>
-    <ElTabPane lazy :label="t('formDemo.addNewSpaOrders')" name="orderSpa">
-      <AddNewSpa />
+    <ElTabPane :label="t('formDemo.addNewSpaOrders')" name="orderSpa">
+      <AddNewSpa :tabSelect="tabPosition" v-if="tabPosition === 'orderSpa'" />
     </ElTabPane>
   </ElTabs>
 </template>

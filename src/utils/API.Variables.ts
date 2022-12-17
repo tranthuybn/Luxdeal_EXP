@@ -164,27 +164,27 @@ export const typeOfPeople = {
 export const API_ORDER = [
   {
     value: 0,
-    key: '1',
+    key: 1,
     label: 'orderSell'
   },
   {
     value: 1,
-    key: '3',
+    key: 3,
     label: 'orderRental'
   },
   {
     value: 2,
-    key: '2',
+    key: 2,
     label: 'orderDeposit'
   },
   {
     value: 3,
-    key: '4',
+    key: 4,
     label: 'orderPawn'
   },
   {
     value: 4,
-    key: '5',
+    key: 5,
     label: 'orderSpa'
   }
 ]

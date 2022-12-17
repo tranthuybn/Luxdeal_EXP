@@ -69,7 +69,7 @@ const getCurrentTab = () => {
   if (tab != ':tab') {
     changeParam(tab)
   } else {
-    params.TypeName = 'chatlieu'
+    params.TypeName = 'mausac'
   }
   console.log('tab', tab)
 }

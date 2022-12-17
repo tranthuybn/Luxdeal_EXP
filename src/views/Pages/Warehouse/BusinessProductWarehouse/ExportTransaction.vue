@@ -61,7 +61,6 @@ const addTransaction = async () => {
     let uploadData: any = {}
     uploadData.type = 2
     uploadData.warehouseProductJson = [{}]
-    console.log('ExportPWRef: ', ExportPWRef.value)
     uploadData.warehouseProductJson = ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
       quantity: row.quantity,
@@ -79,7 +78,6 @@ const addTransaction = async () => {
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
 
-    console.log('uploadData: ', uploadData)
     await createTicketManually(JSON.stringify(uploadData))
       .then((res) => {
         ElNotification({

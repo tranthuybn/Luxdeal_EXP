@@ -523,7 +523,6 @@ export const pawnOrder = [
     label: t('reuse.promotionCode'),
     minWidth: '150'
   },
-  ,
   {
     field: 'userName',
     label: t('reuse.customerName'),
@@ -535,48 +534,7 @@ export const pawnOrder = [
     label: t('reuse.explain'),
     minWidth: '170'
   },
-  {
-    field: 'productManagementCode',
-    label: t('formDemo.productManagementCode'),
-    minWidth: '170',
-    headerFilter: 'Name',
-    formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
-        })
-      )
-    }
-  },
-  {
-    field: 'productInformation',
-    label: t('formDemo.productInformation'),
-    minWidth: '300',
-    headerFilter: 'Name',
-    formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'ul',
-        row.orderDetails.map(({ id, productName, productPropertyName }) => {
-          return h('li', { key: id }, `${productName}${productPropertyName}`)
-        })
-      )
-    }
-  },
-  {
-    field: 'pawnNumber',
-    label: t('reuse.pawnNumber'),
-    minWidth: '200',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'depositedSoldNumber',
-    label: t('reuse.depositedSoldNumber'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
+
   {
     field: 'depositedRentTimes',
     label: t('reuse.depositedRentTimes'),

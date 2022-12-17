@@ -62,13 +62,6 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 
-const props = defineProps({
-  tabSelect: {
-    type: String,
-    default: ''
-  }
-})
-
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })

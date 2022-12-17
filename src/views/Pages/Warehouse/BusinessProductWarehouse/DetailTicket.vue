@@ -34,7 +34,6 @@ const props = defineProps({
   }
 })
 const FormData = computed(() => {
-  console.log('props.ticketData', props.ticketData)
   return props.ticketData
 })
 // const typeTransaction = computed(() => {

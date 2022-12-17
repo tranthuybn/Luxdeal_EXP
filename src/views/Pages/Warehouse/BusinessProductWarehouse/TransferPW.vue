@@ -69,7 +69,6 @@ const ListOfProductsForSale = computed(() => {
 const listOfProduct = computed(() => {
   return prop.productData
 })
-console.log('listOfProduct', listOfProduct)
 // Call api danh sách sản phẩm
 const productLoading = ref(true)
 let listProducts = ref()
@@ -179,7 +178,6 @@ const openDialogWarehouseTransfer = (props) => {
     dialogWarehouseTransfer.value = true
     curPPIDWHTrans.value = props.row.productPropertyId
     currentRowWHTrans.value = props.$index
-    // console.log('prop.productData[currentRow.value]', prop.productData[currentRowWHTrans.value])
     warehouseData.value.quantity = prop.productData[currentRowWHTrans.value]?.quantity
     warehouseData.value.fromWarehouseId =
       prop.productData[currentRowWHTrans.value].fromWarehouse?.value
@@ -208,7 +206,6 @@ const closeDialogWarehouseTrasfer = (warehouseData) => {
   }
   dialogWarehouseTransfer.value = false
   // toLotId
-  console.log('warehouseData:', warehouseData)
 }
 
 const dialogImageUrl = ref('')

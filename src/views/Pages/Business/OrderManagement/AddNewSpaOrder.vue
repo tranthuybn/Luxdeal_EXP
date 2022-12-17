@@ -48,7 +48,7 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  getSellOrderList,
+  getOrderList,
   getOrderTransaction,
   getReceiptPaymentVoucher,
   addTPV,
@@ -71,12 +71,12 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
-const props = defineProps({
-  tabSelect: {
-    type: String,
-    default: ''
-  }
-})
+// const props = defineProps({
+//   tabSelect: {
+//     type: String,
+//     default: ''
+//   }
+// })
 const { t } = useI18n()
 
 const viewIcon = useIcon({ icon: 'uil:search' })

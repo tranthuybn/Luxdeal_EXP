@@ -105,7 +105,6 @@ const forceRemove = ref(false)
 const removeListProductsSale = (index) => {
   if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
     forceRemove.value = true
-    console.log('index:', index)
     ListOfProductsForSale.splice(index, 1)
   }
 }

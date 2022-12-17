@@ -22,8 +22,7 @@ import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
 const { params }: any = inject('parameters', {})
-const getCurTab = ref(params.ServiceType)
-console.log('params: ', params)
+
 const { t } = useI18n()
 const route = useRoute()
 const tableRef = ref<TableExpose>()
@@ -217,10 +216,9 @@ let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
-    let pushTab = getCurTab.value == 1 ? 'orderSell' : ''
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
-      params: { id: row.id, type: type, tab: row.typeName ?? props.currentT ?? pushTab }
+      params: { id: row.id, type: type, tab: row.typeName ?? props.currentT }
     })
   } else {
     if (buttonShow === true) {

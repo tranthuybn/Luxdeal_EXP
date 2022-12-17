@@ -47,6 +47,16 @@ const getData = (data) => {
     unref(tableBase01)![0]!.getData(data)
   }
 }
+
+const getTotalRecords = ref(0)
+const getSelectedRecords = ref<Array<any>>([])
+function fnGetTotalRecord(val) {
+  getTotalRecords.value = val ?? 0
+}
+function fnGetSelectedRecord(val) {
+  getSelectedRecords.value = val ?? []
+}
+
 // tab logic
 const currentTab = ref<string>('')
 onBeforeMount(() => {
@@ -131,8 +141,8 @@ const pushWarehouse = (type) => {
           </HeaderFiler>
           <TableExtension
             v-if="props.selection"
-            :totalRecord="getTotalRecord"
-            :selectedRecord="getSelectedRecord" />
+            :totalRecord="getTotalRecords"
+            :selectedRecord="getSelectedRecords" />
           <TableBase
             ref="tableBase01"
             :selection="selection"
@@ -141,6 +151,8 @@ const pushWarehouse = (type) => {
             :customOperator="item.customOperator"
             :delApi="item.delApi"
             :tabs="item.name"
+            @selected-record="fnGetSelectedRecord"
+            @total-record="fnGetTotalRecord"
         /></div>
       </el-tab-pane>
     </el-tabs>

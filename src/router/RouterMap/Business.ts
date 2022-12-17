@@ -115,16 +115,15 @@ export default {
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
             title: t('router.customerRatings'),
-            breadcrumb: true,
-            noTagsView: true
+            breadcrumb: true
           }
         },
         {
           path: 'customerRatings-utility/:type?/:id?',
+          name: `business.customer-management.customerRatings.${utility}`,
           component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('customerList.addNewRanking'),
-            noTagsView: true,
             noCache: true,
             canTo: true,
             hidden: true,

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
+import moment from 'moment'
 import { Collapse } from '../../Components/Type'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -9,6 +10,7 @@ import DetailTicket from './DetailTicket.vue'
 import ProductWarehouse from './ProductWarehouse.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -104,7 +106,8 @@ const ticketData = ref({
   isActive: '',
   status: '',
   staffValue: '',
-  orderCode: ''
+  orderCode: '',
+  updatedAt: ''
 })
 type ExportLots = {
   fromLotId: number
@@ -146,6 +149,7 @@ const callApiForData = async () => {
       ticketData.value.customerId = res.data[0]?.customerId
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
+      ticketData.value.updatedAt = res.data[0].updatedAt
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
@@ -163,6 +167,8 @@ const callApiForData = async () => {
     }
   } else {
     type.value = 'add'
+    ticketData.value.ticketCode = 'NK' + moment().format('hhmmss')
+    ticketData.value.updatedAt = moment().format()
   }
 }
 const cancelTicketWarehouse = async () => {
@@ -218,8 +224,10 @@ onBeforeMount(async () => await callApiForData())
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <span class="bg-gray-300">{{ t('reuse.initializeAndWrite') }}</span>
+          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
+          <span class="bg-gray-300 day-updated">
+            {{ dateTimeFormat(ticketData.updatedAt) }}
+          </span>
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
@@ -248,8 +256,8 @@ onBeforeMount(async () => await callApiForData())
             :disabled="type == 'add' || type == 'edit'"
             @click="cancelTicketWarehouse"
             >{{ t('reuse.cancelImport') }}</ElButton
-          ></div
-        >
+          >
+        </div>
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -258,7 +266,38 @@ onBeforeMount(async () => await callApiForData())
 ::deep(.el-select) {
   width: 100%;
 }
+
 :deep(.cell) {
   word-break: break-word;
+}
+
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+}
+
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
 }
 </style>

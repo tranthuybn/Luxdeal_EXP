@@ -39,6 +39,7 @@ const FormData = computed(() => {
 // const typeTransaction = computed(() => {
 //   return props.transactionType
 // })
+
 const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
   staffId: [required()],

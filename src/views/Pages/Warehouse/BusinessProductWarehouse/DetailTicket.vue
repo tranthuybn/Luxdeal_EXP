@@ -12,7 +12,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
-const { required } = useValidator()
+const { required, requiredOption } = useValidator()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 
 const props = defineProps({
@@ -34,6 +34,7 @@ const props = defineProps({
   }
 })
 const FormData = computed(() => {
+  console.log('props.ticketData', props.ticketData)
   return props.ticketData
 })
 // const typeTransaction = computed(() => {
@@ -41,9 +42,9 @@ const FormData = computed(() => {
 // })
 const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
-  staffId: [required()],
+  staffId: [required(), requiredOption()],
   description: [required()],
-  customerId: [required()]
+  customerId: [required(), requiredOption()]
 })
 let infoCompany = reactive({
   name: '',
@@ -168,6 +169,8 @@ const closeDialog = (value: any) => {
     FormData.value.customerId = value
   }
   dialogAddQuick.value = false
+
+  callCustomersApi()
 }
 const ruleFormRef = ref<FormInstance>()
 const submitFormTicket = async () => {

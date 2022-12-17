@@ -57,7 +57,16 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const addTransaction = async () => {
-  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+  console.log(
+    'submitFormTicket',
+    await detailTicketRef.value?.submitFormTicket(),
+    '',
+    productWarehouseRef.value?.checkValueOfTable()
+  )
+  if (
+    (await detailTicketRef.value?.submitFormTicket()) &&
+    productWarehouseRef.value?.checkValueOfTable()
+  ) {
     let uploadData: any = {}
     uploadData.type = 1
     uploadData.warehouseProductJson = [{}]
@@ -79,13 +88,14 @@ const addTransaction = async () => {
     uploadData.description = detailTicketRef.value?.FormData.description
 
     await createTicketManually(JSON.stringify(uploadData))
-      .then((res) => {
+      .then(() => {
         ElNotification({
           message: t('reuse.addSuccess'),
           type: 'success'
-        })
-        id.value = res.data
-        type.value = 'detail'
+        }),
+          push({
+            name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+          })
       })
       .catch(() =>
         ElNotification({

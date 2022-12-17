@@ -867,8 +867,8 @@ export default {
     customerName: `Customer's name`,
     representative: 'Representative',
     customerCode: 'Customer Code',
+    lotDetailProduct: 'Lot detail product',
     inputLotCode: 'Imput lot code',
-
     gender: 'Gender',
     contact: 'Contact',
     companyInfo: 'CompanyInformation',

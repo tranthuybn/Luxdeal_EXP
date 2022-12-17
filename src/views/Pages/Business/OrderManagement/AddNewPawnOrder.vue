@@ -68,6 +68,13 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
+const props = defineProps({
+  tabSelect: {
+    type: String,
+    default: ''
+  }
+})
+
 const handleRemove = (file: UploadFile) => {
   return file
 }

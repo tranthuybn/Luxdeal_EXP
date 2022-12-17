@@ -14,7 +14,7 @@ import { provide, reactive } from 'vue'
 import { API_ORDER } from '@/utils/API.Variables'
 
 const { t } = useI18n()
-let params = reactive({ ServiceType: 1 })
+let params = reactive({ ServiceType: '1' })
 provide('parameters', {
   params
 })

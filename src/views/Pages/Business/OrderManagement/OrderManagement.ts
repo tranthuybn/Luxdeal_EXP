@@ -524,7 +524,6 @@ export const pawnOrder = [
     label: t('reuse.promotionCode'),
     minWidth: '150'
   },
-  ,
   {
     field: 'userName',
     label: t('reuse.customerName'),

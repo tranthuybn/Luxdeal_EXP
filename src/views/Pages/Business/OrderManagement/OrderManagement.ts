@@ -408,7 +408,7 @@ export const depositOrder = [
   },
   {
     field: 'spaTimes',
-    label: t('reuse.spaTimes'),
+    label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -544,7 +544,7 @@ export const pawnOrder = [
   },
   {
     field: 'spaTimes',
-    label: t('reuse.spaTimes'),
+    label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true

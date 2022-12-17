@@ -56,12 +56,8 @@ const activeName = ref(props.default)
 // const currentRoute = String(router.currentRoute.value.params.backRoute)
 const emit = defineEmits(['post-data'])
 const postData = (data) => {
-  console.log('runhere', data)
   emit('post-data', data)
 }
-console.log('type', props.type)
-console.log('tab', props.tabs)
-console.log('id', props.id)
 </script>
 
 <template>

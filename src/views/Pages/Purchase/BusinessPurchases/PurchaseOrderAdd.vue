@@ -36,7 +36,7 @@ import {
   getPromotionsList,
   getAllCustomer,
   addNewOrderList,
-  getSellOrderList
+  getOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -428,8 +428,6 @@ const callApiProductList = async () => {
 }
 
 const getValueOfSelected = (_value, obj, scope) => {
-  console.log('obj: ', obj)
-  console.log('scope: ', scope)
   scope.row.code = obj.label
   scope.row.productCode = obj.value
   scope.row.productName = obj.name
@@ -560,35 +558,6 @@ const postData = () => {
         Accessory: 'Accessory2'
       }
     ])
-
-    console.log('productPayment: ', ListOfProductsForSale.value)
-    // if (ListOfProductsForSale.length > 0) {
-    // ListOfProductsForSale.forEach((element) => {
-    // if (element && Array.isArray(element) && element.length > 0)
-    // element.forEach(() => {
-    // productPayment.push(
-    //   // {
-    //   //   ProductPropertyId: 2,
-    //   //   Quantity: 1,
-    //   //   ProductPrice: 10000,
-    //   //   SoldPrice: 10000,
-    //   //   WarehouseId: 1,
-    //   //   IsPaid: true,
-    //   //   Accessory: 'Accessory1'
-    //   // },
-    //   {
-    //     ProductPropertyId: 3,
-    //     Quantity: 1,
-    //     ProductPrice: 90000,
-    //     SoldPrice: 80000,
-    //     WarehouseId: 1,
-    //     IsPaid: true,
-    //     Accessory: 'Accessory2'
-    //   }
-    // )
-    // })
-    // })
-    // }
     const payload = {
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
@@ -638,7 +607,7 @@ const type = String(route.params.type)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id })
+    const res = await getOrderList({ Id: id })
     const orderObj = { ...res.data[0] }
     if (res.data) {
       ruleForm.orderCode = orderObj.code

@@ -17,7 +17,6 @@ const tradingCode = ref('CDSG0273')
 let selected = computed(() => {
   return props.formData
 })
-console.log('selected: ', selected)
 
 const infomation = [
   {

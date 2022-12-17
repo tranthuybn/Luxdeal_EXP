@@ -27,7 +27,6 @@ const changeTab = () => {
     default:
       activeName.value = '1'
   }
-  console.log('tabName', tabName)
 }
 </script>
 <template>

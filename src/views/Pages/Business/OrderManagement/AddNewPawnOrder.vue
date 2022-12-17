@@ -37,7 +37,7 @@ import {
   getCollaboratorsInOrderList,
   getAllCustomer,
   addNewSpaOrders,
-  getSellOrderList,
+  getOrderList,
   getOrderTransaction,
   createQuickProduct,
   getproductId,
@@ -68,12 +68,12 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
-const props = defineProps({
-  tabSelect: {
-    type: String,
-    default: ''
-  }
-})
+// const props = defineProps({
+//   tabSelect: {
+//     type: String,
+//     default: ''
+//   }
+// })
 
 const handleRemove = (file: UploadFile) => {
   return file
@@ -1213,8 +1213,6 @@ const indexRow = ref()
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log(indexRow)
-
   newTable.value = val
 }
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
@@ -1280,13 +1278,12 @@ const handle = () => {
     priceBillPawn: priceintoMoneyPawnGOC.value,
     phone: 1212321
   }
-  console.log('formData: ', formData)
 }
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 4 })
+    const res = await getOrderList({ Id: id, ServiceType: 4 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data

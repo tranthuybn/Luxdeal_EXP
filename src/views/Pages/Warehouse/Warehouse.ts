@@ -399,7 +399,6 @@ const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 
 const action = (row: any) => {
   const type = row.transactionType
-  console.log('type:', type)
   switch (type) {
     case 1:
       router.push({

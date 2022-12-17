@@ -265,7 +265,6 @@ const getTableValue = async () => {
     await callApiCity()
     await CityChange(formValue.value.provinceId)
     await districtChange(formValue.value.districtId)
-    console.log('cities.value', cities, cities.value, formValue.value.provinceId)
     const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
     valueProvince.value = result1.label
     const result2 = district.value.find((e) => e.value == formValue.value.districtId)

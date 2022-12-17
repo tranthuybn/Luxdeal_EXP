@@ -14,14 +14,14 @@ provide('parameters', {
 })
 const tabs: Array<Tab> = [
   {
-    name: API_ORDER[0].key,
+    name: API_ORDER[0].label,
     label: t('reuse.orderSell'),
     api: getOrderList,
     column: sellOrder,
     titleAdd: 'formDemo.addNewSalesOrders'
   },
   {
-    name: API_ORDER[1].key,
+    name: API_ORDER[1].label,
     label: t('reuse.orderRental'),
     api: getOrderList,
     column: rentalorder,
@@ -29,7 +29,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[2].key,
+    name: API_ORDER[2].label,
     label: t('reuse.orderDeposit'),
     api: getOrderList,
     column: depositOrder,
@@ -37,7 +37,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[3].key,
+    name: API_ORDER[3].label,
     label: t('reuse.orderPawn'),
     api: getOrderList,
     column: pawnOrder,
@@ -45,7 +45,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[4].key,
+    name: API_ORDER[4].label,
     label: t('reuse.orderSpa'),
     api: getOrderList,
     column: spaOrder,

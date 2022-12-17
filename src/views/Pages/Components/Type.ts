@@ -9,7 +9,7 @@ interface TableResponse<T = any> {
 type apiType = (option: any) => Promise<IResponse<TableResponse<TableData>>>
 
 interface Tab {
-  name: string
+  name: any
   label: string
   api: (option: any) => Promise<IResponse<TableResponse<TableData>>>
   column: TableColumn[]

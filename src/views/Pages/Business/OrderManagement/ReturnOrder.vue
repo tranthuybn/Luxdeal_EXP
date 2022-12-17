@@ -10,6 +10,7 @@ import {
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 
 const { t } = useI18n()
@@ -139,21 +140,28 @@ const removeRow = (scope) => {
           </div>
           <div class="flex gap-4" v-if="type == 2">
             <label class="w-[40%] text-right">{{ t('formDemo.rentalPeriod') }}</label>
-            <div class="w-[60%] text-black dark:text-light-50"
-              >{{ dateTimeFormat(orderData?.period[0]) }} đến
-              {{ dateTimeFormat(orderData?.period[1]) }}</div
-            >
+            <div class="w-[60%] text-black dark:text-light-50">
+              {{ dateTimeFormat(orderData?.period[0]) }} đến
+              {{ dateTimeFormat(orderData?.period[1]) }}
+            </div>
           </div>
           <div class="flex gap-4" v-if="type == 3">
             <label class="w-[40%] text-right">{{ t('reuse.depositPeriod') }}</label>
-            <div class="w-[60%] text-black dark:text-light-50"
-              >{{ dateTimeFormat(orderData?.period[0]) }} đến
-              {{ dateTimeFormat(orderData?.period[1]) }}</div
-            >
+            <div class="w-[60%] text-black dark:text-light-50">
+              {{ dateTimeFormat(orderData?.period[0]) }} đến
+              {{ dateTimeFormat(orderData?.period[1]) }}
+            </div>
           </div>
         </div>
 
-        <div class="flex-1"> QRCode </div>
+        <div class="flex-1 flex items-start gap-4">
+          <span>
+            <div>Mã QR đơn hàng</div>
+            <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+          </span>
+
+          <span class="border"><Qrcode :width="100" :text="orderData?.orderCode" /></span>
+        </div>
       </div>
       <div class="flex items-center">
         <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -227,11 +235,11 @@ const removeRow = (scope) => {
             <el-input v-model="scope.row.hirePrice" />
           </template>
         </el-table-column>
-        <el-table-column prop="operator" :label="t('reuse.operator')">
+        <!-- <el-table-column prop="operator" :label="t('reuse.operator')">
           <template #default="scope">
             <el-button type="danger" @click="removeRow(scope)">{{ t('reuse.delete') }}</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
       <div class="flex items-center">
         <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>

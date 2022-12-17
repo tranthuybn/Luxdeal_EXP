@@ -124,6 +124,12 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    pleaseEnterANote: 'Please enter a note',
+    pleaseSelectRentalPaymentPeriod: 'Please select rental payment period',
+    pleaseSelectARentalTerm: 'Please select a rental term',
+    pleaseEnterOrderCode: 'Please enter order code',
+    ChooseADayWeek: 'Choose a day of the week',
+    selectRecurringDayMonth: 'Select recurring day of the month',
     importExportWarehouse: 'Import and export warehouse',
     typeCode: 'Type code',
     typeName: 'Type name',

@@ -61,6 +61,10 @@ const tabs: Array<Tab> = [
   }
 ]
 
+// const changeCurrentTab = (data) => {
+//   console.log('changeCurrentTab: ', data)
+// }
+
 const changeParam = (val: string) => {
   const index = API_ORDER.find((e) => e.label == val) ?? {
     value: 0,
@@ -68,6 +72,7 @@ const changeParam = (val: string) => {
     label: 'orderSell'
   }
   params.ServiceType = index?.key
+
   provide('parameters', {
     params
   })

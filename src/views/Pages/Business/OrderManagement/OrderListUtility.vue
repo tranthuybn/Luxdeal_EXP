@@ -71,6 +71,7 @@ import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
 const { t } = useI18n()
 
@@ -141,25 +142,27 @@ const rulesAddress = reactive<FormRules>({
   province: [
     {
       required: true,
-      message: 'Không được để trống',
-      trigger: 'blur'
+      message: 'Không được để trống Tỉnh/thành phố',
+      trigger: 'change'
     }
   ],
   district: [
     {
       required: true,
-      message: 'Không được để trống',
-      trigger: 'blur'
+      message: 'Không được để trống Quận/huyện',
+      trigger: 'change'
     }
   ],
   wardCommune: [
     {
       required: true,
-      message: 'Không được để trống',
-      trigger: 'blur'
+      message: 'Không được để trống Phường/Xã',
+      trigger: 'change'
     }
   ],
-  detailedAddress: [{ required: true, message: 'Không được để trống', trigger: 'blur' }]
+  detailedAddress: [
+    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+  ]
 })
 
 let checkValidateForm = ref(false)
@@ -176,6 +179,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       postData()
+      doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
@@ -249,7 +253,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -916,6 +920,7 @@ const getOriginSelectOptions = async () => {
 }
 
 const postQuickProduct = async () => {
+  console.log('productCharacteristics: ', productCharacteristics.value)
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
@@ -1652,7 +1657,7 @@ const postOrderStransaction = async (index: number) => {
     quantity: val.quantity
   }))
 
-  childrenTable.value.pop()
+  // childrenTable.value.pop()
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1790,22 +1795,6 @@ const showIdWarehouse = (scope) => {
   ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
 }
 
-onBeforeMount(async () => {
-  callCustomersApi()
-  callApiCollaborators()
-  await callApiProductList()
-  callApiCity()
-
-  if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
-    sellOrderCode.value = autoCodeSellOrder
-    codePaymentRequest.value = autoCodePaymentRequest
-  }
-})
-onMounted(async () => {
-  await editData()
-})
-
 //TruongNgo
 const refundPrice = computed(() => {
   return getRefundPrice()
@@ -1838,6 +1827,27 @@ const getReturnOrder = () => {
     return productArray.includes(item.productPropertyId)
   })
 }
+
+// disabled phiếu thanh toán và phiếu đặt cọc tạm ứng
+const doubleDisabled = ref(false)
+const showPromo = ref(false)
+
+onBeforeMount(async () => {
+  callCustomersApi()
+  callApiCollaborators()
+  await callApiProductList()
+  callApiCity()
+
+  if (type == 'add' || type == ':type') {
+    doubleDisabled.value = true
+    ruleForm.orderCode = curDate
+    sellOrderCode.value = autoCodeSellOrder
+    codePaymentRequest.value = autoCodePaymentRequest
+  }
+})
+onMounted(async () => {
+  await editData()
+})
 </script>
 
 <template>
@@ -1982,7 +1992,7 @@ const getReturnOrder = () => {
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
-                :placeholder="`${t('formDemo.enterEmail')}`"
+                :placeholder="t('formDemo.enterEmail')"
               />
             </div>
           </div>
@@ -2200,8 +2210,8 @@ const getReturnOrder = () => {
               type="primary"
               @click="
                 () => {
-                  dialogAddProduct = false
                   postQuickProduct()
+                  dialogAddProduct = false
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -2630,15 +2640,28 @@ const getReturnOrder = () => {
         align-center
       >
         <div>
-          <!-- <Qrcode :text="'abc'" /> -->
           <el-divider />
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                sellOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2774,9 +2797,23 @@ const getReturnOrder = () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                sellOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3274,7 +3311,7 @@ const getReturnOrder = () => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right">
+          <div class="float-right pb-10">
             <span class="dialog-footer">
               <el-button
                 type="primary"
@@ -3305,7 +3342,7 @@ const getReturnOrder = () => {
           class="demo-ruleForm"
           status-icon
         >
-          <el-form-item :label="t('formDemo.countyOrDistrict')" prop="province">
+          <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
             <el-select
               v-model="formAddress.province"
               style="width: 96%"
@@ -3321,7 +3358,7 @@ const getReturnOrder = () => {
               />
             </el-select>
           </el-form-item>
-          <el-form-item :label="t('formDemo.wardOrCommune')" prop="district">
+          <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
             <el-select
               v-model="formAddress.district"
               style="width: 96%"
@@ -3676,6 +3713,7 @@ const getReturnOrder = () => {
               @click="
                 () => {
                   autoCalculateOrder()
+                  showPromo = true
                   openDialogChoosePromotion = false
                 }
               "
@@ -4006,6 +4044,7 @@ const getReturnOrder = () => {
                 ]"
                 v-else
                 filterable
+                :disabled="checkDisabled"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="value"
@@ -4045,6 +4084,7 @@ const getReturnOrder = () => {
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <el-input
+                :disabled="checkDisabled"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -4057,6 +4097,7 @@ const getReturnOrder = () => {
               </div>
               <el-input
                 v-else
+                :disabled="checkDisabled"
                 @change="
                   () => {
                     data.row.finalPrice = data.row.price * data.row.quantity
@@ -4078,6 +4119,7 @@ const getReturnOrder = () => {
             <template #default="props">
               <CurrencyInputComponent
                 v-model="props.row.price"
+                :disabled="checkDisabled"
                 v-if="type != 'detail'"
                 @change="changePriceRowTable"
               />
@@ -4204,7 +4246,10 @@ const getReturnOrder = () => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
+              <div v-if="showPromo">{{
+                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
+              }}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
             <div class="text-right dark:text-[#fff]">{{ radioVAT ?? '' }}</div>
             <div class="text-right dark:text-[#fff]">{{
@@ -4214,7 +4259,7 @@ const getReturnOrder = () => {
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+            <div v-if="showPromo" class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
               {{ promoActive }}
             </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -4227,7 +4272,6 @@ const getReturnOrder = () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <!-- <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio> -->
               <el-radio :disabled="checkDisabled" label="1">{{
                 t('formDemo.waitingDelivery')
               }}</el-radio>
@@ -4238,8 +4282,6 @@ const getReturnOrder = () => {
               <el-radio :disabled="checkDisabled" label="4">{{
                 t('reuse.deliveryFailed')
               }}</el-radio>
-              <!-- <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio> -->
             </el-radio-group>
           </div>
         </div>
@@ -4302,17 +4344,6 @@ const getReturnOrder = () => {
           </div>
         </div>
 
-        <el-button
-          :disabled="checkDisabled"
-          @click="
-            () => {
-              submitForm(ruleFormRef, ruleFormRef2)
-            }
-          "
-          type="primary"
-          class="min-w-42 min-h-11"
-          >{{ t('button.saveAndWaitApproval') }}</el-button
-        >
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
@@ -4320,12 +4351,15 @@ const getReturnOrder = () => {
             v-if="statusOrder == 1 && priceChangeOrders == false"
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.paymentSlip') }}</el-button
+            >
             <el-button
               @click="dialogDepositSlipAdvance = true"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -4359,6 +4393,7 @@ const getReturnOrder = () => {
                   arrayStatusOrder.splice(0, arrayStatusOrder.length)
                   addStatusOrder(7)
                   statusOrder = 9
+                  checkDisabled = !checkDisabled
                 }
               "
               :disabled="checkDisabled"
@@ -4373,12 +4408,15 @@ const getReturnOrder = () => {
             v-else-if="statusOrder == 1 && priceChangeOrders == true"
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
+            <el-button
+              @disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.paymentSlip') }}</el-button
+            >
             <el-button
               @click="dialogDepositSlipAdvance = true"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -4782,7 +4820,7 @@ const getReturnOrder = () => {
                   v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
-                  {{ t('reuse.detail') }} {{ data.row.id }}
+                  {{ t('reuse.detail') }}
                 </button>
                 <div v-else>{{ t('reuse.detail') }}</div>
               </div>

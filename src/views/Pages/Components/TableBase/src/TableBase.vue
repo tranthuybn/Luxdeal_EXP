@@ -220,8 +220,6 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
-  console.log('row: ', row)
-  console.log('props.currentT: ', props.currentT)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
@@ -238,7 +236,6 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, _multiple: boolean) => {
   {
-    console.log('row', row)
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),

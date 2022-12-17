@@ -4,7 +4,7 @@ import { getOrderList } from '@/api/Business'
 import { depositOrder, pawnOrder, rentalorder, sellOrder, spaOrder } from './OrderManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-import { provide, reactive } from 'vue'
+import { provide, reactive, ref, watch } from 'vue'
 import { API_ORDER } from '@/utils/API.Variables'
 
 const { t } = useI18n()
@@ -14,14 +14,15 @@ provide('parameters', {
 })
 const tabs: Array<Tab> = [
   {
-    name: API_ORDER[0].key,
+    name: API_ORDER[0].label,
     label: t('reuse.orderSell'),
     api: getOrderList,
     column: sellOrder,
-    titleAdd: 'formDemo.addNewSalesOrders'
+    titleAdd: 'formDemo.addNewSalesOrders',
+    customOperator: 5
   },
   {
-    name: API_ORDER[1].key,
+    name: API_ORDER[1].label,
     label: t('reuse.orderRental'),
     api: getOrderList,
     column: rentalorder,
@@ -29,7 +30,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[2].key,
+    name: API_ORDER[2].label,
     label: t('reuse.orderDeposit'),
     api: getOrderList,
     column: depositOrder,
@@ -37,7 +38,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[3].key,
+    name: API_ORDER[3].label,
     label: t('reuse.orderPawn'),
     api: getOrderList,
     column: pawnOrder,
@@ -45,7 +46,7 @@ const tabs: Array<Tab> = [
     customOperator: 5
   },
   {
-    name: API_ORDER[4].key,
+    name: API_ORDER[4].label,
     label: t('reuse.orderSpa'),
     api: getOrderList,
     column: spaOrder,
@@ -54,16 +55,25 @@ const tabs: Array<Tab> = [
   }
 ]
 
-const changeParam = (val: '') => {
-  console.log('val', val)
+let currentTab = ref('')
 
-  if (val) {
-    params.ServiceType = parseInt(val)
+const changeParam = (val: '') => {
+  const index = API_ORDER.find((e) => e.label == val) ?? {
+    value: 0,
+    key: 1,
+    label: 'orderSell'
   }
+  params.ServiceType = index?.key
   provide('parameters', {
     params
   })
 }
+watch(
+  () => params.ServiceType,
+  () => {
+    currentTab.value = String(params.ServiceType)
+  }
+)
 </script>
 <template>
   <tableDatetimeFilterBasicVue

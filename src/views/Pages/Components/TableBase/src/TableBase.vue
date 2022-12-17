@@ -22,6 +22,7 @@ import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
 const { params }: any = inject('parameters', {})
+
 const { t } = useI18n()
 const route = useRoute()
 const tableRef = ref<TableExpose>()

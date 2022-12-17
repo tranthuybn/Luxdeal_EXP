@@ -57,7 +57,7 @@ const collapse: Array<Collapse> = [
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
-const tableColumn = [
+const tableColumn = ref([
   {
     field: 'date',
     label: t('reuse.date'),
@@ -97,7 +97,7 @@ const tableColumn = [
     minWidth: '150',
     align: 'center'
   }
-]
+])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -427,7 +427,6 @@ watch(
     }
     if (type === 'detail' || type === 'edit') {
       getTableValue()
-      disabledTable.value = true
     }
     if (type === 'add' || type == ':type') {
       getGenCodeCollaborator()

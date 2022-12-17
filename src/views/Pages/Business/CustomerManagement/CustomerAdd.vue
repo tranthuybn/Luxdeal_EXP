@@ -459,12 +459,12 @@ const postData = async (typebtn) => {
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
 
-let disableData = false
+let disableData = ref(false)
 watch(
   () => type,
   () => {
     if (type === 'detail') {
-      disableData = true
+      disableData.value = true
     }
     if (type === 'detail' || type === 'edit') {
       getTableValue()
@@ -477,7 +477,7 @@ watch(
 )
 const change = () => {
   if (type == 'detail') {
-    disableData = true
+    disableData.value = true
   }
 }
 const ListFileUpload = ref<UploadUserFile[]>([])

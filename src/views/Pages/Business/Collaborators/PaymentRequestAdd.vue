@@ -79,6 +79,8 @@ let optionCallAPi = 0
 const callAPiPaymentRequest = async (id) => {
   if (optionCallAPi == 0) {
     const res = await getPaymentList({ PeopleId: id })
+    console.log(res)
+
     listPayments.value = res.data
     optionsPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -306,8 +308,8 @@ type FormDataPost = {
 
 const cancel = async () => {
   push({
-    name: 'business.collaborators.collaboratorsList',
-    params: { backRoute: 'business.collaborators.collaboratorsList' }
+    name: 'business.collaborators.paymentRequest',
+    params: { backRoute: 'business.collaborators.paymentRequest' }
   })
 }
 
@@ -371,9 +373,9 @@ const setFormValue = async () => {
     infoCompany.doB = formValue.value.collaborator?.customer?.doB
     FormData.ReceiptOrPaymentVoucherId = formValue.value.receiptOrPaymentVoucherId
     FormData.PaymentOrder = formValue.value.paymentOrder
-    if (formValue.value.status === 1) {
+    if (formValue.value.status === 2) {
       FormData.CollaboratorStatus = true
-    } else if (formValue.value.status === 0) {
+    } else if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = false
     }
     FormData.collaboratorValue = {
@@ -780,18 +782,20 @@ const activeName = ref(collapse[0].title)
           </div>
         </div>
 
-        <div v-if="type === 'edit'" class="flex justify-center">
+        <div v-if="type === 'edit'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelRequest') }} </ElButton>
+          <ElButton type="danger" class="min-w-42" @click="cancel()">
+            {{ t('formDemo.cancelRequest') }}
+          </ElButton>
         </div>
-        <div v-else-if="type === 'detail'" class="flex justify-center">
+        <div v-else-if="type === 'detail'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <div v-else class="flex justify-center">
+        <div v-else class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.save') }}
           </ElButton>
@@ -911,5 +915,9 @@ const activeName = ref(collapse[0].title)
 .after {
   display: flex;
   align-items: center;
+}
+
+.btn-type {
+  margin-left: 170px;
 }
 </style>

@@ -105,7 +105,7 @@ export default {
     monthlyRevenue: 'Doanh số tháng',
     quarterlySales: 'Doanh số quý',
     salesYear: 'Doanh số theo năm',
-    rankMonth: 'Xếp hạng theo tháng',
+    rankMonth: 'Bảng xếp hạng',
     quarterlyRanking: 'Xếp hạng theo quý',
     rankingYear: 'Xếp hạng theo năm',
     rankName: 'Tên hạng',

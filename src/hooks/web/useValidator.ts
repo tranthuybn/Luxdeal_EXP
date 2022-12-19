@@ -23,7 +23,7 @@ export const useValidator = () => {
     return {
       required: true,
       message: message || t('common.required'),
-      trigger: 'blur'
+      trigger: 'change'
     }
   }
 

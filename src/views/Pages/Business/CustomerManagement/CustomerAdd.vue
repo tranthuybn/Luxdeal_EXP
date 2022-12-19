@@ -124,11 +124,6 @@ const rules = reactive<FormRules>({
   ],
   cccd: [
     {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-    {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
@@ -558,6 +553,7 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
       })
     })
 }
+
 onBeforeMount(() => {
   change()
   callApiCity()
@@ -729,7 +725,7 @@ onBeforeMount(() => {
                 </ElFormItem>
 
                 <ElFormItem
-                  class="flex items-center w-[100%] mt-5"
+                  class="flex items-center w-[100%] mt-5 fix-err"
                   :label="t('reuse.cmnd')"
                   prop="cccd"
                 >
@@ -1042,7 +1038,7 @@ onBeforeMount(() => {
                 </ElFormItem>
               </div>
               <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
-                <el-checkbox class="ml-4" disabled v-model="ruleForm.isActive">{{
+                <el-checkbox class="ml-4" v-model="ruleForm.isActive">{{
                   t('formDemo.isActive')
                 }}</el-checkbox>
               </ElFormItem>
@@ -1415,6 +1411,10 @@ onBeforeMount(() => {
 
 ::v-deep(.el-form-item--default .el-form-item__error) {
   padding-left: 179px;
+}
+
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  padding-left: 8px !important;
 }
 
 ::v-deep(.el-dialog__header) {

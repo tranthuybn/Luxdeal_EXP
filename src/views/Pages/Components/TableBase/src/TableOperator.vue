@@ -379,20 +379,21 @@ const { push } = useRouter()
 const router = useRouter()
 const utility = 'Utility'
 const edit = () => {
-  // push({
-  //   name: `${String(router.currentRoute.value.name)}`,
-  //   params: { id: props.id, type: 'edit' }
-  // })
   push({
-    name: `human-resource-management.department-directory.${utility}`,
-    // params: { id: row.id, type: type, tab: props.tabs }
-    params: {
-      backRoute: 'human-resource-management.department-directory',
-      tab: props.tab,
-      type: 'edit',
-      id: props.id
-    }
+    name: `${String(router.currentRoute.value.name)}`,
+    params: { id: props.id, type: 'edit' }
   })
+  // push({
+  //   // name: `human-resource-management.department-directory.${utility}`,
+  //   name: `${String(router.currentRoute.value.name)}`,
+  //   // params: { id: row.id, type: type, tab: props.tabs }
+  //   params: {
+  //     backRoute: 'human-resource-management.department-directory',
+  //     tab: props.tab,
+  //     type: 'edit',
+  //     id: props.id
+  //   }
+  // })
 }
 //xóa dữ liệu sản phẩm
 const delAction = async () => {
@@ -481,7 +482,7 @@ onBeforeMount(() => {
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
-          :class="multipleImages ?? 'avatar-uploader'"
+          :class="multipleImages ? '' : 'avatar-uploader'"
         >
           <div v-if="!multipleImages">
             <div
@@ -582,7 +583,9 @@ onBeforeMount(() => {
   overflow: hidden;
   transition: var(--el-transition-duration-fast);
 }
-
+.avatar-uploader :deep(.el-upload) {
+  display: flex;
+}
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }

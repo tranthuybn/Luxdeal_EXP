@@ -102,7 +102,6 @@ export default {
           meta: {
             title: t('router.customerAdd'),
             noCache: true,
-            hidden: true,
             canTo: true,
             showMainRoute: true
           }

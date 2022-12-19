@@ -3,7 +3,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { dateTimeFormat } from '@/utils/format'
 
-import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
+import { h, onBeforeMount, provide, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
 import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -57,7 +57,7 @@ const collapse: Array<Collapse> = [
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
-const tableColumn = [
+const tableColumn = reactive<TableColumn[]>([
   {
     field: 'date',
     label: t('reuse.date'),
@@ -97,7 +97,7 @@ const tableColumn = [
     minWidth: '150',
     align: 'center'
   }
-]
+])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -426,7 +426,7 @@ watch(
       disabledTable.value = true
     }
     if (type === 'detail' || type === 'edit') {
-      getTableValue()
+      // getTableValue()
       disabledTable.value = true
     }
     if (type === 'add' || type == ':type') {
@@ -500,6 +500,11 @@ const fix = async () => {
   })
 }
 const activeName = ref(collapse[0].name)
+
+const params = { id: id }
+provide('parameters', {
+  params
+})
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -734,25 +739,25 @@ const activeName = ref(collapse[0].name)
           </div>
         </div>
 
-        <div v-if="type === 'edit'" class="flex justify-center">
+        <div v-if="type === 'edit'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
           <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelAccount') }} </ElButton>
         </div>
-        <div v-else-if="type === 'detail'" class="flex justify-center">
+        <div v-else-if="type === 'detail'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <div v-else class="flex justify-center">
+        <div v-else class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.saveAndPending') }}
           </ElButton>
           <ElButton class="min-w-42" @click="cancel()"> {{ t('reuse.cancel') }} </ElButton>
         </div>
       </el-collapse-item>
-      <el-collapse-item :disabled="disabledTable" :name="collapse[1].title">
+      <el-collapse-item :name="collapse[1].title">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
@@ -763,7 +768,7 @@ const activeName = ref(collapse[0].name)
           :customOperator="1"
           :paginationType="false"
           ref="tableBase01"
-          :api="''"
+          :api="getCollaboratorsById"
           :maxHeight="'69vh'"
           :fullColumns="tableColumn"
           :selection="false"
@@ -892,5 +897,9 @@ const activeName = ref(collapse[0].name)
 .after {
   display: flex;
   align-items: center;
+}
+
+.btn-type {
+  margin-left: 190px;
 }
 </style>

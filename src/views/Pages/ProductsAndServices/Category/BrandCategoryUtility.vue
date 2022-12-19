@@ -315,7 +315,7 @@ const customPostData = async (data) => {
   customData.Image = data.Image
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   if (data.index == null) {
-    customData.Index = 0
+    customData.Index = 1
   } else {
     customData.Index = data.index
   }

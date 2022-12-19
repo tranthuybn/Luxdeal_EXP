@@ -292,6 +292,8 @@ const postData = async (data) => {
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
+  console.log('formData', formData)
+
   if (formData.isActive == true) {
     formDataCustomize.value['status'] = 1
   }
@@ -353,7 +355,7 @@ const customPostData = async (data) => {
   customData.Image = data.Image
 
   if (data.index == null) {
-    customData.Index = 0
+    customData.Index = 1
   } else {
     customData.Index = data.index
   }

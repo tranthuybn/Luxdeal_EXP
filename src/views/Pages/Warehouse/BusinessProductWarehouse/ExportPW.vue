@@ -354,8 +354,7 @@ defineExpose({
           :placeHolder="t('reuse.chooseProductCode')"
           :clearable="false"
           :loading="productLoading"
-          @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-          @change="(option) => changeProduct(option, scope)"
+          @change="(value, obj) => getProductSelected(value, obj, scope)"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
         />

@@ -826,6 +826,7 @@ const quickManagementCode = ref()
 const quickProductName = ref()
 const quickDescription = ref()
 const productCharacteristics = ref()
+const valueCharacteristics = ref()
 const chooseOrigin = ref()
 
 // Danh mục brand unit origin api
@@ -915,6 +916,12 @@ const getOriginSelectOptions = async () => {
 }
 
 const postQuickProduct = async () => {
+  console.log('valueCharacteristics: ', valueCharacteristics.value)
+  const characteristics = valueCharacteristics.value.map((val) => ({
+    id: val
+  }))
+  console.log('characteristics: ', characteristics)
+
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
@@ -925,11 +932,7 @@ const postQuickProduct = async () => {
     brandId: 49,
     originId: 123,
     unitId: 121,
-    categories: [
-      {
-        id: 0
-      }
-    ]
+    categories: characteristics
   }
   await createQuickProduct(payload)
   callApiProductList()
@@ -2192,7 +2195,7 @@ onMounted(async () => {
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
             <ProductAttribute
-              :value="productCharacteristics"
+              v-model="valueCharacteristics"
               @change-value="productAttributeValue"
             />
           </div>

@@ -203,11 +203,12 @@ const formRef = ref<FormInstance>()
         <slot name="headerFilterSlot"></slot>
       </el-col>
       <el-col :xl="5" :lg="4" :xs="12" class="<xl:mb-2">
-        <ElForm ref="formRef" :model="validateHeaderInput">
+        <ElForm @submit.prevent ref="formRef" :model="validateHeaderInput">
           <ElFormItem prop="searchingKey">
             <ElInput
               clearable
               class="w-full"
+              @keyup.enter="getDataEvent"
               v-model="validateHeaderInput.searchingKey"
               :placeholder="t('reuse.enterKeyWords')"
             />

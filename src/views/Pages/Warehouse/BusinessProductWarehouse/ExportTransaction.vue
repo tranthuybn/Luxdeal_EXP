@@ -9,6 +9,7 @@ import DetailTicket from './DetailTicket.vue'
 import ExportPW from './ExportPW.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -104,7 +105,8 @@ const ticketData = ref({
   isActive: '',
   status: '',
   staffValue: '',
-  orderCode: ''
+  orderCode: '',
+  updatedAt: ''
 })
 type ExportLots = {
   fromLotId: number
@@ -221,8 +223,13 @@ onBeforeMount(async () => await callApiForData())
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <span class="bg-gray-300">{{ t('reuse.initializeAndWrite') }}</span>
+          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
+          <div>
+            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(ticketData.updatedAt) }}
+            </p>
+          </div>
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
@@ -261,7 +268,38 @@ onBeforeMount(async () => await callApiForData())
 ::deep(.el-select) {
   width: 100%;
 }
+
 :deep(.cell) {
   word-break: break-word;
+}
+
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+}
+
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
 }
 </style>

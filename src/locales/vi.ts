@@ -160,10 +160,13 @@ export default {
     servicePriceAndExecutionTime: 'Giá dịch vụ và thời gian thực hiện',
     statusAndFunctional: 'Trạng thái và chức năng',
     status: 'Trạng thái',
+    statusActive: 'Trạng thái hoạt động',
+    statusAccount: 'Trạng thái tài khoản',
     statusPayment: 'Trạng thái thanh toán',
     pending: 'Chờ duyệt',
     saveAndPending: 'Lưu và chờ duyệt',
     isActive: 'Đang hoạt động',
+    isNewAccount: 'Khởi tạo mới',
     pauseActivity: 'Tạm dừng hoạt động',
     enterServiceCode: 'Nhập mã dịch vụ',
     enterServiceName: 'Nhập tên dịch vụ',
@@ -1498,7 +1501,7 @@ export default {
     imageOver4MB: 'Ảnh không thể lớn hơn 4 MB',
     notHaveImage: 'Chưa có ảnh',
     //add product
-    showOnAppWebUser: 'Hiển thị lên App/web user',
+    showOnAppWebUser: 'Hiển thị lên App/Web User',
     forAllAttribute: 'Cho toàn bộ đặc tính',
     allBusinessRelatedActivities: 'Toàn bộ nghiệp vụ kinh doanh liên quan đến sản phẩm',
     notFillAllInformation: 'Chưa điền đủ thông tin',
@@ -1599,7 +1602,7 @@ export default {
     //Short Key
     mst: 'MST',
     sdt: 'SDT',
-    cmnd: 'CMND/CCCD',
+    cmnd: 'CCCD/CMND',
     enterFacebookZaloLink: 'Nhập link facebook/zalo...',
     moneyPaymentCode: 'Mã gói nạp tiền',
     alreadyPaid: 'Đã thanh toán',
@@ -1673,6 +1676,7 @@ export default {
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',
     used: 'Đã xử lí',
+    confirmPasswordError: 'Mật khẩu không khớp',
     // product
     under256Characters: 'Dưới 256 ký tự',
     citizenIdentificationNumber: 'Số cccd/cmnd',
@@ -1683,7 +1687,7 @@ export default {
     fillProductInformation: 'Có muốn điền thông tin của sản phẩm có sẵn không ?',
     notification: 'Thông báo',
     // ware house
-    profileWareHouse: 'Thông tin chi tiết phiếu nhập kho',
+    profileWareHouse: 'Thông tin phiếu nhập kho',
     profileTransferWareHouse: 'Thông tin phiếu chuyển kho',
     profileTransfer: 'Thông tin chi tiết phiếu chuyển kho',
     detailTransfer: 'Thông tin phiếu chuyển kho',
@@ -1759,6 +1763,8 @@ export default {
     lessThanTenImages: 'Không quá 10 ảnh',
     limitUploadImages: 'Số ảnh tối đa là 10',
     imagesYouChoose: 'Số ảnh bạn chọn là',
-    haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm'
+    haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm',
+    //CCCD/CMT
+    cccdFormat: 'Không phải CCCD/CMT'
   }
 }

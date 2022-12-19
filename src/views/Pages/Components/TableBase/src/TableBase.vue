@@ -121,6 +121,7 @@ watch(
         })
       : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject?.tableList?.length ?? 0)
+    // console.log(tableObject?.tableList?.length)
   },
   {
     immediate: true
@@ -137,6 +138,7 @@ function operatorColumnToggle(param) {
     }
   ])
 }
+
 const { getSelections } = methods
 async function getTableSelected() {
   await getSelections()

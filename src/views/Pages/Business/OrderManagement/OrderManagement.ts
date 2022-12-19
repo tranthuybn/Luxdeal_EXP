@@ -39,7 +39,7 @@ export const sellOrder = [
   {
     field: 'promotionCode',
     label: t('reuse.promotionCode'),
-    minWidth: '150',
+    minWidth: '170',
     sortable: true
   },
   {
@@ -56,8 +56,9 @@ export const sellOrder = [
   {
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
-    minWidth: '170',
+    minWidth: '190',
     headerFilter: 'Name',
+    align: 'center',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
@@ -153,7 +154,7 @@ export const rentalorder = [
   {
     field: 'code',
     label: t('reuse.orderCode'),
-    minWidth: '150'
+    minWidth: '190'
   },
   {
     field: 'collaboratorId',
@@ -164,7 +165,7 @@ export const rentalorder = [
   {
     field: 'promotionCode',
     label: t('reuse.promotionCode'),
-    minWidth: '150',
+    minWidth: '190',
     sortable: true
   },
   {
@@ -181,7 +182,7 @@ export const rentalorder = [
   {
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
-    minWidth: '170',
+    minWidth: '190',
     headerFilter: 'Name',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
@@ -209,7 +210,7 @@ export const rentalorder = [
   {
     field: 'totalQuantity',
     label: t('reuse.rentingNumber'),
-    minWidth: '200',
+    minWidth: '230',
     align: 'right',
     sortable: true
   },
@@ -223,7 +224,7 @@ export const rentalorder = [
   {
     field: 'totalPrice',
     label: t('reuse.totalDepositMoney'),
-    minWidth: '150',
+    minWidth: '190',
     align: 'right',
     sortable: true,
     formatter: (row, _column, _cellValue) => {
@@ -343,7 +344,7 @@ export const depositOrder = [
   {
     field: 'promotionCode',
     label: t('reuse.promotionCode'),
-    minWidth: '150',
+    minWidth: '170',
     sortable: true
   },
   {
@@ -360,7 +361,7 @@ export const depositOrder = [
   {
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
-    minWidth: '170',
+    minWidth: '190',
     headerFilter: 'Name',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
@@ -395,14 +396,14 @@ export const depositOrder = [
   {
     field: 'soldNumber',
     label: t('reuse.soldNumber'),
-    minWidth: '150',
+    minWidth: '170',
     align: 'right',
     sortable: true
   },
   {
     field: 'rentedTimes',
     label: t('reuse.rentedTimes'),
-    minWidth: '150',
+    minWidth: '180',
     align: 'right',
     sortable: true
   },
@@ -689,7 +690,7 @@ export const spaOrder = [
   {
     field: 'productManagementCode',
     label: t('formDemo.productManagementCode'),
-    minWidth: '170',
+    minWidth: '190',
     headerFilter: 'Name',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
@@ -723,7 +724,7 @@ export const spaOrder = [
   {
     field: 'spaNumberInput',
     label: t('reuse.spaNumberInput'),
-    minWidth: '150',
+    minWidth: '180',
     align: 'right',
     sortable: true
   },
@@ -788,7 +789,6 @@ export const spaOrder = [
     minWidth: '150',
     headerFilter: 'Name'
   },
-
   {
     field: 'isActive',
     label: t('reuse.status'),

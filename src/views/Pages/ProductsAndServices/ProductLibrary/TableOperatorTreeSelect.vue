@@ -875,20 +875,21 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
       </ElCol>
     </ElRow>
     <template #under>
+      <!-- <div class="w-\[12\%\]"></div> -->
       <div v-if="props.type === 'add' || isNaN(props.id)">
         <!-- <div v-if="props.typeButton === 'form01'">
-              <ElButton type="primary"  @click="save('add')">
-                {{ t('reuse.save') }}
-              </ElButton>
-              <ElButton type="primary"  @click="save('saveAndAdd')">
-                {{ t('reuse.addNew') }}
-              </ElButton>
-            </div>
-            <div v-if="props.typeButton === 'form02'">
-              <ElButton type="primary"  @click="save">
-                {{ t('reuse.fix') }}
-              </ElButton>
-            </div> -->
+                      <ElButton type="primary"  @click="save('add')">
+                        {{ t('reuse.save') }}
+                      </ElButton>
+                      <ElButton type="primary"  @click="save('saveAndAdd')">
+                        {{ t('reuse.addNew') }}
+                      </ElButton>
+                    </div>
+                    <div v-if="props.typeButton === 'form02'">
+                      <ElButton type="primary"  @click="save">
+                        {{ t('reuse.fix') }}
+                      </ElButton>
+                    </div> -->
         <ElButton type="primary" @click="save('add')">
           {{ t('reuse.save') }}
         </ElButton>
@@ -904,19 +905,19 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
           {{ t('reuse.edit') }}
         </ElButton>
         <!-- <ElButton type="danger"  @click="delAction">
-          {{ t('reuse.delete') }}
-        </ElButton> -->
+                  {{ t('reuse.delete') }}
+                </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
         <ElButton type="primary" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>
         <!-- <ElButton  @click="cancel">
-          {{ t('reuse.cancel') }}
-        </ElButton>
-        <ElButton type="danger"  @click="delAction">
-          {{ t('reuse.delete') }}
-        </ElButton> -->
+                  {{ t('reuse.cancel') }}
+                </ElButton>
+                <ElButton type="danger"  @click="delAction">
+                  {{ t('reuse.delete') }}
+                </ElButton> -->
       </div>
     </template>
   </ContentWrap>
@@ -927,6 +928,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   width: 250px;
   display: block;
 }
+
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
@@ -944,12 +946,14 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   width: 178px;
   height: 178px;
 }
+
 :deep(.el-dialog__body) {
   max-height: 85vh;
   overflow: auto;
   display: flex;
   justify-content: center;
 }
+
 #content {
   height: 200px;
   overflow: auto;

@@ -239,7 +239,12 @@ const warehouseFormat = (props) => {
   }
 }
 const checkValueOfTable = () => {
-  if (ListOfProductsForSale.value.length == 1) {
+  console.log('run here??')
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == true) {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
     return false
   }
   if (
@@ -259,6 +264,8 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
+    console.log('2')
+
     if (row.warehouse == undefined || row.location == undefined) {
       ElMessage({
         message: t('reuse.pleaseChooseWarehouse'),
@@ -266,6 +273,8 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
+    console.log('3')
+
     if (row.price == undefined) {
       ElMessage({
         message: t('reuse.pleaseChoosePrice'),

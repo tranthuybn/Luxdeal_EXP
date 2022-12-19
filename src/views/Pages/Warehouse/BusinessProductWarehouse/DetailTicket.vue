@@ -174,14 +174,19 @@ const closeDialog = (value: any) => {
 }
 const ruleFormRef = ref<FormInstance>()
 const submitFormTicket = async () => {
-  if (!ruleFormRef.value) return
+  let validate = false
+  if (!ruleFormRef.value) {
+    return validate
+  }
   await ruleFormRef.value.validate((valid) => {
     if (valid) {
-      return true
+      return (validate = true)
     } else {
-      return false
+      return (validate = false)
     }
   })
+  console.log('end submit', validate)
+  return validate
 }
 onBeforeMount(() => {
   getListStaff(), callCustomersApi()
@@ -210,10 +215,10 @@ defineExpose({
     <div class="w-[50%]">
       <el-divider content-position="left">{{
         typeTransaction == 1
-          ? t('reuse.profileWareHouse')
+          ? t('reuse.detailWarehouse')
           : typeTransaction == 2
           ? t('reuse.profileExport')
-          : t('reuse.profileTransfer')
+          : t('reuse.detailTransfer')
       }}</el-divider>
 
       <ElFormItem :label="t('reuse.formCode')" prop="ticketCode">

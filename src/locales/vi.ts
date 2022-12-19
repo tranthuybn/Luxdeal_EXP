@@ -1692,7 +1692,7 @@ export default {
     profileTransfer: 'Thông tin chi tiết phiếu chuyển kho',
     detailTransfer: 'Thông tin phiếu chuyển kho',
     detailWarehouse: 'Thông tin phiếu nhập kho',
-    profileExport: 'Thông tin chi tiết phiếu xuất kho',
+    profileExport: 'Thông tin phiếu xuất kho',
     billExport: 'Phiếu xuất kho',
     exportToSelectedLot: 'Xuất lot đã chọn',
     detailExport: 'Thông tin phiếu xuất kho',

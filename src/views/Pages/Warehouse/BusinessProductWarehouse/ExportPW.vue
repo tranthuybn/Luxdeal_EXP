@@ -297,14 +297,6 @@ const checkValueOfTable = () => {
       valid = false
       return
     }
-    if (row.price == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChoosePrice'),
-        type: 'warning'
-      })
-      valid = false
-      return
-    }
   })
   return valid
 }

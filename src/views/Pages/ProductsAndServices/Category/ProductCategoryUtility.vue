@@ -175,7 +175,8 @@ let rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
-  ]
+  ],
+  index: [{ validator: ValidService.checkPositiveNumber.validator }]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -340,7 +341,11 @@ const customPostData = async (data) => {
   customData.ParentId = data.parentid
   customData.Image = data.Image
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
-  customData.Index = parseInt(data.index)
+  if (data.index == null) {
+    customData.Index = 0
+  } else {
+    customData.Index = data.index
+  }
   return customData
 }
 const { push } = useRouter()

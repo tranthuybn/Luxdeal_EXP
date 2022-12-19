@@ -375,14 +375,14 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
 const { push } = useRouter()
 const router = useRouter()
-const utility = 'Utility'
 const edit = () => {
   // push({
-  //   name: `${String(router.currentRoute.value.name)}`,
+  // name: `${String(router.currentRoute.value.name)}`,
   //   params: { id: props.id, type: 'edit' }
   // })
   push({
-    name: `human-resource-management.department-directory.${utility}`,
+    // name: `human-resource-management.department-directory.${utility}`,
+    name: `${String(router.currentRoute.value.name)}`,
     // params: { id: row.id, type: type, tab: props.tabs }
     params: {
       backRoute: 'human-resource-management.department-directory',
@@ -468,7 +468,7 @@ onBeforeMount(() => {
         <Form :rules="rules" @register="register" />
       </ElCol>
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
-        <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
+        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
           :disabled="props.type === 'detail'"
@@ -532,7 +532,7 @@ onBeforeMount(() => {
     </ElRow>
     <template #under v-if="!removeButton">
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div class="w-[50%] flex justify-center gap-2">
+        <div class="w-[50%] flex justify-center gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -544,24 +544,28 @@ onBeforeMount(() => {
           </ElButton>
         </div>
       </div>
-      <div v-if="props.type === 'edit'">
-        <ElButton :loading="loading" type="primary" @click="save('edit')">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton :loading="loading" @click="cancel">
-          {{ t('reuse.cancel') }}
-        </ElButton>
-        <!-- <ElButton type="danger" :loading="loading" @click="delAction">
+      <div class="w-[100%]" v-if="props.type === 'edit'">
+        <div class="w-[50%] flex justify-center gap-2 ml-5">
+          <ElButton :loading="loading" type="primary" @click="save('edit')">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="cancel">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+          <!-- <ElButton type="danger" :loading="loading" @click="delAction">
           {{ t('reuse.delete') }}
         </ElButton> -->
+        </div>
       </div>
-      <div v-if="props.type === 'detail'">
-        <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
-          {{ t('reuse.fix') }}
-        </ElButton>
-        <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-          {{ t('reuse.delete') }}
-        </ElButton>
+      <div class="w-[100%]" v-if="props.type === 'detail'">
+        <div class="w-[50%] flex justify-center gap-2 ml-5">
+          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+            {{ t('reuse.fix') }}
+          </ElButton>
+          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.delete') }}
+          </ElButton>
+        </div>
       </div>
     </template>
   </ContentWrap>
@@ -579,6 +583,7 @@ onBeforeMount(() => {
   position: relative;
   overflow: hidden;
   transition: var(--el-transition-duration-fast);
+  margin-left: 2rem;
 }
 
 .avatar-uploader .el-upload:hover {

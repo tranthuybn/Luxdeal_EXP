@@ -1375,7 +1375,7 @@ export default {
     imageOver4MB: 'Image file cant be over 4 MB',
     notHaveImage: 'Dont have image',
     //add product
-    showOnAppWebUser: 'Show on App/web user',
+    showOnAppWebUser: 'Show on App/Web User',
     forAllAttribute: 'For all attribute',
     allBusinessRelatedActivities: 'All business related activities',
     notFillAllInformation: 'Not fill in all the information',

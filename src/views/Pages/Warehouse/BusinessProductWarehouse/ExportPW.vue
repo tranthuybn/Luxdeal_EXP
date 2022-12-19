@@ -16,8 +16,7 @@ import type { UploadFile } from 'element-plus'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import ChooseExportWarehouse from './ChooseExportWH.vue'
-import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-import { FORM_IMAGES, moneyFormat } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 
@@ -34,10 +33,6 @@ const prop = defineProps({
   productData: {
     type: Array<ProductWarehouse>,
     default: () => [{}]
-  },
-  testReactive: {
-    type: String,
-    default: ''
   }
 })
 
@@ -72,9 +67,7 @@ type ProductWarehouse = {
 const ListOfProductsForSale = computed(() => {
   return prop.productData
 })
-const listOfProduct = computed(() => {
-  return prop.productData
-})
+
 // Call api danh sách sản phẩm
 const productLoading = ref(true)
 let listProducts = ref()
@@ -398,7 +391,7 @@ defineExpose({
         </el-upload>
       </template>
     </el-table-column>
-    <el-table-column :label="t('reuse.importWarehouse')" min-width="300">
+    <el-table-column :label="t('formDemo.exportWarehouse')" min-width="300">
       <template #default="props">
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
@@ -416,33 +409,7 @@ defineExpose({
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
-    <el-table-column
-      prop="price"
-      :label="t('formDemo.unitPriceWarehouse')"
-      align="right"
-      width="180"
-    >
-      <template #default="props">
-        <div v-if="type == 'detail'">
-          {{ props.row.price }}
-        </div>
-        <CurrencyInputComponent v-else v-model="props.row.price" />
-      </template>
-    </el-table-column>
-    <el-table-column :label="t('formDemo.intoMoneyWarehouse')" align="right" width="180"
-      ><template #default="props">
-        {{ moneyFormat(props.row.price * props.row.quantity) }}
-      </template></el-table-column
-    >
 
-    <el-table-column :label="t('reuse.conditionProducts')" align="center" width="180">
-      <template #default="data">
-        <div v-if="type == 'detail'">
-          {{ data.row.productPropertyQuality }}
-        </div>
-        <el-input v-else v-model="data.row.productPropertyQuality" style="width: 100%" />
-      </template>
-    </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
         <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{

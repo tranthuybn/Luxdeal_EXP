@@ -32,7 +32,7 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
 <template>
   <ElCard :class="[prefixCls, 'mb-20px']" shadow="never">
     <template v-if="props.title" #header>
-      <div class="flex items-center max-w-350px">
+      <div class="flex items-center">
         <ElTooltip
           :disabled="props.message === ''"
           effect="dark"

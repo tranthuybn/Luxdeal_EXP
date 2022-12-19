@@ -21,7 +21,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.profileExport')
+    title: t('reuse.profileTransferWareHouse')
   },
   {
     icon: plusIcon,

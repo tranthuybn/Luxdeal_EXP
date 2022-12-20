@@ -245,7 +245,7 @@ const save = async (type) => {
       let data = (await getFormData()) as TableData
       props.multipleImages
         ? (data.Images = ListFileUpload.value
-            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+            ? ListFileUpload.value?.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit

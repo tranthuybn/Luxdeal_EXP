@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -7,16 +7,16 @@ import {
   addNewDepartment,
   getBranchList,
   updateDepartment,
-  deleteDepartment
+  deleteDepartment,
+  getDepartmentList
 } from '@/api/HumanResourceManagement'
-import moment from 'moment'
+// import moment from 'moment'
 import { ElNotification } from 'element-plus'
 const { t } = useI18n()
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
 // const title = router.currentRoute.value.meta.title\
 const id = Number(router.currentRoute.value.params.id)
-console.log(id)
 
 const tab = router.currentRoute.value.params.tab
 const type = String(router.currentRoute.value.params.type)
@@ -27,7 +27,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'branchCode',
+    field: 'code',
     label: t('reuse.branchCode'),
     component: 'Input',
     colProps: {
@@ -35,7 +35,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'branchName',
+    field: 'name',
     label: t('reuse.branchName'),
     component: 'Input',
     colProps: {
@@ -76,7 +76,7 @@ const schema2 = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'departmentCode',
+    field: 'code',
     label: t('formDemo.departmentCode'),
     component: 'Input',
     colProps: {
@@ -84,7 +84,7 @@ const schema2 = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'DepartmentName',
+    field: 'name',
     label: t('reuse.DepartmentName'),
     component: 'Input',
     colProps: {
@@ -219,32 +219,57 @@ const schema4 = reactive<FormSchema[]>([
 ])
 const { push } = useRouter()
 const postData = async (data) => {
-  console.log(data)
+  console.log('data: ', data)
+  const payload = {
+    Code: data.branchCode,
+    Name: data.branchName,
+    isActive: true,
+    isDelete: false,
+    CreateBy: 'string'
+  }
+
+  await addNewDepartment(payload)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
 }
 // custom api form post
-type FormDataPost = {
-  Name: string
-  Code: string
-  isActive: boolean
-  isDelete: boolean
-  CreateAt: any
-  CreateBy: string
-}
-const customPostDataDerpartment = (data) => {
-  const customData = {} as FormDataPost
+// type FormDataPost = {
+//   Name: string
+//   Code: string
+//   isActive: boolean
+//   isDelete: boolean
+//   CreateAt: any
+//   CreateBy: string
+// }
+// const customPostDataDerpartment = (data) => {
+//   const customData = {} as FormDataPost
 
-  customData.Code = data.departmentCode
-  customData.Name = data.DepartmentName
-  customData.isActive = true
-  customData.isDelete = false
-  customData.CreateAt = moment().format('YYYY / MM / DD')
+//   customData.Code = data.departmentCode
+//   customData.Name = data.DepartmentName
+//   customData.isActive = true
+//   customData.isDelete = false
+//   customData.CreateAt = moment().format('YYYY / MM / DD')
 
-  return customData
-}
+//   return customData
+// }
 // chua co api get theo id
-const customizeData = (data) => {
-  console.log('data get', data)
-}
+// const customizeData = (data) => {
+//   console.log('data', data)
+// }
 
 // custom api form edit
 type FormDataEdit = {
@@ -263,32 +288,32 @@ const customEditDataDepartment = (data) => {
   return getData
 }
 
-const postDataDepartment = async (data) => {
-  data = customPostDataDerpartment(data)
+// const postDataDepartment = async (data) => {
+//   data = customPostDataDerpartment(data)
 
-  console.log('daata', data)
+//   console.log('data', data)
 
-  await addNewDepartment(data)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      }),
-        push({
-          name: 'human-resource-management.department-directory',
-          params: { backRoute: 'human-resource-management.department-directory' }
-        })
-    })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
-}
+//   await addNewDepartment(data)
+//     .then(() => {
+//       ElNotification({
+//         message: t('reuse.addSuccess'),
+//         type: 'success'
+//       }),
+//         push({
+//           name: 'human-resource-management.department-directory',
+//           params: { backRoute: 'human-resource-management.department-directory' }
+//         })
+//     })
+//     .catch(() =>
+//       ElNotification({
+//         message: t('reuse.addFail'),
+//         type: 'warning'
+//       })
+//     )
+// }
 const editDataDepartment = async (data) => {
   data = customEditDataDepartment(data)
-  console.log('dadta', data)
+  console.log('data', data)
 
   await updateDepartment(data)
     .then(() => {
@@ -309,13 +334,44 @@ const editDataDepartment = async (data) => {
     )
 }
 
-const putData = (data) => {
+const putData = async (data) => {
   console.log('putData: ', data)
+  const payload = {
+    Id: data.Id,
+    Code: data.code,
+    Name: data.name
+  }
+
+  await updateDepartment(payload)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
 }
 
-const editData = () => {
+const formDataCustomize = ref()
+const customizeData = async (formData) => {
+  formDataCustomize.value = formData
+  console.log('formDataCustomize: ', formDataCustomize.value)
+}
+const editData = async () => {
   if (type != 'add') {
-    console.log('type: ', type)
+    const res = await getDepartmentList()
+    const dataId = res.data.find((val) => val.id == id)
+    customizeData(dataId)
+    console.log('schema[0]: ', schema)
   }
 }
 
@@ -336,7 +392,7 @@ onBeforeMount(() => {
     :type="type"
     @post-data="postData"
     @edit-data="putData"
-    @customize-data="customizeData"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
     v-if="tab == 'department'"
@@ -344,7 +400,7 @@ onBeforeMount(() => {
     :type="type"
     :nameBack="currentRoute"
     :title="t('reuse.addNewDepartment')"
-    @post-data="postDataDepartment"
+    @post-data="postData"
     @edit-data="editDataDepartment"
     :delApi="deleteDepartment"
   />

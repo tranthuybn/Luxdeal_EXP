@@ -25,6 +25,7 @@ import {
   ElNotification,
   UploadUserFile,
   ElTreeSelect,
+  UploadProps,
   ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
@@ -2002,6 +2003,14 @@ const removeRow = (index) => {
 const doubleDisabled = ref(false)
 const showPromo = ref(false)
 
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
@@ -3481,6 +3490,8 @@ onBeforeMount(() => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
                   class="relative"
                 >

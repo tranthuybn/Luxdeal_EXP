@@ -376,16 +376,10 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
 const { push } = useRouter()
 const router = useRouter()
 const edit = () => {
-  // push({
-  // name: `${String(router.currentRoute.value.name)}`,
-  //   params: { id: props.id, type: 'edit' }
-  // })
   push({
-    // name: `human-resource-management.department-directory.${utility}`,
     name: `${String(router.currentRoute.value.name)}`,
-    // params: { id: row.id, type: type, tab: props.tabs }
     params: {
-      backRoute: 'human-resource-management.department-directory',
+      backRoute: `${String(router.currentRoute.value.name)}`,
       tab: props.tab,
       type: 'edit',
       id: props.id

@@ -3,9 +3,23 @@ import { onBeforeMount, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
-
+import {
+  addNewDepartment,
+  getBranchList,
+  updateDepartment,
+  deleteDepartment
+} from '@/api/HumanResourceManagement'
+import moment from 'moment'
+import { ElNotification } from 'element-plus'
 const { t } = useI18n()
+const router = useRouter()
+const currentRoute = String(router.currentRoute.value.params.backRoute)
+// const title = router.currentRoute.value.meta.title\
+const id = Number(router.currentRoute.value.params.id)
+console.log(id)
 
+const tab = router.currentRoute.value.params.tab
+const type = String(router.currentRoute.value.params.type)
 const schema = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -203,52 +217,96 @@ const schema4 = reactive<FormSchema[]>([
     }
   }
 ])
-const router = useRouter()
-const currentRoute = String(router.currentRoute.value.params.backRoute)
-// const title = router.currentRoute.value.meta.title
-const tab = router.currentRoute.value.params.tab
-const type = String(router.currentRoute.value.params.type)
-
+const { push } = useRouter()
+const postData = async (data) => {
+  console.log(data)
+}
 // custom api form post
 type FormDataPost = {
-  MachiNhanh?: string
-  NameChiNhanh?: string
-  status?: string
+  Name: string
+  Code: string
+  isActive: boolean
+  isDelete: boolean
+  CreateAt: any
+  CreateBy: string
 }
-const customPostDataBranch = (data) => {
+const customPostDataDerpartment = (data) => {
   const customData = {} as FormDataPost
 
-  customData.MachiNhanh = data.Machinhanh
-  customData.NameChiNhanh = data.TenChinhanh
-  customData.status = data.status
+  customData.Code = data.departmentCode
+  customData.Name = data.DepartmentName
+  customData.isActive = true
+  customData.isDelete = false
+  customData.CreateAt = moment().format('YYYY / MM / DD')
 
   return customData
+}
+// chua co api get theo id
+const customizeData = (data) => {
+  console.log('data get', data)
 }
 
 // custom api form edit
 type FormDataEdit = {
-  MachiNhanh?: string
-  NameChiNhanh?: string
-  status?: string
+  Id: number
+  Code?: string
+  Name: string
+  UpdateAt: any
+  UpdateBy: string
 }
-const customEditDataBranch = (data) => {
+const customEditDataDepartment = (data) => {
   const getData = {} as FormDataEdit
-
-  getData.MachiNhanh = data.branchCode
-  getData.NameChiNhanh = data.branchName
-  getData.status = data.status
+  getData.Id = id
+  getData.Code = data.departmentCode
+  getData.Name = data.DepartmentName
+  console.log('data', data)
+  return getData
 }
-const postData = (data) => {
-  console.log('data: ', data)
-  const payload = {
-    code: data.branchCode,
-    name: data.branchName,
-    image: data.Images[0],
-    status: data.status,
-    typeService: data.tab
-  }
 
-  console.log('payload: ', payload)
+const postDataDepartment = async (data) => {
+  data = customPostDataDerpartment(data)
+
+  console.log('daata', data)
+
+  await addNewDepartment(data)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
+const editDataDepartment = async (data) => {
+  data = customEditDataDepartment(data)
+  console.log('dadta', data)
+
+  await updateDepartment(data)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
 }
 
 const putData = (data) => {
@@ -272,10 +330,13 @@ onBeforeMount(() => {
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
+    :apiId="getBranchList"
+    :id="id"
     :tab="tab"
     :type="type"
     @post-data="postData"
     @edit-data="putData"
+    @customize-data="customizeData"
   />
   <TableOperator
     v-if="tab == 'department'"
@@ -283,7 +344,9 @@ onBeforeMount(() => {
     :type="type"
     :nameBack="currentRoute"
     :title="t('reuse.addNewDepartment')"
-    @post-data="postData"
+    @post-data="postDataDepartment"
+    @edit-data="editDataDepartment"
+    :delApi="deleteDepartment"
   />
   <TableOperator
     v-if="tab == 'rank'"

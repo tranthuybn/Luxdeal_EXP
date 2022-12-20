@@ -10,7 +10,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   DELETE_CATEGORY: '/api/v1/Categories/DeleteCategory',
   GET_PRODUCT: '/api/v1/Product/GetProduct',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
-  GET_PRODUCTS: '/api/v1/Approve/GetApproveSetting',
+  GET_PRODUCTS: '/api/v1/Product/GetProductProperty',
   GET_SPA: '/api/v1/Spa/GetListOfSpaService',
   POST_SPA: '/api/v1/Spa/CreateANewSpaSevice',
   PUT_SPA: '/api/v1/Spa/UpdateSpaService',
@@ -125,6 +125,14 @@ export const WAREHOUSE_API = {
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
+}
+
+export const DEPARTMENT_DIRECTORY = {
+  BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
+  DEPARTMENT_LIST: '/api/v1/Department/GetApproveSettingGetDeparment',
+  POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
+  UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
+  DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment'
 }
 
 export const APPROVAL_API = {

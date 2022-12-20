@@ -48,7 +48,7 @@ const columnsApprovalProduct = [
     minWidth: '150',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, record.productImages[0].path)
+      setImageDisplayInDOm(record, column, record.productImages[0]?.path)
   },
   {
     field: 'createdAt',

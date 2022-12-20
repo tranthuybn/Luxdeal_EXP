@@ -28,8 +28,7 @@ import {
   ElNotification,
   ElTreeSelect,
   UploadUserFile,
-  UploadProps,
-  ElMessageBox
+  UploadProps
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -38,6 +37,7 @@ import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import type { UploadFile } from 'element-plus'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -198,33 +198,32 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
+// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+//   ListFileUpload.value = uploadFiles
+// }
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
+
+const handleRemove = (file: UploadFile) => {
+  return file
 }
 
-let FileDeleteIds: any = []
-const beforeRemove = (uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Hủy',
-    type: 'warning',
-    draggable: true
-  })
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: 'Delete completed'
-      })
-      let imageRemove = uploadFile?.uid
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
 
-      FileDeleteIds.push(imageRemove)
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled'
-      })
-    })
+const handleDownload = (file: UploadFile) => {
+  return file
+}
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -825,7 +824,6 @@ const quickProductCode = ref()
 const quickManagementCode = ref()
 const quickProductName = ref()
 const quickDescription = ref()
-const productCharacteristics = ref()
 const valueCharacteristics = ref()
 const chooseOrigin = ref()
 
@@ -916,11 +914,9 @@ const getOriginSelectOptions = async () => {
 }
 
 const postQuickProduct = async () => {
-  console.log('valueCharacteristics: ', valueCharacteristics.value)
   const characteristics = valueCharacteristics.value.map((val) => ({
     id: val
   }))
-  console.log('characteristics: ', characteristics)
 
   const payload = {
     serviceType: 1,
@@ -929,9 +925,9 @@ const postQuickProduct = async () => {
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
-    brandId: 49,
-    originId: 123,
-    unitId: 121,
+    brandId: chooseBrand.value,
+    originId: chooseOrigin.value,
+    unitId: chooseUnit.value,
     categories: characteristics
   }
   await createQuickProduct(payload)
@@ -3495,18 +3491,41 @@ onMounted(async () => {
               </div>
               <div class="pl-4">
                 <el-upload
-                  ref="upload"
-                  class="upload-demo"
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  action="#"
+                  list-type="picture-card"
                   :limit="10"
-                  :on-change="handleChange"
-                  :before-remove="beforeRemove"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
-                  :multiple="true"
-                  v-model:fileList="ListFileUpload"
-                  :disabled="checkDisabled"
+                  class="relative"
                 >
-                  <el-button>+ {{ t('formDemo.addPhotosOrFiles') }}</el-button>
+                  <template #file="{ file }">
+                    <div>
+                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                      <span class="el-upload-list__item-actions">
+                        <span
+                          class="el-upload-list__item-preview"
+                          @click="handlePictureCardPreview(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleDownload(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleRemove(file)"
+                        >
+                        </span>
+                      </span>
+                    </div>
+                  </template>
+                  <el-dialog v-model="dialogVisible" class="absolute" />
+                  <div class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                  >
                 </el-upload>
               </div>
             </div>

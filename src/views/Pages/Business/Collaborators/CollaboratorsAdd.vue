@@ -98,7 +98,6 @@ const tableColumn = reactive<TableColumn[]>([
     align: 'center'
   }
 ])
-])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 

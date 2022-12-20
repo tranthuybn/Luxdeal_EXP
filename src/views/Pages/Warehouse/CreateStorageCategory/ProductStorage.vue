@@ -15,11 +15,11 @@ const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   { field: '', width: '50' },
   {
-    field: 'warehouseImages',
+    field: 'warehouseImages[0].path',
     label: t('reuse.warehouseListInformation'),
     minWidth: '650',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue, record.name)
+    formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record?.warehouseImages[0]?.path, record.name)
   },
   {
     field: 'createdAt',

@@ -1,6 +1,15 @@
 import { useI18n } from '@/hooks/web/useI18n'
+import { h } from 'vue'
 const { t } = useI18n()
 import { filtersStatus, filtersReceiptExpenditure } from '@/utils/filters'
+import { dateTimeFormat } from '@/utils/format'
+
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
+
 export const PurchaseOrderColumn = [
   {
     field: 'index',
@@ -10,77 +19,88 @@ export const PurchaseOrderColumn = [
     sortable: true
   },
   {
-    field: 'productCode',
-    label: t('reuse.productCode'),
+    field: 'code',
+    label: t('reuse.orderCode'),
     minWidth: '200'
   },
   {
-    field: 'saleCode',
+    field: 'collaboratorId',
     label: t('reuse.saleCode'),
     minWidth: '200',
     sortable: true
   },
   {
-    field: 'saleName',
+    field: 'userName',
     label: t('reuse.saleName'),
     minWidth: '200',
     headerFilter: 'Name'
   },
   {
-    field: 'companyInformation',
-    label: t('reuse.companyInformation'),
-    minWidth: '200',
-    headerFilter: 'Name'
-  },
-  {
     field: 'description',
-    label: t('reuse.description'),
+    label: t('reuse.explain'),
     minWidth: '200'
   },
   {
-    field: 'numberInput',
+    field: 'totalQuantity',
     label: t('reuse.numberInput'),
     minWidth: '200',
-    align: 'right',
+    align: 'left',
     sortable: true
   },
   {
-    field: 'totalMoneyInput',
+    field: 'totalPrice',
     label: t('reuse.totalMoneyInput'),
     minWidth: '200',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalPrice))
+      return x
+    }
   },
   {
-    field: 'unpaidDebt',
+    field: 'totalDebt',
     label: t('reuse.unpaidDebt'),
     minWidth: '200',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalDebt))
+      return x
+    }
   },
   {
-    field: 'revenueAndExpenditure',
+    field: 'receiptAndExpenditure',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '200',
+    align: 'left',
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center',
-    sortable: true
+    align: 'left',
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
+    align: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filtersStatus
+    align: 'left',
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang giao hàng' : 'Ngưng hoạt động')
+    }
   }
 ]

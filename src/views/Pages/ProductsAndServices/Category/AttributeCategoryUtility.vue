@@ -187,7 +187,8 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
-  ]
+  ],
+  index: [{ validator: ValidService.checkPositiveNumber.validator }]
 })
 
 watch(
@@ -291,6 +292,8 @@ const postData = async (data) => {
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
+  console.log('formData', formData)
+
   if (formData.isActive == true) {
     formDataCustomize.value['status'] = 1
   }
@@ -350,7 +353,12 @@ const customPostData = async (data) => {
   customData.ParentId = data.parentid
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
   customData.Image = data.Image
-  customData.Index = parseInt(data.index)
+
+  if (data.index == null) {
+    customData.Index = 1
+  } else {
+    customData.Index = data.index
+  }
 
   return customData
 }

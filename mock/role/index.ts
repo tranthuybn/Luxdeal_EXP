@@ -343,7 +343,7 @@ const adminList = [
             }
           },
           {
-            path: 'customerRatings',
+            path: 'customerRatings/:tab?',
             name: 'business.customer-management.customerRatings',
             component: 'views/Pages/Business/CustomerManagement/TabsCustomerRatings',
             meta: {
@@ -351,7 +351,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:type?/:id?`,
+                path: `${utility}/:type?/:tab?/:id?`,
                 component: 'views/Pages/Business/CustomerManagement/AddNewRanking',
                 name: `business.customer-management.customerRatings.${utility}`,
                 meta: {
@@ -795,7 +795,7 @@ const adminList = [
             }
           },
           {
-            path: 'purchase-order-add',
+            path: 'purchase-order-add/:type?/:id?',
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
             name: 'purchase.business-purchases.purchase-order-add',
             meta: {
@@ -1395,8 +1395,8 @@ const testList: string[] = [
   '/business/customer-management',
   '/business/customer-management/customerList',
   '/business/customer-management/customer-add/:type?/:id?',
-  '/business/customer-management/customerRatings',
-  `/business/customer-management/customerRatings-utility/:type?/:id?`,
+  '/business/customer-management/customerRatings/:tab?',
+  `/business/customer-management/customerRatings-utility/:type?/:tab?/:id?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
@@ -1443,7 +1443,7 @@ const testList: string[] = [
   '/purchase',
   '/purchase/business-purchases',
   '/purchase/business-purchases/purchase-order-list',
-  '/purchase/business-purchases/purchase-order-add',
+  '/purchase/business-purchases/purchase-order-add/:type?/:id?',
 
   '/inventory-management',
   '/inventory-management/business-product-warehouse',

@@ -9,18 +9,17 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import { API_URL } from '@/utils/API_URL'
-
-const { t } = useI18n()
-
 // get data from router
 const router = useRouter()
 const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+console.log('type', type)
+let disableCheckBox = ref(false)
+const { t } = useI18n()
 
 const { push } = useRouter()
 
-let disableCheckBox = ref(false)
 const schema = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -142,6 +141,8 @@ const customPostData = (data) => {
   data.isActive.length > 0
     ? (postCustomerRatings.value.isActive = true)
     : (postCustomerRatings.value.isActive = false)
+  console.log('data', data)
+
   return postCustomerRatings.value
 }
 const postData = async (data) => {

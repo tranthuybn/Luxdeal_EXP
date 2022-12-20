@@ -10,6 +10,7 @@ import ExportPW from './ExportPW.vue'
 import { cancelTicket, createTicketManually } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -149,6 +150,7 @@ const callApiForData = async () => {
       ticketData.value.customerId = res.data[0]?.customerId
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
+      ticketData.value.updatedAt = res.data[0].updatedAt
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
@@ -166,6 +168,7 @@ const callApiForData = async () => {
     }
   } else {
     type.value = 'add'
+    ticketData.value.updatedAt = moment().format()
   }
 }
 const cancelTicketWarehouse = async () => {

@@ -15,7 +15,6 @@ export const productCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
   {
     field: 'index',
     label: t('reuse.position'),

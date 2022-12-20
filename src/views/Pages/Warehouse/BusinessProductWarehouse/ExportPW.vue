@@ -297,14 +297,6 @@ const checkValueOfTable = () => {
       valid = false
       return
     }
-    if (row.price == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChoosePrice'),
-        type: 'warning'
-      })
-      valid = false
-      return
-    }
   })
   return valid
 }
@@ -354,8 +346,7 @@ defineExpose({
           :placeHolder="t('reuse.chooseProductCode')"
           :clearable="false"
           :loading="productLoading"
-          @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-          @change="(option) => changeProduct(option, scope)"
+          @change="(value, obj) => getProductSelected(value, obj, scope)"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
         />

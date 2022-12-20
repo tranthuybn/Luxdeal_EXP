@@ -231,9 +231,12 @@ onBeforeMount(async () => await callApiForData())
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <span class="bg-gray-300 day-updated">
-            {{ dateTimeFormat(ticketData.updatedAt) }}
-          </span>
+          <div>
+            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(ticketData.updatedAt) }}
+            </p>
+          </div>
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{

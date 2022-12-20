@@ -14,7 +14,7 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { onBeforeMount, ref, watch } from 'vue'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import SelectTable from '@/components/SelectTable.vue'
 import ChooseWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { FORM_IMAGES, moneyFormat } from '@/utils/format'
@@ -66,22 +66,15 @@ type ProductWarehouse = {
 }
 let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
-const productLoading = ref(true)
 let listProducts = ref()
-const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  productLoading.value = true
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
-  listProducts.value = res.data.map((product) => ({
+  const res = await getProductsList({ ...params.value })
+  tempListProducts.value = listProducts.value = res.data.map((product) => ({
     productCode: product.code,
-    value: product.productCode,
-    name: product.name ?? '',
-    price: product.price,
-    unit: product.unitName,
     productPropertyId: product.id,
-    productPropertyCode: product.productPropertyCode
+    productPropertyCode: product.productCode,
+    name: product.name
   }))
-  productLoading.value = false
 }
 onBeforeMount(async () => await callApiProductList())
 watch(
@@ -104,16 +97,11 @@ const AddRowTable = () => {
   ListOfProductsForSale.value.push({} as ProductWarehouse)
 }
 const forceRemove = ref(false)
-const getProductSelected = (_value, obj, scope) => {
-  scope.row.productName = obj.name
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitName = obj.unit
-}
-const changeProduct = (data, scope) => {
+const changeProduct = (value, obj, scope) => {
   forceRemove.value = false
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
-    .find((product) => product.productPropertyId == data)
+    .find((product) => product.productPropertyId == value)
   if (selected !== undefined) {
     scope.row.productPropertyId = null
     scope.row.productName = null
@@ -124,6 +112,10 @@ const changeProduct = (data, scope) => {
       message: t('reuse.productCodeExist'),
       type: 'warning'
     })
+  } else {
+    scope.row.productName = obj.name
+    scope.row.productPropertyId = obj.productPropertyId
+    scope.row.unitName = obj.unit
   }
 }
 const scrollProductTop = ref(false)
@@ -135,27 +127,27 @@ const ScrollProductTop = () => {
 const noMoreProductData = ref(false)
 
 const ScrollProductBottom = () => {
-  productLoading.value = true
   scrollProductBottom.value = true
-  pageIndexProducts.value++
+  params.value.pageIndex = params.value.pageIndex + 1
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
+    : getProductsList({ ...params.value })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProducts.value.push({
-                  code: product.code,
-                  label: product.name,
-                  value: product.id
+                  productCode: product.code,
+                  productPropertyId: product.id,
+                  productPropertyCode: product.productCode,
+                  name: product.name
                 })
               )
         })
         .catch(() => {
           noMoreProductData.value = true
         })
-        .finally(() => (productLoading.value = false))
+  tempListProducts.value = listProducts.value
 }
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
@@ -239,7 +231,6 @@ const warehouseFormat = (props) => {
   }
 }
 const checkValueOfTable = () => {
-  console.log('run here??')
   if (ListOfProductsForSale.value.length == 1 && forceRemove.value == true) {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -264,7 +255,6 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
-    console.log('2')
 
     if (row.warehouse == undefined || row.location == undefined) {
       ElMessage({
@@ -273,7 +263,6 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
-    console.log('3')
 
     if (row.price == undefined) {
       ElMessage({
@@ -290,6 +279,29 @@ defineExpose({
   ListOfProductsForSale,
   checkValueOfTable
 })
+
+//fixbug
+const tempListProducts = ref()
+const params = ref({
+  pageSize: 10,
+  pageIndex: 1,
+  Keyword: ''
+})
+const searchProduct = async (keyword) => {
+  params.value.Keyword = keyword
+  if (keyword) {
+    params.value.pageIndex = 1
+    const res = await getProductsList({ ...params.value })
+    tempListProducts.value = res.data.map((product) => ({
+      productCode: product.code,
+      productPropertyId: product.id,
+      productPropertyCode: product.productCode,
+      name: product.name
+    }))
+  } else {
+    tempListProducts.value = listProducts.value
+  }
+}
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
@@ -310,26 +322,23 @@ defineExpose({
   >
     <el-table-column :label="t('formDemo.productManagementCode')" min-width="200">
       <template #default="scope">
-        <MultipleOptionsBox
-          :defaultValue="scope.row.productPropertyId"
+        <SelectTable
+          v-model="scope.row.productPropertyId"
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
             t('reuse.productInformation')
           ]"
-          filterable
           width="500px"
-          :items="listProducts"
+          :items="tempListProducts"
           valueKey="productPropertyId"
-          labelKey="productCode"
-          :hiddenKey="['id']"
+          labelKey="productPropertyCode"
+          :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
-          :clearable="false"
-          :loading="productLoading"
-          @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-          @change="(option) => changeProduct(option, scope)"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
+          @keyword="searchProduct"
+          @change="(value, obj) => changeProduct(value, obj, scope)"
         />
       </template>
     </el-table-column>

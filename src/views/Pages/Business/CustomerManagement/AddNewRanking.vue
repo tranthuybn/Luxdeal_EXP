@@ -4,12 +4,18 @@ import { getCustomerRatingsById, updateCustomerRatings, deleteCustomerRating } f
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ElNotification } from 'element-plus'
-import { h, reactive, ref } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import { API_URL } from '@/utils/API_URL'
-
+// get data from router
+const router = useRouter()
+const title = router.currentRoute.value.meta.title
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+console.log('type', type)
+let disableCheckBox = ref(false)
 const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
   {
@@ -85,10 +91,11 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
-          value: 1
+          value: 'active'
         }
       ]
     }
@@ -109,18 +116,27 @@ const rules = reactive({
   ]
   // isActive: [required()]
 })
-// get data from router
-const router = useRouter()
-const title = router.currentRoute.value.meta.title
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
 
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      schema[5].value = ['active']
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 const customPostData = (data) => {
   const postCustomerRatings = ref()
   postCustomerRatings.value = data
   data.isActive.length > 0
     ? (postCustomerRatings.value.isActive = true)
     : (postCustomerRatings.value.isActive = false)
+  console.log('data', data)
+
   return postCustomerRatings.value
 }
 const postData = async (data) => {
@@ -143,7 +159,7 @@ const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
   formData.isActive == true
-    ? (formDataCustomize.value.isActive = [1])
+    ? (formDataCustomize.value.isActive = ['active'])
     : (formDataCustomize.value.isActive = [])
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageUrl}`
 }

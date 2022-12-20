@@ -29,6 +29,16 @@ export const formatProductStatus = (val) => {
       return ''
   }
 }
+export const formatCustomerPointStatus = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.using')
+    case 2:
+      return t('reuse.lockPoint')
+    default:
+      return ''
+  }
+}
 export const formatTransactionType = (val) => {
   switch (val) {
     case 1:

@@ -1639,6 +1639,18 @@ export default {
     lessThanTenImages: 'Less than than images',
     limitUploadImages: 'Maximum upload is 10',
     imagesYouChoose: 'Images you choose is ',
-    haveNotChooseProperty: 'Have not choose property'
+    haveNotChooseProperty: 'Have not choose property',
+    //Tích điểm
+    buyPointExchange: 'Buy point exchange',
+    buyVoucher: 'Buy voucher',
+    referralCustomer: 'Referral customer',
+    pointStatus: 'Point status',
+    usingPoint: 'Using point',
+    avatarCustomer: 'Avatar customer',
+    methodPoint: 'Method of loading & using points',
+    rechargePoint: 'Recharge point',
+    usedPoint: 'Used point',
+    totalPoint: 'Total point',
+    notFoundImage: 'Not found image'
   }
 }

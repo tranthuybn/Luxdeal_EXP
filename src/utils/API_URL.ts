@@ -126,3 +126,8 @@ export const WAREHOUSE_API = {
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
 }
+export const POINT_API = {
+  GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
+  GET_DETAIL_CUSTOMER_POINT: '/api/v1/Point/GetDetailCustomerPoint',
+  GET_SETTING_POINT: '/api/v1/Point/GetSettingPoint'
+}

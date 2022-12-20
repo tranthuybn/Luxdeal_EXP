@@ -7,7 +7,8 @@ import {
   ACCOUNTANT_API,
   CAMPAIGN_API,
   LOGIN_API_URL,
-  WAREHOUSE_API
+  WAREHOUSE_API,
+  POINT_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -766,6 +767,35 @@ export const getPriceOfSpecificProduct = async (params: any): Promise<IResponse>
   const res = await request.get(
     {
       url: `${ORDER_API.GET_PRODUCT_PROPERTY_ORDER_PRICE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//Tich diem
+export const getCustomerPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_CUSTOMER_POINT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getDetailCustomerPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_DETAIL_CUSTOMER_POINT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getSettingPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_SETTING_POINT}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

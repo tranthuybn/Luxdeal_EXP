@@ -1765,6 +1765,18 @@ export default {
     imagesYouChoose: 'Số ảnh bạn chọn là',
     haveNotChooseProperty: 'Chưa chọn đặc tính cho sản phẩm',
     //CCCD/CMT
-    cccdFormat: 'Không phải CCCD/CMT'
+    cccdFormat: 'Không phải CCCD/CMT',
+    //Tích điểm
+    buyPointExchange: 'Mua gói nạp điểm',
+    buyVoucher: 'Mua voucher',
+    referralCustomer: 'Giới thiệu khách hàng',
+    pointStatus: 'Trạng thái điểm',
+    usingPoint: 'Đang sử dụng điểm',
+    avatarCustomer: 'Ảnh avatar khách hàng',
+    methodPoint: 'Phương thức nạp & sử dụng điểm',
+    rechargePoint: 'Số điểm nạp',
+    usedPoint: 'Số điểm sử dụng',
+    totalPoint: 'Tổng điểm',
+    notFoundImage: 'Không tìm thấy ảnh'
   }
 }

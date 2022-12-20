@@ -3190,9 +3190,23 @@ onMounted(async () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                sellOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>

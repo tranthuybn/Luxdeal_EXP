@@ -126,3 +126,7 @@ export const WAREHOUSE_API = {
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
 }
+
+export const DEPARTMENT_DIRECTORY = {
+  DEPARTMENT_LIST: '/api/v1/Department/GetDeparment'
+}

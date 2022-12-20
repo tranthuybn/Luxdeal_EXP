@@ -18,6 +18,8 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
 const { t } = useI18n()
 
+let params = reactive({ PageIndex: 1, PageSize: 20 })
+
 const columnsBranch = reactive<TableColumn[]>([
   {
     field: 'index',

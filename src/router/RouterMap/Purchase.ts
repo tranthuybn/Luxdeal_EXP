@@ -1,6 +1,8 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+import { appModules } from '@/config/app'
 const { t } = useI18n()
+const { utility } = appModules
 export default {
   path: '/purchase',
   component: Layout,
@@ -29,11 +31,13 @@ export default {
           }
         },
         {
-          path: 'purchase-order-add',
+          path: 'purchase-order-add/:type?/:id?',
           component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd.vue'),
-          name: 'purchase.business-purchases.purchase-order-add',
+          name: `purchase.business-purchases.purchase-order-list.${utility}`,
           meta: {
-            title: t('router.purchaseOrderAdd')
+            title: t('router.purchaseOrderAdd'),
+            noCache: true,
+            showMainRoute: true
           }
         }
       ]

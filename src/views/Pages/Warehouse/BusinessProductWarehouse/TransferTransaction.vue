@@ -79,8 +79,6 @@ const addTransaction = async () => {
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
 
-    console.log('ListOfProductsForSale', uploadData.warehouseProductJson)
-
     await createTicketManually(JSON.stringify(uploadData))
       .then((res) => {
         ElNotification({

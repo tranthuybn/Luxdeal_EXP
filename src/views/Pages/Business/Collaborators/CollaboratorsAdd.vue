@@ -98,6 +98,7 @@ const tableColumn = reactive<TableColumn[]>([
     align: 'center'
   }
 ])
+])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -428,6 +429,7 @@ watch(
     if (type === 'detail' || type === 'edit') {
       // getTableValue()
       disabledTable.value = true
+      getTableValue()
     }
     if (type === 'add' || type == ':type') {
       getGenCodeCollaborator()

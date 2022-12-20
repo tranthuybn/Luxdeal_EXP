@@ -71,7 +71,6 @@ const treeSelectData: any = ref([
 
 const customCheck = (nodeObj, tree) => {
   const checkedNodes = tree.checkedNodes
-  console.log('checkedNodes', modelValue.value, checkedNodes)
   // const checkedKeys = tree.checkedKeys
   // let sameParent = false
   switch (nodeObj.parentid) {
@@ -126,7 +125,6 @@ const customCheck = (nodeObj, tree) => {
 }
 const arrayObj: any = ref([])
 const checkChange = (nodeObj: any, checked: boolean, _subtree: boolean) => {
-  console.log('change:', nodeObj, checked)
   checked ? arrayObj.value.push(nodeObj) : arrayObj.value.splice(arrayObj.value.indexOf(nodeObj), 1)
   emit('change-value', arrayObj.value)
   // parentid = -1 color

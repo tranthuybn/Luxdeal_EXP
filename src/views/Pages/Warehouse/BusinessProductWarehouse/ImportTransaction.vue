@@ -59,7 +59,12 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const addTransaction = async () => {
-  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+  let validTicket: any = false
+  validTicket = await detailTicketRef.value?.submitFormTicket()
+  let validTable = productWarehouseRef.value?.checkValueOfTable()
+  console.log('validTicket', validTicket, validTable, validTicket && validTable)
+  if (validTicket && validTable) {
+    console.log('run here')
     let uploadData: any = {}
     uploadData.type = 1
     uploadData.warehouseProductJson = [{}]
@@ -81,13 +86,14 @@ const addTransaction = async () => {
     uploadData.description = detailTicketRef.value?.FormData.description
 
     await createTicketManually(JSON.stringify(uploadData))
-      .then((res) => {
+      .then(() => {
         ElNotification({
           message: t('reuse.addSuccess'),
           type: 'success'
-        })
-        id.value = res.data
-        type.value = 'detail'
+        }),
+          push({
+            name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+          })
       })
       .catch(() =>
         ElNotification({
@@ -225,9 +231,12 @@ onBeforeMount(async () => await callApiForData())
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <span class="bg-gray-300 day-updated">
-            {{ dateTimeFormat(ticketData.updatedAt) }}
-          </span>
+          <div>
+            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(ticketData.updatedAt) }}
+            </p>
+          </div>
         </div>
         <div class="ml-[170px]">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{

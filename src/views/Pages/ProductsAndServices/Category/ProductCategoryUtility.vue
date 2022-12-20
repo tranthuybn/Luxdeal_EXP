@@ -216,7 +216,6 @@ const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
 }
 const postData = async (data) => {
   //manipulate Data
-  console.log('2')
   if (data.ParentId == undefined) {
     data.ParentId = 0
   }
@@ -230,7 +229,6 @@ const postData = async (data) => {
   } else {
     data.isHide = false
   }
-  console.log('data', data)
 
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>
@@ -281,29 +279,28 @@ watch(
 const formDataCustomize = ref()
 //custom data before set Value to Form
 const customizeData = async (formData) => {
-  //disable parent select
-  if (schema[4].componentProps !== undefined) {
-    schema[4].componentProps.disabled = true
-  }
-  if (schema[1].componentProps !== undefined) {
-    schema[1].componentProps.disabled = true
-  }
   formDataCustomize.value = formData
-  if (formData.parentid == 0) {
-    formDataCustomize.value.rankCategory = 1
-  } else {
-    formDataCustomize.value.rankCategory = 2
-    await addFormSchema(timesCallAPI, formData.name)
-  }
   if (formData.isActive == true) {
     formDataCustomize.value['status'] = 1
   }
   if (formData.isHide == true) {
     formDataCustomize.value['status'] = 2
   }
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
     ? (formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`)
     : null
+  if (formData.parentid == 0) {
+    formDataCustomize.value.rankCategory = 1
+  } else {
+    formDataCustomize.value.rankCategory = 2
+    await addFormSchema(timesCallAPI, formData.name)
+  }
 
   formDataCustomize.value.isDelete = false
 }
@@ -349,8 +346,6 @@ const customPostData = async (data) => {
 const { push } = useRouter()
 
 const editData = async (data) => {
-  console.log('data edit', data)
-
   data = await customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
     .then(() =>

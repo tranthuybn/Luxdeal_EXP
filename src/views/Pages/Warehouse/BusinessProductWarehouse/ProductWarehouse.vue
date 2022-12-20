@@ -100,6 +100,9 @@ watch(
 const removeRow = (props) => {
   ListOfProductsForSale.value.length < 2 ? '' : ListOfProductsForSale.value.splice(props.$index, 1)
 }
+const AddRowTable = () => {
+  ListOfProductsForSale.value.push({} as ProductWarehouse)
+}
 const forceRemove = ref(false)
 const getProductSelected = (_value, obj, scope) => {
   scope.row.productName = obj.name
@@ -236,6 +239,14 @@ const warehouseFormat = (props) => {
   }
 }
 const checkValueOfTable = () => {
+  console.log('run here??')
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == true) {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+    return false
+  }
   if (
     ListOfProductsForSale.value.length > 1 &&
     Object.keys(ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]).length === 0
@@ -244,30 +255,36 @@ const checkValueOfTable = () => {
     ListOfProductsForSale.value.splice(ListOfProductsForSale.value.length - 1, 1)
     forceRemove.value = true
   }
+  let result = true
   ListOfProductsForSale.value.forEach((row) => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
         type: 'warning'
       })
-      return false
+      return (result = false)
     }
+    console.log('2')
+
     if (row.warehouse == undefined || row.location == undefined) {
       ElMessage({
         message: t('reuse.pleaseChooseWarehouse'),
         type: 'warning'
       })
-      return false
+      return (result = false)
     }
+    console.log('3')
+
     if (row.price == undefined) {
       ElMessage({
         message: t('reuse.pleaseChoosePrice'),
         type: 'warning'
       })
-      return false
+      return (result = false)
     }
   })
-  return true
+
+  return result
 }
 defineExpose({
   ListOfProductsForSale,
@@ -400,4 +417,5 @@ defineExpose({
       </template>
     </el-table-column>
   </el-table>
+  <el-button @click="AddRowTable">Thêm dòng</el-button>
 </template>

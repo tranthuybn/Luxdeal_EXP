@@ -74,7 +74,6 @@ const getSelection = () => {
     label: item.lotCode,
     quantity: item.quantity
   }))
-  console.log('rowSelected', rowSelected, warehouseData.value.exportLots)
 }
 const saveOldLot = () => {
   getSelection()
@@ -146,7 +145,6 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
-      console.log('res:', lotData.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
@@ -174,7 +172,6 @@ const calculateQuantity = (scope) => {
 const multipleSelection = ref()
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
-  console.log('multipleSelection', multipleSelection.value)
   multipleSelection.value = row
   // const index = lotData.value.findIndex((lot) => lot == row)
   // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)

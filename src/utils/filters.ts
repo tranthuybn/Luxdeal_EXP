@@ -27,10 +27,10 @@ export const filterStatusCustomerRatings: Array<Filter> = [
   { text: t('common.cancel'), value: 3 }
 ]
 export const filterRankCustomer: Array<Filter> = [
-  { text: t('reuse.silver'), value: 1 },
-  { text: t('reuse.gold'), value: 2 },
-  { text: t('reuse.platinum'), value: 3 },
-  { text: 'Titan', value: 4 }
+  { text: t('reuse.silver'), value: 0 },
+  { text: t('reuse.gold'), value: 1 },
+  { text: t('reuse.platinum'), value: 2 },
+  { text: 'Titan', value: 3 }
 ]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
@@ -160,9 +160,9 @@ export const filterGender: Array<Filter> = [
   { text: t('reuse.female'), value: false }
 ]
 export const filterStatusCustomer: Array<Filter> = [
-  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.active'), value: true },
   { text: t('reuse.pause'), value: 2 },
-  { text: t('reuse.lockAccount'), value: 0 }
+  { text: t('formDemo.cancelled'), value: 0 }
 ]
 export const filterResultTable: Array<Filter> = [
   { text: t('reuse.success'), value: 1 },
@@ -208,7 +208,11 @@ export const filterType: Array<Filter> = [
   { text: t('reuse.enterprise'), value: 1 },
   { text: t('reuse.personal'), value: 2 }
 ]
-export const filterAccount: Array<Filter> = [{ text: t('reuse.customer'), value: 1 }]
+export const filterAccount: Array<Filter> = [
+  { text: t('reuse.customer'), value: 0 },
+  { text: t('reuse.supplier'), value: 1 },
+  { text: t('formDemo.joint'), value: 2 }
+]
 export const filterSubject: Array<Filter> = [
   { text: t('reuse.allCustomer'), value: 1 },
   { text: t('reuse.groupCustomer'), value: 2 },

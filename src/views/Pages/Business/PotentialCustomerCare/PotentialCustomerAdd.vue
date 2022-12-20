@@ -782,7 +782,6 @@ watch(
     immediate: true
   }
 )
-console.log('type:', type)
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">

@@ -22,6 +22,7 @@ import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
 const { params }: any = inject('parameters', {})
+
 const { t } = useI18n()
 const route = useRoute()
 const tableRef = ref<TableExpose>()
@@ -57,10 +58,7 @@ const props = defineProps({
     descriptions:
       'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: xem, sửa (icon))'
   },
-  tabs: {
-    type: String,
-    default: ''
-  },
+  tabs: [String, Number],
   paginationType: {
     type: Boolean,
     default: true
@@ -87,10 +85,7 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  currentT: {
-    type: String,
-    default: ''
-  }
+  currentT: [String, Number]
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
@@ -222,8 +217,6 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
-  console.log('row: ', row)
-  console.log('props.currentT: ', props.currentT)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
@@ -240,7 +233,6 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, _multiple: boolean) => {
   {
-    console.log('row', row)
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),

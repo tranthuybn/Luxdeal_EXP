@@ -56,7 +56,6 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
     </div>
   </ElCard>
 </template>
-
 <style scoped>
 .btn-group-under {
   margin-left: 358px;

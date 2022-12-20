@@ -320,7 +320,6 @@ const customPostDataVoucher = (data) => {
       SpaServiceIds: item.service.toString()
     }))
   )
-  console.log('run here', data)
   return customData
 }
 const { push } = useRouter()

@@ -138,7 +138,6 @@ let fileList = ref<UploadUserFile[]>([])
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
 
-console.log('type: ', props.type)
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
@@ -228,12 +227,8 @@ watch(
   () => formValue.value,
   () => {
     if (formValue.value) {
-      console.log('formValue: ', formValue.value)
       if (props.type === 'detail' || props.type === 'edit') {
-        console.log('productProperties: ', formValue.value[0].productProperties)
         let newArr = ref(formValue.value[0].productProperties)
-        console.log('newArr: ', newArr)
-        console.log('newArr: ', newArr.value[0].spaServices)
         let formService = ref([])
         newArr.value[0]?.spaServices.map((e) => {
           formService.value.push(e.name)
@@ -244,7 +239,6 @@ watch(
           isActive: val.isActive,
           service: formService.value
         }))
-        console.log('formDataTable: ', formDataTable)
         dataTable.spaData = formDataTable
         spaMoney.value = formValue.value[0].comboValue
         imageUrl.value = formValue.value[0].images
@@ -283,8 +277,6 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-      console.log('dataTable: ', dataTable)
-      console.log(' data 1 : ', data)
       if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
@@ -336,7 +328,6 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        console.log('data:', data)
         emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
@@ -348,7 +339,6 @@ const save = async (type) => {
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
         data.Name = formValue.value.campaignTypeName
-        console.log('formValue: ', formValue.value)
         emit('edit-data', data)
         loading.value = false
       }
@@ -843,7 +833,6 @@ const removeAuctionProduct = (scope) => {
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
-  console.log('scope: ', scope.row)
 }
 const getProductSelected = (_value, obj, scope) => {
   scope.row.name = obj.name

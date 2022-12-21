@@ -71,9 +71,9 @@ const columnsBranch = reactive<TableColumn[]>([
     minWidth: '200',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
-        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') }),
-        h(ElButton, { icon: deleteIcon, onClick: () => action(row, 'delete') })
+        h(ElButton, { icon: eyeIcon, onClick: () => actionDepartment(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => actionDepartment(row, 'edit') }),
+        h(ElButton, { icon: deleteIcon, onClick: () => deleteDepart(row) })
       ])
     }
   }

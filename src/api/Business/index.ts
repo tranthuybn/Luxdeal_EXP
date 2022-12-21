@@ -540,7 +540,7 @@ export const getCollaboratorsById = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  return res.data && res.data
+  return res && res.data
 }
 export const getGenCodeCollaborators = async (params: any): Promise<IResponse> => {
   const res = await request.get(

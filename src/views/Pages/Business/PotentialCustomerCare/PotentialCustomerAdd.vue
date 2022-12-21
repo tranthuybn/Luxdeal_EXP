@@ -35,13 +35,13 @@ import {
 import { dateTimeFormat } from '@/utils/format'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const { required, ValidService } = useValidator()
+const { required, ValidService, requiredOption } = useValidator()
 const { t } = useI18n()
 const rules = reactive({
-  classify: [required()],
-  supplier: [required()],
-  companyName: [required()],
-  taxCode: [required()],
+  classify: [required(), requiredOption()],
+  supplier: [required(), requiredOption()],
+  companyName: [requiredOption()],
+  taxCode: [requiredOption()],
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
   email: [required(), ValidService.checkEmail],
@@ -110,8 +110,10 @@ const ExpandedRow = ref([])
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
+let type = String(router.currentRoute.value.params.type)
+if (type == ':type') {
+  type = 'add'
+}
 const postData = (data) => {
   const customerHistory = reactive<
     Array<{ id: Number; staffId: Number; content: String; percentageOfSales: Number }>
@@ -583,7 +585,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
       span: 24

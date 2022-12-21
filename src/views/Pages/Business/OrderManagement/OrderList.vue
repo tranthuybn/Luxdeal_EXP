@@ -19,7 +19,7 @@ const tabs: Array<Tab> = [
     api: getOrderList,
     column: sellOrder,
     titleAdd: 'formDemo.addNewSalesOrders',
-    customOperator: 5
+    customOperator: 3
   },
   {
     name: API_ORDER[1].label,
@@ -27,7 +27,7 @@ const tabs: Array<Tab> = [
     api: getOrderList,
     column: rentalorder,
     titleAdd: 'formDemo.addNewRentalOrders',
-    customOperator: 5
+    customOperator: 3
   },
   {
     name: API_ORDER[2].label,
@@ -35,7 +35,7 @@ const tabs: Array<Tab> = [
     api: getOrderList,
     column: depositOrder,
     titleAdd: 'formDemo.addNewConsignmentOrders',
-    customOperator: 5
+    customOperator: 3
   },
   {
     name: API_ORDER[3].label,
@@ -43,7 +43,7 @@ const tabs: Array<Tab> = [
     api: getOrderList,
     column: pawnOrder,
     titleAdd: 'formDemo.addNewPawnOrders',
-    customOperator: 5
+    customOperator: 3
   },
   {
     name: API_ORDER[4].label,
@@ -51,7 +51,7 @@ const tabs: Array<Tab> = [
     api: getOrderList,
     column: spaOrder,
     titleAdd: 'formDemo.addNewSpaOrders',
-    customOperator: 5
+    customOperator: 3
   }
 ]
 

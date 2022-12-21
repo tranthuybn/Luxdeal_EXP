@@ -36,7 +36,8 @@ import {
   getPromotionsList,
   getAllCustomer,
   addNewOrderList,
-  getOrderList
+  getOrderList,
+  getproductId
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -44,10 +45,11 @@ import type { FormInstance, FormRules } from 'element-plus'
 
 const { t } = useI18n()
 
+var curDate = 'MH' + moment().format('hhmmss')
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
+  orderCode: '',
   collaborators: '',
   discount: '',
   orderNotes: '',
@@ -56,27 +58,29 @@ const ruleForm = reactive({
 })
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   discount: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
@@ -600,9 +604,8 @@ const districtChange = async (value) => {
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
+const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
-const type = String(route.params.type)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -738,6 +741,10 @@ onBeforeMount(async () => {
   callApiCollaborators()
   await callApiProductList()
   callApiCity()
+
+  if (type == 'add' || type == ':type') {
+    ruleForm.orderCode = curDate
+  }
 })
 onMounted(async () => {
   await editData()

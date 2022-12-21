@@ -473,7 +473,7 @@ onBeforeMount(() => {
           :limit="limitUpload"
           :on-change="handleChange"
           :multiple="multipleImages"
-          :class="multipleImages ?? 'avatar-uploader'"
+          :class="multipleImages ? '' : 'avatar-uploader'"
         >
           <div v-if="!multipleImages">
             <div
@@ -579,7 +579,9 @@ onBeforeMount(() => {
   transition: var(--el-transition-duration-fast);
   margin-left: 2rem;
 }
-
+.avatar-uploader :deep(.el-upload) {
+  display: flex;
+}
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }

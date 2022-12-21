@@ -10,13 +10,17 @@ import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import { API_URL } from '@/utils/API_URL'
 // get data from router
+const { t } = useI18n()
+
+// get data from router
 const router = useRouter()
 const title = router.currentRoute.value.meta.title
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-console.log('type', type)
+
+const { push } = useRouter()
+
 let disableCheckBox = ref(false)
-const { t } = useI18n()
 const schema = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -101,6 +105,7 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+
 const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
 const rules = reactive({
   name: [
@@ -116,6 +121,20 @@ const rules = reactive({
   ]
   // isActive: [required()]
 })
+
+watch(
+  () => type,
+  () => {
+    if (type === 'add' || type === 'detail') {
+      disableCheckBox.value = true
+      schema[5].value = ['active']
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 
 watch(
   () => type,
@@ -142,12 +161,16 @@ const customPostData = (data) => {
 const postData = async (data) => {
   data = customPostData(data)
   await addCustomerRatings(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
+      push({
+        name: 'business.customer-management.customerRatings',
+        params: { backRoute: 'business.customer-management.customerRatings' }
+      })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -161,6 +184,7 @@ const customizeData = async (formData) => {
   formData.isActive == true
     ? (formDataCustomize.value.isActive = ['active'])
     : (formDataCustomize.value.isActive = [])
+
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageUrl}`
 }
 type FormDataUpdate = {
@@ -180,18 +204,23 @@ const customUpdateData = (data) => {
   customUpdate.Sales = data.sales
   customUpdate.ImageUrl = data.imageurl.replace(`${API_URL}`, '')
   customUpdate.Image = data.Image
-  data.isActive.includes(1) ? (customUpdate.isActive = true) : (customUpdate.isActive = false)
+
+  data.isActive == true ? (customUpdate.isActive = true) : (customUpdate.isActive = false)
   return customUpdate
 }
 const editData = async (data) => {
   data = customUpdateData(data)
   await updateCustomerRatings(FORM_IMAGES(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
-    )
+      }),
+        push({
+          name: 'business.customer-management.customerRatings',
+          params: { backRoute: 'business.customer-management.customerRatings' }
+        })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),

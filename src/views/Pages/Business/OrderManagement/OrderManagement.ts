@@ -9,6 +9,10 @@ import {
 } from '@/utils/filters'
 import { h } from 'vue'
 import { dateTimeFormat } from '@/utils/format'
+import { useIcon } from '@/hooks/web/useIcon'
+import { ElButton } from 'element-plus'
+import { useAppStore } from '@/store/modules/app'
+import router from '@/router'
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -16,7 +20,10 @@ const changeMoney = new Intl.NumberFormat('vi', {
   currency: 'vnd',
   minimumFractionDigits: 0
 })
-
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+const appStore = useAppStore()
+const utility = appStore.getUtility
 //Đơn bán hàng
 export const sellOrder = [
   {
@@ -140,6 +147,17 @@ export const sellOrder = [
     filters: filtersStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderSell') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderSell') })
+      ])
     }
   }
 ]
@@ -320,8 +338,20 @@ export const rentalorder = [
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderRental') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderRental') })
+      ])
+    }
   }
 ]
+
 //Đơn hàng ký gửi
 export const depositOrder = [
   {
@@ -499,6 +529,17 @@ export const depositOrder = [
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderDeposit') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderDeposit') })
+      ])
+    }
   }
 ]
 //Đơn hàng cầm đồ
@@ -643,6 +684,17 @@ export const pawnOrder = [
     filters: filtersStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderPawn') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderPawn') })
+      ])
     }
   }
 ]
@@ -797,5 +849,27 @@ export const spaOrder = [
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderSpa') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderSpa') })
+      ])
+    }
   }
 ]
+const action = (row: any, type: string, tab: string) => {
+  router.push({
+    name: `business.order-management.order-list.${utility}`,
+    params: {
+      backRoute: 'business.order-management.order-list',
+      tab: tab,
+      id: row.id,
+      type: type
+    }
+  })
+}

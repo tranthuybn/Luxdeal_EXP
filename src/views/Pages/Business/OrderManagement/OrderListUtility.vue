@@ -1063,6 +1063,7 @@ const editData = async () => {
     if (debtTable.value?.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
+    console.log('debtTable: ', debtTable.value)
 
     const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15

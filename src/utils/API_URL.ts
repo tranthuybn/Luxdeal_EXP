@@ -129,10 +129,11 @@ export const STAFF_API = {
 
 export const DEPARTMENT_DIRECTORY = {
   BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
-  DEPARTMENT_LIST: '/api/v1/Department/GetApproveSettingGetDeparment',
+  DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
   POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
   UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
-  DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment'
+  DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
+  DEPARTMENT_BY_ID: '/api/v1/Department/GetId'
 }
 
 export const APPROVAL_API = {

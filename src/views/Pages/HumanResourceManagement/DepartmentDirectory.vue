@@ -302,7 +302,6 @@ const action = (row: any, type: string) => {
 }
 // department
 const actionDepartment = (row: any, type: string) => {
-  console.log(row, type)
   push({
     name: `human-resource-management.department-directory.${utility}`,
     params: {

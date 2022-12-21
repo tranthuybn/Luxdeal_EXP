@@ -1777,6 +1777,13 @@ export default {
     rechargePoint: 'Số điểm nạp',
     usedPoint: 'Số điểm sử dụng',
     totalPoint: 'Tổng điểm',
-    notFoundImage: 'Không tìm thấy ảnh'
+    notFoundImage: 'Không tìm thấy ảnh',
+    pointsForSellOrder: 'Tích điểm theo đơn hàng bán',
+    pointsForRentOrder: 'Tích điểm theo đơn hàng cho thuê',
+    pointsForDepositOrder: 'Tích điểm theo đơn hàng ký gửi',
+    pointsForPawnOrder: 'Tích điểm theo đơn hàng cầm đồ',
+    pointsForSpaOrder: 'Tích điểm theo đơn hàng spa',
+    pointsForAffiliate: 'Tích điểm Affiliate',
+    moneyExchange: 'Số tiền quy đổi'
   }
 }

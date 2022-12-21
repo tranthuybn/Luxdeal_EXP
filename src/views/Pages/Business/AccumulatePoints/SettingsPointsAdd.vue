@@ -18,7 +18,8 @@ import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { useIcon } from '@/hooks/web/useIcon'
-import { getProductsList } from '@/api/Business'
+import { getProductsList, getSettingPoint } from '@/api/Business'
+import router from '@/router'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -170,9 +171,6 @@ const changeName = (optionID, scope) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-// check button save or edit
-const checkButton = ref(false)
-
 // open or close change combo dialog
 const openChangeComboDialog = ref(false)
 
@@ -200,10 +198,36 @@ const radioCondition = ref(false)
 
 onBeforeMount(() => {
   callApiProductList()
+  callApiDetail()
 })
+const form = reactive({
+  code: '',
+  type: 0,
+  point: 0,
+  price: 0,
+  startDate: '',
+  endDate: '',
+  description: '',
+  image: ''
+})
+const callApiDetail = async () => {
+  const res = await getSettingPoint({ Id: id })
+  if (res) {
+    form.code = ''
+    form.type = 0
+    form.point = 0
+    form.price = 0
+    form.startDate = ''
+    form.endDate = ''
+    form.description = ''
+    form.image = ''
+  }
+}
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 </script>
 <template>
-  <div class="flex w-[100%] gap-6">
+  <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[50%]">
       <Form
         :schema="schema"
@@ -323,7 +347,7 @@ onBeforeMount(() => {
       </div>
     </div>
   </div>
-  <div class="flex w-[100%] gap-6">
+  <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[50%] pl-2">
       <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
       <div class="mb-2 flex items-center text-sm">
@@ -380,38 +404,16 @@ onBeforeMount(() => {
     </div>
     <div class="w-[50%]"> </div>
   </div>
-  <div class="flex w-[100%] gap-6">
+  <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[50%] pl-2">
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
-        <span class="border-1 bg-[#FD9800] text-light-50 pl-2 pr-22 dark:border-transparent">{{
-          t('formDemo.pending')
-        }}</span>
       </div>
-      <div class="flex gap-4 items-center h-12">
-        <span class="w-[16%]"></span>
-        <div v-if="checkButton">
-          <el-button
-            class="min-w-[142px]"
-            @click.prevent="checkButton = !checkButton"
-            type="primary"
-            size="large"
-            >{{ t('button.saveAndWaitApproval') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large">{{ t('button.cancel') }}</el-button>
-        </div>
-        <div v-else>
-          <el-button
-            class="min-w-[142px]"
-            size="large"
-            @click.prevent="checkButton = !checkButton"
-            >{{ t('button.edit') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large" type="danger">{{
-            t('button.cancelVoucher')
-          }}</el-button>
-        </div>
+      <div class="flex gap-4 items-center h-12 justify-center">
+        <el-button type="primary">{{ t('reuse.finishPacking') }}</el-button>
+        <el-button type="danger">{{ t('reuse.cancelPackage') }}</el-button>
+        <el-button>{{ t('formDemo.edit') }}</el-button>
       </div>
     </div>
     <div class="w-[50%]"></div>

@@ -277,3 +277,18 @@ export const filterShow: Array<Filter> = [
   { text: t('reuse.home'), value: 1 },
   { text: t('reuse.trending'), value: 2 }
 ]
+export const filterPointSettingType: Array<Filter> = [
+  { text: t('router.buyPointsPackage'), value: 1 },
+  { text: t('reuse.pointsForSellOrder'), value: 2 },
+  { text: t('reuse.pointsForRentOrder'), value: 3 },
+  { text: t('reuse.pointsForDepositOrder'), value: 4 },
+  { text: t('reuse.pointsForPawnOrder'), value: 5 },
+  { text: t('reuse.pointsForSpaOrder'), value: 6 },
+  { text: t('reuse.pointsForAffiliate'), value: 7 }
+]
+export const filterStatusSettingPoint: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.active'), value: 3 },
+  { text: t('reuse.inactive'), value: 4 }
+]

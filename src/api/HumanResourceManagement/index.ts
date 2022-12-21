@@ -37,6 +37,17 @@ export const getDepartmentList = async (_params?: Params): Promise<IResponse> =>
   return res && res.data
 }
 
+export const getDepartmentByID = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.DEPARTMENT_BY_ID}`,
+      params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const addNewDepartment = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     { url: `${DEPARTMENT_DIRECTORY.POST_NEW_DEPARTMENT}`, params },

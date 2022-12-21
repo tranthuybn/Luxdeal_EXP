@@ -1528,125 +1528,6 @@ const productAttributeValue = (data) => {
   return data
 }
 
-// Thêm mã phiếu thu vào debtTable
-const handleChangeReceipts = async () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      const payload = {
-        accountingEntryId: val.id,
-        paymentRequestId: 0,
-        receiptOrPaymentVoucherId: idPT.value,
-        isReceiptedMoney: true,
-        status: 0,
-        paymentMethods: 1
-      }
-      updateOrderTransaction(payload)
-    })
-  }
-}
-
-// input nhập tiền viết bằng chữ
-const enterMoney = ref()
-
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherCode = codeExpenditures.value
-          e.idPTC = idPC.value
-        }
-      })
-    })
-  }
-}
-
-// Thêm mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentRequest = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.paymentRequestCode = codePaymentRequest.value
-        }
-      })
-    })
-  }
-}
-
-// Lý do thu tiền
-const inputReasonCollectMoney = ref()
-
-// Thêm mới phiếu thu
-let objidPT = ref()
-let idPT = ref()
-const postPT = async () => {
-  const payload = {
-    Code: codeReceipts.value,
-    TotalMoney: 21325465,
-    TypeOfPayment: 1,
-    status: 1,
-    PeopleType: 1,
-    PeopleId: 2,
-    OrderId: id,
-    Type: 0,
-    Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  objidPT.value = await addTPV(formDataPayLoad)
-  idPT.value = objidPT.value.receiptAndpaymentVoucherId
-}
-
-// Thêm mới phiếu chi
-let objidPC = ref()
-let idPC = ref()
-const postPC = async () => {
-  const payload = {
-    Code: codeReceipts.value,
-    TotalMoney: 21325465,
-    TypeOfPayment: 1,
-    status: 1,
-    PeopleType: 1,
-    PeopleId: 2,
-    OrderId: id,
-    Type: 1,
-    Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  objidPC.value = await addTPV(formDataPayLoad)
-  idPC.value = objidPC.value.receiptAndpaymentVoucherId
-}
-
-// Lấy chi tiết phiếu thu chi
-let formDetailPaymentReceipt = ref()
-const getDetailPayment = () => {
-  openReceiptDialog()
-}
-
-// Thêm mới phiếu đề nghị thanh toán
-let objIdPayment = ref()
-let idPayment = ref()
-const postPaymentRequest = async () => {
-  const payload = {
-    Code: codePaymentRequest.value,
-    TotalMoney: 121325,
-    PaymentType: 0,
-    PeopleId: 2,
-    status: 0,
-    PeopleType: 1,
-    OrderId: id,
-    Description: '',
-    Document: undefined,
-    AccountingEntryId: undefined
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  objIdPayment.value = await addDNTT(formDataPayLoad)
-  idPayment.value = objIdPayment.value.paymentRequestId
-}
-
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
@@ -1655,7 +1536,7 @@ let idStransaction = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
-    quantity: val.quantity
+    quantity: parseInt(val.quantity)
   }))
 
   // childrenTable.value.pop()
@@ -1744,6 +1625,84 @@ const inputRecharger = ref()
 
 const PrintReceipts = ref(false)
 
+// Lý do thu tiền
+const inputReasonCollectMoney = ref()
+
+// Thêm mới phiếu thu
+let objidPT = ref()
+let idPT = ref()
+const postPT = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: id,
+    Type: 0,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPT.value = await addTPV(formDataPayLoad)
+  idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
+  getOrderStransactionList()
+}
+
+// Thêm mới phiếu chi
+let objidPC = ref()
+let idPC = ref()
+const postPC = async () => {
+  const payload = {
+    Code: codeReceipts.value,
+    TotalMoney: 21325465,
+    TypeOfPayment: 1,
+    status: 1,
+    PeopleType: 1,
+    PeopleId: 2,
+    OrderId: id,
+    Type: 1,
+    Description: inputReasonCollectMoney.value,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objidPC.value = await addTPV(formDataPayLoad)
+  idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
+  getOrderStransactionList()
+}
+
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = () => {
+  openReceiptDialog()
+}
+
+// Thêm mới phiếu đề nghị thanh toán
+let objIdPayment = ref()
+let idPayment = ref()
+const postPaymentRequest = async () => {
+  const payload = {
+    Code: codePaymentRequest.value,
+    TotalMoney: 121325,
+    PaymentType: 0,
+    PeopleId: 2,
+    status: 0,
+    PeopleType: 1,
+    OrderId: id,
+    Description: '',
+    Document: undefined,
+    AccountingEntryId: undefined
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  objIdPayment.value = await addDNTT(formDataPayLoad)
+  idPayment.value = objIdPayment.value.paymentRequestId
+  handleChangePaymentOrder()
+  getOrderStransactionList()
+}
+
 // form phiếu thu
 const formReceipts = ref()
 const moneyReceipts = ref(0)
@@ -1766,6 +1725,70 @@ const getFormReceipts = () => {
       showClose: true,
       message: 'Vui lòng nhập tiền bằng chữ',
       type: 'error'
+    })
+  }
+}
+
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload)
+    })
+  }
+}
+
+// Thêm mới mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentOrder = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: idPayment.value,
+        receiptOrPaymentVoucherId: 0,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload)
+    })
+  }
+}
+
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
+
+// Thêm mã phiếu chi vào debtTable
+const handleChangeExpenditures = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.receiptOrPaymentVoucherCode = codeExpenditures.value
+          e.idPTC = idPC.value
+        }
+      })
+    })
+  }
+}
+
+// Thêm mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentRequest = () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val) => {
+      debtTable.value.forEach((e) => {
+        if (e.content == val.content) {
+          e.paymentRequestCode = codePaymentRequest.value
+        }
+      })
     })
   }
 }
@@ -2341,7 +2364,6 @@ onMounted(async () => {
                     () => {
                       dialogInformationReceipts = false
                       postPT()
-                      handleChangeReceipts()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button

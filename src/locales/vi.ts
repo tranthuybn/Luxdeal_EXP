@@ -1690,7 +1690,7 @@ export default {
     profileWareHouse: 'Thông tin phiếu nhập kho',
     profileTransferWareHouse: 'Thông tin phiếu chuyển kho',
     profileTransfer: 'Thông tin chi tiết phiếu chuyển kho',
-    detailTransfer: 'Thông tin phiếu chuyển kho',
+    detailTransfer: 'Thông tin chi tiết phiếu chuyển kho',
     detailWarehouse: 'Thông tin phiếu nhập kho',
     profileExport: 'Thông tin phiếu xuất kho',
     billExport: 'Phiếu xuất kho',

@@ -23,7 +23,8 @@ import {
   UploadUserFile,
   ElTreeSelect,
   ElMessage,
-  ElNotification
+  ElNotification,
+  UploadProps
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -639,27 +640,27 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (
-  _value: any,
-  obj: { productPropertyId: any; value: any; name: any; price: any },
-  scope: {
-    row: {
-      productPropertyId: any
-      productCode: any
-      productName: any
-      price: string
-      finalPrice: string
-      quantity: string
-    }
-  }
-) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
+const duplicateProduct = ref()
 
+const getValueOfSelected = (_value, obj, scope) => {
+  const data = scope.row
+
+  duplicateProduct.value = undefined
+  duplicateProduct.value = ListOfProductsForSale.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+    data.price = obj.price
+  }
+}
 const checked2 = ref(false)
 const checked3 = ref(false)
 const checked4 = ref(false)
@@ -792,11 +793,7 @@ const handleTotal = (scope: {
 const chooseDelivery = [
   {
     value: 0,
-    label: t('formDemo.selfDelivery')
-  },
-  {
-    value: 1,
-    label: t('formDemo.deliveryToYourPlace')
+    label: t('reuse.receiveConsignmentGoodsAtCounter')
   }
 ]
 const changeAddressCustomer = (data: any) => {
@@ -1410,6 +1407,14 @@ const ckeckChooseProduct = (scope) => {
   } else {
     dialogbusinessManagement.value = true
   }
+}
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
 }
 
 //TruongNgo
@@ -3051,7 +3056,7 @@ onMounted(async () => {
 
               <el-form-item :label="t('formDemo.deliveryDate')" prop="rentalPeriod">
                 <el-date-picker
-                  v-model="ruleForm.rentalPeriod"
+                  v-model="rentalPeriod"
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -3111,6 +3116,8 @@ onMounted(async () => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -3196,11 +3203,8 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
@@ -3333,12 +3337,7 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="quantity"
-            :label="t('reuse.depositNumber')"
-            align="center"
-            width="90"
-          >
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.quantity"
@@ -3348,19 +3347,9 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="unitName"
-            :label="t('reuse.dram')"
-            align="center"
-            min-width="100"
-          />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
 
-          <el-table-column
-            prop="price"
-            :label="t('formDemo.consignmentPriceForSale')"
-            align="right"
-            width="160"
-          >
+          <el-table-column prop="price" :label="t('formDemo.consignmentPriceForSale')" width="160">
             <template #default="props">
               <CurrencyInputComponent v-model="props.row.priceConsign" />
             </template>
@@ -3368,7 +3357,6 @@ onMounted(async () => {
           <el-table-column
             prop="price"
             :label="t('formDemo.depositpriceForRentalByDay')"
-            align="right"
             width="160"
           >
             <template #default="props">
@@ -3445,15 +3433,31 @@ onMounted(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox v-model="checked2" :label="`${t('reuse.closedTheOrder')}`" size="large" />
-            <el-checkbox v-model="checked3" :label="`${t('formDemo.depositing')}`" size="large" />
+            <el-checkbox
+              v-model="checked2"
+              :label="`${t('reuse.closedTheOrder')}`"
+              size="large"
+              disabled
+            />
+            <el-checkbox
+              v-model="checked3"
+              :label="`${t('formDemo.depositing')}`"
+              size="large"
+              disabled
+            />
             <el-checkbox
               v-model="checked4"
               :label="`${t('formDemo.renewingConsignment')}`"
               size="large"
+              disabled
             />
 
-            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
+            <el-checkbox
+              v-model="checked7"
+              :label="`${t('common.doneLabel')}`"
+              size="large"
+              disabled
+            />
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
@@ -3599,12 +3603,7 @@ onMounted(async () => {
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="40" />
-          <el-table-column
-            prop="createdAt"
-            :label="t('formDemo.initializationDate')"
-            width="150"
-            align="center"
-          >
+          <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" width="150">
             <template #default="data">
               {{ dateTimeFormat(data.row.createdAt) }}
             </template>
@@ -3617,28 +3616,23 @@ onMounted(async () => {
           <el-table-column
             prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
-            align="right"
             width="150"
           >
             <template #default="props">
               <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentRequestId"
-            :label="t('router.paymentProposal')"
-            align="right"
-          >
+          <el-table-column prop="paymentRequestId" :label="t('router.paymentProposal')">
             <template #default="props">
               <div class="text-blue-500">{{ props.row.paymentRequestId }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" align="left">
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
             <template #default="props">
               <div class="text-right">{{ props.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
             <template #default="data">
               <el-input
                 v-model="data.row.paidMoney"
@@ -3648,11 +3642,7 @@ onMounted(async () => {
               <div v-else>{{ data.row.paidMoney }}</div>
             </template></el-table-column
           >
-          <el-table-column
-            prop="rentalFeeDebt"
-            :label="`${t('reuse.outstandingDebt')}`"
-            align="right"
-          />
+          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
           <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
             <div>Phải thu</div>
           </el-table-column>
@@ -3661,7 +3651,7 @@ onMounted(async () => {
               <div>{{ props.row.payment }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" align="center" width="90">
+          <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90">
             <template #default="props">
               <el-checkbox v-model="props.row.alreadyPaidForTt" />
             </template>
@@ -3669,7 +3659,6 @@ onMounted(async () => {
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
-            align="center"
             min-width="100"
           />
           <el-table-column :label="t('formDemo.manipulation')" align="center">
@@ -3729,7 +3718,7 @@ onMounted(async () => {
             </el-table-column>
 
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
-            <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
+            <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"

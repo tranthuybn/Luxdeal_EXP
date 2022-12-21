@@ -22,7 +22,9 @@ import {
   ElFormItem,
   FormInstance,
   UploadUserFile,
-  ElNotification
+  ElNotification,
+  ElMessage,
+  UploadProps
 } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
@@ -607,12 +609,26 @@ const ScrollProductBottom = () => {
         })
 }
 
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
+const duplicateProduct = ref()
+
 const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+  const data = scope.row
+
+  duplicateProduct.value = undefined
+  duplicateProduct.value = ListOfProductsForSale.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+    data.price = obj.price
+  }
 }
 
 const collapseChangeEvent = (val) => {
@@ -669,34 +685,36 @@ const ruleForm = reactive({
 const inputDeposit = ref(0)
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   collaboratorCommission: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
   paymentPeriod: [
     {
       required: true,
-      message: 'Nhập kỳ thanh toán ',
+      message: t('common.required'),
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
@@ -863,6 +881,14 @@ const changeMoney = new Intl.NumberFormat('vi', {
   currency: 'vnd',
   minimumFractionDigits: 0
 })
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
@@ -1700,6 +1726,8 @@ const removeRow = (index) => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -1788,11 +1816,8 @@ const removeRow = (index) => {
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
@@ -2066,7 +2091,7 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" align="center" width="90">
+          <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.quantity"
@@ -2077,7 +2102,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"

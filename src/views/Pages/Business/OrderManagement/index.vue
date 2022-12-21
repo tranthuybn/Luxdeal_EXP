@@ -7,8 +7,9 @@ import { ElTabs, ElTabPane } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import OrderListUtility from './OrderListUtility.vue'
 import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 const { t } = useI18n()
+const router = useRouter()
 
 const route = useRoute()
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
@@ -18,11 +19,10 @@ const disabledTab2 = ref(false)
 const disabledTab3 = ref(false)
 const disabledTab4 = ref(false)
 const disabledTab5 = ref(false)
-onBeforeMount(() => changeTab())
+const checkTab = String(router.currentRoute.value.fullPath)
+
 const changeTab = () => {
   tabPosition.value = tab
-  console.log('tab', tab)
-
   switch (tab) {
     case 'orderSell':
       disabledTab2.value = true
@@ -58,6 +58,18 @@ const changeTab = () => {
       tabPosition.value = 'orderSell'
   }
 }
+// click in nav
+const checkDisabledTab = () => {
+  if (checkTab == '/business/order-management/order-list-add/:type?/:tab?/:id?') {
+    disabledTab2.value = false
+    disabledTab3.value = false
+    disabledTab4.value = false
+    disabledTab5.value = false
+  } else {
+    changeTab()
+  }
+}
+onBeforeMount(() => checkDisabledTab())
 </script>
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs">

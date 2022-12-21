@@ -441,19 +441,33 @@ const handleSelectionChange = (val: tableDataType[]) => {
     totalSettingSpa.value += val.price
   })
 }
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
+const duplicateProduct = ref()
 
 const getPriceSpaService = () => {
   ListOfProductsForSale.value[currentRow2.value].finalPrice = totalSettingSpa.value
 }
 let promoValue = ref(0)
 let promoCash = ref(0)
+
 const getValueOfSelected = async (_value, obj, scope) => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productCode = obj.value
-  data.productName = obj.name
+
+  duplicateProduct.value = undefined
+  duplicateProduct.value = ListOfProductsForSale.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+  }
 
   ListOfProductsForSale.value.map((val) => {
     if (val.finalPrice) totalPriceOrder.value += val.finalPrice
@@ -702,6 +716,8 @@ const createQuickCustomer = async () => {
     Address: 1,
     CustomerType: valueSelectCustomer.value
   }
+  console.log('payload', payload)
+
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
     .then(() =>
@@ -719,11 +735,19 @@ const createQuickCustomer = async () => {
 }
 
 // select khách hàng
-const valueSelectCustomer = ref(t('formDemo.customer'))
+const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
-    value: 'customer',
+    value: 1,
     label: t('formDemo.customer')
+  },
+  {
+    value: 2,
+    label: t('reuse.supplier')
+  },
+  {
+    value: 3,
+    label: t('formDemo.joint')
   }
 ]
 
@@ -888,7 +912,7 @@ const rules = reactive<FormRules>({
     {
       type: 'date',
       required: true,
-      message: 'Please pick a date',
+      message: t('common.required'),
       trigger: 'change'
     }
   ],
@@ -1075,6 +1099,14 @@ const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
+
 const value = ref('')
 
 const options = [
@@ -2026,13 +2058,20 @@ const postReturnRequest = async (reason) => {
                 () => {
                   dialogAddQuick = false
                   createQuickCustomer()
+                  callCustomersApi()
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              @click.stop.prevent="
+                () => {
+                  dialogAddQuick = false
+                }
+              "
+              >{{ t('reuse.exit') }}</el-button
+            >
           </span>
         </template>
       </el-dialog>
@@ -2279,6 +2318,8 @@ const postReturnRequest = async (reason) => {
                   action="#"
                   list-type="picture-card"
                   :auto-upload="false"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   class="relative"
                   :on-change="handleChange"
                 >
@@ -2364,11 +2405,8 @@ const postReturnRequest = async (reason) => {
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item prop="delivery" :label="t('formDemo.chooseShipping')">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
@@ -2816,12 +2854,7 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="quantity"
-            :label="t('formDemo.numberOfSpa')"
-            align="center"
-            width="90"
-          >
+          <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
@@ -2840,14 +2873,9 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
-          <el-table-column
-            prop="finalPrice"
-            :label="t('formDemo.spaFeePayment')"
-            align="right"
-            width="100"
-          />
+          <el-table-column prop="finalPrice" :label="t('formDemo.spaFeePayment')" width="100" />
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center">
             <template #default="scope">

@@ -329,7 +329,7 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  quantity: number
+  quantity: string
   accessory: string | undefined
   unitName: string
   price: string | number | undefined
@@ -346,7 +346,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyName: '',
   id: '',
   productPropertyId: '',
-  quantity: 1,
+  quantity: '1',
   accessory: '',
   unitName: 'Cái',
   price: 0,
@@ -553,7 +553,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
 
     //TODO
     data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
-    data.finalPrice = data.price * data.quantity
+    data.finalPrice = data.price * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
     })
@@ -979,7 +979,7 @@ let idOrderPost = ref()
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
-    Quantity: val.quantity,
+    Quantity: parseInt(val.quantity),
     ProductPrice: val.price,
     SoldPrice: val.finalPrice,
     WarehouseId: 1,
@@ -1484,7 +1484,7 @@ function openDepositDialog() {
 
 function openReceiptDialog() {
   getReceiptCode()
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
+  dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
 }
 
@@ -1676,8 +1676,13 @@ const postPC = async () => {
 
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
-const getDetailPayment = () => {
-  openReceiptDialog()
+const getDetailPayment = async (_index, scope) => {
+  formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
+  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+  nameDialog.value = 'Phiếu thu'
+  dialogInformationReceipts.value = true
 }
 
 // Thêm mới phiếu đề nghị thanh toán
@@ -1765,20 +1770,6 @@ const handleChangePaymentOrder = async () => {
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
-
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherCode = codeExpenditures.value
-          e.idPTC = idPC.value
-        }
-      })
-    })
-  }
-}
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
 const handleChangePaymentRequest = () => {
@@ -2280,7 +2271,9 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
+              <div class="w-[100%] text-xl">{{
+                formDetailPaymentReceipt.data?.code ?? codeReceipts
+              }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2483,7 +2476,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogPaymentVoucher = false
-                      handleChangeExpenditures()
                       postPC()
                     }
                   "
@@ -4775,14 +4767,7 @@ onMounted(async () => {
           >
             <template #default="data">
               <div
-                @click="
-                  () => {
-                    formDetailPaymentReceipt.value = getDetailReceiptPaymentVoucher({
-                      id: data.row.idPTC
-                    })
-                    getDetailPayment()
-                  }
-                "
+                @click="(index) => getDetailPayment(index, data)"
                 class="cursor-pointer text-blue-500"
               >
                 {{ data.row.receiptOrPaymentVoucherCode }}

@@ -1708,7 +1708,7 @@ export default {
     profileExport: 'Thông tin phiếu xuất kho',
     billExport: 'Phiếu xuất kho',
     exportToSelectedLot: 'Xuất lot đã chọn',
-    detailExport: 'Thông tin phiếu xuất kho',
+    detailExport: 'Thông tin chi tiết phiếu xuất kho',
     petitioner: 'Người yêu cầu',
     selectObject: 'Chọn đối tượng',
     importedProductsWareHouse: 'Sản phẩm nhập kho',

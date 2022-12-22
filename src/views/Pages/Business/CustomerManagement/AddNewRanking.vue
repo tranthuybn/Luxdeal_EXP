@@ -10,12 +10,6 @@ import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import { API_URL } from '@/utils/API_URL'
 // get data from router
-const router = useRouter()
-const title = router.currentRoute.value.meta.title
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-console.log('type', type)
-let disableCheckBox = ref(false)
 const { t } = useI18n()
 
 const { push } = useRouter()

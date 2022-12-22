@@ -245,7 +245,7 @@ const save = async (type) => {
       let data = (await getFormData()) as TableData
       props.multipleImages
         ? (data.Images = ListFileUpload.value
-            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+            ? ListFileUpload.value?.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
@@ -377,26 +377,11 @@ const { push } = useRouter()
 const router = useRouter()
 const edit = () => {
   push({
-    name: `${String(router.currentRoute.value.name)}`,
-    params: { id: props.id, type: 'edit', tab: props.tab }
-  })
-  // push({
-  //   // name: `human-resource-management.department-directory.${utility}`,
-  //   name: `${String(router.currentRoute.value.name)}`,
-  //   // params: { id: row.id, type: type, tab: props.tabs }
-  //   params: {
-  //     backRoute: 'human-resource-management.department-directory',
-  //     tab: props.tab,
-  //     type: 'edit',
-  //     id: props.id
-  //   }
-  // })
-  push({
     // name: `human-resource-management.department-directory.${utility}`,
     name: `${String(router.currentRoute.value.name)}`,
     // params: { id: row.id, type: type, tab: props.tabs }
     params: {
-      backRoute: 'human-resource-management.department-directory',
+      backRoute: `${String(router.currentRoute.value.name)}`,
       tab: props.tab,
       type: 'edit',
       id: props.id

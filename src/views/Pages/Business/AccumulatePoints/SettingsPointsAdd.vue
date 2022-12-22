@@ -18,7 +18,7 @@ import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import SelectTable from '@/components/SelectTable.vue'
-
+import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import { createPointExchange, getCustomerList, getSettingPoint } from '@/api/Business'
 import router from '@/router'
@@ -35,7 +35,6 @@ const { register, elFormRef, methods } = useForm()
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-const radio1 = ref('1')
 let fileList = ref<UploadUserFile[]>([])
 const ListFileUpload = ref()
 const handleRemove = (file: UploadFile) => {
@@ -103,7 +102,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      type: 'daterange'
+      type: 'daterange',
+      valueFormat: 'MM-DD-YYYY'
     }
   },
   {
@@ -115,6 +115,28 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('reuse.shortDescription')
+    }
+  },
+  {
+    field: 'target',
+    label: t('reuse.subjectsOfApplication'),
+    component: 'Divider',
+    colProps: {
+      span: 12
+    }
+  },
+  {
+    field: 'targetType',
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'table',
+    component: 'Input',
+    colProps: {
+      span: 24
     }
   }
 ])
@@ -276,31 +298,44 @@ const searchCustomer = async (keyword) => {
 }
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const rules = reactive({
-  name: [required()],
   code: [required()],
   description: [
+    required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkNameLength.validator }
   ],
   type: [required()],
-  price: [required()],
-  point: [required()],
-  duration: [required()]
+  duration: [required()],
+  targetType: [required()]
 })
 const removeLastRow = (index) => {
   TableData.splice(index, 1)
 }
+const customFormPost = (form) => {
+  form.startDate = form?.duration[0]
+  form.endDate = form?.duration[1]
+  delete form.duration
+  return form
+}
 const createSettingPoint = async () => {
+  let formValid = false
   const formRef = unref(elFormRef)
-  formRef?.validate((isValid) => {
+  await formRef?.validate((isValid) => {
+    console.log('isValid', isValid)
     if (isValid) {
+      formValid = true
     }
   })
+  if (formValid) {
+    const { getFormData } = methods
+    let form = await getFormData()
+    form = customFormPost(form)
+    await createPointExchange(FORM_IMAGES(form))
+  }
   const { getFormData } = methods
-  const form = await getFormData()
-  console.log('form', form)
-  await createPointExchange(FORM_IMAGES(form))
+  let form = await getFormData()
+  console.log('form', form, formValid)
 }
 const cancelSettingPoint = () => {}
 
@@ -387,6 +422,15 @@ const formatTypePointTransaction = (val) => {
       return ''
   }
 }
+const targetTypeTable = ref(true)
+const targetChange = (data) => {
+  if (data == 3) {
+    targetTypeTable.value = false
+  }
+  if (data == 2) {
+    targetTypeTable.value = true
+  }
+}
 </script>
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
@@ -394,15 +438,15 @@ const formatTypePointTransaction = (val) => {
       <Form
         :schema="schema"
         size="large"
-        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
+        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base pt-4 w-full"
         @register="register"
         :rules="rules"
       >
-        <template #packageAccumulatePointsCode="formData">
+        <template #code="formData">
           <span>{{ formData.code }}</span>
         </template>
         <template #point="formData">
-          <span>{{ formData.point }}{{ t('reuse.points') }}</span>
+          <span>{{ formData.point }} {{ t('reuse.points') }}</span>
         </template>
         <template #price="formData">
           <span>{{ formData.price }} đ</span>
@@ -416,6 +460,62 @@ const formatTypePointTransaction = (val) => {
               }}</el-button>
             </div>
           </div>
+        </template>
+        <template #targetType="formData">
+          <el-radio-group v-model="formData.targetType" class="ml-4" @change="targetChange">
+            <el-radio :label="3" size="large">
+              <div class="text-[#303133] font-normal dark:text-white">{{
+                t('reuse.allCustomer')
+              }}</div></el-radio
+            >
+            <el-radio :label="2" size="large"
+              ><div class="text-[#303133] font-normal dark:text-white">{{
+                t('formDemo.chooseCustomerDetail')
+              }}</div></el-radio
+            >
+          </el-radio-group>
+        </template>
+        <template #table>
+          <el-table
+            v-if="targetTypeTable"
+            :data="TableData"
+            border
+            :class="[
+              'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+            ]"
+          >
+            <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
+              <template #default="scope">
+                <SelectTable
+                  v-model="scope.row.id"
+                  :fields="[
+                    t('reuse.customerCode'),
+                    t('reuse.phoneNumber'),
+                    t('formDemo.customerName')
+                  ]"
+                  :items="tempListCustomers"
+                  width="500px"
+                  valueKey="id"
+                  labelKey="code"
+                  :hiddenKey="['id']"
+                  :placeHolder="t('reuse.chooseCustomerCode')"
+                  @scroll-bottom="ScrollBottom"
+                  @keyword="searchCustomer"
+                  @change="(value, obj) => changeName(value, obj, scope)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
+            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
+              <template #default="scope">
+                <button
+                  @click.prevent="removeLastRow(scope.$index)"
+                  class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
+                  >Xóa</button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
         </template>
       </Form>
     </div>
@@ -462,72 +562,20 @@ const formatTypePointTransaction = (val) => {
       </div>
     </div>
   </div>
-  <div class="flex w-[100%] gap-6 bg-white">
-    <div class="w-[50%] pl-2">
-      <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
-      <div class="mb-2 flex items-center text-sm">
-        <el-radio-group v-model="radio1" class="ml-4">
-          <el-radio :label="3" size="large">
-            <div class="text-[#303133] font-normal dark:text-white">{{
-              t('reuse.allCustomer')
-            }}</div></el-radio
-          >
-          <el-radio :label="2" size="large"
-            ><div class="text-[#303133] font-normal dark:text-white">{{
-              t('formDemo.chooseCustomerDetail')
-            }}</div></el-radio
-          >
-        </el-radio-group>
-      </div>
-      <el-table
-        :data="TableData"
-        border
-        :class="[
-          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-        ]"
-      >
-        <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
-          <template #default="scope">
-            <SelectTable
-              v-model="scope.row.id"
-              :fields="[
-                t('reuse.customerCode'),
-                t('reuse.phoneNumber'),
-                t('formDemo.customerName')
-              ]"
-              :items="tempListCustomers"
-              width="500px"
-              valueKey="id"
-              labelKey="code"
-              :hiddenKey="['id']"
-              :placeHolder="t('reuse.chooseCustomerCode')"
-              @scroll-bottom="ScrollBottom"
-              @keyword="searchCustomer"
-              @change="(value, obj) => changeName(value, obj, scope)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
-        <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
-          <template #default="scope">
-            <button
-              @click.prevent="removeLastRow(scope.$index)"
-              class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-              >Xóa</button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="w-[50%]"> </div>
-  </div>
+
   <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[50%] pl-2">
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
+        <div>
+          <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+          <p class="date text-gray-300">
+            {{ dateTimeFormat(new Date()) }}
+          </p>
+        </div>
       </div>
-      <div class="flex gap-4 items-center h-12 justify-center">
+      <div class="flex gap-4 items-center h-12 justify-center mb-12">
         <el-button type="primary" @click="createSettingPoint">{{
           t('reuse.finishPacking')
         }}</el-button>
@@ -553,13 +601,13 @@ const formatTypePointTransaction = (val) => {
     <el-table :data="tableTypePoint" border style="width: 100%">
       <el-table-column prop="radioComboTable" width="90" align="center">
         <template #default="scope">
-          <el-radio v-model="radio" :label="scope.$index" size="large" />
+          <el-radio v-model="radio" :label="scope.$index" size="large"><span></span></el-radio>
         </template>
       </el-table-column>
       <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />
       <el-table-column :label="t('reuse.pointsNumber')">
         <template #default="scope">
-          <el-input v-model="scope.row.point" type="number" />
+          <el-input v-model="scope.row.point" type="number" :min="0" />
         </template>
       </el-table-column>
       <el-table-column :label="t('reuse.exchangedMoney')">
@@ -580,18 +628,33 @@ const formatTypePointTransaction = (val) => {
 </template>
 
 <style scoped>
-::v-deep(.el-divider__text.is-left) {
-  font-size: 16px !important;
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
 }
 
-::v-deep(.el-radio.el-radio--large .el-radio__label) {
-  color: transparent;
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
 }
 
-.fix-padding {
-  padding: 0;
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
 }
-/* ::v-deep(.el-select-dropdown__item) {
-    padding: 0 !important;
-  } */
 </style>

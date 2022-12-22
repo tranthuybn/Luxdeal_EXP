@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount } from 'vue'
+import { reactive, ref, onBeforeMount, h, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElUpload,
@@ -11,21 +11,26 @@ import {
   ElRadio,
   ElDialog,
   UploadUserFile,
-  ElDatePicker
+  ElMessage,
+  ElInput
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import SelectTable from '@/components/SelectTable.vue'
+
 import { useIcon } from '@/hooks/web/useIcon'
-import { getProductsList, getSettingPoint } from '@/api/Business'
+import { createPointExchange, getCustomerList, getSettingPoint } from '@/api/Business'
 import router from '@/router'
+import { FORM_IMAGES } from '@/utils/format'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { useValidator } from '@/hooks/web/useValidator'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const { t } = useI18n()
-const { register } = useForm()
+const { register, elFormRef, methods } = useForm()
 // upload image
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -53,14 +58,19 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'packageAccumulatePointsCode',
+    field: 'code',
+    label: t('router.packageAccumulatePointsCode'),
     component: 'Input',
+    componentProps: {
+      disabled: true
+    },
     colProps: {
       span: 24
     }
   },
   {
     field: 'type',
+    label: t('reuse.type'),
     component: 'Input',
     colProps: {
       span: 24
@@ -70,235 +80,340 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'points',
+    field: 'point',
+    label: t('reuse.pointsNumber'),
     component: 'Input',
     colProps: {
-      span: 12
+      span: 24
+    }
+  },
+  {
+    field: 'price',
+    label: t('reuse.exchangedMoney'),
+    component: 'Input',
+    colProps: {
+      span: 24
     }
   },
   {
     field: 'duration',
-    component: 'Input',
+    label: t('formDemo.duration'),
+    component: 'DatePicker',
     colProps: {
       span: 24
     },
     componentProps: {
-      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
+      type: 'daterange'
     }
   },
   {
-    field: 'shortDescription',
+    field: 'description',
+    label: t('reuse.shortDescription'),
     component: 'Input',
     colProps: {
       span: 24
     },
     componentProps: {
-      placeholder: t('formDemo.addNotes')
+      placeholder: t('reuse.shortDescription')
     }
   }
 ])
 
-// Value date
-const pickdate = ref('')
-
 const forceRemove = ref(false)
-// remove row table
-const removeListProductsSale = (index) => {
-  if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
-    forceRemove.value = true
-    ListOfProductsForSale.splice(index, 1)
-  }
-}
 
-// Table data
-interface ListOfProductsForSaleType {
-  name: string
-  productCode: string
-  id: string
-  code: string
-  quantity: number | undefined
-  selfImportAccessories: string | undefined
-  dram: string
-  unitPrice: string
-  intoMoney: string
-  paymentType: string
-  alreadyPaidForTt: string
-  edited: boolean
-}
-
-const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
+const TableData = reactive([
   {
     name: '',
-    productCode: '',
-    id: '',
-    code: '',
-    quantity: 1,
-    selfImportAccessories: '',
-    dram: t('formDemo.psc'),
-    unitPrice: 'đ',
-    intoMoney: 'đ',
-    paymentType: '',
-    alreadyPaidForTt: '',
-    edited: true
+    phoneNumber: '',
+    id: null,
+    code: ''
   }
 ])
 
-// Call api danh sách sản phẩm
-let listProductsTable = ref()
-const listProducts = ref()
-const optionsApi = ref()
-
-let optionCallAPi = 0
-const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList({ ProductId: 1 })
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id.toString(),
-      value: product.id.toString(),
-      name: product.name,
-      price: product.price.toString()
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
-  }
-}
 // select MSP đổi tên thông tin sản phẩm
-const changeName = (optionID, scope) => {
-  const option = optionsApi.value.find((option) => option.name == optionID)
-  scope.row.name = option.name
-  scope.row.unitPrice = option.price
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+const changeName = (value, obj, scope) => {
+  forceRemove.value = false
+  const selected = TableData.filter((row) => row !== scope.row).find(
+    (customer) => customer.id == value
+  )
+  if (selected !== undefined) {
+    scope.row.id = null
+    scope.row.name = null
+    ElMessage({
+      message: t('reuse.customerCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.name = obj.name
+  }
 }
 
 // open or close change combo dialog
-const openChangeComboDialog = ref(false)
+const typeDialog = ref(false)
 
 // table change combo
-const tableChangeCombo = [
+const tableTypePoint = [
   {
-    radioComboTable: '1',
-    condition: 'Combo nhận miễn phí',
-    enterCondition: ''
+    type: 1,
+    point: null,
+    price: null
   },
   {
-    radioComboTable: '2',
-    condition: 'Đổi bằng điểm',
-    enterCondition: '500 điểm'
+    type: 2,
+    point: null,
+    price: null
   },
   {
-    radioComboTable: '3',
-    condition: 'Mua bằng tiền ảo',
-    enterCondition: '200,000 đ'
+    type: 3,
+    point: null,
+    price: null
+  },
+  {
+    type: 4,
+    point: null,
+    price: null
+  },
+  {
+    type: 5,
+    point: null,
+    price: null
+  },
+  {
+    type: 6,
+    point: null,
+    price: null
+  },
+  {
+    type: 7,
+    point: null,
+    price: null
   }
 ]
-
+const radio = ref(-1)
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const code = `TD${Date.now()}`
 // radio condition combo
-const radioCondition = ref(false)
-
 onBeforeMount(() => {
-  callApiProductList()
-  callApiDetail()
+  callApiCustomerList()
+  if (type == 'detail' || type == 'edit') {
+    callApiDetail()
+  } else {
+    const { setValues } = methods
+    setValues({
+      code: code
+    })
+  }
 })
-const form = reactive({
-  code: '',
-  type: 0,
-  point: 0,
-  price: 0,
-  startDate: '',
-  endDate: '',
-  description: '',
-  image: ''
-})
+
 const callApiDetail = async () => {
   const res = await getSettingPoint({ Id: id })
   if (res) {
-    form.code = ''
-    form.type = 0
-    form.point = 0
-    form.price = 0
-    form.startDate = ''
-    form.endDate = ''
-    form.description = ''
-    form.image = ''
   }
 }
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+
+// Call api danh sách sản phẩm
+
+const tempListCustomers = ref()
+const listCustomers = ref()
+
+const params = reactive({
+  pageSize: 10,
+  pageIndex: 1,
+  Keyword: ''
+})
+const callApiCustomerList = async () => {
+  const res = await getCustomerList({ ...params })
+  tempListCustomers.value = listCustomers.value = res.data.map((customer) => ({
+    code: customer.code ?? '',
+    phoneNumber: customer.phonenumber,
+    name: customer.name,
+    id: customer.id
+  }))
+}
+
+const scrollBottom = ref(false)
+const noMoreData = ref(false)
+const ScrollBottom = () => {
+  scrollBottom.value = true
+  params.pageIndex = params.pageIndex + 1
+  noMoreData.value
+    ? ''
+    : getCustomerList({ ...params })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreData.value = true)
+            : res.data.map((customer) =>
+                listCustomers.value.push({
+                  code: customer.code,
+                  phoneNumber: customer.phonenumber,
+                  name: customer.name,
+                  id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreData.value = true
+        })
+  tempListCustomers.value = listCustomers.value
+}
+const searchCustomer = async (keyword) => {
+  params.Keyword = keyword
+  if (keyword) {
+    params.pageIndex = 1
+    const res = await getCustomerList({ ...params })
+    tempListCustomers.value = res.data.map((customer) =>
+      listCustomers.value.push({
+        code: customer.code,
+        phoneNumber: customer.phonenumber,
+        name: customer.name,
+        id: customer.id
+      })
+    )
+  } else {
+    tempListCustomers.value = listCustomers.value
+  }
+}
+const { required, ValidService, notSpecialCharacters } = useValidator()
+const rules = reactive({
+  name: [required()],
+  code: [required()],
+  description: [
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkNameLength.validator }
+  ],
+  type: [required()],
+  price: [required()],
+  point: [required()],
+  duration: [required()]
+})
+const removeLastRow = (index) => {
+  TableData.splice(index, 1)
+}
+const createSettingPoint = async () => {
+  const formRef = unref(elFormRef)
+  formRef?.validate((isValid) => {
+    if (isValid) {
+    }
+  })
+  const { getFormData } = methods
+  const form = await getFormData()
+  console.log('form', form)
+  await createPointExchange(FORM_IMAGES(form))
+}
+const cancelSettingPoint = () => {}
+
+const chooseType = () => {
+  if (
+    radio.value !== -1 &&
+    tableTypePoint[radio.value].point !== null &&
+    tableTypePoint[radio.value].price
+  ) {
+    typeDialog.value = false
+    const { setValues } = methods
+    setValues({
+      type: tableTypePoint[radio.value].type,
+      point: tableTypePoint[radio.value].point,
+      price: tableTypePoint[radio.value].price
+    })
+    formatTypePointTransaction(tableTypePoint[radio.value].type)
+  } else {
+    ElMessage({
+      message: t('reuse.notFillAllInformation'),
+      type: 'warning'
+    })
+  }
+}
+const formatterType = (row, _column: any) => {
+  switch (row.type) {
+    case 1:
+      return h('div', [
+        `${t('reuse.buyPointExchange')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerBuyPointExchange')}`)
+      ])
+    case 2:
+      return h('div', [
+        `${t('reuse.pointsForSellOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenBuyProduct')}`)
+      ])
+    case 3:
+      return h('div', [
+        `${t('reuse.pointsForRentOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenRentProduct')}`)
+      ])
+    case 4:
+      return h('div', [
+        `${t('reuse.pointsForDepositOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenDepositProduct')}`)
+      ])
+    case 5:
+      return h('div', [
+        `${t('reuse.pointsForPawnOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenPawnProduct')}`)
+      ])
+    case 6:
+      return h('div', [
+        `${t('reuse.pointsForSpaOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenSpaProduct')}`)
+      ])
+    case 7:
+      return h('div', [
+        `${t('reuse.pointsForAffiliate')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenRefer')}`)
+      ])
+    default:
+      return ''
+  }
+}
+const typePointTransaction = ref('')
+const formatTypePointTransaction = (val) => {
+  switch (val) {
+    case 1:
+      return (typePointTransaction.value = `${t('reuse.buyPointExchange')}`)
+    case 2:
+      return (typePointTransaction.value = `${t('reuse.pointsForSellOrder')}`)
+    case 3:
+      return (typePointTransaction.value = `${t('reuse.pointsForRentOrder')}`)
+    case 4:
+      return (typePointTransaction.value = `${t('reuse.pointsForDepositOrder')}`)
+    case 5:
+      return (typePointTransaction.value = `${t('reuse.pointsForPawnOrder')}`)
+    case 6:
+      return (typePointTransaction.value = `${t('reuse.pointsForSpaOrder')}`)
+    case 7:
+      return (typePointTransaction.value = `${t('reuse.pointsForAffiliate')}`)
+    default:
+      return ''
+  }
+}
 </script>
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[50%]">
       <Form
         :schema="schema"
-        label-position="top"
-        hide-required-asterisk
         size="large"
         class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
         @register="register"
+        :rules="rules"
       >
-        <template #packageAccumulatePointsCode>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{
-              t('router.packageAccumulatePointsCode')
-            }}</label>
-            <div class="font-bold">CB3452323</div>
-          </div>
+        <template #packageAccumulatePointsCode="formData">
+          <span>{{ formData.code }}</span>
         </template>
-        <template #duration>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('formDemo.duration') }}</label>
-            <div class="flex w-[80%] gap-2 demo-date-picker">
-              <el-date-picker
-                v-model="pickdate"
-                type="daterange"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-                format="DD/MM/YYYY"
-              />
-            </div>
-          </div>
+        <template #point="formData">
+          <span>{{ formData.point }}{{ t('reuse.points') }}</span>
         </template>
-        <template #points>
-          <div class="flex gap-4 w-[100%]">
-            <label class="w-[33%] text-right">{{ t('reuse.Points') }}</label>
-            <div class="leading-6 mt-2 ml-2">
-              <div>500 Điểm</div>
-            </div>
-          </div>
-          <div class="flex gap-4 w-[100%]"
-            ><label class="w-[33%] text-right">{{ t('reuse.exchangedMoney') }}</label>
-            <div class="leading-6 ml-2 mt-2">
-              <div>300,000 đ</div>
-            </div></div
-          >
+        <template #price="formData">
+          <span>{{ formData.price }} đ</span>
         </template>
-        <template #shortDescription>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{ t('formDemo.shortDescription') }}</label>
-            <input
-              class="w-[80%] border-1 outline-none pl-2 bg-transparent rounded dark:border-"
-              type="text"
-              :placeholder="`${t('formDemo.enterShortDescription')}`"
-            />
-          </div>
-        </template>
-
         <template #type>
           <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('reuse.type') }}</label>
-            <div class="w-[80%] bg-transparent flex items-center gap-4">
-              <input
-                type="text"
-                class="border-1 w-[80%] outline-none rounded bg-transparent pl-2"
-                :placeholder="`${t('router.buyPointsPackage')}`"
-              />
-              <el-button
-                @click="openChangeComboDialog = true"
-                :icon="plusIcon"
-                style="padding: 8px 34px"
-                >{{ t('formDemo.change') }}</el-button
-              >
+            <div class="w-[100%] bg-transparent flex items-center gap-4">
+              <el-input v-model="typePointTransaction" disabled />
+              <el-button @click="typeDialog = true" :icon="plusIcon" style="padding: 8px 34px">{{
+                t('formDemo.change')
+              }}</el-button>
             </div>
           </div>
         </template>
@@ -352,12 +467,12 @@ const type = String(router.currentRoute.value.params.type)
       <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
       <div class="mb-2 flex items-center text-sm">
         <el-radio-group v-model="radio1" class="ml-4">
-          <el-radio label="1" size="large">
+          <el-radio :label="3" size="large">
             <div class="text-[#303133] font-normal dark:text-white">{{
               t('reuse.allCustomer')
             }}</div></el-radio
           >
-          <el-radio label="2" size="large"
+          <el-radio :label="2" size="large"
             ><div class="text-[#303133] font-normal dark:text-white">{{
               t('formDemo.chooseCustomerDetail')
             }}</div></el-radio
@@ -365,28 +480,30 @@ const type = String(router.currentRoute.value.params.type)
         </el-radio-group>
       </div>
       <el-table
-        :data="ListOfProductsForSale"
+        :data="TableData"
         border
         :class="[
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]"
       >
         <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
-          <template #default="props">
-            <MultipleOptionsBox
+          <template #default="scope">
+            <SelectTable
+              v-model="scope.row.id"
               :fields="[
                 t('reuse.customerCode'),
                 t('reuse.phoneNumber'),
                 t('formDemo.customerName')
               ]"
-              filterable
-              :items="listProductsTable"
-              :valueKey="'name'"
-              :labelKey="'id'"
+              :items="tempListCustomers"
+              width="500px"
+              valueKey="id"
+              labelKey="code"
               :hiddenKey="['id']"
-              :placeHolder="'Chọn mã sản phẩm'"
-              :clearable="false"
-              @change="(option) => changeName(option, props)"
+              :placeHolder="t('reuse.chooseCustomerCode')"
+              @scroll-bottom="ScrollBottom"
+              @keyword="searchCustomer"
+              @change="(value, obj) => changeName(value, obj, scope)"
             />
           </template>
         </el-table-column>
@@ -394,7 +511,7 @@ const type = String(router.currentRoute.value.params.type)
         <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
           <template #default="scope">
             <button
-              @click.prevent="removeListProductsSale(scope.$index)"
+              @click.prevent="removeLastRow(scope.$index)"
               class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
               >Xóa</button
             >
@@ -411,9 +528,14 @@ const type = String(router.currentRoute.value.params.type)
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
       </div>
       <div class="flex gap-4 items-center h-12 justify-center">
-        <el-button type="primary">{{ t('reuse.finishPacking') }}</el-button>
-        <el-button type="danger">{{ t('reuse.cancelPackage') }}</el-button>
-        <el-button>{{ t('formDemo.edit') }}</el-button>
+        <el-button type="primary" @click="createSettingPoint">{{
+          t('reuse.finishPacking')
+        }}</el-button>
+        <el-button type="danger" @click="cancelSettingPoint">{{
+          t('reuse.cancelPackage')
+        }}</el-button>
+        <el-button v-if="false">{{ t('formDemo.edit') }}</el-button>
+        <el-button v-if="false">{{ t('formDemo.add') }}</el-button>
       </div>
     </div>
     <div class="w-[50%]"></div>
@@ -421,32 +543,37 @@ const type = String(router.currentRoute.value.params.type)
 
   <!-- Dialog change combo -->
   <el-dialog
-    v-model="openChangeComboDialog"
-    :title="t('formDemo.inventoryInformation')"
-    width="35%"
+    v-model="typeDialog"
+    :title="t('reuse.choosePointExchangeType')"
+    width="55%"
     align-center
     class="z-50"
   >
     <el-divider />
-    <el-table :data="tableChangeCombo" border>
+    <el-table :data="tableTypePoint" border style="width: 100%">
       <el-table-column prop="radioComboTable" width="90" align="center">
-        <template #default="props">
-          <el-radio-group v-model="radioCondition" class="ml-4">
-            <el-radio :label="props.row.radioComboTable" size="large" />
-          </el-radio-group>
+        <template #default="scope">
+          <el-radio v-model="radio" :label="scope.$index" size="large" />
         </template>
       </el-table-column>
-      <el-table-column prop="condition" :label="t('formDemo.condition')" width="360" />
-      <el-table-column prop="enterCondition" :label="t('formDemo.enterCondition')" />
+      <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />
+      <el-table-column :label="t('reuse.pointsNumber')">
+        <template #default="scope">
+          <el-input v-model="scope.row.point" type="number" />
+        </template>
+      </el-table-column>
+      <el-table-column :label="t('reuse.exchangedMoney')">
+        <template #default="scope">
+          <CurrencyInputComponent v-model="scope.row.price" />
+        </template>
+      </el-table-column>
     </el-table>
     <template #footer>
       <span class="dialog-footer">
-        <el-button class="w-[150px]" type="primary" @click="openChangeComboDialog = false"
+        <el-button class="w-[150px]" type="primary" @click="chooseType"
           >{{ t('reuse.save') }}
         </el-button>
-        <el-button class="w-[150px]" @click="openChangeComboDialog = false">{{
-          t('reuse.exit')
-        }}</el-button>
+        <el-button class="w-[150px]" @click="typeDialog = false">{{ t('reuse.exit') }}</el-button>
       </span>
     </template>
   </el-dialog>

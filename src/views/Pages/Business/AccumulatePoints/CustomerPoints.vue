@@ -66,5 +66,10 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCustomerPoint" :customOperator="4" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getCustomerPoint"
+    :customOperator="4"
+    :removeHeaderFilterSlot="false"
+  />
 </template>

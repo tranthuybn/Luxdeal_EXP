@@ -1784,6 +1784,18 @@ export default {
     pointsForPawnOrder: 'Tích điểm theo đơn hàng cầm đồ',
     pointsForSpaOrder: 'Tích điểm theo đơn hàng spa',
     pointsForAffiliate: 'Tích điểm Affiliate',
-    moneyExchange: 'Số tiền quy đổi'
+    moneyExchange: 'Số tiền quy đổi',
+    cancelPoint: 'Hủy điểm',
+    cancelPackage: 'Hủy gói',
+    finishPacking: 'Hoàn thành tạo gói',
+    pointsNumber: 'Số điểm',
+    choosePointExchangeType: 'Chọn loại hình gói tích điểm',
+    customerBuyPointExchange: 'Khách hàng mua gói tích điểm',
+    customerGetPointWhenBuyProduct: 'Khách hàng được cộng điểm khi mua hàng',
+    customerGetPointWhenRentProduct: 'Khách hàng được cộng điểm khi thuê hàng',
+    customerGetPointWhenDepositProduct: 'Khách hàng được cộng điểm khi ký gửi hàng',
+    customerGetPointWhenPawnProduct: 'Khách hàng được cộng điểm khi cầm đồ',
+    customerGetPointWhenSpaProduct: 'Khách hàng được cộng điểm khi spa',
+    customerGetPointWhenRefer: 'Khách hàng được cộng điểm khi giới thiệu'
   }
 }

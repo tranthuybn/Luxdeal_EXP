@@ -8,14 +8,15 @@ import {
   ElImage,
   ElTable,
   ElTableColumn,
-  ElRadio
+  ElRadio,
+  ElRadioGroup
 } from 'element-plus'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { getDetailCustomerPoint } from '@/api/Business'
+import { getDetailCustomerPoint, cancelPointTransaction } from '@/api/Business'
 import router from '@/router'
-import { dateTimeFormat } from '@/utils/format'
+import moment from 'moment'
 
 const { t } = useI18n()
 
@@ -62,6 +63,11 @@ const form = reactive({
   status: 0
 })
 const id = Number(router.currentRoute.value.params.id)
+const total = reactive({
+  rechargePoint: 0,
+  usedPoint: 0,
+  totalPoint: 0
+})
 const callAPI = async () => {
   const res = await getDetailCustomerPoint({ Id: id })
   if (res) {
@@ -73,6 +79,7 @@ const callAPI = async () => {
     form.status = res.data[0]?.status
 
     tableData.value = res.data[0]?.transaction.map((trans) => ({
+      id: trans?.id,
       pointExchangeType: trans?.pointExchangeType,
       orderCode: trans?.orderCode,
       campaignCode: trans?.campaignCode,
@@ -84,6 +91,12 @@ const callAPI = async () => {
       createdAt: trans?.createdAt,
       transactionStatus: trans?.transactionStatus
     }))
+
+    total.rechargePoint = res.data[0]?.rechargePoint
+    total.usedPoint = res.data[0]?.usedPoint
+    total.totalPoint = res.data[0]?.totalPoint
+
+    loading.value = false
   }
 }
 callAPI()
@@ -125,8 +138,11 @@ const pointTransactionStatus = (status) => {
       return ''
   }
 }
-const cancelTransaction = (scope) => {
-  console.log('scope', scope)
+const loading = ref(true)
+const cancelTransaction = async (scope) => {
+  await cancelPointTransaction({ Id: scope.row.id }).then(async () => {
+    await callAPI().finally(() => (loading.value = false))
+  })
 }
 </script>
 
@@ -173,12 +189,12 @@ const cancelTransaction = (scope) => {
             <div class="formDetail"
               ><span class="formLabel">{{ t('reuse.status') }}</span
               ><span
-                ><el-radio-group v-model="form.status" class="ml-4">
+                ><el-radio-group v-model="form.status" class="ml-4" disabled>
                   <el-radio :label="2" size="large">{{ t('reuse.lockPoint') }}</el-radio>
                 </el-radio-group></span
               >
             </div>
-            <div v-if="form.status == 1" class="bg-blue-700 formDetail">{{
+            <div v-if="form.status == 1" class="bg-blue-700 formDetail text-white">{{
               t('reuse.usingPoint')
             }}</div>
           </div>
@@ -209,39 +225,43 @@ const cancelTransaction = (scope) => {
             </div>
           </div>
         </template>
-        {{ tableData }}
-        <el-table :data="tableData" style="width: 100%" border show-summary>
+        <el-table :data="tableData" style="width: 100%" border :loading="loading">
+          <template #append>
+            <span class="pl-4/10 font-bold">{{ total.rechargePoint }}</span>
+            <span class="pl-1/10 font-bold">{{ total.usedPoint }}</span>
+            <span class="pl-1/10 font-bold">{{ total.totalPoint }}</span>
+          </template>
           <el-table-column
             :label="`${t('reuse.methodPoint')}`"
-            header-cell-class-name="w-4/10"
             :formatter="formatter"
+            :min-width="40"
           />
-          <el-table-column :label="`${t('reuse.rechargePoint')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.rechargePoint')}`" :min-width="10">
             <template #default="scope">
-              <span v-if="scope.row.type == 1">{{ scope.row.point }}</span>
+              <span v-if="scope.row.type == 1">{{ scope.row.transactionPoint }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.usedPoint')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.usedPoint')}`" :min-width="10">
             <template #default="scope">
-              <span v-if="scope.row.type == 2">{{ scope.row.point }}</span>
+              <span v-if="scope.row.type == 2">{{ scope.row.transactionPoint }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.totalPoint')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.totalPoint')}`" :min-width="10">
             <template #default="scope">
               <span>{{ scope.row.pointAfterTransaction }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.date')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.date')}`" :min-width="10">
             <template #default="scope">
-              {{ dateTimeFormat(scope.row.pointAfterTransaction) }}
+              {{ moment(scope.row.createdAt).format('DD/MM/YYYY HH:mm') }}
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.status')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.status')}`" :min-width="10">
             <template #default="scope">
               {{ pointTransactionStatus(scope.row.transactionStatus) }}
             </template>
           </el-table-column>
-          <el-table-column :label="`${t('reuse.operator')}`" header-cell-class-name="w-1/10">
+          <el-table-column :label="`${t('reuse.operator')}`" :min-width="10">
             <template #default="scope">
               <el-button
                 type="danger"

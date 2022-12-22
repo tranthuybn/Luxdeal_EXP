@@ -92,7 +92,7 @@ const ruleForm = reactive({
   discount: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: 0
 })
 
 const rules = reactive<FormRules>({
@@ -181,7 +181,6 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
     }
   })
 }
-let checkValidate = ref(false)
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
@@ -195,20 +194,26 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 
+let checkValidateForm = ref(false)
+
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
-      return 'submit!'
+      checkValidateForm.value = true
     } else {
-      return fields
+      checkValidateForm.value = true
     }
   })
-  await formEl2.validate((valid, fields) => {
-    if (valid) {
-      return 'submit!'
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      statusOrder.value = 2
+      changeStatus(3)
+      doubleDisabled.value = false
     } else {
-      return fields
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -310,11 +315,11 @@ const collapse: Array<Collapse> = [
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 0,
     label: t('formDemo.selfDelivery')
   },
   {
-    value: 'deliveryToYourPlace',
+    value: 1,
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
@@ -772,7 +777,6 @@ let idOrderPost = ref()
 // tạo đơn hàng
 let postTable = ref()
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
   postTable.value = tableData.value.map((e) => ({
     ProductPropertyId: e.productPropertyId,
     Quantity: e.quantity,
@@ -783,50 +787,49 @@ const postData = async () => {
     IsPaid: true
   }))
   postTable.value.pop()
-  if (checkValidate.value) {
-    const productPayment = JSON.stringify([...postTable.value])
-    const payload = {
-      ServiceType: 3,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'TEST',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.discount,
-      Description: ruleForm.orderNotes,
-      CustomerId: customerID.value,
-      fromDate: postDateTime(ruleForm.rentalPeriod[0]),
-      toDate: postDateTime(ruleForm.rentalPeriod[1]),
-      Files: Files,
-      DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: 'trieu khuc',
-      OrderDetail: productPayment,
-      CampaignId: 2,
-      VAT: 1,
-      Status: 1
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    idOrderPost.value = await addNewOrderList(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  const productPayment = JSON.stringify([...postTable.value])
+  const payload = {
+    ServiceType: 3,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'TEST',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.discount,
+    Description: ruleForm.orderNotes,
+    CustomerId: customerID.value,
+    fromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    toDate: postDateTime(ruleForm.rentalPeriod[1]),
+    Files: Files,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: valueProvince.value ?? 1,
+    DistrictId: valueDistrict.value ?? 1,
+    WardId: valueCommune.value ?? 1,
+    Address: 'trieu khuc',
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1,
+    Status: 1
   }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  idOrderPost.value = await addNewOrderList(formDataPayLoad)
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name) }
+        })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+
   automaticCouponWareHouse(2)
 }
 
@@ -1480,14 +1483,6 @@ watch(
   },
   { deep: true }
 )
-watch(
-  () => checkValidate.value,
-  () => {
-    if (checkValidate.value === true) {
-      postData()
-    }
-  }
-)
 
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -1881,7 +1876,7 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.collectRentalDeposit')
         : index == 2
-        ? feePaymentPeriod
+        ? feePaymentPeriod.value
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -4300,9 +4295,7 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
-                  statusOrder = 2
-                  changeStatus(3)
+                  submitForm(ruleFormRef, ruleFormRef2)
                 }
               "
               type="primary"

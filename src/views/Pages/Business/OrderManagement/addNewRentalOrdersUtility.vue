@@ -1138,7 +1138,12 @@ const getValueOfSelected = async (_value, obj, scope) => {
 
       let newDate = new Date(data.toDate - data.fromDate)
       let days = newDate.getDate()
-      let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
+      let objPrice = await getProductPropertyPrice(
+        data.productPropertyId,
+        3,
+        parseInt(data.quantity),
+        ruleForm.leaseTerm
+      )
       data.price = objPrice.price
       data.depositePrice = objPrice.deposite
       data.hirePrice = data.price * data.quantity * days
@@ -1165,7 +1170,12 @@ const handleGetTotal = async (_value, props) => {
     totalDeposit.value = 0
     let newDate = new Date(data.toDate - data.fromDate)
     let days = newDate.getDate()
-    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
+    let objPrice = await getProductPropertyPrice(
+      data.productPropertyId,
+      3,
+      parseInt(data.quantity),
+      ruleForm.leaseTerm
+    )
     data.price = objPrice.price
     data.depositePrice = objPrice.deposite
     data.hirePrice = data.price * data.quantity * days
@@ -4011,19 +4021,19 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.rentalQuantity')" width="90">
-            <template #default="data">
+            <template #default="scope">
               <div v-if="type == 'detail'">
-                {{ data.row.quantity }}
+                {{ scope.row.quantity }}
               </div>
               <el-input
                 v-else
                 @change="
-                  () => {
-                    data.row.hirePrice = data.row.price * data.row.quantity
+                  (data) => {
+                    handleGetTotal(data, scope)
                     autoCalculateOrder()
                   }
                 "
-                v-model="data.row.quantity"
+                v-model="scope.row.quantity"
                 style="width: 100%"
               />
             </template>

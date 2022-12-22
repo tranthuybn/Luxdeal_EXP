@@ -160,7 +160,7 @@ export const filterGender: Array<Filter> = [
   { text: t('reuse.female'), value: false }
 ]
 export const filterStatusCustomer: Array<Filter> = [
-  { text: t('reuse.active'), value: true },
+  { text: t('reuse.active'), value: 1 },
   { text: t('reuse.pause'), value: 2 },
   { text: t('formDemo.cancelled'), value: 0 }
 ]

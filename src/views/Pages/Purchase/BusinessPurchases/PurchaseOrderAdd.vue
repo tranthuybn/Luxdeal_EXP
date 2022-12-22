@@ -49,7 +49,6 @@ import {
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getPriceOfSpecificProduct,
   getOrderTransaction,
   addTPV,
   createReturnRequest,
@@ -60,10 +59,9 @@ import {
   addDNTT,
   addOrderStransaction,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
-  GetProductPropertyInventory
+  postAutomaticWarehouse
 } from '@/api/Business'
-import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { getWarehouseLot } from '@/api/Warehouse'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -101,6 +99,7 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
+  warehouse: '',
   orderFiles: []
 })
 
@@ -128,6 +127,13 @@ const rules = reactive<FormRules>({
     {
       required: true,
       message: t('formDemo.pleaseChooseDelivery'),
+      trigger: 'change'
+    }
+  ],
+  warehouse: [
+    {
+      required: false,
+      message: t('formDemo.pleaseChooseWarehouse'),
       trigger: 'change'
     }
   ]
@@ -331,14 +337,17 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   quantity: number
+  businessManagement: {}
   accessory: string | undefined
+  code: string | undefined
   unitName: string
-  price: string | number | undefined
-  finalPrice: string
+  unitPrice: string | number | undefined
+  totalPrice: string
   paymentType: string
   warehouseId: number | undefined
   warehouseName: string
 }
+
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
   productCode: '',
@@ -348,10 +357,12 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   productPropertyId: '',
   quantity: 1,
+  businessManagement: {},
+  code: undefined,
   accessory: '',
   unitName: 'Chiếc',
-  price: 0,
-  finalPrice: '',
+  unitPrice: 0,
+  totalPrice: '',
   paymentType: '',
   warehouseId: undefined,
   warehouseName: ''
@@ -391,6 +402,7 @@ const activeName = ref([collapse[0].name, collapse[1].name])
 
 // debtTable
 interface tableDataType {
+  [x: string]: any
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -419,6 +431,7 @@ const dialogFormVisible = ref(false)
 let dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
+const dialogbusinessManagement = ref(false)
 
 const cities = ref()
 const district = ref()
@@ -478,13 +491,13 @@ const listProductsTable = ref()
 
 const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  const res = await getBusinessProductLibrary({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       value: product.productCode,
-      productCode: product.code,
+      productCode: product.productCode,
       name: product.name ?? '',
-      price: product.price,
+      unitPrice: product.unitPrice,
       unit: product.unitName,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
@@ -511,10 +524,10 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  productCode: product.code,
+                  productCode: product.productCode,
                   value: product.productCode,
                   name: product.name ?? '',
-                  price: product.price.toString(),
+                  unitPrice: product.unitPrice.toString(),
                   productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
                 })
@@ -551,10 +564,10 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productName = obj.name
 
     //TODO
-    data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
-    data.finalPrice = data.price * data.quantity
+    // data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+    data.totalPrice = data.unitPrice * data.quantity
     ListOfProductsForSale.value.map((val) => {
-      if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+      if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
     })
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
@@ -750,27 +763,27 @@ const changeNamePromo = () => {
 }
 
 // Total order
-const getProductPropertyPrice = async (
-  productPropertyId = 0,
-  serviceType = 1,
-  quantity: 1
-): Promise<number> => {
-  const getPricePayload = {
-    id: productPropertyId,
-    serviceType: serviceType,
-    Quantity: quantity
-  }
-  // lấy giá tiền của một sản phẩm
-  const res = await getPriceOfSpecificProduct(getPricePayload)
-  const price = res.data.price ?? 0
+// const getProductPropertyPrice = async (
+//   productPropertyId = 0,
+//   serviceType = 1,
+//   quantity: 1
+// ): Promise<number> => {
+//   const getPricePayload = {
+//     id: productPropertyId,
+//     serviceType: serviceType,
+//     Quantity: quantity
+//   }
+//   // lấy giá tiền của một sản phẩm
+//   const res = await getPriceOfSpecificProduct(getPricePayload)
+//   const price = res.data.price ?? 0
 
-  return price
-}
+//   return price
+// }
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   ListOfProductsForSale.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += parseInt(val.finalPrice)
+    if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
   })
 
   promoCash.value != 0
@@ -826,7 +839,7 @@ const quickProductCode = ref()
 const quickManagementCode = ref()
 const quickProductName = ref()
 const quickDescription = ref()
-const productCharacteristics = ref()
+// const productCharacteristics = ref()
 const valueCharacteristics = ref()
 const chooseOrigin = ref()
 
@@ -917,11 +930,9 @@ const getOriginSelectOptions = async () => {
 }
 
 const postQuickProduct = async () => {
-  console.log('valueCharacteristics: ', valueCharacteristics.value)
   const characteristics = valueCharacteristics.value.map((val) => ({
     id: val
   }))
-  console.log('characteristics: ', characteristics)
 
   const payload = {
     serviceType: 1,
@@ -974,7 +985,7 @@ const handleChangeQuickAddProduct = async (data) => {
 const ListFileUpload = ref<UploadUserFile[]>([])
 const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
-let orderDetailsTable = reactive([{}])
+let orderDetailsTable = reactive([{}]) as any[]
 
 let idOrderPost = ref()
 // Tạo đơn hàng
@@ -982,8 +993,11 @@ const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: val.quantity,
-    ProductPrice: val.price,
-    SoldPrice: val.finalPrice,
+    UnitPrice: val.unitPrice,
+    TotalPrice: val.totalPrice,
+    DepositePrice: 0,
+    DiscountMoney: 0,
+    InterestMoney: 0,
     WarehouseId: 1,
     IsPaid: true,
     Accessory: val.accessory
@@ -1000,12 +1014,17 @@ const postData = async () => {
     CustomerId: customerID.value,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
+    WarehouseOptionId: ruleForm.warehouse,
     ProvinceId: formAddress.province ?? 1,
     DistrictId: formAddress.district ?? 1,
     WardId: formAddress.wardCommune ?? 1,
     Address: formAddress.detailedAddress,
     OrderDetail: productPayment,
     CampaignId: 2,
+    TotalPrice: totalFinalOrder.value,
+    DepositePrice: 0,
+    DiscountMoney: 0,
+    InterestMoney: 0,
     VAT: 1,
     Status: 1
   }
@@ -1028,7 +1047,7 @@ const postData = async () => {
       })
     )
 
-  automaticCouponWareHouse(2)
+  // automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
@@ -1072,11 +1091,12 @@ const editData = async () => {
     arrayStatusOrder.value = orderObj.status
     arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
-      ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
@@ -1339,6 +1359,30 @@ const options = [
   }
 ]
 
+const listApplyExport = [
+  {
+    id: 1,
+    check: true,
+    applyExport: 'Bán'
+  },
+  {
+    id: 2,
+    check: true,
+    applyExport: 'Cho thuê'
+  },
+  {
+    id: 3,
+    check: true,
+    applyExport: 'Spa'
+  }
+]
+
+const formBusuness = reactive({
+  id: 1,
+  check: '',
+  applyExport: ''
+})
+
 let statusOrder = ref(1)
 const changeStatus = (index) => {
   setTimeout(() => {
@@ -1355,17 +1399,17 @@ const addStatusDelay = () => {
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
 const priceChangeOrders = ref(false)
-const changePriceRowTable = () => {
-  let countPriceChange = ref(0)
-  countPriceChange.value++
-  priceChangeOrders.value = true
-  arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-  arrayStatusOrder.value.push({
-    statusName: 'Duyệt giá thay đổi',
-    status: 1,
-    isActive: true
-  })
-}
+// const changePriceRowTable = () => {
+//   let countPriceChange = ref(0)
+//   countPriceChange.value++
+//   priceChangeOrders.value = true
+//   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+//   arrayStatusOrder.value.push({
+//     statusName: 'Duyệt đơn mua hàng',
+//     status: 1,
+//     isActive: true
+//   })
+// }
 
 interface statusOrderType {
   statusName: string
@@ -1385,7 +1429,7 @@ const addStatusOrder = (index) => {
   switch (index) {
     case 1:
       arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
+        statusName: 'Duyệt đơn mua hàng',
         status: 1
       })
       break
@@ -1400,7 +1444,7 @@ const addStatusOrder = (index) => {
     case 3:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
+          statusName: 'Đặt hàng thành công',
           status: 3,
           isActive: true
         })
@@ -1771,14 +1815,14 @@ const getFormReceipts = () => {
 
 const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+const indexRow = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
-  const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+  const res = await getWarehouseLot({
+    ProductPropertyId: data.productPropertyId
   })
   tableWarehouse.value = res.data.map((val) => ({
     warehouseCheckbox: val.id,
@@ -1793,6 +1837,23 @@ const showIdWarehouse = (scope) => {
   ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
 }
 
+const handleSelectionbusinessManagement = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
+    label: e.applyExport,
+    value: e.id
+  }))
+}
+
+const ckeckChooseProduct = (scope) => {
+  if (!scope.row.productPropertyId) {
+    ElNotification({
+      message: 'Bạn phải chọn sản phẩm trước',
+      type: 'info'
+    })
+  } else {
+    dialogbusinessManagement.value = true
+  }
+}
 //TruongNgo
 const refundPrice = computed(() => {
   return getRefundPrice()
@@ -1910,12 +1971,12 @@ onMounted(async () => {
         </slot>
       </div>
 
-      <!-- Dialog Thêm nhanh khách hàng -->
+      <!-- Dialog Thêm nhanh nhà cung cấp -->
       <el-dialog
         v-model="dialogAddQuick"
         width="40%"
         align-center
-        :title="t('formDemo.QuicklyAddCustomers')"
+        :title="t('formDemo.QuicklyAddSupplier')"
       >
         <div v-if="valueClassify == true">
           <el-divider />
@@ -2630,10 +2691,10 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
-      <!-- Thông tin phiếu thanh toán -->
+      <!-- Thông tin phiếu thanh toán mua hàng -->
       <el-dialog
         v-model="dialogSalesSlipInfomation"
-        :title="t('formDemo.salesSlipInformation')"
+        :title="t('formDemo.buySlipInformation')"
         width="40%"
         align-center
       >
@@ -2662,7 +2723,7 @@ onMounted(async () => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.purchaseInfo') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div>
@@ -2681,7 +2742,7 @@ onMounted(async () => {
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold break-w">{{
-              t('formDemo.productInformationSale')
+              t('formDemo.productInformationBuy')
             }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -2691,30 +2752,46 @@ onMounted(async () => {
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
+            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
               <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.unitPrice) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.totalPrice) }}</div>
               </template>
             </el-table-column>
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
               <p>Thành tiền</p>
-              <p>Khuyến mại</p>
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
               }}</p>
-              <p class="pr-2">{{ promoValue == 0 ? changeMoney.format(promoCash) : promoValue }}</p>
               <p class="pr-2 text-black font-bold dark:text-white">{{
                 totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              }}</p>
+            </div>
+          </div>
+          <span
+            class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
+          ></span>
+          <div class="flex w-[100%] align-middle justify-end">
+            <div class="w-[145px] text-right pr-2">
+              <p class="pt-2">Công nợ tồn</p>
+              <p class="text-blue-400 pt-2">Thanh toán <span class="text-red-500">*</span></p>
+
+              <p class="text-red-600 pt-2">Còn lại</p>
+            </div>
+            <div class="w-[145px] text-right">
+              <p class="pr-2 pt-2">{{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
+              <p class="pr-2 pt-2">{{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
+              <p class="pr-2 text-red-600 pt-2">{{
+                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
               }}</p>
             </div>
           </div>
@@ -2774,178 +2851,6 @@ onMounted(async () => {
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
                 <el-button @click="dialogSalesSlipInfomation = false">{{
-                  t('reuse.exit')
-                }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
-
-      <!-- Thông tin phiếu đặt cọc/tạm ứng -->
-      <el-dialog
-        v-model="dialogDepositSlipAdvance"
-        :title="t('formDemo.depositSlipAdvanceinformation')"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <div class="flex-1 flex gap-4">
-              <label class="w-[50%] min-w-[162.73px] text-right">{{
-                t('formDemo.orderCode')
-              }}</label>
-              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
-                sellOrderCode
-              }}</div>
-            </div>
-            <div class="flex-1 flex items-start gap-4">
-              <span>
-                <div>Mã QR đơn hàng</div>
-                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
-              </span>
-
-              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">{{ infoCompany.phone }}</div>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
-              t('formDemo.productInformationSale')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableSalesSlip" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')">
-              <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
-              <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p>Thành tiền</p>
-              <p>Khuyến mại</p>
-              <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
-              }}</p>
-              <p class="pr-2">{{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}</p>
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
-              }}</p>
-            </div>
-          </div>
-          <span
-            class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
-          ></span>
-          <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right pr-2">
-              <p class="text-blue-400 h-[30px]">Đặt cọc <span class="text-red-500">*</span></p>
-
-              <p class="text-red-600 pt-2">Còn lại</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
-              <p class="pr-2 text-red-600 pt-2">{{
-                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
-              }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogDepositSlipAdvance = false
-                      postOrderStransaction(2)
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="dialogDepositSlipAdvance = false">{{
                   t('reuse.exit')
                 }}</el-button>
               </span>
@@ -3200,7 +3105,7 @@ onMounted(async () => {
             <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.purchaseInfo') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div>
@@ -3570,6 +3475,11 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4"> </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
@@ -3634,6 +3544,42 @@ onMounted(async () => {
           </div>
         </div>
       </el-collapse-item>
+
+      <!-- dialog quản lý kinh doanh -->
+      <el-dialog
+        v-model="dialogbusinessManagement"
+        :title="t('formDemo.businessManagement')"
+        width="40%"
+        align-center
+      >
+        <el-divider />
+        <el-form :model="formBusuness">
+          <el-table
+            ref="multipleTableRef"
+            border
+            :data="listApplyExport"
+            @selection-change="handleSelectionbusinessManagement"
+          >
+            <el-table-column type="selection" width="55" />
+            <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
+          </el-table>
+        </el-form>
+
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  dialogbusinessManagement = false
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button @click="dialogbusinessManagement = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <!-- DialogChooseWarehouse -->
       <el-dialog
@@ -4082,7 +4028,23 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
+
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <el-input
+                :disabled="checkDisabled"
+                v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="quantity"
+            :label="t('formDemo.amountBuy')"
+            align="center"
+            width="90"
+          >
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.quantity }}
@@ -4092,7 +4054,7 @@ onMounted(async () => {
                 :disabled="checkDisabled"
                 @change="
                   () => {
-                    data.row.finalPrice = data.row.price * data.row.quantity
+                    data.row.totalPrice = data.row.unitPrice * data.row.quantity
                     autoCalculateOrder()
                   }
                 "
@@ -4107,34 +4069,70 @@ onMounted(async () => {
             align="center"
             min-width="100"
           />
-          <el-table-column prop="price" :label="t('reuse.unitPrice')" align="right" width="180">
+          <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" align="right" width="180">
             <template #default="props">
               <CurrencyInputComponent
-                v-model="props.row.price"
+                v-model="props.row.unitPrice"
                 :disabled="checkDisabled"
+                :isReadOnly="type == 'detail' || type == 'edit' ? true : false"
                 v-if="type != 'detail'"
-                @change="changePriceRowTable"
+                @change="
+                  () => {
+                    props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                    autoCalculateOrder()
+                  }
+                "
               />
               <div v-else>{{
-                props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
+                props.row.unitPrice != ''
+                  ? changeMoney.format(parseInt(props.row.unitPrice))
+                  : '0 đ'
               }}</div>
             </template>
           </el-table-column>
           <el-table-column
-            prop="finalPrice"
+            prop="totalPrice"
             :label="t('formDemo.intoMoney')"
-            align="right"
+            align="left"
             width="180"
           >
             <template #default="props">
-              {{ changeMoney.format(props.row.finalPrice) }}
+              {{ changeMoney.format(props.row.totalPrice) }}
             </template>
           </el-table-column>
+
           <el-table-column
-            prop="warehouseName"
-            :label="t('formDemo.exportWarehouse')"
-            min-width="200"
+            :label="t('formDemo.businessManagement')"
+            width="200"
+            prop="businessManagement"
           >
+            <template #default="data">
+              <div class="flex w-[100%]">
+                <div class="flex-1 limit-text">
+                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
+                    item.label
+                  }}</span>
+                </div>
+                <div class="flex-1 text-right">
+                  <el-button
+                    text
+                    border
+                    class="text-blue-500"
+                    @click="
+                      () => {
+                        indexRow = data.$index
+                        ckeckChooseProduct(data)
+                      }
+                    "
+                  >
+                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
+                  >
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" min-width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <div class="w-[40%]">{{ props.row.warehouseName }}</div>
@@ -4295,7 +4293,7 @@ onMounted(async () => {
                     <span class="triangle-right right_1"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div v-else-if="item.status == 2 || item.status == 3 || item.status == 8">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4350,7 +4348,7 @@ onMounted(async () => {
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
             <el-button
-              @click="dialogDepositSlipAdvance = true"
+              @click="openBillDialog"
               :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentDepositSlipAdvance') }}</el-button

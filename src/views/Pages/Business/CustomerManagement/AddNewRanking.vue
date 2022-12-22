@@ -155,7 +155,7 @@ const postData = async (data) => {
       })
       push({
         name: 'business.customer-management.customerRatings',
-        params: { backRoute: 'business.customer-management.customerRatings' }
+        params: { backRoute: 'business.customer-management.customerRatings', tab: data.TypeName }
       })
     })
     .catch(() =>

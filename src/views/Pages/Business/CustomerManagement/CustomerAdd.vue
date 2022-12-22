@@ -470,7 +470,6 @@ const postCustomer = async (typebtn) => {
   clear()
 }
 const postData = async (typebtn) => {
-  console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const payloadAcc = {

@@ -43,6 +43,7 @@ import {
   getCollaboratorsInOrderList,
   getPromotionsList,
   getAllCustomer,
+  getCustomerById,
   addNewOrderList,
   getOrderList,
   createQuickProduct,
@@ -58,16 +59,17 @@ import {
   getCodePaymentRequest,
   addDNTT,
   addOrderStransaction,
-  getDetailAccountingEntryById,
-  postAutomaticWarehouse
+  getDetailAccountingEntryById
 } from '@/api/Business'
 import { getWarehouseLot } from '@/api/Warehouse'
 import { FORM_IMAGES } from '@/utils/format'
+import { STATUS_ORDER } from '@/utils/API.Variables'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
+import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liquidationPurchaseContractPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
@@ -170,6 +172,16 @@ const rulesAddress = reactive<FormRules>({
   detailedAddress: [
     { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
   ]
+})
+
+const customerData = reactive({
+  customerId: '',
+  userName: '',
+  code: '',
+  address: '',
+  cccd: '',
+  phoneNumber: '',
+  bank: ''
 })
 
 let checkValidateForm = ref(false)
@@ -356,7 +368,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyName: '',
   id: '',
   productPropertyId: '',
-  quantity: 1,
+  quantity: 0,
   businessManagement: {},
   code: undefined,
   accessory: '',
@@ -483,6 +495,7 @@ const callCustomersApi = async () => {
       email: customer.email,
       id: customer.id.toString()
     }))
+    console.log(getCustomerResult)
   }
 }
 
@@ -762,23 +775,8 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
-// Total order
-// const getProductPropertyPrice = async (
-//   productPropertyId = 0,
-//   serviceType = 1,
-//   quantity: 1
-// ): Promise<number> => {
-//   const getPricePayload = {
-//     id: productPropertyId,
-//     serviceType: serviceType,
-//     Quantity: quantity
-//   }
-//   // lấy giá tiền của một sản phẩm
-//   const res = await getPriceOfSpecificProduct(getPricePayload)
-//   const price = res.data.price ?? 0
+let statusOrder = ref(1)
 
-//   return price
-// }
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
@@ -1051,14 +1049,14 @@ const postData = async () => {
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: idOrderPost.value.data,
-    Type: index
-  }
+// const automaticCouponWareHouse = async (index) => {
+//   const payload = {
+//     OrderId: idOrderPost.value.data,
+//     Type: index
+//   }
 
-  await postAutomaticWarehouse(payload)
-}
+//   await postAutomaticWarehouse(payload)
+// }
 
 // total order
 let totalOrder = ref(0)
@@ -1076,6 +1074,17 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
+const getCustomerInfo = async (id: string) => {
+  const res = await getCustomerById({ Id: id })
+  const orderObj = { ...res?.data }
+  customerData.userName = orderObj.name
+  customerData.code = orderObj.code
+  customerData.cccd = orderObj.cccd
+  customerData.phoneNumber = orderObj.phonenumber
+  customerData.bank = orderObj.bank
+  customerData.address = orderObj.address
+}
+
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1086,13 +1095,12 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-    // statusOrder.value = 15
-    // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj.status
-    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
 
     if (res.data) {
+      customerData.customerId = orderObj.customerId
+      await getCustomerInfo(customerData.customerId)
+
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
@@ -1266,6 +1274,7 @@ const tableInvoice = [
 
 // Thông tin phiếu bán hàng
 const dialogSalesSlipInfomation = ref(false)
+const dialogBillLiquidation = ref(false)
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
 
 // Thông tin đổi/trả hàng
@@ -1326,7 +1335,7 @@ const dialogAccountingEntryAdditional = ref(false)
 
 const tableAccountingEntry = ref([
   {
-    content: 'Trả lại tiền cọc cho khách',
+    content: '',
     kindOfMoney: '',
     collected: '',
     spent: '',
@@ -1383,132 +1392,6 @@ const formBusuness = reactive({
   applyExport: ''
 })
 
-let statusOrder = ref(1)
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
-}
-
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(7)
-  }, 4000)
-}
-
-// fake trạng thái đơn hàng
-// bắt thay đổi đơn hàng
-const priceChangeOrders = ref(false)
-// const changePriceRowTable = () => {
-//   let countPriceChange = ref(0)
-//   countPriceChange.value++
-//   priceChangeOrders.value = true
-//   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-//   arrayStatusOrder.value.push({
-//     statusName: 'Duyệt đơn mua hàng',
-//     status: 1,
-//     isActive: true
-//   })
-// }
-
-interface statusOrderType {
-  statusName: string
-  status: number
-  isActive?: boolean
-}
-let arrayStatusOrder = ref(Array<statusOrderType>())
-arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
-  arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
-    isActive: true
-  })
-
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        statusName: 'Duyệt đơn mua hàng',
-        status: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đặt hàng thành công',
-          status: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      }
-
-      break
-  }
-}
-
-// options loại tiền bút toán bổ sung
-const optionsKindOfMoney = [
-  {
-    value: 1,
-    label: 'Tiền cọc(Không tính vào Công nợ phí thuê)'
-  },
-  {
-    value: 2,
-    label: 'Tiền phí(Tính vào Công nợ phí thuê)'
-  },
-  {
-    value: 3,
-    label: 'Tiền khác(Không tính vào Công nợ phí thuê)'
-  }
-]
-
 // dialog print
 const nameDialog = ref('')
 // const testDialog = ref(false)
@@ -1518,12 +1401,6 @@ function openBillDialog() {
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
-}
-
-function openDepositDialog() {
-  dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
-  tableSalesSlip.value = ListOfProductsForSale.value
-  nameDialog.value = 'deposit'
 }
 
 function openReceiptDialog() {
@@ -1565,6 +1442,59 @@ function printPage(id: string) {
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
+  }, 500)
+}
+
+function printPageLiquidation(id: string, { url, title, w, h }) {
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+
+  const printContents = document.getElementById(id)?.innerHTML
+
+  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+  const width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width
+  const height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height
+
+  const systemZoom = width / window.screen.availWidth
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+  const newWindow = window.open(
+    url,
+    title,
+    `
+				scrollbars=yes,
+				width=${w / systemZoom},
+				height=${h / systemZoom},
+				top=${top},
+				left=${left}      `
+  )
+  newWindow?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${printContents}
+                  </body>
+                </html>`)
+
+  newWindow?.document.close()
+  newWindow?.focus()
+  setTimeout(() => {
+    newWindow?.print()
+    newWindow?.close()
   }, 500)
 }
 
@@ -1887,7 +1817,7 @@ const getReturnOrder = () => {
   })
 }
 
-// disabled phiếu thanh toán và phiếu đặt cọc tạm ứng
+// disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
 const doubleDisabled = ref(false)
 const showPromo = ref(false)
 
@@ -1937,6 +1867,13 @@ onMounted(async () => {
             :dataEdit="formReceipts"
             :nameDialog="nameDialog"
           />
+        </slot>
+      </div>
+
+      <!-- phiếu thanh lý hợp đồng -->
+      <div id="billLiquidationContract">
+        <slot>
+          <liquidationPurchaseContractPrint :data-customer="customerData" />
         </slot>
       </div>
 
@@ -2691,6 +2628,35 @@ onMounted(async () => {
         </template>
       </el-dialog>
 
+      <!-- Thông tin phiếu thanh lý -->
+      <!-- Dialog thông tin hợp đồng thanh lý-->
+      <el-dialog v-model="dialogBillLiquidation" class="font-bold" width="40%" align-center>
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPageLiquidation('billLiquidationContract', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <liquidationPurchaseContractPrint :data-customer="customerData" />
+            </slot>
+          </div>
+        </div>
+      </el-dialog>
+
       <!-- Thông tin phiếu thanh toán mua hàng -->
       <el-dialog
         v-model="dialogSalesSlipInfomation"
@@ -2741,10 +2707,10 @@ onMounted(async () => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
+            <span class="w-[30%] text-base font-bold break-w">{{
               t('formDemo.productInformationBuy')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
@@ -2789,7 +2755,11 @@ onMounted(async () => {
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 pt-2">{{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
-              <p class="pr-2 pt-2">{{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
+              <CurrencyInputComponent
+                :isReadOnly="false"
+                v-model="inputDeposit"
+                class="handle-fix"
+              />
               <p class="pr-2 text-red-600 pt-2">{{
                 moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
               }}</p>
@@ -3101,8 +3071,22 @@ onMounted(async () => {
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                sellOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.purchaseInfo') }}</span>
@@ -3137,18 +3121,6 @@ onMounted(async () => {
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <el-table-column prop="kindOfMoney" :label="t('formDemo.kindOfMoney')" width="120">
-              <template #default="props">
-                <el-select v-model="props.row.kindOfMoney" class="m-2">
-                  <el-option
-                    v-for="item in optionsKindOfMoney"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </template>
-            </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
                 <el-input class="text-right" v-model="props.row.collected" />
@@ -3170,7 +3142,7 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white"></p>
             </div>
           </div>
         </div>
@@ -4052,6 +4024,7 @@ onMounted(async () => {
               <el-input
                 v-else
                 :disabled="checkDisabled"
+                type="number"
                 @change="
                   () => {
                     data.row.totalPrice = data.row.unitPrice * data.row.quantity
@@ -4279,7 +4252,7 @@ onMounted(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
+              <!-- <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
                 <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
@@ -4329,36 +4302,89 @@ onMounted(async () => {
                     <span class="triangle-right right_4"> </span>
                   </span>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <!-- Không thay đổi giá -->
-          <div
-            v-if="statusOrder == 1 && priceChangeOrders == false"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div class="w-[100%] flex ml-1 gap-4">
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER[1].value ||
+                statusOrder == STATUS_ORDER[2].value ||
+                statusOrder == STATUS_ORDER[3].value ||
+                statusOrder == STATUS_ORDER[4].value ||
+                statusOrder == STATUS_ORDER[7].value
+              "
               :disabled="doubleDisabled"
-              @click="openBillDialog"
+              @click="dialogBillLiquidation = true"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
             <el-button
               @click="openBillDialog"
+              v-if="
+                statusOrder == STATUS_ORDER[1].value ||
+                statusOrder == STATUS_ORDER[2].value ||
+                statusOrder == STATUS_ORDER[3].value ||
+                statusOrder == STATUS_ORDER[4].value
+              "
               :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentDepositSlipAdvance') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER[2].value"
               :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.editOrder') }}</el-button
+            >
+            <el-button
+              type="primary"
+              v-if="statusOrder == STATUS_ORDER[2].value"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.orderSuccess') }}</el-button
+            >
+            <el-button
+              type="primary"
+              v-if="statusOrder == STATUS_ORDER[2].value || statusOrder == STATUS_ORDER[3].value"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.purchaseSuccess') }}</el-button
+            >
+            <button
+              :disabled="checkDisabled"
+              v-if="statusOrder == STATUS_ORDER[4].value"
+              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              >{{ t('formDemo.exchangeReturnGoods') }}</button
+            >
+
+            <el-button
+              :disabled="checkDisabled"
+              v-if="statusOrder == STATUS_ORDER[4].value || statusOrder == STATUS_ORDER[7].value"
+              class="min-w-42 min-h-11 bg-[#D9D9D9]"
+              >{{ t('formDemo.checkFinish') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              v-if="statusOrder == STATUS_ORDER[6].value"
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.completeOrder') }}</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER[6].value"
+              :disabled="checkDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.cancellationReturn') }}</el-button
+            >
+            <el-button
+              :disabled="checkDisabled"
+              v-if="statusOrder == STATUS_ORDER[1].value"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 3
                 }
               "
               type="primary"
@@ -4366,237 +4392,16 @@ onMounted(async () => {
               >{{ t('reuse.saveAndPending') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                  statusOrder = 9
-                  checkDisabled = !checkDisabled
-                }
+              v-if="
+                statusOrder == STATUS_ORDER[1].value ||
+                statusOrder == STATUS_ORDER[2].value ||
+                statusOrder == STATUS_ORDER[3].value
               "
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
-          </div>
-
-          <!-- Có thay đổi giá -->
-          <div
-            v-else-if="statusOrder == 1 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
-            <el-button
-              @disabled="doubleDisabled"
-              @click="openBillDialog"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.paymentSlip') }}</el-button
-            >
-            <el-button
-              @click="dialogDepositSlipAdvance = true"
-              :disabled="doubleDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  statusOrder = 3
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('button.saveAndWaitApproval') }}</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                  statusOrder = 9
-                }
-              "
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
-          </div>
-          <div
-            v-else-if="statusOrder == 2 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
-            <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                }
-              "
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
-          </div>
-          <div v-else-if="statusOrder == 3" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
-            <el-button
-              @click="dialogDepositSlipAdvance = true"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  addStatusOrder(3)
-                  statusOrder = 5
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.completeOrder') }}</el-button
-            >
-            <el-button
-              @click="statusOrder = 4"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.editOrder') }}</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(6)
-                  addStatusDelay()
-                }
-              "
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
-          </div>
-          <div v-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 3
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button
-              @click="statusOrder = 3"
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancel') }}</el-button
-            >
-          </div>
-          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
-            <el-button
-              @click="openDepositDialog"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  changeReturnGoods = true
-                  statusOrder = 6
-                  addStatusOrder(4)
-                  changeStatus(7)
-                  getReturnOrder()
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.exchangeReturnGoods') }}</button
-            >
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(5)
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#D9D9D9]"
-              >{{ t('formDemo.checkFinish') }}</el-button
-            >
-          </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              @click="changeReturnGoods = true"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.cancellationReturn') }}</el-button
-            >
-          </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
-            <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  changeReturnGoods = true
-                  statusOrder = 8
-                  getReturnRequestTable()
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.completeExchangeReturn') }}</button
-            >
-            <el-button
-              @click="statusOrder = 5"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.cancellationReturn') }}</el-button
-            >
-          </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.paymentSlip')
-            }}</el-button>
-            <el-button
-              @click="openDepositDialog"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(5)
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
-              >{{ t('formDemo.checkFinish') }}</button
-            >
-          </div>
-          <div v-else-if="statusOrder == 15" class="w-[100%] flex ml-1 gap-4">
-            <el-button type="warning" class="min-w-42 min-h-11">{{
-              t('router.approve')
-            }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
-              t('router.notApproval')
-            }}</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -4724,7 +4529,7 @@ onMounted(async () => {
               <div v-else>{{ data.row.paidMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="deibt" :label="t('formDemo.salesDebt')" min-width="150">
+          <el-table-column prop="deibt" :label="t('formDemo.buysDebt')" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.deibt"
@@ -4933,6 +4738,9 @@ onMounted(async () => {
   }
   .dialog-content {
     display: block;
+  }
+  #billLiquidationContract {
+    display: none;
   }
 }
 

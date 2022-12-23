@@ -9,11 +9,16 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import TableOperator from '../../Components/TableBase/src/TableOperator.vue'
 import { API_URL } from '@/utils/API_URL'
+import router from '@/router'
 // get data from router
 const { t } = useI18n()
 
 const { push } = useRouter()
 
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
+const title = router.currentRoute.value.meta.title
+const disableCheckBox = ref(false)
 const schema = reactive<FormSchema[]>([
   {
     field: 'field1',

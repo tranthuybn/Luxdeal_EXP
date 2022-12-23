@@ -201,3 +201,42 @@ export const STATUS = [
     label: 'Đang hoạt động'
   }
 ]
+
+export const STATUS_ORDER = [
+  {
+    value: 0,
+    label: 'Hủy đơn hàng'
+  },
+  {
+    value: 1,
+    label: 'Duyệt đơn mua hàng'
+  },
+  {
+    value: 2,
+    label: 'Chốt đơn hàng'
+  },
+  {
+    value: 3,
+    label: 'Đặt hàng thành công'
+  },
+  {
+    value: 4,
+    label: 'Mua hàng thành công'
+  },
+  {
+    value: 5,
+    label: 'Đối soát & kết thúc'
+  },
+  {
+    value: 6,
+    label: 'Duyệt đổi/trả hàng'
+  },
+  {
+    value: 7,
+    label: 'Hoàn thành đổi trả'
+  },
+  {
+    value: 8,
+    label: 'Duyệt hủy đơn hàng'
+  }
+]

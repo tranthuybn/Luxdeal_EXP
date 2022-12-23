@@ -152,14 +152,14 @@ const rulesAddress = reactive<FormRules>({
     {
       required: true,
       message: 'Quận/huyện kkhông được để trống ',
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
   wardCommune: [
     {
       required: true,
       message: 'Phường/Xã không được để trống ',
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
   detailedAddress: [
@@ -414,6 +414,11 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  console.log('val: ', val)
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 
 // Dialog change address
@@ -981,12 +986,16 @@ let idOrderPost = ref()
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
+    Accessory: val.accessory,
+    Description: null,
     Quantity: parseInt(val.quantity),
-    ProductPrice: val.price,
-    SoldPrice: val.finalPrice,
-    WarehouseId: 1,
-    IsPaid: true,
-    Accessory: val.accessory
+    UnitPrice: val.price,
+    HirePrice: 0,
+    DepositePrice: 0,
+    TotalPrice: val.finalPrice,
+    ConsignmentSellPrice: 0,
+    ConsignmentHirePrice: 0,
+    SpaServiceIds: null
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -998,6 +1007,15 @@ const postData = async () => {
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
     CustomerId: customerID.value,
+    TotalPrice: totalPriceOrder.value,
+    DepositePrice: 0,
+    DiscountMoney:
+      promoCash.value != 0
+        ? promoCash.value
+        : promoValue.value != 0
+        ? (totalPriceOrder.value * promoValue.value) / 100
+        : 0,
+    InterestMoney: 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -1007,7 +1025,7 @@ const postData = async () => {
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
-    Status: 1
+    Status: 2
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
@@ -1120,14 +1138,31 @@ const editData = async () => {
 
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
-const getAccountingEntry = async (index, num) => {
+const getAccountingEntry = (_index, scope) => {
+  const data = scope.row
+  data.content?.indexOf('Phiếu thanh toán') != 1
+    ? openAcountingEntryDialog(data.id, 1)
+    : data.content?.indexOf('Phiếu đặt cọc/Tạm ứng') != 1
+    ? openAcountingEntryDialog(data.id, 2)
+    : data.content?.indexOf('Trả lại tiền cọc cho khách') != 1
+    ? openAcountingEntryDialog(data.id, 3)
+    : openAcountingEntryDialog(data.id, 4)
+}
+
+const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  console.log('table: ', formAccountingId)
+  tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  if (num == 1) dialogSalesSlipInfomation.value = true
-  else if (num == 2) dialogDepositSlipAdvance.value = true
-  else if (num == 3) dialogAccountingEntryAdditional.value = true
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  if (num == 1) {
+    dialogSalesSlipInfomation.value = true
+  } else if (num == 2) {
+    dialogDepositSlipAdvance.value = true
+  } else if (num == 3) {
+    dialogAccountingEntryAdditional.value = true
+  } else if (num == 4) changeReturnGoods.value = true
 }
 
 // Call api danh sách mã giảm giá
@@ -1556,11 +1591,11 @@ const postOrderStransaction = async (index: number) => {
       ? tableAccountingEntry.value[0].collected
       : 0,
     paidMoney: tableAccountingEntry.value[0].spent ? tableAccountingEntry.value[0].spent : 0,
-    deibt: 0,
-    typeOfPayment: 0,
+    deibt: index == 1 ? 0 : moneyDeposit.value,
+    typeOfPayment: moneyDeposit.value ? 0 : 1,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -1620,7 +1655,7 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
-let moneyDeposit = ref()
+let moneyDeposit = ref(0)
 
 const inputRecharger = ref()
 
@@ -1857,7 +1892,7 @@ const valueMoneyAccoungtingEntry = ref(0)
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
   const data = scope.row
-  data.intoMoney = parseInt(data.spent) - parseInt(data.collected)
+  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
 
   tableAccountingEntry.value.map((val) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
@@ -4867,7 +4902,7 @@ onMounted(async () => {
             min-width="70"
           >
             <template #default="scope">
-              <el-checkbox :disabled="checkDisabled" v-model="scope.row.isReceiptedMoney" />
+              <el-checkbox :disabled="true" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
           <el-table-column
@@ -4887,15 +4922,7 @@ onMounted(async () => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="
-                    data.row.content.includes('Phiếu thanh toán')
-                      ? getAccountingEntry(data.row.id, 1)
-                      : data.row.content.includes('Phiếu đặt cọc/Tạm ứng')
-                      ? getAccountingEntry(data.row.id, 2)
-                      : data.row.content.includes('Trả lại tiền cọc cho khách')
-                      ? getAccountingEntry(data.row.id, 3)
-                      : (changeReturnGoods = true)
-                  "
+                  @click="(index) => getAccountingEntry(index, data)"
                   v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >

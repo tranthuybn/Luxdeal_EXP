@@ -444,7 +444,7 @@ const optionsCustomer = [
   }
 ]
 
-const radioVAT = ref(0)
+const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
@@ -686,6 +686,8 @@ const autoCalculateOrder = () => {
         totalPriceOrder.value -
         (totalPriceOrder.value * promoValue.value) / 100 +
         totalDeposit.value)
+
+  changePriceVAT()
 }
 
 // Call api danh sách sản phẩm
@@ -1157,6 +1159,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
             totalPriceOrder.value -
             (totalPriceOrder.value * promoValue.value) / 100 +
             totalDeposit.value)
+
+      changePriceVAT()
     }
   }
 }
@@ -2014,6 +2018,17 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
       'reuse.total'
     )}${files.length + uploadFiles.length}`
   )
+}
+
+// Cập nhật lại giá tiền khi thay đổi VAT
+const changePriceVAT = () => {
+  if (radioVAT.value.length < 4) {
+    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    console.log('valueVAT: ', valueVAT)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
+    }
+  }
 }
 
 onBeforeMount(() => {
@@ -4121,17 +4136,20 @@ onBeforeMount(() => {
             <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  {{ radioVAT }}
                   <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group v-model="radioVAT" class="flex-col">
+                      <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="0">{{
-                            t('formDemo.VATNotIncluded')
-                          }}</el-radio>
+                          <el-radio
+                            class="text-left"
+                            style="color: blue"
+                            :label="t('formDemo.doesNotIncludeVAT')"
+                            >{{ t('formDemo.VATNotIncluded') }}</el-radio
+                          >
                         </div>
                         <div style="width: 100%">
                           <el-radio class="text-left" style="color: blue" label="10%"

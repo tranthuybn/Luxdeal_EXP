@@ -243,11 +243,16 @@ const callApiDetail = async () => {
       targetType: res.targetType
     })
     TableData = res?.CustomerJson
+    radio.value = res.type
+    tableTypePoint[radio.value].point = res.point
+    tableTypePoint[radio.value].price = res.price
   }
   console.log('formDetail', formDetail)
 }
 const disabledUpload = ref(false)
+const radioDisabled = ref(false)
 const disabledEverything = () => {
+  radioDisabled.value = true
   disabledUpload.value = true
   const { setProps, setSchema } = methods
   setProps({
@@ -551,6 +556,7 @@ const changeTypeToEdit = () => {
   enableEverything()
 }
 const enableEverything = () => {
+  radioDisabled.value = false
   disabledUpload.value = false
   const { setProps } = methods
   setProps({
@@ -728,7 +734,9 @@ const enableEverything = () => {
     <el-table :data="tableTypePoint" border style="width: 100%">
       <el-table-column prop="radioComboTable" width="90" align="center">
         <template #default="scope">
-          <el-radio v-model="radio" :label="scope.$index" size="large"><span></span></el-radio>
+          <el-radio v-model="radio" :label="scope.$index" size="large" :disabled="radioDisabled"
+            ><span></span
+          ></el-radio>
         </template>
       </el-table-column>
       <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />

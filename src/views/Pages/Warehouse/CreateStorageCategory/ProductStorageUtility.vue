@@ -33,7 +33,7 @@ const schema = reactive<FormSchema[]>([
     modelValue: 1,
     value: 1,
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       style: 'width: 100%',
@@ -70,10 +70,11 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameWarehouseLevel1'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
-      placeholder: t('reuse.inputNameWarehouseLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -82,21 +83,22 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameWarehouseLevel1'),
     component: 'Select',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.inputNameWarehouseLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
   {
-    field: 'name',
+    field: 'name2',
     label: t('reuse.nameWarehouseLevel2'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.inputNameWarehouseLevel2')
@@ -175,6 +177,7 @@ type SetFormData = {
   percent: number
   money: number
   imageurl?: string
+  name2: string
 }
 const emptyFormData = {} as SetFormData
 const formDataCustomize = reactive(emptyFormData)
@@ -189,25 +192,30 @@ const customizeData = async (formData) => {
     schema[1].componentProps.disabled = true
   }
   formDataCustomize.status = []
-  if (formData[0].parentid == 0) {
-    formDataCustomize.rankWarehouse = 1
-  } else {
-    formDataCustomize.rankWarehouse = 2
-    await addFormSchema(timesCallAPI, formData[0].name)
-  }
+
   if (formData[0].isActive == true) {
     formDataCustomize.status.push('active')
   }
   if (formData[0].isHide == true) {
     formDataCustomize.status.push('hide')
   }
-  formDataCustomize.name = formData[0].name
-  console.log('formDatra', formData)
+  if (formData[0].parentid == 0) {
+    formDataCustomize.rankWarehouse = 1
+  } else {
+    formDataCustomize.rankWarehouse = 2
+    await addFormSchema(timesCallAPI, formData[0].name)
+  }
+
+  console.log('form data', formData[0])
   console.log('formDataCustomize', formDataCustomize)
 
   formDataCustomize.Image = formData[0].warehouseImages[0].path
   formDataCustomize.imageurl = `${API_URL}${formData[0].warehouseImages[0].path}`
-
+  if (formData[0].parentid == 0) {
+    formDataCustomize.name = formData[0].name
+  } else {
+    formDataCustomize.name2 = formData[0].name
+  }
   formDataCustomize.isDelete = false
 }
 
@@ -261,21 +269,22 @@ type FormDataPost = {
 var curDate = 'WH' + moment().format('hhmmss')
 
 const customPostData = (data) => {
+  console.log('data1:', data)
   const customData = {} as FormDataPost
-  customData.Id = data.id
+  customData.Id = data.Id
   customData.Name = data.name
   customData.Code = curDate
   customData.ParentId = data.parentid
-  customData.Images = data.Images
+  customData.Images = data.NewPhotos
+  customData.DeleteFileIds = data.DeleteFileIds.toString()
   data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  console.log('data', customData)
   return customData
 }
 
 const postData = async (data) => {
   //manipulate Data
-  if (data.ParentId == undefined) {
-    data.ParentId = 0
-  }
+
   if (data.status === 'active') {
     data.isActive = true
   } else {
@@ -341,5 +350,6 @@ const editData = async (data) => {
     :formDataCustomize="formDataCustomize"
     @customize-form-data="customizeData"
     :delApi="deleteProductStorage"
+    :multipleImages="false"
   />
 </template>

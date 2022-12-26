@@ -9,6 +9,9 @@ const { t } = useI18n()
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const seeDetail = (...param) => {
+  console.log('param', param)
+  console.log('param', param[0].id)
+
   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
     ? unref(tableBase01)?.tableObject.tableList
     : []
@@ -21,18 +24,18 @@ const seeDetail = (...param) => {
 const unitCategories = [
   { field: '', width: '50' },
   {
-    field: 'categoryInfo',
+    field: 'name',
     label: t('reuse.categoriesInfor'),
     minWidth: '700'
   },
 
   {
-    field: 'condition',
+    field: 'description',
     label: t('reuse.approveCondition'),
     minWidth: '200'
   },
   {
-    field: 'approveOrNot',
+    field: 'isActive',
     label: t('reuse.approveOrNot'),
     minWidth: '100',
     fixed: false,

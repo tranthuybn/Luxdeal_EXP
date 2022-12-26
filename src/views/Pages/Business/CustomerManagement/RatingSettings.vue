@@ -123,8 +123,8 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'left',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', productStatusTransferToText(_))
     }
   }
 ])

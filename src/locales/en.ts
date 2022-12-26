@@ -1651,6 +1651,25 @@ export default {
     rechargePoint: 'Recharge point',
     usedPoint: 'Used point',
     totalPoint: 'Total point',
-    notFoundImage: 'Not found image'
+    notFoundImage: 'Not found image',
+    pointsForSellOrder: 'Points for sell order',
+    pointsForRentOrder: 'Points for rent order',
+    pointsForDepositOrder: 'Points for deposit order',
+    pointsForPawnOrder: 'Points for pawn order',
+    pointsForSpaOrder: 'Points for spa order',
+    pointsForAffiliate: 'Points for affiliate',
+    moneyExchange: 'Money exchange',
+    cancelPoint: 'Cancel point',
+    cancelPackage: 'Cancel package',
+    finishPacking: 'Finish packing',
+    pointsNumber: 'Points number',
+    choosePointExchangeType: 'choose Point Exchange Type',
+    customerBuyPointExchange: 'customer Buy Point Exchange',
+    customerGetPointWhenBuyProduct: 'Customer get point when buy product',
+    customerGetPointWhenRentProduct: 'Customer get point when rent product',
+    customerGetPointWhenDepositProduct: 'Customer get point when deposit product',
+    customerGetPointWhenPawnProduct: 'Customer get point when pawn product',
+    customerGetPointWhenSpaProduct: 'Customer get point when spa product ',
+    customerGetPointWhenRefer: 'Customer get point when refer'
   }
 }

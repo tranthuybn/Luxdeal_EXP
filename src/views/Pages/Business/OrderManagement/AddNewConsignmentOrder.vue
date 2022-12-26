@@ -496,6 +496,7 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      consignOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -837,7 +838,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -920,7 +921,7 @@ const showIdWarehouse = (scope) => {
 
 const value = ref('')
 
-const pawnOrderCode = ref()
+const consignOrderCode = ref()
 
 let customerID = ref()
 
@@ -956,7 +957,7 @@ const collapseChangeEvent = (val: string | string[]) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
 
@@ -1092,7 +1093,7 @@ function printPage(id: string, { url, title, w, h }) {
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
-const alreadyPaidForTt = ref(true)
+const alreadyPaidForTt = ref(false)
 
 const tableAccountingEntry = ref([
   {
@@ -2017,7 +2018,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl font-bold">BH24354</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2026,13 +2027,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">PT890345</div>
+              <div class="w-[100%] text-xl font-bold">PT890345</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="recharger" placeholder="Chọn người nộp tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2139,7 +2140,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ consignOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2148,13 +2149,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="value" placeholder="Chọn người nhận tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2165,13 +2166,9 @@ onMounted(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
+                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -2254,7 +2251,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ consignOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('router.analysis') }}</span>
@@ -2263,7 +2260,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2617,7 +2614,7 @@ onMounted(async () => {
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
+            <label class="w-[30%] text-right font-bold">{{ t('formDemo.orderCode') }}</label>
             <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
           </div>
           <div class="flex items-center">
@@ -3784,6 +3781,31 @@ onMounted(async () => {
     max-width: 100%;
   }
 }
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
 
 ::v-deep(label) {
   color: #828387;
@@ -3808,6 +3830,9 @@ onMounted(async () => {
 
 .dialog-footer button:first-child {
   margin-right: 10px;
+}
+::v-deep(.el-dialog__title) {
+  font-weight: bold;
 }
 
 @media print {

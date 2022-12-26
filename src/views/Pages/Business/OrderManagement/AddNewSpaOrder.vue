@@ -34,6 +34,7 @@ import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { dateTimeFormat, formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import moment from 'moment'
 import ckEditor from '@/components/Editor/src/Editor.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -63,6 +64,7 @@ import {
 } from '@/api/Business'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import ChooseTransferWarehouse from './ChooseTransferWH.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -110,7 +112,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -165,7 +167,7 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const radio1 = ref('')
+const radio1 = ref('2')
 
 const input = ref('')
 type Options = {
@@ -268,7 +270,7 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
@@ -316,7 +318,18 @@ const tableWarehouse = [
   }
 ]
 
-const radioVAT = ref(false)
+const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
+
+// Cập nhật lại giá tiền khi thay đổi VAT
+const changePriceVAT = () => {
+  if (radioVAT.value.length < 4) {
+    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    console.log('valueVAT: ', valueVAT)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
+    }
+  }
+}
 
 // Call api danh sách khách hàng
 let customerAddress = ref('')
@@ -1528,6 +1541,7 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      spaOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -1716,7 +1730,7 @@ const districtChange = async (value) => {
 }
 
 const dialogInformationReceipts = ref(false)
-const pawnOrderCode = ref()
+const spaOrderCode = ref()
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
 // form phiếu thu
@@ -1728,7 +1742,7 @@ const PrintReceipts = ref(false)
 const getFormReceipts = () => {
   if (enterMoney.value) {
     formReceipts.value = {
-      sellOrderCode: pawnOrderCode.value,
+      sellOrderCode: spaOrderCode.value,
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
@@ -1776,7 +1790,7 @@ watch(
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 const changeReturnGoods = ref(false)
-const alreadyPaidForTt = ref(true)
+const alreadyPaidForTt = ref(false)
 var autoCodePawnOrder = 'CD' + moment().format('hmmss')
 var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
@@ -1789,7 +1803,7 @@ onBeforeMount(async () => {
   callAPIProduct()
   if (type == 'add') {
     ruleForm.orderCode = curDate
-    pawnOrderCode.value = autoCodePawnOrder
+    spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
@@ -2915,35 +2929,38 @@ const postReturnRequest = async (reason) => {
             <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  {{ radioVAT }}
                   <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group v-model="radioVAT" class="flex-col">
+                      <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="1">{{
-                            t('formDemo.VATNotIncluded')
-                          }}</el-radio>
+                          <el-radio
+                            class="text-left"
+                            style="color: blue"
+                            :label="t('formDemo.doesNotIncludeVAT')"
+                            >{{ t('formDemo.VATNotIncluded') }}</el-radio
+                          >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="2"
+                          <el-radio class="text-left" style="color: blue" label="10%"
                             >VAT 10%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="3"
+                          <el-radio class="text-left" style="color: blue" label="8%"
                             >VAT 8%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="4"
+                          <el-radio class="text-left" style="color: blue" label="5%"
                             >VAT 5%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="5"
+                          <el-radio class="text-left" style="color: blue" label="0%"
                             >VAT 0%</el-radio
                           >
                         </div>
@@ -2984,11 +3001,11 @@ const postReturnRequest = async (reason) => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
               <!-- <el-radio label="1" size="large">{{ t('reuse.closedTheOrder') }}</el-radio> -->
-              <el-radio label="2" size="large">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio label="2" value="2" size="large">{{ t('reuse.delivery') }}</el-radio>
               <!-- <el-radio label="3" size="large">{{ t('reuse.successfulDelivery') }}</el-radio>
               <el-radio label="4" size="large">{{ t('reuse.deliveryFailed') }}</el-radio>
               <el-radio label="5" size="large">{{ t('reuse.paying') }}</el-radio>
@@ -2996,12 +3013,18 @@ const postReturnRequest = async (reason) => {
             </el-radio-group>
           </div>
         </div>
-        <div class="flex gap-2 pb-8">
-          <div class="w-[11%]"></div>
-          <div class="w-[89%]"
-            ><span class="pl-2 pr-2 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent">{{
-              t('formDemo.changedUnitPriceIsWaitingForPriceApproval')
-            }}</span>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[84%] pl-1">
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                {{ t('formDemo.changedUnitPriceIsWaitingForPriceApproval') }}
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -3054,10 +3077,19 @@ const postReturnRequest = async (reason) => {
             <div class="flex-left">
               <div class="flex gap-4 pt-4 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
-                <div class="text-xl">{{ pawnOrderCode }}</div>
+                <div class="text-xl">{{ spaOrderCode }}</div>
               </div>
             </div>
-            <div class="flex-right"> Mã QR đơn hàng </div>
+            <div class="flex-right">
+              <div class="flex-right">
+                <div class="flex-1 flex items-start gap-4">
+                  <span>
+                    <div>Mã QR đơn hàng</div>
+                  </span>
+
+                  <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+                </div> </div
+            ></div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3107,12 +3139,57 @@ const postReturnRequest = async (reason) => {
               </template>
             </el-table-column>
           </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.spaFeePayment') }} </p>
+          <div class="flex flex-col justify-end items-end">
+            <div class="price-a flex gap-3 mb-2">
+              <div class="text-right">
+                <p class="text-black dark:text-white">{{ t('formDemo.spaFeePayment') }} </p>
+              </div>
+              <div class="text-right">
+                <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
+              </div>
             </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+            <div class="price-b flex gap-3 mb-2">
+              <div class="text-right">
+                <p class="text-black dark:text-white">{{ t('reuse.promotion') }} </p>
+              </div>
+              <div class="text-right">
+                <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
+              </div>
+            </div>
+            <div class="price-c flex gap-3 border-bottom-1 mb-2">
+              <div class="text-right">
+                <p class="text-black dark:text-white font-bold"
+                  >{{ t('reuse.totalSpaFeeMoney') }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+              </div>
+            </div>
+
+            <div class="price-c flex gap-3 mb-2">
+              <div class="text-right">
+                <p class="text-black dark:text-white">{{ t('reuse.totalSpaFeeDebt2') }} </p>
+              </div>
+              <div class="text-right">
+                <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+              </div>
+            </div>
+            <div class="price-c flex gap-3 mb-2">
+              <div class="text-right">
+                <p class="text-blue-500 dark:text-white">{{ t('formDemo.paymentSpa') }} </p>
+              </div>
+              <div class="text-right">
+                <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
+              </div>
+            </div>
+            <div class="price-c flex gap-3 mb-2">
+              <div class="text-right">
+                <p class="text-red-500 dark:text-white">{{ t('reuse.remaining') }} </p>
+              </div>
+              <div class="text-right">
+                <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -3277,7 +3354,7 @@ const postReturnRequest = async (reason) => {
           </el-table>
         </el-form>
         <div class="flex justify-between px-3 mt-2">
-          <strong>Thành tiền phí dịch vụ Spa</strong>
+          <strong>{{ t('formDemo.spaServiceFeePayment') }}</strong>
           <p class="price font-medium">{{ totalSettingSpa }}</p>
         </div>
 
@@ -3417,15 +3494,23 @@ const postReturnRequest = async (reason) => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 py-2 items-center justify-between">
+          <div class="flex gap-4 py-2 justify-between">
             <div class="flex-left">
               <div class="flex gap-4 py-2 items-center">
-                <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
-                <div class="text-xl">{{ pawnOrderCode }}</div>
+                <label class="text-right w-[170px] font-bold">{{ t('formDemo.orderCode') }}</label>
+                <div class="text-xl">{{ spaOrderCode }}</div>
               </div>
             </div>
 
-            <div class="flex-right"> Mã QR đơn hàng </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+
+                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+              </div>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3558,7 +3643,7 @@ const postReturnRequest = async (reason) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ spaOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -3567,13 +3652,13 @@ const postReturnRequest = async (reason) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3679,7 +3764,7 @@ const postReturnRequest = async (reason) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ spaOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -3688,13 +3773,13 @@ const postReturnRequest = async (reason) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.codePayment') }}</label>
-              <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nhận tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3705,13 +3790,9 @@ const postReturnRequest = async (reason) => {
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
+                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -3793,7 +3874,9 @@ const postReturnRequest = async (reason) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">
+              {{ spaOrderCode }}
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('router.analysis') }}</span>
@@ -3802,7 +3885,9 @@ const postReturnRequest = async (reason) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
+              <div class="w-[100%] text-xl font-bold">
+                {{ codePaymentRequest }}
+              </div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -4404,6 +4489,9 @@ const postReturnRequest = async (reason) => {
   display: flex;
   align-items: center;
 }
+::v-deep(.el-dialog__title) {
+  font-weight: bold;
+}
 
 ::v-deep(.el-upload--picture-card) {
   width: 160px;
@@ -4416,6 +4504,31 @@ const postReturnRequest = async (reason) => {
 }
 .fix-width > .el-form-item {
   width: 80%;
+}
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
 }
 
 .limit-text {

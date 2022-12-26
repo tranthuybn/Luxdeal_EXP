@@ -32,6 +32,7 @@ import type { UploadFile } from 'element-plus'
 import { dateTimeFormat, formatOrderReturnReason } from '@/utils/format'
 import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import {
@@ -106,7 +107,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -1313,6 +1314,7 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      pawnOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -1394,9 +1396,10 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 // Bút toán bổ sung
-const alreadyPaidForTt = ref(true)
+const alreadyPaidForTt = ref(false)
 
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
+
 var curDate = 'CD' + moment().format('hhmmss')
 var autoCodePawnOrder = 'CD' + moment().format('hmmss')
 var autoCodeReceipts = 'PT' + moment().format('hmmss')
@@ -2960,7 +2963,8 @@ const removeRow = (index) => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 py-2 items-center justify-between">
+
+          <div class="flex gap-4 pt-4 pb-4 items-center justify-between">
             <div class="flex-left">
               <div class="flex gap-4 py-2 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
@@ -2974,8 +2978,17 @@ const removeRow = (index) => {
               </div>
             </div>
 
-            <div class="flex-right"> Mã QR đơn hàng </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+
+                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+              </div>
+            </div>
           </div>
+
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -3103,7 +3116,7 @@ const removeRow = (index) => {
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"
-        :title="t('formDemo.informationPawn')"
+        :title="t('formDemo.informationReceipts')"
         width="40%"
         align-center
       >
@@ -3115,7 +3128,7 @@ const removeRow = (index) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ pawnOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -3124,13 +3137,13 @@ const removeRow = (index) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="value" placeholder="Chọn người nộp tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3231,7 +3244,7 @@ const removeRow = (index) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ pawnOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -3240,13 +3253,13 @@ const removeRow = (index) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.codePayment') }}</label>
-              <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="value" placeholder="Chọn người nhận tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -3257,13 +3270,9 @@ const removeRow = (index) => {
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
+                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -3384,13 +3393,15 @@ const removeRow = (index) => {
         <div>
           <el-divider />
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
             <!-- <button @click="testDialog = true">Test</button> -->
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4 items-center justify-between">
+            <div class="flex gap-4 py-2 items-center">
+              <label class="text-right w-[170px] font-bold">{{ t('formDemo.orderCode') }}</label>
+              <div class="text-xl">{{ pawnOrderCode }}</div>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('router.analysis') }}</span>
@@ -3399,7 +3410,7 @@ const removeRow = (index) => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -3441,7 +3452,7 @@ const removeRow = (index) => {
               <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80" />
               <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120" />
               <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50" />
-              <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              <el-table-column prop="unitPrices" :label="t('reuse.unitPrice')">
                 <template #default="props">
                   <div class="text-right">{{ props.row.unitPrices }}</div>
                 </template>

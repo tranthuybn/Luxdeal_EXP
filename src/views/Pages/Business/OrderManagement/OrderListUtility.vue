@@ -57,6 +57,7 @@ import {
   getReceiptPaymentVoucher,
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
+  GetPaymentRequestDetail,
   addDNTT,
   addOrderStransaction,
   updateOrderTransaction,
@@ -143,26 +144,26 @@ const rulesAddress = reactive<FormRules>({
   province: [
     {
       required: true,
-      message: 'Không được để trống Tỉnh/thành phố',
+      message: 'Tỉnh/thành phố không được để trống ',
       trigger: 'change'
     }
   ],
   district: [
     {
       required: true,
-      message: 'Không được để trống Quận/huyện',
-      trigger: 'change'
+      message: 'Quận/huyện kkhông được để trống ',
+      trigger: 'blur'
     }
   ],
   wardCommune: [
     {
       required: true,
-      message: 'Không được để trống Phường/Xã',
-      trigger: 'change'
+      message: 'Phường/Xã không được để trống ',
+      trigger: 'blur'
     }
   ],
   detailedAddress: [
-    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+    { required: true, message: 'Địa chỉ chi tiết không được để trống ', trigger: 'blur' }
   ]
 })
 
@@ -403,6 +404,7 @@ interface tableDataType {
   paymentMethods: number
   status: number
   alreadyPaidForTt: boolean
+  isReceiptedMoney: boolean
   idPTC?: number
   statusAccountingEntry: string
 }
@@ -412,6 +414,11 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  console.log('val: ', val)
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 
 // Dialog change address
@@ -442,7 +449,7 @@ const districtChange = async (value) => {
 
 const tableWarehouse = ref([])
 
-const radioVAT = ref(0)
+const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 let infoCompany = reactive({
   name: '',
   taxCode: '',
@@ -562,6 +569,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
       : (totalFinalOrder.value =
           totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 
+    changePriceVAT()
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
@@ -778,6 +786,8 @@ const autoCalculateOrder = () => {
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  changePriceVAT()
 }
 
 // change address
@@ -979,12 +989,16 @@ let idOrderPost = ref()
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
+    Accessory: val.accessory,
+    Description: null,
     Quantity: parseInt(val.quantity),
-    ProductPrice: val.price,
-    SoldPrice: val.finalPrice,
-    WarehouseId: 1,
-    IsPaid: true,
-    Accessory: val.accessory
+    UnitPrice: val.price,
+    HirePrice: 0,
+    DepositePrice: 0,
+    TotalPrice: val.finalPrice,
+    ConsignmentSellPrice: 0,
+    ConsignmentHirePrice: 0,
+    SpaServiceIds: null
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -996,6 +1010,15 @@ const postData = async () => {
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
     CustomerId: customerID.value,
+    TotalPrice: totalPriceOrder.value,
+    DepositePrice: 0,
+    DiscountMoney:
+      promoCash.value != 0
+        ? promoCash.value
+        : promoValue.value != 0
+        ? (totalPriceOrder.value * promoValue.value) / 100
+        : 0,
+    InterestMoney: 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -1005,7 +1028,7 @@ const postData = async () => {
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
-    Status: 1
+    Status: 2
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
@@ -1063,7 +1086,6 @@ const editData = async () => {
     if (debtTable.value?.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
-    console.log('debtTable: ', debtTable.value)
 
     const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15
@@ -1119,14 +1141,31 @@ const editData = async () => {
 
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
-const getAccountingEntry = async (index, num) => {
+const getAccountingEntry = (_index, scope) => {
+  const data = scope.row
+  data.content?.indexOf('Phiếu thanh toán') != 1
+    ? openAcountingEntryDialog(data.id, 1)
+    : data.content?.indexOf('Phiếu đặt cọc/Tạm ứng') != 1
+    ? openAcountingEntryDialog(data.id, 2)
+    : data.content?.indexOf('Trả lại tiền cọc cho khách') != 1
+    ? openAcountingEntryDialog(data.id, 3)
+    : openAcountingEntryDialog(data.id, 4)
+}
+
+const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  console.log('table: ', formAccountingId)
+  tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  if (num == 1) dialogSalesSlipInfomation.value = true
-  else if (num == 2) dialogDepositSlipAdvance.value = true
-  else if (num == 3) dialogAccountingEntryAdditional.value = true
+  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
+  if (num == 1) {
+    dialogSalesSlipInfomation.value = true
+  } else if (num == 2) {
+    dialogDepositSlipAdvance.value = true
+  } else if (num == 3) {
+    dialogAccountingEntryAdditional.value = true
+  } else if (num == 4) changeReturnGoods.value = true
 }
 
 // Call api danh sách mã giảm giá
@@ -1317,16 +1356,16 @@ const tableAccountingEntry = ref([
 // fake tạm option thêm nhanh sản phẩm
 const choosePayment = [
   {
-    value: 0,
+    value: 1,
     label: t('formDemo.cashPayment')
   },
   {
-    value: 1,
+    value: 0,
     label: t('formDemo.cardPayment')
   }
 ]
 const value = ref('')
-let payment = ref(choosePayment[0].value)
+let payment = ref(choosePayment[1].value)
 
 const options = [
   {
@@ -1555,11 +1594,11 @@ const postOrderStransaction = async (index: number) => {
       ? tableAccountingEntry.value[0].collected
       : 0,
     paidMoney: tableAccountingEntry.value[0].spent ? tableAccountingEntry.value[0].spent : 0,
-    deibt: 0,
-    typeOfPayment: 0,
+    deibt: index == 1 ? 0 : moneyDeposit.value,
+    typeOfPayment: moneyDeposit.value ? 0 : 1,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -1619,7 +1658,7 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
-let moneyDeposit = ref()
+let moneyDeposit = ref(0)
 
 const inputRecharger = ref()
 
@@ -1648,7 +1687,6 @@ const postPT = async () => {
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
   handleChangeReceipts()
-  getOrderStransactionList()
 }
 
 // Thêm mới phiếu chi
@@ -1656,7 +1694,7 @@ let objidPC = ref()
 let idPC = ref()
 const postPC = async () => {
   const payload = {
-    Code: codeReceipts.value,
+    Code: codeExpenditures.value,
     TotalMoney: 21325465,
     TypeOfPayment: 1,
     status: 1,
@@ -1671,7 +1709,26 @@ const postPC = async () => {
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
   handleChangeReceipts()
-  getOrderStransactionList()
+}
+
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+  await getOrderStransactionList()
 }
 
 // Lấy chi tiết phiếu thu chi
@@ -1680,9 +1737,27 @@ const getDetailPayment = async (_index, scope) => {
   formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
   nameDialog.value = 'Phiếu thu'
+  codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+  codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+  payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
   dialogInformationReceipts.value = true
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  formDetailPaymentReceipt.value = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  codePaymentRequest.value = formDetailPaymentReceipt.value.data.paymentRequest?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data.paymentRequest?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value.data.paymentRequest?.totalMoney
+  payment.value = formDetailPaymentReceipt.value.data.paymentRequest?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value.data.paymentRequest?.peopleId ?? 1
+  dialogIPRForm.value = true
 }
 
 // Thêm mới phiếu đề nghị thanh toán
@@ -1705,7 +1780,6 @@ const postPaymentRequest = async () => {
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
   handleChangePaymentOrder()
-  getOrderStransactionList()
 }
 
 // form phiếu thu
@@ -1734,27 +1808,10 @@ const getFormReceipts = () => {
   }
 }
 
-// Thêm mã phiếu thu/chi vào debtTable
-const handleChangeReceipts = async () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      const payload = {
-        accountingEntryId: val.id,
-        paymentRequestId: 0,
-        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
-        isReceiptedMoney: true,
-        status: 0,
-        paymentMethods: 1
-      }
-      updateOrderTransaction(payload)
-    })
-  }
-}
-
 // Thêm mới mã phiếu đề nghị thanh toán vào debtTable
 const handleChangePaymentOrder = async () => {
   if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
+    newTable.value.forEach((val, index, arr) => {
       const payload = {
         accountingEntryId: val.id,
         paymentRequestId: idPayment.value,
@@ -1763,26 +1820,15 @@ const handleChangePaymentOrder = async () => {
         status: 0,
         paymentMethods: 1
       }
-      updateOrderTransaction(payload)
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
     })
   }
 }
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
-
-// Thêm mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentRequest = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.paymentRequestCode = codePaymentRequest.value
-        }
-      })
-    })
-  }
-}
 
 const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
@@ -1849,11 +1895,22 @@ const valueMoneyAccoungtingEntry = ref(0)
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
   const data = scope.row
-  data.intoMoney = parseInt(data.spent) - parseInt(data.collected)
+  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
 
   tableAccountingEntry.value.map((val) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
+}
+
+// Cập nhật lại giá tiền khi thay đổi VAT
+const changePriceVAT = () => {
+  if (radioVAT.value.length < 4) {
+    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    console.log('valueVAT: ', valueVAT)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
+    }
+  }
 }
 
 onBeforeMount(async () => {
@@ -2271,9 +2328,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{
-                formDetailPaymentReceipt.data?.code ?? codeReceipts
-              }}</div>
+              <div class="w-[100%] text-xl">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2281,7 +2336,7 @@ onMounted(async () => {
               >
               <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2308,7 +2363,7 @@ onMounted(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền thu</label>
-            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -2400,9 +2455,9 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2429,7 +2484,7 @@ onMounted(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền chi</label>
-            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -2502,7 +2557,6 @@ onMounted(async () => {
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-            <!-- <button @click="testDialog = true">Test</button> -->
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2521,9 +2575,9 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người đề nghị">
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2536,6 +2590,7 @@ onMounted(async () => {
               >
               <el-input
                 style="width: 100%"
+                v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')"
               />
             </div>
@@ -2575,7 +2630,9 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng tiền</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(moneyReceipts)
+              }}</p>
             </div>
           </div>
           <span
@@ -2650,7 +2707,6 @@ onMounted(async () => {
                   @click="
                     () => {
                       dialogIPRForm = false
-                      handleChangePaymentRequest()
                       postPaymentRequest()
                     }
                   "
@@ -4202,7 +4258,12 @@ onMounted(async () => {
                 v-model="props.row.price"
                 :disabled="checkDisabled"
                 v-if="type != 'detail'"
-                @change="changePriceRowTable"
+                @change="
+                  () => {
+                    changePriceRowTable()
+                    autoCalculateOrder()
+                  }
+                "
               />
               <div v-else>{{
                 props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
@@ -4279,17 +4340,20 @@ onMounted(async () => {
             <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  {{ radioVAT }}
                   <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group v-model="radioVAT" class="flex-col">
+                      <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="0">{{
-                            t('formDemo.VATNotIncluded')
-                          }}</el-radio>
+                          <el-radio
+                            class="text-left"
+                            style="color: blue"
+                            :label="t('formDemo.doesNotIncludeVAT')"
+                            >{{ t('formDemo.VATNotIncluded') }}</el-radio
+                          >
                         </div>
                         <div style="width: 100%">
                           <el-radio class="text-left" style="color: blue" label="10%"
@@ -4781,9 +4845,11 @@ onMounted(async () => {
             min-width="150"
           >
             <template #default="props">
-              <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">{{
-                props.row.paymentRequestCode
-              }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="cursor-pointer text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
           <el-table-column
@@ -4847,13 +4913,13 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="alreadyPaidForTt"
+            prop="isReceiptedMoney"
             :label="t('formDemo.alreadyPaidForTt')"
             align="center"
             min-width="70"
           >
             <template #default="scope">
-              <el-checkbox :disabled="checkDisabled" v-model="scope.row.alreadyPaidForTt" />
+              <el-checkbox :disabled="true" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
           <el-table-column
@@ -4873,15 +4939,7 @@ onMounted(async () => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="
-                    data.row.content.includes('Phiếu thanh toán')
-                      ? getAccountingEntry(data.row.id, 1)
-                      : data.row.content.includes('Phiếu đặt cọc/Tạm ứng')
-                      ? getAccountingEntry(data.row.id, 2)
-                      : data.row.content.includes('Trả lại tiền cọc cho khách')
-                      ? getAccountingEntry(data.row.id, 3)
-                      : (changeReturnGoods = true)
-                  "
+                  @click="(index) => getAccountingEntry(index, data)"
                   v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >

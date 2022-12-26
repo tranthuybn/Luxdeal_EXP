@@ -216,6 +216,18 @@ export const getCodePaymentRequest = async (): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy chi tiết đề nghị thanh toán
+export const GetPaymentRequestDetail = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_RECEIPT_PAYMENT_REQUEST_DETAIL}?${objectToQueryParams(params)}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Thêm mới phiếu thu chi
 export const addTPV = async (params: any): Promise<IResponse> => {
   const res = await request.post(

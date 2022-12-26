@@ -90,6 +90,7 @@ export const ORDER_API = {
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
+  GET_RECEIPT_PAYMENT_REQUEST_DETAIL: '/api/v1/Accountant/GetPaymentRequestDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST: '/api/v1/Accountant/CreateANewPaymentRequest',
   ADD_ORDER_STRANSACTION: '/api/v1/Accountant/AddAOrderStransaction',
   GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry',

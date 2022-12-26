@@ -25,6 +25,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
   createPointExchange,
+  deletePointExchange,
   getCustomerList,
   getSettingPoint,
   updatePointExchange
@@ -34,6 +35,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
+import { API_URL } from '@/utils/API_URL'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -124,6 +126,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'targetType',
     component: 'Input',
+    value: 2,
     colProps: {
       span: 24
     }
@@ -163,6 +166,12 @@ const changeName = (value, obj, scope) => {
     })
   } else {
     scope.row.name = obj.name
+    TableData.push({
+      name: '',
+      phoneNumber: '',
+      id: null,
+      code: ''
+    })
   }
 }
 
@@ -213,6 +222,7 @@ let type = ref(String(router.currentRoute.value.params.type))
 const code = `TD${Date.now()}`
 // radio condition combo
 onBeforeMount(() => {
+  console.log('type:', type.value)
   callApiCustomerList()
   if (type.value == 'detail') {
     disabledEverything()
@@ -248,6 +258,7 @@ const callApiDetail = async () => {
     radio.value = res.data[0]?.type
     tableTypePoint[radio.value].point = res.data[0]?.point
     tableTypePoint[radio.value].price = res.data[0]?.price
+    res.data[0]?.image ? (imageUrl.value = API_URL.concat(res.data[0]?.image)) : ''
   }
   console.log('formDetail', formDetail)
 }
@@ -381,50 +392,85 @@ const createSettingPoint = async () => {
     formValid = false
   }
   if (formValid) {
-    if (type.value == 'add') {
-      form = customFormPost(form)
-      console.log('form', form)
-      await createPointExchange(FORM_IMAGES(form))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: `business.accumulate-points.settings-points.Utility`
-            })
-        })
-        .catch(() =>
-          ElNotification({
-            message: t('reuse.addFail'),
-            type: 'warning'
+    form = customFormPost(form)
+    console.log('form', form)
+    await createPointExchange(FORM_IMAGES(form))
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
           })
-        )
-    }
-    if (type.value == 'edit') {
-      form = customFormUpdate(form)
-      console.log('form', form)
-      await updatePointExchange(FORM_IMAGES(form))
-        .then(() => {
-          ElNotification({
-            message: t('reuse.updateSuccess'),
-            type: 'success'
-          }),
-            push({
-              name: `business.accumulate-points.settings-points.Utility`
-            })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
         })
-        .catch(() =>
-          ElNotification({
-            message: t('reuse.updateFail'),
-            type: 'warning'
-          })
-        )
-    }
+      )
   }
   console.log('form', form, formValid)
 }
-const cancelSettingPoint = () => {}
+const updateSettingPoint = async () => {
+  let formValid = false
+  const formRef = unref(elFormRef)
+  await formRef?.validate((isValid) => {
+    console.log('isValid', isValid)
+    if (isValid) {
+      formValid = true
+    }
+  })
+  const { getFormData } = methods
+  let form = await getFormData()
+  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+    ElMessage({
+      message: t('reuse.tableCustomerNotFillInformation'),
+      type: 'warning'
+    })
+    formValid = false
+  }
+  if (formValid) {
+    form = customFormUpdate(form)
+    console.log('form', form)
+    await updatePointExchange(FORM_IMAGES(form))
+      .then(() => {
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
+          })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.updateFail'),
+          type: 'warning'
+        })
+      )
+  }
+  console.log('form', form, formValid)
+}
+const cancelSettingPoint = async () => {
+  await deletePointExchange({ Id: id })
+    .then(() => {
+      ElNotification({
+        message: t('reuse.deleteSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: `business.accumulate-points.settings-points`
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.deleteFail'),
+        type: 'warning'
+      })
+    )
+}
 
 const chooseType = () => {
   if (
@@ -585,9 +631,13 @@ const enableEverything = () => {
           <div class="flex items-center w-[100%] gap-4">
             <div class="w-[100%] bg-transparent flex items-center gap-4">
               <el-input v-model="typePointTransaction" disabled />
-              <el-button @click="typeDialog = true" :icon="plusIcon" style="padding: 8px 34px">{{
-                t('formDemo.change')
-              }}</el-button>
+              <el-button
+                @click="typeDialog = true"
+                :disabled="type == 'add'"
+                :icon="plusIcon"
+                style="padding: 8px 34px"
+                >{{ t('formDemo.change') }}</el-button
+              >
             </div>
           </div>
         </template>
@@ -608,7 +658,7 @@ const enableEverything = () => {
         <template #table="form">
           <el-table
             :data="TableData"
-            v-if="form.targetType == 2"
+            v-if="form.targetType !== 3"
             border
             :class="[
               'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
@@ -682,8 +732,11 @@ const enableEverything = () => {
         </div>
       </div>
       <div class="flex gap-4 items-center h-12 justify-center mb-12">
-        <el-button type="primary" @click="createSettingPoint" v-if="type !== 'detail'">{{
+        <el-button type="primary" @click="createSettingPoint" v-if="type == 'add'">{{
           t('reuse.finishPacking')
+        }}</el-button>
+        <el-button v-if="type == 'edit'" @click="updateSettingPoint">{{
+          t('reuse.save')
         }}</el-button>
         <el-button type="danger" @click="cancelSettingPoint" v-if="type == 'edit'">{{
           t('reuse.cancelPackage')

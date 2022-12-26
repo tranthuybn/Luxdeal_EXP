@@ -134,7 +134,8 @@ export const POINT_API = {
   CANCEL_POINT_TRANSACTION: '/api/v1/Point/CancelPointTransaction',
   CREATE_POINT_EXCHANGE: '/api/v1/Point/CreatePointExchange',
   UPDATE_POINT_EXCHANGE: '/api/v1/Point/UpdatePointExchange',
-  CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
+  CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange',
+  DELETE_POINT_EXCHANGE: '/api/v1/Point/DeletePointExchange'
 }
 export const DEPARTMENT_DIRECTORY = {
   BRANCH_LIST: '/api/v1/Branch/GetlistBranch',

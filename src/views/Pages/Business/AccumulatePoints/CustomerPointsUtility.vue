@@ -17,6 +17,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { getDetailCustomerPoint, cancelPointTransaction } from '@/api/Business'
 import router from '@/router'
 import moment from 'moment'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -205,7 +206,7 @@ const cancelTransaction = async (scope) => {
                 }}<span class="text-green-400">({{ t('reuse.avatarCustomer') }})</span></span
               ></el-divider
             >
-            <ElImage :src="form.image" fit="fill" class="h-4/5 w-1/5">
+            <ElImage :src="`${API_URL}form.image`" fit="fill" class="h-4/5 w-1/5">
               <template #placeholder>
                 <div class="image-slot">Loading<span class="dot">...</span></div>
               </template>

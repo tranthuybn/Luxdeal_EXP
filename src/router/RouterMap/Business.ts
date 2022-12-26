@@ -352,7 +352,6 @@ export default {
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPointsAdd.vue'),
           meta: {
             title: t('router.installPoints'),
-            noCache: true,
             hidden: true,
             canTo: true
           }

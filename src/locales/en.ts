@@ -1670,6 +1670,7 @@ export default {
     customerGetPointWhenDepositProduct: 'Customer get point when deposit product',
     customerGetPointWhenPawnProduct: 'Customer get point when pawn product',
     customerGetPointWhenSpaProduct: 'Customer get point when spa product ',
-    customerGetPointWhenRefer: 'Customer get point when refer'
+    customerGetPointWhenRefer: 'Customer get point when refer',
+    runningPointAccumulationPackage: 'Running point accumulation package'
   }
 }

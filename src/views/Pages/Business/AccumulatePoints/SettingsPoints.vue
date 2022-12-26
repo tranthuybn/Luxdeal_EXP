@@ -98,7 +98,7 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '200',
     filters: filterStatusSettingPoint,

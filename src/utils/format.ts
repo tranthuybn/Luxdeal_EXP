@@ -30,17 +30,10 @@ export const formatProductStatus = (val) => {
   }
 }
 export const formatSettingPointStatus = (val) => {
-  switch (val) {
-    case 1:
-      return t('reuse.pending')
-    case 2:
-      return t('reuse.finishPending')
-    case 3:
-      return t('reuse.active')
-    case 4:
-      return t('reuse.inactive')
-    default:
-      return ''
+  if (val) {
+    return t('reuse.active')
+  } else {
+    return t('reuse.notActive')
   }
 }
 export const formatCustomerPointStatus = (val) => {

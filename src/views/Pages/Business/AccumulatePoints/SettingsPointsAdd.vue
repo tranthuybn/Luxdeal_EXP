@@ -98,7 +98,8 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       type: 'daterange',
-      valueFormat: 'MM-DD-YYYY'
+      format: 'DD/MM/YYYY',
+      valueFormat: 'YYYY-MM-DD'
     }
   },
   {
@@ -208,15 +209,15 @@ const tableTypePoint = [
 ]
 const radio = ref(-1)
 const id = Number(router.currentRoute.value.params.id)
-let type = String(router.currentRoute.value.params.type)
+let type = ref(String(router.currentRoute.value.params.type))
 const code = `TD${Date.now()}`
 // radio condition combo
 onBeforeMount(() => {
   callApiCustomerList()
-  if (type == 'detail') {
+  if (type.value == 'detail') {
     disabledEverything()
   }
-  if (type == 'detail' || type == 'edit') {
+  if (type.value == 'detail' || type.value == 'edit') {
     callApiDetail()
   } else {
     const { setValues } = methods
@@ -230,22 +231,23 @@ const formDetail = ref()
 
 const callApiDetail = async () => {
   const res = await getSettingPoint({ Id: id })
-  if (res) {
-    formDetail.value = res
+  if (res && res.data.length > 0) {
+    formDetail.value = res.data[0]
     const { setValues } = methods
     setValues({
-      code: res.code,
-      description: res.description,
-      duration: [res.startDate, res.startDate],
-      point: res.point,
-      price: res.price,
-      type: res.type,
-      targetType: res.targetType
+      code: res.data[0]?.code,
+      description: res.data[0]?.description,
+      duration: [res.data[0]?.startDate, res.data[0]?.endDate],
+      point: res.data[0]?.point,
+      price: res.data[0]?.price,
+      type: res.data[0]?.type,
+      targetType: res.data[0]?.targetType
     })
-    TableData = res?.CustomerJson
-    radio.value = res.type
-    tableTypePoint[radio.value].point = res.point
-    tableTypePoint[radio.value].price = res.price
+    formatTypePointTransaction(res.data[0]?.type)
+    TableData = res.data[0]?.Customers
+    radio.value = res.data[0]?.type
+    tableTypePoint[radio.value].point = res.data[0]?.point
+    tableTypePoint[radio.value].price = res.data[0]?.price
   }
   console.log('formDetail', formDetail)
 }
@@ -331,7 +333,6 @@ const searchCustomer = async (keyword) => {
 }
 const { required, ValidService, notSpecialCharacters } = useValidator()
 const rules = reactive({
-  code: [required()],
   description: [
     required(),
     { validator: notSpecialCharacters },
@@ -360,6 +361,7 @@ const customFormUpdate = (form) => {
   delete form.duration
   return form
 }
+const { push } = useRouter()
 const createSettingPoint = async () => {
   let formValid = false
   const formRef = unref(elFormRef)
@@ -369,11 +371,17 @@ const createSettingPoint = async () => {
       formValid = true
     }
   })
+  const { getFormData } = methods
+  let form = await getFormData()
+  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+    ElMessage({
+      message: t('reuse.tableCustomerNotFillInformation'),
+      type: 'warning'
+    })
+    formValid = false
+  }
   if (formValid) {
-    const { getFormData } = methods
-    const { push } = useRouter()
-    let form = await getFormData()
-    if (type == 'add') {
+    if (type.value == 'add') {
       form = customFormPost(form)
       console.log('form', form)
       await createPointExchange(FORM_IMAGES(form))
@@ -393,7 +401,7 @@ const createSettingPoint = async () => {
           })
         )
     }
-    if (type == 'edit') {
+    if (type.value == 'edit') {
       form = customFormUpdate(form)
       console.log('form', form)
       await updatePointExchange(FORM_IMAGES(form))
@@ -414,8 +422,6 @@ const createSettingPoint = async () => {
         )
     }
   }
-  const { getFormData } = methods
-  let form = await getFormData()
   console.log('form', form, formValid)
 }
 const cancelSettingPoint = () => {}
@@ -503,15 +509,6 @@ const formatTypePointTransaction = (val) => {
       return ''
   }
 }
-const targetTypeTable = ref(true)
-const targetChange = (data) => {
-  if (data == 3) {
-    targetTypeTable.value = false
-  }
-  if (data == 2) {
-    targetTypeTable.value = true
-  }
-}
 const imageUrl = ref('')
 let rawUploadFile = ref<UploadFile>()
 const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
@@ -562,7 +559,7 @@ const enableEverything = () => {
   setProps({
     disabled: false
   })
-  type = 'edit'
+  type.value = 'edit'
 }
 </script>
 <template>
@@ -595,7 +592,7 @@ const enableEverything = () => {
           </div>
         </template>
         <template #targetType="formData">
-          <el-radio-group v-model="formData.targetType" class="ml-4" @change="targetChange">
+          <el-radio-group v-model="formData.targetType" class="ml-4">
             <el-radio :label="3" size="large">
               <div class="text-[#303133] font-normal dark:text-white">{{
                 t('reuse.allCustomer')
@@ -608,10 +605,10 @@ const enableEverything = () => {
             >
           </el-radio-group>
         </template>
-        <template #table>
+        <template #table="form">
           <el-table
-            v-if="targetTypeTable"
             :data="TableData"
+            v-if="form.targetType == 2"
             border
             :class="[
               'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
@@ -642,9 +639,10 @@ const enableEverything = () => {
             <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
               <template #default="scope">
                 <button
-                  @click.prevent="removeLastRow(scope.$index)"
+                  @click="removeLastRow(scope.$index)"
                   class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-                  >Xóa</button
+                  :disabled="type == 'detail'"
+                  >{{ t('reuse.delete') }}</button
                 >
               </template>
             </el-table-column>
@@ -660,27 +658,31 @@ const enableEverything = () => {
             {{ dateTimeFormat(new Date()) }}
           </p>
         </div>
-        <div v-if="formDetail?.isActive !== undefined">
-          <p class="status bg-gray-300 day-updated">{{ t('reuse.active') }}</p>
-          <p class="date text-gray-300">
-            {{ dateTimeFormat(formDetail.startDate) }}
-          </p>
-        </div>
-        <div v-if="formDetail?.isExpired">
-          <p class="status bg-gray-300 day-updated">{{ t('reuse.inactive') }}</p>
-          <p class="date text-gray-300">
-            {{ dateTimeFormat(formDetail.endDate) }}
-          </p>
-        </div>
         <div v-if="formDetail?.isDelete">
           <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
           <p class="date text-gray-300">
             {{ dateTimeFormat(formDetail.updatedAt) }}
           </p>
         </div>
+        <div v-else>
+          <div v-if="Date.now() > formDetail?.startDate">
+            <p class="status bg-gray-300 day-updated">{{
+              t('reuse.runningPointAccumulationPackage')
+            }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail?.startDate) }}
+            </p>
+          </div>
+          <div v-if="Date.now() > formDetail?.endDate">
+            <p class="status bg-gray-300 day-updated">{{ t('common.doneLabel') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail?.endDate) }}
+            </p>
+          </div>
+        </div>
       </div>
       <div class="flex gap-4 items-center h-12 justify-center mb-12">
-        <el-button type="primary" @click="createSettingPoint">{{
+        <el-button type="primary" @click="createSettingPoint" v-if="type !== 'detail'">{{
           t('reuse.finishPacking')
         }}</el-button>
         <el-button type="danger" @click="cancelSettingPoint" v-if="type == 'edit'">{{
@@ -706,11 +708,11 @@ const enableEverything = () => {
             :disabled="disabledUpload"
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-            <el-button :icon="plusIcon" class="uploadIcon" v-else />
+            <el-button :icon="plusIcon" class="uploadIcon" v-else :disabled="disabledUpload" />
           </el-upload>
-          <div class="w-250px flex justify-center" v-if="imageUrl">
+          <div class="w-full flex justify-center" v-if="imageUrl">
             <ElButton :icon="viewIcon" @click="previewImage" />
-            <ElButton :icon="deleteIcon" :disabled="type === 'detail'" @click="handleRemove" />
+            <ElButton :icon="deleteIcon" :disabled="disabledUpload" @click="handleRemove" />
           </div>
           <el-dialog top="5vh" v-model="dialogImageUrl" width="130vh">
             <div class="flex justify-center items-center">

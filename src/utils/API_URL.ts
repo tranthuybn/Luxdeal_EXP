@@ -84,6 +84,7 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
+  UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',

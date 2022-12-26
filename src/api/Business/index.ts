@@ -228,6 +228,15 @@ export const addTPV = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Sửa chi tiết bút toán
+export const updateOrderTransaction = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_ORDER_TRANSACTION}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Thêm đề nghị thanh toán
 export const addDNTT = async (params: any): Promise<IResponse> => {
   const res = await request.post(
@@ -583,6 +592,7 @@ export const updateCustomerRatings = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+
 export const deleteCustomerRating = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {

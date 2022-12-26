@@ -10,21 +10,30 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
-  UploadUserFile,
   ElMessage,
-  ElInput
+  ElInput,
+  UploadProps,
+  ElImage,
+  UploadFile,
+  ElInputNumber,
+  ElNotification
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import SelectTable from '@/components/SelectTable.vue'
 import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
-import { createPointExchange, getCustomerList, getSettingPoint } from '@/api/Business'
+import {
+  createPointExchange,
+  getCustomerList,
+  getSettingPoint,
+  updatePointExchange
+} from '@/api/Business'
 import router from '@/router'
 import { FORM_IMAGES } from '@/utils/format'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useValidator } from '@/hooks/web/useValidator'
+import { useRouter } from 'vue-router'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -32,20 +41,6 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const { t } = useI18n()
 const { register, elFormRef, methods } = useForm()
 // upload image
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-let fileList = ref<UploadUserFile[]>([])
-const ListFileUpload = ref()
-const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
 const schema = reactive<FormSchema[]>([
   {
@@ -143,7 +138,7 @@ const schema = reactive<FormSchema[]>([
 
 const forceRemove = ref(false)
 
-const TableData = reactive([
+let TableData = reactive([
   {
     name: '',
     phoneNumber: '',
@@ -213,11 +208,14 @@ const tableTypePoint = [
 ]
 const radio = ref(-1)
 const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+let type = String(router.currentRoute.value.params.type)
 const code = `TD${Date.now()}`
 // radio condition combo
 onBeforeMount(() => {
   callApiCustomerList()
+  if (type == 'detail') {
+    disabledEverything()
+  }
   if (type == 'detail' || type == 'edit') {
     callApiDetail()
   } else {
@@ -228,10 +226,40 @@ onBeforeMount(() => {
   }
 })
 
+const formDetail = ref()
+
 const callApiDetail = async () => {
   const res = await getSettingPoint({ Id: id })
   if (res) {
+    formDetail.value = res
+    const { setValues } = methods
+    setValues({
+      code: res.code,
+      description: res.description,
+      duration: [res.startDate, res.startDate],
+      point: res.point,
+      price: res.price,
+      type: res.type,
+      targetType: res.targetType
+    })
+    TableData = res?.CustomerJson
   }
+  console.log('formDetail', formDetail)
+}
+const disabledUpload = ref(false)
+const disabledEverything = () => {
+  disabledUpload.value = true
+  const { setProps, setSchema } = methods
+  setProps({
+    disabled: true
+  })
+  setSchema(
+    schema.map((component) => ({
+      field: component.field,
+      path: 'componentProps.placeholder',
+      value: ''
+    }))
+  )
 }
 
 // Call api danh sách sản phẩm
@@ -315,6 +343,15 @@ const removeLastRow = (index) => {
 const customFormPost = (form) => {
   form.startDate = form?.duration[0]
   form.endDate = form?.duration[1]
+  form.Image = rawUploadFile.value?.raw
+  delete form.duration
+  return form
+}
+const customFormUpdate = (form) => {
+  form.startDate = form?.duration[0]
+  form.endDate = form?.duration[1]
+  form.Image = rawUploadFile.value?.raw
+  form.Id = id
   delete form.duration
   return form
 }
@@ -329,9 +366,48 @@ const createSettingPoint = async () => {
   })
   if (formValid) {
     const { getFormData } = methods
+    const { push } = useRouter()
     let form = await getFormData()
-    form = customFormPost(form)
-    await createPointExchange(FORM_IMAGES(form))
+    if (type == 'add') {
+      form = customFormPost(form)
+      console.log('form', form)
+      await createPointExchange(FORM_IMAGES(form))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.accumulate-points.settings-points.Utility`
+            })
+        })
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        )
+    }
+    if (type == 'edit') {
+      form = customFormUpdate(form)
+      console.log('form', form)
+      await updatePointExchange(FORM_IMAGES(form))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: `business.accumulate-points.settings-points.Utility`
+            })
+        })
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
+    }
   }
   const { getFormData } = methods
   let form = await getFormData()
@@ -431,6 +507,57 @@ const targetChange = (data) => {
     targetTypeTable.value = true
   }
 }
+const imageUrl = ref('')
+let rawUploadFile = ref<UploadFile>()
+const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
+  const validImage = await beforeAvatarUpload(uploadFile, 'single')
+  if (validImage) {
+    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    rawUploadFile.value = uploadFile
+  }
+}
+const dialogImageUrl = ref(false)
+const previewImage = () => {
+  dialogImageUrl.value = true
+}
+const validImageType = ['jpeg', 'png']
+const beforeAvatarUpload = async (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    return true
+  }
+  return true
+}
+const handleRemove = (_file) => {
+  imageUrl.value = ''
+  rawUploadFile.value = undefined
+}
+const changeTypeToEdit = () => {
+  enableEverything()
+}
+const enableEverything = () => {
+  disabledUpload.value = false
+  const { setProps } = methods
+  setProps({
+    disabled: false
+  })
+  type = 'edit'
+}
 </script>
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
@@ -518,53 +645,6 @@ const targetChange = (data) => {
           </el-table>
         </template>
       </Form>
-    </div>
-    <div class="w-[50%]">
-      <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-        <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
-      </div>
-      <div class="flex">
-        <div class="pl-4">
-          <el-upload
-            :icon="plusIcon"
-            action="#"
-            list-type="picture-card"
-            :auto-upload="false"
-            :limit="1"
-            class="relative"
-          >
-            <ElButton :icon="plusIcon" />
-            <template #file="{ file }">
-              <div>
-                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                <span class="el-upload-list__item-actions">
-                  <span
-                    class="el-upload-list__item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <ElButton :icon="viewIcon" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
-                    <ElButton :icon="deleteIcon" />
-                  </span>
-                </span>
-              </div>
-            </template>
-          </el-upload>
-          <el-dialog width="80%" v-model="dialogVisible">
-            <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
-          </el-dialog>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="flex w-[100%] gap-6 bg-white">
-    <div class="w-[50%] pl-2">
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
@@ -574,19 +654,66 @@ const targetChange = (data) => {
             {{ dateTimeFormat(new Date()) }}
           </p>
         </div>
+        <div v-if="formDetail?.isActive !== undefined">
+          <p class="status bg-gray-300 day-updated">{{ t('reuse.active') }}</p>
+          <p class="date text-gray-300">
+            {{ dateTimeFormat(formDetail.startDate) }}
+          </p>
+        </div>
+        <div v-if="formDetail?.isExpired">
+          <p class="status bg-gray-300 day-updated">{{ t('reuse.inactive') }}</p>
+          <p class="date text-gray-300">
+            {{ dateTimeFormat(formDetail.endDate) }}
+          </p>
+        </div>
+        <div v-if="formDetail?.isDelete">
+          <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
+          <p class="date text-gray-300">
+            {{ dateTimeFormat(formDetail.updatedAt) }}
+          </p>
+        </div>
       </div>
       <div class="flex gap-4 items-center h-12 justify-center mb-12">
         <el-button type="primary" @click="createSettingPoint">{{
           t('reuse.finishPacking')
         }}</el-button>
-        <el-button type="danger" @click="cancelSettingPoint">{{
+        <el-button type="danger" @click="cancelSettingPoint" v-if="type == 'edit'">{{
           t('reuse.cancelPackage')
         }}</el-button>
-        <el-button v-if="false">{{ t('formDemo.edit') }}</el-button>
-        <el-button v-if="false">{{ t('formDemo.add') }}</el-button>
+        <el-button v-if="type == 'detail'" @click="changeTypeToEdit">{{
+          t('formDemo.edit')
+        }}</el-button>
       </div>
     </div>
-    <div class="w-[50%]"></div>
+    <div class="w-[50%]">
+      <div class="text-sm text-[#303133] font-medium pt-4 pl-4 dark:text-[#fff]">
+        <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
+      </div>
+      <div class="flex">
+        <div class="pl-4">
+          <el-upload
+            class="avatar-uploader"
+            :show-file-list="false"
+            action="#"
+            :auto-upload="false"
+            :on-change="handleChange"
+            :disabled="disabledUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-button :icon="plusIcon" class="uploadIcon" v-else />
+          </el-upload>
+          <div class="w-250px flex justify-center" v-if="imageUrl">
+            <ElButton :icon="viewIcon" @click="previewImage" />
+            <ElButton :icon="deleteIcon" :disabled="type === 'detail'" @click="handleRemove" />
+          </div>
+          <el-dialog top="5vh" v-model="dialogImageUrl" width="130vh">
+            <div class="flex justify-center items-center">
+              <el-image class="h-full" :src="imageUrl" alt="Preview Image" />
+            </div>
+          </el-dialog>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Dialog change combo -->
@@ -607,7 +734,7 @@ const targetChange = (data) => {
       <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />
       <el-table-column :label="t('reuse.pointsNumber')">
         <template #default="scope">
-          <el-input v-model="scope.row.point" type="number" :min="0" />
+          <el-input-number v-model="scope.row.point" controls-position="right" :min="0" />
         </template>
       </el-table-column>
       <el-table-column :label="t('reuse.exchangedMoney')">
@@ -656,5 +783,28 @@ const targetChange = (data) => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
+}
+.avatar {
+  height: 100%;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.uploadIcon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
 }
 </style>

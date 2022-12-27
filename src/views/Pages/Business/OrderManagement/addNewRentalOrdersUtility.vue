@@ -1065,6 +1065,7 @@ let customerIdPromo = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     const transaction = await getOrderTransaction({ id: id })
@@ -2030,6 +2031,9 @@ const changePriceVAT = () => {
     }
   }
 }
+
+// check disabled
+const disabledEdit = ref(false)
 
 onBeforeMount(() => {
   callApiCollaborators()
@@ -3969,6 +3973,7 @@ onBeforeMount(() => {
                 ]"
                 v-else
                 filterable
+                :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="productCode"
@@ -3999,6 +4004,7 @@ onBeforeMount(() => {
             <template #default="props">
               <el-input
                 v-if="type != 'detail'"
+                :disabled="disabledEdit"
                 v-model="props.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -4013,6 +4019,7 @@ onBeforeMount(() => {
               <el-date-picker
                 v-else
                 v-model="scope.row.fromDate"
+                :disabled="disabledEdit"
                 @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
@@ -4028,6 +4035,7 @@ onBeforeMount(() => {
               <el-date-picker
                 v-else
                 v-model="scope.row.toDate"
+                :disabled="disabledEdit"
                 @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
@@ -4042,6 +4050,7 @@ onBeforeMount(() => {
               </div>
               <el-input
                 v-else
+                :disabled="disabledEdit"
                 @change="
                   (data) => {
                     handleGetTotal(data, scope)
@@ -4058,6 +4067,7 @@ onBeforeMount(() => {
             <template #default="props">
               <CurrencyInputComponent
                 v-model="props.row.price"
+                :disabled="disabledEdit"
                 v-if="type != 'detail'"
                 @change="changePriceRowTable"
               />

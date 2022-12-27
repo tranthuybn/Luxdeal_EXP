@@ -448,6 +448,7 @@ const handleSelectionChange = (val: tableDataType[]) => {
     label: e.spaServiceName,
     value: e.id
   }))
+
   newTable.value = val
   totalSettingSpa.value = 0
   newTable.value.map((val) => {
@@ -802,24 +803,57 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
+let tableSpaServices = ref()
 
-const orderIdSpa = ref()
-const postData = async () => {
+const viewTable = () => {
+  console.log('table: ', ListOfProductsForSale.value)
+  let arrId = ref('')
+  ListOfProductsForSale.value.map((item) => {
+    tableSpaServices.value = item.spaServices
+
+    // ListOfProductsForSale.value.spaServices
+  })
+  console.log('arrId: ', arrId.value)
+}
+const postData = () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
       ProductPrice: val.price,
+      UnitPrice: totalSettingSpa.value,
       SoldPrice: val.finalPrice,
       WarehouseId: 1,
-      SpaServiceIds: '47,48',
+      SpaServiceIds: JSON.stringify(
+        ListOfProductsForSale.value.map((item) => ({
+          Id: item.spaServices?.value
+        }))
+      ),
+      TotalPrice: 898870,
       IsPaid: true,
       Accessory: val.accessory
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
+    console.log('data ListOfProductsForSale', orderDetailsTable)
+    //     [
+    //   {
+    //     "ProductPropertyId": 195,
+    //     "Accessory": "tui deo cheo",
+    //     "Description": null,
+    //     "Quantity": 10,
+    //     "UnitPrice": 89887,
+    //     "HirePrice": 0,
+    //     "DepositePrice": 0,
+    //     "TotalPrice": 898870,
+    //     "ConsignmentSellPrice": 0,
+    //     "ConsignmentHirePrice": 0,
+    //     "SpaServiceIds": "185,186"
+    //   }
+    // ]
 
+    console.log('valueTypeSpa', valueTypeSpa.value)
     const payload = {
       ServiceType: 5,
       OrderCode: ruleForm.orderCode,
@@ -837,30 +871,36 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 1
+      Status: 1,
+
+      TotalPrice: 898870,
+      DepositePrice: 0,
+      DiscountMoney: 0,
+      InterestMoney: 0
     }
+    console.log('payload', payload)
     const formDataPayLoad = FORM_IMAGES(payload)
-    orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+    // orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
+    //   .then(
+    //     () =>
+    //       ElNotification({
+    //         message: t('reuse.addSuccess'),
+    //         type: 'success'
+    //       }),
+    //     () =>
+    //       push({
+    //         name: 'business.order-management.order-list',
+    //         params: { backRoute: String(router.currentRoute.value.name) }
+    //       })
+    //   )
+    //   .catch(() =>
+    //     ElNotification({
+    //       message: t('reuse.addFail'),
+    //       type: 'warning'
+    //     })
+    //   )
   }
-  warehouseTranferAuto(3)
+  // warehouseTranferAuto(3)
 }
 // chuyển kho auto
 const warehouseTranferAuto = async (type) => {
@@ -896,13 +936,13 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
+  orderCode: '',
   collaborators: '',
   dateOfReturn: '',
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: 1
+  delivery: ''
 })
 
 const rules = reactive<FormRules>({
@@ -914,6 +954,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
+
   collaboratorCommission: [
     {
       required: true,
@@ -1220,11 +1261,11 @@ let payment = ref(choosePayment[0].value)
 
 const optionsTypeSpa = [
   {
-    value: 'Khách spa',
+    value: 1,
     label: 'Khách spa'
   },
   {
-    value: 'Nội bộ spa',
+    value: 2,
     label: 'Nội bộ spa'
   }
 ]
@@ -1539,6 +1580,8 @@ const editData = async () => {
 
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
+    arrayStatusOrder.value = orderObj.status
+    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
@@ -1786,6 +1829,100 @@ watch(
     }
   }
 )
+
+interface statusOrderType {
+  statusName: string
+  status: number
+  isActive?: boolean
+}
+let arrayStatusOrder = ref(Array<statusOrderType>())
+arrayStatusOrder.value.pop()
+if (type == 'add')
+  arrayStatusOrder.value.push({
+    statusName: 'Chốt đơn hàng',
+    status: 2,
+    isActive: true
+  })
+
+const addStatusOrder = (index) => {
+  switch (index) {
+    case 1:
+      arrayStatusOrder.value.push({
+        statusName: 'Duyệt giá thay đổi',
+        status: 1
+      })
+      break
+    case 2:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Chốt đơn hàng',
+          status: 2,
+          isActive: true
+        })
+      break
+    case 3:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Hoàn thành đơn hàng',
+          status: 3,
+          isActive: true
+        })
+      break
+    case 4:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt đổi/trả hàng',
+          status: 4,
+          isActive: true
+        })
+      break
+    case 5:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Đối soát & kết thúc',
+          status: 5,
+          isActive: true
+        })
+      break
+    case 6:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt hủy đơn hàng',
+          status: 6,
+          isActive: true
+        })
+      break
+    case 7:
+      if (arrayStatusOrder.value.length > 0) {
+        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      } else {
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      }
+
+      break
+  }
+}
+let statusOrder = ref(1)
+const changeStatus = (index) => {
+  setTimeout(() => {
+    statusOrder.value = index
+  }, 4000)
+}
+
+const addStatusDelay = () => {
+  setTimeout(() => {
+    addStatusOrder(7)
+  }, 4000)
+}
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -2249,13 +2386,14 @@ const postReturnRequest = async (reason) => {
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   v-model="ruleForm.orderCode"
+                  :disabled="checkDisabled"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />
               </el-form-item>
 
               <el-form-item :label="t('reuse.typeOfSpa')" prop="typeOfSpa">
-                <el-select v-model="valueTypeSpa" placeholder="Select">
+                <el-select v-model="valueTypeSpa" :disabled="checkDisabled" placeholder="Select">
                   <el-option
                     v-for="item in optionsTypeSpa"
                     :key="item.value"
@@ -2269,6 +2407,7 @@ const postReturnRequest = async (reason) => {
                 <div class="custom-date">
                   <el-date-picker
                     v-model="ruleForm.dateOfReturn"
+                    :disabled="checkDisabled"
                     type="date"
                     format="DD/MM/YYYY"
                     :placeholder="t('formDemo.returnDate')"
@@ -2281,6 +2420,7 @@ const postReturnRequest = async (reason) => {
                 <div class="flex gap-2">
                   <el-form-item style="flex: 1">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
@@ -2297,6 +2437,7 @@ const postReturnRequest = async (reason) => {
                   <el-form-item prop="collaboratorCommission" style="flex: 1">
                     <el-input
                       v-model="ruleForm.collaboratorCommission"
+                      :disabled="checkDisabled"
                       type="text"
                       :placeholder="`${t('formDemo.enterDiscount')}`"
                       style="width: 100%"
@@ -2309,6 +2450,7 @@ const postReturnRequest = async (reason) => {
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
                 <el-input
                   v-model="ruleForm.orderNotes"
+                  :disabled="checkDisabled"
                   style="width: 100%"
                   type="text"
                   :placeholder="`${t('formDemo.addNotes')}`"
@@ -2402,6 +2544,7 @@ const postReturnRequest = async (reason) => {
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
+                            :disabled="checkDisabled"
                             labelKey="label"
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
@@ -2705,7 +2848,7 @@ const postReturnRequest = async (reason) => {
           </span>
         </template>
       </el-dialog>
-
+      <button @click="viewTable">Click</button>
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />
@@ -2820,9 +2963,9 @@ const postReturnRequest = async (reason) => {
             <template #default="data">
               <div class="flex w-[100%] items-center text-center">
                 <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.spaServices" :key="item.value">{{
-                    item.label
-                  }}</span>
+                  <span v-for="item in data.row.spaServices" :key="item.value"
+                    >{{ item.label }}
+                  </span>
                 </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
@@ -2854,17 +2997,6 @@ const postReturnRequest = async (reason) => {
                   </el-button>
                 </div>
               </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="typeSpa" :label="t('reuse.type')" align="center" width="90">
-            <template #default="data">
-              <el-input
-                v-model="data.row.type"
-                @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
             </template>
           </el-table-column>
 
@@ -3015,15 +3147,59 @@ const postReturnRequest = async (reason) => {
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
-          <div class="w-[84%] pl-1">
+          <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                {{ t('formDemo.changedUnitPriceIsWaitingForPriceApproval') }}
-                <span class="triangle-right"> </span>
-              </span>
+              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
+                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_1 text-yellow-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+
+                    <span class="triangle-right right_1"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 2 || item.status == 3">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_2 text-blue-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_2"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 5">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_3 text-black dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_3"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 7">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_4"> </span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -3040,9 +3216,21 @@ const postReturnRequest = async (reason) => {
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('reuse.saveAndPending')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
-              t('button.cancelOrder')
-            }}</el-button>
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  addStatusDelay()
+                  statusOrder = 9
+                  checkDisabled = !checkDisabled
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
             <el-button
               v-if="type == 'edit'"
               @click="
@@ -4514,6 +4702,46 @@ const postReturnRequest = async (reason) => {
   border: 1px solid #ccc;
   background-color: #ccc;
   opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
 }
 .triangle-left {
   position: absolute;

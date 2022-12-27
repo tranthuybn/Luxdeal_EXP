@@ -33,6 +33,7 @@ import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -182,6 +183,14 @@ const createQuickCustomer = async () => {
         type: 'warning'
       })
     )
+}
+
+const clearDataInput = () => {
+  ;(addQuickCustomerName.value = ''),
+    (quickTaxCode.value = ''),
+    (quickRepresentative.value = ''),
+    (quickPhoneNumber.value = ''),
+    (quickEmail.value = '')
 }
 
 // select khách hàng
@@ -482,6 +491,7 @@ const handleChangePaymentRequest = () => {
     })
   }
 }
+const checkDisabled = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -493,6 +503,8 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = res.data[0]
+    arrayStatusOrder.value = orderObj.status
+    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -789,6 +801,100 @@ const handleTotal = (scope: {
   row: { intoMoney: string; quantity: string; unitPrice: string }
 }) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+}
+
+interface statusOrderType {
+  statusName: string
+  status: number
+  isActive?: boolean
+}
+let arrayStatusOrder = ref(Array<statusOrderType>())
+arrayStatusOrder.value.pop()
+if (type == 'add')
+  arrayStatusOrder.value.push({
+    statusName: 'Chốt đơn hàng',
+    status: 2,
+    isActive: true
+  })
+
+const addStatusOrder = (index) => {
+  switch (index) {
+    case 1:
+      arrayStatusOrder.value.push({
+        statusName: 'Duyệt giá thay đổi',
+        status: 1
+      })
+      break
+    case 2:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Chốt đơn hàng',
+          status: 2,
+          isActive: true
+        })
+      break
+    case 3:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Hoàn thành đơn hàng',
+          status: 3,
+          isActive: true
+        })
+      break
+    case 4:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt đổi/trả hàng',
+          status: 4,
+          isActive: true
+        })
+      break
+    case 5:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Đối soát & kết thúc',
+          status: 5,
+          isActive: true
+        })
+      break
+    case 6:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt hủy đơn hàng',
+          status: 6,
+          isActive: true
+        })
+      break
+    case 7:
+      if (arrayStatusOrder.value.length > 0) {
+        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      } else {
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      }
+
+      break
+  }
+}
+let statusOrder = ref(1)
+const changeStatus = (index) => {
+  setTimeout(() => {
+    statusOrder.value = index
+  }, 4000)
+}
+
+const addStatusDelay = () => {
+  setTimeout(() => {
+    addStatusOrder(7)
+  }, 4000)
 }
 
 const chooseDelivery = [
@@ -1152,7 +1258,6 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 const codeReturnRequest = ref()
-const checkDisabled = ref(false)
 var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
@@ -1470,14 +1575,15 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
-
+const billLiquidationDis = ref(false)
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
 
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
+    billLiquidationDis.value = true
   }
 })
 
@@ -1652,13 +1758,21 @@ onMounted(async () => {
                   dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
+                  clearDataInput()
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              @click.stop.prevent="
+                () => {
+                  dialogAddQuick = false
+                  clearDataInput()
+                }
+              "
+              >{{ t('reuse.exit') }}</el-button
+            >
           </span>
         </template>
       </el-dialog>
@@ -2613,10 +2727,29 @@ onMounted(async () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right font-bold">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
+
+          <div class="flex gap-2 justify-around">
+            <div class="flex-left">
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="w-[35%] text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="w-[45%] font-bold text-xl">{{ ruleForm.orderCode }}</p>
+              </div>
+              <div class="flex gap-4 pt-2 pb-4 items-center">
+                <label class="w-[35%] text-right">{{ t('reuse.depositPeriod') }}</label>
+                <p class="w-[45%]">11/11/2022 đến 22/12/2023</p>
+              </div>
+            </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+
+                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+              </div>
+            </div>
           </div>
+
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -3045,6 +3178,7 @@ onMounted(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
+                  :disabled="checkDisabled"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3053,7 +3187,8 @@ onMounted(async () => {
 
               <el-form-item :label="t('formDemo.deliveryDate')" prop="rentalPeriod">
                 <el-date-picker
-                  v-model="rentalPeriod"
+                  v-model="ruleForm.rentalPeriod"
+                  :disabled="checkDisabled"
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -3065,6 +3200,7 @@ onMounted(async () => {
                 <div class="flex gap-2">
                   <el-form-item style="flex: 1">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
@@ -3081,6 +3217,7 @@ onMounted(async () => {
                   <el-form-item prop="collaboratorCommission" style="flex: 1">
                     <el-input
                       v-model="ruleForm.collaboratorCommission"
+                      :disabled="checkDisabled"
                       type="text"
                       :placeholder="`${t('formDemo.enterDiscount')}`"
                       style="width: 100%"
@@ -3093,6 +3230,7 @@ onMounted(async () => {
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
                 <el-input
                   v-model="ruleForm.orderNotes"
+                  :disabled="checkDisabled"
                   style="width: 100%"
                   type="text"
                   :placeholder="`${t('formDemo.addNotes')}`"
@@ -3184,6 +3322,7 @@ onMounted(async () => {
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
+                            :disabled="checkDisabled"
                             labelKey="label"
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
@@ -3428,7 +3567,7 @@ onMounted(async () => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-checkbox
               v-model="checked2"
@@ -3457,17 +3596,91 @@ onMounted(async () => {
             />
           </div>
         </div>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[89%]">
+            <div class="flex items-center w-[100%]">
+              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
+                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_1 text-yellow-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+
+                    <span class="triangle-right right_1"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 2 || item.status == 3">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_2 text-blue-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_2"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 5">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_3 text-black dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_3"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 7">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_4"> </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
-              t('formDemo.printLiquidationContract')
-            }}</el-button>
+            <el-button
+              class="min-w-42 min-h-11"
+              :disabled="billLiquidationDis"
+              @click="dialogBillLiquidation = true"
+              >{{ t('formDemo.printLiquidationContract') }}</el-button
+            >
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.saveAndPending')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
-              t('button.cancelOrder')
-            }}</el-button>
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  addStatusDelay()
+                  statusOrder = 9
+                  checkDisabled = !checkDisabled
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
             <el-button
               @click="
                 () => {
@@ -3791,6 +4004,42 @@ onMounted(async () => {
   background-color: #ccc;
   opacity: 0.6;
 }
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+
 .triangle-left {
   position: absolute;
   z-index: 1998;
@@ -3805,6 +4054,12 @@ onMounted(async () => {
   border-top: 13px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
 }
 
 ::v-deep(label) {

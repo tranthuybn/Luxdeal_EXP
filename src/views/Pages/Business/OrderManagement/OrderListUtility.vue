@@ -571,7 +571,13 @@ const getValueOfSelected = async (_value, obj, scope) => {
       : (totalFinalOrder.value =
           totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 
-    changePriceVAT()
+    if (radioVAT.value.length < 4) {
+      VAT.value = true
+      valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+      if (totalFinalOrder.value) {
+        totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+      }
+    }
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
@@ -790,7 +796,13 @@ const autoCalculateOrder = () => {
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 
-  changePriceVAT()
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
+  }
 }
 
 // change address
@@ -1151,11 +1163,11 @@ const editData = async () => {
 let formAccountingId = ref()
 const getAccountingEntry = (_index, scope) => {
   const data = scope.row
-  data.content?.indexOf('Phiếu thanh toán') != 1
+  data.content?.indexOf('Phiếu thanh toán') != -1
     ? openAcountingEntryDialog(data.id, 1)
-    : data.content?.indexOf('Phiếu đặt cọc/Tạm ứng') != 1
+    : data.content?.indexOf('Phiếu đặt cọc/Tạm ứng') != -1
     ? openAcountingEntryDialog(data.id, 2)
-    : data.content?.indexOf('Trả lại tiền cọc cho khách') != 1
+    : data.content?.indexOf('Trả lại tiền cọc cho khách') != -1
     ? openAcountingEntryDialog(data.id, 3)
     : openAcountingEntryDialog(data.id, 4)
 }
@@ -1163,7 +1175,14 @@ const getAccountingEntry = (_index, scope) => {
 const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
+  console.log('formAccountingId: ', formAccountingId.value)
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
+  tableSalesSlip.value.forEach((e) => {
+    e.totalPrice = e.unitPrice * e.quantity
+  })
+  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
+  moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
+  // paidMoney.value = formAccountingId.value?.paidMoney
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
@@ -1916,14 +1935,7 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
 const valueVAT = ref()
 const VAT = ref(false)
 const changePriceVAT = () => {
-  if (radioVAT.value.length < 4) {
-    VAT.value = true
-    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-    console.log('valueVAT: ', valueVAT.value)
-    if (totalFinalOrder.value) {
-      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-    }
-  }
+  autoCalculateOrder()
 }
 
 // check disabled
@@ -2670,7 +2682,9 @@ onMounted(async () => {
                 v-model="inputDeposit"
                 class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
               />
-              <p class="pr-2 text-red-600">đ</p>
+              <p class="pr-2 text-red-600">{{
+                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
+              }}</p>
             </div>
             <div class="w-[90px]"></div>
           </div>
@@ -4422,7 +4436,7 @@ onMounted(async () => {
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
             <div v-if="VAT" class="text-right dark:text-[#fff]">{{
-              VAT ? (totalFinalOrder * parseInt(valueVAT)) / 100 : ''
+              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
             }}</div>
             <div v-else class="text-transparent :dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{

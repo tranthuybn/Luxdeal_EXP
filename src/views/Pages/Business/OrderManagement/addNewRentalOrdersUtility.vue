@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onBeforeMount, unref } from 'vue'
+import { reactive, ref, onBeforeMount, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -687,7 +687,13 @@ const autoCalculateOrder = () => {
         (totalPriceOrder.value * promoValue.value) / 100 +
         totalDeposit.value)
 
-  changePriceVAT()
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
+  }
 }
 
 // Call api danh sách sản phẩm
@@ -1088,6 +1094,10 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
 
       totalOrder.value = orderObj.totalPrice
+      if (orderObj.discountMoney != 0) {
+        showPromo.value = true
+        promoCash.value = orderObj.discountMoney
+      }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
       customerAddress.value = orderObj.address
@@ -1161,7 +1171,17 @@ const getValueOfSelected = async (_value, obj, scope) => {
             (totalPriceOrder.value * promoValue.value) / 100 +
             totalDeposit.value)
 
-      changePriceVAT()
+      if (radioVAT.value.length < 4) {
+        VAT.value = true
+        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+        if (totalFinalOrder.value) {
+          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+        }
+      }
+      // add new row
+      if (scope.$index == tableData.value.length - 1) {
+        tableData.value.push({ ...productForSale })
+      }
     }
   }
 }
@@ -1489,15 +1509,15 @@ const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
 }
 
-watch(
-  () => tableData.value[tableData.value.length - 1],
-  () => {
-    if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => tableData.value[tableData.value.length - 1],
+//   () => {
+//     if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
+//       addLastIndexSellTable()
+//     }
+//   },
+//   { deep: true }
+// )
 
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -2022,14 +2042,10 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 }
 
 // Cập nhật lại giá tiền khi thay đổi VAT
+const valueVAT = ref()
+const VAT = ref(false)
 const changePriceVAT = () => {
-  if (radioVAT.value.length < 4) {
-    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
-    console.log('valueVAT: ', valueVAT)
-    if (totalFinalOrder.value) {
-      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
-    }
-  }
+  autoCalculateOrder()
 }
 
 // check disabled
@@ -4205,7 +4221,10 @@ onBeforeMount(() => {
               }}</div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div class="text-right dark:text-[#fff]">{{ radioVAT }}</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
+              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
+            }}</div>
+            <div v-else class="text-transparent :dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
               totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>

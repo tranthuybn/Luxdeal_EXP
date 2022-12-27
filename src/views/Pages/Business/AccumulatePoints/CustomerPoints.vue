@@ -70,6 +70,6 @@ const columns = reactive<TableColumn[]>([
     :columns="columns"
     :api="getCustomerPoint"
     :customOperator="4"
-    :removeHeaderFilterSlot="false"
+    :removeHeaderFilterSlot="true"
   />
 </template>

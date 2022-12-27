@@ -63,7 +63,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'startDate',
-    label: t('reuse.createDate'),
+    label: t('reuse.startDate'),
     minWidth: '150',
     align: 'center',
     sortable: true,
@@ -73,7 +73,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'endDate',
-    label: t('reuse.createDate'),
+    label: t('reuse.endDate'),
     minWidth: '150',
     align: 'center',
     sortable: true,

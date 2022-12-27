@@ -37,6 +37,7 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
+import moment from 'moment'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -223,7 +224,6 @@ let type = ref(String(router.currentRoute.value.params.type))
 const code = `TD${Date.now()}`
 // radio condition combo
 onBeforeMount(async () => {
-  console.log('type:', router.currentRoute.value)
   await callApiCustomerList()
   if (type.value == 'detail') {
     disabledEverything()
@@ -260,6 +260,10 @@ const callApiDetail = async () => {
     tableTypePoint[radio.value].point = res.data[0]?.point
     tableTypePoint[radio.value].price = res.data[0]?.price
     res.data[0]?.image ? (imageUrl.value = API_URL.concat(res.data[0]?.image)) : ''
+
+    if (formDetail.value.isDelete || formDetail.value.endDate < moment().format()) {
+      disabledEverything()
+    }
   }
   console.log(
     'cancel:',
@@ -268,11 +272,9 @@ const callApiDetail = async () => {
   )
   console.log('formDetail', formDetail.value)
 }
-const disabledUpload = ref(false)
-const radioDisabled = ref(false)
+const disabled = ref(false)
 const disabledEverything = () => {
-  radioDisabled.value = true
-  disabledUpload.value = true
+  disabled.value = true
   const { setProps, setSchema } = methods
   setProps({
     disabled: true
@@ -615,8 +617,7 @@ const changeTypeToEdit = () => {
   enableEverything()
 }
 const enableEverything = () => {
-  radioDisabled.value = false
-  disabledUpload.value = false
+  disabled.value = false
   const { setProps } = methods
   setProps({
     disabled: false
@@ -626,7 +627,7 @@ const enableEverything = () => {
 </script>
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
-    <div class="w-[50%]">
+    <div class="w-[60%]">
       <Form
         :schema="schema"
         size="large"
@@ -649,7 +650,7 @@ const enableEverything = () => {
               <el-input v-model="typePointTransaction" disabled />
               <el-button
                 @click="typeDialog = true"
-                :disabled="type == 'add'"
+                :disabled="type !== 'add'"
                 :icon="plusIcon"
                 style="padding: 8px 34px"
                 >{{ t('formDemo.change') }}</el-button
@@ -679,8 +680,9 @@ const enableEverything = () => {
             :class="[
               'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
             ]"
+            style="width: 100%"
           >
-            <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
+            <el-table-column :label="`${t('reuse.customerCode')}`" :min-width="1" prop="code">
               <template #default="scope">
                 <SelectTable
                   v-model="scope.row.id"
@@ -701,14 +703,14 @@ const enableEverything = () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
-            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
+            <el-table-column prop="name" :label="t('formDemo.customerName')" :min-width="4" />
+            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" :min-width="1">
               <template #default="scope">
-                <button
+                <el-button
                   @click="removeLastRow(scope.$index)"
-                  class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-                  :disabled="type == 'detail'"
-                  >{{ t('reuse.delete') }}</button
+                  type="danger"
+                  :disabled="disabled"
+                  >{{ t('reuse.delete') }}</el-button
                 >
               </template>
             </el-table-column>
@@ -716,6 +718,7 @@ const enableEverything = () => {
         </template>
       </Form>
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
+      {{ formDetail }}
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
         <div>
@@ -723,7 +726,11 @@ const enableEverything = () => {
             t('reuse.newInitialization')
           }}</p>
           <p class="date text-gray-300">
-            {{ dateTimeFormat(new Date()) }}
+            {{
+              formDetail?.createdAt
+                ? dateTimeFormat(formDetail?.createdAt)
+                : dateTimeFormat(new Date())
+            }}
           </p>
         </div>
         <!-- Hủy trước khi hoạt động -->
@@ -734,7 +741,7 @@ const enableEverything = () => {
           </p>
         </div>
         <!-- Hoạt động -->
-        <div v-else class="flex gap-4">
+        <div v-if="formDetail !== undefined" class="flex gap-4">
           <!-- Đang hoạt động -->
           <div>
             <p class="status lightGray day-updated text-blue-400">{{
@@ -752,7 +759,7 @@ const enableEverything = () => {
             </p>
           </div>
           <!-- Chạy hết hoạt động -->
-          <div v-else>
+          <div v-if="!formDetail?.isDelete && formDetail?.endDate < moment().format()">
             <p class="status darkGray day-updated text-black">{{ t('common.doneLabel') }}</p>
             <p class="date text-gray-300">
               {{ dateTimeFormat(formDetail?.endDate) }}
@@ -761,16 +768,21 @@ const enableEverything = () => {
         </div>
       </div>
       <div class="flex gap-4 items-center h-12 justify-center mb-12">
+        <!-- Tạo gói khi ở màn Thêm mới -->
         <el-button type="primary" @click="createSettingPoint" v-if="type == 'add'">{{
           t('reuse.finishPacking')
         }}</el-button>
-        <el-button v-if="type == 'edit'" @click="updateSettingPoint">{{
-          t('reuse.save')
-        }}</el-button>
+        <!--Lưu khi sửa gói chưa hoạt động và chưa hủy gói -->
+        <el-button
+          v-if="type == 'edit' && formDetail?.endDate > moment().format() && !formDetail?.isDelete"
+          @click="updateSettingPoint"
+          >{{ t('reuse.save') }}</el-button
+        >
+        <!--Hủy gói khi ở màn Sửa và chưa hủy -->
         <el-button
           type="danger"
           @click="cancelSettingPoint"
-          v-if="type == 'edit' && !formDetail?.isDelete"
+          v-if="type == 'edit' && formDetail?.endDate > moment().format() && !formDetail?.isDelete"
           >{{ t('reuse.cancelPackage') }}</el-button
         >
         <el-button v-if="type == 'detail'" @click="changeTypeToEdit">{{
@@ -778,7 +790,7 @@ const enableEverything = () => {
         }}</el-button>
       </div>
     </div>
-    <div class="w-[50%]">
+    <div class="w-[40%]">
       <div class="text-sm text-[#303133] font-medium pt-4 pl-4 dark:text-[#fff]">
         <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
       </div>
@@ -790,14 +802,14 @@ const enableEverything = () => {
             action="#"
             :auto-upload="false"
             :on-change="handleChange"
-            :disabled="disabledUpload"
+            :disabled="disabled"
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-            <el-button :icon="plusIcon" class="uploadIcon" v-else :disabled="disabledUpload" />
+            <el-button :icon="plusIcon" class="uploadIcon" v-else :disabled="disabled" />
           </el-upload>
           <div class="w-full flex justify-center" v-if="imageUrl">
             <ElButton :icon="viewIcon" @click="previewImage" />
-            <ElButton :icon="deleteIcon" :disabled="disabledUpload" @click="handleRemove" />
+            <ElButton :icon="deleteIcon" :disabled="disabled" @click="handleRemove" />
           </div>
           <el-dialog top="5vh" v-model="dialogImageUrl" width="130vh">
             <div class="flex justify-center items-center">
@@ -821,7 +833,7 @@ const enableEverything = () => {
     <el-table :data="tableTypePoint" border style="width: 100%">
       <el-table-column prop="radioComboTable" width="90" align="center">
         <template #default="scope">
-          <el-radio v-model="radio" :label="scope.$index" size="large" :disabled="radioDisabled"
+          <el-radio v-model="radio" :label="scope.$index" size="large" :disabled="disabled"
             ><span></span
           ></el-radio>
         </template>
@@ -934,5 +946,8 @@ const enableEverything = () => {
   width: 178px;
   height: 178px;
   text-align: center;
+}
+:deep(.el-row) {
+  width: 100%;
 }
 </style>

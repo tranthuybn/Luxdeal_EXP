@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onBeforeMount, reactive, ref } from 'vue'
+import { h, reactive, ref, onBeforeMount } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -101,9 +101,10 @@ const callAPI = async () => {
     loading.value = false
   }
 }
-onBeforeMount(async () => {
-  await callAPI()
+onBeforeMount(() => {
+  callAPI()
 })
+
 const formatter = (row, _column: any) => {
   switch (row.pointExchangeType) {
     case 1:
@@ -208,7 +209,7 @@ const cancelTransaction = async (scope) => {
                 }}<span class="text-green-400">({{ t('reuse.avatarCustomer') }})</span></span
               ></el-divider
             >
-            <ElImage :src="`${API_URL}form.image`" fit="fill" class="h-4/5 w-1/5">
+            <ElImage :src="`${API_URL}${form.image}`" fit="fill" class="h-4/5 w-1/5">
               <template #placeholder>
                 <div class="image-slot">Loading<span class="dot">...</span></div>
               </template>

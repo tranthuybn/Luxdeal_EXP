@@ -1797,6 +1797,9 @@ export default {
     customerGetPointWhenPawnProduct: 'Khách hàng được cộng điểm khi cầm đồ',
     customerGetPointWhenSpaProduct: 'Khách hàng được cộng điểm khi spa',
     customerGetPointWhenRefer: 'Khách hàng được cộng điểm khi giới thiệu',
-    runningPointAccumulationPackage: 'Đang chạy gói tích điểm'
+    runningPointAccumulationPackage: 'Đang chạy gói tích điểm',
+    cancelPointPackage: 'Hủy gói tích điểm',
+    doYouWantToCancelPointPackage: 'Bạn muốn hủy gói tích điểm ?',
+    historyPointTransaction: 'Lịch sử giao dịch điểm'
   }
 }

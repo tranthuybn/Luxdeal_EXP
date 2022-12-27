@@ -16,7 +16,8 @@ import {
   ElImage,
   UploadFile,
   ElInputNumber,
-  ElNotification
+  ElNotification,
+  ElMessageBox
 } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
@@ -221,14 +222,14 @@ const id = Number(router.currentRoute.value.params.id)
 let type = ref(String(router.currentRoute.value.params.type))
 const code = `TD${Date.now()}`
 // radio condition combo
-onBeforeMount(() => {
-  console.log('type:', type.value)
-  callApiCustomerList()
+onBeforeMount(async () => {
+  console.log('type:', router.currentRoute.value)
+  await callApiCustomerList()
   if (type.value == 'detail') {
     disabledEverything()
   }
   if (type.value == 'detail' || type.value == 'edit') {
-    callApiDetail()
+    await callApiDetail()
   } else {
     const { setValues } = methods
     setValues({
@@ -260,7 +261,12 @@ const callApiDetail = async () => {
     tableTypePoint[radio.value].price = res.data[0]?.price
     res.data[0]?.image ? (imageUrl.value = API_URL.concat(res.data[0]?.image)) : ''
   }
-  console.log('formDetail', formDetail)
+  console.log(
+    'cancel:',
+    formDetail.value.updatedAt < formDetail.value.endDate,
+    formDetail.value.updatedAt < formDetail.value.startDate
+  )
+  console.log('formDetail', formDetail.value)
 }
 const disabledUpload = ref(false)
 const radioDisabled = ref(false)
@@ -355,6 +361,9 @@ const rules = reactive({
   targetType: [required()]
 })
 const removeLastRow = (index) => {
+  if (TableData.length < 2) {
+    return
+  }
   TableData.splice(index, 1)
 }
 const customFormPost = (form) => {
@@ -453,23 +462,30 @@ const updateSettingPoint = async () => {
   }
   console.log('form', form, formValid)
 }
+
 const cancelSettingPoint = async () => {
-  await deletePointExchange({ Id: id })
-    .then(() => {
-      ElNotification({
-        message: t('reuse.deleteSuccess'),
-        type: 'success'
-      }),
-        push({
-          name: `business.accumulate-points.settings-points`
-        })
-    })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.deleteFail'),
-        type: 'warning'
+  ElMessageBox.confirm(t('reuse.doYouWantToCancelPointPackage'), t('reuse.cancelPointPackage'), {
+    confirmButtonText: t('reuse.cancel'),
+    confirmButtonClass: '!bg-red-500',
+    cancelButtonText: t('reuse.exit')
+  }).then(async () => {
+    await deletePointExchange({ Id: id })
+      .then(() => {
+        ElNotification({
+          message: t('reuse.deleteSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
+          })
       })
-    )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.deleteFail'),
+          type: 'warning'
+        })
+      )
+  })
 }
 
 const chooseType = () => {
@@ -703,28 +719,41 @@ const enableEverything = () => {
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
         <div>
-          <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+          <p class="status lightGray day-updated text-blue-400">{{
+            t('reuse.newInitialization')
+          }}</p>
           <p class="date text-gray-300">
             {{ dateTimeFormat(new Date()) }}
           </p>
         </div>
-        <div v-if="formDetail?.isDelete">
-          <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
+        <!-- Hủy trước khi hoạt động -->
+        <div v-if="formDetail?.isDelete && formDetail.updatedAt < formDetail.startDate">
+          <p class="status red red-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
           <p class="date text-gray-300">
             {{ dateTimeFormat(formDetail.updatedAt) }}
           </p>
         </div>
-        <div v-else>
-          <div v-if="Date.now() > formDetail?.startDate">
-            <p class="status bg-gray-300 day-updated">{{
+        <!-- Hoạt động -->
+        <div v-else class="flex gap-4">
+          <!-- Đang hoạt động -->
+          <div>
+            <p class="status lightGray day-updated text-blue-400">{{
               t('reuse.runningPointAccumulationPackage')
             }}</p>
             <p class="date text-gray-300">
               {{ dateTimeFormat(formDetail?.startDate) }}
             </p>
           </div>
-          <div v-if="Date.now() > formDetail?.endDate">
-            <p class="status bg-gray-300 day-updated">{{ t('common.doneLabel') }}</p>
+          <!-- Đang hoạt động thì hủy -->
+          <div v-if="formDetail?.isDelete && formDetail.updatedAt < formDetail.endDate">
+            <p class="status red red-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail.updatedAt) }}
+            </p>
+          </div>
+          <!-- Chạy hết hoạt động -->
+          <div v-else>
+            <p class="status darkGray day-updated text-black">{{ t('common.doneLabel') }}</p>
             <p class="date text-gray-300">
               {{ dateTimeFormat(formDetail?.endDate) }}
             </p>
@@ -738,9 +767,12 @@ const enableEverything = () => {
         <el-button v-if="type == 'edit'" @click="updateSettingPoint">{{
           t('reuse.save')
         }}</el-button>
-        <el-button type="danger" @click="cancelSettingPoint" v-if="type == 'edit'">{{
-          t('reuse.cancelPackage')
-        }}</el-button>
+        <el-button
+          type="danger"
+          @click="cancelSettingPoint"
+          v-if="type == 'edit' && !formDetail?.isDelete"
+          >{{ t('reuse.cancelPackage') }}</el-button
+        >
         <el-button v-if="type == 'detail'" @click="changeTypeToEdit">{{
           t('formDemo.edit')
         }}</el-button>
@@ -818,12 +850,20 @@ const enableEverything = () => {
 </template>
 
 <style scoped>
+.lightGray {
+  background-color: #e0e0e0;
+}
+.darkGray {
+  background-color: #a0a0a0;
+}
+.red {
+  background-color: #ff9999;
+}
 .day-updated {
   position: relative;
   padding-left: 20px;
   width: fit-content;
 }
-
 .day-updated::after {
   content: '';
   position: absolute;
@@ -833,10 +873,36 @@ const enableEverything = () => {
   height: 0;
   border-top: 10px solid transparent;
   border-bottom: 14px solid transparent;
-  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+  border-left: 12px solid #e0e0e0;
 }
-
 .day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+.red-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+.red-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid #ff9999;
+}
+.red-updated::before {
   content: '';
   position: absolute;
   top: 0;
@@ -858,7 +924,6 @@ const enableEverything = () => {
   overflow: hidden;
   transition: var(--el-transition-duration-fast);
 }
-
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }

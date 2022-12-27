@@ -363,6 +363,7 @@ export const moneyFormat = (money) => {
 export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))
 }
+
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,

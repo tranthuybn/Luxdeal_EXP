@@ -814,7 +814,7 @@ export const getSettingPoint = async (params: any): Promise<IResponse> => {
 export const cancelPointTransaction = async (params: any): Promise<IResponse> => {
   const res = await request.delete(
     {
-      url: `${POINT_API.GET_SETTING_POINT}?${objectToQueryParams(params)}`
+      url: `${POINT_API.CANCEL_POINT_TRANSACTION}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -841,10 +841,9 @@ export const updatePointExchange = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 export const deletePointExchange = async (params: any): Promise<IResponse> => {
-  const res = await request.put(
+  const res = await request.delete(
     {
-      url: POINT_API.DELETE_POINT_EXCHANGE,
-      data: params
+      url: `${POINT_API.CANCEL_POINT_EXCHANGE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

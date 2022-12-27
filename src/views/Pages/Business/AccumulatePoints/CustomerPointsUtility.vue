@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -70,6 +70,7 @@ const total = reactive({
   totalPoint: 0
 })
 const callAPI = async () => {
+  console.log('id', router.currentRoute.value.params)
   const res = await getDetailCustomerPoint({ Id: id })
   if (res) {
     form.customerCode = res.data[0]?.customerCode
@@ -100,8 +101,9 @@ const callAPI = async () => {
     loading.value = false
   }
 }
-callAPI()
-
+onBeforeMount(async () => {
+  await callAPI()
+})
 const formatter = (row, _column: any) => {
   switch (row.pointExchangeType) {
     case 1:

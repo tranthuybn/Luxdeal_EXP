@@ -18,6 +18,7 @@ import { getDetailCustomerPoint, cancelPointTransaction } from '@/api/Business'
 import router from '@/router'
 import moment from 'moment'
 import { API_URL } from '@/utils/API_URL'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -51,8 +52,11 @@ const collapseChangeEvent = (val) => {
     })
 }
 const activeName = ref([collapse[0].name])
+const { push } = useRouter()
 const cancel = () => {
-  console.log('cancel')
+  push({
+    name: 'business.accumulate-points.customer-points'
+  })
 }
 const tableData = ref()
 const form = reactive({
@@ -70,7 +74,6 @@ const total = reactive({
   totalPoint: 0
 })
 const callAPI = async () => {
-  console.log('id', router.currentRoute.value.params)
   const res = await getDetailCustomerPoint({ Id: id })
   if (res) {
     form.customerCode = res.data[0]?.customerCode

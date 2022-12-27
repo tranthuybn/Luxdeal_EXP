@@ -265,12 +265,6 @@ const callApiDetail = async () => {
       disabledEverything()
     }
   }
-  console.log(
-    'cancel:',
-    formDetail.value.updatedAt < formDetail.value.endDate,
-    formDetail.value.updatedAt < formDetail.value.startDate
-  )
-  console.log('formDetail', formDetail.value)
 }
 const disabled = ref(false)
 const disabledEverything = () => {
@@ -388,7 +382,6 @@ const createSettingPoint = async () => {
   let formValid = false
   const formRef = unref(elFormRef)
   await formRef?.validate((isValid) => {
-    console.log('isValid', isValid)
     if (isValid) {
       formValid = true
     }
@@ -404,7 +397,6 @@ const createSettingPoint = async () => {
   }
   if (formValid) {
     form = customFormPost(form)
-    console.log('form', form)
     await createPointExchange(FORM_IMAGES(form))
       .then(() => {
         ElNotification({
@@ -422,13 +414,11 @@ const createSettingPoint = async () => {
         })
       )
   }
-  console.log('form', form, formValid)
 }
 const updateSettingPoint = async () => {
   let formValid = false
   const formRef = unref(elFormRef)
   await formRef?.validate((isValid) => {
-    console.log('isValid', isValid)
     if (isValid) {
       formValid = true
     }
@@ -444,7 +434,6 @@ const updateSettingPoint = async () => {
   }
   if (formValid) {
     form = customFormUpdate(form)
-    console.log('form', form)
     await updatePointExchange(FORM_IMAGES(form))
       .then(() => {
         ElNotification({
@@ -462,7 +451,6 @@ const updateSettingPoint = async () => {
         })
       )
   }
-  console.log('form', form, formValid)
 }
 
 const cancelSettingPoint = async () => {

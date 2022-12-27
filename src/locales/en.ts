@@ -1671,6 +1671,9 @@ export default {
     customerGetPointWhenPawnProduct: 'Customer get point when pawn product',
     customerGetPointWhenSpaProduct: 'Customer get point when spa product ',
     customerGetPointWhenRefer: 'Customer get point when refer',
-    runningPointAccumulationPackage: 'Running point accumulation package'
+    runningPointAccumulationPackage: 'Running point accumulation package',
+    cancelPointPackage: 'Cancel point package',
+    doYouWantToCancelPointPackage: 'Do you want to cancel point package?',
+    historyPointTransaction: 'History point transaction'
   }
 }

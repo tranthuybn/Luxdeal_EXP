@@ -2,8 +2,9 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getCustomerPointsList } from '@/api/Business'
+import { getCustomerPoint } from '@/api/Business'
 import { filterPointStatus } from '@/utils/filters'
+import { dateTimeFormat, formatCustomerPointStatus } from '@/utils/format'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -23,41 +24,52 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'totalRechargePoints',
+    field: 'rechargePoint',
     label: t('reuse.totalRechargePoints'),
-    minWidth: '100',
+    minWidth: '250',
     align: 'right',
     sortable: true
   },
   {
-    field: 'pointsUsed',
+    field: 'usedPoint',
     label: t('reuse.pointsUsed'),
     minWidth: '250',
     align: 'right',
     sortable: true
   },
   {
-    field: 'remainingPoints',
+    field: 'point',
     label: t('reuse.remainingPoints'),
     minWidth: '200',
     align: 'right',
     sortable: true
   },
   {
-    field: 'mostRecentChange',
+    field: 'updatedAt',
     label: t('reuse.mostRecentChange'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterPointStatus
+    filters: filterPointStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatCustomerPointStatus(cellValue)
+    }
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCustomerPointsList" />
+  <tableDatetimeFilterBasicVue
+    :columns="columns"
+    :api="getCustomerPoint"
+    :customOperator="4"
+    :removeHeaderFilterSlot="true"
+  />
 </template>

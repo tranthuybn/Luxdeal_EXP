@@ -561,8 +561,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productName = obj.name
 
     //TODO
-    data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
-    data.finalPrice = data.price * parseInt(data.quantity)
+    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+    data.totalPrice = data.unitPrice * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
     })
@@ -1013,7 +1013,9 @@ const postData = async () => {
     TotalPrice: val.totalPrice,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    SpaServiceIds: null
+    SpaServiceIds: null,
+    WarehouseId: null,
+    PriceChange: false
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -1034,6 +1036,7 @@ const postData = async () => {
         ? (totalPriceOrder.value * promoValue.value) / 100
         : 0,
     InterestMoney: 0,
+    VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -4274,7 +4277,7 @@ onMounted(async () => {
                 :disabled="disabledEdit"
                 @change="
                   () => {
-                    data.row.finalPrice = data.row.price * data.row.quantity
+                    data.row.finalPrice = data.row.unitPrice * data.row.quantity
                     autoCalculateOrder()
                   }
                 "

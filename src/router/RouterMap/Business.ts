@@ -59,7 +59,7 @@ export default {
       },
       children: [
         {
-          path: 'order-list',
+          path: 'order-list/:tab?',
           name: 'business.order-management.order-list',
           component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
           meta: {
@@ -328,6 +328,17 @@ export default {
           }
         },
         {
+          path: 'customer-points/:type?/:id?',
+          component: () =>
+            import('@/views/Pages/Business/AccumulatePoints/CustomerPointsUtility.vue'),
+          name: `business.accumulate-points.customer-points.${utility}`,
+          meta: {
+            title: t('router.customerPoints'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
           path: 'settings-points',
           name: 'business.accumulate-points.settings-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
@@ -341,7 +352,6 @@ export default {
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPointsAdd.vue'),
           meta: {
             title: t('router.installPoints'),
-            noCache: true,
             hidden: true,
             canTo: true
           }

@@ -214,9 +214,8 @@ export const filterAccount: Array<Filter> = [
   { text: t('formDemo.joint'), value: 2 }
 ]
 export const filterSubject: Array<Filter> = [
-  { text: t('reuse.allCustomer'), value: 1 },
-  { text: t('reuse.groupCustomer'), value: 2 },
-  { text: t('reuse.onlyCustomer'), value: 3 }
+  { text: t('reuse.allCustomer'), value: 2 },
+  { text: t('reuse.groupCustomer'), value: 3 }
 ]
 export const filterPromotionPrice: Array<Filter> = [
   { text: t('reuse.sale30'), value: 1 },
@@ -276,4 +275,17 @@ export const filterTypePolicies: Array<Filter> = [
 export const filterShow: Array<Filter> = [
   { text: t('reuse.home'), value: 1 },
   { text: t('reuse.trending'), value: 2 }
+]
+export const filterPointSettingType: Array<Filter> = [
+  { text: t('router.buyPointsPackage'), value: 1 },
+  { text: t('reuse.pointsForSellOrder'), value: 2 },
+  { text: t('reuse.pointsForRentOrder'), value: 3 },
+  { text: t('reuse.pointsForDepositOrder'), value: 4 },
+  { text: t('reuse.pointsForPawnOrder'), value: 5 },
+  { text: t('reuse.pointsForSpaOrder'), value: 6 },
+  { text: t('reuse.pointsForAffiliate'), value: 7 }
+]
+export const filterStatusSettingPoint: Array<Filter> = [
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 0 }
 ]

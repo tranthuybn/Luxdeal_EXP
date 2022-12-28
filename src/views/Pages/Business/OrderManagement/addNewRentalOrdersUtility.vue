@@ -68,7 +68,7 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 
 import type { FormInstance, FormRules } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 
 const { t } = useI18n()
@@ -796,10 +796,12 @@ const postData = async () => {
     UnitPrice: 0,
     HirePrice: e.unitPrice,
     DepositePrice: e.depositePrice,
-    TotalPrice: e.totalPrice,
+    TotalPrice: e.hirePrice,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    SpaServiceIds: null
+    SpaServiceIds: null,
+    WarehouseId: null,
+    PriceChange: false
   }))
   postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
@@ -822,6 +824,7 @@ const postData = async () => {
         ? (totalPriceOrder.value * promoValue.value) / 100
         : 0,
     InterestMoney: 0,
+    VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -836,6 +839,7 @@ const postData = async () => {
     PaymentPeriod: 1
   }
 
+  const tab = String(route.params.tab)
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
     .then(
@@ -847,7 +851,7 @@ const postData = async () => {
       () =>
         push({
           name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name) }
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
         })
     )
     .catch(() =>
@@ -857,18 +861,18 @@ const postData = async () => {
       })
     )
 
-  automaticCouponWareHouse(2)
+  postAutomaticWarehouse({ OrderId: idOrderPost.value.data, Type: 2 })
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: idOrderPost.value.data,
-    Type: index
-  }
+// const automaticCouponWareHouse = async (index) => {
+//   const payload = {
+//     OrderId: idOrderPost.value.data,
+//     Type: index
+//   }
 
-  await postAutomaticWarehouse(payload)
-}
+//   if (!payload?.OrderId) await postAutomaticWarehouse(payload)
+// }
 
 const hirePeriod = [
   {
@@ -1085,16 +1089,11 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-let totalOrder = ref(0)
+// let totalOrder = ref(0)
 let customerIdPromo = ref()
 const editData = async () => {
-  console.log('id1: ', id)
-
   if (type == 'detail') checkDisabled.value = true
-  console.log('id2: ', id)
-
   if (type == 'edit' || type == 'detail') {
-    console.log('id3: ', id)
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
@@ -1117,7 +1116,10 @@ const editData = async () => {
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
 
-      totalOrder.value = orderObj.totalPrice
+      // totalOrder.value = orderObj.totalPrice
+      totalPriceOrder.value = orderObj.totalPrice
+      totalFinalOrder.value =
+        orderObj.totalPrice + orderObj.depositePrice + orderObj.vatMoney - orderObj.discountMoney
       if (orderObj.discountMoney != 0) {
         showPromo.value = true
         promoCash.value = orderObj.discountMoney
@@ -1174,7 +1176,7 @@ const getValueOfSelected = async (value, obj, scope) => {
       totalDeposit.value = 0
 
       let newDate = new Date(data.toDate - data.fromDate)
-      let days = newDate.getDate()
+      let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
         3,
@@ -1182,7 +1184,7 @@ const getValueOfSelected = async (value, obj, scope) => {
         ruleForm.leaseTerm
       )
       data.unitPrice = objPrice.price
-      data.depositePrice = objPrice.deposite
+      data.depositePrice = objPrice.deposite * data.quantity
       data.hirePrice = data.unitPrice * data.quantity * days
       tableData.value.map((val) => {
         if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
@@ -1222,7 +1224,7 @@ const handleGetTotal = async (_value, props) => {
     totalFinalOrder.value = 0
     totalDeposit.value = 0
     let newDate = new Date(data.toDate - data.fromDate)
-    let days = newDate.getDate()
+    let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       3,
@@ -1230,7 +1232,7 @@ const handleGetTotal = async (_value, props) => {
       ruleForm.leaseTerm
     )
     data.unitPrice = objPrice.price
-    data.depositePrice = objPrice.deposite
+    data.depositePrice = objPrice.deposite * data.quantity
     data.hirePrice = data.unitPrice * data.quantity * days
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
@@ -2075,6 +2077,7 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
+const route = useRoute()
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()

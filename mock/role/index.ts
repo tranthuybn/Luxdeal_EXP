@@ -285,7 +285,7 @@ const adminList = [
         },
         children: [
           {
-            path: 'order-list',
+            path: 'order-list/:tab?',
             name: 'business.order-management.order-list',
             component: 'views/Pages/Business/OrderManagement/OrderList',
             meta: {
@@ -596,6 +596,16 @@ const adminList = [
             component: 'views/Pages/Business/AccumulatePoints/CustomerPoints',
             meta: {
               title: 'router.customerPoints'
+            }
+          },
+          {
+            path: 'customer-points/:type?/:id?',
+            component: 'views/Pages/Business/AccumulatePoints/CustomerPointsUtility',
+            name: `business.accumulate-points.customer-points.${utility}`,
+            meta: {
+              title: 'router.customerPoints',
+              canTo: true,
+              hidden: true
             }
           },
           {
@@ -1389,7 +1399,7 @@ const testList: string[] = [
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',
-  '/business/order-management/order-list',
+  '/business/order-management/order-list/:tab?',
   '/business/order-management/order-list-add/:type?/:tab?/:id?',
 
   '/business/customer-management',
@@ -1421,6 +1431,8 @@ const testList: string[] = [
 
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
+  '/business/accumulate-points/customer-points/:type?/:id?',
+
   '/business/accumulate-points/settings-points',
   '/business/accumulate-points/settings-points-utility/:type?/:id?',
 

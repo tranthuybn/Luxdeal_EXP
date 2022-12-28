@@ -42,7 +42,7 @@ const props = defineProps({
   },
   titleAdd: {
     type: String,
-    default: 'reuse.addCategory'
+    default: 'reuse.newInitialization'
   },
   titleChilden: {
     type: String,

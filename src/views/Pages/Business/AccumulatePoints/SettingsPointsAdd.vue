@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount } from 'vue'
+import { reactive, ref, onBeforeMount, h, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElUpload,
@@ -10,37 +10,41 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
-  UploadUserFile,
-  ElDatePicker
+  ElMessage,
+  ElInput,
+  UploadProps,
+  ElImage,
+  UploadFile,
+  ElInputNumber,
+  ElNotification,
+  ElMessageBox
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import SelectTable from '@/components/SelectTable.vue'
+import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
-import { getProductsList } from '@/api/Business'
+import {
+  createPointExchange,
+  deletePointExchange,
+  getCustomerList,
+  getSettingPoint,
+  updatePointExchange
+} from '@/api/Business'
+import router from '@/router'
+import { FORM_IMAGES } from '@/utils/format'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { useValidator } from '@/hooks/web/useValidator'
+import { useRouter } from 'vue-router'
+import { API_URL } from '@/utils/API_URL'
+import moment from 'moment'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const { t } = useI18n()
-const { register } = useForm()
+const { register, elFormRef, methods } = useForm()
 // upload image
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-const radio1 = ref('1')
-let fileList = ref<UploadUserFile[]>([])
-const ListFileUpload = ref()
-const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value.filter((image) => image.url !== file.url)
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
 const schema = reactive<FormSchema[]>([
   {
@@ -52,14 +56,19 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'packageAccumulatePointsCode',
+    field: 'code',
+    label: t('router.packageAccumulatePointsCode'),
     component: 'Input',
+    componentProps: {
+      disabled: true
+    },
     colProps: {
       span: 24
     }
   },
   {
     field: 'type',
+    label: t('reuse.type'),
     component: 'Input',
     colProps: {
       span: 24
@@ -69,208 +78,567 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'points',
+    field: 'point',
+    label: t('reuse.pointsNumber'),
     component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'price',
+    label: t('reuse.exchangedMoney'),
+    component: 'Input',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'duration',
+    label: t('formDemo.duration'),
+    component: 'DatePicker',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      type: 'daterange',
+      format: 'DD/MM/YYYY',
+      valueFormat: 'YYYY-MM-DD'
+    }
+  },
+  {
+    field: 'description',
+    label: t('reuse.shortDescription'),
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      placeholder: t('reuse.shortDescription')
+    }
+  },
+  {
+    field: 'target',
+    label: t('reuse.subjectsOfApplication'),
+    component: 'Divider',
     colProps: {
       span: 12
     }
   },
   {
-    field: 'duration',
+    field: 'targetType',
     component: 'Input',
+    value: 2,
     colProps: {
       span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.selectOrEnterTheCollaboratorCode')
     }
   },
   {
-    field: 'shortDescription',
+    field: 'table',
     component: 'Input',
     colProps: {
       span: 24
-    },
-    componentProps: {
-      placeholder: t('formDemo.addNotes')
     }
   }
 ])
-
-// Value date
-const pickdate = ref('')
 
 const forceRemove = ref(false)
-// remove row table
-const removeListProductsSale = (index) => {
-  if (ListOfProductsForSale[ListOfProductsForSale.length - 1].selfImportAccessories == undefined) {
-    forceRemove.value = true
-    ListOfProductsForSale.splice(index, 1)
-  }
-}
 
-// Table data
-interface ListOfProductsForSaleType {
-  name: string
-  productCode: string
-  id: string
-  code: string
-  quantity: number | undefined
-  selfImportAccessories: string | undefined
-  dram: string
-  unitPrice: string
-  intoMoney: string
-  paymentType: string
-  alreadyPaidForTt: string
-  edited: boolean
-}
-
-const ListOfProductsForSale = reactive<Array<ListOfProductsForSaleType>>([
+let TableData = reactive([
   {
     name: '',
-    productCode: '',
-    id: '',
-    code: '',
-    quantity: 1,
-    selfImportAccessories: '',
-    dram: t('formDemo.psc'),
-    unitPrice: 'đ',
-    intoMoney: 'đ',
-    paymentType: '',
-    alreadyPaidForTt: '',
-    edited: true
+    phoneNumber: '',
+    id: null,
+    code: ''
   }
 ])
 
-// Call api danh sách sản phẩm
-let listProductsTable = ref()
-const listProducts = ref()
-const optionsApi = ref()
-
-let optionCallAPi = 0
-const callApiProductList = async () => {
-  if (optionCallAPi == 0) {
-    const res = await getProductsList({ ProductId: 1 })
-    listProducts.value = res.data
-    optionsApi.value = listProducts.value.map((product) => ({
-      label: product.id.toString(),
-      value: product.id.toString(),
-      name: product.name,
-      price: product.price.toString()
-    }))
-    optionCallAPi++
-    listProductsTable.value = optionsApi.value
+// select MSP đổi tên thông tin sản phẩm
+const changeName = (value, obj, scope) => {
+  forceRemove.value = false
+  const selected = TableData.filter((row) => row !== scope.row).find(
+    (customer) => customer.id == value
+  )
+  if (selected !== undefined) {
+    scope.row.id = null
+    scope.row.name = null
+    ElMessage({
+      message: t('reuse.customerCodeExist'),
+      type: 'warning'
+    })
+  } else {
+    scope.row.name = obj.name
+    TableData.push({
+      name: '',
+      phoneNumber: '',
+      id: null,
+      code: ''
+    })
   }
 }
-// select MSP đổi tên thông tin sản phẩm
-const changeName = (optionID, scope) => {
-  const option = optionsApi.value.find((option) => option.name == optionID)
-  scope.row.name = option.name
-  scope.row.unitPrice = option.price
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
-}
-
-// check button save or edit
-const checkButton = ref(false)
 
 // open or close change combo dialog
-const openChangeComboDialog = ref(false)
+const typeDialog = ref(false)
 
 // table change combo
-const tableChangeCombo = [
+const tableTypePoint = [
   {
-    radioComboTable: '1',
-    condition: 'Combo nhận miễn phí',
-    enterCondition: ''
+    type: 1,
+    point: null,
+    price: null
   },
   {
-    radioComboTable: '2',
-    condition: 'Đổi bằng điểm',
-    enterCondition: '500 điểm'
+    type: 2,
+    point: null,
+    price: null
   },
   {
-    radioComboTable: '3',
-    condition: 'Mua bằng tiền ảo',
-    enterCondition: '200,000 đ'
+    type: 3,
+    point: null,
+    price: null
+  },
+  {
+    type: 4,
+    point: null,
+    price: null
+  },
+  {
+    type: 5,
+    point: null,
+    price: null
+  },
+  {
+    type: 6,
+    point: null,
+    price: null
+  },
+  {
+    type: 7,
+    point: null,
+    price: null
   }
 ]
-
+const radio = ref(-1)
+const id = Number(router.currentRoute.value.params.id)
+let type = ref(String(router.currentRoute.value.params.type))
+const code = `TD${Date.now()}`
 // radio condition combo
-const radioCondition = ref(false)
-
-onBeforeMount(() => {
-  callApiProductList()
+onBeforeMount(async () => {
+  await callApiCustomerList()
+  if (type.value == 'detail') {
+    disabledEverything()
+  }
+  if (type.value == 'detail' || type.value == 'edit') {
+    await callApiDetail()
+  } else {
+    const { setValues } = methods
+    setValues({
+      code: code
+    })
+  }
 })
+
+const formDetail = ref()
+
+const callApiDetail = async () => {
+  const res = await getSettingPoint({ Id: id })
+  if (res && res.data.length > 0) {
+    formDetail.value = res.data[0]
+    const { setValues } = methods
+    setValues({
+      code: res.data[0]?.code,
+      description: res.data[0]?.description,
+      duration: [res.data[0]?.startDate, res.data[0]?.endDate],
+      point: res.data[0]?.point,
+      price: res.data[0]?.price,
+      type: res.data[0]?.type,
+      targetType: res.data[0]?.targetType
+    })
+    formatTypePointTransaction(res.data[0]?.type)
+    TableData = res.data[0]?.Customers
+    radio.value = res.data[0]?.type
+    tableTypePoint[radio.value].point = res.data[0]?.point
+    tableTypePoint[radio.value].price = res.data[0]?.price
+    res.data[0]?.image ? (imageUrl.value = API_URL.concat(res.data[0]?.image)) : ''
+
+    if (formDetail.value.isDelete || formDetail.value.endDate < moment().format()) {
+      disabledEverything()
+    }
+  }
+}
+const disabled = ref(false)
+const disabledEverything = () => {
+  disabled.value = true
+  const { setProps, setSchema } = methods
+  setProps({
+    disabled: true
+  })
+  setSchema(
+    schema.map((component) => ({
+      field: component.field,
+      path: 'componentProps.placeholder',
+      value: ''
+    }))
+  )
+}
+
+// Call api danh sách sản phẩm
+
+const tempListCustomers = ref()
+const listCustomers = ref()
+
+const params = reactive({
+  pageSize: 10,
+  pageIndex: 1,
+  Keyword: ''
+})
+const callApiCustomerList = async () => {
+  const res = await getCustomerList({ ...params })
+  tempListCustomers.value = listCustomers.value = res.data.map((customer) => ({
+    code: customer.code ?? '',
+    phoneNumber: customer.phonenumber,
+    name: customer.name,
+    id: customer.id
+  }))
+}
+
+const scrollBottom = ref(false)
+const noMoreData = ref(false)
+const ScrollBottom = () => {
+  scrollBottom.value = true
+  params.pageIndex = params.pageIndex + 1
+  noMoreData.value
+    ? ''
+    : getCustomerList({ ...params })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreData.value = true)
+            : res.data.map((customer) =>
+                listCustomers.value.push({
+                  code: customer.code,
+                  phoneNumber: customer.phonenumber,
+                  name: customer.name,
+                  id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreData.value = true
+        })
+  tempListCustomers.value = listCustomers.value
+}
+const searchCustomer = async (keyword) => {
+  params.Keyword = keyword
+  if (keyword) {
+    params.pageIndex = 1
+    const res = await getCustomerList({ ...params })
+    tempListCustomers.value = res.data.map((customer) =>
+      listCustomers.value.push({
+        code: customer.code,
+        phoneNumber: customer.phonenumber,
+        name: customer.name,
+        id: customer.id
+      })
+    )
+  } else {
+    tempListCustomers.value = listCustomers.value
+  }
+}
+const { required, ValidService, notSpecialCharacters } = useValidator()
+const rules = reactive({
+  description: [
+    required(),
+    { validator: notSpecialCharacters },
+    { validator: ValidService.checkSpace.validator },
+    { validator: ValidService.checkNameLength.validator }
+  ],
+  type: [required()],
+  duration: [required()],
+  targetType: [required()]
+})
+const removeLastRow = (index) => {
+  if (TableData.length < 2) {
+    return
+  }
+  TableData.splice(index, 1)
+}
+const customFormPost = (form) => {
+  form.startDate = form?.duration[0]
+  form.endDate = form?.duration[1]
+  form.Image = rawUploadFile.value?.raw
+  delete form.duration
+  return form
+}
+const customFormUpdate = (form) => {
+  form.startDate = form?.duration[0]
+  form.endDate = form?.duration[1]
+  form.Image = rawUploadFile.value?.raw
+  form.Id = id
+  delete form.duration
+  return form
+}
+const { push } = useRouter()
+const createSettingPoint = async () => {
+  let formValid = false
+  const formRef = unref(elFormRef)
+  await formRef?.validate((isValid) => {
+    if (isValid) {
+      formValid = true
+    }
+  })
+  const { getFormData } = methods
+  let form = await getFormData()
+  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+    ElMessage({
+      message: t('reuse.tableCustomerNotFillInformation'),
+      type: 'warning'
+    })
+    formValid = false
+  }
+  if (formValid) {
+    form = customFormPost(form)
+    await createPointExchange(FORM_IMAGES(form))
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
+          })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
+  }
+}
+const updateSettingPoint = async () => {
+  let formValid = false
+  const formRef = unref(elFormRef)
+  await formRef?.validate((isValid) => {
+    if (isValid) {
+      formValid = true
+    }
+  })
+  const { getFormData } = methods
+  let form = await getFormData()
+  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+    ElMessage({
+      message: t('reuse.tableCustomerNotFillInformation'),
+      type: 'warning'
+    })
+    formValid = false
+  }
+  if (formValid) {
+    form = customFormUpdate(form)
+    await updatePointExchange(FORM_IMAGES(form))
+      .then(() => {
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
+          })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.updateFail'),
+          type: 'warning'
+        })
+      )
+  }
+}
+
+const cancelSettingPoint = async () => {
+  ElMessageBox.confirm(t('reuse.doYouWantToCancelPointPackage'), t('reuse.cancelPointPackage'), {
+    confirmButtonText: t('reuse.cancel'),
+    confirmButtonClass: '!bg-red-500',
+    cancelButtonText: t('reuse.exit')
+  }).then(async () => {
+    await deletePointExchange({ Id: id })
+      .then(() => {
+        ElNotification({
+          message: t('reuse.deleteSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: `business.accumulate-points.settings-points`
+          })
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.deleteFail'),
+          type: 'warning'
+        })
+      )
+  })
+}
+
+const chooseType = () => {
+  if (
+    radio.value !== -1 &&
+    tableTypePoint[radio.value].point !== null &&
+    tableTypePoint[radio.value].price
+  ) {
+    typeDialog.value = false
+    const { setValues } = methods
+    setValues({
+      type: tableTypePoint[radio.value].type,
+      point: tableTypePoint[radio.value].point,
+      price: tableTypePoint[radio.value].price
+    })
+    formatTypePointTransaction(tableTypePoint[radio.value].type)
+  } else {
+    ElMessage({
+      message: t('reuse.notFillAllInformation'),
+      type: 'warning'
+    })
+  }
+}
+const formatterType = (row, _column: any) => {
+  switch (row.type) {
+    case 1:
+      return h('div', [
+        `${t('reuse.buyPointExchange')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerBuyPointExchange')}`)
+      ])
+    case 2:
+      return h('div', [
+        `${t('reuse.pointsForSellOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenBuyProduct')}`)
+      ])
+    case 3:
+      return h('div', [
+        `${t('reuse.pointsForRentOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenRentProduct')}`)
+      ])
+    case 4:
+      return h('div', [
+        `${t('reuse.pointsForDepositOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenDepositProduct')}`)
+      ])
+    case 5:
+      return h('div', [
+        `${t('reuse.pointsForPawnOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenPawnProduct')}`)
+      ])
+    case 6:
+      return h('div', [
+        `${t('reuse.pointsForSpaOrder')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenSpaProduct')}`)
+      ])
+    case 7:
+      return h('div', [
+        `${t('reuse.pointsForAffiliate')}`,
+        h('div', { class: 'text-orange-400' }, `${t('reuse.customerGetPointWhenRefer')}`)
+      ])
+    default:
+      return ''
+  }
+}
+const typePointTransaction = ref('')
+const formatTypePointTransaction = (val) => {
+  switch (val) {
+    case 1:
+      return (typePointTransaction.value = `${t('reuse.buyPointExchange')}`)
+    case 2:
+      return (typePointTransaction.value = `${t('reuse.pointsForSellOrder')}`)
+    case 3:
+      return (typePointTransaction.value = `${t('reuse.pointsForRentOrder')}`)
+    case 4:
+      return (typePointTransaction.value = `${t('reuse.pointsForDepositOrder')}`)
+    case 5:
+      return (typePointTransaction.value = `${t('reuse.pointsForPawnOrder')}`)
+    case 6:
+      return (typePointTransaction.value = `${t('reuse.pointsForSpaOrder')}`)
+    case 7:
+      return (typePointTransaction.value = `${t('reuse.pointsForAffiliate')}`)
+    default:
+      return ''
+  }
+}
+const imageUrl = ref('')
+let rawUploadFile = ref<UploadFile>()
+const handleChange: UploadProps['onChange'] = async (uploadFile, _uploadFiles) => {
+  const validImage = await beforeAvatarUpload(uploadFile, 'single')
+  if (validImage) {
+    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+    rawUploadFile.value = uploadFile
+  }
+}
+const dialogImageUrl = ref(false)
+const previewImage = () => {
+  dialogImageUrl.value = true
+}
+const validImageType = ['jpeg', 'png']
+const beforeAvatarUpload = async (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    return true
+  }
+  return true
+}
+const handleRemove = (_file) => {
+  imageUrl.value = ''
+  rawUploadFile.value = undefined
+}
+const changeTypeToEdit = () => {
+  enableEverything()
+}
+const enableEverything = () => {
+  disabled.value = false
+  const { setProps } = methods
+  setProps({
+    disabled: false
+  })
+  type.value = 'edit'
+}
 </script>
 <template>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%]">
+  <div class="flex w-[100%] gap-6 bg-white">
+    <div class="w-[60%]">
       <Form
         :schema="schema"
-        label-position="top"
-        hide-required-asterisk
         size="large"
-        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base"
+        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base pt-4 w-full"
         @register="register"
+        :rules="rules"
       >
-        <template #packageAccumulatePointsCode>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{
-              t('router.packageAccumulatePointsCode')
-            }}</label>
-            <div class="font-bold">CB3452323</div>
-          </div>
+        <template #code="formData">
+          <span>{{ formData.code }}</span>
         </template>
-        <template #duration>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('formDemo.duration') }}</label>
-            <div class="flex w-[80%] gap-2 demo-date-picker">
-              <el-date-picker
-                v-model="pickdate"
-                type="daterange"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-                format="DD/MM/YYYY"
-              />
-            </div>
-          </div>
+        <template #point="formData">
+          <span>{{ formData.point }} {{ t('reuse.points') }}</span>
         </template>
-        <template #points>
-          <div class="flex gap-4 w-[100%]">
-            <label class="w-[33%] text-right">{{ t('reuse.Points') }}</label>
-            <div class="leading-6 mt-2 ml-2">
-              <div>500 Điểm</div>
-            </div>
-          </div>
-          <div class="flex gap-4 w-[100%]"
-            ><label class="w-[33%] text-right">{{ t('reuse.exchangedMoney') }}</label>
-            <div class="leading-6 ml-2 mt-2">
-              <div>300,000 đ</div>
-            </div></div
-          >
+        <template #price="formData">
+          <span>{{ formData.price }} đ</span>
         </template>
-        <template #shortDescription>
-          <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right" for="">{{ t('formDemo.shortDescription') }}</label>
-            <input
-              class="w-[80%] border-1 outline-none pl-2 bg-transparent rounded dark:border-"
-              type="text"
-              :placeholder="`${t('formDemo.enterShortDescription')}`"
-            />
-          </div>
-        </template>
-
         <template #type>
           <div class="flex items-center w-[100%] gap-4">
-            <label class="w-[16%] text-right">{{ t('reuse.type') }}</label>
-            <div class="w-[80%] bg-transparent flex items-center gap-4">
-              <input
-                type="text"
-                class="border-1 w-[80%] outline-none rounded bg-transparent pl-2"
-                :placeholder="`${t('router.buyPointsPackage')}`"
-              />
+            <div class="w-[100%] bg-transparent flex items-center gap-4">
+              <el-input v-model="typePointTransaction" disabled />
               <el-button
-                @click="openChangeComboDialog = true"
+                @click="typeDialog = true"
+                :disabled="type !== 'add'"
                 :icon="plusIcon"
                 style="padding: 8px 34px"
                 >{{ t('formDemo.change') }}</el-button
@@ -278,191 +646,296 @@ onBeforeMount(() => {
             </div>
           </div>
         </template>
+        <template #targetType="formData">
+          <el-radio-group v-model="formData.targetType" class="ml-4">
+            <el-radio :label="3" size="large">
+              <div class="text-[#303133] font-normal dark:text-white">{{
+                t('reuse.allCustomer')
+              }}</div></el-radio
+            >
+            <el-radio :label="2" size="large"
+              ><div class="text-[#303133] font-normal dark:text-white">{{
+                t('formDemo.chooseCustomerDetail')
+              }}</div></el-radio
+            >
+          </el-radio-group>
+        </template>
+        <template #table="form">
+          <el-table
+            :data="TableData"
+            v-if="form.targetType !== 3"
+            border
+            :class="[
+              'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+            ]"
+            style="width: 100%"
+          >
+            <el-table-column :label="`${t('reuse.customerCode')}`" :min-width="1" prop="code">
+              <template #default="scope">
+                <SelectTable
+                  v-model="scope.row.id"
+                  :fields="[
+                    t('reuse.customerCode'),
+                    t('reuse.phoneNumber'),
+                    t('formDemo.customerName')
+                  ]"
+                  :items="tempListCustomers"
+                  width="500px"
+                  valueKey="id"
+                  labelKey="code"
+                  :hiddenKey="['id']"
+                  :placeHolder="t('reuse.chooseCustomerCode')"
+                  @scroll-bottom="ScrollBottom"
+                  @keyword="searchCustomer"
+                  @change="(value, obj) => changeName(value, obj, scope)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" :label="t('formDemo.customerName')" :min-width="4" />
+            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" :min-width="1">
+              <template #default="scope">
+                <el-button
+                  @click="removeLastRow(scope.$index)"
+                  type="danger"
+                  :disabled="disabled"
+                  >{{ t('reuse.delete') }}</el-button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </template>
       </Form>
+      <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
+      {{ formDetail }}
+      <div class="flex gap-4 items-center pt-4 pb-6">
+        <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
+        <div>
+          <p class="status lightGray day-updated text-blue-400">{{
+            t('reuse.newInitialization')
+          }}</p>
+          <p class="date text-gray-300">
+            {{
+              formDetail?.createdAt
+                ? dateTimeFormat(formDetail?.createdAt)
+                : dateTimeFormat(new Date())
+            }}
+          </p>
+        </div>
+        <!-- Hủy trước khi hoạt động -->
+        <div v-if="formDetail?.isDelete && formDetail.updatedAt < formDetail.startDate">
+          <p class="status red red-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
+          <p class="date text-gray-300">
+            {{ dateTimeFormat(formDetail.updatedAt) }}
+          </p>
+        </div>
+        <!-- Hoạt động -->
+        <div v-if="formDetail !== undefined" class="flex gap-4">
+          <!-- Đang hoạt động -->
+          <div>
+            <p class="status lightGray day-updated text-blue-400">{{
+              t('reuse.runningPointAccumulationPackage')
+            }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail?.startDate) }}
+            </p>
+          </div>
+          <!-- Đang hoạt động thì hủy -->
+          <div v-if="formDetail?.isDelete && formDetail.updatedAt < formDetail.endDate">
+            <p class="status red red-updated text-red-500">{{ t('reuse.cancelPackage') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail.updatedAt) }}
+            </p>
+          </div>
+          <!-- Chạy hết hoạt động -->
+          <div v-if="!formDetail?.isDelete && formDetail?.endDate < moment().format()">
+            <p class="status darkGray day-updated text-black">{{ t('common.doneLabel') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(formDetail?.endDate) }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-4 items-center h-12 justify-center mb-12">
+        <!-- Tạo gói khi ở màn Thêm mới -->
+        <el-button type="primary" @click="createSettingPoint" v-if="type == 'add'">{{
+          t('reuse.finishPacking')
+        }}</el-button>
+        <!--Lưu khi sửa gói chưa hoạt động và chưa hủy gói -->
+        <el-button
+          v-if="type == 'edit' && formDetail?.endDate > moment().format() && !formDetail?.isDelete"
+          @click="updateSettingPoint"
+          >{{ t('reuse.save') }}</el-button
+        >
+        <!--Hủy gói khi ở màn Sửa và chưa hủy -->
+        <el-button
+          type="danger"
+          @click="cancelSettingPoint"
+          v-if="type == 'edit' && formDetail?.endDate > moment().format() && !formDetail?.isDelete"
+          >{{ t('reuse.cancelPackage') }}</el-button
+        >
+        <el-button v-if="type == 'detail'" @click="changeTypeToEdit">{{
+          t('formDemo.edit')
+        }}</el-button>
+      </div>
     </div>
-    <div class="w-[50%]">
-      <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+    <div class="w-[40%]">
+      <div class="text-sm text-[#303133] font-medium pt-4 pl-4 dark:text-[#fff]">
         <el-divider content-position="left">{{ t('reuse.picture') }}</el-divider>
       </div>
       <div class="flex">
         <div class="pl-4">
           <el-upload
-            :icon="plusIcon"
+            class="avatar-uploader"
+            :show-file-list="false"
             action="#"
-            list-type="picture-card"
             :auto-upload="false"
-            :limit="1"
-            class="relative"
+            :on-change="handleChange"
+            :disabled="disabled"
           >
-            <ElButton :icon="plusIcon" />
-            <template #file="{ file }">
-              <div>
-                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                <span class="el-upload-list__item-actions">
-                  <span
-                    class="el-upload-list__item-preview"
-                    @click="handlePictureCardPreview(file)"
-                  >
-                    <ElButton :icon="viewIcon" />
-                  </span>
-                  <span
-                    v-if="!disabled"
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
-                    <ElButton :icon="deleteIcon" />
-                  </span>
-                </span>
-              </div>
-            </template>
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-button :icon="plusIcon" class="uploadIcon" v-else :disabled="disabled" />
           </el-upload>
-          <el-dialog width="80%" v-model="dialogVisible">
-            <img class="w-full" :src="dialogImageUrl" alt="Preview Image" />
+          <div class="w-full flex justify-center" v-if="imageUrl">
+            <ElButton :icon="viewIcon" @click="previewImage" />
+            <ElButton :icon="deleteIcon" :disabled="disabled" @click="handleRemove" />
+          </div>
+          <el-dialog top="5vh" v-model="dialogImageUrl" width="130vh">
+            <div class="flex justify-center items-center">
+              <el-image class="h-full" :src="imageUrl" alt="Preview Image" />
+            </div>
           </el-dialog>
         </div>
       </div>
     </div>
   </div>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%] pl-2">
-      <el-divider content-position="left">{{ t('reuse.subjectsOfApplication') }}</el-divider>
-      <div class="mb-2 flex items-center text-sm">
-        <el-radio-group v-model="radio1" class="ml-4">
-          <el-radio label="1" size="large">
-            <div class="text-[#303133] font-normal dark:text-white">{{
-              t('reuse.allCustomer')
-            }}</div></el-radio
-          >
-          <el-radio label="2" size="large"
-            ><div class="text-[#303133] font-normal dark:text-white">{{
-              t('formDemo.chooseCustomerDetail')
-            }}</div></el-radio
-          >
-        </el-radio-group>
-      </div>
-      <el-table
-        :data="ListOfProductsForSale"
-        border
-        :class="[
-          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-        ]"
-      >
-        <el-table-column :label="`${t('reuse.customerCode')}`" min-width="150" prop="code">
-          <template #default="props">
-            <MultipleOptionsBox
-              :fields="[
-                t('reuse.customerCode'),
-                t('reuse.phoneNumber'),
-                t('formDemo.customerName')
-              ]"
-              filterable
-              :items="listProductsTable"
-              :valueKey="'name'"
-              :labelKey="'id'"
-              :hiddenKey="['id']"
-              :placeHolder="'Chọn mã sản phẩm'"
-              :clearable="false"
-              @change="(option) => changeName(option, props)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="name" :label="t('formDemo.customerName')" min-width="480" />
-        <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" min-width="90">
-          <template #default="scope">
-            <button
-              @click.prevent="removeListProductsSale(scope.$index)"
-              class="bg-[#EA4F37] pt-2 pb-2 pl-4 pr-4 text-[#fff]"
-              >Xóa</button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="w-[50%]"> </div>
-  </div>
-  <div class="flex w-[100%] gap-6">
-    <div class="w-[50%] pl-2">
-      <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
-      <div class="flex gap-4 items-center pt-4 pb-6">
-        <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
-        <span class="border-1 bg-[#FD9800] text-light-50 pl-2 pr-22 dark:border-transparent">{{
-          t('formDemo.pending')
-        }}</span>
-      </div>
-      <div class="flex gap-4 items-center h-12">
-        <span class="w-[16%]"></span>
-        <div v-if="checkButton">
-          <el-button
-            class="min-w-[142px]"
-            @click.prevent="checkButton = !checkButton"
-            type="primary"
-            size="large"
-            >{{ t('button.saveAndWaitApproval') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large">{{ t('button.cancel') }}</el-button>
-        </div>
-        <div v-else>
-          <el-button
-            class="min-w-[142px]"
-            size="large"
-            @click.prevent="checkButton = !checkButton"
-            >{{ t('button.edit') }}</el-button
-          >
-          <el-button class="min-w-[142px]" size="large" type="danger">{{
-            t('button.cancelVoucher')
-          }}</el-button>
-        </div>
-      </div>
-    </div>
-    <div class="w-[50%]"></div>
-  </div>
 
   <!-- Dialog change combo -->
   <el-dialog
-    v-model="openChangeComboDialog"
-    :title="t('formDemo.inventoryInformation')"
-    width="35%"
+    v-model="typeDialog"
+    :title="t('reuse.choosePointExchangeType')"
+    width="55%"
     align-center
     class="z-50"
   >
     <el-divider />
-    <el-table :data="tableChangeCombo" border>
+    <el-table :data="tableTypePoint" border style="width: 100%">
       <el-table-column prop="radioComboTable" width="90" align="center">
-        <template #default="props">
-          <el-radio-group v-model="radioCondition" class="ml-4">
-            <el-radio :label="props.row.radioComboTable" size="large" />
-          </el-radio-group>
+        <template #default="scope">
+          <el-radio v-model="radio" :label="scope.$index" size="large" :disabled="disabled"
+            ><span></span
+          ></el-radio>
         </template>
       </el-table-column>
-      <el-table-column prop="condition" :label="t('formDemo.condition')" width="360" />
-      <el-table-column prop="enterCondition" :label="t('formDemo.enterCondition')" />
+      <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />
+      <el-table-column :label="t('reuse.pointsNumber')">
+        <template #default="scope">
+          <el-input-number v-model="scope.row.point" controls-position="right" :min="0" />
+        </template>
+      </el-table-column>
+      <el-table-column :label="t('reuse.exchangedMoney')">
+        <template #default="scope">
+          <CurrencyInputComponent v-model="scope.row.price" />
+        </template>
+      </el-table-column>
     </el-table>
     <template #footer>
       <span class="dialog-footer">
-        <el-button class="w-[150px]" type="primary" @click="openChangeComboDialog = false"
+        <el-button class="w-[150px]" type="primary" @click="chooseType"
           >{{ t('reuse.save') }}
         </el-button>
-        <el-button class="w-[150px]" @click="openChangeComboDialog = false">{{
-          t('reuse.exit')
-        }}</el-button>
+        <el-button class="w-[150px]" @click="typeDialog = false">{{ t('reuse.exit') }}</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <style scoped>
-::v-deep(.el-divider__text.is-left) {
-  font-size: 16px !important;
+.lightGray {
+  background-color: #e0e0e0;
+}
+.darkGray {
+  background-color: #a0a0a0;
+}
+.red {
+  background-color: #ff9999;
+}
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid #e0e0e0;
+}
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+.red-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+.red-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid #ff9999;
+}
+.red-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+.avatar {
+  height: 100%;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
 }
 
-::v-deep(.el-radio.el-radio--large .el-radio__label) {
-  color: transparent;
+.uploadIcon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
 }
-
-.fix-padding {
-  padding: 0;
+:deep(.el-row) {
+  width: 100%;
 }
-/* ::v-deep(.el-select-dropdown__item) {
-    padding: 0 !important;
-  } */
 </style>

@@ -599,6 +599,16 @@ const adminList = [
             }
           },
           {
+            path: 'customer-points/:type?/:id?',
+            component: 'views/Pages/Business/AccumulatePoints/CustomerPointsUtility',
+            name: `business.accumulate-points.customer-points.${utility}`,
+            meta: {
+              title: 'router.customerPoints',
+              canTo: true,
+              hidden: true
+            }
+          },
+          {
             path: 'settings-points',
             name: 'business.accumulate-points.settings-points',
             component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
@@ -1421,6 +1431,8 @@ const testList: string[] = [
 
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
+  '/business/accumulate-points/customer-points/:type?/:id?',
+
   '/business/accumulate-points/settings-points',
   '/business/accumulate-points/settings-points-utility/:type?/:id?',
 

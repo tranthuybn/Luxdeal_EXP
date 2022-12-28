@@ -128,7 +128,15 @@ export const WAREHOUSE_API = {
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
 }
-
+export const POINT_API = {
+  GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
+  GET_DETAIL_CUSTOMER_POINT: '/api/v1/Point/GetDetailCustomerPoint',
+  GET_SETTING_POINT: '/api/v1/Point/GetSettingPoint',
+  CANCEL_POINT_TRANSACTION: '/api/v1/Point/CancelPointTransaction',
+  CREATE_POINT_EXCHANGE: '/api/v1/Point/CreatePointExchange',
+  UPDATE_POINT_EXCHANGE: '/api/v1/Point/UpdatePointExchange',
+  CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
+}
 export const DEPARTMENT_DIRECTORY = {
   BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
   DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',

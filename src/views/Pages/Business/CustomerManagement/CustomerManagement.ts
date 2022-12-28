@@ -83,7 +83,7 @@ export const CustomerList = [
     minWidth: '150',
     filters: filterAccount,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
-      if (record.customerType == 1) {
+      if (record.customerType == 0) {
         return h('div', CUSTOMER_TYPE[0].label)
       } else if (record.customerType == 1) {
         return h('div', CUSTOMER_TYPE[1].label)

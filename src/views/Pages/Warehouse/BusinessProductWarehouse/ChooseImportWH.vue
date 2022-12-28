@@ -13,8 +13,7 @@ import {
   ElInput,
   ElTable,
   ElTableColumn,
-  ElRadio,
-  ElMessage
+  ElRadio
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { PropType, reactive, ref, watch } from 'vue'
@@ -70,17 +69,8 @@ const createNewLot = async () => {
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
-  warehouseData.value.quantity > totalInventory.value
-    ? ElMessage({
-        message: 'not enough',
-        type: 'warning'
-      })
-    : radioSelected.value == -1
-    ? ElMessage({
-        message: 'selected row',
-        type: 'warning'
-      })
-    : emit('close-dialog-warehouse', warehouseData.value)
+  radioSelected.value == -1
+  emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
 
@@ -147,7 +137,6 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
-      console.log('res:', lotData.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value

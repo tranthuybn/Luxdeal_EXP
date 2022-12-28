@@ -9,6 +9,10 @@ import {
 } from '@/utils/filters'
 import { h } from 'vue'
 import { dateTimeFormat } from '@/utils/format'
+import { useIcon } from '@/hooks/web/useIcon'
+import { ElButton } from 'element-plus'
+import { useAppStore } from '@/store/modules/app'
+import router from '@/router'
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -16,7 +20,10 @@ const changeMoney = new Intl.NumberFormat('vi', {
   currency: 'vnd',
   minimumFractionDigits: 0
 })
-
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+const appStore = useAppStore()
+const utility = appStore.getUtility
 //Đơn bán hàng
 export const sellOrder = [
   {
@@ -140,6 +147,17 @@ export const sellOrder = [
     filters: filtersStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderSell') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderSell') })
+      ])
     }
   }
 ]
@@ -320,10 +338,22 @@ export const rentalorder = [
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderRental') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderRental') })
+      ])
+    }
   }
 ]
+
 //Đơn hàng ký gửi
-export const orderDeposit = [
+export const depositOrder = [
   {
     field: 'index',
     label: t('reuse.index'),
@@ -409,7 +439,7 @@ export const orderDeposit = [
   },
   {
     field: 'spaTimes',
-    label: t('reuse.spaTimes'),
+    label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -430,21 +460,21 @@ export const orderDeposit = [
   },
   {
     field: 'totalDepositRevenue',
-    label: t('reuse.totalAmountNegotiationDeposit'),
+    label: t('reuse.totalAmountOfNetSales'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'totalNegotiateMoney',
-    label: t('reuse.totalDepositServiceFee'),
+    label: t('reuse.totalAmountNegotiationDeposit'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
     field: 'totalFeeMoney',
-    label: t('reuse.totalDebtOnDeposit'),
+    label: t('reuse.totalDepositDebt'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -476,27 +506,44 @@ export const orderDeposit = [
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filterDeposit
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderDeposit') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderDeposit') })
+      ])
+    }
   }
 ]
 //Đơn hàng cầm đồ
-export const orderPawn = [
+export const pawnOrder = [
   {
     field: 'index',
     label: t('reuse.index'),
@@ -511,14 +558,12 @@ export const orderPawn = [
   {
     field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'promotionCode',
     label: t('reuse.promotionCode'),
-    minWidth: '150',
-    sortable: true
+    minWidth: '150'
   },
   {
     field: 'userName',
@@ -531,48 +576,7 @@ export const orderPawn = [
     label: t('reuse.explain'),
     minWidth: '170'
   },
-  {
-    field: 'productManagementCode',
-    label: t('formDemo.productManagementCode'),
-    minWidth: '170',
-    headerFilter: 'Name',
-    formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
-        })
-      )
-    }
-  },
-  {
-    field: 'productInformation',
-    label: t('formDemo.productInformation'),
-    minWidth: '300',
-    headerFilter: 'Name',
-    formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'ul',
-        row.orderDetails.map(({ id, productName, productPropertyName }) => {
-          return h('li', { key: id }, `${productName}${productPropertyName}`)
-        })
-      )
-    }
-  },
-  {
-    field: 'pawnNumber',
-    label: t('reuse.pawnNumber'),
-    minWidth: '200',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'depositedSoldNumber',
-    label: t('reuse.depositedSoldNumber'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
+
   {
     field: 'depositedRentTimes',
     label: t('reuse.depositedRentTimes'),
@@ -582,7 +586,7 @@ export const orderPawn = [
   },
   {
     field: 'spaTimes',
-    label: t('reuse.spaTimes'),
+    label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -595,8 +599,8 @@ export const orderPawn = [
     sortable: true
   },
   {
-    field: 'quantityImportedInternalWarehouse',
-    label: t('reuse.quantityImportedInternalWarehouse'),
+    field: 'quantityHasBroken',
+    label: t('reuse.quantityHasBroken'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -611,7 +615,7 @@ export const orderPawn = [
 
   {
     field: 'totalPawnMoney',
-    label: t('reuse.totalPawnMoney'),
+    label: t('reuse.totalPrincipalBalance'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -624,22 +628,8 @@ export const orderPawn = [
     sortable: true
   },
   {
-    field: 'totalAmountNegotiationDeposit',
-    label: t('reuse.totalAmountNegotiationDeposit'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'totalDepositServiceFee',
-    label: t('reuse.totalDepositServiceFee'),
-    minWidth: '150',
-    align: 'right',
-    sortable: true
-  },
-  {
-    field: 'totalDebtPawnFees',
-    label: t('reuse.totalDebtPawnFees'),
+    field: 'totalPawnFee',
+    label: t('reuse.totalPawnDebt'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -671,27 +661,45 @@ export const orderPawn = [
     sortable: true
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
+
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filterDeposit
+    filters: filtersStatus,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderPawn') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderPawn') })
+      ])
+    }
   }
 ]
 //Đơn hàng SPA
-export const orderSpa = [
+export const spaOrder = [
   {
     field: 'index',
     label: t('reuse.index'),
@@ -704,6 +712,11 @@ export const orderSpa = [
     minWidth: '150'
   },
   {
+    field: 'typeSpa',
+    label: t('reuse.type'),
+    minWidth: '150'
+  },
+  {
     field: 'collaboratorId',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
@@ -712,7 +725,7 @@ export const orderSpa = [
   {
     field: 'promotionCode',
     label: t('reuse.promotionCode'),
-    minWidth: '170',
+    minWidth: '150',
     sortable: true
   },
   {
@@ -769,7 +782,7 @@ export const orderSpa = [
   },
   {
     field: 'spaTimes',
-    label: t('reuse.spaTimes'),
+    label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true
@@ -782,9 +795,9 @@ export const orderSpa = [
     sortable: true
   },
   {
-    field: 'totalSpaFeeMoney',
+    field: 'totalPrice',
     label: t('reuse.totalSpaFeeMoney'),
-    minWidth: '180',
+    minWidth: '150',
     align: 'right',
     sortable: true
   },
@@ -836,5 +849,27 @@ export const orderSpa = [
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail', 'orderSpa') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit', 'orderSpa') })
+      ])
+    }
   }
 ]
+const action = (row: any, type: string, tab: string) => {
+  router.push({
+    name: `business.order-management.order-list.${utility}`,
+    params: {
+      backRoute: 'business.order-management.order-list',
+      tab: tab,
+      id: row.id,
+      type: type
+    }
+  })
+}

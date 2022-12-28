@@ -51,14 +51,8 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
     <div>
       <slot></slot>
     </div>
-    <div :class="[`${prefixCls}-header__title`, 'flex flex-1 gap-2 pb-8']" class="btn-group-under">
+    <div :class="[`${prefixCls}-header__title`, 'flex flex-1 gap-2 pb-8']">
       <slot name="under"></slot>
     </div>
   </ElCard>
 </template>
-
-<style scoped>
-.btn-group-under {
-  margin-left: 358px;
-}
-</style>

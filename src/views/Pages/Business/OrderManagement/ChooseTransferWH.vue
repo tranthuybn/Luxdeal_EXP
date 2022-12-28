@@ -150,7 +150,6 @@ const changeDataWarehouseExport = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
-      console.log('res:', lotData.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value

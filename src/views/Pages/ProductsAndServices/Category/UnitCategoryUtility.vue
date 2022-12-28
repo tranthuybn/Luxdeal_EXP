@@ -132,7 +132,8 @@ const rules = reactive({
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
-  ]
+  ],
+  index: [{ validator: ValidService.checkPositiveNumber.validator }]
 })
 //call api for select options
 const getRank1SelectOptions = async () => {
@@ -224,21 +225,27 @@ watch(
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
-  if (formData.parentid == 0) {
-    formDataCustomize.value.rankCategory = 1
-  } else {
-    formDataCustomize.value.rankCategory = 2
-    await addFormSchema(timesCallAPI, formData.name)
-  }
   if (formData.isActive == true) {
     formDataCustomize.value['status'] = 1
   }
   if (formData.isHide == true) {
     formDataCustomize.value['status'] = 2
   }
+  if (schema[4].componentProps !== undefined) {
+    schema[4].componentProps.disabled = true
+  }
+  if (schema[1].componentProps !== undefined) {
+    schema[1].componentProps.disabled = true
+  }
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
     ? (formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`)
     : null
+  if (formData.parentid == 0) {
+    formDataCustomize.value.rankCategory = 1
+  } else {
+    formDataCustomize.value.rankCategory = 2
+    await addFormSchema(timesCallAPI, formData.name)
+  }
 
   formDataCustomize.value.isDelete = false
 }
@@ -276,7 +283,11 @@ const customPostData = async (data) => {
   customData.TypeName = data.typeName
   customData.Image = data.Image
   customData.imageurl = data.imageurl.replace(`${API_URL}`, '')
-  customData.Index = parseInt(data.index)
+  if (data.index == null) {
+    customData.Index = 1
+  } else {
+    customData.Index = data.index
+  }
 
   return customData
 }

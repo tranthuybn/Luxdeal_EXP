@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addQuickCustomer } from '@/api/Business'
+import { addQuickCustomer, getAllCustomer } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
 import { FORM_IMAGES } from '@/utils/format'
 import {

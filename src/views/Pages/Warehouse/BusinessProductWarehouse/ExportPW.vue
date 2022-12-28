@@ -14,10 +14,10 @@ import {
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { computed, onBeforeMount, ref, watch } from 'vue'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import SelectTable from '@/components/SelectTable.vue'
+
 import ChooseExportWarehouse from './ChooseExportWH.vue'
-import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-import { FORM_IMAGES, moneyFormat } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 
@@ -34,10 +34,6 @@ const prop = defineProps({
   productData: {
     type: Array<ProductWarehouse>,
     default: () => [{}]
-  },
-  testReactive: {
-    type: String,
-    default: ''
   }
 })
 
@@ -72,27 +68,17 @@ type ProductWarehouse = {
 const ListOfProductsForSale = computed(() => {
   return prop.productData
 })
-const listOfProduct = computed(() => {
-  return prop.productData
-})
-console.log('listOfProduct', listOfProduct)
+
 // Call api danh sách sản phẩm
-const productLoading = ref(true)
 let listProducts = ref()
-const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  productLoading.value = true
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
-  listProducts.value = res.data.map((product) => ({
+  const res = await getProductsList({ ...params.value })
+  tempListProducts.value = listProducts.value = res.data.map((product) => ({
     productCode: product.code,
-    value: product.productCode,
-    name: product.name ?? '',
-    price: product.price,
-    unit: product.unitName,
     productPropertyId: product.id,
-    productPropertyCode: product.productPropertyCode
+    productPropertyCode: product.productCode,
+    name: product.name
   }))
-  productLoading.value = false
 }
 onBeforeMount(async () => await callApiProductList())
 watch(
@@ -113,16 +99,11 @@ const removeRow = (props) => {
   ListOfProductsForSale.value.length < 2 ? '' : ListOfProductsForSale.value.splice(props.$index, 1)
 }
 const forceRemove = ref(false)
-const getProductSelected = (_value, obj, scope) => {
-  scope.row.productName = obj.name
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitName = obj.unit
-}
-const changeProduct = (data, scope) => {
+const changeProduct = (value, obj, scope) => {
   forceRemove.value = false
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
-    .find((product) => product.productPropertyId == data)
+    .find((product) => product.productPropertyId == value)
   if (selected !== undefined) {
     scope.row.productPropertyId = null
     scope.row.productName = null
@@ -133,6 +114,10 @@ const changeProduct = (data, scope) => {
       message: t('reuse.productCodeExist'),
       type: 'warning'
     })
+  } else {
+    scope.row.productName = obj.name
+    scope.row.productPropertyId = obj.productPropertyId
+    scope.row.unitName = obj.unit
   }
 }
 const scrollProductTop = ref(false)
@@ -144,27 +129,27 @@ const ScrollProductTop = () => {
 const noMoreProductData = ref(false)
 
 const ScrollProductBottom = () => {
-  productLoading.value = true
   scrollProductBottom.value = true
-  pageIndexProducts.value++
+  params.value.pageIndex = params.value.pageIndex + 1
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 10 })
+    : getProductsList({ ...params.value })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProducts.value.push({
-                  code: product.code,
-                  label: product.name,
-                  value: product.id
+                  productCode: product.code,
+                  productPropertyId: product.id,
+                  productPropertyCode: product.productCode,
+                  name: product.name
                 })
               )
         })
         .catch(() => {
           noMoreProductData.value = true
         })
-        .finally(() => (productLoading.value = false))
+  tempListProducts.value = listProducts.value
 }
 type ChooseWarehouse = {
   quantity: number | undefined
@@ -181,7 +166,6 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
-    console.log('prop.productData[currentRow.value]', prop.productData[currentRow.value])
     warehouseData.value.quantity = prop.productData[currentRow.value]?.quantity
     warehouseData.value.warehouseId = prop.productData[currentRow.value].warehouse?.value
     warehouseData.value.locationId = prop.productData[currentRow.value].location?.value
@@ -202,7 +186,6 @@ const closeDialogWarehouse = (warehouseData) => {
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
   }
-  console.log('warehouseData: ', warehouseData)
   dialogWarehouse.value = false
 }
 
@@ -307,14 +290,6 @@ const checkValueOfTable = () => {
       valid = false
       return
     }
-    if (row.price == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChoosePrice'),
-        type: 'warning'
-      })
-      valid = false
-      return
-    }
   })
   return valid
 }
@@ -325,6 +300,29 @@ defineExpose({
   ListOfProductsForSale,
   checkValueOfTable
 })
+
+//fixbug
+const tempListProducts = ref()
+const params = ref({
+  pageSize: 10,
+  pageIndex: 1,
+  Keyword: ''
+})
+const searchProduct = async (keyword) => {
+  params.value.Keyword = keyword
+  if (keyword) {
+    params.value.pageIndex = 1
+    const res = await getProductsList({ ...params.value })
+    tempListProducts.value = res.data.map((product) => ({
+      productCode: product.code,
+      productPropertyId: product.id,
+      productPropertyCode: product.productCode,
+      name: product.name
+    }))
+  } else {
+    tempListProducts.value = listProducts.value
+  }
+}
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
@@ -348,26 +346,23 @@ defineExpose({
   >
     <el-table-column :label="t('formDemo.productManagementCode')" min-width="200">
       <template #default="scope">
-        <MultipleOptionsBox
-          :defaultValue="scope.row.productPropertyId"
+        <SelectTable
+          v-model="scope.row.productPropertyId"
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
             t('reuse.productInformation')
           ]"
-          filterable
           width="500px"
-          :items="listProducts"
+          :items="tempListProducts"
           valueKey="productPropertyId"
-          labelKey="productCode"
-          :hiddenKey="['id']"
+          labelKey="productPropertyCode"
+          :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
-          :clearable="false"
-          :loading="productLoading"
-          @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-          @change="(option) => changeProduct(option, scope)"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
+          @keyword="searchProduct"
+          @change="(value, obj) => changeProduct(value, obj, scope)"
         />
       </template>
     </el-table-column>
@@ -401,7 +396,7 @@ defineExpose({
         </el-upload>
       </template>
     </el-table-column>
-    <el-table-column :label="t('reuse.importWarehouse')" min-width="300">
+    <el-table-column :label="t('formDemo.exportWarehouse')" min-width="300">
       <template #default="props">
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
@@ -419,33 +414,7 @@ defineExpose({
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
-    <el-table-column
-      prop="price"
-      :label="t('formDemo.unitPriceWarehouse')"
-      align="right"
-      width="180"
-    >
-      <template #default="props">
-        <div v-if="type == 'detail'">
-          {{ props.row.price }}
-        </div>
-        <CurrencyInputComponent v-else v-model="props.row.price" />
-      </template>
-    </el-table-column>
-    <el-table-column :label="t('formDemo.intoMoneyWarehouse')" align="right" width="180"
-      ><template #default="props">
-        {{ moneyFormat(props.row.price * props.row.quantity) }}
-      </template></el-table-column
-    >
 
-    <el-table-column :label="t('reuse.conditionProducts')" align="center" width="180">
-      <template #default="data">
-        <div v-if="type == 'detail'">
-          {{ data.row.productPropertyQuality }}
-        </div>
-        <el-input v-else v-model="data.row.productPropertyQuality" style="width: 100%" />
-      </template>
-    </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
         <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{

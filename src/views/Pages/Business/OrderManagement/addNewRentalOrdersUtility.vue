@@ -25,6 +25,7 @@ import {
   ElNotification,
   UploadUserFile,
   ElTreeSelect,
+  UploadProps,
   ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
@@ -41,7 +42,7 @@ import {
   getPromotionsList,
   getProductsList,
   addNewOrderList,
-  getSellOrderList,
+  getOrderList,
   createQuickProduct,
   getCheckProduct,
   getproductId,
@@ -80,60 +81,106 @@ const changeMoney = new Intl.NumberFormat('vi', {
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
+const ruleFormAddress = ref<FormInstance>()
+
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: 30,
   rentalPeriod: [],
-  rentalPaymentPeriod: 1,
+  rentalPaymentPeriod: 5,
   collaborators: '',
   discount: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: 0
 })
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseEnterOrderCode'), trigger: 'blur' }],
   leaseTerm: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectARentalTerm'),
       trigger: 'change'
     }
   ],
   rentalPaymentPeriod: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectRentalPaymentPeriod'),
       trigger: 'change'
     }
   ],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   discount: [
     {
       required: true,
-      message: 'Please select Activity count',
+      message: t('formDemo.pleaseInputDiscount'),
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseEnterANote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
 })
 
-let checkValidate = ref(false)
+const formAddress = reactive({
+  province: '',
+  district: '',
+  wardCommune: '',
+  detailedAddress: ''
+})
+const rulesAddress = reactive<FormRules>({
+  province: [
+    {
+      required: true,
+      message: 'Không được để trống Tỉnh/thành phố',
+      trigger: 'change'
+    }
+  ],
+  district: [
+    {
+      required: true,
+      message: 'Không được để trống Quận/huyện',
+      trigger: 'change'
+    }
+  ],
+  wardCommune: [
+    {
+      required: true,
+      message: 'Không được để trống Phường/Xã',
+      trigger: 'change'
+    }
+  ],
+  detailedAddress: [
+    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+  ]
+})
+
+const submitFormAddress = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, _fields) => {
+    if (valid) {
+      autoChangeAddress()
+      dialogFormVisible.value = false
+    } else {
+    }
+  })
+}
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
@@ -147,20 +194,26 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 
+let checkValidateForm = ref(false)
+
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
-      return 'submit!'
+      checkValidateForm.value = true
     } else {
-      return fields
+      checkValidateForm.value = true
     }
   })
-  await formEl2.validate((valid, fields) => {
-    if (valid) {
-      return 'submit!'
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      statusOrder.value = 2
+      changeStatus(3)
+      doubleDisabled.value = false
     } else {
-      return fields
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -205,7 +258,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -262,11 +315,11 @@ const collapse: Array<Collapse> = [
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 0,
     label: t('formDemo.selfDelivery')
   },
   {
-    value: 'deliveryToYourPlace',
+    value: 1,
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
@@ -391,7 +444,7 @@ const optionsCustomer = [
   }
 ]
 
-const radioVAT = ref(false)
+const radioVAT = ref(0)
 const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
@@ -724,7 +777,6 @@ let idOrderPost = ref()
 // tạo đơn hàng
 let postTable = ref()
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
   postTable.value = tableData.value.map((e) => ({
     ProductPropertyId: e.productPropertyId,
     Quantity: e.quantity,
@@ -735,50 +787,49 @@ const postData = async () => {
     IsPaid: true
   }))
   postTable.value.pop()
-  if (checkValidate.value) {
-    const productPayment = JSON.stringify([...postTable.value])
-    const payload = {
-      ServiceType: 3,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'TEST',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.discount,
-      Description: ruleForm.orderNotes,
-      CustomerId: customerID.value,
-      fromDate: postDateTime(ruleForm.rentalPeriod[0]),
-      toDate: postDateTime(ruleForm.rentalPeriod[1]),
-      Files: Files,
-      DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: 'trieu khuc',
-      OrderDetail: productPayment,
-      CampaignId: 2,
-      VAT: 1,
-      Status: 1
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    idOrderPost.value = await addNewOrderList(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  const productPayment = JSON.stringify([...postTable.value])
+  const payload = {
+    ServiceType: 3,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'TEST',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.discount,
+    Description: ruleForm.orderNotes,
+    CustomerId: customerID.value,
+    fromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    toDate: postDateTime(ruleForm.rentalPeriod[1]),
+    Files: Files,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: valueProvince.value ?? 1,
+    DistrictId: valueDistrict.value ?? 1,
+    WardId: valueCommune.value ?? 1,
+    Address: 'trieu khuc',
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1,
+    Status: 1
   }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  idOrderPost.value = await addNewOrderList(formDataPayLoad)
+    .then(
+      () =>
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+      () =>
+        push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name) }
+        })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+
   automaticCouponWareHouse(2)
 }
 
@@ -1012,7 +1063,7 @@ let customerIdPromo = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 3 })
+    const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1065,33 +1116,43 @@ const editData = async () => {
   }
 }
 
+const duplicateProduct = ref()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
 const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productCode = obj.value
-  data.productName = obj.name
+  duplicateProduct.value = undefined
+  duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == _value)
 
-  if (data.fromDate && data.toDate) {
-    totalPriceOrder.value = 0
-    totalFinalOrder.value = 0
-    totalDeposit.value = 0
-    let newDate = new Date(data.toDate - data.fromDate)
-    let days = newDate.getDate()
-    let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
-    data.price = objPrice.price
-    data.depositePrice = objPrice.deposite
-    data.hirePrice = data.price * data.quantity * days
-    tableData.value.map((val) => {
-      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
-      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
-    })
-    promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
-      : (totalFinalOrder.value =
-          totalPriceOrder.value -
-          (totalPriceOrder.value * promoValue.value) / 100 +
-          totalDeposit.value)
-    console.log()
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+    if (data.fromDate && data.toDate) {
+      totalPriceOrder.value = 0
+      totalFinalOrder.value = 0
+      totalDeposit.value = 0
+
+      let newDate = new Date(data.toDate - data.fromDate)
+      let days = newDate.getDate()
+      let objPrice = await getProductPropertyPrice(data.productPropertyId, 3, 1, ruleForm.leaseTerm)
+      data.price = objPrice.price
+      data.depositePrice = objPrice.deposite
+      data.hirePrice = data.price * data.quantity * days
+      tableData.value.map((val) => {
+        if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+        if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+      })
+      promoCash.value != 0
+        ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+        : (totalFinalOrder.value =
+            totalPriceOrder.value -
+            (totalPriceOrder.value * promoValue.value) / 100 +
+            totalDeposit.value)
+    }
   }
 }
 
@@ -1119,6 +1180,11 @@ const handleGetTotal = async (_value, props) => {
           (totalPriceOrder.value * promoValue.value) / 100 +
           totalDeposit.value)
   }
+}
+
+// Xóa sản phẩm trong table sản phẩm và thanh toán
+const removeTableData = (index) => {
+  tableData.value.splice(index, 1)
 }
 
 const dialogAddProduct = ref(false)
@@ -1417,36 +1483,23 @@ watch(
   },
   { deep: true }
 )
-watch(
-  () => checkValidate.value,
-  () => {
-    if (checkValidate.value === true) {
-      postData()
-    }
-  }
-)
 
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
 let autoChangeProvince = ref()
-watch(
-  () => enterdetailAddress.value,
-  () => {
-    if (enterdetailAddress.value && district.value && ward.value) {
-      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
-      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
-      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
-      customerAddress.value =
-        enterdetailAddress.value +
-        ', ' +
-        autoChangeCommune.value.label +
-        ', ' +
-        autoChangeDistrict.value.label +
-        ', ' +
-        autoChangeProvince.value.label
-    }
-  }
-)
+const autoChangeAddress = () => {
+  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
+  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
+  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
+  customerAddress.value =
+    formAddress.detailedAddress +
+    ', ' +
+    autoChangeCommune.value.label +
+    ', ' +
+    autoChangeDistrict.value.label +
+    ', ' +
+    autoChangeProvince.value.label
+}
 
 let statusOrder = ref(1)
 const changeStatus = (index) => {
@@ -1823,7 +1876,7 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.collectRentalDeposit')
         : index == 2
-        ? feePaymentPeriod
+        ? feePaymentPeriod.value
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -1868,18 +1921,6 @@ const dialogReturnExpired = ref(false)
 const getReceiptCode = async () => {
   codeReceipts.value = await getReceiptPaymentVoucher()
 }
-onBeforeMount(() => {
-  callApiCollaborators()
-  callCustomersApi()
-  callApiProductList()
-  editData()
-  if (type == 'add') {
-    ruleForm.orderCode = curDate
-    rentalOrderCode.value = autoRentalOrderCode
-    codeExpenditures.value = autoCodeExpenditures
-    codePaymentRequest.value = autoCodePaymentRequest
-  }
-})
 
 //TruongNgo
 const rentReturnOrder = ref({} as any)
@@ -1953,6 +1994,31 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+const doubleDisabled = ref(false)
+const showPromo = ref(false)
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
+
+onBeforeMount(() => {
+  callApiCollaborators()
+  callCustomersApi()
+  callApiProductList()
+  editData()
+  if (type == 'add') {
+    doubleDisabled.value = true
+    ruleForm.orderCode = curDate
+    rentalOrderCode.value = autoRentalOrderCode
+    codeExpenditures.value = autoCodeExpenditures
+    codePaymentRequest.value = autoCodePaymentRequest
+  }
+})
 </script>
 
 <template>
@@ -3208,15 +3274,19 @@ const removeRow = (index) => {
       <!-- Dialog Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
-        <div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.provinceOrCity') }} <span class="text-red-500">*</span></label
-            >
+        <el-form
+          ref="ruleFormAddress"
+          :model="formAddress"
+          :rules="rulesAddress"
+          label-width="150px"
+          class="demo-ruleForm"
+          status-icon
+        >
+          <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
             <el-select
-              v-model="valueProvince"
+              v-model="formAddress.province"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectProvinceCity')"
               @change="(data) => CityChange(data)"
             >
@@ -3227,15 +3297,12 @@ const removeRow = (index) => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.countyOrDistrict') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
             <el-select
-              v-model="valueDistrict"
+              v-model="formAddress.district"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectDistrict')"
               @change="(data) => districtChange(data)"
             >
@@ -3246,16 +3313,12 @@ const removeRow = (index) => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.wardOrCommune') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
             <el-select
-              v-model="valueCommune"
-              clearable
+              v-model="formAddress.wardCommune"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.chooseWard')"
             >
               <el-option
@@ -3265,24 +3328,28 @@ const removeRow = (index) => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.detailedAddress') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
             <el-input
-              v-model="enterdetailAddress"
+              v-model="formAddress.detailedAddress"
               style="width: 96%"
-              class="m-2 fix-full-width"
-              :placeholder="t('formDemo.enterDetailAddress')"
+              class="fix-full-width"
+              :placeholder="t('formDemo.detailedAddress')"
             />
-          </div>
-        </div>
+          </el-form-item>
+        </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="dialogFormVisible = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              type="primary"
+              @click="
+                () => {
+                  submitFormAddress(ruleFormAddress)
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -3328,6 +3395,7 @@ const removeRow = (index) => {
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
                   type="daterange"
+                  unlink-panels
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
                   format="DD/MM/YYYY"
@@ -3335,7 +3403,7 @@ const removeRow = (index) => {
               </el-form-item>
               <el-form-item :label="t('formDemo.rentalPaymentPeriod')" prop="rentalPaymentPeriod">
                 <div class="flex gap-2">
-                  <el-select v-model="ruleForm.rentalPaymentPeriod" placeholder="Select">
+                  <el-select v-model="ruleForm.rentalPaymentPeriod">
                     <el-option
                       v-for="item in optionsRentalPaymentPeriod"
                       :key="item.value"
@@ -3346,7 +3414,7 @@ const removeRow = (index) => {
                   <el-select
                     v-if="ruleForm.rentalPaymentPeriod == 4"
                     v-model="week"
-                    placeholder="Select"
+                    :placeholder="t('formDemo.ChooseADayWeek')"
                   >
                     <el-option
                       v-for="item in periodicallyDuringWeek"
@@ -3358,7 +3426,7 @@ const removeRow = (index) => {
                   <el-select
                     v-if="ruleForm.rentalPaymentPeriod == 5"
                     v-model="month"
-                    placeholder="Select"
+                    :placeholder="t('formDemo.selectRecurringDayMonth')"
                   >
                     <el-option
                       v-for="item in periodicallyInMonth"
@@ -3392,7 +3460,7 @@ const removeRow = (index) => {
                       <el-input
                         v-model="ruleForm.discount"
                         class="w-[100%] border-none outline-none bg-transparent"
-                        :placeholder="`${t('formDemo.enterDiscount')}`"
+                        :placeholder="t('formDemo.enterDiscount')"
                         :suffix-icon="percentageIcon"
                       />
                     </div>
@@ -3417,6 +3485,8 @@ const removeRow = (index) => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -3470,9 +3540,8 @@ const removeRow = (index) => {
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
+                    <div class="w-[20%] max-w-[170px] text-right pr-[12px]">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
-                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
@@ -3503,7 +3572,7 @@ const removeRow = (index) => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item class="fix-err" label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
                         t('formDemo.chooseShipping')
@@ -3513,7 +3582,7 @@ const removeRow = (index) => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
-                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
                         >
                           <el-option
                             v-for="i in chooseDelivery"
@@ -3608,6 +3677,7 @@ const removeRow = (index) => {
               @click="
                 () => {
                   autoCalculateOrder()
+                  showPromo = true
                   openDialogChoosePromotion = false
                 }
               "
@@ -3785,7 +3855,7 @@ const removeRow = (index) => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">0 đ</p>
             </div>
           </div>
         </div>
@@ -3829,7 +3899,7 @@ const removeRow = (index) => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right">
+          <div class="float-right pb-10">
             <span class="dialog-footer">
               <el-button
                 type="primary"
@@ -3958,13 +4028,8 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="100" />
-          <el-table-column
-            prop="price"
-            :label="t('formDemo.rentalUnitPrice')"
-            align="right"
-            width="180"
-          >
+          <el-table-column prop="unitName" :label="t('reuse.dram')" width="100" />
+          <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')" width="180">
             <template #default="props">
               <CurrencyInputComponent
                 v-model="props.row.price"
@@ -3976,32 +4041,30 @@ const removeRow = (index) => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="hirePrice"
-            :label="t('formDemo.rentalFee')"
-            align="right"
-            width="180"
-          >
+          <el-table-column prop="hirePrice" :label="t('formDemo.rentalFee')" width="180">
             <template #default="props">
-              {{
-                props.row.hirePrice != ''
-                  ? changeMoney.format(parseInt(props.row.hirePrice))
-                  : '0 đ'
-              }}
+              <div class="text-right">
+                {{
+                  props.row.hirePrice != ''
+                    ? changeMoney.format(parseInt(props.row.hirePrice))
+                    : '0 đ'
+                }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="depositePrice"
             :label="t('formDemo.intoARentalDeposit')"
-            align="right"
             width="180"
           >
             <template #default="props">
-              {{
-                props.row.depositePrice != ''
-                  ? changeMoney.format(parseInt(props.row.depositePrice))
-                  : '0 đ'
-              }}
+              <div class="text-right">
+                {{
+                  props.row.depositePrice != ''
+                    ? changeMoney.format(parseInt(props.row.depositePrice))
+                    : '0 đ'
+                }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
@@ -4025,9 +4088,13 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" width="90">
-            <button class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded">{{
-              t('reuse.delete')
-            }}</button>
+            <template #default="scope">
+              <button
+                @click="removeTableData(scope.$index)"
+                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
+                >{{ t('reuse.delete') }}</button
+              >
+            </template>
           </el-table-column>
         </el-table>
         <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
@@ -4052,27 +4119,27 @@ const removeRow = (index) => {
                     <el-dropdown-item>
                       <el-radio-group v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="1">{{
+                          <el-radio class="text-left" style="color: blue" label="0">{{
                             t('formDemo.VATNotIncluded')
                           }}</el-radio>
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="2"
+                          <el-radio class="text-left" style="color: blue" label="10%"
                             >VAT 10%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="3"
+                          <el-radio class="text-left" style="color: blue" label="8%"
                             >VAT 8%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="4"
+                          <el-radio class="text-left" style="color: blue" label="5%"
                             >VAT 5%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="5"
+                          <el-radio class="text-left" style="color: blue" label="0%"
                             >VAT 0%</el-radio
                           >
                         </div>
@@ -4094,10 +4161,13 @@ const removeRow = (index) => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >{{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              <div v-if="showPromo">{{
+                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
+              }}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">{{ radioVAT }}</div>
             <div class="text-right dark:text-[#fff]">{{
               totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
@@ -4108,7 +4178,7 @@ const removeRow = (index) => {
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+            <div v-if="showPromo" class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
               {{ promoActive }}
             </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -4122,7 +4192,6 @@ const removeRow = (index) => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <!-- <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio> -->
               <el-radio :disabled="checkDisabled" label="1">{{
                 t('formDemo.waitingDelivery')
               }}</el-radio>
@@ -4133,8 +4202,6 @@ const removeRow = (index) => {
               <el-radio :disabled="checkDisabled" label="4">{{
                 t('reuse.deliveryFailed')
               }}</el-radio>
-              <!-- <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio> -->
             </el-radio-group>
           </div>
         </div>
@@ -4212,12 +4279,15 @@ const removeRow = (index) => {
             v-if="statusOrder == 1 && priceChangeOrders == false"
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4225,9 +4295,7 @@ const removeRow = (index) => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
-                  statusOrder = 2
-                  changeStatus(3)
+                  submitForm(ruleFormRef, ruleFormRef2)
                 }
               "
               type="primary"
@@ -4266,12 +4334,15 @@ const removeRow = (index) => {
             v-if="statusOrder == 1 && priceChangeOrders == true"
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4324,12 +4395,15 @@ const removeRow = (index) => {
           </div>
           <!-- Không thay đổi giá -->
           <div v-else-if="statusOrder == 3" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4389,12 +4463,15 @@ const removeRow = (index) => {
             >
           </div>
           <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4442,12 +4519,15 @@ const removeRow = (index) => {
             >
           </div>
           <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4464,12 +4544,15 @@ const removeRow = (index) => {
             >
           </div>
           <div v-else-if="statusOrder == 9" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4500,12 +4583,15 @@ const removeRow = (index) => {
             >
           </div>
           <div v-else-if="statusOrder == 10" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalVoucher') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -4614,11 +4700,7 @@ const removeRow = (index) => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentProposal"
-            :label="t('router.paymentProposal')"
-            align="right"
-          >
+          <el-table-column prop="paymentProposal" :label="t('router.paymentProposal')">
             <template #default="props">
               <div @click="dialogIPRForm = true" class="text-blue-500">{{
                 props.row.paymentProposal
@@ -4630,22 +4712,23 @@ const removeRow = (index) => {
               <div>{{ props.row.typeOfMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="collected" :label="t('formDemo.collected')" align="left">
+          <el-table-column prop="collected" :label="t('formDemo.collected')">
             <template #default="props">
               <el-input v-model="props.row.collected" />
             </template>
           </el-table-column>
-          <el-table-column prop="spent" :label="t('formDemo.spent')" align="right">
+          <el-table-column prop="spent" :label="t('formDemo.spent')">
             <template #default="props">
               <el-input v-model="props.row.spent" />
             </template>
           </el-table-column>
           <el-table-column
             prop="rentalFeeDebt"
-            :label="`${t('formDemo.rentalFeeDebt')}`"
+            width="140"
+            :label="t('formDemo.rentalFeeDebt')"
             align="right"
           />
-          <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
+          <el-table-column :label="t('formDemo.receivableOrPayable')" width="100">
             <div>Phải thu</div>
           </el-table-column>
           <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
@@ -4661,7 +4744,6 @@ const removeRow = (index) => {
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
-            align="center"
             min-width="120"
           />
           <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
@@ -4960,5 +5042,9 @@ const removeRow = (index) => {
 
 ::v-deep(.handle-fix > .el-input > .el-input__wrapper > .el-input__inner) {
   text-align: right;
+}
+
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  margin-left: 178px;
 }
 </style>

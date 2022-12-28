@@ -48,7 +48,7 @@ import {
   createQuickProduct,
   getCheckProduct,
   getproductId,
-  getSellOrderList,
+  getOrderList,
   getOrderTransaction,
   getReceiptPaymentVoucher,
   addTPV,
@@ -71,12 +71,7 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
-const props = defineProps({
-  tabSelect: {
-    type: String,
-    default: ''
-  }
-})
+
 const { t } = useI18n()
 
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -1491,7 +1486,7 @@ const postPC = async () => {
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 5 })
+    const res = await getOrderList({ Id: id, ServiceType: 5 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
@@ -1580,7 +1575,6 @@ const closeDialogWarehouseTrasfer = (warehouseData) => {
   }
   dialogWarehouseTransfer.value = false
   // toLotId
-  console.log('warehouseData:', warehouseData)
 }
 
 const fromWarehouseFormat = (props) => {

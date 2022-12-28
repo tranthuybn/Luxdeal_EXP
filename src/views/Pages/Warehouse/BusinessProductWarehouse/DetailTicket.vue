@@ -12,7 +12,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
-const { required } = useValidator()
+const { required, requiredOption } = useValidator()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 
 const props = defineProps({
@@ -34,7 +34,6 @@ const props = defineProps({
   }
 })
 const FormData = computed(() => {
-  console.log('props.ticketData', props.ticketData)
   return props.ticketData
 })
 // const typeTransaction = computed(() => {
@@ -43,9 +42,9 @@ const FormData = computed(() => {
 
 const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
-  staffId: [required()],
+  staffId: [required(), requiredOption()],
   description: [required()],
-  customerId: [required()]
+  customerId: [required(), requiredOption()]
 })
 let infoCompany = reactive({
   name: '',
@@ -170,17 +169,24 @@ const closeDialog = (value: any) => {
     FormData.value.customerId = value
   }
   dialogAddQuick.value = false
+
+  callCustomersApi()
 }
 const ruleFormRef = ref<FormInstance>()
 const submitFormTicket = async () => {
-  if (!ruleFormRef.value) return
+  let validate = false
+  if (!ruleFormRef.value) {
+    return validate
+  }
   await ruleFormRef.value.validate((valid) => {
     if (valid) {
-      return true
+      return (validate = true)
     } else {
-      return false
+      return (validate = false)
     }
   })
+  console.log('end submit', validate)
+  return validate
 }
 onBeforeMount(() => {
   getListStaff(), callCustomersApi()
@@ -209,10 +215,10 @@ defineExpose({
     <div class="w-[50%]">
       <el-divider content-position="left">{{
         typeTransaction == 1
-          ? t('reuse.profileWareHouse')
+          ? t('reuse.detailWarehouse')
           : typeTransaction == 2
           ? t('reuse.profileExport')
-          : t('reuse.profileTransfer')
+          : t('reuse.detailTransfer')
       }}</el-divider>
 
       <ElFormItem :label="t('reuse.formCode')" prop="ticketCode">

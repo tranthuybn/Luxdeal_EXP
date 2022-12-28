@@ -69,7 +69,7 @@ const getCurrentTab = () => {
   if (tab != ':tab') {
     changeParam(tab)
   } else {
-    params.TypeName = 'chatlieu'
+    params.TypeName = 'mausac'
   }
   console.log('tab', tab)
 }
@@ -90,7 +90,6 @@ const changeParam = (val = '') => {
   provide('parameters', {
     params
   })
-  console.log('val', val)
 }
 
 onBeforeMount(() => {

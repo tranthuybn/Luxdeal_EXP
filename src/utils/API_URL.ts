@@ -84,6 +84,7 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
+  UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
@@ -125,4 +126,16 @@ export const WAREHOUSE_API = {
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
+}
+
+export const DEPARTMENT_DIRECTORY = {
+  BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
+  DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
+  POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
+  UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
+  DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment'
+}
+
+export const APPROVAL_API = {
+  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting'
 }

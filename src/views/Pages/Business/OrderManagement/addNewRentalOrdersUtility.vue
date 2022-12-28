@@ -1532,16 +1532,6 @@ const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
 }
 
-// watch(
-//   () => tableData.value[tableData.value.length - 1],
-//   () => {
-//     if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
-//       addLastIndexSellTable()
-//     }
-//   },
-//   { deep: true }
-// )
-
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
 let autoChangeProvince = ref()

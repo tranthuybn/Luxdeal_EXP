@@ -502,36 +502,40 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    const orderObj = res.data[0]
-    arrayStatusOrder.value = orderObj.status
-    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    console.log('res', res)
+    const orderObj = { ...res?.data[0] }
+    // arrayStatusOrder.value = orderObj.status
+    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      consignOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaboratorCode
-      ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      // sellOrderCode.value = ruleForm.orderCode
+      ruleForm.collaborators = orderObj.collaborator.id
+      // ruleForm.discount = orderObj.collaboratorCommission
+      ruleForm.customerName =
+        orderObj.customer.isOrganization == 'True'
+          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      // totalPriceOrder.value = orderObj.totalPrice
+      // totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
-      if (ListOfProductsForSale.value.length > 0)
+      if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
-
+      // customerIdPromo.value = orderObj.customerId
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1091,15 +1095,18 @@ const postData = async () => {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
-      ProductPrice: val.price,
-      SoldPrice: val.finalPrice,
-      WarehouseId: 1,
-      IsPaid: true,
+      UnitPrice: 0,
+      HirePrice: 0,
+      DepositePrice: 0,
+      TotalPrice: 0,
+      ConsignmentSellPrice: 500000,
+      ConsignmentHirePrice: 350000,
+      SpaServiceIds: null,
       Accessory: val.accessory
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-
+    console.log('ListOfProductsForSale', ListOfProductsForSale)
     const payload = {
       ServiceType: 2,
       OrderCode: ruleForm.orderCode,
@@ -1119,7 +1126,11 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 1
+      Status: 1,
+      TotalPrice: 0,
+      DepositePrice: 0,
+      DiscountMoney: 0,
+      InterestMoney: 0
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     addNewSpaOrders(formDataPayLoad)

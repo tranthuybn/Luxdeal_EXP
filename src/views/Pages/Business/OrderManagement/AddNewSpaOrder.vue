@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount, unref, onMounted, watch } from 'vue'
+import { reactive, ref, onBeforeMount, unref, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -182,7 +182,7 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string
-  spaServices: {}
+  spaServices: Options[]
   amountSpa: number
   quantity: string
   accessory: string | undefined
@@ -208,7 +208,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: {},
+  spaServices: [{ value: 0, label: '' }],
   amountSpa: 2,
   productPropertyId: '',
   quantity: '1',
@@ -770,21 +770,6 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
-//add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale,
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
-
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
@@ -804,7 +789,7 @@ const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
 let tableSpaServices = ref()
-
+let orderIdSpa = ref()
 const viewTable = () => {
   console.log('table: ', ListOfProductsForSale.value)
   let arrId = ref('')
@@ -815,7 +800,7 @@ const viewTable = () => {
   })
   console.log('arrId: ', arrId.value)
 }
-const postData = () => {
+const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
@@ -823,37 +808,15 @@ const postData = () => {
       Quantity: parseInt(val.quantity),
       ProductPrice: val.price,
       UnitPrice: totalSettingSpa.value,
-      SoldPrice: val.finalPrice,
       WarehouseId: 1,
-      SpaServiceIds: JSON.stringify(
-        ListOfProductsForSale.value.map((item) => ({
-          Id: item.spaServices?.value
-        }))
-      ),
-      TotalPrice: 898870,
+      SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
+      TotalPrice: val.finalPrice,
       IsPaid: true,
       Accessory: val.accessory
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-    console.log('data ListOfProductsForSale', orderDetailsTable)
-    //     [
-    //   {
-    //     "ProductPropertyId": 195,
-    //     "Accessory": "tui deo cheo",
-    //     "Description": null,
-    //     "Quantity": 10,
-    //     "UnitPrice": 89887,
-    //     "HirePrice": 0,
-    //     "DepositePrice": 0,
-    //     "TotalPrice": 898870,
-    //     "ConsignmentSellPrice": 0,
-    //     "ConsignmentHirePrice": 0,
-    //     "SpaServiceIds": "185,186"
-    //   }
-    // ]
 
-    console.log('valueTypeSpa', valueTypeSpa.value)
     const payload = {
       ServiceType: 5,
       OrderCode: ruleForm.orderCode,
@@ -873,32 +836,31 @@ const postData = () => {
       VAT: 1,
       Status: 1,
 
-      TotalPrice: 898870,
+      TotalPrice: totalPriceOrder.value,
       DepositePrice: 0,
       DiscountMoney: 0,
       InterestMoney: 0
     }
-    console.log('payload', payload)
     const formDataPayLoad = FORM_IMAGES(payload)
-    // orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
-    //   .then(
-    //     () =>
-    //       ElNotification({
-    //         message: t('reuse.addSuccess'),
-    //         type: 'success'
-    //       }),
-    //     () =>
-    //       push({
-    //         name: 'business.order-management.order-list',
-    //         params: { backRoute: String(router.currentRoute.value.name) }
-    //       })
-    //   )
-    //   .catch(() =>
-    //     ElNotification({
-    //       message: t('reuse.addFail'),
-    //       type: 'warning'
-    //     })
-    //   )
+    orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
+      .then(
+        () =>
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+        () =>
+          push({
+            name: 'business.order-management.order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+      )
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
   }
   // warehouseTranferAuto(3)
 }
@@ -934,6 +896,7 @@ const checkDisabled = ref(false)
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
+const ruleFormAddress = ref<FormInstance>()
 
 const ruleForm = reactive({
   orderCode: '',
@@ -983,6 +946,38 @@ const rules = reactive<FormRules>({
   ]
 })
 
+const formAddress = reactive({
+  province: '',
+  district: '',
+  wardCommune: '',
+  detailedAddress: ''
+})
+const rulesAddress = reactive<FormRules>({
+  province: [
+    {
+      required: true,
+      message: 'Tỉnh/thành phố không được để trống ',
+      trigger: 'change'
+    }
+  ],
+  district: [
+    {
+      required: true,
+      message: 'Quận/huyện kkhông được để trống ',
+      trigger: 'blur'
+    }
+  ],
+  wardCommune: [
+    {
+      required: true,
+      message: 'Phường/Xã không được để trống ',
+      trigger: 'blur'
+    }
+  ],
+  detailedAddress: [
+    { required: true, message: 'Địa chỉ chi tiết không được để trống ', trigger: 'blur' }
+  ]
+})
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
@@ -994,6 +989,16 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
+    } else {
+    }
+  })
+}
+const submitFormAddress = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, _fields) => {
+    if (valid) {
+      autoChangeAddress()
+      dialogFormVisible.value = false
     } else {
     }
   })
@@ -1578,7 +1583,7 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    const orderObj = { ...res.data[0] }
+    const orderObj = { ...res?.data[0] }
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj.status
     arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
@@ -1602,12 +1607,12 @@ const editData = async () => {
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -1811,24 +1816,20 @@ const indexSpa = ref()
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
 let autoChangeProvince = ref()
-watch(
-  () => enterdetailAddress.value,
-  () => {
-    if (enterdetailAddress.value && district.value && ward.value) {
-      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
-      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
-      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
-      customerAddress.value =
-        enterdetailAddress.value +
-        ', ' +
-        autoChangeCommune.value.label +
-        ', ' +
-        autoChangeDistrict.value.label +
-        ', ' +
-        autoChangeProvince.value.label
-    }
-  }
-)
+
+const autoChangeAddress = () => {
+  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
+  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
+  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
+  customerAddress.value =
+    formAddress.detailedAddress +
+    ', ' +
+    autoChangeCommune.value.label +
+    ', ' +
+    autoChangeDistrict.value.label +
+    ', ' +
+    autoChangeProvince.value.label
+}
 
 interface statusOrderType {
   statusName: string
@@ -2605,6 +2606,7 @@ const postReturnRequest = async (reason) => {
                       @click="dialogFormVisible = true"
                       ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
                     </el-button>
+                    <!-- Địa chỉ nhận hàng -->
                     <el-dialog
                       v-model="dialogFormVisible"
                       width="40%"
@@ -2612,17 +2614,20 @@ const postReturnRequest = async (reason) => {
                       title="Địa chỉ nhận hàng"
                     >
                       <el-divider />
-                      <div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.provinceOrCity') }}
-                            <span class="text-red-500">*</span></label
-                          >
+                      <el-form
+                        ref="ruleFormAddress"
+                        :model="formAddress"
+                        :rules="rulesAddress"
+                        label-width="150px"
+                        class="demo-ruleForm"
+                        status-icon
+                      >
+                        <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
                           <el-select
-                            v-model="valueProvince"
+                            v-model="formAddress.province"
                             style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
+                            class="fix-full-width"
+                            :placeholder="t('formDemo.selectProvinceCity')"
                             @change="(data) => CityChange(data)"
                           >
                             <el-option
@@ -2632,17 +2637,13 @@ const postReturnRequest = async (reason) => {
                               :value="item.value"
                             />
                           </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.countyOrDistrict') }}
-                            <span class="text-red-500">*</span></label
-                          >
+                        </el-form-item>
+                        <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
                           <el-select
-                            v-model="valueDistrict"
+                            v-model="formAddress.district"
                             style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
+                            class="fix-full-width"
+                            :placeholder="t('formDemo.selectDistrict')"
                             @change="(data) => districtChange(data)"
                           >
                             <el-option
@@ -2652,17 +2653,13 @@ const postReturnRequest = async (reason) => {
                               :value="item.value"
                             />
                           </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.wardOrCommune') }}
-                            <span class="text-red-500">*</span></label
-                          >
+                        </el-form-item>
+                        <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
                           <el-select
-                            v-model="valueCommune"
+                            v-model="formAddress.wardCommune"
                             style="width: 96%"
-                            class="m-2 fix-full-width"
-                            placeholder="Select"
+                            class="fix-full-width"
+                            :placeholder="t('formDemo.chooseWard')"
                           >
                             <el-option
                               v-for="item in ward"
@@ -2671,26 +2668,26 @@ const postReturnRequest = async (reason) => {
                               :value="item.value"
                             />
                           </el-select>
-                        </div>
-                        <div class="flex w-[100%] gap-4 items-center">
-                          <label class="w-[25%] text-right"
-                            >{{ t('formDemo.detailedAddress') }}
-                            <span class="text-red-500">*</span></label
-                          >
+                        </el-form-item>
+                        <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
                           <el-input
-                            v-model="enterdetailAddress"
+                            v-model="formAddress.detailedAddress"
                             style="width: 96%"
-                            class="m-2 fix-full-width"
-                            :placeholder="t('formDemo.enterDetailAddress')"
+                            class="fix-full-width"
+                            :placeholder="t('formDemo.detailedAddress')"
                           />
-                        </div>
-                      </div>
+                        </el-form-item>
+                      </el-form>
                       <template #footer>
                         <span class="dialog-footer">
                           <el-button
                             class="w-[150px]"
                             type="primary"
-                            @click="dialogFormVisible = false"
+                            @click="
+                              () => {
+                                submitFormAddress(ruleFormAddress)
+                              }
+                            "
                             >{{ t('reuse.save') }}</el-button
                           >
                           <el-button class="w-[150px]" @click="dialogFormVisible = false">{{

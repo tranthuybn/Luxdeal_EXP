@@ -373,7 +373,7 @@ let infoCompany = reactive({
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 1,
     label: t('reuse.receivePawnGoodsAtCounter')
   }
 ]
@@ -741,10 +741,13 @@ const postData = async () => {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
-      ProductPrice: val.price,
-      SoldPrice: val.finalPrice,
-      WarehouseId: 1,
-      IsPaid: true,
+      ProductPrice: 0,
+      UnitPrice: 0,
+      HirePrice: 0,
+      DepositePrice: 0,
+      TotalPrice: 0,
+      ConsignmentSellPrice: 0,
+      ConsignmentHirePrice: 0,
       Accessory: val.accessory
     }))
     orderDetailsTable.pop()
@@ -753,7 +756,7 @@ const postData = async () => {
     const payload = {
       ServiceType: 4,
       OrderCode: ruleForm.orderCode,
-      PromotionCode: 'AA12',
+      PromotionCode: 'DEAL1212',
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
@@ -766,11 +769,12 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
+      Days: ruleForm.paymentPeriod,
       Status: 1,
-      TotalPrice: 20000000,
+      TotalPrice: priceintoMoneyPawnGOC.value,
       DepositePrice: 0,
       DiscountMoney: 0,
-      InterestMoney: 2500
+      InterestMoney: priceintoMoneyByday.value
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewSpaOrders(formDataPayLoad)

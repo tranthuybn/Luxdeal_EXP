@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onBeforeMount, unref } from 'vue'
+import { reactive, ref, onBeforeMount, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -335,12 +335,13 @@ interface tableRentalProduct {
   accessory: string
   fromDate: any
   toDate: any
-  quantity: Number
+  quantity: number
+  unitPrice: number
   hirePrice: string
   depositePrice: string
   warehouseId: number
   warehouseName: string
-  finalPrice: string
+  totalPrice: string
   unitName: string
   intoARentalDeposit: string
 }
@@ -354,11 +355,12 @@ const productForSale = reactive<tableRentalProduct>({
   fromDate: '',
   toDate: '',
   quantity: 1,
+  unitPrice: 0,
   hirePrice: '',
   depositePrice: '',
   warehouseId: 0,
   warehouseName: '',
-  finalPrice: '',
+  totalPrice: '',
   unitName: t('formDemo.psc'),
   intoARentalDeposit: ''
 })
@@ -459,7 +461,8 @@ const callApiCollaborators = async () => {
     listCollaborators.value = res.data
     optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
       label: collaborator.name,
-      value: collaborator.id
+      value: collaborator.id,
+      collaboratorCommission: collaborator.collaboratorCommission
     }))
   }
   optionCallCollaborators++
@@ -687,7 +690,13 @@ const autoCalculateOrder = () => {
         (totalPriceOrder.value * promoValue.value) / 100 +
         totalDeposit.value)
 
-  changePriceVAT()
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
+  }
 }
 
 // Call api danh sách sản phẩm
@@ -781,12 +790,16 @@ let postTable = ref()
 const postData = async () => {
   postTable.value = tableData.value.map((e) => ({
     ProductPropertyId: e.productPropertyId,
-    Quantity: e.quantity,
-    ProductPrice: e.hirePrice,
-    SoldPrice: e.depositePrice,
     Accessory: e.accessory,
-    WarehouseId: e.warehouseId,
-    IsPaid: true
+    Description: null,
+    Quantity: e.quantity,
+    UnitPrice: 0,
+    HirePrice: e.unitPrice,
+    DepositePrice: e.depositePrice,
+    TotalPrice: e.totalPrice,
+    ConsignmentSellPrice: 0,
+    ConsignmentHirePrice: 0,
+    SpaServiceIds: null
   }))
   postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
@@ -800,17 +813,29 @@ const postData = async () => {
     CustomerId: customerID.value,
     fromDate: postDateTime(ruleForm.rentalPeriod[0]),
     toDate: postDateTime(ruleForm.rentalPeriod[1]),
+    TotalPrice: totalPriceOrder.value,
+    DepositePrice: totalDeposit.value,
+    DiscountMoney:
+      promoCash.value != 0
+        ? promoCash.value
+        : promoValue.value != 0
+        ? (totalPriceOrder.value * promoValue.value) / 100
+        : 0,
+    InterestMoney: 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
-    ProvinceId: valueProvince.value ?? 1,
-    DistrictId: valueDistrict.value ?? 1,
-    WardId: valueCommune.value ?? 1,
-    Address: 'trieu khuc',
+    ProvinceId: formAddress.province ?? 1,
+    DistrictId: formAddress.district ?? 1,
+    WardId: formAddress.wardCommune ?? 1,
+    Address: formAddress.detailedAddress,
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
-    Status: 1
+    Status: 2,
+    Days: ruleForm.leaseTerm,
+    PaymentPeriod: 1
   }
+
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
     .then(
@@ -1065,6 +1090,7 @@ let customerIdPromo = ref()
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     const transaction = await getOrderTransaction({ id: id })
@@ -1087,6 +1113,10 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
 
       totalOrder.value = orderObj.totalPrice
+      if (orderObj.discountMoney != 0) {
+        showPromo.value = true
+        promoCash.value = orderObj.discountMoney
+      }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
       customerAddress.value = orderObj.address
@@ -1122,10 +1152,10 @@ const duplicateProduct = ref()
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
-const getValueOfSelected = async (_value, obj, scope) => {
+const getValueOfSelected = async (value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
-  duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == _value)
+  duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
 
   if (duplicateProduct.value) {
     duplicateProductMessage()
@@ -1146,9 +1176,9 @@ const getValueOfSelected = async (_value, obj, scope) => {
         parseInt(data.quantity),
         ruleForm.leaseTerm
       )
-      data.price = objPrice.price
+      data.unitPrice = objPrice.price
       data.depositePrice = objPrice.deposite
-      data.hirePrice = data.price * data.quantity * days
+      data.hirePrice = data.unitPrice * data.quantity * days
       tableData.value.map((val) => {
         if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
         if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
@@ -1160,7 +1190,21 @@ const getValueOfSelected = async (_value, obj, scope) => {
             (totalPriceOrder.value * promoValue.value) / 100 +
             totalDeposit.value)
 
-      changePriceVAT()
+      if (radioVAT.value.length < 4) {
+        VAT.value = true
+        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+        if (totalFinalOrder.value) {
+          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+        }
+      }
+      // add new row
+      if (scope.$index == tableData.value.length - 1) {
+        tableData.value.push({ ...productForSale })
+      }
+    } else {
+      if (scope.$index == tableData.value.length - 1) {
+        tableData.value.push({ ...productForSale })
+      }
     }
   }
 }
@@ -1180,9 +1224,9 @@ const handleGetTotal = async (_value, props) => {
       parseInt(data.quantity),
       ruleForm.leaseTerm
     )
-    data.price = objPrice.price
+    data.unitPrice = objPrice.price
     data.depositePrice = objPrice.deposite
-    data.hirePrice = data.price * data.quantity * days
+    data.hirePrice = data.unitPrice * data.quantity * days
     tableData.value.map((val) => {
       if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
       if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
@@ -1487,16 +1531,6 @@ const tableChooseWarehouse = ref([])
 const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
 }
-
-watch(
-  () => tableData.value[tableData.value.length - 1],
-  () => {
-    if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
 
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -2021,14 +2055,19 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 }
 
 // Cập nhật lại giá tiền khi thay đổi VAT
+const valueVAT = ref()
+const VAT = ref(false)
 const changePriceVAT = () => {
-  if (radioVAT.value.length < 4) {
-    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
-    console.log('valueVAT: ', valueVAT)
-    if (totalFinalOrder.value) {
-      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
-    }
-  }
+  autoCalculateOrder()
+}
+
+// check disabled
+const disabledEdit = ref(false)
+
+const autoCollaboratorCommission = (index) => {
+  optionsCollaborators.value.map((val) => {
+    if (val.value == index) ruleForm.discount = val.collaboratorCommission
+  })
 }
 
 onBeforeMount(() => {
@@ -3468,6 +3507,7 @@ onBeforeMount(() => {
                     <el-select
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
+                      @change="(data) => autoCollaboratorCommission(data)"
                       filterable
                     >
                       <el-option
@@ -3673,7 +3713,6 @@ onBeforeMount(() => {
           </div>
         </div>
       </el-collapse-item>
-
       <!-- DialogPromotion -->
       <el-dialog
         v-model="openDialogChoosePromotion"
@@ -3969,6 +4008,7 @@ onBeforeMount(() => {
                 ]"
                 v-else
                 filterable
+                :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="productCode"
@@ -3999,6 +4039,7 @@ onBeforeMount(() => {
             <template #default="props">
               <el-input
                 v-if="type != 'detail'"
+                :disabled="disabledEdit"
                 v-model="props.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -4013,6 +4054,7 @@ onBeforeMount(() => {
               <el-date-picker
                 v-else
                 v-model="scope.row.fromDate"
+                :disabled="disabledEdit"
                 @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
@@ -4028,6 +4070,7 @@ onBeforeMount(() => {
               <el-date-picker
                 v-else
                 v-model="scope.row.toDate"
+                :disabled="disabledEdit"
                 @change="(data) => handleGetTotal(data, scope)"
                 type="date"
                 placeholder="Chọn ngày"
@@ -4042,6 +4085,7 @@ onBeforeMount(() => {
               </div>
               <el-input
                 v-else
+                :disabled="disabledEdit"
                 @change="
                   (data) => {
                     handleGetTotal(data, scope)
@@ -4054,15 +4098,18 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
           <el-table-column prop="unitName" :label="t('reuse.dram')" width="100" />
-          <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')" width="180">
+          <el-table-column prop="unitPrice" :label="t('formDemo.rentalUnitPrice')" width="180">
             <template #default="props">
               <CurrencyInputComponent
-                v-model="props.row.price"
+                v-model="props.row.unitPrice"
+                :disabled="disabledEdit"
                 v-if="type != 'detail'"
                 @change="changePriceRowTable"
               />
               <div v-else>{{
-                props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
+                props.row.unitPrice != ''
+                  ? changeMoney.format(parseInt(props.row.unitPrice))
+                  : '0 đ'
               }}</div>
             </template>
           </el-table-column>
@@ -4195,7 +4242,10 @@ onBeforeMount(() => {
               }}</div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div class="text-right dark:text-[#fff]">{{ radioVAT }}</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
+              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
+            }}</div>
+            <div v-else class="text-transparent :dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
               totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
@@ -4439,7 +4489,6 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   addStatusOrder(3)
                   statusOrder = 5
                 }
@@ -4474,7 +4523,6 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData
                   statusOrder = 3
                 }
               "
@@ -4638,7 +4686,6 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
                   statusOrder = 8
                   setDataForReturnOrder()
                   addStatusOrder(7)

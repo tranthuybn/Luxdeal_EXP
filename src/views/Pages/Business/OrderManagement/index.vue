@@ -23,6 +23,7 @@ const checkTab = String(router.currentRoute.value.fullPath)
 
 const changeTab = () => {
   tabPosition.value = tab
+
   switch (tab) {
     case 'orderSell':
       disabledTab2.value = true
@@ -73,23 +74,37 @@ onBeforeMount(() => checkDisabledTab())
 </script>
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs">
-    <ElTabPane :label="t('formDemo.addNewSalesOrders')" name="orderSell" :disabled="disabledTab1"
+    <ElTabPane
+      lazy
+      :label="t('formDemo.addNewSalesOrders')"
+      name="orderSell"
+      :disabled="disabledTab1"
       ><OrderListUtility v-if="tabPosition === 'orderSell'"
     /></ElTabPane>
-    <ElTabPane :label="t('formDemo.addNewRentalOrders')" name="orderRental" :disabled="disabledTab2"
+    <ElTabPane
+      lazy
+      :label="t('formDemo.addNewRentalOrders')"
+      name="orderRental"
+      :disabled="disabledTab2"
       ><AddNewRentalOrdersUtility v-if="tabPosition === 'orderRental'"
     /></ElTabPane>
     <ElTabPane
+      lazy
       :label="t('formDemo.addNewConsignmentOrders')"
       name="orderDeposit"
       :disabled="disabledTab3"
     >
       <AddNewConsignment v-if="tabPosition === 'orderDeposit'" />
     </ElTabPane>
-    <ElTabPane :label="t('formDemo.addNewPawnOrders')" name="orderPawn" :disabled="disabledTab4">
+    <ElTabPane
+      lazy
+      :label="t('formDemo.addNewPawnOrders')"
+      name="orderPawn"
+      :disabled="disabledTab4"
+    >
       <AddNewPawn v-if="tabPosition === 'orderPawn'" />
     </ElTabPane>
-    <ElTabPane :label="t('formDemo.addNewSpaOrders')" name="orderSpa" :disabled="disabledTab5">
+    <ElTabPane lazy :label="t('formDemo.addNewSpaOrders')" name="orderSpa" :disabled="disabledTab5">
       <AddNewSpa v-if="tabPosition === 'orderSpa'" />
     </ElTabPane>
   </ElTabs>

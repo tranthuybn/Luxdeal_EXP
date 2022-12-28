@@ -255,7 +255,7 @@ export const dateTimeFormat = (val) => {
 }
 
 export const postDateTime = (val) => {
-  return moment(val).format('YYYY/MM/DD')
+  return moment(val).format('YYYY-MM-DD')
 }
 export const formatTransactionStatus = (val) => {
   switch (val) {

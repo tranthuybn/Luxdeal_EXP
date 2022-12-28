@@ -59,7 +59,7 @@ export default {
       },
       children: [
         {
-          path: 'order-list',
+          path: 'order-list/:tab?',
           name: 'business.order-management.order-list',
           component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
           meta: {

@@ -1105,7 +1105,7 @@ const editData = async () => {
     const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15
     // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj?.statusHistory
+    arrayStatusOrder.value = orderObj?.statusHistory[0]
     if (arrayStatusOrder.value?.length)
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
     dataEdit.value = orderObj
@@ -1425,23 +1425,24 @@ const changePriceRowTable = () => {
   priceChangeOrders.value = true
   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
   arrayStatusOrder.value.push({
-    statusName: 'Duyệt giá thay đổi',
-    status: 1,
+    orderStatusName: 'Duyệt giá thay đổi',
+    orderStatus: 1,
     isActive: true
   })
 }
 
 interface statusOrderType {
-  statusName: string
-  status: number
+  orderStatusName: string
+  orderStatus: number
   isActive?: boolean
+  createdAt?: string
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 if (type == 'add' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    orderStatus: 2,
     isActive: true
   })
 
@@ -1449,47 +1450,47 @@ const addStatusOrder = (index) => {
   switch (index) {
     case 1:
       arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
-        status: 1
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: 1
       })
       break
     case 2:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: 2,
           isActive: true
         })
       break
     case 3:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
-          status: 3,
+          orderStatusName: 'Hoàn thành đơn hàng',
+          orderStatus: 3,
           isActive: true
         })
       break
     case 4:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
+          orderStatusName: 'Duyệt đổi/trả hàng',
+          orderStatus: 4,
           isActive: true
         })
       break
     case 5:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
+          orderStatusName: 'Đối soát & kết thúc',
+          orderStatus: 5,
           isActive: true
         })
       break
     case 6:
       ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
         arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
+          orderStatusName: 'Duyệt hủy đơn hàng',
+          orderStatus: 6,
           isActive: true
         })
       break
@@ -1497,14 +1498,14 @@ const addStatusOrder = (index) => {
       if (arrayStatusOrder.value.length > 0) {
         arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
         arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
+          orderStatusName: 'Hủy đơn hàng',
+          orderStatus: 7,
           isActive: true
         })
       } else {
         arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
+          orderStatusName: 'Hủy đơn hàng',
+          orderStatus: 7,
           isActive: true
         })
       }
@@ -4476,8 +4477,12 @@ onMounted(async () => {
           <label class="w-[11%] text-right pr-8">Tracking đơn hàng</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
-                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+              <div
+                class="duplicate-status"
+                v-for="item in arrayStatusOrder"
+                :key="item.orderStatus"
+              >
+                <div v-if="item.orderStatus == 1 || item.orderStatus == 4 || item.orderStatus == 6">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4485,12 +4490,12 @@ onMounted(async () => {
                     class="box box_1 text-yellow-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div v-else-if="item.orderStatus == 2 || item.orderStatus == 3">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4498,11 +4503,11 @@ onMounted(async () => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.status == 5">
+                <div v-else-if="item.orderStatus == 5">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4510,11 +4515,11 @@ onMounted(async () => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.status == 7">
+                <div v-else-if="item.orderStatus == 7">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4522,7 +4527,7 @@ onMounted(async () => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
                 </div>

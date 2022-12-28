@@ -22,7 +22,7 @@ import {
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import SelectTable from '@/components/SelectTable.vue'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
   createPointExchange,
@@ -83,6 +83,9 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   },
   {
@@ -131,6 +134,9 @@ const schema = reactive<FormSchema[]>([
     value: 2,
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   },
   {
@@ -138,6 +144,9 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   }
 ])
@@ -364,17 +373,16 @@ const removeLastRow = (index) => {
 }
 const customFormPost = (form) => {
   form.startDate = form?.duration[0]
-  form.endDate = form?.duration[1]
+  form.endDate = moment(form?.duration[1]).add(23, 'hours').add(59, 'minutes').add(59, 'seconds')
   form.Image = rawUploadFile.value?.raw
-  delete form.duration
   return form
 }
 const customFormUpdate = (form) => {
   form.startDate = form?.duration[0]
-  form.endDate = form?.duration[1]
+  form.endDate = moment(form?.duration[1]).add(23, 'hours').add(59, 'minutes').add(59, 'seconds')
   form.Image = rawUploadFile.value?.raw
   form.Id = id
-  delete form.duration
+  console.log('form', form)
   return form
 }
 const { push } = useRouter()
@@ -407,10 +415,11 @@ const createSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
+          title: t('reuse.addFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   }
@@ -444,10 +453,11 @@ const updateSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.updateFail'),
-          type: 'warning'
+          title: t('reuse.updateFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   }
@@ -469,10 +479,11 @@ const cancelSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.deleteFail'),
-          type: 'warning'
+          title: t('reuse.deleteFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   })
@@ -616,13 +627,7 @@ const enableEverything = () => {
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[60%]">
-      <Form
-        :schema="schema"
-        size="large"
-        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base pt-4 w-full"
-        @register="register"
-        :rules="rules"
-      >
+      <Form :schema="schema" @register="register" :rules="rules">
         <template #code="formData">
           <span>{{ formData.code }}</span>
         </template>
@@ -630,7 +635,7 @@ const enableEverything = () => {
           <span>{{ formData.point }} {{ t('reuse.points') }}</span>
         </template>
         <template #price="formData">
-          <span>{{ formData.price }} đ</span>
+          <span>{{ moneyFormat(formData.price) }}</span>
         </template>
         <template #type>
           <div class="flex items-center w-[100%] gap-4">
@@ -913,7 +918,8 @@ const enableEverything = () => {
   border-left: 12px solid white;
 }
 .avatar {
-  height: 100%;
+  width: 178px;
+  height: 178px;
 }
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
@@ -936,5 +942,8 @@ const enableEverything = () => {
 }
 :deep(.el-row) {
   width: 100%;
+}
+:deep(.el-form-item) {
+  margin-left: 7% !important;
 }
 </style>

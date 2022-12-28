@@ -29,7 +29,7 @@ import {
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
 import type { UploadFile } from 'element-plus'
-import { dateTimeFormat, formatOrderReturnReason } from '@/utils/format'
+import { dateTimeFormat, formatOrderReturnReason, postDateTime } from '@/utils/format'
 import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
@@ -205,6 +205,7 @@ interface ListOfProductsForSaleType {
   accessory: string | undefined
   warehouseInfo: {}
   unitName: string
+  TotalPrice: number
   price: string | number | undefined
   finalPrice: string
   paymentType: string
@@ -228,6 +229,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessManagement: {},
   warehouseInfo: {},
   unitName: 'Cái',
+  TotalPrice: 0,
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -404,9 +406,10 @@ const callApiCollaborators = async () => {
   if (optionCallCollaborators == 0) {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((product) => ({
-      label: product.name,
-      value: product.id
+    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
+      label: collaborator.name,
+      value: collaborator.id,
+      collaboratorCommission: collaborator.collaboratorCommission
     }))
   }
   optionCallCollaborators++
@@ -676,7 +679,7 @@ const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
-  pawnTerm: '',
+  pawnTerm: [],
   paymentPeriod: 10,
   collaboratorCommission: '',
   orderNotes: '',
@@ -723,7 +726,11 @@ const rules = reactive<FormRules>({
 const valueDistrict = ref('')
 
 const enterdetailAddress = ref('')
-
+const autoCollaboratorCommission = (index) => {
+  optionsCollaborators.value.map((val) => {
+    if (val.value == index) ruleForm.collaboratorCommission = val.collaboratorCommission
+  })
+}
 const valueSelectCustomer = ref(t('formDemo.customer'))
 const optionsCustomer = [
   {
@@ -767,6 +774,8 @@ const postData = async () => {
       WardId: valueCommune.value ?? 1,
       Address: enterdetailAddress.value,
       OrderDetail: productPayment,
+      fromDate: postDateTime(ruleForm.pawnTerm[0]),
+      toDate: postDateTime(ruleForm.pawnTerm[1]),
       CampaignId: 2,
       VAT: 1,
       Days: ruleForm.paymentPeriod,
@@ -1292,7 +1301,8 @@ const handle = () => {
     phone: 1212321
   }
 }
-
+const priceintoMoneyPawnGOC = ref(0)
+const priceintoMoneyByday = ref(0)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1303,11 +1313,15 @@ const editData = async () => {
 
     getReturnRequestTable()
 
+    console.log('res', res)
     const orderObj = { ...res.data[0] }
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      ruleForm.pawnTerm = [orderObj.fromDate, orderObj.toDate]
       pawnOrderCode.value = ruleForm.orderCode
+      priceintoMoneyPawnGOC.value = orderObj.totalPrice
+      priceintoMoneyByday.value = orderObj.interestMoney
       ruleForm.collaborators = orderObj.collaboratorCode
       ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
@@ -1473,9 +1487,6 @@ const addStatusDelay = () => {
     addStatusOrder(7)
   }, 4000)
 }
-
-const priceintoMoneyPawnGOC = ref(0)
-const priceintoMoneyByday = ref(0)
 
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -1765,12 +1776,13 @@ const removeRow = (index) => {
                   t('formDemo.atLeastTenDays')
                 }}</p>
               </div>
-              <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
-                <div class="flex gap-2">
-                  <el-form-item style="flex: 1">
+              <div class="flex gap-2 items-center">
+                <div class="w-[60%] max-w-[531.5px]">
+                  <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
                       :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
+                      @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
@@ -1782,19 +1794,21 @@ const removeRow = (index) => {
                       />
                     </el-select>
                   </el-form-item>
-
-                  <el-form-item prop="collaboratorCommission" style="flex: 1">
-                    <el-input
-                      v-model="ruleForm.collaboratorCommission"
-                      :disabled="checkDisabled"
-                      type="text"
-                      :placeholder="`${t('formDemo.enterDiscount')}`"
-                      style="width: 100%"
-                      :suffix-icon="percentIcon"
-                    />
+                </div>
+                <div class="w-[40%]">
+                  <el-form-item prop="collaboratorCommission" class="fix-err" label-width="0">
+                    <div class="flex items-center">
+                      <el-input
+                        :disabled="checkDisabled"
+                        v-model="ruleForm.collaboratorCommission"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        :placeholder="t('formDemo.enterDiscount')"
+                        :suffix-icon="percentIcon"
+                      />
+                    </div>
                   </el-form-item>
                 </div>
-              </el-form-item>
+              </div>
 
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
                 <el-input
@@ -2271,7 +2285,10 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div class="w-30"> <CurrencyInputComponent v-model="priceintoMoneyPawnGOC" /> </div>
+          <div v-if="type == 'edit'" class="w-30">
+            <CurrencyInputComponent v-model="priceintoMoneyPawnGOC" />
+          </div>
+          <div v-else class="w-30"> {{ priceintoMoneyPawnGOC }} </div>
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -2287,7 +2304,10 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div class="w-30"> <CurrencyInputComponent v-model="priceintoMoneyByday" /> </div>
+          <div v-if="type == 'edit'" class="w-30">
+            <CurrencyInputComponent v-model="priceintoMoneyByday" />
+          </div>
+          <div v-else class="w-30"> {{ priceintoMoneyByday }} </div>
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -4009,5 +4029,8 @@ const removeRow = (index) => {
 
 ::v-deep(.el-input__wrapper) {
   width: 100%;
+}
+::v-deep(.el-select .el-input) {
+  width: 100% !important;
 }
 </style>

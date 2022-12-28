@@ -808,11 +808,12 @@ const postData = async () => {
       Quantity: parseInt(val.quantity),
       ProductPrice: val.price,
       UnitPrice: totalSettingSpa.value,
-      WarehouseId: 1,
       SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
       TotalPrice: val.finalPrice,
       IsPaid: true,
-      Accessory: val.accessory
+      Accessory: val.accessory,
+      WarehouseId: null,
+      PriceChange: false
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
@@ -1582,7 +1583,7 @@ const editData = async () => {
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
-
+    console.log('rred', res)
     const orderObj = { ...res?.data[0] }
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj.status

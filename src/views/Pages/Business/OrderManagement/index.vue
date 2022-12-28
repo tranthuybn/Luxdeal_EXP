@@ -10,7 +10,7 @@ import AddNewRentalOrdersUtility from './addNewRentalOrdersUtility.vue'
 import { useRoute, useRouter } from 'vue-router'
 const { t } = useI18n()
 const router = useRouter()
-
+const type = String(router.currentRoute.value.params.type)
 const route = useRoute()
 const tab = String(route.params.tab) ? String(route.params.tab) : 'orderSell'
 const tabPosition = ref(tab)
@@ -70,41 +70,41 @@ const checkDisabledTab = () => {
     changeTab()
   }
 }
-onBeforeMount(() => checkDisabledTab())
+
+const titleOrderSell = ref(t('formDemo.addNewSalesOrders'))
+const titleOrderRental = ref(t('formDemo.addNewRentalOrders'))
+const titleOrderConsign = ref(t('formDemo.addNewConsignmentOrders'))
+const titleOrderPawn = ref(t('formDemo.addNewPawnOrders'))
+const titleOrderSpa = ref(t('formDemo.addNewSpaOrders'))
+const changeTitle = () => {
+  if (type == 'edit' || type == 'detail') {
+    titleOrderSell.value = t('reuse.orderSell')
+    titleOrderRental.value = t('reuse.orderRental')
+    titleOrderConsign.value = t('reuse.orderDeposit')
+    titleOrderPawn.value = t('reuse.orderPawn')
+    titleOrderSpa.value = t('reuse.orderSpa')
+  }
+}
+onBeforeMount(() => {
+  checkDisabledTab()
+  changeTitle()
+})
 </script>
 <template>
   <ElTabs v-model="tabPosition" class="demo-tabs">
-    <ElTabPane
-      lazy
-      :label="t('formDemo.addNewSalesOrders')"
-      name="orderSell"
-      :disabled="disabledTab1"
+    <ElTabPane lazy :label="titleOrderSell" name="orderSell" :disabled="disabledTab1"
       ><OrderListUtility v-if="tabPosition === 'orderSell'"
     /></ElTabPane>
-    <ElTabPane
-      lazy
-      :label="t('formDemo.addNewRentalOrders')"
-      name="orderRental"
-      :disabled="disabledTab2"
+    <ElTabPane lazy :label="titleOrderRental" name="orderRental" :disabled="disabledTab2"
       ><AddNewRentalOrdersUtility v-if="tabPosition === 'orderRental'"
     /></ElTabPane>
-    <ElTabPane
-      lazy
-      :label="t('formDemo.addNewConsignmentOrders')"
-      name="orderDeposit"
-      :disabled="disabledTab3"
-    >
+    <ElTabPane lazy :label="titleOrderConsign" name="orderDeposit" :disabled="disabledTab3">
       <AddNewConsignment v-if="tabPosition === 'orderDeposit'" />
     </ElTabPane>
-    <ElTabPane
-      lazy
-      :label="t('formDemo.addNewPawnOrders')"
-      name="orderPawn"
-      :disabled="disabledTab4"
-    >
+    <ElTabPane lazy :label="titleOrderPawn" name="orderPawn" :disabled="disabledTab4">
       <AddNewPawn v-if="tabPosition === 'orderPawn'" />
     </ElTabPane>
-    <ElTabPane lazy :label="t('formDemo.addNewSpaOrders')" name="orderSpa" :disabled="disabledTab5">
+    <ElTabPane lazy :label="titleOrderSpa" name="orderSpa" :disabled="disabledTab5">
       <AddNewSpa v-if="tabPosition === 'orderSpa'" />
     </ElTabPane>
   </ElTabs>

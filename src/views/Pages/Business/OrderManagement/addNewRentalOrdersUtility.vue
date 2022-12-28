@@ -799,7 +799,9 @@ const postData = async () => {
     TotalPrice: e.totalPrice,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    SpaServiceIds: null
+    SpaServiceIds: null,
+    WarehouseId: null,
+    PriceChange: false
   }))
   postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])

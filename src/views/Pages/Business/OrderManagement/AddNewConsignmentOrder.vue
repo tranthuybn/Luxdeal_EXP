@@ -53,7 +53,8 @@ import {
   getReturnRequest,
   getDetailAccountingEntryById,
   addQuickCustomer,
-  GetProductPropertyInventory
+  GetProductPropertyInventory,
+  postAutomaticWarehouse
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -192,6 +193,8 @@ const clearDataInput = () => {
     (quickPhoneNumber.value = ''),
     (quickEmail.value = '')
 }
+// check disabled
+const disabledEdit = ref(false)
 
 // select khách hàng
 const valueSelectCustomer = ref(1)
@@ -360,8 +363,8 @@ interface ListOfProductsForSaleType {
   unitName: string
 
   price: string | number | undefined
-  priceConsign: string | number | undefined
-  priceConsignByDay: string | number | undefined
+  consignmentSellPrice: string | number | undefined
+  consignmentHirePrice: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
@@ -384,8 +387,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessManagement: {},
 
   unitName: 'Cái',
-  priceConsign: 0,
-  priceConsignByDay: 0,
+  consignmentSellPrice: 0,
+  consignmentHirePrice: 0,
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -496,6 +499,7 @@ const checkDisabled = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -511,7 +515,9 @@ const editData = async () => {
       ruleForm.orderCode = orderObj.code
       // sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
-      // ruleForm.discount = orderObj.collaboratorCommission
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName =
         orderObj.customer.isOrganization == 'True'
           ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1087,6 +1093,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
 }
 let orderDetailsTable = reactive([{}])
+let idOrderPost = ref()
 // tạo đơn hàng
 const { push } = useRouter()
 const postData = async () => {
@@ -1099,14 +1106,15 @@ const postData = async () => {
       HirePrice: 0,
       DepositePrice: 0,
       TotalPrice: 0,
-      ConsignmentSellPrice: 500000,
-      ConsignmentHirePrice: 350000,
+      ConsignmentSellPrice: val.consignmentSellPrice,
+      ConsignmentHirePrice: val.consignmentHirePrice,
       SpaServiceIds: null,
-      Accessory: val.accessory
+      Accessory: val.accessory,
+      WarehouseId: null,
+      PriceChange: false
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-    console.log('ListOfProductsForSale', ListOfProductsForSale)
     const payload = {
       ServiceType: 2,
       OrderCode: ruleForm.orderCode,
@@ -1133,7 +1141,7 @@ const postData = async () => {
       InterestMoney: 0
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    addNewSpaOrders(formDataPayLoad)
+    idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
       .then(
         () =>
           ElNotification({
@@ -1153,6 +1161,17 @@ const postData = async () => {
         })
       )
   }
+  automaticCouponWareHouse(2)
+}
+
+// Phiếu xuất kho tự động
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value.data,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(payload)
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -3200,6 +3219,7 @@ onMounted(async () => {
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
                   :disabled="checkDisabled"
+                  unlink-panels
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -3438,6 +3458,7 @@ onMounted(async () => {
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
+                :disabled="disabledEdit"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
@@ -3479,6 +3500,7 @@ onMounted(async () => {
               <el-input
                 v-else
                 class="max-w-[150px]"
+                :disabled="disabledEdit"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -3496,23 +3518,38 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
 
-          <el-table-column prop="price" :label="t('formDemo.consignmentPriceForSale')" width="160">
+          <el-table-column
+            :disabled="disabledEdit"
+            prop="consignmentSellPrice"
+            :label="t('formDemo.consignmentPriceForSale')"
+            width="160"
+          >
             <template #default="props">
-              <CurrencyInputComponent v-model="props.row.priceConsign" />
+              <div v-if="type == 'detail'">
+                {{ props.row.consignmentSellPrice }}
+              </div>
+              <div v-else><CurrencyInputComponent v-model="props.row.consignmentSellPrice" /></div>
             </template>
           </el-table-column>
           <el-table-column
-            prop="price"
+            :disabled="disabledEdit"
+            prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
             width="160"
           >
             <template #default="props">
-              <CurrencyInputComponent v-model="props.row.priceConsignByDay" />
+              <div v-if="type == 'detail'">
+                {{ props.row.consignmentHirePrice }}
+              </div>
+              <div v-else>
+                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
+              </div>
             </template>
           </el-table-column>
 
           <el-table-column
             :label="t('reuse.businessManagement')"
+            :disabled="disabledEdit"
             width="200"
             prop="businessManagement"
           >
@@ -4079,6 +4116,10 @@ onMounted(async () => {
 
 ::v-deep(.cell) {
   color: #303133;
+}
+
+::v-deep(.el-select .el-input) {
+  width: 100% !important;
 }
 
 ::v-deep(.el-divider__text) {

@@ -29,6 +29,23 @@ export const formatProductStatus = (val) => {
       return ''
   }
 }
+export const formatSettingPointStatus = (val) => {
+  if (val) {
+    return t('reuse.active')
+  } else {
+    return t('reuse.notActive')
+  }
+}
+export const formatCustomerPointStatus = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.using')
+    case 2:
+      return t('reuse.lockPoint')
+    default:
+      return ''
+  }
+}
 export const formatTransactionType = (val) => {
   switch (val) {
     case 1:
@@ -83,8 +100,6 @@ export const formatSubjectVoucher = (val) => {
       return t('reuse.allCustomer')
     case 2:
       return t('reuse.groupCustomer')
-    case 1:
-      return t('reuse.onlyCustomer')
     default:
       return ''
   }
@@ -131,6 +146,26 @@ export const collaboratorStatusTransferToText = (val) => {
   else if (val == 1) return `${t('reuse.active')}`
   else if (val == 2) return `${t('reuse.inactive')}`
   return `${t('reuse.lock')}`
+}
+export const formatPointSettingType = (val) => {
+  switch (val) {
+    case 1:
+      return t('router.buyPointsPackage')
+    case 2:
+      return t('reuse.pointsForSellOrder')
+    case 3:
+      return t('reuse.pointsForRentOrder')
+    case 4:
+      return t('reuse.pointsForDepositOrder')
+    case 5:
+      return t('reuse.pointsForPawnOrder')
+    case 6:
+      return t('reuse.pointsForSpaOrder')
+    case 7:
+      return t('reuse.pointsForAffiliate')
+    default:
+      return ''
+  }
 }
 export const isFileTransferToText = (val) => {
   if (val == true) return `${t('common.ok')}`
@@ -326,6 +361,7 @@ export const moneyFormat = (money) => {
 export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))
 }
+
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,

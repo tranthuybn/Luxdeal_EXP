@@ -706,7 +706,6 @@ const enableEverything = () => {
         </template>
       </Form>
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
-      {{ formDetail }}
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
         <div>

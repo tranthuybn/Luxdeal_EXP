@@ -1088,8 +1088,13 @@ const type = String(router.currentRoute.value.params.type)
 let totalOrder = ref(0)
 let customerIdPromo = ref()
 const editData = async () => {
+  console.log('id1: ', id)
+
   if (type == 'detail') checkDisabled.value = true
+  console.log('id2: ', id)
+
   if (type == 'edit' || type == 'detail') {
+    console.log('id3: ', id)
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }

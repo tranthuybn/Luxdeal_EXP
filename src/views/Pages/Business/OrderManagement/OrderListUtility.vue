@@ -1088,15 +1088,15 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-    // statusOrder.value = 15
-    // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj.status
-    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value = orderObj.status
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    }
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaborator.id
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.customerName =
         orderObj.customer.isOrganization == 'True'

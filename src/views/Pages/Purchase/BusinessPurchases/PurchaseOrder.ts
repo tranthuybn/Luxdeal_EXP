@@ -74,7 +74,10 @@ export const PurchaseOrderColumn = [
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '200',
     align: 'left',
-    filters: filtersReceiptExpenditure
+    formatter: (row) => {
+      if (row.totalDebt < 0) return t('reuse.haveToCollect')
+      else return t('reuse.havetoPay')
+    }
   },
   {
     field: 'createdAt',

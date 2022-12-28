@@ -302,6 +302,7 @@ export default {
     month: 'Tháng',
     byMonth: 'Theo tháng',
     addNewSalesOrders: 'Thêm đơn hàng bán',
+    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
     addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
@@ -478,6 +479,7 @@ export default {
     recharger: 'Người nộp tiền',
     reasonCollectingMoney: 'Lý do thu tiền',
     enterReasonCollectingMoney: 'Nhập lý do thu tiền',
+    enterReasonReturnPayment: 'Nhập lý do đổi/trả hàng',
     writtenWords: 'Viết bằng chữ',
     formPayment: 'Hình thức thanh toán',
     saveRecordDebts: 'Lưu & ghi sổ công nợ',
@@ -1774,6 +1776,7 @@ export default {
     extendPawn: 'Gia hạn cầm đồ',
     informationReturnAfterDueDate: 'Thông tin trả hàng hết hạn',
     informationReturnExportProduct: 'Thông tin sản phẩm xuất trả',
+    informationReturnImportProduct: 'Thông tin sản phẩm nhập đổi',
     //fix bug sp kinh doan
     resetForm: 'Xóa toàn bộ dữ liệu đã nhập',
     fillProductInformationAgain: 'Có muốn điền lại thông tin của sản phẩm không ?',

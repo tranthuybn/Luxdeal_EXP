@@ -23,8 +23,6 @@ const props = defineProps({
     default: () => {}
   }
 })
-
-console.log('dataCustom: ', props.dataCustomer)
 </script>
 
 <template>
@@ -168,8 +166,12 @@ console.log('dataCustom: ', props.dataCustomer)
 </template>
 
 <style scoped>
+@font-face {
+  font-family: foundry;
+  src: url('@/assets/fonts/Fort\ Foundry\ -\ Rift-Regular.otf');
+}
 .content {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: foundry;
   font-size: 13px;
 }
 ::v-deep(table) {

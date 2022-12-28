@@ -140,7 +140,6 @@ const customPostData = (data) => {
   data.isActive.length > 0
     ? (postCustomerRatings.value.isActive = true)
     : (postCustomerRatings.value.isActive = false)
-  console.log('data', data)
 
   return postCustomerRatings.value
 }

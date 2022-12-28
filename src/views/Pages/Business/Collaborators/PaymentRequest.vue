@@ -92,8 +92,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'right',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      console.log(cellValue)
-
       return h('div', paidTransferToText(cellValue))
     }
   },

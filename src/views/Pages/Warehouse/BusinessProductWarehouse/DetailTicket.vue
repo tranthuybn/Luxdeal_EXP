@@ -218,7 +218,7 @@ defineExpose({
           ? t('reuse.detailWarehouse')
           : typeTransaction == 2
           ? t('reuse.profileExport')
-          : t('reuse.detailTransfer')
+          : t('reuse.profileTransferWareHouse')
       }}</el-divider>
 
       <ElFormItem :label="t('reuse.formCode')" prop="ticketCode">

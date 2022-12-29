@@ -23,7 +23,8 @@ import {
   UploadUserFile,
   ElTreeSelect,
   ElMessage,
-  ElNotification
+  ElNotification,
+  UploadProps
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -32,6 +33,7 @@ import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -51,7 +53,8 @@ import {
   getReturnRequest,
   getDetailAccountingEntryById,
   addQuickCustomer,
-  GetProductPropertyInventory
+  GetProductPropertyInventory,
+  postAutomaticWarehouse
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -182,6 +185,16 @@ const createQuickCustomer = async () => {
       })
     )
 }
+
+const clearDataInput = () => {
+  ;(addQuickCustomerName.value = ''),
+    (quickTaxCode.value = ''),
+    (quickRepresentative.value = ''),
+    (quickPhoneNumber.value = ''),
+    (quickEmail.value = '')
+}
+// check disabled
+const disabledEdit = ref(false)
 
 // select khách hàng
 const valueSelectCustomer = ref(1)
@@ -350,8 +363,8 @@ interface ListOfProductsForSaleType {
   unitName: string
 
   price: string | number | undefined
-  priceConsign: string | number | undefined
-  priceConsignByDay: string | number | undefined
+  consignmentSellPrice: string | number | undefined
+  consignmentHirePrice: string | number | undefined
   finalPrice: string
   paymentType: string
   edited: boolean
@@ -374,8 +387,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessManagement: {},
 
   unitName: 'Cái',
-  priceConsign: 0,
-  priceConsignByDay: 0,
+  consignmentSellPrice: 0,
+  consignmentHirePrice: 0,
   price: '',
   finalPrice: '',
   paymentType: '',
@@ -481,43 +494,54 @@ const handleChangePaymentRequest = () => {
     })
   }
 }
+const checkDisabled = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    const orderObj = res.data[0]
+    console.log('res', res)
+    const orderObj = { ...res?.data[0] }
+    // arrayStatusOrder.value = orderObj.status
+    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaboratorCode
-      ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      // sellOrderCode.value = ruleForm.orderCode
+      ruleForm.collaborators = orderObj.collaborator.id
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
+      ruleForm.customerName =
+        orderObj.customer.isOrganization == 'True'
+          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      // totalPriceOrder.value = orderObj.totalPrice
+      // totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
-      if (ListOfProductsForSale.value.length > 0)
+      if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
-
+      // customerIdPromo.value = orderObj.customerId
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
+        infoCompany.phone = orderObj.customer.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
@@ -639,27 +663,27 @@ const ScrollProductBottom = () => {
         })
 }
 
-const getValueOfSelected = (
-  _value: any,
-  obj: { productPropertyId: any; value: any; name: any; price: any },
-  scope: {
-    row: {
-      productPropertyId: any
-      productCode: any
-      productName: any
-      price: string
-      finalPrice: string
-      quantity: string
-    }
-  }
-) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productCode = obj.value
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  scope.row.finalPrice = (parseInt(scope.row.quantity) * parseInt(scope.row.price)).toString()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
+const duplicateProduct = ref()
 
+const getValueOfSelected = (_value, obj, scope) => {
+  const data = scope.row
+
+  duplicateProduct.value = undefined
+  duplicateProduct.value = ListOfProductsForSale.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+    data.price = obj.price
+  }
+}
 const checked2 = ref(false)
 const checked3 = ref(false)
 const checked4 = ref(false)
@@ -789,14 +813,104 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
+interface statusOrderType {
+  statusName: string
+  status: number
+  isActive?: boolean
+}
+let arrayStatusOrder = ref(Array<statusOrderType>())
+arrayStatusOrder.value.pop()
+if (type == 'add')
+  arrayStatusOrder.value.push({
+    statusName: 'Chốt đơn hàng',
+    status: 2,
+    isActive: true
+  })
+
+const addStatusOrder = (index) => {
+  switch (index) {
+    case 1:
+      arrayStatusOrder.value.push({
+        statusName: 'Duyệt giá thay đổi',
+        status: 1
+      })
+      break
+    case 2:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Chốt đơn hàng',
+          status: 2,
+          isActive: true
+        })
+      break
+    case 3:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Hoàn thành đơn hàng',
+          status: 3,
+          isActive: true
+        })
+      break
+    case 4:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt đổi/trả hàng',
+          status: 4,
+          isActive: true
+        })
+      break
+    case 5:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Đối soát & kết thúc',
+          status: 5,
+          isActive: true
+        })
+      break
+    case 6:
+      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
+          statusName: 'Duyệt hủy đơn hàng',
+          status: 6,
+          isActive: true
+        })
+      break
+    case 7:
+      if (arrayStatusOrder.value.length > 0) {
+        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      } else {
+        arrayStatusOrder.value.push({
+          statusName: 'Hủy đơn hàng',
+          status: 7,
+          isActive: true
+        })
+      }
+
+      break
+  }
+}
+let statusOrder = ref(1)
+const changeStatus = (index) => {
+  setTimeout(() => {
+    statusOrder.value = index
+  }, 4000)
+}
+
+const addStatusDelay = () => {
+  setTimeout(() => {
+    addStatusOrder(7)
+  }, 4000)
+}
+
 const chooseDelivery = [
   {
     value: 0,
-    label: t('formDemo.selfDelivery')
-  },
-  {
-    value: 1,
-    label: t('formDemo.deliveryToYourPlace')
+    label: t('reuse.receiveConsignmentGoodsAtCounter')
   }
 ]
 const changeAddressCustomer = (data: any) => {
@@ -840,7 +954,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -923,7 +1037,7 @@ const showIdWarehouse = (scope) => {
 
 const value = ref('')
 
-const pawnOrderCode = ref()
+const consignOrderCode = ref()
 
 let customerID = ref()
 
@@ -959,7 +1073,7 @@ const collapseChangeEvent = (val: string | string[]) => {
       el.icon = plusIcon
     })
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
 
@@ -979,6 +1093,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
 }
 let orderDetailsTable = reactive([{}])
+let idOrderPost = ref()
 // tạo đơn hàng
 const { push } = useRouter()
 const postData = async () => {
@@ -987,15 +1102,19 @@ const postData = async () => {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
-      ProductPrice: val.price,
-      SoldPrice: val.finalPrice,
-      WarehouseId: 1,
-      IsPaid: true,
-      Accessory: val.accessory
+      UnitPrice: 0,
+      HirePrice: 0,
+      DepositePrice: 0,
+      TotalPrice: 0,
+      ConsignmentSellPrice: val.consignmentSellPrice,
+      ConsignmentHirePrice: val.consignmentHirePrice,
+      SpaServiceIds: null,
+      Accessory: val.accessory,
+      WarehouseId: null,
+      PriceChange: false
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
-
     const payload = {
       ServiceType: 2,
       OrderCode: ruleForm.orderCode,
@@ -1015,10 +1134,14 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 1
+      Status: 1,
+      TotalPrice: 0,
+      DepositePrice: 0,
+      DiscountMoney: 0,
+      InterestMoney: 0
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    addNewSpaOrders(formDataPayLoad)
+    idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
       .then(
         () =>
           ElNotification({
@@ -1038,6 +1161,17 @@ const postData = async () => {
         })
       )
   }
+  automaticCouponWareHouse(2)
+}
+
+// Phiếu xuất kho tự động
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value.data,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(payload)
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -1095,7 +1229,7 @@ function printPage(id: string, { url, title, w, h }) {
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
-const alreadyPaidForTt = ref(true)
+const alreadyPaidForTt = ref(false)
 
 const tableAccountingEntry = ref([
   {
@@ -1154,7 +1288,6 @@ const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 const codeReturnRequest = ref()
-const checkDisabled = ref(false)
 var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
@@ -1412,6 +1545,14 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
+
 //TruongNgo
 const truocHan = ref(false)
 const hetHan = ref(false)
@@ -1464,14 +1605,15 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
-
+const billLiquidationDis = ref(false)
 onBeforeMount(() => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
 
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
+    billLiquidationDis.value = true
   }
 })
 
@@ -1646,13 +1788,21 @@ onMounted(async () => {
                   dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
+                  clearDataInput()
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              @click.stop.prevent="
+                () => {
+                  dialogAddQuick = false
+                  clearDataInput()
+                }
+              "
+              >{{ t('reuse.exit') }}</el-button
+            >
           </span>
         </template>
       </el-dialog>
@@ -2012,7 +2162,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl font-bold">BH24354</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2021,13 +2171,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">PT890345</div>
+              <div class="w-[100%] text-xl font-bold">PT890345</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="recharger" placeholder="Chọn người nộp tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2134,7 +2284,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ consignOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -2143,13 +2293,13 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Select">
+              <el-select v-model="value" placeholder="Chọn người nhận tiền">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -2160,13 +2310,9 @@ onMounted(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
+                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -2249,7 +2395,7 @@ onMounted(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ pawnOrderCode }}</div>
+            <div class="w-[100%] text-xl font-bold">{{ consignOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('router.analysis') }}</span>
@@ -2258,7 +2404,7 @@ onMounted(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
+              <div class="w-[100%] text-xl font-bold">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -2611,10 +2757,29 @@ onMounted(async () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
+
+          <div class="flex gap-2 justify-around">
+            <div class="flex-left">
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="w-[35%] text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="w-[45%] font-bold text-xl">{{ ruleForm.orderCode }}</p>
+              </div>
+              <div class="flex gap-4 pt-2 pb-4 items-center">
+                <label class="w-[35%] text-right">{{ t('reuse.depositPeriod') }}</label>
+                <p class="w-[45%]">11/11/2022 đến 22/12/2023</p>
+              </div>
+            </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+
+                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+              </div>
+            </div>
           </div>
+
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -3043,6 +3208,7 @@ onMounted(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
+                  :disabled="checkDisabled"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3052,6 +3218,8 @@ onMounted(async () => {
               <el-form-item :label="t('formDemo.deliveryDate')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
+                  :disabled="checkDisabled"
+                  unlink-panels
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -3063,6 +3231,7 @@ onMounted(async () => {
                 <div class="flex gap-2">
                   <el-form-item style="flex: 1">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
@@ -3079,6 +3248,7 @@ onMounted(async () => {
                   <el-form-item prop="collaboratorCommission" style="flex: 1">
                     <el-input
                       v-model="ruleForm.collaboratorCommission"
+                      :disabled="checkDisabled"
                       type="text"
                       :placeholder="`${t('formDemo.enterDiscount')}`"
                       style="width: 100%"
@@ -3091,6 +3261,7 @@ onMounted(async () => {
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
                 <el-input
                   v-model="ruleForm.orderNotes"
+                  :disabled="checkDisabled"
                   style="width: 100%"
                   type="text"
                   :placeholder="`${t('formDemo.addNotes')}`"
@@ -3111,6 +3282,8 @@ onMounted(async () => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -3180,6 +3353,7 @@ onMounted(async () => {
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
+                            :disabled="checkDisabled"
                             labelKey="label"
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
@@ -3196,11 +3370,8 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
-                      <label class="w-[170px] text-[#828387] text-right">{{
-                        t('formDemo.chooseShipping')
-                      }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
@@ -3287,6 +3458,7 @@ onMounted(async () => {
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
+                :disabled="disabledEdit"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
@@ -3328,17 +3500,13 @@ onMounted(async () => {
               <el-input
                 v-else
                 class="max-w-[150px]"
+                :disabled="disabledEdit"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="quantity"
-            :label="t('reuse.depositNumber')"
-            align="center"
-            width="90"
-          >
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <el-input
                 v-model="data.row.quantity"
@@ -3348,36 +3516,40 @@ onMounted(async () => {
               />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="unitName"
-            :label="t('reuse.dram')"
-            align="center"
-            min-width="100"
-          />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
 
           <el-table-column
-            prop="price"
+            :disabled="disabledEdit"
+            prop="consignmentSellPrice"
             :label="t('formDemo.consignmentPriceForSale')"
-            align="right"
             width="160"
           >
             <template #default="props">
-              <CurrencyInputComponent v-model="props.row.priceConsign" />
+              <div v-if="type == 'detail'">
+                {{ props.row.consignmentSellPrice }}
+              </div>
+              <div v-else><CurrencyInputComponent v-model="props.row.consignmentSellPrice" /></div>
             </template>
           </el-table-column>
           <el-table-column
-            prop="price"
+            :disabled="disabledEdit"
+            prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
-            align="right"
             width="160"
           >
             <template #default="props">
-              <CurrencyInputComponent v-model="props.row.priceConsignByDay" />
+              <div v-if="type == 'detail'">
+                {{ props.row.consignmentHirePrice }}
+              </div>
+              <div v-else>
+                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
+              </div>
             </template>
           </el-table-column>
 
           <el-table-column
             :label="t('reuse.businessManagement')"
+            :disabled="disabledEdit"
             width="200"
             prop="businessManagement"
           >
@@ -3443,30 +3615,120 @@ onMounted(async () => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox v-model="checked2" :label="`${t('reuse.closedTheOrder')}`" size="large" />
-            <el-checkbox v-model="checked3" :label="`${t('formDemo.depositing')}`" size="large" />
+            <el-checkbox
+              v-model="checked2"
+              :label="`${t('reuse.closedTheOrder')}`"
+              size="large"
+              disabled
+            />
+            <el-checkbox
+              v-model="checked3"
+              :label="`${t('formDemo.depositing')}`"
+              size="large"
+              disabled
+            />
             <el-checkbox
               v-model="checked4"
               :label="`${t('formDemo.renewingConsignment')}`"
               size="large"
+              disabled
             />
 
-            <el-checkbox v-model="checked7" :label="`${t('common.doneLabel')}`" size="large" />
+            <el-checkbox
+              v-model="checked7"
+              :label="`${t('common.doneLabel')}`"
+              size="large"
+              disabled
+            />
           </div>
         </div>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <div class="w-[89%]">
+            <div class="flex items-center w-[100%]">
+              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
+                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_1 text-yellow-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+
+                    <span class="triangle-right right_1"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 2 || item.status == 3">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_2 text-blue-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_2"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 5">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_3 text-black dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_3"> </span>
+                  </span>
+                </div>
+                <div v-else-if="item.status == 7">
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.statusName }}
+                    <span class="triangle-right right_4"> </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="w-[100%] flex gap-4">
           <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="dialogBillLiquidation = true">{{
-              t('formDemo.printLiquidationContract')
-            }}</el-button>
+            <el-button
+              class="min-w-42 min-h-11"
+              :disabled="billLiquidationDis"
+              @click="dialogBillLiquidation = true"
+              >{{ t('formDemo.printLiquidationContract') }}</el-button
+            >
             <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
               t('formDemo.saveAndPending')
             }}</el-button>
-            <el-button type="danger" class="min-w-42 min-h-11">{{
-              t('button.cancelOrder')
-            }}</el-button>
+            <el-button
+              @click="
+                () => {
+                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                  addStatusOrder(7)
+                  addStatusDelay()
+                  statusOrder = 9
+                  checkDisabled = !checkDisabled
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
             <el-button
               @click="
                 () => {
@@ -3599,12 +3861,7 @@ onMounted(async () => {
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="40" />
-          <el-table-column
-            prop="createdAt"
-            :label="t('formDemo.initializationDate')"
-            width="150"
-            align="center"
-          >
+          <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" width="150">
             <template #default="data">
               {{ dateTimeFormat(data.row.createdAt) }}
             </template>
@@ -3617,28 +3874,23 @@ onMounted(async () => {
           <el-table-column
             prop="receiptOrPaymentVoucherId"
             :label="t('formDemo.receiptOrPayment')"
-            align="right"
             width="150"
           >
             <template #default="props">
               <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentRequestId"
-            :label="t('router.paymentProposal')"
-            align="right"
-          >
+          <el-table-column prop="paymentRequestId" :label="t('router.paymentProposal')">
             <template #default="props">
               <div class="text-blue-500">{{ props.row.paymentRequestId }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" align="left">
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
             <template #default="props">
               <div class="text-right">{{ props.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
             <template #default="data">
               <el-input
                 v-model="data.row.paidMoney"
@@ -3648,11 +3900,7 @@ onMounted(async () => {
               <div v-else>{{ data.row.paidMoney }}</div>
             </template></el-table-column
           >
-          <el-table-column
-            prop="rentalFeeDebt"
-            :label="`${t('reuse.outstandingDebt')}`"
-            align="right"
-          />
+          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
           <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
             <div>Phải thu</div>
           </el-table-column>
@@ -3661,7 +3909,7 @@ onMounted(async () => {
               <div>{{ props.row.payment }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" align="center" width="90">
+          <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90">
             <template #default="props">
               <el-checkbox v-model="props.row.alreadyPaidForTt" />
             </template>
@@ -3669,7 +3917,6 @@ onMounted(async () => {
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
-            align="center"
             min-width="100"
           />
           <el-table-column :label="t('formDemo.manipulation')" align="center">
@@ -3729,7 +3976,7 @@ onMounted(async () => {
             </el-table-column>
 
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
-            <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
+            <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
             <el-table-column
               prop="invoiceGoodsEnteringWarehouse"
@@ -3795,6 +4042,73 @@ onMounted(async () => {
     max-width: 100%;
   }
 }
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
 
 ::v-deep(label) {
   color: #828387;
@@ -3802,6 +4116,10 @@ onMounted(async () => {
 
 ::v-deep(.cell) {
   color: #303133;
+}
+
+::v-deep(.el-select .el-input) {
+  width: 100% !important;
 }
 
 ::v-deep(.el-divider__text) {
@@ -3819,6 +4137,9 @@ onMounted(async () => {
 
 .dialog-footer button:first-child {
   margin-right: 10px;
+}
+::v-deep(.el-dialog__title) {
+  font-weight: bold;
 }
 
 @media print {
@@ -3851,7 +4172,9 @@ onMounted(async () => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
-
+::v-deep(.el-range-editor.el-input__wrapper) {
+  width: 100%;
+}
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }

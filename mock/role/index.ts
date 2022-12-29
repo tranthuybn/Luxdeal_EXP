@@ -285,7 +285,7 @@ const adminList = [
         },
         children: [
           {
-            path: 'order-list',
+            path: 'order-list/:tab?',
             name: 'business.order-management.order-list',
             component: 'views/Pages/Business/OrderManagement/OrderList',
             meta: {
@@ -1399,7 +1399,7 @@ const testList: string[] = [
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',
-  '/business/order-management/order-list',
+  '/business/order-management/order-list/:tab?',
   '/business/order-management/order-list-add/:type?/:tab?/:id?',
 
   '/business/customer-management',

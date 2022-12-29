@@ -414,13 +414,10 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
-  console.log('val: ', val)
-  // if (val.type) {
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
     return total
   }, 0)
-  // }
 }
 
 // Dialog change address
@@ -561,7 +558,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productName = obj.name
 
     //TODO
-    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -581,6 +578,29 @@ const getValueOfSelected = async (_value, obj, scope) => {
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
+    }
+  }
+}
+
+const handleGetTotal = async (_index, props) => {
+  const data = props.row
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
+  data.totalPrice = data.unitPrice * data.quantity
+  ListOfProductsForSale.value.map((val) => {
+    if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
     }
   }
 }
@@ -994,8 +1014,8 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+// const ListFileUpload = ref<UploadUserFile[]>([])
+// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
 
 let orderDetailsTable = reactive([{}])
 
@@ -1108,9 +1128,11 @@ const editData = async () => {
     const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15
     // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj?.statusHistory[0]
-    if (arrayStatusOrder.value?.length)
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    }
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -1607,7 +1629,6 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content:
@@ -1706,7 +1727,7 @@ let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1728,7 +1749,7 @@ let idPC = ref()
 const postPC = async () => {
   const payload = {
     Code: codeExpenditures.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1967,6 +1988,28 @@ onBeforeMount(async () => {
 onMounted(async () => {
   await editData()
 })
+let Files = reactive({})
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  Files = rawFile
+  console.log('file', rawFile)
+  console.log('Files2', Files)
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Avatar picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map(async (file) => {
+    ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
+  })
+  console.log('ListFileUpload: ', ListFileUpload.value)
+}
 </script>
 
 <template>
@@ -3658,6 +3701,8 @@ onMounted(async () => {
                   :limit="10"
                   :on-exceed="handleExceed"
                   :auto-upload="false"
+                  :on-change="handleChange"
+                  :before-upload="beforeAvatarUpload"
                   class="relative"
                 >
                   <template #file="{ file }">
@@ -4269,20 +4314,19 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
-            <template #default="data">
+            <template #default="props">
               <div v-if="type == 'detail'">
-                {{ data.row.quantity }}
+                {{ props.row.quantity }}
               </div>
               <el-input
                 v-else
                 :disabled="disabledEdit"
+                v-model="props.row.quantity"
                 @change="
-                  () => {
-                    data.row.finalPrice = data.row.unitPrice * data.row.quantity
-                    autoCalculateOrder()
+                  (data) => {
+                    handleGetTotal(data, props)
                   }
                 "
-                v-model="data.row.quantity"
                 style="width: 100%"
               />
             </template>
@@ -4351,6 +4395,7 @@ onMounted(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <button
+                :disabled="checkDisabled"
                 @click.prevent="removeListProductsSale(scope.$index)"
                 class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 >{{ t('reuse.delete') }}</button

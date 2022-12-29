@@ -70,6 +70,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
 const { t } = useI18n()
 
@@ -182,13 +183,15 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
+let statusOrder = ref(1)
+
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 
-const codeReturnRequest = ref()
+// const codeReturnRequest = ref()
 const rentalOrderCode = ref()
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -334,6 +337,8 @@ interface tableRentalProduct {
   productName: string
   accessory: string
   dateRange: any
+  fromDate: any
+  toDate: any
   quantity: string
   unitPrice: number
   hirePrice: string
@@ -353,6 +358,8 @@ const productForSale = reactive<tableRentalProduct>({
   productName: '',
   accessory: '',
   dateRange: '',
+  fromDate: '',
+  toDate: '',
   quantity: '1',
   unitPrice: 0,
   hirePrice: '',
@@ -374,6 +381,8 @@ interface tableDataType {
   intoMoney: string
   collected: string
   spent: string
+  receiveMoney: string
+  paidMoney: string
   rentalFeeDebt: string
   kindOfMoney: string
   paymentProposal: string
@@ -387,6 +396,10 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 
 const onAddDebtTableDeposit = () => {
@@ -395,6 +408,8 @@ const onAddDebtTableDeposit = () => {
     content: feePaymentPeriod.value,
     receiptOrPaymentVoucherId: '',
     quantity: 0,
+    receiveMoney: '',
+    paidMoney: '',
     unitPrice: '',
     intoMoney: '',
     collected: '',
@@ -1125,17 +1140,19 @@ interface statusOrderType {
   isActive?: boolean
   createdAt?: string
 }
-var arrayStatusOrder = reactive(Array<statusOrderType>())
+let arrayStatusOrder = ref(Array<statusOrderType>())
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
-    console.log('orderObj: ', orderObj)
-    arrayStatusOrder = [...orderObj.statusHistory]
-    if (arrayStatusOrder.length) arrayStatusOrder[arrayStatusOrder.length - 1].isActive = true
-    console.log('arrayStatusOrder: ', arrayStatusOrder)
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      // statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+      statusOrder.value = 1
+    }
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
@@ -1156,7 +1173,7 @@ const editData = async () => {
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
 
-      totalOrder.value = orderObj.totalPrice
+      // totalOrder.value = orderObj.totalPrice
       totalPriceOrder.value = orderObj.totalPrice
       totalDeposit.value = orderObj.depositePrice
       totalFinalOrder.value = totalPriceOrder.value + totalDeposit.value
@@ -1210,17 +1227,17 @@ const getValueOfSelected = async (value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
-    if (data.dateRange) {
+    if (data.fromDate && data.toDate) {
       totalPriceOrder.value = 0
       totalFinalOrder.value = 0
       totalDeposit.value = 0
 
-      let newDate = new Date(data.dateRange[1] - data.dateRange[0])
+      let newDate = new Date(data.toDate - data.fromDate)
       let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
         3,
-        parseInt(data.quantity),
+        !Number.isNaN(data.quantity) ? parseInt(data.quantity) : data.quantity,
         ruleForm.leaseTerm
       )
       data.hirePrice = objPrice.price
@@ -1259,16 +1276,16 @@ const getValueOfSelected = async (value, obj, scope) => {
 // chọn ngày thì ra giá tiền
 const handleGetTotal = async (_value, props) => {
   const data = props.row
-  if (data.dateRange) {
+  if (data.fromDate && data.toDate) {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    let newDate = new Date(data.dateRange[1] - data.dateRange[0])
+    let newDate = new Date(data.toDate - data.fromDate)
     let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       3,
-      parseInt(data.quantity),
+      !Number.isNaN(data.quantity) ? parseInt(data.quantity) : data.quantity,
       ruleForm.leaseTerm
     )
     data.hirePrice = objPrice.price
@@ -1514,7 +1531,7 @@ const choosePayment = [
   }
 ]
 
-const inputDeposit = ref('10,000,000 đ')
+const inputDeposit = ref(0)
 const payment = ref(choosePayment[0].value)
 // Thông tin phiếu thu
 const dialogInformationReceipts = ref(false)
@@ -1596,7 +1613,6 @@ const autoChangeAddress = () => {
     autoChangeProvince.value.label
 }
 
-let statusOrder = ref(1)
 const changeStatus = (index) => {
   setTimeout(() => {
     statusOrder.value = index
@@ -1617,8 +1633,8 @@ const changePriceRowTable = (props) => {
   if (props.row.rentalUnitPrice != props.row.rentalFee && countPriceChange == 0 && type == 'add') {
     countPriceChange++
     priceChangeOrders.value = true
-    arrayStatusOrder.splice(0, arrayStatusOrder.length)
-    arrayStatusOrder.push({
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
       orderStatusName: 'Duyệt giá thay đổi',
       orderStatus: 1,
       isActive: true
@@ -1626,9 +1642,9 @@ const changePriceRowTable = (props) => {
   }
 }
 
-arrayStatusOrder.pop()
+arrayStatusOrder.value.pop()
 if (type == 'add' && priceChangeOrders.value == false)
-  arrayStatusOrder.push({
+  arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
     isActive: true
@@ -1637,54 +1653,54 @@ if (type == 'add' && priceChangeOrders.value == false)
 const addStatusOrder = (index) => {
   switch (index) {
     case 1:
-      arrayStatusOrder.push({
+      arrayStatusOrder.value.push({
         orderStatusName: 'Duyệt giá thay đổi',
         orderStatus: 1
       })
       break
     case 2:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Chốt đơn hàng',
           orderStatus: 2,
           isActive: true
         })
       break
     case 3:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Bắt đầu thuê',
           orderStatus: 3,
           isActive: true
         })
       break
     case 4:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Hết hạn thuê',
           orderStatus: 4,
           isActive: true
         })
       break
     case 5:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Duyệt trả hàng trước hạn',
           orderStatus: 5,
           isActive: true
         })
       break
     case 6:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Đối soát & kết thúc',
           orderStatus: 6,
           isActive: true
         })
       break
     case 7:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Trả hàng hết hạn',
           orderStatus: 7,
           isActive: true
@@ -1692,31 +1708,31 @@ const addStatusOrder = (index) => {
       break
 
     case 8:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Bắt đầu gia hạn thuê',
           orderStatus: 8,
           isActive: true
         })
       break
     case 9:
-      ;(arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false),
-        arrayStatusOrder.push({
+      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
+        arrayStatusOrder.value.push({
           orderStatusName: 'Kết thúc gia hạn thuê',
           orderStatus: 9,
           isActive: true
         })
       break
     case 10:
-      if (arrayStatusOrder.length > 0) {
-        arrayStatusOrder[arrayStatusOrder.length - 1].isActive = false
-        arrayStatusOrder.push({
+      if (arrayStatusOrder.value.length > 0) {
+        arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false
+        arrayStatusOrder.value.push({
           orderStatusName: 'Hủy đơn hàng',
           orderStatus: 10,
           isActive: true
         })
       } else {
-        arrayStatusOrder.push({
+        arrayStatusOrder.value.push({
           orderStatusName: 'Hủy đơn hàng',
           orderStatus: 10,
           isActive: true
@@ -1837,7 +1853,7 @@ const handleChangePaymentRequest = () => {
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
 const formReceipts = ref()
-const moneyReceipts = ref(105000000)
+const moneyReceipts = ref(0)
 const inputRecharger = ref()
 
 const getFormReceipts = () => {
@@ -1885,7 +1901,7 @@ let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1906,7 +1922,7 @@ let idPC = ref()
 const postPC = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1958,7 +1974,6 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content:
@@ -1969,15 +1984,20 @@ const postOrderStransaction = async (index: number) => {
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: tableAccountingEntry.value[0].collected
-      ? tableAccountingEntry.value[0].collected
-      : 0,
+    receiveMoney:
+      index == 1
+        ? totalFinalOrder.value
+        : index == 2
+        ? inputDeposit.value
+        : index == 3
+        ? tableAccountingEntry.value[0].collected
+        : 0,
     paidMoney: tableAccountingEntry.value[0].spent ? tableAccountingEntry.value[0].spent : 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -2891,7 +2911,7 @@ onBeforeMount(() => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex pt-4 pb-4 items-center">
+          <div class="flex pt-4 pb-2 items-center">
             <div class="flex-1">
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2918,7 +2938,14 @@ onBeforeMount(() => {
               </div>
             </div>
 
-            <div class="flex-1"> QRCode </div>
+            <div class="flex-1 flex gap-4">
+              <span>
+                <div class="text-right">Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex gap-4 items-center pb-4">
             <label class="w-[20%] text-right">{{ t('formDemo.feePaymentPeriod') }}</label>
@@ -3094,7 +3121,14 @@ onBeforeMount(() => {
               </div>
             </div>
 
-            <div class="flex-1"> QRCode </div>
+            <div class="flex-1 flex gap-4">
+              <span>
+                <div class="text-right">Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3902,9 +3936,23 @@ onBeforeMount(() => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ rentalOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                rentalOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3932,29 +3980,6 @@ onBeforeMount(() => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <!-- <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280">
-              <template #default="props">
-                <el-input v-model="props.row.content" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
-              <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.collected" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="spent" :label="t('formDemo.spent')">
-              <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.spent" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
-              <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.intoMoney" />
-              </template>
-            </el-table-column>
-          </el-table> -->
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="content" :label="t('reuse.content')" width="240">
@@ -4052,17 +4077,17 @@ onBeforeMount(() => {
           <div class="float-right pb-10">
             <span class="dialog-footer">
               <el-button
+                size="large"
                 type="primary"
                 @click="
                   () => {
                     postOrderStransaction(3)
-                    getOrderStransactionList()
                     dialogAccountingEntryAdditional = false
                   }
                 "
                 >{{ t('formDemo.saveRecordDebts') }}</el-button
               >
-              <el-button @click="dialogAccountingEntryAdditional = false">{{
+              <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
                 t('reuse.exit')
               }}</el-button>
             </span>
@@ -4132,20 +4157,35 @@ onBeforeMount(() => {
               <div v-else>{{ props.row.accessory }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="dateRange" :label="t('formDemo.rentalEndDate')" width="260">
+          <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
             <template #default="scope">
               <div v-if="type == 'detail'">
-                {{ dateTimeFormat(scope.row.dateRange) }}
+                {{ dateTimeFormat(scope.row.fromDate) }}
               </div>
               <el-date-picker
                 v-else
-                v-model="scope.row.dateRange"
+                v-model="scope.row.fromDate"
                 :disabled="disabledEdit"
                 @change="(data) => handleGetTotal(data, scope)"
-                type="daterange"
+                type="date"
                 range-separator="To"
-                start-placeholder="Start date"
-                end-placeholder="End date"
+                placeholder="Chọn ngày"
+                format="DD/MM/YYYY"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
+            <template #default="scope">
+              <div v-if="type == 'detail'">
+                {{ dateTimeFormat(scope.row.toDate) }}
+              </div>
+              <el-date-picker
+                v-else
+                v-model="scope.row.toDate"
+                :disabled="disabledEdit"
+                @change="(data) => handleGetTotal(data, scope)"
+                type="date"
+                range-separator="To"
                 placeholder="Chọn ngày"
                 format="DD/MM/YYYY"
               />
@@ -4235,6 +4275,7 @@ onBeforeMount(() => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" width="90">
             <template #default="scope">
               <button
+                :disabled="disabledEdit"
                 @click="removeTableData(scope.$index)"
                 class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 >{{ t('reuse.delete') }}</button
@@ -4249,7 +4290,12 @@ onBeforeMount(() => {
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.rentalFee') }}</div>
             <div class="text-blue-500 cursor-pointer">
-              <el-button text @click="openDialogChoosePromotion = true" style="padding: 0">
+              <el-button
+                :disabled="disabledEdit"
+                text
+                @click="openDialogChoosePromotion = true"
+                style="padding: 0"
+              >
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
@@ -4262,7 +4308,12 @@ onBeforeMount(() => {
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
+                      <el-radio-group
+                        :disabled="disabledEdit"
+                        @change="changePriceVAT"
+                        v-model="radioVAT"
+                        class="flex-col"
+                      >
                         <div style="width: 100%">
                           <el-radio
                             class="text-left"
@@ -4528,10 +4579,7 @@ onBeforeMount(() => {
             >
           </div>
 
-          <div
-            v-else-if="statusOrder == 2 && priceChangeOrders == true"
-            class="w-[100%] flex ml-1 gap-4"
-          >
+          <div v-else-if="statusOrder == 2" class="w-[100%] flex ml-1 gap-4">
             <el-button
               @click="
                 () => {

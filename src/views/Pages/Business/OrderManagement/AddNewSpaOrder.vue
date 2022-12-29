@@ -1443,34 +1443,6 @@ interface historyTableType {
   inventoryStatus?: string
 }
 
-// const inputReasonChange = ref('')
-// const updatePrice = (_value, obj, scope) => {
-//   scope.row.productPropertyId = obj.productPropertyId
-//   scope.row.refundUnitPrice = Number(obj.price)
-//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-// }
-
-// Tạo mới yêu cầu đổi trả
-// const postReturnRequest = async () => {
-//   codeReturnRequest.value = autoCodeReturnRequest
-//   const tableReturnPost = ref()
-//   tableReturnPost.value = tableReturnFullyIntegrated.value.map((e) => ({
-//     productPropertyId: parseInt(e.productPropertyId),
-//     quantity: parseInt(e.quantity),
-//     accessory: e.accessory ?? '2'
-//   }))
-//   const payload = {
-//     customerOrderId: id,
-//     code: codeReturnRequest.value,
-//     name: 'Thay đổi dịch vụ spa',
-//     description: inputReasonChange.value,
-//     returnRequestType: 1,
-//     details: tableReturnPost.value
-//   }
-//   await createReturnRequest(payload)
-//   getReturnRequestTable()
-// }
-
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
@@ -1716,35 +1688,6 @@ const fromWarehouseFormat = (props) => {
   }
   return `${fromWarehouseName}/${fromLocationName}/${lotName}`
 }
-
-// const toWarehouseFormat = (props) => {
-//   let toWarehouseName = ''
-//   let toLocationName = ''
-//   let toLotName = ''
-
-//   if (
-//     props.row.toWarehouse !== undefined &&
-//     props.row.toWarehouse?.label !== null &&
-//     props.row.toWarehouse?.label !== undefined
-//   ) {
-//     toWarehouseName = props.row.toWarehouse?.label
-//   }
-//   if (
-//     props.row.toLocation !== undefined &&
-//     props.row.toLocation?.label !== null &&
-//     props.row.toLocation?.label !== undefined
-//   ) {
-//     toLocationName = props.row.toLocation?.label
-//   }
-//   if (
-//     props.row.toLotId !== undefined &&
-//     props.row.toLotId?.label !== null &&
-//     props.row.toLotId?.label !== undefined
-//   ) {
-//     toLotName = props.row.lot?.label
-//   }
-//   return `${toWarehouseName}/${toLocationName}/${toLotName}`
-// }
 
 let tableSalesSlip = ref()
 let formAccountingId = ref()

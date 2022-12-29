@@ -1055,8 +1055,24 @@ const getCustomerInfo = async (id: string) => {
   customerData.address = orderObj.address
 }
 
-const tableInvoiceExport = ref()
-const tableInvoiceImport = ref()
+const tableInvoiceExport = ref({
+  id: 0,
+  productName: '',
+  accessory: '',
+  quantity: 0,
+  unitPrice: 0,
+  totalPrice: 0,
+  finalPrice: 0
+})
+const tableInvoiceImport = ref({
+  id: 0,
+  productName: '',
+  accessory: '',
+  quantity: 0,
+  unitPrice: 0,
+  totalPrice: 0,
+  finalPrice: 0
+})
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1955,8 +1971,8 @@ onMounted(async () => {
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.value"
+                      v-for="(item, index) in optionsClassify"
+                      :key="index"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2033,8 +2049,8 @@ onMounted(async () => {
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.value"
+                      v-for="(item, index) in optionsClassify"
+                      :key="index"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -3201,7 +3217,7 @@ onMounted(async () => {
                   :disabled="checkDisabled"
                   @change="
                     () => {
-                      data.row.finalPrice = data.row.price * data.row.quantity
+                      data.row.finalPrice = data.row.unitPrice * data.row.quantity
                       autoCalculateReturnExportChange()
                     }
                   "
@@ -3241,12 +3257,7 @@ onMounted(async () => {
             }}</span>
             <span class="block h-1 w-[100%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <el-table
-            ref="singleTableRef"
-            :data="tableInvoiceImport.orderDetails"
-            border
-            style="width: 100%"
-          >
+          <el-table ref="singleTableRef" :data="tableInvoiceImport" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
@@ -3268,7 +3279,7 @@ onMounted(async () => {
                   :disabled="checkDisabled"
                   @change="
                     () => {
-                      data.row.finalPrice = data.row.price * data.row.quantity
+                      data.row.finalPrice = data.row.unitPrice * data.row.quantity
                       autoCalculateOrder()
                     }
                   "

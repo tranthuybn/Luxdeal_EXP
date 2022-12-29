@@ -2011,8 +2011,8 @@ onMounted(async () => {
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.value"
+                      v-for="(item, index) in optionsClassify"
+                      :key="index"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2089,8 +2089,8 @@ onMounted(async () => {
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.value"
+                      v-for="(item, index) in optionsClassify"
+                      :key="index"
                       :label="item.label"
                       :value="item.value"
                     />

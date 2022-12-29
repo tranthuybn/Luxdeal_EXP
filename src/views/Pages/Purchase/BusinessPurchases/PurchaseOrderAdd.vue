@@ -736,7 +736,10 @@ const updateStatusOrder = async (status: number, idOrder: number) => {
 }
 
 const addStatusOrder = (index) => {
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
   arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[index])
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
   updateStatusOrder(STATUS_ORDER_PURCHASE[index].orderStatus, id)
 }
 
@@ -759,6 +762,11 @@ const autoCalculateOrder = () => {
       totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
     }
   }
+
+  detailedListExpenses.value[0].finalPrice = 0
+  detailedListExpenses.value.map((val) => {
+    if (val.totalPrice) detailedListExpenses.value[0].finalPrice += val.totalPrice
+  })
 }
 
 const autoCalculateReturnExportChange = () => {
@@ -799,11 +807,25 @@ const autoChangeAddress = () => {
 }
 
 const inputDeposit = ref(0)
+const inputDepositPayment = ref(0)
 
 watch(
   () => inputDeposit.value,
   () => {
     moneyDeposit.value = totalFinalOrder.value - inputDeposit.value
+  }
+)
+
+watch(
+  () => inputDepositPayment.value,
+  () => {
+    moneyDepositPayment.value = detailedListExpenses.value[0].finalPrice - inputDepositPayment.value
+    if (moneyDepositPayment.value > moneyDeibt.value) {
+      ElNotification({
+        message: 'Số tiền còn lại lớn hơn số tiền chi',
+        type: 'warning'
+      })
+    }
   }
 )
 
@@ -1012,7 +1034,8 @@ const postData = async () => {
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
-    VAT: 1,
+    VAT: radioVAT.value,
+    VATMoney: moneyVAT.value,
     orderStatus: 1
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -1235,29 +1258,19 @@ const dialogInformationReceipts = ref(false)
 // Thông tin phiếu đề nghị thanh toán
 const dialogIPRForm = ref(false)
 
-interface ListOfDetailExpenses {
-  numberVouchers: string
-  dayVouchers: string | Date
-  spendFor: string
-  quantity: string
-  unitPrices: string | number | undefined
-  intoMoney: string
-  note: string
-}
-const detailExpenses = reactive<ListOfDetailExpenses>({
-  numberVouchers: '',
-  dayVouchers: '',
-  spendFor: '',
-  quantity: '',
-  unitPrices: '',
-  intoMoney: '',
-  note: ''
-})
-let detailedListExpenses = ref<Array<ListOfDetailExpenses>>([])
-
-const addNewRow = () => {
-  detailedListExpenses.value.push({ ...detailExpenses })
-}
+const detailedListExpenses = ref([
+  {
+    numberVouchers: '',
+    dayVouchers: '',
+    spendFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    intoMoney: '',
+    finalPrice: 0,
+    totalPrice: 0,
+    note: ''
+  }
+])
 
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
@@ -1632,7 +1645,7 @@ const moneyDeibt = ref()
 const postPaymentRequest = async () => {
   const payload = {
     Code: codePaymentRequest.value,
-    TotalMoney: moneyDeibt.value,
+    TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
     PaymentType: payment.value,
     PeopleId: inputRecharger.value,
     status: 0,
@@ -1760,6 +1773,7 @@ const newCodePaymentRequest = async () => {
 }
 
 let moneyDeposit = ref()
+let moneyDepositPayment = ref()
 
 const inputRecharger = ref()
 
@@ -1912,6 +1926,16 @@ const editOrderInfo = async () => {
         type: 'success'
       })
     })
+}
+
+const createInvoiceReturn = () => {
+  // const payload_Transaction = {
+  //   orderId: id,
+  //   content: t('formDemo.returnPaymentSlip'),
+  //   paymentRequestId: null,
+  //   receiptOrPaymentVoucherId: null,
+  //   receiveMoney
+  // }
 }
 
 onBeforeMount(async () => {
@@ -2561,7 +2585,6 @@ onMounted(async () => {
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-            <!-- <button @click="testDialog = true">Test</button> -->
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2607,52 +2630,89 @@ onMounted(async () => {
             <span class="block h-1 w-[50%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div class="pt-2 pb-2">
-            <el-table ref="singleTableRef" :data="detailedListExpenses" border style="width: 100%">
-              <el-table-column label="STT" type="index" width="40" align="center" />
+            <el-table
+              :data="detailedListExpenses"
+              border
+              :class="[
+                'bg-[var(--el-color-white)] dark:(text-white-800) border-[var(--el-border-color)] border-1px)'
+              ]"
+            >
+              <el-table-column label="STT" type="index" width="60" align="center" />
               <el-table-column
                 prop="numberVouchers"
                 :label="t('formDemo.numberVouchers')"
                 width="80"
               >
                 <template #default="data">
-                  <el-input type="text" @change="addNewRow" v-model="data.row.numberVouchers" />
+                  <el-input v-model="data.row.numberVouchers" type="text" />
                 </template>
               </el-table-column>
               <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80">
                 <template #default="data">
                   <el-date-picker
                     v-model="data.row.dayVouchers"
-                    v-if="type != 'detail'"
                     type="date"
                     placeholder="Pick a day"
-                    format="DD/MM/YYYY"
                   />
-                  <div v-else>{{ data.row.createdAt }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120">
+              <el-table-column prop="quantity" :label="t('formDemo.sl')" align="center" width="90">
                 <template #default="data">
-                  <el-input type="text" v-model="data.row.spendFor" />
+                  <div v-if="type == 'detail'">
+                    {{ data.row.quantity }}
+                  </div>
+                  <el-input
+                    v-else
+                    :disabled="checkDisabled"
+                    @change="
+                      () => {
+                        data.row.totalPrice = data.row.unitPrice * data.row.quantity
+                        autoCalculateOrder()
+                      }
+                    "
+                    v-model="data.row.quantity"
+                    style="width: 100%"
+                  />
                 </template>
               </el-table-column>
-              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="60">
-                <template #default="data">
-                  <el-input type="number" v-model="data.row.quantity" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
-                <template #default="data">
-                  <el-input type="text" v-model="data.row.unitPrices" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <el-table-column
+                prop="unitPrice"
+                :label="t('reuse.unitPrice')"
+                align="right"
+                width="120"
+              >
                 <template #default="props">
-                  <div class="text-right">{{ props.row.intoMoney }}</div>
+                  <CurrencyInputComponent
+                    v-model="props.row.unitPrice"
+                    :disabled="checkDisabled"
+                    v-if="type != 'detail'"
+                    @change="
+                      () => {
+                        props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                        autoCalculateOrder()
+                      }
+                    "
+                  />
+                  <div v-else>{{
+                    props.row.unitPrice != ''
+                      ? changeMoney.format(parseInt(props.row.unitPrice))
+                      : '0 đ'
+                  }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="note" :label="t('reuse.note')" width="90">
+              <el-table-column
+                prop="totalPrice"
+                :label="t('formDemo.intoMoney')"
+                align="right"
+                width="180"
+              >
+                <template #default="props">
+                  {{ changeMoney.format(props.row.totalPrice) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="note" :label="t('reuse.note')" width="80">
                 <template #default="data">
-                  <el-input type="text" v-model="data.row.note" />
+                  <el-input v-model="data.row.note" type="text" />
                 </template>
               </el-table-column>
             </el-table>
@@ -2662,7 +2722,9 @@ onMounted(async () => {
               <p class="text-black font-bold dark:text-white">Tổng tiền</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">
+                {{ changeMoney.format(detailedListExpenses[0].finalPrice) }}
+              </p>
             </div>
           </div>
           <span
@@ -2675,10 +2737,12 @@ onMounted(async () => {
             </div>
             <div class="w-[145px] text-right">
               <input
-                v-model="inputDeposit"
+                v-model="inputDepositPayment"
                 class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
               />
-              <p class="pr-2 text-red-600">đ</p>
+              <p class="pr-2 text-red-600">{{
+                moneyDepositPayment ? changeMoney.format(moneyDepositPayment) : '0 đ'
+              }}</p>
             </div>
             <div class="w-[90px]"></div>
           </div>
@@ -2696,7 +2760,11 @@ onMounted(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3385,7 +3453,7 @@ onMounted(async () => {
             </div>
             <div class="w-[100px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{
-                changeMoney.format(intoMoneyReturn)
+                intoMoneyReturn ? changeMoney.format(intoMoneyReturn) : '0 đ'
               }}</p>
             </div>
           </div>
@@ -3438,16 +3506,13 @@ onMounted(async () => {
                   size="large"
                   @click="
                     () => {
-                      invoiceForGoodsEntering = false
-                      if (intoMoneyReturn > 0) postPC()
-                      else postPT()
+                      dialogInvoiceReturn = false
+                      createInvoiceReturn()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="invoiceForGoodsEntering = false">{{
-                  t('reuse.exit')
-                }}</el-button>
+                <el-button @click="dialogInvoiceReturn = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
           </div>
@@ -3585,22 +3650,20 @@ onMounted(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right pb-10">
-            <span class="dialog-footer">
-              <el-button
-                type="primary"
-                @click="
-                  () => {
-                    postOrderStransaction(3)
-                    dialogAccountingEntryAdditional = false
-                  }
-                "
-                >{{ t('formDemo.saveRecordDebts') }}</el-button
-              >
-              <el-button @click="dialogAccountingEntryAdditional = false">{{
-                t('reuse.exit')
-              }}</el-button>
-            </span>
+          <div class="flex justify-end">
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  postOrderStransaction(3)
+                  dialogAccountingEntryAdditional = false
+                }
+              "
+              >{{ t('formDemo.saveRecordDebts') }}</el-button
+            >
+            <el-button @click="dialogAccountingEntryAdditional = false">{{
+              t('reuse.exit')
+            }}</el-button>
           </div>
         </template>
       </el-dialog>
@@ -4703,36 +4766,23 @@ onMounted(async () => {
               class="min-w-42 min-h-11"
               >{{ t('formDemo.purchaseSuccess') }}</el-button
             >
-            <el-button
-              :disabled="checkDisabled"
+            <button
               @click="
                 () => {
-                  statusOrder = 6
-                  addStatusOrder(6)
+                  dialogInvoiceReturn = true
+                  getReturnOrder()
                 }
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
-              type="warning"
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.exchangeReturnGoods') }}</el-button
+              class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
+              >{{ t('formDemo.exchangeReturnGoods') }}</button
             >
-            <el-button
-              @click="
-                () => {
-                  statusOrder = 7
-                  dialogInvoiceReturn = true
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-            >
-              {{ t('formDemo.exchangeReturnGoods') }}
-            </el-button>
-            <el-button
+            <button
               :disabled="checkDisabled"
               @click="statusOrder = 8"
               v-if="statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.completeExchangeReturn') }}</el-button
+              class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
+              >{{ t('formDemo.completeExchangeReturn') }}</button
             >
 
             <el-button

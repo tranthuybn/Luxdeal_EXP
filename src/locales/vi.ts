@@ -498,6 +498,7 @@ export default {
     productInformationSpa: 'Thông tin sản phẩm spa',
     commodityName: 'Tên hàng hóa',
     paymentSlip: 'Phiếu thanh toán',
+    returnPaymentSlip: 'Phiếu thanh toán đổi/trả hàng',
     depositSlipAdvance: 'Phiếu đặt cọc/Tạm ứng',
     paymentDepositSlipAdvance: 'Phiếu thanh toán/đặt cọc/tạm ứng',
     depositSlipAdvanceinformation: 'Thông tin phiếu đặt cọc/Tạm ứng',

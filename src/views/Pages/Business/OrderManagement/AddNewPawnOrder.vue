@@ -3830,7 +3830,9 @@ const removeRow = (index) => {
 ::v-deep(.el-select) {
   width: 100%;
 }
-
+::v-deep(.el-range-editor.el-input__wrapper) {
+  width: 100%;
+}
 ::v-deep(.el-textarea__inner) {
   box-shadow: none;
   padding: 5px 0;

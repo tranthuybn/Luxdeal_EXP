@@ -4172,7 +4172,9 @@ onMounted(async () => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
-
+::v-deep(.el-range-editor.el-input__wrapper) {
+  width: 100%;
+}
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }

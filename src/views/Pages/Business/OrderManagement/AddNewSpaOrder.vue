@@ -73,6 +73,7 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
+import { getProductStorage } from '@/api/Warehouse'
 
 const { t } = useI18n()
 
@@ -317,6 +318,30 @@ const tableWarehouse = [
     address: ''
   }
 ]
+
+//call api kho
+const warehouseOptions = ref()
+const loadingWarehouse = ref(true)
+// const locationOptions = ref()
+let callAPIWarehouseTimes = 0
+const callAPIWarehouse = async () => {
+  if (callAPIWarehouseTimes == 0) {
+    await getProductStorage({
+      pageSize: 1000,
+      pageIndex: 1
+    }).then((res) => {
+      warehouseOptions.value = res.data
+        .filter((warehouse) => warehouse.children.length > 0)
+        .map((item) => ({
+          value: item.id,
+          label: item.name
+        }))
+      loadingWarehouse.value = false
+      callAPIWarehouseTimes++
+    })
+  }
+  console.log('warehouseOptions', warehouseOptions)
+}
 
 const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 
@@ -885,11 +910,11 @@ const form = reactive({
 const chooseDelivery = [
   {
     value: 1,
-    label: t('formDemo.pickUpGoodsAtTheCounter')
+    label: 'Kho hà nội'
   },
   {
     value: 2,
-    label: t('formDemo.receiveGoodsAtCustomerAddress')
+    label: 'Kho HCM'
   }
 ]
 
@@ -1645,11 +1670,13 @@ const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 const dialogWarehouseTransfer = ref(false)
 const currentRowWHTrans = ref(0)
 const curPPIDWHTrans = ref(0)
+const quantitySpa = ref(0)
 const openDialogWarehouseTransfer = (props) => {
   if (props.row.productPropertyId) {
     dialogWarehouseTransfer.value = true
-    curPPIDWHTrans.value = props.row.productPropertyId
+    curPPIDWHTrans.value = Number(props.row.productPropertyId)
     currentRowWHTrans.value = props.$index
+    quantitySpa.value = Number(props.row.quantity)
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -1701,34 +1728,34 @@ const fromWarehouseFormat = (props) => {
   return `${fromWarehouseName}/${fromLocationName}/${lotName}`
 }
 
-const toWarehouseFormat = (props) => {
-  let toWarehouseName = ''
-  let toLocationName = ''
-  let toLotName = ''
+// const toWarehouseFormat = (props) => {
+//   let toWarehouseName = ''
+//   let toLocationName = ''
+//   let toLotName = ''
 
-  if (
-    props.row.toWarehouse !== undefined &&
-    props.row.toWarehouse?.label !== null &&
-    props.row.toWarehouse?.label !== undefined
-  ) {
-    toWarehouseName = props.row.toWarehouse?.label
-  }
-  if (
-    props.row.toLocation !== undefined &&
-    props.row.toLocation?.label !== null &&
-    props.row.toLocation?.label !== undefined
-  ) {
-    toLocationName = props.row.toLocation?.label
-  }
-  if (
-    props.row.toLotId !== undefined &&
-    props.row.toLotId?.label !== null &&
-    props.row.toLotId?.label !== undefined
-  ) {
-    toLotName = props.row.lot?.label
-  }
-  return `${toWarehouseName}/${toLocationName}/${toLotName}`
-}
+//   if (
+//     props.row.toWarehouse !== undefined &&
+//     props.row.toWarehouse?.label !== null &&
+//     props.row.toWarehouse?.label !== undefined
+//   ) {
+//     toWarehouseName = props.row.toWarehouse?.label
+//   }
+//   if (
+//     props.row.toLocation !== undefined &&
+//     props.row.toLocation?.label !== null &&
+//     props.row.toLocation?.label !== undefined
+//   ) {
+//     toLocationName = props.row.toLocation?.label
+//   }
+//   if (
+//     props.row.toLotId !== undefined &&
+//     props.row.toLotId?.label !== null &&
+//     props.row.toLotId?.label !== undefined
+//   ) {
+//     toLotName = props.row.lot?.label
+//   }
+//   return `${toWarehouseName}/${toLocationName}/${toLotName}`
+// }
 
 let tableSalesSlip = ref()
 let formAccountingId = ref()
@@ -2019,6 +2046,7 @@ const postReturnRequest = async (reason) => {
         @close-dialog-warehouse="closeDialogWarehouseTrasfer"
         :productPropertyId="curPPIDWHTrans"
         :warehouseData="warehouseData"
+        :quantitySpa="quantitySpa"
       />
       <!-- Dialog In phiếu thu -->
       <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
@@ -2564,20 +2592,21 @@ const postReturnRequest = async (reason) => {
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item prop="delivery" :label="t('formDemo.chooseShipping')">
+                  <el-form-item prop="delivery" :label="t('reuse.chooseExportWarehouse')">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
                           :disabled="checkDisabled"
+                          class="w-full"
                           v-model="ruleForm.delivery"
-                          class="fix-full-width"
-                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
+                          @click="callAPIWarehouse"
+                          :loading="loadingWarehouse"
                         >
                           <el-option
-                            v-for="i in chooseDelivery"
-                            :key="i.value"
-                            :label="i.label"
-                            :value="i.value"
+                            v-for="item in warehouseOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
                           />
                         </el-select>
                       </div>
@@ -2982,22 +3011,6 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('reuse.importExportWarehouse')" min-width="250">
-            <template #default="props">
-              <div class="flex w-[100%] items-center">
-                <div class="flex-left w-[60%]">
-                  <div class="break-words">Từ kho:{{ fromWarehouseFormat(props) }}</div>
-                  <div class="break-words">Đến kho:{{ toWarehouseFormat(props) }}</div>
-                </div>
-                <div class="w-[40%]">
-                  <el-button text @click="openDialogWarehouseTransfer(props)">
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
-
           <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
@@ -3020,6 +3033,21 @@ const postReturnRequest = async (reason) => {
           <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
           <el-table-column prop="finalPrice" :label="t('formDemo.spaFeePayment')" width="100" />
+
+          <el-table-column :label="t('reuse.selectedLotSpa')" min-width="210">
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <div class="flex-left w-[60%]">
+                  <div class="break-words">{{ fromWarehouseFormat(props) }}</div>
+                </div>
+                <div class="w-[40%]">
+                  <el-button text @click="openDialogWarehouseTransfer(props)">
+                    <span class="text-blue-500"> + {{ t('reuse.selectedLot') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
 
           <el-table-column :label="`${t('formDemo.manipulation')}`" align="center">
             <template #default="scope">

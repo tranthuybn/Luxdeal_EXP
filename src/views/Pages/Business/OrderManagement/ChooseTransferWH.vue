@@ -37,6 +37,10 @@ const props = defineProps({
   warehouseFormData: {
     type: Object as PropType<ChooseWarehouse>,
     default: () => {}
+  },
+  quantitySpa: {
+    type: Number,
+    default: 0
   }
 })
 type ChooseWarehouse = {
@@ -115,6 +119,7 @@ const callAPIWarehouse = async () => {
       callAPIWarehouseTimes++
     })
   }
+  console.log('warehouseOptions', warehouseOptions)
 }
 const getLocation = async (parentId) => {
   await getProductStorage({ Id: parentId }).then((res) => {
@@ -162,9 +167,6 @@ const filterLotData = (locationId) => {
 
   calculateInventory()
 }
-const filterLotData2 = (locationId) => {
-  warehouseData.value.toLocation = locationOptions.value.find((wh) => wh.value == locationId)
-}
 const calculateInventory = () => {
   totalInventory.value = lotData.value.reduce(function (accumulator, curValue) {
     return accumulator + curValue.inventory
@@ -202,16 +204,15 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
-const closeDialogTransfer = () => {}
 </script>
 <template>
   <el-dialog
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
-    width="65%"
+    width="55%"
     align-center
     class="z-50"
-    @close="closeDialogTransfer"
+    @close="closeDialog"
   >
     <template #header>
       <h1 class="font-bold text-xl">{{ t('reuse.chooseImportExportWH') }}</h1>
@@ -225,18 +226,11 @@ const closeDialogTransfer = () => {}
       label-width="120px"
       label-position="top"
     >
-      <el-form-item :label="t('reuse.quantity')" prop="quantity">
-        <el-input
-          v-model="warehouseForm.quantity"
-          type="number"
-          :min="1"
-          @change="
-            (data) => {
-              warehouseData.quantity = Number(data)
-            }
-          "
-        />
-      </el-form-item>
+      <div class="flex gap-2 mb-2">
+        <p>Số lượng yêu cầu Spa:</p>
+        <p class="quantity">{{ quantitySpa }}</p>
+      </div>
+      <!-- 
       <div class="flex import">
         <div class="w-1/2">
           <el-form-item
@@ -260,6 +254,8 @@ const closeDialogTransfer = () => {}
             </el-select>
           </el-form-item>
         </div>
+      </div>
+     
         <div class="pl-8 w-1/2">
           <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
             <el-select
@@ -282,6 +278,7 @@ const closeDialogTransfer = () => {}
           </el-form-item>
         </div>
       </div>
+      
       <div class="flex export">
         <div class="w-1/2">
           <el-form-item
@@ -326,6 +323,31 @@ const closeDialogTransfer = () => {}
             </el-select>
           </el-form-item>
         </div>
+      </div> -->
+      <div class="w-full">
+        <div class="title-location mb-1">
+          {{ t('reuse.chooseLocation') }}
+        </div>
+        <el-form-item prop="locationExportId" class="w-full">
+          <el-select
+            class="w-full"
+            v-model="warehouseForm.locationExportId"
+            @click="
+              () => {
+                getLocation(warehouseForm.warehouseExportId)
+              }
+            "
+            @change="filterLotData"
+          >
+            <el-option
+              v-for="item in locationOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              :placeholder="t('reuse.chooseLocation')"
+            />
+          </el-select>
+        </el-form-item>
       </div>
     </el-form>
     <div>{{ t('reuse.lotList') }}</div>
@@ -352,26 +374,26 @@ const closeDialogTransfer = () => {}
           ></el-radio>
         </template>
       </el-table-column>
-      <el-table-column prop="location" :label="t('reuse.location')" width="180" />
+      <el-table-column prop="location" :label="t('reuse.location')" width="200" />
       <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
-      <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
+      <el-table-column prop="orderType" :label="t('reuse.type')" width="90">
         <template #default="scope">
           {{ orderType(scope.row.orderType) }}
         </template></el-table-column
       >
-      <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
-      <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
+      <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="90" />
+      <el-table-column prop="quantity" :label="t('formDemo.numberOfSpa')" width="100">
         <template #default="scope">
           {{ calculateQuantity(scope) }}
         </template>
       </el-table-column>
-      <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
-      <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180" />
+      <el-table-column prop="unit" :label="t('reuse.unit')" width="90" />
+      <el-table-column prop="createdAt" label="Ngày nhập lot xuất" />
     </el-table>
     <template #footer>
       <span class="dialog-footer">
         <el-button class="w-[150px]" type="primary" @click="submitForm(ruleFormRef)"
-          >{{ t('reuse.transferLotSelected') }}
+          >{{ t('reuse.SpaLotSelected') }}
         </el-button>
         <el-button class="w-[150px]" @click="closeDialog">{{ t('reuse.exit') }}</el-button>
       </span>

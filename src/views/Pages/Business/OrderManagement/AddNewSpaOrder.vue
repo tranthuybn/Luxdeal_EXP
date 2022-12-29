@@ -790,7 +790,6 @@ const optionsCustomer = [
   }
 ]
 
-const forceRemove = ref(false)
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
@@ -813,18 +812,8 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
-let tableSpaServices = ref()
 let orderIdSpa = ref()
-const viewTable = () => {
-  console.log('table: ', ListOfProductsForSale.value)
-  let arrId = ref('')
-  ListOfProductsForSale.value.map((item) => {
-    tableSpaServices.value = item.spaServices
 
-    // ListOfProductsForSale.value.spaServices
-  })
-  console.log('arrId: ', arrId.value)
-}
 const postData = async () => {
   submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
@@ -2875,7 +2864,6 @@ const postReturnRequest = async (reason) => {
           </span>
         </template>
       </el-dialog>
-      <button @click="viewTable">Click</button>
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[1].icon" link />

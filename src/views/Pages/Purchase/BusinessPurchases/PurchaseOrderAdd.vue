@@ -61,6 +61,7 @@ import {
   updateOrderInfo,
   updateOrderStatus,
   addOrderStransaction,
+  cancelOrder,
   getDetailAccountingEntryById
 } from '@/api/Business'
 import { getWarehouseLot } from '@/api/Warehouse'
@@ -729,7 +730,9 @@ const updateStatusOrder = async (status: number, idOrder: number) => {
     ServiceType: 6,
     OrderStatus: status
   }
-  await updateOrderStatus(payload)
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderStatus(formDataPayLoad)
+  await getOrderList({ Id: id, ServiceType: 6 })
 }
 
 const addStatusOrder = (index) => {
@@ -759,9 +762,21 @@ const autoCalculateOrder = () => {
 }
 
 const autoCalculateReturnExportChange = () => {
+  tableInvoiceExport.value[0].finalPrice = 0
   tableInvoiceExport.value.map((val) => {
-    if (val.totalPrice) tableInvoiceExport.value.totalPrice += parseInt(val.orderDetails.totalPrice)
+    if (val.totalPrice) tableInvoiceExport.value[0].finalPrice += val.totalPrice
   })
+  intoMoneyReturn.value =
+    tableInvoiceImport.value[0].finalPrice - tableInvoiceExport.value[0].finalPrice
+}
+
+const autoCalculateReturnImportChange = () => {
+  tableInvoiceImport.value[0].finalPrice = 0
+  tableInvoiceImport.value.map((val) => {
+    if (val.totalPrice) tableInvoiceImport.value[0].finalPrice += val.totalPrice
+  })
+  intoMoneyReturn.value =
+    tableInvoiceImport.value[0].finalPrice - tableInvoiceExport.value[0].finalPrice
 }
 
 // change address
@@ -1007,8 +1022,6 @@ const postData = async () => {
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-      updateStatusOrder(61, id)
-      updateStatusOrder(2, id)
       router.push({
         name: 'purchase.business-purchases.purchase-order-list',
         params: { backRoute: String(router.currentRoute.value.name) }
@@ -1055,24 +1068,31 @@ const getCustomerInfo = async (id: string) => {
   customerData.address = orderObj.address
 }
 
-const tableInvoiceExport = ref({
-  id: 0,
-  productName: '',
-  accessory: '',
-  quantity: 0,
-  unitPrice: 0,
-  totalPrice: 0,
-  finalPrice: 0
-})
-const tableInvoiceImport = ref({
-  id: 0,
-  productName: '',
-  accessory: '',
-  quantity: 0,
-  unitPrice: 0,
-  totalPrice: 0,
-  finalPrice: 0
-})
+let tableInvoiceExport = ref([
+  {
+    id: 0,
+    productCode: '',
+    productName: '',
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    finalPrice: 0
+  }
+])
+let tableInvoiceImport = ref([
+  {
+    id: 0,
+    productCode: '',
+    productName: '',
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    finalPrice: 0
+  }
+])
+let intoMoneyReturn = ref()
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1110,8 +1130,26 @@ const editData = async () => {
       if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
-      tableInvoiceExport.value = { ...orderObj }
-      tableInvoiceImport.value = { ...orderObj }
+      tableInvoiceExport.value = orderObj.orderDetails.map((order) => ({
+        id: order.id,
+        productCode: order.productCode,
+        productName: order.productName,
+        accessory: order.accessory,
+        quantity: order.quantity,
+        unitPrice: order.unitPrice,
+        totalPrice: order.totalPrice
+      }))
+      tableInvoiceImport.value = orderObj.orderDetails.map((order) => ({
+        id: order.id,
+        productCode: order.productCode,
+        productName: order.productName,
+        accessory: order.accessory,
+        quantity: order.quantity,
+        unitPrice: order.unitPrice,
+        totalPrice: order.totalPrice
+      }))
+      tableInvoiceExport.value[0].finalPrice = orderObj.totalPrice
+      tableInvoiceImport.value[0].finalPrice = orderObj.totalPrice
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1834,6 +1872,16 @@ const VAT = ref(false)
 // Cập nhật lại giá tiền khi thay đổi VAT
 const changePriceVAT = () => {
   autoCalculateOrder()
+}
+
+//hủy đơn hàng
+const cancelOrderPurchase = async () => {
+  const payload = {
+    OrderId: id,
+    ServiceType: 6
+  }
+
+  await cancelOrder(payload)
 }
 
 const editOrderInfo = async () => {
@@ -3131,6 +3179,7 @@ onMounted(async () => {
         v-model="dialogInvoiceReturn"
         :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
         width="40%"
+        @opened="alreadyPaidForTt = false"
         align-center
       >
         <div>
@@ -3190,12 +3239,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table
-            ref="singleTableRef"
-            :data="tableInvoiceExport.orderDetails"
-            border
-            style="width: 100%"
-          >
+          <el-table ref="singleTableRef" :data="tableInvoiceExport" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
@@ -3234,6 +3278,7 @@ onMounted(async () => {
                   v-if="type != 'detail'"
                   @change="
                     () => {
+                      props.row.totalPrice = props.row.unitPrice * props.row.quantity
                       autoCalculateReturnExportChange()
                     }
                   "
@@ -3245,7 +3290,7 @@ onMounted(async () => {
                 }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('reuse.totalReturnMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
               <template #default="props">
                 {{ changeMoney.format(props.row.totalPrice) }}
               </template>
@@ -3280,7 +3325,7 @@ onMounted(async () => {
                   @change="
                     () => {
                       data.row.finalPrice = data.row.unitPrice * data.row.quantity
-                      autoCalculateOrder()
+                      autoCalculateReturnImportChange()
                     }
                   "
                   v-model="data.row.quantity"
@@ -3296,7 +3341,8 @@ onMounted(async () => {
                   v-if="type != 'detail'"
                   @change="
                     () => {
-                      autoCalculateOrder()
+                      props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                      autoCalculateReturnImportChange()
                     }
                   "
                 />
@@ -3319,7 +3365,7 @@ onMounted(async () => {
             </div>
             <div class="w-[100px] text-right">
               <p class="pr-2 text-black dark:text-white">{{
-                changeMoney.format(tableInvoiceImport.totalPrice)
+                changeMoney.format(tableInvoiceImport[0].finalPrice)
               }}</p>
             </div>
           </div>
@@ -3329,7 +3375,7 @@ onMounted(async () => {
             </div>
             <div class="w-[100px] text-right">
               <p class="pr-2 text-black dark:text-white">{{
-                changeMoney.format(tableInvoiceExport.totalPrice)
+                changeMoney.format(tableInvoiceExport[0].finalPrice)
               }}</p>
             </div>
           </div>
@@ -3339,7 +3385,7 @@ onMounted(async () => {
             </div>
             <div class="w-[100px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{
-                changeMoney.format(tableInvoiceImport?.totalPrice - tableInvoiceExport?.totalPrice)
+                changeMoney.format(intoMoneyReturn)
               }}</p>
             </div>
           </div>
@@ -3393,6 +3439,8 @@ onMounted(async () => {
                   @click="
                     () => {
                       invoiceForGoodsEntering = false
+                      if (intoMoneyReturn > 0) postPC()
+                      else postPT()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -4664,6 +4712,7 @@ onMounted(async () => {
                 }
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
+              type="warning"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
@@ -4720,6 +4769,13 @@ onMounted(async () => {
                 statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
                 statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
                 statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus
+              "
+              @click="
+                () => {
+                  statusOrder = 8
+                  addStatusOrder(8)
+                  cancelOrderPurchase()
+                }
               "
               :disabled="checkDisabled"
               type="danger"

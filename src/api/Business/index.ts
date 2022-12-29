@@ -206,6 +206,18 @@ export const updateOrderStatus = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Hủy đơn hàng
+export const cancelOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.CANCEL_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Lấy mã phiếu thu chi
 export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
   const res = await request.get(

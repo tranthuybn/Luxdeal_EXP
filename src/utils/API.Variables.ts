@@ -204,7 +204,7 @@ export const STATUS = [
 
 export const STATUS_ORDER_PURCHASE = [
   {
-    orderStatus: 0,
+    orderStatus: -1,
     orderStatusName: 'Hủy đơn hàng',
     createdAt: ''
   },
@@ -229,22 +229,22 @@ export const STATUS_ORDER_PURCHASE = [
     createdAt: ''
   },
   {
-    orderStatus: 5,
+    orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
     createdAt: ''
   },
   {
-    orderStatus: 6,
+    orderStatus: 62,
     orderStatusName: 'Duyệt đổi/trả hàng',
     createdAt: ''
   },
   {
-    orderStatus: 7,
+    orderStatus: 65,
     orderStatusName: 'Hoàn thành đổi/trả hàng',
     createdAt: ''
   },
   {
-    orderStatus: 8,
+    orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
   }

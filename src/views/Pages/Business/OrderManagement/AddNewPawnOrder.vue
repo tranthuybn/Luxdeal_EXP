@@ -2285,7 +2285,7 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div v-if="type == 'edit'" class="w-30">
+          <div v-if="type == 'edit' || type == 'add'" class="w-30">
             <CurrencyInputComponent v-model="priceintoMoneyPawnGOC" />
           </div>
           <div v-else class="w-30"> {{ priceintoMoneyPawnGOC }} </div>
@@ -2304,7 +2304,7 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div v-if="type == 'edit'" class="w-30">
+          <div v-if="type == 'edit' || type == 'add'" class="w-30">
             <CurrencyInputComponent v-model="priceintoMoneyByday" />
           </div>
           <div v-else class="w-30"> {{ priceintoMoneyByday }} </div>
@@ -2384,7 +2384,7 @@ const removeRow = (index) => {
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
+          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-if="type == 'add'">
             <el-button class="min-w-42 min-h-11" @click="openBillPawnDialog">{{
               t('formDemo.billPawn')
             }}</el-button>
@@ -2410,6 +2410,8 @@ const removeRow = (index) => {
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
+          </div>
+          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-else>
             <el-button
               v-if="type != 'add'"
               @click="

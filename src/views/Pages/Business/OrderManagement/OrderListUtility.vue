@@ -1952,6 +1952,7 @@ const autoCollaboratorCommission = (index) => {
 }
 
 onBeforeMount(async () => {
+  await editData()
   callCustomersApi()
   callApiCollaborators()
   await callApiProductList()
@@ -1964,9 +1965,9 @@ onBeforeMount(async () => {
     codePaymentRequest.value = autoCodePaymentRequest
   }
 })
-onMounted(async () => {
-  await editData()
-})
+// onMounted(async () => {
+//   await
+// })
 </script>
 
 <template>

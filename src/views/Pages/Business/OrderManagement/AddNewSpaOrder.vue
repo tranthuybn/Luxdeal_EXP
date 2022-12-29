@@ -62,7 +62,6 @@ import {
   getDetailAccountingEntryById,
   postAutomaticWarehouse
 } from '@/api/Business'
-import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import ChooseTransferWarehouse from './ChooseTransferWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
@@ -190,9 +189,9 @@ interface ListOfProductsForSaleType {
   unitName: string
   examinationContent: string
   price: string | number | undefined
-  finalPrice: number
   paymentType: string
   edited: boolean
+  totalPrice: number
   fromLotId?: number
   fromWarehouse?: Options
   fromLocation?: Options
@@ -216,8 +215,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   accessory: '',
   unitName: 'Cái',
   price: '',
+  totalPrice: 0,
   examinationContent: '',
-  finalPrice: 0,
   paymentType: '',
   edited: true
 })
@@ -285,7 +284,6 @@ const onAddHistoryTableItem = () => {
 const informationWarehouseReceipt = ref(false)
 // Dialog change address
 
-const dialogFormVisible = ref(false)
 const dialogAddQuick = ref(false)
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
@@ -486,7 +484,7 @@ const duplicateProductMessage = () => {
 const duplicateProduct = ref()
 
 const getPriceSpaService = () => {
-  ListOfProductsForSale.value[currentRow2.value].finalPrice = totalSettingSpa.value
+  ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value
 }
 let promoValue = ref(0)
 let promoCash = ref(0)
@@ -509,7 +507,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
   }
 
   ListOfProductsForSale.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+    if (val.totalPrice) totalPriceOrder.value += val.totalPrice
   })
   promoCash.value != 0
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
@@ -523,23 +521,19 @@ const getValueOfSelected = async (_value, obj, scope) => {
 
 const totalPriceSpa = (scope) => {
   let quantityInput = scope.row.quantity
-  scope.row.finalPrice = quantityInput * totalSettingSpa.value
+  scope.row.totalPrice = quantityInput * totalSettingSpa.value
 }
 
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   ListOfProductsForSale.value.map((val) => {
-    if (val.finalPrice) totalPriceOrder.value += val.finalPrice
+    if (val.totalPrice) totalPriceOrder.value += val.totalPrice
   })
   promoCash.value != 0
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-}
-
-const handleTotal = (scope) => {
-  scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
 // Call api danh sách cộng tác viên
@@ -823,7 +817,7 @@ const postData = async () => {
       ProductPrice: val.price,
       UnitPrice: totalSettingSpa.value,
       SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
-      TotalPrice: val.finalPrice,
+      TotalPrice: val.totalPrice,
       IsPaid: true,
       Accessory: val.accessory,
       WarehouseId: null,
@@ -841,7 +835,7 @@ const postData = async () => {
       Description: ruleForm.orderNotes,
       CustomerId: customerID.value,
       Files: Files,
-      DeliveryOptionId: ruleForm.delivery,
+      DeliveryOptionId: 0,
       ProvinceId: valueProvince.value ?? 1,
       DistrictId: valueDistrict.value ?? 1,
       WardId: valueCommune.value ?? 1,
@@ -896,22 +890,10 @@ const form = reactive({
   email: ''
 })
 
-const chooseDelivery = [
-  {
-    value: 1,
-    label: 'Kho hà nội'
-  },
-  {
-    value: 2,
-    label: 'Kho HCM'
-  }
-]
-
 const checkDisabled = ref(false)
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
-const ruleFormAddress = ref<FormInstance>()
 
 const ruleForm = reactive({
   orderCode: '',
@@ -949,50 +931,16 @@ const rules = reactive<FormRules>({
     }
   ],
   orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
-  customerName: [
-    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
-  ],
+  customerName: [{ required: false }],
   delivery: [
     {
       required: true,
-      message: t('formDemo.pleaseChooseDelivery'),
+      message: t('common.required'),
       trigger: 'change'
     }
   ]
 })
 
-const formAddress = reactive({
-  province: '',
-  district: '',
-  wardCommune: '',
-  detailedAddress: ''
-})
-const rulesAddress = reactive<FormRules>({
-  province: [
-    {
-      required: true,
-      message: 'Tỉnh/thành phố không được để trống ',
-      trigger: 'change'
-    }
-  ],
-  district: [
-    {
-      required: true,
-      message: 'Quận/huyện kkhông được để trống ',
-      trigger: 'blur'
-    }
-  ],
-  wardCommune: [
-    {
-      required: true,
-      message: 'Phường/Xã không được để trống ',
-      trigger: 'blur'
-    }
-  ],
-  detailedAddress: [
-    { required: true, message: 'Địa chỉ chi tiết không được để trống ', trigger: 'blur' }
-  ]
-})
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
@@ -1004,16 +952,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   await formEl2.validate((valid) => {
     if (valid) {
       checkValidateForm.value = true
-    } else {
-    }
-  })
-}
-const submitFormAddress = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, _fields) => {
-    if (valid) {
-      autoChangeAddress()
-      dialogFormVisible.value = false
     } else {
     }
   })
@@ -1289,6 +1227,17 @@ const optionsTypeSpa = [
     label: 'Nội bộ spa'
   }
 ]
+const valueTypeSpa = ref(optionsTypeSpa[0].value)
+
+let disabledCustomer = ref(false)
+const checkDisabledCustomer = () => {
+  if (valueTypeSpa.value == 1) {
+    disabledCustomer.value = false
+    customerID.value = 1
+  } else {
+    disabledCustomer.value = true
+  }
+}
 
 let formDetailPaymentReceipt = ref()
 // Lấy chi tiết phiếu thu chi
@@ -1562,18 +1511,23 @@ const postPC = async () => {
 }
 
 const editData = async () => {
-  if (type == 'detail') checkDisabled.value = true
+  if (type == 'detail') {
+    checkDisabled.value = true
+    disabledCustomer.value = true
+  }
   if (type == 'edit' || type == 'detail') {
     const res = await getOrderList({ Id: id, ServiceType: 5 })
+    console.log('data', res)
+
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
-    console.log('rred', res)
-    const orderObj = { ...res?.data[0] }
+    const orderObj = { ...res.data[0] }
+
     dataEdit.value = orderObj
-    arrayStatusOrder.value = orderObj.status
-    arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    // arrayStatusOrder.value = orderObj.status
+    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
@@ -1585,9 +1539,15 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
 
       totalOrder.value = orderObj.totalPrice
+
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
+
       ListOfProductsForSale.value = orderObj.orderDetails
+      // ListOfProductsForSale.value?.forEach((val) => {
+      //   if (val.spaServiceIds) val.spaServiceIds.value = parseInt(val.spaServiceIds)
+      // })
+
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1716,27 +1676,6 @@ const getcodeExpenditures = async () => {
 const inputAmountSpa = ref()
 const dialogPrinBillSpa = ref(false)
 
-const valueTypeSpa = ref(optionsTypeSpa[0].value)
-
-const district = ref()
-const ward = ref()
-const cities = ref()
-
-const callApiCity = async () => {
-  cities.value = await getCity()
-}
-
-const CityChange = async (value) => {
-  valueDistrict.value = ''
-  valueCommune.value = ''
-  enterdetailAddress.value = ''
-  district.value = await getDistrict(value)
-}
-
-const districtChange = async (value) => {
-  ward.value = await getWard(value)
-}
-
 const dialogInformationReceipts = ref(false)
 const spaOrderCode = ref()
 // input nhập tiền viết bằng chữ
@@ -1771,25 +1710,6 @@ const getFormReceipts = () => {
 const editor = ref()
 
 const indexSpa = ref()
-
-// change address
-let autoChangeCommune = ref()
-let autoChangeDistrict = ref()
-let autoChangeProvince = ref()
-
-const autoChangeAddress = () => {
-  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
-  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
-  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
-  customerAddress.value =
-    formAddress.detailedAddress +
-    ', ' +
-    autoChangeCommune.value.label +
-    ', ' +
-    autoChangeDistrict.value.label +
-    ', ' +
-    autoChangeProvince.value.label
-}
 
 interface statusOrderType {
   statusName: string
@@ -1897,7 +1817,6 @@ var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
-  callApiCity()
   callAPIProduct()
   if (type == 'add') {
     ruleForm.orderCode = curDate
@@ -2355,7 +2274,12 @@ const postReturnRequest = async (reason) => {
               </el-form-item>
 
               <el-form-item :label="t('reuse.typeOfSpa')" prop="typeOfSpa">
-                <el-select v-model="valueTypeSpa" :disabled="checkDisabled" placeholder="Select">
+                <el-select
+                  v-model="valueTypeSpa"
+                  @change="checkDisabledCustomer()"
+                  :disabled="checkDisabled"
+                  placeholder="Select"
+                >
                   <el-option
                     v-for="item in optionsTypeSpa"
                     :key="item.value"
@@ -2506,7 +2430,7 @@ const postReturnRequest = async (reason) => {
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
-                            :disabled="checkDisabled"
+                            :disabled="disabledCustomer"
                             labelKey="label"
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
@@ -2514,7 +2438,7 @@ const postReturnRequest = async (reason) => {
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                           />
-                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
+                          <el-button :disabled="disabledCustomer" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -2555,110 +2479,6 @@ const postReturnRequest = async (reason) => {
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
-                </div>
-                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
-                  <p class="w-[150px] ml-2 text-[#828387] text-right">{{
-                    t('formDemo.deliveryAddress')
-                  }}</p>
-                  <p>{{ customerAddress }}</p>
-                  <p>
-                    <el-button
-                      class="hover:bg-transparent; focus:bg-transparent"
-                      text
-                      @click="dialogFormVisible = true"
-                      ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
-                    </el-button>
-                    <!-- Địa chỉ nhận hàng -->
-                    <el-dialog
-                      v-model="dialogFormVisible"
-                      width="40%"
-                      align-center
-                      title="Địa chỉ nhận hàng"
-                    >
-                      <el-divider />
-                      <el-form
-                        ref="ruleFormAddress"
-                        :model="formAddress"
-                        :rules="rulesAddress"
-                        label-width="150px"
-                        class="demo-ruleForm"
-                        status-icon
-                      >
-                        <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
-                          <el-select
-                            v-model="formAddress.province"
-                            style="width: 96%"
-                            class="fix-full-width"
-                            :placeholder="t('formDemo.selectProvinceCity')"
-                            @change="(data) => CityChange(data)"
-                          >
-                            <el-option
-                              v-for="item in cities"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </el-form-item>
-                        <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
-                          <el-select
-                            v-model="formAddress.district"
-                            style="width: 96%"
-                            class="fix-full-width"
-                            :placeholder="t('formDemo.selectDistrict')"
-                            @change="(data) => districtChange(data)"
-                          >
-                            <el-option
-                              v-for="item in district"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </el-form-item>
-                        <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
-                          <el-select
-                            v-model="formAddress.wardCommune"
-                            style="width: 96%"
-                            class="fix-full-width"
-                            :placeholder="t('formDemo.chooseWard')"
-                          >
-                            <el-option
-                              v-for="item in ward"
-                              :key="item.value"
-                              :label="item.label"
-                              :value="item.value"
-                            />
-                          </el-select>
-                        </el-form-item>
-                        <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
-                          <el-input
-                            v-model="formAddress.detailedAddress"
-                            style="width: 96%"
-                            class="fix-full-width"
-                            :placeholder="t('formDemo.detailedAddress')"
-                          />
-                        </el-form-item>
-                      </el-form>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            class="w-[150px]"
-                            type="primary"
-                            @click="
-                              () => {
-                                submitFormAddress(ruleFormAddress)
-                              }
-                            "
-                            >{{ t('reuse.save') }}</el-button
-                          >
-                          <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
-                            t('reuse.exit')
-                          }}</el-button>
-                        </span>
-                      </template>
-                    </el-dialog>
-                  </p>
                 </div>
               </div>
               <el-form-item
@@ -2897,6 +2717,7 @@ const postReturnRequest = async (reason) => {
                 <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
+                    :disabled="checkDisabled"
                     text
                     border
                     @click="
@@ -2927,6 +2748,7 @@ const postReturnRequest = async (reason) => {
                 </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
+                    :disabled="checkDisabled"
                     text
                     border
                     @click="
@@ -2935,9 +2757,9 @@ const postReturnRequest = async (reason) => {
                         dialogFormSettingServiceSpa = true
                       }
                     "
-                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span></el-button
-                  ></div
-                >
+                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span>
+                  </el-button>
+                </div>
               </div>
             </template>
           </el-table-column>
@@ -2963,7 +2785,7 @@ const postReturnRequest = async (reason) => {
 
           <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
-          <el-table-column prop="finalPrice" :label="t('formDemo.spaFeePayment')" width="100" />
+          <el-table-column prop="totalPrice" :label="t('formDemo.spaFeePayment')" width="100" />
 
           <el-table-column :label="t('reuse.selectedLotSpa')" min-width="210">
             <template #default="props">
@@ -2972,7 +2794,11 @@ const postReturnRequest = async (reason) => {
                   <div class="break-words">{{ fromWarehouseFormat(props) }}</div>
                 </div>
                 <div class="w-[40%]">
-                  <el-button text @click="openDialogWarehouseTransfer(props)">
+                  <el-button
+                    :disabled="checkDisabled"
+                    text
+                    @click="openDialogWarehouseTransfer(props)"
+                  >
                     <span class="text-blue-500"> + {{ t('reuse.selectedLot') }}</span>
                   </el-button>
                 </div>
@@ -3093,12 +2919,7 @@ const postReturnRequest = async (reason) => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <!-- <el-radio label="1" size="large">{{ t('reuse.closedTheOrder') }}</el-radio> -->
               <el-radio label="2" value="2" size="large">{{ t('reuse.delivery') }}</el-radio>
-              <!-- <el-radio label="3" size="large">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4" size="large">{{ t('reuse.deliveryFailed') }}</el-radio>
-              <el-radio label="5" size="large">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6" size="large">{{ t('common.doneLabel') }}</el-radio> -->
             </el-radio-group>
           </div>
         </div>
@@ -3278,9 +3099,9 @@ const postReturnRequest = async (reason) => {
                 <div class="text-right">{{ changeMoney.format(props.row.price) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.finalPrice) }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.totalPrice) }}</div>
               </template>
             </el-table-column>
           </el-table>

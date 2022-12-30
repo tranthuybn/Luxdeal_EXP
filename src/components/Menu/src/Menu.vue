@@ -53,6 +53,7 @@ export default defineComponent({
     const activeMenu = computed(() => {
       const { meta, path } = unref(currentRoute)
       // if set path, the sidebar will highlight the path you set
+      console.log(meta, path)
       if (meta.activeMenu) {
         return meta.activeMenu as string
       }

@@ -752,7 +752,7 @@ const enableEverything = () => {
           </div>
           <!-- Chạy hết hoạt động -->
           <div v-if="!formDetail?.isDelete && formDetail?.endDate < moment().format()">
-            <p class="status darkGray day-updated text-black">{{ t('common.doneLabel') }}</p>
+            <p class="status darkGray darkGray-updated text-black">{{ t('common.doneLabel') }}</p>
             <p class="date text-gray-300">
               {{ dateTimeFormat(formDetail?.endDate) }}
             </p>
@@ -907,6 +907,33 @@ const enableEverything = () => {
   border-left: 12px solid #ff9999;
 }
 .red-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+.darkGray-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+.darkGray-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid #a0a0a0;
+}
+.darkGray-updated::before {
   content: '';
   position: absolute;
   top: 0;

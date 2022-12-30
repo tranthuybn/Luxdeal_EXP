@@ -37,10 +37,12 @@ export default defineComponent({
     })
 
     const getBreadcrumb = () => {
-      const currentPath = currentRoute.value.path
-
+      //base function use path to find children
+      //const currentPath = currentRoute.value.path
+      //return node.name === currentPath
+      const currentName = currentRoute.value.name
       levelList.value = filter<AppRouteRecordRaw>(unref(menuRouters), (node: AppRouteRecordRaw) => {
-        return node.path === currentPath
+        return node.name === currentName
       })
     }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref, onBeforeMount } from 'vue'
+import { h, reactive, ref, onMounted } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -104,7 +104,7 @@ const callAPI = async () => {
     loading.value = false
   }
 }
-onBeforeMount(() => {
+onMounted(() => {
   callAPI()
 })
 
@@ -201,16 +201,16 @@ const cancelTransaction = async (scope) => {
                 </el-radio-group></span
               >
             </div>
-            <div v-if="form.status == 1" class="bg-blue-700 formDetail text-white">{{
-              t('reuse.usingPoint')
-            }}</div>
+            <div class="formDetail" v-if="form.status == 1">
+              <span class="formLabel"></span>
+              <span class="bg-blue-700 text-white" style="width: fit-content">{{
+                t('reuse.usingPoint')
+              }}</span>
+            </div>
           </div>
           <div class="image">
             <el-divider content-position="left"
-              ><span class="font-700 text-lg"
-                >{{ t('reuse.image')
-                }}<span class="text-green-400">({{ t('reuse.avatarCustomer') }})</span></span
-              ></el-divider
+              ><span class="font-700 text-lg">{{ t('reuse.picture') }}</span></el-divider
             >
             <ElImage :src="`${API_URL}${form.image}`" fit="fill" class="h-4/5 w-1/5">
               <template #placeholder>
@@ -293,10 +293,12 @@ const cancelTransaction = async (scope) => {
 }
 .formDetail {
   display: flex;
-  margin-left: 10%;
+  margin-left: 5%;
   align-items: center;
+  text-align: right;
 }
 .formLabel {
-  width: 15%;
+  width: 25%;
+  margin-right: 3%;
 }
 </style>

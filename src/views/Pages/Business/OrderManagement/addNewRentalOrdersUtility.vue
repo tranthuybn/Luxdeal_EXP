@@ -1183,6 +1183,7 @@ const editData = async () => {
       }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+      changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1264,10 +1265,12 @@ const getValueOfSelected = async (value, obj, scope) => {
       // add new row
       if (scope.$index == tableData.value.length - 1) {
         tableData.value.push({ ...productForSale })
+        changeDateRange(ruleForm.rentalPeriod)
       }
     } else {
       if (scope.$index == tableData.value.length - 1) {
         tableData.value.push({ ...productForSale })
+        changeDateRange(ruleForm.rentalPeriod)
       }
     }
   }
@@ -1594,6 +1597,7 @@ const tableChooseWarehouse = ref([])
 //add row to the end of table if fill all table
 const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
+  changeDateRange(ruleForm.rentalPeriod)
 }
 
 let autoChangeCommune = ref()
@@ -2097,6 +2101,7 @@ const showIdWarehouse = (scope) => {
 
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
+  changeDateRange(ruleForm.rentalPeriod)
 }
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
@@ -2126,6 +2131,13 @@ const disabledEdit = ref(false)
 const autoCollaboratorCommission = (index) => {
   optionsCollaborators.value.map((val) => {
     if (val.value == index) ruleForm.discount = val.collaboratorCommission
+  })
+}
+
+const changeDateRange = (data) => {
+  tableData.value.forEach((el) => {
+    el.fromDate = data[0]
+    el.toDate = data[1]
   })
 }
 
@@ -3534,6 +3546,7 @@ onBeforeMount(() => {
                   v-model="ruleForm.rentalPeriod"
                   type="daterange"
                   unlink-panels
+                  @change="changeDateRange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
                   format="DD/MM/YYYY"
@@ -4159,10 +4172,8 @@ onBeforeMount(() => {
           </el-table-column>
           <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
             <template #default="scope">
-              <div v-if="type == 'detail'">
-                {{ dateTimeFormat(scope.row.fromDate) }}
-              </div>
-              <el-date-picker
+              {{ scope.row.fromDate ? dateTimeFormat(scope.row.fromDate) : '' }}
+              <!-- <el-date-picker
                 v-else
                 v-model="scope.row.fromDate"
                 :disabled="disabledEdit"
@@ -4171,15 +4182,13 @@ onBeforeMount(() => {
                 range-separator="To"
                 placeholder="Chọn ngày"
                 format="DD/MM/YYYY"
-              />
+              /> -->
             </template>
           </el-table-column>
           <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
             <template #default="scope">
-              <div v-if="type == 'detail'">
-                {{ dateTimeFormat(scope.row.toDate) }}
-              </div>
-              <el-date-picker
+              {{ scope.row.fromDate ? dateTimeFormat(scope.row.toDate) : '' }}
+              <!-- <el-date-picker
                 v-else
                 v-model="scope.row.toDate"
                 :disabled="disabledEdit"
@@ -4188,7 +4197,7 @@ onBeforeMount(() => {
                 range-separator="To"
                 placeholder="Chọn ngày"
                 format="DD/MM/YYYY"
-              />
+              /> -->
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.rentalQuantity')" width="90">
@@ -4510,7 +4519,7 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
+                  submitForm(ruleFormRef, ruleFormRef2)
                   statusOrder = 5
                   addStatusOrder(3)
                 }
@@ -4554,7 +4563,7 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
+                  submitForm(ruleFormRef, ruleFormRef2)
                   statusOrder = 2
                   changeStatus(3)
                   addStatusDelay(2)

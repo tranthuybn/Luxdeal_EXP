@@ -815,10 +815,10 @@ const postData = async () => {
     SpaServiceIds: null,
     WarehouseId: null,
     PriceChange: false,
-    FromDate: e.fromDate,
-    ToDate: e.toDate
+    FromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    ToDate: postDateTime(ruleForm.rentalPeriod[1])
   }))
-  postTable.value.pop()
+  if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
   const payload = {
     ServiceType: 3,

@@ -73,6 +73,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage } from '@/api/Warehouse'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -192,6 +193,7 @@ interface ListOfProductsForSaleType {
   paymentType: string
   edited: boolean
   totalPrice: number
+  spaServiceIds: string
   fromLotId?: number
   fromWarehouse?: Options
   fromLocation?: Options
@@ -213,6 +215,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: '1',
   accessory: '',
+  spaServiceIds: '',
   unitName: 'Cái',
   price: '',
   totalPrice: 0,
@@ -545,9 +548,10 @@ const callApiCollaborators = async () => {
     const res = await getCollaboratorsInOrderList('')
     listCollaborators.value = res.data
 
-    optionsCollaborators.value = listCollaborators.value.map((product) => ({
-      label: product.name,
-      value: product.id
+    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
+      label: collaborator.name,
+      value: collaborator.id,
+      collaboratorCommission: collaborator.collaboratorCommission
     }))
   }
   optionCallCollaborators++
@@ -798,79 +802,80 @@ const dialogFormSettingServiceSpa = ref(false)
 var curDate = 'SPA' + moment().format('hhmmss')
 
 // tạo đơn hàng
-const { push } = useRouter()
 
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
+const tab = String(router.currentRoute.value.params.tab)
 const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
 let orderIdSpa = ref()
 
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
-  if (checkValidateForm.value) {
-    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-      ProductPropertyId: parseInt(val.productPropertyId),
-      Quantity: parseInt(val.quantity),
-      ProductPrice: val.price,
-      UnitPrice: totalSettingSpa.value,
-      SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
-      TotalPrice: val.totalPrice,
-      IsPaid: true,
-      Accessory: val.accessory,
-      WarehouseId: null,
-      PriceChange: false
-    }))
-    orderDetailsTable.pop()
-    const productPayment = JSON.stringify([...orderDetailsTable])
+  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    ProductPropertyId: parseInt(val.productPropertyId),
+    Quantity: parseInt(val.quantity),
+    ProductPrice: val.price,
+    UnitPrice: totalSettingSpa.value,
+    SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
+    TotalPrice: val.totalPrice,
+    IsPaid: true,
+    Accessory: val.accessory,
+    WarehouseId: null,
+    PriceChange: false
+  }))
+  orderDetailsTable.pop()
+  const productPayment = JSON.stringify([...orderDetailsTable])
 
-    const payload = {
-      ServiceType: 5,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'AA12',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.collaboratorCommission,
-      Description: ruleForm.orderNotes,
-      CustomerId: customerID.value,
-      Files: Files,
-      DeliveryOptionId: 0,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: enterdetailAddress.value,
-      OrderDetail: productPayment,
-      CampaignId: 2,
-      VAT: 1,
-      Status: 1,
-
-      TotalPrice: totalPriceOrder.value,
-      DepositePrice: 0,
-      DiscountMoney: 0,
-      InterestMoney: 0
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  const payload = {
+    ServiceType: 5,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'AA12',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.collaboratorCommission,
+    Description: ruleForm.orderNotes,
+    CustomerId: customerID.value,
+    Files: Files,
+    DeliveryOptionId: 0,
+    ProvinceId: valueProvince.value ?? 1,
+    DistrictId: valueDistrict.value ?? 1,
+    WardId: valueCommune.value ?? 1,
+    Address: enterdetailAddress.value,
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1,
+    Status: 1,
+    Days: 1,
+    TotalPrice: totalPriceOrder.value,
+    DepositePrice: 0,
+    DiscountMoney:
+      promoCash.value != 0
+        ? promoCash.value
+        : promoValue.value != 0
+        ? (totalPriceOrder.value * promoValue.value) / 100
+        : 0,
+    InterestMoney: 0
   }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+
   // warehouseTranferAuto(3)
 }
 // chuyển kho auto
@@ -944,15 +949,20 @@ const rules = reactive<FormRules>({
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid) => {
-    if (valid) {
-    } else {
-    }
-  })
-  await formEl2.validate((valid) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
+      checkValidateForm.value = false
+    }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      // doubleDisabled.value = false
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -1106,11 +1116,6 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-}
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
@@ -1136,7 +1141,11 @@ const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
-
+const autoCollaboratorCommission = (index) => {
+  optionsCollaborators.value.map((val) => {
+    if (val.value == index) ruleForm.collaboratorCommission = val.collaboratorCommission
+  })
+}
 let totalOrder = ref(0)
 let dataEdit = ref()
 const saveContentEditor = () => {
@@ -1509,6 +1518,7 @@ const postPC = async () => {
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
+const showPromo = ref(false)
 
 const editData = async () => {
   if (type == 'detail') {
@@ -1528,6 +1538,9 @@ const editData = async () => {
     dataEdit.value = orderObj
     // arrayStatusOrder.value = orderObj.status
     // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+
+    Files = orderObj.orderFiles
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
@@ -1539,15 +1552,21 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
 
       totalOrder.value = orderObj.totalPrice
+      totalPriceOrder.value = orderObj.totalPrice
+      totalFinalOrder.value = orderObj.totalPrice
 
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
 
+      if (orderObj.discountMoney != 0) {
+        showPromo.value = true
+        promoCash.value = orderObj.discountMoney
+      }
       ListOfProductsForSale.value = orderObj.orderDetails
       // ListOfProductsForSale.value?.forEach((val) => {
       //   if (val.spaServiceIds) val.spaServiceIds.value = parseInt(val.spaServiceIds)
       // })
-
+      totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
@@ -1564,13 +1583,10 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -1793,6 +1809,7 @@ const addStatusOrder = (index) => {
   }
 }
 let statusOrder = ref(1)
+
 const changeStatus = (index) => {
   setTimeout(() => {
     statusOrder.value = index
@@ -1813,6 +1830,78 @@ var autoCodePawnOrder = 'CD' + moment().format('hmmss')
 var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
+
+const handleRemove = (file: UploadFile) => {
+  return file
+}
+
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
 
 onBeforeMount(async () => {
   callCustomersApi()
@@ -2301,13 +2390,13 @@ const postReturnRequest = async (reason) => {
                   />
                 </div>
               </el-form-item>
-
-              <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
-                <div class="flex gap-2">
-                  <el-form-item style="flex: 1">
+              <div class="flex gap-2 items-center">
+                <div class="w-[60%] max-w-[531.5px]">
+                  <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
                       :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
+                      @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
@@ -2319,19 +2408,21 @@ const postReturnRequest = async (reason) => {
                       />
                     </el-select>
                   </el-form-item>
-
-                  <el-form-item prop="collaboratorCommission" style="flex: 1">
-                    <el-input
-                      v-model="ruleForm.collaboratorCommission"
-                      :disabled="checkDisabled"
-                      type="text"
-                      :placeholder="`${t('formDemo.enterDiscount')}`"
-                      style="width: 100%"
-                      :suffix-icon="percentIcon"
-                    />
+                </div>
+                <div class="w-[40%]">
+                  <el-form-item prop="collaboratorCommission" class="fix-err" label-width="0">
+                    <div class="flex items-center">
+                      <el-input
+                        :disabled="checkDisabled"
+                        v-model="ruleForm.collaboratorCommission"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        :placeholder="t('formDemo.enterDiscount')"
+                        :suffix-icon="percentIcon"
+                      />
+                    </div>
                   </el-form-item>
                 </div>
-              </el-form-item>
+              </div>
 
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
                 <el-input
@@ -2359,6 +2450,8 @@ const postReturnRequest = async (reason) => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  v-model:file-list="fileList"
+                  :multiple="true"
                   :auto-upload="false"
                   :limit="10"
                   :on-exceed="handleExceed"
@@ -2378,7 +2471,11 @@ const postReturnRequest = async (reason) => {
                           <ElButton :icon="viewIcon" />
                         </span>
                         <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete">
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleRemove(file)"
+                        >
                           <ElButton :icon="deleteIcon" />
                         </span>
                       </span>
@@ -2565,6 +2662,7 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   autoCalculateOrder()
+                  showPromo = true
                   openDialogChoosePromotion = false
                 }
               "
@@ -2735,6 +2833,7 @@ const postReturnRequest = async (reason) => {
           </el-table-column>
 
           <el-table-column
+            v-if="type == 'add'"
             :label="t('router.ServiceLibrarySpaService')"
             prop="spaServices"
             width="220"
@@ -2746,6 +2845,37 @@ const postReturnRequest = async (reason) => {
                     >{{ item.label }}
                   </span>
                 </div>
+
+                <div class="flex-1 text-right text-blue-500 cursor-pointer">
+                  <el-button
+                    :disabled="checkDisabled"
+                    text
+                    border
+                    @click="
+                      () => {
+                        callApiServicesSpa(data)
+                        dialogFormSettingServiceSpa = true
+                      }
+                    "
+                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span>
+                  </el-button>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            v-if="type == 'edit' || type == 'detail'"
+            :label="t('router.ServiceLibrarySpaService')"
+            prop="spaServiceIds"
+            width="220"
+          >
+            <template #default="data">
+              <div class="flex w-[100%] items-center text-center">
+                <div class="flex-1 limit-text">
+                  <span>{{ data.row.spaServiceIds }}</span>
+                </div>
+
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
                     :disabled="checkDisabled"
@@ -2991,9 +3121,18 @@ const postReturnRequest = async (reason) => {
             <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
               t('formDemo.bill')
             }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('reuse.saveAndPending')
-            }}</el-button>
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  submitForm(ruleFormRef, ruleFormRef2)
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('reuse.saveAndPending') }}</el-button
+            >
             <el-button
               @click="
                 () => {
@@ -3302,7 +3441,7 @@ const postReturnRequest = async (reason) => {
       <el-dialog
         v-model="dialogFormSettingServiceSpa"
         title="Cài đặt phí dịch vụ Spa"
-        width="30%"
+        width="40%"
         align-center
       >
         <el-divider />
@@ -4626,5 +4765,8 @@ const postReturnRequest = async (reason) => {
 
 ::v-deep(.el-button--large) {
   padding: 12px 18px;
+}
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  padding-left: 8px;
 }
 </style>

@@ -27,8 +27,8 @@ import {
   ElMessage,
   ElNotification,
   ElTreeSelect,
-  UploadUserFile,
-  UploadProps
+  UploadProps,
+  UploadUserFile
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -74,6 +74,7 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -200,9 +201,6 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
-// const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-//   ListFileUpload.value = uploadFiles
-// }
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
@@ -414,13 +412,10 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
-  console.log('val: ', val)
-  // if (val.type) {
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
     return total
   }, 0)
-  // }
 }
 
 // Dialog change address
@@ -561,7 +556,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productName = obj.name
 
     //TODO
-    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, 1)
+    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -581,6 +576,29 @@ const getValueOfSelected = async (_value, obj, scope) => {
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
+    }
+  }
+}
+
+const handleGetTotal = async (_index, props) => {
+  const data = props.row
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
+  data.totalPrice = data.unitPrice * data.quantity
+  ListOfProductsForSale.value.map((val) => {
+    if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
+  })
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
     }
   }
 }
@@ -994,9 +1012,6 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-
 let orderDetailsTable = reactive([{}])
 
 let idOrderPost = ref()
@@ -1057,7 +1072,7 @@ const postData = async () => {
       })
       router.push({
         name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name) }
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     })
     .catch(() =>
@@ -1068,6 +1083,7 @@ const postData = async () => {
     )
 
   automaticCouponWareHouse(2)
+  console.log('payload: ', payload)
 }
 
 // Phiếu xuất kho tự động
@@ -1087,6 +1103,7 @@ let totalOrder = ref(0)
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
+const tab = String(route.params.tab)
 const type = String(route.params.type)
 
 let dataEdit = ref()
@@ -1108,10 +1125,13 @@ const editData = async () => {
     const orderObj = { ...res?.data[0] }
     // statusOrder.value = 15
     // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj?.statusHistory[0]
-    if (arrayStatusOrder.value?.length)
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    }
     dataEdit.value = orderObj
+    Files = orderObj.orderFiles
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
@@ -1149,13 +1169,10 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -1259,16 +1276,7 @@ const dialogInformationReceipts = ref(false)
 // Thông tin phiếu đề nghị thanh toán
 const dialogIPRForm = ref(false)
 
-const detailedListExpenses = [
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
+const detailedListExpenses = ref([
   {
     numberVouchers: '',
     dayVouchers: '',
@@ -1278,7 +1286,38 @@ const detailedListExpenses = [
     intoMoney: 'đ',
     note: ''
   }
-]
+])
+
+const addRowDetailedListExpoenses = () => {
+  detailedListExpenses.value.push({
+    numberVouchers: '',
+    dayVouchers: '',
+    spendFor: '',
+    quantity: '',
+    unitPrices: 'đ',
+    intoMoney: 'đ',
+    note: ''
+  })
+}
+
+watch(
+  () => detailedListExpenses.value[detailedListExpenses.value.length - 1],
+  () => {
+    if (
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].dayVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].spendFor &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].quantity &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrices &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].note
+    )
+      addRowDetailedListExpoenses()
+  },
+  {
+    deep: true
+  }
+)
+
 // Thông tin phiếu đặt cọc/tạm ứng
 const dialogDepositSlipAdvance = ref(false)
 
@@ -1607,7 +1646,6 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content:
@@ -1706,7 +1744,7 @@ let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1728,7 +1766,7 @@ let idPC = ref()
 const postPC = async () => {
   const payload = {
     Code: codeExpenditures.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
@@ -1950,6 +1988,78 @@ const autoCollaboratorCommission = (index) => {
     if (val.value == index) ruleForm.discount = val.collaboratorCommission
   })
 }
+
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
+
+onMounted(async () => {
+  await editData()
+})
 
 onBeforeMount(async () => {
   await editData()
@@ -2588,7 +2698,7 @@ onBeforeMount(async () => {
       <el-dialog
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -2647,13 +2757,33 @@ onBeforeMount(async () => {
                 prop="numberVouchers"
                 :label="t('formDemo.numberVouchers')"
                 width="80"
-              />
-              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80" />
-              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120" />
-              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50" />
+              >
+                <template #default="props">
+                  <el-input v-model="props.row.numberVouchers" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80">
+                <template #default="props">
+                  <el-date-picker
+                    v-model="props.row.dayVouchers"
+                    type="date"
+                    placeholder="Pick a day"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120">
+                <template #default="props">
+                  <el-input v-model="props.row.spendFor" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50">
+                <template #default="props">
+                  <el-input v-model="props.row.quantity" />
+                </template>
+              </el-table-column>
               <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
                 <template #default="props">
-                  <div class="text-right">{{ props.row.unitPrices }}</div>
+                  <el-input v-model="props.row.unitPrices" />
                 </template>
               </el-table-column>
               <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
@@ -2661,7 +2791,11 @@ onBeforeMount(async () => {
                   <div class="text-right">{{ props.row.intoMoney }}</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="note" :label="t('reuse.note')" width="90" />
+              <el-table-column prop="note" :label="t('reuse.note')" width="90">
+                <template #default="props">
+                  <el-input v-model="props.row.note" />
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <div class="flex justify-end mr-[90px]">
@@ -2707,7 +2841,11 @@ onBeforeMount(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3655,10 +3793,13 @@ onBeforeMount(async () => {
               <div class="pl-4">
                 <el-upload
                   action="#"
+                  v-model:file-list="fileList"
+                  :multiple="true"
                   list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
                   :auto-upload="false"
+                  :on-change="handleChange"
                   class="relative"
                 >
                   <template #file="{ file }">
@@ -4270,20 +4411,19 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
-            <template #default="data">
+            <template #default="props">
               <div v-if="type == 'detail'">
-                {{ data.row.quantity }}
+                {{ props.row.quantity }}
               </div>
               <el-input
                 v-else
                 :disabled="disabledEdit"
+                v-model="props.row.quantity"
                 @change="
-                  () => {
-                    data.row.finalPrice = data.row.unitPrice * data.row.quantity
-                    autoCalculateOrder()
+                  (data) => {
+                    handleGetTotal(data, props)
                   }
                 "
-                v-model="data.row.quantity"
                 style="width: 100%"
               />
             </template>
@@ -4352,6 +4492,7 @@ onBeforeMount(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <button
+                :disabled="checkDisabled"
                 @click.prevent="removeListProductsSale(scope.$index)"
                 class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 >{{ t('reuse.delete') }}</button
@@ -4620,7 +4761,7 @@ onBeforeMount(async () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  postData()
+                  submitForm(ruleFormRef, ruleFormRef2)
                   statusOrder = 3
                 }
               "

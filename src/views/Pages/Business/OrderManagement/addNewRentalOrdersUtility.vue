@@ -71,6 +71,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -794,9 +795,6 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-
 const { push } = useRouter()
 let idOrderPost = ref()
 
@@ -816,7 +814,9 @@ const postData = async () => {
     ConsignmentHirePrice: 0,
     SpaServiceIds: null,
     WarehouseId: null,
-    PriceChange: false
+    PriceChange: false,
+    FromDate: e.fromDate,
+    ToDate: e.toDate
   }))
   postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
@@ -1200,19 +1200,17 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
     })
   } else if (type == 'add' || !type) {
     tableData.value.push({ ...productForSale })
   }
 }
 
+const fileList = ref<UploadUserFile[]>([])
 const duplicateProduct = ref()
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
@@ -1245,7 +1243,7 @@ const getValueOfSelected = async (value, obj, scope) => {
       data.depositePrice = objPrice.deposite * data.quantity
       data.totalPrice = data.hirePrice * data.quantity * days
       tableData.value.map((val) => {
-        if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
+        if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
         if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
       })
       promoCash.value != 0
@@ -2110,12 +2108,80 @@ const removeRow = (index) => {
 const doubleDisabled = ref(false)
 const showPromo = ref(false)
 
+// import and show image
+let Files = reactive({})
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
       'reuse.total'
     )}${files.length + uploadFiles.length}`
   )
+}
+
+const ListFileUpload = ref<UploadUserFile[]>([])
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
 }
 
 // Cập nhật lại giá tiền khi thay đổi VAT
@@ -3636,10 +3702,13 @@ onBeforeMount(() => {
               <div class="pl-4">
                 <el-upload
                   action="#"
+                  v-model:file-list="fileList"
+                  :multiple="true"
                   list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
                   :auto-upload="false"
+                  :on-change="handleChange"
                   class="relative"
                 >
                   <template #file="{ file }">
@@ -4173,31 +4242,11 @@ onBeforeMount(() => {
           <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
             <template #default="scope">
               {{ scope.row.fromDate ? dateTimeFormat(scope.row.fromDate) : '' }}
-              <!-- <el-date-picker
-                v-else
-                v-model="scope.row.fromDate"
-                :disabled="disabledEdit"
-                @change="(data) => handleGetTotal(data, scope)"
-                type="date"
-                range-separator="To"
-                placeholder="Chọn ngày"
-                format="DD/MM/YYYY"
-              /> -->
             </template>
           </el-table-column>
           <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
             <template #default="scope">
               {{ scope.row.fromDate ? dateTimeFormat(scope.row.toDate) : '' }}
-              <!-- <el-date-picker
-                v-else
-                v-model="scope.row.toDate"
-                :disabled="disabledEdit"
-                @change="(data) => handleGetTotal(data, scope)"
-                type="date"
-                range-separator="To"
-                placeholder="Chọn ngày"
-                format="DD/MM/YYYY"
-              /> -->
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.rentalQuantity')" width="90">

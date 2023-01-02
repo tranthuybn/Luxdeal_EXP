@@ -1012,9 +1012,6 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-// const ListFileUpload = ref<UploadUserFile[]>([])
-// const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
-
 let orderDetailsTable = reactive([{}])
 
 let idOrderPost = ref()
@@ -1171,7 +1168,6 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    console.log('orderObj: ', orderObj.orderFiles)
     orderObj.orderFiles.map((element) => {
       fileList.value.push({
         url: `${API_URL}${element?.path}`,
@@ -1993,22 +1989,6 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
-onBeforeMount(async () => {
-  callCustomersApi()
-  callApiCollaborators()
-  await callApiProductList()
-  callApiCity()
-
-  if (type == 'add' || type == ':type') {
-    doubleDisabled.value = true
-    ruleForm.orderCode = curDate
-    sellOrderCode.value = autoCodeSellOrder
-    codePaymentRequest.value = autoCodePaymentRequest
-  }
-})
-onMounted(async () => {
-  await editData()
-})
 let Files = reactive({})
 const validImageType = ['jpeg', 'png']
 //cái này validate file chỉ cho ảnh tí a sửa lại nhé
@@ -2076,6 +2056,24 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   Files = ListFileUpload.value.map((el) => el?.raw)
 }
 const fileList = ref<UploadUserFile[]>([])
+
+onMounted(async () => {
+  await editData()
+})
+
+onBeforeMount(async () => {
+  callCustomersApi()
+  callApiCollaborators()
+  await callApiProductList()
+  callApiCity()
+
+  if (type == 'add' || type == ':type') {
+    doubleDisabled.value = true
+    ruleForm.orderCode = curDate
+    sellOrderCode.value = autoCodeSellOrder
+    codePaymentRequest.value = autoCodePaymentRequest
+  }
+})
 </script>
 
 <template>

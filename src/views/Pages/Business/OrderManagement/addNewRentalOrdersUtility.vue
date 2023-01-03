@@ -1232,8 +1232,12 @@ const getValueOfSelected = async (value, obj, scope) => {
       totalFinalOrder.value = 0
       totalDeposit.value = 0
 
-      let newDate = new Date(data.toDate - data.fromDate)
-      let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
+      var start = moment(data.fromDate, 'YYYY-MM-DD')
+      var end = moment(data.toDate, 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let days = moment.duration(start.diff(end)).asDays() * -1
+      console.log('days: ', days)
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
         3,

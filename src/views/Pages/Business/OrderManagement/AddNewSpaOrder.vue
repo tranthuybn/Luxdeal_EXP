@@ -216,7 +216,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: '1',
   accessory: '',
   spaServiceIds: '',
-  unitName: 'Cái',
+  unitName: '',
   price: '',
   totalPrice: 0,
   examinationContent: '',
@@ -348,13 +348,7 @@ const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 
 // Cập nhật lại giá tiền khi thay đổi VAT
 const changePriceVAT = () => {
-  if (radioVAT.value.length < 4) {
-    const valueVAT = radioVAT.value.substring(0, radioVAT.value.length - 1)
-    console.log('valueVAT: ', valueVAT)
-    if (totalFinalOrder.value) {
-      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT)) / 100
-    }
-  }
+  autoCalculateOrder()
 }
 
 // Call api danh sách khách hàng
@@ -481,13 +475,34 @@ const handleSelectionChange = (val: tableDataType[]) => {
     totalSettingSpa.value += val.price
   })
 }
+const handleSelectionChange2 = (val: tableDataType[]) => {
+  ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
+    label: e.spaServiceName,
+    value: e.id
+  }))
+
+  newTable.value = val
+  totalSettingSpa.value = 0
+  newTable.value.map((val) => {
+    totalSettingSpa.value += val.price
+  })
+}
+
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
 const duplicateProduct = ref()
 
+// Cập nhật lại giá tiền khi thay đổi VAT
+const valueVAT = ref()
+const VAT = ref(false)
+
 const getPriceSpaService = () => {
   ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value
+  spaSelection.value.push({
+    index: currentRow2.value,
+    value: spaTableRef.value!.getSelectionRows()
+  })
 }
 let promoValue = ref(0)
 let promoCash = ref(0)
@@ -516,6 +531,14 @@ const getValueOfSelected = async (_value, obj, scope) => {
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
+  }
   // add new row
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -537,6 +560,14 @@ const autoCalculateOrder = () => {
     ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
+  }
 }
 
 // Call api danh sách cộng tác viên
@@ -702,20 +733,44 @@ const listServicesSpa = ref()
 const optionsApiServicesSpa = ref()
 
 const currentRow2 = ref(0)
+
 const callApiServicesSpa = async (scope) => {
   indexSpa.value = scope.$index
-  const res = await getSpaListByProduct({
-    ProductPropertyId: parseInt(scope.row.productPropertyId)
-  })
-  listServicesSpa.value = res.data
-  optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
-    id: product.id,
-    value: product.price,
-    name: product.spaServiceName
-  }))
+  if (scope.row.productPropertyId) {
+    dialogFormSettingServiceSpa.value = true
 
-  currentRow2.value = scope.$index
+    const res = await getSpaListByProduct({
+      ProductPropertyId: parseInt(scope.row.productPropertyId)
+    })
+    listServicesSpa.value = res.data
+    optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
+      id: product.id,
+      value: product.price,
+      name: product.spaServiceName
+    }))
+    currentRow2.value = scope.$index
+  } else {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+  }
+
+  // spaSelection.value[currentRow2.value].forEach((spa) => toggleSelection([listServicesSpa.value[spa.value]]))
 }
+
+const checkProductSelected = (scope) => {
+  if (scope.row.productPropertyId) {
+    dialogexaminationContentSpa.value = true
+  } else {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+  }
+}
+const spaTableRef = ref<InstanceType<typeof ElTable>>()
+const spaSelection = ref<any[]>([])
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref(false)
@@ -1519,13 +1574,14 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
 }
 const showPromo = ref(false)
-
+const disabledEdit = ref(false)
 const editData = async () => {
   if (type == 'detail') {
     checkDisabled.value = true
     disabledCustomer.value = true
   }
   if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 5 })
     console.log('data', res)
 
@@ -1545,7 +1601,7 @@ const editData = async () => {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaboratorCode
-      ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
@@ -2758,6 +2814,7 @@ const postReturnRequest = async (reason) => {
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
+                :disabled="disabledEdit"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
@@ -2799,6 +2856,7 @@ const postReturnRequest = async (reason) => {
               <el-input
                 v-else
                 class="max-w-[150px]"
+                :disabled="disabledEdit"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -2815,14 +2873,14 @@ const postReturnRequest = async (reason) => {
                 <div class="flex-1 limit-text" v-html="data.row.examinationContent"> </div>
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
-                    :disabled="checkDisabled"
+                    :disabled="disabledEdit"
                     text
                     border
                     @click="
                       () => {
                         currentRow2 = data.$index
                         editor = data.row.examinationContent
-                        dialogexaminationContentSpa = true
+                        checkProductSelected(data)
                       }
                     "
                     ><span class="text-blue-500">+ {{ t('formDemo.add') }}</span></el-button
@@ -2848,13 +2906,12 @@ const postReturnRequest = async (reason) => {
 
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
-                    :disabled="checkDisabled"
+                    :disabled="disabledEdit"
                     text
                     border
                     @click="
                       () => {
                         callApiServicesSpa(data)
-                        dialogFormSettingServiceSpa = true
                       }
                     "
                     ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span>
@@ -2884,7 +2941,6 @@ const postReturnRequest = async (reason) => {
                     @click="
                       () => {
                         callApiServicesSpa(data)
-                        dialogFormSettingServiceSpa = true
                       }
                     "
                     ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span>
@@ -2908,6 +2964,7 @@ const postReturnRequest = async (reason) => {
                   }
                 "
                 v-model="data.row.quantity"
+                :disabled="disabledEdit"
                 style="width: 100%"
               />
             </template>
@@ -2925,7 +2982,7 @@ const postReturnRequest = async (reason) => {
                 </div>
                 <div class="w-[40%]">
                   <el-button
-                    :disabled="checkDisabled"
+                    :disabled="disabledEdit"
                     text
                     @click="openDialogWarehouseTransfer(props)"
                   >
@@ -2936,10 +2993,11 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="`${t('formDemo.manipulation')}`" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="scope">
               <div class="flex gap-2">
                 <el-button
+                  :disabled="disabledEdit"
                   @click.prevent="removeListProductsSale(scope.$index)"
                   align="center"
                   type="danger"
@@ -2949,7 +3007,7 @@ const postReturnRequest = async (reason) => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" :disabled="disabledEdit" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -3025,9 +3083,17 @@ const postReturnRequest = async (reason) => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              {{ promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %` }}
+              <div v-if="showPromo">{{
+                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
+              }}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
+              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
+            }}</div>
+            <div v-else class="text-right dark:text-[#fff] text-transparent dark:text-transparent"
+              >s</div
+            >
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
@@ -3448,10 +3514,10 @@ const postReturnRequest = async (reason) => {
 
         <el-form :model="form">
           <el-table
-            ref="multipleTableRef"
+            ref="spaTableRef"
             border
             :data="listServicesSpa"
-            @selection-change="handleSelectionChange"
+            @selection-change="handleSelectionChange2"
           >
             <el-table-column type="selection" width="55" />
             <el-table-column prop="spaServiceName" label="Thông tin dịch vụ Spa" width="320" />
@@ -4719,11 +4785,6 @@ const postReturnRequest = async (reason) => {
   word-break: break-word;
 }
 
-::v-deep(.el-input) {
-  width: auto;
-  height: fit-content;
-}
-
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
@@ -4735,13 +4796,13 @@ const postReturnRequest = async (reason) => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+::v-deep(.el-input) {
+  width: 100%;
+  height: fit-content;
+}
 
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
-}
-
-::v-deep(.el-input) {
-  width: fit-content;
 }
 
 .example-showcase .el-dropdown-link {

@@ -138,14 +138,17 @@ export const POINT_API = {
   CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
 }
 export const DEPARTMENT_DIRECTORY = {
-  BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
+  BRANCH_LIST: '/api/v1/Branch/GetBranch',
   DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
   POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
   UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
   DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
-  DEPARTMENT_BY_ID: '/api/v1/Department/GetId'
+  DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
+  GET_LIST_POSITION: '/api/v1/Position/GetPosition',
+  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff'
 }
 
 export const APPROVAL_API = {
-  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting'
+  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting',
+  GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove'
 }

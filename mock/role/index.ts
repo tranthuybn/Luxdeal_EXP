@@ -1342,7 +1342,21 @@ const adminList = [
         component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
         meta: {
           title: 'router.personnelAccounts'
-        }
+        },
+        children: [
+          {
+            path: `personnel-accounts-utility/:type?/:id?`,
+            component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/AddPersonnelAccounts',
+            name: `human-resource-management.personnel-accounts.${utility}`,
+            meta: {
+              title: 'reuse.addNewBranch',
+              noCache: true,
+              hidden: true,
+              canTo: true,
+              showMainRoute: true
+            }
+          }
+        ]
       },
       {
         path: 'department-directory',
@@ -1519,6 +1533,7 @@ const testList: string[] = [
   '/new-and-advertisement/profile-admin/transaction-point',
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
+  '/human-resource-management/personnel-accounts-utility/:type?/:id?',
   '/human-resource-management/department-directory',
   `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`
 ]

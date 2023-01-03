@@ -10,14 +10,25 @@ interface Params {
   PageSize?: number
 }
 
+interface Params2 {
+  pageidex?: number
+  pagesize?: number
+}
+
 // export const getBranchList = async (params: any): Promise<IResponse> => {
 //   const res = await request.get({ url: '/Branch/List', params })
 //   return res && res.data
 // }
 
-export const getBranchList = async (params: any): Promise<IResponse> => {
+export const getBranchList = async (_params?: Params2): Promise<IResponse> => {
   const res = await request.get(
-    { url: `${DEPARTMENT_DIRECTORY.BRANCH_LIST}`, params },
+    {
+      url: `${DEPARTMENT_DIRECTORY.BRANCH_LIST}`,
+      params: {
+        pageidex: 1,
+        pagesize: 20
+      }
+    },
     fixedBaseURL
   )
   return res && res.data
@@ -76,11 +87,30 @@ export const deleteDepartment = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-export const getRankList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/Rank/List', params })
+export const getRankList = async (_params?: Params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.GET_LIST_POSITION}`,
+      params: {
+        PageIndex: 1,
+        PageSize: 20
+      }
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
-export const getTypePersonnelList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/TypePersonnel/List', params })
+
+export const getTypePersonnelList = async (_params?: Params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.GET_LIST_TYPEOFSTAFF}`,
+      params: {
+        PageIndex: 1,
+        PageSize: 20
+      }
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }

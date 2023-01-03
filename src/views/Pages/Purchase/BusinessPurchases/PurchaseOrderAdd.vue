@@ -28,8 +28,7 @@ import {
   ElNotification,
   ElTreeSelect,
   UploadUserFile,
-  UploadProps,
-  ElMessageBox
+  UploadProps
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -38,6 +37,7 @@ import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import type { UploadFile } from 'element-plus'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -76,6 +76,7 @@ import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liq
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -226,33 +227,29 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const disabled = ref(false)
+
+const handleRemove = (file: UploadFile) => {
+  return file
 }
 
-let FileDeleteIds: any = []
-const beforeRemove = (uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Hủy',
-    type: 'warning',
-    draggable: true
-  })
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: 'Delete completed'
-      })
-      let imageRemove = uploadFile?.uid
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
 
-      FileDeleteIds.push(imageRemove)
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled'
-      })
-    })
+const handleDownload = (file: UploadFile) => {
+  return file
+}
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -991,8 +988,61 @@ const handleChangeQuickAddProduct = async (data) => {
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+}
+
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
 
 let orderDetailsTable = reactive([{}]) as any[]
 
@@ -1004,6 +1054,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
+    businessManagement: val.businessManagement,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1189,13 +1240,10 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
@@ -1995,7 +2043,7 @@ onMounted(async () => {
       </div>
 
       <!-- Dialog In phiếu thu chi -->
-      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
+      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%">
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
@@ -2026,12 +2074,7 @@ onMounted(async () => {
       </div>
 
       <!-- Dialog Thêm nhanh nhà cung cấp -->
-      <el-dialog
-        v-model="dialogAddQuick"
-        width="40%"
-        align-center
-        :title="t('formDemo.QuicklyAddSupplier')"
-      >
+      <el-dialog v-model="dialogAddQuick" width="40%" :title="t('formDemo.QuicklyAddSupplier')">
         <div v-if="valueClassify == true">
           <el-divider />
           <div>
@@ -2194,12 +2237,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <el-dialog
-        v-model="dialogAddProduct"
-        :title="t('formDemo.quicklyAddProducts')"
-        width="40%"
-        align-center
-      >
+      <el-dialog v-model="dialogAddProduct" :title="t('formDemo.quicklyAddProducts')" width="40%">
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -2335,13 +2373,12 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
-
+      ref
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -2461,7 +2498,6 @@ onMounted(async () => {
         v-model="dialogPaymentVoucher"
         :title="t('formDemo.paymentVoucherInformation')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -2578,7 +2614,6 @@ onMounted(async () => {
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -2815,7 +2850,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog v-model="dialogBillLiquidation" class="font-bold" width="40%" align-center>
+      <el-dialog v-model="dialogBillLiquidation" class="font-bold" width="40%">
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
@@ -2847,7 +2882,6 @@ onMounted(async () => {
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.buySlipInformation')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -3019,7 +3053,6 @@ onMounted(async () => {
         v-model="informationWarehouseReceipt"
         :title="t('formDemo.infoCouponExportExchange')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -3134,7 +3167,6 @@ onMounted(async () => {
         v-model="invoiceForGoodsEntering"
         :title="t('formDemo.invoiceForGoodsEntering')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -3248,7 +3280,6 @@ onMounted(async () => {
         :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
         width="40%"
         @opened="alreadyPaidForTt = false"
-        align-center
       >
         <div>
           <el-divider />
@@ -3524,7 +3555,6 @@ onMounted(async () => {
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />
@@ -3669,7 +3699,7 @@ onMounted(async () => {
       </el-dialog>
 
       <!-- Địa chỉ nhận hàng -->
-      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+      <el-dialog v-model="dialogFormVisible" width="40%" title="Địa chỉ nhận hàng">
         <el-divider />
         <el-form
           ref="ruleFormAddress"
@@ -3835,18 +3865,44 @@ onMounted(async () => {
               </div>
               <div class="pl-4">
                 <el-upload
-                  ref="upload"
-                  class="upload-demo"
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  :limit="10"
-                  :on-change="handleChange"
-                  :before-remove="beforeRemove"
-                  :auto-upload="false"
+                  action="#"
+                  v-model:file-list="fileList"
                   :multiple="true"
-                  v-model:fileList="ListFileUpload"
-                  :disabled="checkDisabled"
+                  list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
+                  :auto-upload="false"
+                  :on-change="handleChange"
+                  class="relative"
                 >
-                  <el-button>+ {{ t('formDemo.addPhotosOrFiles') }}</el-button>
+                  <template #file="{ file }">
+                    <div>
+                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+                      <span class="el-upload-list__item-actions">
+                        <span
+                          class="el-upload-list__item-preview"
+                          @click="handlePictureCardPreview(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleDownload(file)"
+                        >
+                        </span>
+                        <span
+                          v-if="!disabled"
+                          class="el-upload-list__item-delete"
+                          @click="handleRemove(file)"
+                        >
+                        </span>
+                      </span>
+                    </div>
+                  </template>
+                  <el-dialog v-model="dialogVisible" class="absolute" />
+                  <div class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                  >
                 </el-upload>
               </div>
             </div>
@@ -3984,7 +4040,6 @@ onMounted(async () => {
         v-model="dialogbusinessManagement"
         :title="t('formDemo.businessManagement')"
         width="40%"
-        align-center
       >
         <el-divider />
         <el-form :model="formBusuness">
@@ -4020,7 +4075,6 @@ onMounted(async () => {
         v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')"
         width="35%"
-        align-center
         class="z-50"
       >
         <el-divider />
@@ -4063,7 +4117,6 @@ onMounted(async () => {
         v-model="changeReturnGoods"
         :title="t('formDemo.InformationChangeReturnGoods')"
         width="40%"
-        align-center
       >
         <div>
           <el-divider />

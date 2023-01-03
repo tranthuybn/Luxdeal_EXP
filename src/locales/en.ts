@@ -124,6 +124,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    validatePercentNum: 'Discount cannot be less than 0 and greater than 100',
+    validatePercent: 'Discount must be numeric, no characters other than numbers can be entered',
     pleaseEnterANote: 'Please enter a note',
     pleaseSelectRentalPaymentPeriod: 'Please select rental payment period',
     pleaseSelectARentalTerm: 'Please select a rental term',

@@ -29,7 +29,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
   CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
   GET_TAGS: '/api/v1/Product/GetTag',
-  GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
+  GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
   POST_SPA_ORDER: '/api/v1/Order/CreateOrder'

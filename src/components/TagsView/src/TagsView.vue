@@ -255,6 +255,18 @@ watch(
     moveToCurrentTag()
   }
 )
+const renderTitle = (route) => {
+  switch (route?.params?.type) {
+    case 'add':
+      return t('reuse.addNew') + ' ' + t(route?.meta?.title as string).toLowerCase()
+    case 'detail':
+      return t('reuse.detail') + ' ' + t(route?.meta?.title as string).toLowerCase()
+    case 'edit':
+      return t('reuse.edit') + ' ' + t(route?.meta?.title as string).toLowerCase()
+    default:
+      return t(route?.meta?.title as string)
+  }
+}
 </script>
 
 <template>
@@ -365,7 +377,8 @@ watch(
                     :size="12"
                     class="mr-5px"
                   />
-                  {{ t(item?.meta?.title as string) }}
+                  {{ renderTitle(item) }}
+                  <!-- {{ t(item?.meta?.title as string) }} -->
                   <Icon
                     :class="`${prefixCls}__item--close`"
                     color="#333"

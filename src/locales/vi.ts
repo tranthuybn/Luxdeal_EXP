@@ -1813,6 +1813,7 @@ export default {
     runningPointAccumulationPackage: 'Đang chạy gói tích điểm',
     cancelPointPackage: 'Hủy gói tích điểm',
     doYouWantToCancelPointPackage: 'Bạn muốn hủy gói tích điểm ?',
-    historyPointTransaction: 'Lịch sử giao dịch điểm'
+    historyPointTransaction: 'Lịch sử giao dịch điểm',
+    detailCustomerPoints: 'Chi tiết tích điểm khách hàng'
   }
 }

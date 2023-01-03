@@ -1687,6 +1687,7 @@ export default {
     runningPointAccumulationPackage: 'Running point accumulation package',
     cancelPointPackage: 'Cancel point package',
     doYouWantToCancelPointPackage: 'Do you want to cancel point package?',
-    historyPointTransaction: 'History point transaction'
+    historyPointTransaction: 'History point transaction',
+    detailCustomerPoints: 'Detail customer points'
   }
 }

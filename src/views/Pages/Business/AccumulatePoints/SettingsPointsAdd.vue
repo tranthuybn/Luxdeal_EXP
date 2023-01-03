@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount, h, unref } from 'vue'
+import { reactive, ref, h, unref, watch, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElUpload,
@@ -22,7 +22,7 @@ import {
 import { useForm } from '@/hooks/web/useForm'
 import { Form } from '@/components/Form'
 import SelectTable from '@/components/SelectTable.vue'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import {
   createPointExchange,
@@ -83,6 +83,9 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   },
   {
@@ -131,6 +134,9 @@ const schema = reactive<FormSchema[]>([
     value: 2,
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   },
   {
@@ -138,16 +144,18 @@ const schema = reactive<FormSchema[]>([
     component: 'Input',
     colProps: {
       span: 24
+    },
+    formItemProps: {
+      style: { margin: 0 }
     }
   }
 ])
 
 const forceRemove = ref(false)
 
-let TableData = reactive([
+let TableData = ref([
   {
     name: '',
-    phoneNumber: '',
     id: null,
     code: ''
   }
@@ -156,9 +164,9 @@ let TableData = reactive([
 // select MSP đổi tên thông tin sản phẩm
 const changeName = (value, obj, scope) => {
   forceRemove.value = false
-  const selected = TableData.filter((row) => row !== scope.row).find(
-    (customer) => customer.id == value
-  )
+  const selected = TableData.value
+    .filter((row) => row !== scope.row)
+    .find((customer) => customer.id == value)
   if (selected !== undefined) {
     scope.row.id = null
     scope.row.name = null
@@ -168,15 +176,18 @@ const changeName = (value, obj, scope) => {
     })
   } else {
     scope.row.name = obj.name
-    TableData.push({
-      name: '',
-      phoneNumber: '',
-      id: null,
-      code: ''
-    })
+    if (scope.$index == TableData.value.length - 1) {
+      pushTable()
+    }
   }
 }
-
+const pushTable = () => {
+  TableData.value.push({
+    name: '',
+    id: null,
+    code: ''
+  })
+}
 // open or close change combo dialog
 const typeDialog = ref(false)
 
@@ -219,29 +230,27 @@ const tableTypePoint = [
   }
 ]
 const radio = ref(-1)
-const id = Number(router.currentRoute.value.params.id)
+let id = ref(0)
 let type = ref(String(router.currentRoute.value.params.type))
 const code = `TD${Date.now()}`
 // radio condition combo
-onBeforeMount(async () => {
-  await callApiCustomerList()
-  if (type.value == 'detail') {
-    disabledEverything()
+onMounted(async () => await callApiCustomerList())
+watch(
+  () => id.value,
+  async () => {
+    if (type.value == 'detail') {
+      disabledEverything()
+    }
+    if (type.value == 'detail' || type.value == 'edit') {
+      await callApiDetail()
+    }
   }
-  if (type.value == 'detail' || type.value == 'edit') {
-    await callApiDetail()
-  } else {
-    const { setValues } = methods
-    setValues({
-      code: code
-    })
-  }
-})
-
+)
+id.value = Number(router.currentRoute.value.params.id)
 const formDetail = ref()
 
 const callApiDetail = async () => {
-  const res = await getSettingPoint({ Id: id })
+  const res = await getSettingPoint({ Id: id.value })
   if (res && res.data.length > 0) {
     formDetail.value = res.data[0]
     const { setValues } = methods
@@ -255,8 +264,9 @@ const callApiDetail = async () => {
       targetType: res.data[0]?.targetType
     })
     formatTypePointTransaction(res.data[0]?.type)
-    TableData = res.data[0]?.Customers
-    radio.value = res.data[0]?.type
+    TableData.value = res.data[0]?.customers
+    pushTable()
+    radio.value = res.data[0]?.type - 1
     tableTypePoint[radio.value].point = res.data[0]?.point
     tableTypePoint[radio.value].price = res.data[0]?.price
     res.data[0]?.image ? (imageUrl.value = API_URL.concat(res.data[0]?.image)) : ''
@@ -300,6 +310,11 @@ const callApiCustomerList = async () => {
     name: customer.name,
     id: customer.id
   }))
+
+  const { setValues } = methods
+  setValues({
+    code: code
+  })
 }
 
 const scrollBottom = ref(false)
@@ -357,24 +372,32 @@ const rules = reactive({
   targetType: [required()]
 })
 const removeLastRow = (index) => {
-  if (TableData.length < 2) {
+  if (TableData.value.length < 2) {
     return
   }
-  TableData.splice(index, 1)
+  TableData.value.splice(index, 1)
 }
 const customFormPost = (form) => {
   form.startDate = form?.duration[0]
-  form.endDate = form?.duration[1]
+  form.endDate = moment(form?.duration[1])
+    .add(23, 'hours')
+    .add(59, 'minutes')
+    .add(59, 'seconds')
+    .format('YYYY-MM-DD HH:mm:ss')
   form.Image = rawUploadFile.value?.raw
-  delete form.duration
+  form.CustomerIds = TableData.value.map((row) => row.id).toString()
   return form
 }
 const customFormUpdate = (form) => {
   form.startDate = form?.duration[0]
-  form.endDate = form?.duration[1]
+  form.endDate = moment(form?.duration[1])
+    .add(23, 'hours')
+    .add(59, 'minutes')
+    .add(59, 'seconds')
+    .format('YYYY-MM-DD HH:mm:ss')
   form.Image = rawUploadFile.value?.raw
-  form.Id = id
-  delete form.duration
+  form.Id = id.value
+  form.CustomerIds = TableData.value.map((row) => row.id).toString()
   return form
 }
 const { push } = useRouter()
@@ -388,7 +411,7 @@ const createSettingPoint = async () => {
   })
   const { getFormData } = methods
   let form = await getFormData()
-  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+  if (form?.targetType == 2 && (TableData.value.length < 1 || TableData.value[0]?.id == null)) {
     ElMessage({
       message: t('reuse.tableCustomerNotFillInformation'),
       type: 'warning'
@@ -396,6 +419,7 @@ const createSettingPoint = async () => {
     formValid = false
   }
   if (formValid) {
+    removeTable()
     form = customFormPost(form)
     await createPointExchange(FORM_IMAGES(form))
       .then(() => {
@@ -407,13 +431,23 @@ const createSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
+          title: t('reuse.addFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   }
+}
+const removeTable = () => {
+  let removeId: number[] = []
+  TableData.value.forEach((row, index) => {
+    if (row.id == null) {
+      removeId.push(index)
+    }
+  })
+  removeId.reverse().forEach((x) => removeLastRow(x))
 }
 const updateSettingPoint = async () => {
   let formValid = false
@@ -425,7 +459,7 @@ const updateSettingPoint = async () => {
   })
   const { getFormData } = methods
   let form = await getFormData()
-  if (form?.targetType == 2 && (TableData.length < 1 || TableData[0]?.id == null)) {
+  if (form?.targetType == 2 && (TableData.value.length < 1 || TableData.value[0]?.id == null)) {
     ElMessage({
       message: t('reuse.tableCustomerNotFillInformation'),
       type: 'warning'
@@ -433,6 +467,7 @@ const updateSettingPoint = async () => {
     formValid = false
   }
   if (formValid) {
+    removeTable()
     form = customFormUpdate(form)
     await updatePointExchange(FORM_IMAGES(form))
       .then(() => {
@@ -444,10 +479,11 @@ const updateSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.updateFail'),
-          type: 'warning'
+          title: t('reuse.updateFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   }
@@ -459,7 +495,7 @@ const cancelSettingPoint = async () => {
     confirmButtonClass: '!bg-red-500',
     cancelButtonText: t('reuse.exit')
   }).then(async () => {
-    await deletePointExchange({ Id: id })
+    await deletePointExchange({ Id: id.value })
       .then(() => {
         ElNotification({
           message: t('reuse.deleteSuccess'),
@@ -469,10 +505,11 @@ const cancelSettingPoint = async () => {
             name: `business.accumulate-points.settings-points`
           })
       })
-      .catch(() =>
+      .catch((error) =>
         ElNotification({
-          message: t('reuse.deleteFail'),
-          type: 'warning'
+          title: t('reuse.deleteFail'),
+          message: error.response.data.message,
+          type: 'error'
         })
       )
   })
@@ -616,13 +653,7 @@ const enableEverything = () => {
 <template>
   <div class="flex w-[100%] gap-6 bg-white">
     <div class="w-[60%]">
-      <Form
-        :schema="schema"
-        size="large"
-        class="flex border-1 border-[var(--el-border-color)] border-none rounded-3xl box-shadow-blue text-base pt-4 w-full"
-        @register="register"
-        :rules="rules"
-      >
+      <Form :schema="schema" @register="register" :rules="rules">
         <template #code="formData">
           <span>{{ formData.code }}</span>
         </template>
@@ -630,7 +661,7 @@ const enableEverything = () => {
           <span>{{ formData.point }} {{ t('reuse.points') }}</span>
         </template>
         <template #price="formData">
-          <span>{{ formData.price }} đ</span>
+          <span>{{ moneyFormat(formData.price) }}</span>
         </template>
         <template #type>
           <div class="flex items-center w-[100%] gap-4">
@@ -638,8 +669,8 @@ const enableEverything = () => {
               <el-input v-model="typePointTransaction" disabled />
               <el-button
                 @click="typeDialog = true"
-                :disabled="type !== 'add'"
                 :icon="plusIcon"
+                :disabled="disabled"
                 style="padding: 8px 34px"
                 >{{ t('formDemo.change') }}</el-button
               >
@@ -647,7 +678,7 @@ const enableEverything = () => {
           </div>
         </template>
         <template #targetType="formData">
-          <el-radio-group v-model="formData.targetType" class="ml-4">
+          <el-radio-group v-model="formData.targetType" class="ml-4" :disabled="disabled">
             <el-radio :label="3" size="large">
               <div class="text-[#303133] font-normal dark:text-white">{{
                 t('reuse.allCustomer')
@@ -670,7 +701,7 @@ const enableEverything = () => {
             ]"
             style="width: 100%"
           >
-            <el-table-column :label="`${t('reuse.customerCode')}`" :min-width="1" prop="code">
+            <el-table-column :label="`${t('reuse.customerCode')}`" :min-width="2" prop="code">
               <template #default="scope">
                 <SelectTable
                   v-model="scope.row.id"
@@ -692,7 +723,7 @@ const enableEverything = () => {
               </template>
             </el-table-column>
             <el-table-column prop="name" :label="t('formDemo.customerName')" :min-width="4" />
-            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" :min-width="1">
+            <el-table-column :label="`${t('formDemo.manipulation')}`" align="center" :min-width="2">
               <template #default="scope">
                 <el-button
                   @click="removeLastRow(scope.$index)"
@@ -706,7 +737,6 @@ const enableEverything = () => {
         </template>
       </Form>
       <el-divider content-position="left">{{ t('formDemo.status') }}</el-divider>
-      {{ formDetail }}
       <div class="flex gap-4 items-center pt-4 pb-6">
         <label class="w-[16%] text-right">{{ t('formDemo.status') }}</label>
         <div>
@@ -748,7 +778,7 @@ const enableEverything = () => {
           </div>
           <!-- Chạy hết hoạt động -->
           <div v-if="!formDetail?.isDelete && formDetail?.endDate < moment().format()">
-            <p class="status darkGray day-updated text-black">{{ t('common.doneLabel') }}</p>
+            <p class="status darkGray darkGray-updated text-black">{{ t('common.doneLabel') }}</p>
             <p class="date text-gray-300">
               {{ dateTimeFormat(formDetail?.endDate) }}
             </p>
@@ -773,9 +803,13 @@ const enableEverything = () => {
           v-if="type == 'edit' && formDetail?.endDate > moment().format() && !formDetail?.isDelete"
           >{{ t('reuse.cancelPackage') }}</el-button
         >
-        <el-button v-if="type == 'detail'" @click="changeTypeToEdit">{{
-          t('formDemo.edit')
-        }}</el-button>
+        <el-button
+          v-if="
+            type == 'detail' && formDetail?.endDate > moment().format() && !formDetail?.isDelete
+          "
+          @click="changeTypeToEdit"
+          >{{ t('formDemo.edit') }}</el-button
+        >
       </div>
     </div>
     <div class="w-[40%]">
@@ -819,20 +853,20 @@ const enableEverything = () => {
   >
     <el-divider />
     <el-table :data="tableTypePoint" border style="width: 100%">
-      <el-table-column prop="radioComboTable" width="90" align="center">
+      <el-table-column prop="radioComboTable" width="50" align="center">
         <template #default="scope">
           <el-radio v-model="radio" :label="scope.$index" size="large" :disabled="disabled"
             ><span></span
           ></el-radio>
         </template>
       </el-table-column>
-      <el-table-column :label="t('reuse.condition')" :formatter="formatterType" width="400" />
-      <el-table-column :label="t('reuse.pointsNumber')">
+      <el-table-column :label="t('reuse.condition')" :formatter="formatterType" :min-width="4" />
+      <el-table-column :label="t('reuse.pointsNumber')" :min-width="2">
         <template #default="scope">
           <el-input-number v-model="scope.row.point" controls-position="right" :min="0" />
         </template>
       </el-table-column>
-      <el-table-column :label="t('reuse.exchangedMoney')">
+      <el-table-column :label="t('reuse.exchangedMoney')" :min-width="2">
         <template #default="scope">
           <CurrencyInputComponent v-model="scope.row.price" />
         </template>
@@ -913,8 +947,36 @@ const enableEverything = () => {
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
 }
+.darkGray-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+.darkGray-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid #a0a0a0;
+}
+.darkGray-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
 .avatar {
-  height: 100%;
+  width: 178px;
+  height: 178px;
 }
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
@@ -937,5 +999,8 @@ const enableEverything = () => {
 }
 :deep(.el-row) {
   width: 100%;
+}
+:deep(.el-form-item) {
+  margin-left: 7% !important;
 }
 </style>

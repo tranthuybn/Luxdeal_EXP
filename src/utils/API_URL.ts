@@ -29,7 +29,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
   CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
   GET_TAGS: '/api/v1/Product/GetTag',
-  GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
+  GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
   POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
@@ -79,6 +79,7 @@ export const ORDER_API = {
   UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
   CANCEL_ORDER: '/api/v1/Order/CancelOrder',
+  FINISH_ORDER: '/api/v1/Order/FinishOrder',
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',

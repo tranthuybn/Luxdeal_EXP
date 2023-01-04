@@ -3,7 +3,6 @@ import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   deleteDepartment,
-  getBranchList,
   getDepartmentList,
   getRankList,
   getTypePersonnelList
@@ -289,17 +288,6 @@ const { push } = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const tab = String(router.currentRoute.value.params.tab)
-const action = (row: any, type: string) => {
-  push({
-    name: `human-resource-management.department-directory.${utility}`,
-    params: {
-      backRoute: 'human-resource-management.department-directory',
-      tab: 'branch',
-      id: row.id,
-      type: type
-    }
-  })
-}
 // department
 const actionDepartment = (row: any, type: string) => {
   console.log(row, type)

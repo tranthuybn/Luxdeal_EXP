@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { apiType } from './Type'
 import { useRoute } from 'vue-router'
 
 // Add operation column for table

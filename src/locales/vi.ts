@@ -1800,6 +1800,12 @@ export default {
     runningPointAccumulationPackage: 'Đang chạy gói tích điểm',
     cancelPointPackage: 'Hủy gói tích điểm',
     doYouWantToCancelPointPackage: 'Bạn muốn hủy gói tích điểm ?',
-    historyPointTransaction: 'Lịch sử giao dịch điểm'
+    historyPointTransaction: 'Lịch sử giao dịch điểm',
+    setRole: 'Phân quyền',
+    roleStatus: 'Trạng thái quyền',
+    decentralization: 'Thông tin phân quyền tài khoản',
+    roleName: 'Tên phân quyền',
+    addNewRole: 'Thêm mới phân quyền tài khoản',
+    choosePermission: 'Chọn quyền'
   }
 }

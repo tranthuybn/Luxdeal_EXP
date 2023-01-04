@@ -1520,7 +1520,9 @@ const testList: string[] = [
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`
+  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`,
+  '/human-resource-management/set-role',
+  `/human-resource-management/set-role-utility/:type?/:id?`
 ]
 
 export default [

@@ -1674,6 +1674,12 @@ export default {
     runningPointAccumulationPackage: 'Running point accumulation package',
     cancelPointPackage: 'Cancel point package',
     doYouWantToCancelPointPackage: 'Do you want to cancel point package?',
-    historyPointTransaction: 'History point transaction'
+    historyPointTransaction: 'History point transaction',
+    setRole: 'set role',
+    roleStatus: 'role status',
+    decentralization: 'decentralization',
+    roleName: 'Role Name',
+    addNewRole: 'Add new role',
+    choosePermission: 'choose permission'
   }
 }

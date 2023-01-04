@@ -479,7 +479,6 @@ const postData = async (typebtn) => {
       userName: ruleForm.userName,
       phoneNumber: ruleForm.phonenumber
     }
-    console.log(payloadAcc)
 
     await addNewAuthRegister(JSON.stringify(payloadAcc))
       .then(() => {

@@ -55,8 +55,7 @@ const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, notSpecialCharacters, required, removeVietnameseTones } =
-  useValidator()
+const { ValidService, notSpace, removeVietnameseTones } = useValidator()
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()

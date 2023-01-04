@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
+import { dateTimeFormat } from '@/utils/format'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -16,22 +17,32 @@ import {
   ElOption,
   ElSelect,
   ElUpload,
-  ElDialog,
   ElMessage,
-  UploadFile,
   UploadProps,
-  UploadUserFile
+  ElCheckbox,
+  ElRow,
+  ElCol,
+  ElMessageBox
 } from 'element-plus'
 import moment from 'moment'
 import { useI18n } from 'vue-i18n'
+import { useForm } from '@/hooks/web/useForm'
+import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { useRouter } from 'vue-router'
+import {
+  getBranchList,
+  getDepartmentList,
+  getTypePersonnelList
+} from '@/api/HumanResourceManagement'
+import { useValidator } from '@/hooks/web/useValidator'
 const { t } = useI18n()
 
 //random mã
 const curDate = 'DXDI' + moment().format('hhmmss')
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+const escape = useIcon({ icon: 'quill:escape' })
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -69,18 +80,24 @@ const collapseChangeEvent = (val) => {
 
 const activeName = ref(collapse[0].name)
 
-// const router = useRouter()
-// const id = Number(router.currentRoute.value.params.id)
-// const type = String(router.currentRoute.value.params.type)
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 const ruleFormRef = ref<FormInstance>()
+const ruleFormRef2 = ref<FormInstance>()
+const { ValidService, notSpace, removeVietnameseTones } = useValidator()
+
 const ruleForm = reactive({
   staffCode: curDate,
   phoneNumber: '',
-  name: 'Hello',
-  region: '',
+  name: '',
+  accountName: '',
+  bankName: '',
+  customerCode: '',
+  accountNumber: '',
   doB: '',
   sex: true,
-  count: '',
+  branch: '',
   link: '',
   cccd: '',
   cccdCreateAt: '',
@@ -89,19 +106,45 @@ const ruleForm = reactive({
   delivery: false,
   type: [],
   resource: '',
-  desc: ''
+  department: '',
+  jobPosition: '',
+  typeOfEmployee: '',
+  userName: '',
+  decentralization: '',
+  confirmPassword: '',
+  ProvinceId: '',
+  DistrictId: '',
+  WardId: '',
+  Address: '',
+  password: '',
+  isActive: true
 })
 
 const rules = reactive<FormRules>({
   name: [
     { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+    { min: 3, max: 30, message: 'Length should be 3 to 5', trigger: 'blur' }
   ],
-  region: [
+  userName: [
+    { required: true, message: t('common.required'), trigger: 'blur' },
+    { validator: notSpace }
+  ],
+  password: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  confirmPassword: [
     {
       required: true,
-      message: 'Please select Activity zone',
-      trigger: 'change'
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value !== ruleForm.password) {
+          callback(new Error(t('reuse.confirmPasswordError')))
+        }
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
     }
   ],
   count: [
@@ -156,6 +199,126 @@ const options = [
   }
 ]
 
+const bankList = [
+  {
+    value: 499,
+    label: 'Ngân hàng đầu tư và phát triển Việt Nam'
+  },
+  {
+    value: 500,
+    label: 'Ngân hàng công thương Việt Nam'
+  },
+  {
+    value: 501,
+    label: 'Ngân hàng quốc tế'
+  }
+]
+
+const alwayShowAdd = ref(false)
+watch(
+  () => type,
+  () => {
+    if (type === 'add') {
+      alwayShowAdd.value = true
+    }
+    if (type === 'detail' || type === 'edit') {
+      alwayShowAdd.value = false
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+const { register } = useForm()
+let disableData = ref(false)
+
+const listBranchs = ref()
+const CallApiBranch = async () => {
+  const res = await getBranchList()
+  if (res) {
+    listBranchs.value = res.data.map((branchs) => ({ label: branchs.name, value: branchs.id }))
+    return listBranchs.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
+
+const listDepartments = ref()
+const CallApiDepartment = async () => {
+  const res = await getDepartmentList()
+  if (res) {
+    listDepartments.value = res.data.map((department) => ({
+      label: department.name,
+      value: department.id
+    }))
+    return listDepartments.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
+
+// const listViTris = ref()
+// const CallApiViTri = async () => {
+//   const res = await getBranchList()
+//   if (res) {
+//     listViTris.value = res.data.map((vitri) => ({ label: vitri.name, value: vitri.id }))
+//     return listViTris.value
+//   } else {
+//     ElMessage({
+//       message: t('reuse.cantGetData'),
+//       type: 'error'
+//     })
+//     return
+//   }
+// }
+
+const listTypeOfStaff = ref()
+const CallApiStaff = async () => {
+  const res = await getTypePersonnelList()
+  if (res) {
+    listTypeOfStaff.value = res.data.map((staff) => ({ label: staff.name, value: staff.id }))
+    return listTypeOfStaff.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
+
+const cities = ref()
+const district = ref()
+const ward = ref()
+const valueCommune = ref('')
+const valueProvince = ref('')
+const valueDistrict = ref('')
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
+
+const CityChange = async (value) => {
+  ruleForm.ProvinceId = value
+  district.value = await getDistrict(value)
+}
+
+const districtChange = async (value) => {
+  ruleForm.DistrictId = value
+  ward.value = await getWard(value)
+}
+const wardChange = async (value) => {
+  ruleForm.WardId = value
+}
+
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
@@ -166,14 +329,29 @@ const formatDate = () => {
 
 const size = ref<'' | 'large' | 'small'>('')
 
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
+const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+  if (!formEl || !formEl2) return
+  await formEl.validate((valid, _fields) => {
     if (valid) {
-      console.log('submit!')
+      checkValidateForm.value = true
     } else {
-      console.log('error submit!', fields)
+      checkValidateForm.value = false
     }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      checkValidate.value = true
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
+    }
+  })
+}
+
+const cancel = async () => {
+  push({
+    name: 'business.customer-management.customerList',
+    params: { backRoute: 'business.customer-management.customerList' }
   })
 }
 
@@ -181,71 +359,31 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
 }
-const dialogVisible = ref(false)
-const disabled = ref(false)
-const dialogImageUrl = ref('')
+const disabledForm = ref(false)
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
+let FileDeleteIds: any = []
 
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
+const beforeRemove = (uploadFile) => {
+  return ElMessageBox.confirm(`Bạn muốn xóa ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Đã xóa'
       })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Hủy xóa'
+      })
+    })
 }
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
@@ -255,18 +393,58 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
     )}${files.length + uploadFiles.length}`
   )
 }
-const handleRemove = (file: UploadFile) => {
-  return file
-}
+
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
-  })
-  Files = ListFileUpload.value.map((el) => el?.raw)
 }
-const fileList = ref<UploadUserFile[]>([])
+const centerDialogCancelAccount = ref(false)
+
+const { push } = useRouter()
+const editPage = async () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: { id: id, type: 'edit' }
+  })
+}
+
+let checkValidate = ref(false)
+let checkValidateForm = ref(false)
+
+const postData = async (typebtn) => {
+  console.log('typebtn: ', typebtn)
+  await submitForm(ruleFormRef.value, ruleFormRef2.value)
+  if (checkValidate.value) {
+    const payloadAcc = {
+      fullName: ruleForm.name,
+      email: ruleForm.email,
+      password: ruleForm.password,
+      confirmPassword: ruleForm.password,
+      userName: ruleForm.userName,
+      phoneNumber: ruleForm.phoneNumber
+    }
+    console.log(payloadAcc)
+
+    // await addNewAuthRegister(JSON.stringify(payloadAcc))
+    //   .then(() => {
+    //     // postCustomer(typebtn)
+    //     console.log('tyaya')
+    //   })
+    //   .catch((res) =>
+    //     ElNotification({
+    //       message: res.response.data.message,
+    //       type: 'success'
+    //     })
+    //   )
+  }
+}
+
+onBeforeMount(() => {
+  callApiCity()
+  CallApiBranch()
+  CallApiDepartment()
+  CallApiStaff()
+})
 </script>
 
 <template>
@@ -274,8 +452,16 @@ const fileList = ref<UploadUserFile[]>([])
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-[100%] justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="cancel()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <div class="contai-full-w">
           <div class="flex gap-8">
@@ -290,11 +476,14 @@ const fileList = ref<UploadUserFile[]>([])
                 status-icon
               >
                 <el-form-item label="Mã nhân viên" prop="staffCode">
-                  <el-input v-model="ruleForm.staffCode" />
+                  <!-- <el-input v-model="ruleForm.staffCode" /> -->
+                  <span class="pl-2">
+                    {{ ruleForm.staffCode }}
+                  </span>
                 </el-form-item>
 
-                <el-form-item label="Tên nhân viên" prop="name" placeholder="Họ và tên">
-                  <el-input v-model="ruleForm.name" />
+                <el-form-item label="Tên nhân viên" prop="name">
+                  <el-input v-model="ruleForm.name" placeholder="Họ và tên" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
@@ -305,15 +494,15 @@ const fileList = ref<UploadUserFile[]>([])
                   />
                 </el-form-item>
 
-                <el-form-item label="Email" prop="email" placeholder="Nhập email">
-                  <el-input v-model="ruleForm.email" />
+                <el-form-item label="Email" prop="email">
+                  <el-input v-model="ruleForm.email" placeholder="Nhập email" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.cmnd')" prop="cccd">
                   <div class="flex gap-2 w-[100%] cccd">
                     <el-input
                       v-model="ruleForm.cccd"
-                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
+                      class="w-[25%] outline-none dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterCCCD')"
                     />
@@ -327,12 +516,12 @@ const fileList = ref<UploadUserFile[]>([])
                       :editable="false"
                       format="DD/MM/YYYY"
                       value-format="YYYY-MM-DD"
-                      class="w-[25%] min-w-[203px] cccd-createAt outline-none pl-2 dark:bg-transparent"
+                      class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
                     />
                     <el-input
                       prop="cccdPlaceOfGrant"
                       v-model="ruleForm.cccdPlaceOfGrant"
-                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
+                      class="w-[25%] outline-none dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.supplyAddress')"
                     />
@@ -344,7 +533,7 @@ const fileList = ref<UploadUserFile[]>([])
                   :label="t('reuse.dateOfBirthAnGender')"
                 >
                   <div class="flex gap-2 w-[100%]">
-                    <div class="flex-1 pl-2 fix-width">
+                    <div class="flex-1 fix-width">
                       <el-date-picker
                         prop="doB"
                         v-model="ruleForm.doB"
@@ -375,7 +564,7 @@ const fileList = ref<UploadUserFile[]>([])
                   <el-input
                     prop="link"
                     v-model="ruleForm.link"
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    class="w-[80%] outline-none dark:bg-transparent"
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                     :formatter="(value) => value.replace(/^\s+$/gm, '')"
@@ -383,13 +572,202 @@ const fileList = ref<UploadUserFile[]>([])
                 </el-form-item>
 
                 <el-divider content-position="left">Vị trí việc làm</el-divider>
-                //btn save
-                <el-form-item>
-                  <el-button type="primary" @click="submitForm(ruleFormRef)"> Create </el-button>
-                  <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+
+                <el-form-item
+                  class="flex items-center w-[100%] mt-5 custom-select-w38"
+                  label="Chi nhánh/phòng ban"
+                >
+                  <div class="flex gap-2 w-[100%]">
+                    <div class="flex-1 fix-width">
+                      <el-select
+                        v-model="valueProvince"
+                        clearable
+                        placeholder="Chọn chi nhánh"
+                        @change="(data) => CityChange(data)"
+                      >
+                        <el-option
+                          v-for="item in listBranchs"
+                          :key="item.label"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
+                    <div class="flex-1">
+                      <el-select
+                        v-model="ruleForm.department"
+                        clearable
+                        placeholder="Chọn phòng ban"
+                      >
+                        <el-option
+                          v-for="item in listDepartments"
+                          :key="item.label"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
+                  </div>
                 </el-form-item>
+
+                <el-form-item
+                  class="flex items-center w-[100%] mt-5 custom-select-w38"
+                  label="Vị trí/loại hình"
+                >
+                  <div class="flex gap-2 w-[100%]">
+                    <div class="flex-1 fix-width">
+                      <el-select
+                        v-model="ruleForm.jobPosition"
+                        clearable
+                        placeholder="Chọn vị trí làm việc"
+                      >
+                        <el-option
+                          v-for="item in options"
+                          :key="item.label"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
+                    <div class="flex-1">
+                      <el-select
+                        v-model="ruleForm.typeOfEmployee"
+                        clearable
+                        placeholder="Chọn loại hình nhân viên"
+                      >
+                        <el-option
+                          v-for="item in listTypeOfStaff"
+                          :key="item.label"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </div>
+                  </div>
+                </el-form-item>
+
+                <el-divider content-position="left">Tài khoản & phân quyền</el-divider>
+
+                <el-form-item label="Tên đăng nhập" prop="userName">
+                  <el-input v-model="ruleForm.userName" placeholder="Nhập tên đăng nhập" />
+                </el-form-item>
+
+                <el-form-item label="Phân quyền" prop="decentralization" placeholder="Họ và tên">
+                  <el-select
+                    v-model="ruleForm.typeOfEmployee"
+                    clearable
+                    placeholder="Chọn quyền"
+                    prop="sex"
+                  >
+                    <el-option
+                      v-for="item in options"
+                      :key="item.label"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="Mật khẩu" prop="password">
+                  <el-input v-model="ruleForm.password" placeholder="Nhập mật khẩu" />
+                </el-form-item>
+
+                <el-form-item label="Nhập lại mật khẩu" prop="confirmPassword">
+                  <el-input
+                    v-model="ruleForm.confirmPassword"
+                    placeholder="Xác nhận lại mật khẩu"
+                  />
+                </el-form-item>
+
+                <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
+                  <el-checkbox class="ml-4" :disabled="alwayShowAdd" v-model="ruleForm.isActive">{{
+                    t('formDemo.isActive')
+                  }}</el-checkbox>
+                </ElFormItem>
+                <ElFormItem
+                  class="flex align-items-start w-[100%]"
+                  :label="t('formDemo.statusAccount')"
+                >
+                  <ElRow class="ml-2">
+                    <ElCol>
+                      <span class="day-updated">
+                        {{ t('formDemo.isNewAccount') }}
+                      </span>
+                    </ElCol>
+                    <ElCol
+                      ><label style="font-style: italic; font-size: 13px">
+                        {{ dateTimeFormat(moment()) }}</label
+                      >
+                    </ElCol>
+                  </ElRow>
+                </ElFormItem>
+
+                <div class="option-page mt-5">
+                  <div v-if="type === 'detail'" class="flex justify-center">
+                    <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
+                      t('reuse.fix')
+                    }}</el-button>
+                    <el-button
+                      type="danger"
+                      class="min-w-42 min-h-11"
+                      @click="centerDialogCancelAccount = true"
+                      >{{ t('formDemo.cancelAccount') }}</el-button
+                    >
+                    <el-dialog
+                      v-model="centerDialogCancelAccount"
+                      :title="t('formDemo.cancelAccount')"
+                      width="30%"
+                      align-center
+                      class="font-semibold"
+                    >
+                      <div class="text-red-600">
+                        {{ t('reuse.cancelAccountCheck') }}
+                      </div>
+                      <template #footer>
+                        <span class="dialog-footer">
+                          <el-button
+                            type="danger"
+                            @click="centerDialogCancelAccount = false"
+                            class="min-w-36 min-h-10"
+                            >{{ t('formDemo.cancelAccount') }}</el-button
+                          >
+                          <el-button
+                            @click="centerDialogCancelAccount = false"
+                            class="min-w-36 min-h-10"
+                            >{{ t('reuse.exit') }}</el-button
+                          >
+                        </span>
+                      </template>
+                    </el-dialog>
+                  </div>
+                  <div v-else-if="type === 'edit'" class="flex justify-center">
+                    <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
+                      t('reuse.save')
+                    }}</el-button>
+                    <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
+                      t('reuse.cancel')
+                    }}</el-button>
+                  </div>
+                  <div v-else class="flex justify-center">
+                    <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
+                      t('reuse.save')
+                    }}</el-button>
+                    <el-button
+                      @click="
+                        () => {
+                          postData('saveAndAdd')
+                          resetForm(ruleFormRef)
+                        }
+                      "
+                      type="primary"
+                      class="min-w-42 min-h-11"
+                      >{{ t('reuse.saveAndAdd') }}</el-button
+                    >
+                  </div>
+                </div>
               </el-form>
             </div>
+
             <div class="w-[50%]">
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
                 <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
@@ -397,53 +775,170 @@ const fileList = ref<UploadUserFile[]>([])
               <div class="flex">
                 <div class="pl-5">
                   <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                  <div class="text-right text-[#FECB80] italic">{{
-                    t('formDemo.lessThanTenProfiles')
-                  }}</div>
+                  <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
                 </div>
                 <div class="pl-4">
                   <el-upload
+                    ref="upload"
+                    class="upload-demo"
                     action="#"
-                    list-type="picture-card"
-                    v-model:file-list="fileList"
-                    :multiple="true"
-                    :auto-upload="false"
                     :limit="10"
-                    :on-exceed="handleExceed"
-                    class="relative"
                     :on-change="handleChange"
+                    :before-remove="beforeRemove"
+                    :auto-upload="false"
+                    :on-exceed="handleExceed"
+                    :multiple="true"
+                    v-model:fileList="ListFileUpload"
+                    :disabled="disabledForm"
                   >
-                    <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon" /> -->
-                    <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
-                    <template #file="{ file }">
-                      <div>
-                        <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                        <span class="el-upload-list__item-actions">
-                          <span
-                            class="el-upload-list__item-preview"
-                            @click="handlePictureCardPreview(file)"
-                          >
-                            <ElButton :icon="viewIcon" />
-                          </span>
-                          <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                          <span
-                            v-if="!disabled"
-                            class="el-upload-list__item-delete"
-                            @click="handleRemove(file)"
-                          >
-                            <ElButton :icon="deleteIcon" />
-                          </span>
-                        </span>
-                      </div>
-                    </template>
-                    <el-dialog v-model="dialogVisible" class="absolute">
-                      <div class="text-[#303133] font-medium dark:text-[#fff]"
-                        >+ {{ t('formDemo.addPhotosOrFiles') }}
-                      </div>
-                    </el-dialog>
+                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}
+                    </el-button>
                   </el-upload>
                 </div>
               </div>
+              <ElForm
+                ref="ruleFormRef2"
+                :model="ruleForm"
+                :rules="rules"
+                hide-required-asterisk
+                label-width="170px"
+                @register="register"
+                status-icon
+                :disabled="disableData"
+              >
+                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+                  <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
+
+                  <ElFormItem
+                    class="flex w-[100%] items-center"
+                    :label="t('formDemo.provinceOrCity')"
+                  >
+                    <el-select
+                      v-model="valueProvince"
+                      style="width: 96%"
+                      class="m-2 fix-full-width"
+                      :placeholder="t('reuse.selectProvinceCity')"
+                      @change="(data) => CityChange(data)"
+                    >
+                      <el-option
+                        v-for="item in cities"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </ElFormItem>
+                  <ElFormItem
+                    class="flex w-[100%] items-center"
+                    :label="t('formDemo.countyOrDistrict')"
+                  >
+                    <el-select
+                      v-model="valueDistrict"
+                      style="width: 96%"
+                      class="m-2 fix-full-width"
+                      :placeholder="t('reuse.selectCountyOrDistrict')"
+                      @change="(data) => districtChange(data)"
+                    >
+                      <el-option
+                        v-for="item in district"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </ElFormItem>
+                  <ElFormItem
+                    class="flex w-[100%] items-center"
+                    :label="t('formDemo.wardOrCommune')"
+                  >
+                    <el-select
+                      v-model="valueCommune"
+                      style="width: 96%"
+                      class="m-2 fix-full-width"
+                      :placeholder="t('reuse.selectWardOrCommune')"
+                      @change="(data) => wardChange(data)"
+                    >
+                      <el-option
+                        v-for="item in ward"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </ElFormItem>
+                  <ElFormItem
+                    class="flex w-[100%] items-center"
+                    :label="t('formDemo.detailedAddress')"
+                  >
+                    <el-input
+                      v-model="ruleForm.Address"
+                      style="width: 96%"
+                      class="m-2 fix-full-width"
+                      :placeholder="t('reuse.enterDetailedAddress')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      clearable
+                      filterable
+                      allow-create
+                    />
+                  </ElFormItem>
+                </div>
+                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
+                  <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
+
+                  <ElFormItem
+                    class="flex items-center w-[98%]"
+                    :label="t('userDemo.username')"
+                    prop="accountName"
+                  >
+                    <el-input
+                      v-model="ruleForm.accountName"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.enterAccountName')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                    />
+                  </ElFormItem>
+
+                  <ElFormItem
+                    class="flex items-center w-[98%]"
+                    :label="t('userDemo.accountNumber')"
+                    prop="accountNumber"
+                  >
+                    <el-input
+                      v-model="ruleForm.accountNumber"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('formDemo.enterAccountNumber')"
+                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                    />
+                  </ElFormItem>
+
+                  <ElFormItem
+                    class="flex items-center w-[98%]"
+                    :label="t('reuse.bank')"
+                    prop="bankName"
+                  >
+                    <el-select
+                      v-model="ruleForm.bankName"
+                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                      type="text"
+                      :placeholder="t('reuse.selectBank')"
+                    >
+                      <el-option
+                        v-for="item in bankList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </ElFormItem>
+                </div>
+                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
+                  <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
+                  <Qrcode :text="'Katsuke'" />
+                </div>
+              </ElForm>
             </div>
           </div>
         </div>
@@ -469,6 +964,27 @@ const fileList = ref<UploadUserFile[]>([])
   width: 178px;
   height: 178px;
   text-align: center;
+}
+
+::v-deep(label) {
+  color: #828387;
+}
+
+::v-deep(.d-block > .el-row) {
+  display: block;
+}
+
+::v-deep(.el-form-item) {
+  display: flex;
+  align-items: center;
+}
+
+::v-deep(.el-form-item__content) {
+  display: block;
+}
+
+::v-deep(.el-divider__text) {
+  font-size: 16px;
 }
 
 ::v-deep(.el-select) {
@@ -507,5 +1023,36 @@ const fileList = ref<UploadUserFile[]>([])
 
 ::v-deep(.fix-width > .el-input) {
   width: 100%;
+}
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+  color: var(--el-color-primary);
+  background: rgba(44, 109, 218, 0.05);
+}
+
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid rgba(44, 109, 218, 0.05);
+}
+
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 12px solid white;
 }
 </style>

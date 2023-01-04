@@ -3525,10 +3525,12 @@ onMounted(async () => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'detail' || type == 'edit'">
+              <div v-if="type == 'add'">
+                <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
+              </div>
+              <div v-else>
                 {{ props.row.consignmentSellPrice }}
               </div>
-              <div v-else><CurrencyInputComponent v-model="props.row.consignmentSellPrice" /></div>
             </template>
           </el-table-column>
           <el-table-column
@@ -3538,11 +3540,11 @@ onMounted(async () => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'detail' || type == 'edit'">
-                {{ props.row.consignmentHirePrice }}
+              <div v-if="type == 'add'">
+                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
-                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
+                {{ props.row.consignmentHirePrice }}
               </div>
             </template>
           </el-table-column>

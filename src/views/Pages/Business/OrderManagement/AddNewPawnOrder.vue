@@ -2285,7 +2285,7 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div v-if="type == 'edit' || type == 'add'" class="w-30">
+          <div v-if="type == 'add'" class="w-30">
             <CurrencyInputComponent v-model="priceintoMoneyPawnGOC" />
           </div>
           <div v-else class="w-30"> {{ priceintoMoneyPawnGOC }} </div>
@@ -2304,7 +2304,7 @@ const removeRow = (index) => {
             >
           </div>
 
-          <div v-if="type == 'edit' || type == 'add'" class="w-30">
+          <div v-if="type == 'add'" class="w-30">
             <CurrencyInputComponent v-model="priceintoMoneyByday" />
           </div>
           <div v-else class="w-30"> {{ priceintoMoneyByday }} </div>

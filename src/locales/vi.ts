@@ -123,6 +123,8 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    validatePercentNum: 'Chiết khấu không được bé hơn 0 và lớn hơn 100',
+    validatePercent: 'Chiết khấu phải là số, không được nhập kí tự khác ngoài số',
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
     pleaseSelectRentalPaymentPeriod: 'Vui lòng chọn kỳ thanh toán phí thuê',
     pleaseSelectARentalTerm: 'Vui lòng chọn kỳ hạn thuê',

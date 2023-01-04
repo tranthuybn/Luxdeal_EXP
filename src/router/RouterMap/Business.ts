@@ -71,7 +71,7 @@ export default {
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: t('router.createANewOrder'),
+            title: t('reuse.order'),
             noCache: true,
             showMainRoute: true
           }

@@ -15,11 +15,6 @@ interface Params2 {
   pagesize?: number
 }
 
-// export const getBranchList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get({ url: '/Branch/List', params })
-//   return res && res.data
-// }
-
 export const getBranchList = async (_params?: Params2): Promise<IResponse> => {
   const res = await request.get(
     {

@@ -3,7 +3,6 @@ import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   deleteDepartment,
-  getBranchList,
   getDepartmentList,
   getRankList,
   getTypePersonnelList
@@ -142,34 +141,34 @@ const columnsRank = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'managementCode',
+    field: 'code',
     label: t('reuse.managementCode'),
     minWidth: '250',
     sortable: true
   },
   {
-    field: 'RankName',
+    field: 'name',
     label: t('reuse.DepartmentName'),
     minWidth: '200',
     sortable: true
   },
   {
-    field: 'numberPersonnel',
+    field: 'numbers',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },
   {
-    field: 'createDate',
+    field: 'createAt',
     label: t('reuse.createDate'),
     minWidth: '200'
   },
   {
-    field: 'creator',
+    field: 'createBy',
     label: t('reuse.creator'),
     minWidth: '200'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment
@@ -183,34 +182,34 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'managementCode',
+    field: 'code',
     label: t('reuse.managementCode'),
     minWidth: '250',
     sortable: true
   },
   {
-    field: 'TypePersonnelName',
+    field: 'name',
     label: t('reuse.DepartmentName'),
     minWidth: '200',
     sortable: true
   },
   {
-    field: 'numberPersonnel',
+    field: 'numbers',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },
   {
-    field: 'createDate',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200'
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '200'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment
@@ -226,7 +225,7 @@ const collapse: Array<Collapse> = [
     name: 'branch',
     title: 'Chi nhánh',
     columns: columnsBranch,
-    api: getDepartmentList,
+    api: getBranchList,
     typeForm: 'table',
     pagination: false,
     selection: false,
@@ -289,20 +288,8 @@ const { push } = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const tab = String(router.currentRoute.value.params.tab)
-const action = (row: any, type: string) => {
-  push({
-    name: `human-resource-management.department-directory.${utility}`,
-    params: {
-      backRoute: 'human-resource-management.department-directory',
-      tab: 'branch',
-      id: row.id,
-      type: type
-    }
-  })
-}
 // department
 const actionDepartment = (row: any, type: string) => {
-  console.log(row, type)
   push({
     name: `human-resource-management.department-directory.${utility}`,
     params: {

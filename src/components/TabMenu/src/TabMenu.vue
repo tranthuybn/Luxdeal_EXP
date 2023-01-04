@@ -97,8 +97,11 @@ export default defineComponent({
 
     // Set highlight
     const isActice = (currentPath: string) => {
-      const { path } = unref(currentRoute)
-      if (tabPathMap[currentPath].includes(path)) {
+      const { path, meta } = unref(currentRoute)
+      if (
+        tabPathMap[currentPath].includes(path) ||
+        tabPathMap[currentPath].includes(meta?.activeMenu as string)
+      ) {
         return true
       }
       return false

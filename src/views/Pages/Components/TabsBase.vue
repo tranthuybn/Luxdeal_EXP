@@ -5,13 +5,7 @@ import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableBase, TableExtension } from './TableBase/index'
 import { Tab } from './Type'
-import {
-  dynamicApi,
-  dynamicColumns,
-  addOperatorColumn,
-  getTotalRecord,
-  getSelectedRecord
-} from './TablesReusabilityFunction'
+import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'

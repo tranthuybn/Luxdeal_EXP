@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { getProductsApproval } from '@/api/Approval'
 import { h } from 'vue'
 import TableType01 from '../../Components/TableDataBase.vue'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -19,7 +19,7 @@ const columnsApprovalProduct = [
     align: 'center'
   },
   {
-    field: 'productCode',
+    field: 'categoryName',
     label: t('reuse.productCode') + '/' + t('reuse.service'),
     minWidth: '150'
   },
@@ -110,7 +110,7 @@ const utility = 'Utility'
   >
     <TableType01
       :columns="columnsApprovalProduct"
-      :api="getBusinessProductLibrary"
+      :api="getProductsApproval"
       isOperatorColumnCustomize
       :selection="false"
       :removeHeaderFilter="true"

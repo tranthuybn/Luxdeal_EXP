@@ -248,6 +248,10 @@ const CallApiBranch = async () => {
   }
 }
 
+const branchChange = (data) => {
+  console.log('data:', data)
+}
+
 const listDepartments = ref()
 const CallApiDepartment = async () => {
   const res = await getDepartmentList()
@@ -295,7 +299,7 @@ const CallApiStaff = async () => {
     return
   }
 }
-
+const valueBranch = ref()
 const cities = ref()
 const district = ref()
 const ward = ref()
@@ -309,6 +313,9 @@ const callApiCity = async () => {
 const CityChange = async (value) => {
   ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
+  valueCommune.value = ''
+  valueDistrict.value = ''
+  ruleForm.Address = ''
 }
 
 const districtChange = async (value) => {
@@ -580,10 +587,10 @@ onBeforeMount(() => {
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
                       <el-select
-                        v-model="valueProvince"
+                        v-model="valueBranch"
                         clearable
                         placeholder="Chọn chi nhánh"
-                        @change="(data) => CityChange(data)"
+                        @change="(data) => branchChange(data)"
                       >
                         <el-option
                           v-for="item in listBranchs"

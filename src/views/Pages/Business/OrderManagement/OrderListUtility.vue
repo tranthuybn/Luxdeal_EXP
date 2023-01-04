@@ -111,6 +111,7 @@ const ruleForm = reactive({
   discount: '',
   orderNotes: '',
   customerName: '',
+  warehouse: '',
   delivery: '',
   orderFiles: []
 })
@@ -133,6 +134,13 @@ const rules = reactive<FormRules>({
   orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
   ],
   delivery: [
     {
@@ -324,6 +332,21 @@ const chooseDelivery = [
   }
 ]
 
+const chooseWarehouse = [
+  {
+    value: 0,
+    label: 'HN'
+  },
+  {
+    value: 1,
+    label: 'HCM'
+  },
+  {
+    value: 2,
+    label: 'Kho tổng'
+  }
+]
+
 const radio1 = ref('')
 
 const input = ref('')
@@ -476,7 +499,7 @@ const callCustomersApi = async () => {
         : customer.name + ' | ' + customer.phonenumber,
       address: customer.address,
       name: customer.name,
-      value: customer.id.toString(),
+      value: customer.id,
       isOrganization: customer.isOrganization,
       taxCode: customer.taxCode,
       phone: customer.phonenumber,
@@ -1173,6 +1196,7 @@ const editData = async () => {
 }
 
 // Call api chi tiết bút toán theo id
+let tableSalesSlip = ref()
 let formAccountingId = ref()
 const getAccountingEntry = (_index, scope) => {
   const data = scope.row
@@ -1272,10 +1296,10 @@ const detailedListExpenses = ref([
   {
     numberVouchers: '',
     dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
     note: ''
   }
 ])
@@ -1284,10 +1308,10 @@ const addRowDetailedListExpoenses = () => {
   detailedListExpenses.value.push({
     numberVouchers: '',
     dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
     note: ''
   })
 }
@@ -1298,9 +1322,9 @@ watch(
     if (
       detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers &&
       detailedListExpenses.value[detailedListExpenses.value.length - 1].dayVouchers &&
-      detailedListExpenses.value[detailedListExpenses.value.length - 1].spendFor &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].spentFor &&
       detailedListExpenses.value[detailedListExpenses.value.length - 1].quantity &&
-      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrices &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrice &&
       detailedListExpenses.value[detailedListExpenses.value.length - 1].note
     )
       addRowDetailedListExpoenses()
@@ -1567,7 +1591,6 @@ const optionsKindOfMoney = [
 // dialog print
 const nameDialog = ref('')
 // const testDialog = ref(false)
-let tableSalesSlip = ref()
 
 function openBillDialog() {
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
@@ -1583,12 +1606,14 @@ function openDepositDialog() {
 
 function openReceiptDialog() {
   getReceiptCode()
+  clearData()
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
 }
 
 function openPaymentDialog() {
   getcodeExpenditures()
+  clearData()
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
 }
@@ -1740,7 +1765,7 @@ const postPT = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1762,7 +1787,7 @@ const postPC = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -1812,37 +1837,86 @@ const getDetailPayment = async (_index, scope) => {
 
 // Lấy chi tiết phiếu đề nghị thanh toán
 const getDetailPaymentRequest = async (_index, scope) => {
-  formDetailPaymentReceipt.value = await GetPaymentRequestDetail({
+  const res = await GetPaymentRequestDetail({
     id: scope.row.paymentRequestId
   })
-  codePaymentRequest.value = formDetailPaymentReceipt.value.data.paymentRequest?.code
-  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data.paymentRequest?.description
-  moneyReceipts.value = formDetailPaymentReceipt.value.data.paymentRequest?.totalMoney
-  payment.value = formDetailPaymentReceipt.value.data.paymentRequest?.typeOfPayment
-  inputRecharger.value = formDetailPaymentReceipt.value.data.paymentRequest?.peopleId ?? 1
-  dialogIPRForm.value = true
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
+  }
+}
+
+const clearData = () => {
+  totalPayment.value = 0
+  depositePayment.value = 0
+  debtPayment.value = 0
+  inputReasonCollectMoney.value = ''
+  enterMoney.value = ''
+  inputRecharger.value = undefined
+
+  detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
+  addRowDetailedListExpoenses()
 }
 
 // Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
+  if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
+    detailedListExpenses.value.pop()
   const payload = {
     Code: codePaymentRequest.value,
-    TotalMoney: 121325,
-    PaymentType: 0,
-    PeopleId: 2,
+    TotalMoney: moneyReceipts.value,
+    PaymentType: payment.value,
+    PeopleId: inputRecharger.value,
     status: 0,
     PeopleType: 1,
     OrderId: id,
     Description: '',
     Document: undefined,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    ReasonCollectMoney: inputReasonCollectMoney.value,
+    EnterMoney: enterMoney.value,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value),
+    DepositeMoney: depositePayment.value,
+    DebtMoney: debtPayment.value,
+    TotalPrice: totalPayment.value
   }
+
   const formDataPayLoad = FORM_IMAGES(payload)
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
   handleChangePaymentOrder()
+}
+
+// Tổng tiền table phiếu đề nghị thanh toán nếu có
+const totalPayment = ref(0)
+const depositePayment = ref(0)
+const debtPayment = ref(0)
+
+const autoChangeDepositePayment = () => {
+  debtPayment.value = totalPayment.value - depositePayment.value
+}
+
+const autoCalculateMoneyPayment = () => {
+  totalPayment.value = 0
+  detailedListExpenses.value.map((el) => {
+    if (el.unitPrice && el.quantity) {
+      el.totalPrice = el.unitPrice * el.quantity
+      totalPayment.value += el.totalPrice
+    }
+  })
+  autoChangeDepositePayment()
 }
 
 // form phiếu thu
@@ -2814,33 +2888,38 @@ onBeforeMount(async () => {
                   <el-input v-model="props.row.numberVouchers" />
                 </template>
               </el-table-column>
-              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80">
+              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="150">
                 <template #default="props">
                   <el-date-picker
                     v-model="props.row.dayVouchers"
                     type="date"
                     placeholder="Pick a day"
+                    format="DD/MM/YYYY"
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120">
+              <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" width="120">
                 <template #default="props">
-                  <el-input v-model="props.row.spendFor" />
+                  <el-input v-model="props.row.spentFor" />
                 </template>
               </el-table-column>
-              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50">
+              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="100">
                 <template #default="props">
-                  <el-input v-model="props.row.quantity" />
+                  <el-input @change="autoCalculateMoneyPayment" v-model="props.row.quantity" />
                 </template>
               </el-table-column>
-              <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
                 <template #default="props">
-                  <el-input v-model="props.row.unitPrices" />
+                  <CurrencyInputComponent
+                    @change="autoCalculateMoneyPayment"
+                    class="handle-fix"
+                    v-model="props.row.unitPrice"
+                  />
                 </template>
               </el-table-column>
-              <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
                 <template #default="props">
-                  <div class="text-right">{{ props.row.intoMoney }}</div>
+                  <div class="text-right">{{ changeMoney.format(props.row.totalPrice) }}</div>
                 </template>
               </el-table-column>
               <el-table-column prop="note" :label="t('reuse.note')" width="90">
@@ -2856,7 +2935,7 @@ onBeforeMount(async () => {
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{
-                changeMoney.format(moneyReceipts)
+                changeMoney.format(totalPayment)
               }}</p>
             </div>
           </div>
@@ -2864,17 +2943,18 @@ onBeforeMount(async () => {
             class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
           ></span>
           <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-blue-400 mb-2">Đặt cọc <span class="text-red-500">*</span></p>
-              <p class="text-red-600">Còn lại</p>
+            <div class="w-[145px] items-center text-right">
+              <p class="text-blue-400 leading-8">Đặt cọc <span class="text-red-500">*</span></p>
+              <p class="text-red-600 leading-8">Còn lại</p>
             </div>
             <div class="w-[145px] text-right">
-              <input
-                v-model="inputDeposit"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
+              <CurrencyInputComponent
+                v-model="depositePayment"
+                @change="autoChangeDepositePayment"
+                class="text-right outline-none mb-2 handle-fix"
               />
               <p class="pr-2 text-red-600">{{
-                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
+                debtPayment ? changeMoney.format(debtPayment) : '0 đ'
               }}</p>
             </div>
             <div class="w-[90px]"></div>
@@ -2887,7 +2967,7 @@ onBeforeMount(async () => {
         <div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.amountSpent') }}</label>
-            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3948,6 +4028,25 @@ onBeforeMount(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
+                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.selectAWarehouse')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
@@ -4656,7 +4755,7 @@ onBeforeMount(async () => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">Tracking đơn hàng</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
               <el-radio :disabled="checkDisabled" label="1">{{
@@ -4673,7 +4772,7 @@ onBeforeMount(async () => {
           </div>
         </div>
         <div class="flex gap-2 pb-8">
-          <label class="w-[11%] text-right pr-8">Tracking đơn hàng</label>
+          <label class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
               <div
@@ -5019,15 +5118,14 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
-          >+ Thêm bút toán</el-button
-        >
+        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
         <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
         <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
         <el-button
           @click="
             () => {
               newCodePaymentRequest()
+              clearData()
               dialogIPRForm = true
             }
           "
@@ -5049,26 +5147,14 @@ onBeforeMount(async () => {
             align="center"
           >
             <template #default="data">
-              <el-date-picker
-                v-model="data.row.createdAt"
-                v-if="type != 'detail'"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-              <div v-else>{{ data.row.createdAt }}</div>
+              {{ data.row.createdAt }}
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
             :label="t('formDemo.certificateInformation')"
             min-width="240"
-          >
-            <template #default="data">
-              <el-input v-model="data.row.content" v-if="type != 'detail'" style="width: 100%" />
-              <div v-else>{{ data.row.content }}</div>
-            </template>
-          </el-table-column>
+          />
           <el-table-column
             prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
@@ -5125,14 +5211,7 @@ onBeforeMount(async () => {
           </el-table-column>
           <el-table-column prop="deibt" :label="t('formDemo.salesDebt')" min-width="150">
             <template #default="data">
-              <el-input
-                v-model="data.row.deibt"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
-              <div v-else class="text-right">
-                {{ data.row.deibt }}
-              </div>
+              {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
             </template>
           </el-table-column>
           <el-table-column

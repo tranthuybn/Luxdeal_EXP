@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount, unref } from 'vue'
+import { reactive, ref, onBeforeMount, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -57,6 +57,9 @@ import {
   createReturnRequest,
   getReceiptPaymentVoucher,
   getDetailAccountingEntryById,
+  updateOrderTransaction,
+  GetPaymentRequestDetail,
+  getCodePaymentRequest,
   // postAutomaticWarehouse,
   GetProductPropertyInventory
 } from '@/api/Business'
@@ -103,6 +106,7 @@ const ruleForm = reactive({
   discount: 0,
   orderNotes: '',
   customerName: '',
+  warehouse: '',
   delivery: 0
 })
 
@@ -138,6 +142,13 @@ const rules = reactive<FormRules>({
   orderNotes: [{ required: true, message: t('formDemo.pleaseEnterANote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
   ],
   delivery: [
     {
@@ -197,7 +208,6 @@ let statusOrder = ref(1)
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 
 // const codeReturnRequest = ref()
@@ -336,6 +346,21 @@ const chooseDelivery = [
   }
 ]
 
+const chooseWarehouse = [
+  {
+    value: 0,
+    label: 'HN'
+  },
+  {
+    value: 1,
+    label: 'HCM'
+  },
+  {
+    value: 2,
+    label: 'Kho tổng'
+  }
+]
+
 const radio1 = ref('')
 const percentageIcon = useIcon({ icon: 'material-symbols:percent' })
 
@@ -384,7 +409,10 @@ const productForSale = reactive<tableRentalProduct>({
 interface tableDataType {
   initializationDate: string
   content: string
-  receiptOrPaymentVoucherId: string
+  receiptOrPaymentVoucherId: number | undefined
+  receiptOrPaymentVoucherCode: string
+  paymentRequestId: string | undefined
+  paymentRequestCode: string
   quantity: number
   unitPrice: string
   intoMoney: string
@@ -409,27 +437,6 @@ const handleSelectionChange = (val: tableDataType[]) => {
     total += parseInt(value.receiveMoney)
     return total
   }, 0)
-}
-
-const onAddDebtTableDeposit = () => {
-  debtTable.value.push({
-    initializationDate: moment().format('L').toString(),
-    content: feePaymentPeriod.value,
-    receiptOrPaymentVoucherId: '',
-    quantity: 0,
-    receiveMoney: '',
-    paidMoney: '',
-    unitPrice: '',
-    intoMoney: '',
-    collected: '',
-    spent: '',
-    rentalFeeDebt: '',
-    kindOfMoney: '',
-    paymentProposal: '',
-    payment: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
-  })
 }
 
 const historyTable = ref<Array<any>>([])
@@ -1596,27 +1603,6 @@ const dialogIPRForm = ref(false)
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
 
-const detailedListExpenses = [
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  }
-]
-
 const alreadyPaidForTt = ref(true)
 
 // Thông tin phiếu bán hàng
@@ -1822,11 +1808,11 @@ function openDepositDialog() {
   nameDialog.value = 'deposit'
 }
 
-function openReceiptDialog() {
-  getReceiptCode()
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
-  nameDialog.value = 'Phiếu thu'
-}
+// function openReceiptDialog() {
+//   getReceiptCode()
+//   dialogInformationReceipts.value = !dialogInformationReceipts.value
+//   nameDialog.value = 'Phiếu thu'
+// }
 
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
@@ -1866,42 +1852,43 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
-// Thêm mã phiếu thu vào debtTable
-const handleChangeReceipts = () => {
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
   if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeReceipts.value
-        }
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
       })
     })
   }
+  await getOrderStransactionList()
 }
 
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeExpenditures.value
-        }
-      })
-    })
-  }
-}
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = async (_index, scope) => {
+  const res = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
 
-// Thêm mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentRequest = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.paymentProposal = codePaymentRequest.value
-        }
-      })
-    })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+    nameDialog.value = 'Phiếu thu'
+    codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+    codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+    moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+    payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+    inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+    dialogInformationReceipts.value = true
   }
 }
 
@@ -1960,7 +1947,7 @@ const postPT = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1969,6 +1956,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
 // Thêm mới phiếu chi
@@ -1981,8 +1969,8 @@ const postPC = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
-    OrderId: 117,
+    PeopleId: inputRecharger.value,
+    OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1990,33 +1978,153 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
-// Lấy chi tiết phiếu thu chi
-let formDetailPaymentReceipt = ref()
-const getDetailPayment = () => {
-  openReceiptDialog()
+// table đề nghị thanh toán
+const detailedListExpenses = ref([
+  {
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  }
+])
+
+const addRowDetailedListExpoenses = () => {
+  detailedListExpenses.value.push({
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  })
+}
+
+watch(
+  () => detailedListExpenses.value[detailedListExpenses.value.length - 1],
+  () => {
+    if (
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].dayVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].spentFor &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].quantity &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrice &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].note
+    )
+      addRowDetailedListExpoenses()
+  },
+  {
+    deep: true
+  }
+)
+
+const getReceiptCode = async () => {
+  codeReceipts.value = await getReceiptPaymentVoucher()
+}
+
+const getcodeExpenditures = async () => {
+  codeExpenditures.value = await getReceiptPaymentVoucher()
+}
+
+const newCodePaymentRequest = async () => {
+  codePaymentRequest.value = await getCodePaymentRequest()
 }
 
 // Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
+  if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
+    detailedListExpenses.value.pop()
   const payload = {
     Code: codePaymentRequest.value,
-    TotalMoney: 121325,
-    PaymentType: 0,
-    PeopleId: 2,
+    TotalMoney: moneyReceipts.value,
+    PaymentType: payment.value,
+    PeopleId: inputRecharger.value,
     status: 0,
     PeopleType: 1,
     OrderId: id,
     Description: '',
     Document: undefined,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    ReasonCollectMoney: inputReasonCollectMoney.value,
+    EnterMoney: enterMoney.value,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value),
+    DepositeMoney: depositePayment.value,
+    DebtMoney: debtPayment.value,
+    TotalPrice: totalPayment.value
   }
+
   const formDataPayLoad = FORM_IMAGES(payload)
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
+  handleChangePaymentOrder()
+}
+
+// Thêm mới mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentOrder = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: idPayment.value,
+        receiptOrPaymentVoucherId: 0,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+}
+
+// Tổng tiền table phiếu đề nghị thanh toán nếu có
+const totalPayment = ref(0)
+const depositePayment = ref(0)
+const debtPayment = ref(0)
+
+const autoChangeDepositePayment = () => {
+  debtPayment.value = totalPayment.value - depositePayment.value
+}
+
+const autoCalculateMoneyPayment = () => {
+  totalPayment.value = 0
+  detailedListExpenses.value.map((el) => {
+    if (el.unitPrice && el.quantity) {
+      el.totalPrice = el.unitPrice * el.quantity
+      totalPayment.value += el.totalPrice
+    }
+  })
+  autoChangeDepositePayment()
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  const res = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
+  }
 }
 
 // Thêm bút toán cho đơn hàng
@@ -2062,9 +2170,19 @@ const postOrderStransaction = async (index: number) => {
   getOrderStransactionList()
 }
 // Call api chi tiết bút toán theo id
-let formAccountingId = ref()
 let tableSalesSlip = ref()
-const getAccountingEntry = async (index, num) => {
+let formAccountingId = ref()
+const getAccountingEntry = (_index, scope) => {
+  const data = scope.row
+  console.log('????')
+  data.content?.indexOf(feePaymentPeriod) != -1
+    ? openAcountingEntryDialog(data.id, 1)
+    : data.content?.indexOf('Thu tiền cọc thuê') != -1
+    ? openAcountingEntryDialog(data.id, 2)
+    : openAcountingEntryDialog(data.id, 3)
+}
+
+const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value.paidMerchandises
@@ -2073,16 +2191,11 @@ const getAccountingEntry = async (index, num) => {
   else if (num == 2) dialogDepositSlip.value = true
   else if (num == 3) dialogAccountingEntryAdditional.value = true
 }
-
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
-
-const getReceiptCode = async () => {
-  codeReceipts.value = await getReceiptPaymentVoucher()
-}
 
 //TruongNgo
 const rentReturnOrder = ref({} as any)
@@ -2272,6 +2385,18 @@ const scrolling = (e) => {
   }
 }
 
+const clearData = () => {
+  totalPayment.value = 0
+  depositePayment.value = 0
+  debtPayment.value = 0
+  inputReasonCollectMoney.value = ''
+  enterMoney.value = ''
+  inputRecharger.value = undefined
+
+  detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
+  addRowDetailedListExpoenses()
+}
+
 const route = useRoute()
 onBeforeMount(() => {
   callApiCollaborators()
@@ -2283,7 +2408,6 @@ onBeforeMount(() => {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
-    codePaymentRequest.value = autoCodePaymentRequest
   }
 })
 </script>
@@ -2667,9 +2791,9 @@ onBeforeMount(() => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2682,6 +2806,7 @@ onBeforeMount(() => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2694,14 +2819,18 @@ onBeforeMount(() => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <label class="w-[30%] text-right">Số tiền thu</label>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2740,7 +2869,6 @@ onBeforeMount(() => {
                     () => {
                       dialogInformationReceipts = false
                       postPT()
-                      handleChangeReceipts()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2785,9 +2913,9 @@ onBeforeMount(() => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2800,6 +2928,7 @@ onBeforeMount(() => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2812,14 +2941,18 @@ onBeforeMount(() => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <label class="w-[30%] text-right">Số tiền chi</label>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2855,7 +2988,6 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogPaymentVoucher = false
-                      handleChangeExpenditures()
                       postPC()
                     }
                   "
@@ -2869,11 +3001,11 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
+
       <el-dialog
         v-model="dialogIPRForm"
-        class="font-bold"
         :title="t('formDemo.informationPaymentRequestForm')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -2893,17 +3025,15 @@ onBeforeMount(() => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl text-black dark:text-light-50">{{
-                codePaymentRequest
-              }}</div>
+              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2916,6 +3046,7 @@ onBeforeMount(() => {
               >
               <el-input
                 style="width: 100%"
+                v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')"
               />
             </div>
@@ -2933,21 +3064,50 @@ onBeforeMount(() => {
                 prop="numberVouchers"
                 :label="t('formDemo.numberVouchers')"
                 width="80"
-              />
-              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80" />
-              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120" />
-              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50" />
-              <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              >
                 <template #default="props">
-                  <div class="text-right">{{ props.row.unitPrices }}</div>
+                  <el-input v-model="props.row.numberVouchers" />
                 </template>
               </el-table-column>
-              <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="150">
                 <template #default="props">
-                  <div class="text-right">{{ props.row.intoMoney }}</div>
+                  <el-date-picker
+                    v-model="props.row.dayVouchers"
+                    type="date"
+                    placeholder="Pick a day"
+                    format="DD/MM/YYYY"
+                  />
                 </template>
               </el-table-column>
-              <el-table-column prop="note" :label="t('reuse.note')" width="90" />
+              <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" width="120">
+                <template #default="props">
+                  <el-input v-model="props.row.spentFor" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="100">
+                <template #default="props">
+                  <el-input @change="autoCalculateMoneyPayment" v-model="props.row.quantity" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
+                <template #default="props">
+                  <CurrencyInputComponent
+                    @change="autoCalculateMoneyPayment"
+                    class="handle-fix"
+                    v-model="props.row.unitPrice"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
+                <template #default="props">
+                  <div class="text-right">{{ changeMoney.format(props.row.totalPrice) }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="note" :label="t('reuse.note')" width="90">
+                <template #default="props">
+                  <el-input v-model="props.row.note" />
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <div class="flex justify-end mr-[90px]">
@@ -2955,23 +3115,28 @@ onBeforeMount(() => {
               <p class="text-black font-bold dark:text-white">Tổng tiền</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(totalPayment)
+              }}</p>
             </div>
           </div>
           <span
             class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
           ></span>
           <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right">
-              <p class="mb-2">Đặt cọc</p>
-              <p class="text-red-600">Còn lại</p>
+            <div class="w-[145px] items-center text-right">
+              <p class="text-blue-400 leading-8">Đặt cọc <span class="text-red-500">*</span></p>
+              <p class="text-red-600 leading-8">Còn lại</p>
             </div>
             <div class="w-[145px] text-right">
-              <input
-                v-model="inputDeposit"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
+              <CurrencyInputComponent
+                v-model="depositePayment"
+                @change="autoChangeDepositePayment"
+                class="text-right outline-none mb-2 handle-fix"
               />
-              <p class="pr-2 text-red-600">đ</p>
+              <p class="pr-2 text-red-600">{{
+                debtPayment ? changeMoney.format(debtPayment) : '0 đ'
+              }}</p>
             </div>
             <div class="w-[90px]"></div>
           </div>
@@ -2983,13 +3148,17 @@ onBeforeMount(() => {
         <div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.amountSpent') }}</label>
-            <div class="w-[100%] text-xl">10,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3019,27 +3188,30 @@ onBeforeMount(() => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogIPRForm = false">{{ t('button.print') }}</el-button>
+            <el-button size="large" @click="printPage('IPRFormPrint')">{{
+              t('button.print')
+            }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  size="large"
                   @click="
                     () => {
                       dialogIPRForm = false
-                      handleChangePaymentRequest()
                       postPaymentRequest()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
+                <el-button size="large" @click="dialogIPRForm = false">{{
+                  t('reuse.exit')
+                }}</el-button>
               </span>
             </div>
           </div>
         </template>
       </el-dialog>
-
       <!-- Thông tin phiếu thanh toán tiền phí thuê -->
       <el-dialog
         v-model="dialogRentalPaymentInformation"
@@ -3873,6 +4045,28 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
+                  <el-form-item class="fix-err" label-width="0" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <label class="w-[170px] text-[#828387] text-right">{{
+                        t('formDemo.selectExportWarehouse')
+                      }}</label>
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item class="fix-err" label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
@@ -3895,7 +4089,6 @@ onBeforeMount(() => {
                       </div>
                     </div>
                   </el-form-item>
-                  <!-- </el-form-item> -->
                 </div>
               </div>
               <div class="flex w-[100%] gap-6">
@@ -4110,7 +4303,6 @@ onBeforeMount(() => {
             <div class="flex-1 flex items-start gap-4">
               <span>
                 <div>Mã QR đơn hàng</div>
-                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
               </span>
 
               <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
@@ -4529,7 +4721,7 @@ onBeforeMount(() => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">Tracking đơn hàng</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
               <el-radio :disabled="checkDisabled" label="1">{{
@@ -4546,7 +4738,7 @@ onBeforeMount(() => {
           </div>
         </div>
         <div class="flex gap-2 pb-8">
-          <div class="w-[11%]"></div>
+          <div class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</div>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%] flex-wrap">
               <div
@@ -4840,7 +5032,6 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  onAddDebtTableDeposit()
                   getReturnRequestTable()
                   statusOrder = 8
                 }
@@ -4968,6 +5159,7 @@ onBeforeMount(() => {
         <el-button
           @click="
             () => {
+              clearData()
               dialogInformationReceipts = true
               getReceiptCode()
             }
@@ -4975,8 +5167,28 @@ onBeforeMount(() => {
           text
           >+ Thêm phiếu thu</el-button
         >
-        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button
+          @click="
+            () => {
+              clearData()
+              getcodeExpenditures()
+              dialogPaymentVoucher = true
+            }
+          "
+          text
+          >+ Thêm phiếu chi</el-button
+        >
+        <el-button
+          @click="
+            () => {
+              newCodePaymentRequest()
+              clearData()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -4991,14 +5203,7 @@ onBeforeMount(() => {
             align="center"
           >
             <template #default="data">
-              <el-date-picker
-                v-model="data.row.createdAt"
-                v-if="type != 'detail'"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-              <div v-else>{{ data.row.createdAt }}</div>
+              {{ data.row.createdAt }}
             </template>
           </el-table-column>
           <el-table-column
@@ -5007,40 +5212,25 @@ onBeforeMount(() => {
             width="240"
           />
           <el-table-column
-            prop="receiptOrPaymentVoucherId"
+            prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
-            align="right"
           >
             <template #default="data">
-              <!-- <div
-                @click="
-                  data.row.receiptOrPayment.includes('PT')
-                    ? openReceiptDialog()
-                    : openPaymentDialog()
-                "
-                class="cursor-pointer text-blue-500"
-                >{{ data.row.receiptOrPayment }}</div
-              > -->
               <div
-                @click="
-                  () => {
-                    formDetailPaymentReceipt.value = getDetailReceiptPaymentVoucher({
-                      id: data.row.idPTC
-                    })
-                    getDetailPayment()
-                  }
-                "
+                @click="(index) => getDetailPayment(index, data)"
                 class="cursor-pointer text-blue-500"
               >
-                {{ data.row.receiptOrPaymentVoucherId }}
+                {{ data.row.receiptOrPaymentVoucherCode }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="paymentProposal" :label="t('router.paymentProposal')">
+          <el-table-column prop="paymentRequestCode" :label="t('router.paymentProposal')">
             <template #default="props">
-              <div @click="dialogIPRForm = true" class="text-blue-500">{{
-                props.row.paymentProposal
-              }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
           <el-table-column prop="typeOfMoney" :label="t('formDemo.kindOfMoney')">
@@ -5048,33 +5238,49 @@ onBeforeMount(() => {
               <div>{{ props.row.typeOfMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="collected" :label="t('formDemo.collected')">
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
             <template #default="props">
-              <el-input v-model="props.row.collected" />
+              <el-input v-model="props.row.receiveMoney" />
             </template>
           </el-table-column>
-          <el-table-column prop="spent" :label="t('formDemo.spent')">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
             <template #default="props">
-              <el-input v-model="props.row.spent" />
+              <el-input v-model="props.row.paidMoney" />
             </template>
           </el-table-column>
           <el-table-column
-            prop="rentalFeeDebt"
+            prop="deibt"
             width="140"
             :label="t('formDemo.rentalFeeDebt')"
             align="right"
-          />
-          <el-table-column :label="t('formDemo.receivableOrPayable')" width="100">
-            <div>Phải thu</div>
+          >
+            <template #default="data">
+              {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            width="100"
+          >
+            <template #default="props">
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
+            </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
             <template #default="props">
               <div>{{ props.row.payment }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" align="center" width="90">
-            <template #default="props">
-              <el-checkbox v-model="props.row.alreadyPaidForTt" />
+          <el-table-column
+            prop="isReceiptedMoney"
+            :label="t('formDemo.alreadyPaidForTt')"
+            align="center"
+            width="90"
+          >
+            <template #default="scope">
+              <el-checkbox :disabled="true" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
           <el-table-column
@@ -5082,18 +5288,18 @@ onBeforeMount(() => {
             prop="statusAccountingEntry"
             min-width="120"
           />
-          <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
             <template #default="data">
-              <el-button
-                @click="
-                  data.row.certificateInformation.includes(feePaymentPeriod)
-                    ? getAccountingEntry(data.row.id, 1)
-                    : data.row.certificateInformation.includes('Thu tiền cọc thuê')
-                    ? getAccountingEntry(data.row.id, 2)
-                    : getAccountingEntry(data.row.id, 3)
-                "
-                >{{ t('reuse.detail') }}</el-button
-              >
+              <div class="flex">
+                <button
+                  @click="(index) => getAccountingEntry(index, data)"
+                  v-if="type != 'detail'"
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+                >
+                  {{ t('reuse.detail') }}
+                </button>
+                <div v-else>{{ t('reuse.detail') }}</div>
+              </div>
             </template>
           </el-table-column>
         </el-table>

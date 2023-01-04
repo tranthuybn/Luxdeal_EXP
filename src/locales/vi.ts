@@ -123,6 +123,9 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    pleaseSelectWarehouse: 'Vui lòng chọn kho',
+    selectAWarehouse: 'Chọn kho',
+    selectExportWarehouse: 'Chọn kho xuất',
     validatePercentNum: 'Chiết khấu không được bé hơn 0 và lớn hơn 100',
     validatePercent: 'Chiết khấu phải là số, không được nhập kí tự khác ngoài số',
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
@@ -297,7 +300,7 @@ export default {
     leaseTerm: 'Kỳ hạn thuê',
     month: 'Tháng',
     byMonth: 'Theo tháng',
-    addNewSalesOrders: 'Thêm đơn hàng bán',
+    addNewSalesOrders: 'Thêm mới đơn hàng bán',
     addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
     addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',

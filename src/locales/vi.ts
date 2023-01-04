@@ -1816,6 +1816,12 @@ export default {
     cancelPointPackage: 'Hủy gói tích điểm',
     doYouWantToCancelPointPackage: 'Bạn muốn hủy gói tích điểm ?',
     historyPointTransaction: 'Lịch sử giao dịch điểm',
-    detailCustomerPoints: 'Chi tiết tích điểm khách hàng'
+    detailCustomerPoints: 'Chi tiết tích điểm khách hàng',
+    setRole: 'Phân quyền',
+    roleStatus: 'Trạng thái quyền',
+    decentralization: 'Thông tin phân quyền tài khoản',
+    roleName: 'Tên phân quyền',
+    addNewRole: 'Thêm mới phân quyền tài khoản',
+    choosePermission: 'Chọn quyền'
   }
 }

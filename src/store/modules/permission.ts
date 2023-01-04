@@ -85,6 +85,7 @@ export const usePermissionStore = defineStore({
             }
           }
         ])
+
         // All routing of the rendering menu
         this.routers = cloneDeep(constantRouterMap).concat(routerMap)
         resolve()

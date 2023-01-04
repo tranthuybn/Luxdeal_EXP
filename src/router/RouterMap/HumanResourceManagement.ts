@@ -57,6 +57,27 @@ export default {
         canTo: true,
         showMainRoute: true
       }
+    },
+    {
+      path: 'set-role',
+      name: 'human-resource-management.set-role',
+      component: () => import('@/views/Pages/HumanResourceManagement/roles/index.vue'),
+      meta: {
+        title: t('reuse.setRole')
+      }
+    },
+    {
+      path: 'set-role-utility/:type?/:id?',
+      name: `human-resource-management.set-role.${utility}`,
+      component: () => import('@/views/Pages/HumanResourceManagement/roles/Utility.vue'),
+      meta: {
+        title: t('reuse.setRole'),
+        noTagsView: true,
+        noCache: true,
+        hidden: true,
+        canTo: true,
+        showMainRoute: true
+      }
     }
   ]
 }

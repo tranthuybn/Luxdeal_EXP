@@ -1690,6 +1690,12 @@ export default {
     cancelPointPackage: 'Cancel point package',
     doYouWantToCancelPointPackage: 'Do you want to cancel point package?',
     historyPointTransaction: 'History point transaction',
-    detailCustomerPoints: 'Detail customer points'
+    detailCustomerPoints: 'Detail customer points',
+    setRole: 'set role',
+    roleStatus: 'role status',
+    decentralization: 'decentralization',
+    roleName: 'Role Name',
+    addNewRole: 'Add new role',
+    choosePermission: 'choose permission'
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref, onBeforeMount } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -9,7 +9,8 @@ import {
   ElTable,
   ElTableColumn,
   ElRadio,
-  ElRadioGroup
+  ElRadioGroup,
+  ElDialog
 } from 'element-plus'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -67,14 +68,14 @@ const form = reactive({
   image: '',
   status: 0
 })
-const id = Number(router.currentRoute.value.params.id)
+let id = ref(0)
 const total = reactive({
   rechargePoint: 0,
   usedPoint: 0,
   totalPoint: 0
 })
 const callAPI = async () => {
-  const res = await getDetailCustomerPoint({ Id: id })
+  const res = await getDetailCustomerPoint({ Id: id.value })
   if (res) {
     form.customerCode = res.data[0]?.customerCode
     form.customerName = res.data[0]?.customerName
@@ -104,10 +105,13 @@ const callAPI = async () => {
     loading.value = false
   }
 }
-onBeforeMount(() => {
-  callAPI()
-})
-
+watch(
+  () => id.value,
+  () => {
+    callAPI()
+  }
+)
+id.value = Number(router.currentRoute.value.params.id)
 const formatter = (row, _column: any) => {
   switch (row.pointExchangeType) {
     case 1:
@@ -150,6 +154,17 @@ const cancelTransaction = async (scope) => {
   await cancelPointTransaction({ Id: scope.row.id }).then(async () => {
     await callAPI().finally(() => (loading.value = false))
   })
+}
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const viewIcon = useIcon({ icon: 'uil:search' })
+const previewImage = () => {
+  dialogVisible.value = true
+  dialogImageUrl.value = `${API_URL}${form.image}`
+}
+const failImage = ref(false)
+const errorImage = () => {
+  failImage.value = true
 }
 </script>
 
@@ -196,33 +211,48 @@ const cancelTransaction = async (scope) => {
             <div class="formDetail"
               ><span class="formLabel">{{ t('reuse.status') }}</span
               ><span
-                ><el-radio-group v-model="form.status" class="ml-4" disabled>
+                ><el-radio-group v-model="form.status" disabled>
                   <el-radio :label="2" size="large">{{ t('reuse.lockPoint') }}</el-radio>
                 </el-radio-group></span
               >
             </div>
-            <div v-if="form.status == 1" class="bg-blue-700 formDetail text-white">{{
-              t('reuse.usingPoint')
-            }}</div>
+            <div class="formDetail" v-if="form.status == 1">
+              <span class="formLabel"></span>
+              <span class="bg-blue-700 text-white" style="width: fit-content">{{
+                t('reuse.usingPoint')
+              }}</span>
+            </div>
           </div>
           <div class="image">
             <el-divider content-position="left"
-              ><span class="font-700 text-lg"
-                >{{ t('reuse.image')
-                }}<span class="text-green-400">({{ t('reuse.avatarCustomer') }})</span></span
-              ></el-divider
+              ><span class="font-700 text-lg">{{ t('reuse.picture') }}</span></el-divider
             >
-            <ElImage :src="`${API_URL}${form.image}`" fit="fill" class="h-4/5 w-1/5">
-              <template #placeholder>
-                <div class="image-slot">Loading<span class="dot">...</span></div>
-              </template>
-              <template #error>
-                <div class="image-slot"> {{ t('reuse.notFoundImage') }} </div>
-              </template>
-            </ElImage>
+            <div class="h-200px">
+              <ElImage
+                :src="`${API_URL}${form.image}`"
+                fit="fill"
+                class="h-full w-1/5"
+                @error="errorImage"
+              >
+                <template #placeholder>
+                  <div class="image-slot">Loading<span class="dot">...</span></div>
+                </template>
+                <template #error>
+                  <div class="image-slot"> {{ t('reuse.notFoundImage') }} </div>
+                </template>
+              </ElImage>
+            </div>
+            <div v-if="!failImage">
+              <el-button :icon="viewIcon" @click="previewImage" />
+            </div>
           </div>
         </div>
       </el-collapse-item>
+      <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+        <div class="flex justify-center">
+          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
+        </div>
+      </el-dialog>
       <el-collapse-item :name="collapse[1].name">
         <template #title>
           <div class="flex w-[100%] justify-between">
@@ -293,10 +323,12 @@ const cancelTransaction = async (scope) => {
 }
 .formDetail {
   display: flex;
-  margin-left: 10%;
+  margin-left: 5%;
   align-items: center;
+  text-align: right;
 }
 .formLabel {
-  width: 15%;
+  width: 25%;
+  margin-right: 3%;
 }
 </style>

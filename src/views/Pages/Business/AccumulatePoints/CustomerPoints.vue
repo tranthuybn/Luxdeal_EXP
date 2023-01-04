@@ -62,6 +62,13 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatCustomerPointStatus(cellValue)
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '100',
+    align: 'center',
+    fixed: 'right'
   }
 ])
 </script>

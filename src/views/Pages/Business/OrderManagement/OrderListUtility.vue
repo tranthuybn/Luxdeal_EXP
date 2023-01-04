@@ -2114,6 +2114,7 @@ onMounted(async () => {
 })
 
 onBeforeMount(async () => {
+  await editData()
   callCustomersApi()
   callApiCollaborators()
   await callApiProductList()
@@ -2126,6 +2127,9 @@ onBeforeMount(async () => {
     codePaymentRequest.value = autoCodePaymentRequest
   }
 })
+// onMounted(async () => {
+//   await
+// })
 </script>
 
 <template>

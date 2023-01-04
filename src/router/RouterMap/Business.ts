@@ -71,7 +71,7 @@ export default {
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: t('router.createANewOrder'),
+            title: t('reuse.order'),
             noCache: true,
             showMainRoute: true
           }
@@ -335,7 +335,8 @@ export default {
           meta: {
             title: t('router.customerPoints'),
             canTo: true,
-            hidden: true
+            hidden: true,
+            activeMenu: '/business/accumulate-points/customer-points'
           }
         },
         {
@@ -353,7 +354,8 @@ export default {
           meta: {
             title: t('router.installPoints'),
             hidden: true,
-            canTo: true
+            canTo: true,
+            activeMenu: '/business/accumulate-points/settings-points'
           }
         }
       ]

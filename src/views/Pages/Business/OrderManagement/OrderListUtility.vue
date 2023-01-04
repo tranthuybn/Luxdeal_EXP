@@ -1115,20 +1115,16 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
     const orderObj = { ...res?.data[0] }
-    // statusOrder.value = 15
-    // if (orderObj.status.status == 1) statusOrder.value = 15
-    arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value = orderObj.status
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      // statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
-      statusOrder.value = 1
     }
     dataEdit.value = orderObj
     Files = orderObj.orderFiles
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaborator.id
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.customerName =
         orderObj.customer.isOrganization == 'True'
@@ -2213,7 +2209,7 @@ onBeforeMount(async () => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.id"
+                      :key="item.value"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2290,8 +2286,8 @@ onBeforeMount(async () => {
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
+                      v-for="(item, index) in optionsClassify"
+                      :key="index"
                       :label="item.label"
                       :value="item.value"
                     />

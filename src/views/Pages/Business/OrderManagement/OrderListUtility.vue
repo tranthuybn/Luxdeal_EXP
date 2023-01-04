@@ -1188,7 +1188,6 @@ const getAccountingEntry = (_index, scope) => {
 const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  console.log('formAccountingId: ', formAccountingId.value)
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableSalesSlip.value.forEach((e) => {
     e.totalPrice = e.unitPrice * e.quantity

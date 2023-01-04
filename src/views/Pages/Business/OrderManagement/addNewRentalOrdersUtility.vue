@@ -1203,7 +1203,6 @@ const editData = async () => {
       rentalOrderCode.value = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.collaboratorCommission
-      console.log('orderObj.CollaboratorCommission: ', orderObj.CollaboratorCommission)
       ruleForm.leaseTerm = orderObj.days
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
@@ -1277,7 +1276,6 @@ const getValueOfSelected = async (value, obj, scope) => {
       let day = moment.duration(start.diff(end)).asDays() * -1
       let days = Math.ceil(day / ruleForm.leaseTerm)
 
-      console.log('days: ', days)
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
         3,
@@ -1333,7 +1331,6 @@ const handleGetTotal = async (_value, props) => {
     let day = moment.duration(start.diff(end)).asDays() * -1
     let days = Math.ceil(day / ruleForm.leaseTerm)
 
-    console.log('days: ', days)
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       3,
@@ -1357,30 +1354,6 @@ const handleGetTotal = async (_value, props) => {
 }
 
 const recalculatePrice = () => {
-  // let objPrice = reactive({})
-  // tableData.value.forEach((el) => {
-  //   if (el.productPropertyId) {
-  //     objPrice = getProductPropertyPrice(
-  //       parseInt(el.productPropertyId),
-  //       3,
-  //       parseInt(el.quantity),
-  //       ruleForm.leaseTerm
-  //     )
-  //   }
-  //   let start = moment(el.fromDate, 'YYYY-MM-DD')
-  //   let end = moment(el.toDate, 'YYYY-MM-DD')
-
-  //   //Difference in number of days
-  //   let day = moment.duration(start.diff(end)).asDays() * -1
-  //   let days = Math.ceil(day / ruleForm.leaseTerm)
-  //   if (objPrice) {
-  //     console.log('objPrice.value: ', objPrice?.price, objPrice)
-  //     el.hirePrice = parseInt(objPrice?.price)
-  //     el.depositePrice = parseInt(objPrice?.deposite) * parseInt(el.quantity)
-  //     el.totalPrice = el.hirePrice * parseInt(el.quantity) * days
-  //     console.log('tableData: ', tableData.value)
-  //   }
-  // })
   tableData.value.splice(0, tableData.value.length)
   tableData.value.push(productForSale)
 }

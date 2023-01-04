@@ -123,6 +123,8 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    validatePercentNum: 'Chiết khấu không được bé hơn 0 và lớn hơn 100',
+    validatePercent: 'Chiết khấu phải là số, không được nhập kí tự khác ngoài số',
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
     pleaseSelectRentalPaymentPeriod: 'Vui lòng chọn kỳ thanh toán phí thuê',
     pleaseSelectARentalTerm: 'Vui lòng chọn kỳ hạn thuê',
@@ -1814,6 +1816,12 @@ export default {
     cancelPointPackage: 'Hủy gói tích điểm',
     doYouWantToCancelPointPackage: 'Bạn muốn hủy gói tích điểm ?',
     historyPointTransaction: 'Lịch sử giao dịch điểm',
-    detailCustomerPoints: 'Chi tiết tích điểm khách hàng'
+    detailCustomerPoints: 'Chi tiết tích điểm khách hàng',
+    setRole: 'Phân quyền',
+    roleStatus: 'Trạng thái quyền',
+    decentralization: 'Thông tin phân quyền tài khoản',
+    roleName: 'Tên phân quyền',
+    addNewRole: 'Thêm mới phân quyền tài khoản',
+    choosePermission: 'Chọn quyền'
   }
 }

@@ -124,6 +124,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    validatePercentNum: 'Discount cannot be less than 0 and greater than 100',
+    validatePercent: 'Discount must be numeric, no characters other than numbers can be entered',
     pleaseEnterANote: 'Please enter a note',
     pleaseSelectRentalPaymentPeriod: 'Please select rental payment period',
     pleaseSelectARentalTerm: 'Please select a rental term',
@@ -1688,6 +1690,12 @@ export default {
     cancelPointPackage: 'Cancel point package',
     doYouWantToCancelPointPackage: 'Do you want to cancel point package?',
     historyPointTransaction: 'History point transaction',
-    detailCustomerPoints: 'Detail customer points'
+    detailCustomerPoints: 'Detail customer points',
+    setRole: 'set role',
+    roleStatus: 'role status',
+    decentralization: 'decentralization',
+    roleName: 'Role Name',
+    addNewRole: 'Add new role',
+    choosePermission: 'choose permission'
   }
 }

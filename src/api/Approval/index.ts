@@ -8,13 +8,6 @@ export const getApproveManagementList = async (params: any): Promise<IResponse> 
   const res = await request.get({ url: `${APPROVAL_API.GET_LIST_APPROVAL}`, params }, fixedBaseURL)
   return res && res.data
 }
-// export const getProductsApproval = async (params): Promise<IResponse> => {
-//   const res = await request.get(
-//     { url: `${APPROVAL_API.GET_LIST_PRODUCT_APPROVAL}?${objectToQueryParams(params)}` },
-//     fixedBaseURL
-//   )
-//   return res && res.data
-// }
 
 export const getProductsApproval = async (params): Promise<IResponse> => {
   const res = await request.get(

@@ -57,7 +57,7 @@ import {
   createReturnRequest,
   getReceiptPaymentVoucher,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
+  // postAutomaticWarehouse,
   GetProductPropertyInventory
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
@@ -81,6 +81,15 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
+const checkPercent = (_rule: any, value: any, callback: any) => {
+  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
+  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
+  callback()
+}
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
@@ -88,10 +97,10 @@ const ruleFormAddress = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: 30,
-  rentalPeriod: [],
+  rentalPeriod: '',
   rentalPaymentPeriod: 5,
   collaborators: '',
-  discount: '',
+  discount: 0,
   orderNotes: '',
   customerName: '',
   delivery: 0
@@ -122,8 +131,7 @@ const rules = reactive<FormRules>({
   ],
   discount: [
     {
-      required: true,
-      message: t('formDemo.pleaseInputDiscount'),
+      validator: checkPercent,
       trigger: 'blur'
     }
   ],
@@ -342,11 +350,11 @@ interface tableRentalProduct {
   toDate: any
   quantity: string
   unitPrice: number
-  hirePrice: string
-  depositePrice: string
+  hirePrice: number
+  depositePrice: number
   warehouseId: number
   warehouseName: string
-  totalPrice: string
+  totalPrice: number
   unitName: string
   intoARentalDeposit: string
   id: string
@@ -363,11 +371,11 @@ const productForSale = reactive<tableRentalProduct>({
   toDate: '',
   quantity: '1',
   unitPrice: 0,
-  hirePrice: '',
-  depositePrice: '',
+  hirePrice: 0,
+  depositePrice: 0,
   warehouseId: 0,
   warehouseName: '',
-  totalPrice: '',
+  totalPrice: 0,
   unitName: t('formDemo.psc'),
   intoARentalDeposit: '',
   id: ''
@@ -445,10 +453,12 @@ const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
+    id: 1,
     label: t('formDemo.company')
   },
   {
     value: false,
+    id: 2,
     label: t('formDemo.individual')
   }
 ]
@@ -467,21 +477,52 @@ const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
 
+// infinity scroll CTV
 // Call api danh sách cộng tác viên
-const listCollaborators = ref()
 const optionsCollaborators = ref()
-let optionCallCollaborators = 0
+
+const pageIndexCollaborator = ref(1)
 const callApiCollaborators = async () => {
-  if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsInOrderList('')
-    listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
-      label: collaborator.name,
+  const res = await getCollaboratorsInOrderList({
+    PageIndex: pageIndexCollaborator.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsCollaborators.value = res.data.map((collaborator) => ({
+      label: collaborator.code + ' | ' + collaborator.accountName,
       value: collaborator.id,
-      collaboratorCommission: collaborator.collaboratorCommission
+      collaboratorCommission: collaborator.discount,
+      phone: collaborator.accountNumber
     }))
   }
-  optionCallCollaborators++
+}
+
+const scrollCollaboratorTop = ref(false)
+const scrollCollaboratorBottom = ref(false)
+
+const noMoreCollaboratorData = ref(false)
+
+const ScrollCollaboratorBottom = () => {
+  scrollCollaboratorBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCollaboratorData.value
+    ? ''
+    : getCollaboratorsInOrderList({ PageIndex: pageIndexCollaborator.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCollaboratorData.value = true)
+            : res.data.map((el) =>
+                optionsCollaborators.value.push({
+                  label: el.code + ' | ' + el.accountName,
+                  value: el.id,
+                  collaboratorCommission: el.discount,
+                  phone: el.accountNumber
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCollaboratorData.value = true
+        })
 }
 
 let customerAddress = ref('')
@@ -675,8 +716,8 @@ let totalDeposit = ref(0)
 const getProductPropertyPrice = async (
   productPropertyId = 0,
   serviceType = 3,
-  quantity: 1,
-  period: 1
+  quantity = 1,
+  period = 1
 ): Promise<any> => {
   const getPricePayload = {
     Id: productPropertyId,
@@ -695,8 +736,8 @@ const autoCalculateOrder = () => {
   totalFinalOrder.value = 0
   totalDeposit.value = 0
   tableData.value.map((val) => {
-    if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
-    if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+    if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+    if (val.depositePrice) totalDeposit.value += val.depositePrice
   })
 
   promoCash.value != 0
@@ -728,7 +769,7 @@ const callApiProductList = async () => {
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       productCode: product.code,
-      value: product.productCode,
+      value: product.productPropertyId,
       name: product.name ?? '',
       price: product.price.toString(),
       productPropertyId: product.id.toString(),
@@ -795,7 +836,6 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const { push } = useRouter()
 let idOrderPost = ref()
 
 // tạo đơn hàng
@@ -809,16 +849,16 @@ const postData = async () => {
     UnitPrice: 0,
     HirePrice: e.hirePrice,
     DepositePrice: e.depositePrice,
-    TotalPrice: e.hirePrice,
+    TotalPrice: e.totalPrice,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
     SpaServiceIds: null,
     WarehouseId: null,
     PriceChange: false,
-    FromDate: e.fromDate,
-    ToDate: e.toDate
+    FromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    ToDate: postDateTime(ruleForm.rentalPeriod[1])
   }))
-  postTable.value.pop()
+  if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
   const payload = {
     ServiceType: 3,
@@ -857,18 +897,16 @@ const postData = async () => {
   const tab = String(route.params.tab)
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
-    .then(
-      () =>
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        }),
-      () =>
-        push({
-          name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-        })
-    )
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -876,7 +914,7 @@ const postData = async () => {
       })
     )
 
-  postAutomaticWarehouse({ OrderId: idOrderPost.value.data, Type: 2 })
+  // automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
@@ -1164,7 +1202,7 @@ const editData = async () => {
       ruleForm.orderCode = orderObj.code
       rentalOrderCode.value = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
-      ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.leaseTerm = orderObj.days
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
@@ -1231,8 +1269,13 @@ const getValueOfSelected = async (value, obj, scope) => {
       totalFinalOrder.value = 0
       totalDeposit.value = 0
 
-      let newDate = new Date(data.toDate - data.fromDate)
-      let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
+      let start = moment(data.fromDate, 'YYYY-MM-DD')
+      let end = moment(data.toDate, 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
         3,
@@ -1243,8 +1286,8 @@ const getValueOfSelected = async (value, obj, scope) => {
       data.depositePrice = objPrice.deposite * data.quantity
       data.totalPrice = data.hirePrice * data.quantity * days
       tableData.value.map((val) => {
-        if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-        if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+        if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+        if (val.depositePrice) totalDeposit.value += val.depositePrice
       })
       promoCash.value != 0
         ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
@@ -1281,8 +1324,13 @@ const handleGetTotal = async (_value, props) => {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    let newDate = new Date(data.toDate - data.fromDate)
-    let days = newDate.getDate() != 1 ? newDate.getDate() - 1 : 1
+    let start = moment(data.fromDate, 'YYYY-MM-DD')
+    let end = moment(data.toDate, 'YYYY-MM-DD')
+
+    //Difference in number of days
+    let day = moment.duration(start.diff(end)).asDays() * -1
+    let days = Math.ceil(day / ruleForm.leaseTerm)
+
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
       3,
@@ -1293,8 +1341,8 @@ const handleGetTotal = async (_value, props) => {
     data.depositePrice = objPrice.deposite * data.quantity
     data.totalPrice = data.hirePrice * data.quantity * days
     tableData.value.map((val) => {
-      if (val.hirePrice) totalPriceOrder.value += parseInt(val.hirePrice)
-      if (val.depositePrice) totalDeposit.value += parseInt(val.depositePrice)
+      if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+      if (val.depositePrice) totalDeposit.value += val.depositePrice
     })
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
@@ -1303,6 +1351,11 @@ const handleGetTotal = async (_value, props) => {
           (totalPriceOrder.value * promoValue.value) / 100 +
           totalDeposit.value)
   }
+}
+
+const recalculatePrice = () => {
+  tableData.value.splice(0, tableData.value.length)
+  tableData.value.push(productForSale)
 }
 
 // Xóa sản phẩm trong table sản phẩm và thanh toán
@@ -2207,6 +2260,18 @@ const changeDateRange = (data) => {
   })
 }
 
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCollaboratorTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCollaboratorBottom()
+  }
+}
+
 const route = useRoute()
 onBeforeMount(() => {
   callApiCollaborators()
@@ -2271,7 +2336,7 @@ onBeforeMount(() => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2349,7 +2414,7 @@ onBeforeMount(() => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -3073,9 +3138,15 @@ onBeforeMount(() => {
                 <div class="text-right">{{ props.row.hirePrice }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('formDemo.rentalFee')">
+            <el-table-column prop="totalPrice" :label="t('formDemo.rentalFee')" width="180">
               <template #default="props">
-                <div class="text-right">{{ props.row.totalPrice }}</div>
+                <div class="text-right">
+                  {{
+                    props.row.totalPrice != ''
+                      ? changeMoney.format(parseInt(props.row.totalPrice))
+                      : '0 đ'
+                  }}
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -3598,7 +3669,12 @@ onBeforeMount(() => {
                 <el-input style="width: 100%" v-model="ruleForm.orderCode" />
               </el-form-item>
               <el-form-item :label="t('formDemo.leaseTerm')">
-                <el-select v-model="ruleForm.leaseTerm" placeholder="Select" clearable>
+                <el-select
+                  v-model="ruleForm.leaseTerm"
+                  @change="recalculatePrice"
+                  placeholder="Select"
+                  clearable
+                >
                   <el-option
                     v-for="item in hirePeriod"
                     :key="item.value"
@@ -3658,17 +3734,20 @@ onBeforeMount(() => {
                 <div class="w-[60%] max-w-[528px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
-                      :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       @change="(data) => autoCollaboratorCommission(data)"
+                      :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
-                      <el-option
-                        v-for="(item, index) in optionsCollaborators"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
-                      />
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                          v-for="(item, index) in optionsCollaborators"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </div>
                     </el-select>
                   </el-form-item>
                 </div>
@@ -3676,8 +3755,9 @@ onBeforeMount(() => {
                   <el-form-item prop="discount" label-width="0">
                     <div class="flex items-center">
                       <el-input
+                        :disabled="checkDisabled"
                         v-model="ruleForm.discount"
-                        class="w-[100%] border-none outline-none bg-transparent"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         :placeholder="t('formDemo.enterDiscount')"
                         :suffix-icon="percentageIcon"
                       />
@@ -4545,7 +4625,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4600,7 +4680,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4658,7 +4738,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4724,7 +4804,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4780,7 +4860,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4805,7 +4885,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -4844,7 +4924,7 @@ onBeforeMount(() => {
               :disabled="doubleDisabled"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.rentalVoucher') }}</el-button
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
@@ -5302,5 +5382,11 @@ onBeforeMount(() => {
 
 ::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
   margin-left: 178px;
+}
+
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

@@ -60,6 +60,7 @@ import {
   updateOrderTransaction,
   GetPaymentRequestDetail,
   getCodePaymentRequest,
+  getListWareHouse,
   // postAutomaticWarehouse,
   GetProductPropertyInventory
 } from '@/api/Business'
@@ -346,20 +347,11 @@ const chooseDelivery = [
   }
 ]
 
-const chooseWarehouse = [
-  {
-    value: 0,
-    label: 'HN'
-  },
-  {
-    value: 1,
-    label: 'HCM'
-  },
-  {
-    value: 2,
-    label: 'Kho tổng'
-  }
-]
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 const radio1 = ref('')
 const percentageIcon = useIcon({ icon: 'material-symbols:percent' })
@@ -2397,12 +2389,28 @@ const clearData = () => {
   addRowDetailedListExpoenses()
 }
 
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
+
 const route = useRoute()
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
   editData()
+  callApiWarehouseList()
   if (type == 'add') {
     doubleDisabled.value = true
     ruleForm.orderCode = curDate

@@ -261,7 +261,7 @@ export default {
     productManagementCode: 'Mã quản lý sản phẩm',
     selfImportAccessories: 'Tự nhập phụ kiện',
     amount: 'Số lượng',
-    exportWarehouse: 'Kho xuất',
+    exportWarehouse: 'Tồn kho',
     manipulation: 'Thao tác',
     debtTrackingSheet: 'Bảng theo dõi công nợ',
     dateOfPayment: 'Ngày thanh toán',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, onMounted, computed } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -63,7 +63,8 @@ import {
   updateOrderTransaction,
   getDetailAccountingEntryById,
   postAutomaticWarehouse,
-  GetProductPropertyInventory
+  GetProductPropertyInventory,
+  getListWareHouse
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -332,20 +333,11 @@ const chooseDelivery = [
   }
 ]
 
-const chooseWarehouse = [
-  {
-    value: 0,
-    label: 'HN'
-  },
-  {
-    value: 1,
-    label: 'HCM'
-  },
-  {
-    value: 2,
-    label: 'Kho tổng'
-  }
-]
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 const radio1 = ref('')
 
@@ -2183,12 +2175,28 @@ const scrolling = (e) => {
   }
 }
 
-onMounted(async () => {
-  await editData()
-})
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
+
+// onMounted(async () => {
+//   await editData()
+// })
 
 onBeforeMount(async () => {
   await editData()
+  await callApiWarehouseList()
   callCustomersApi()
   callApiCollaborators()
   await callApiProductList()

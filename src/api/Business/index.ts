@@ -367,6 +367,17 @@ export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Lấy danh sách kho
+export const getListWareHouse = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_WAREHOUSE_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // update lịch sử nhập xuất/đổi trả
 export const getReturnRequest = async (params): Promise<IResponse> => {
   const res = await request.get(

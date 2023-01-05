@@ -1199,6 +1199,7 @@ const editData = async () => {
     paymentRequestId.value = transaction.data[0].paymentRequestId
     getReturnRequestTable()
 
+    console.log('res', res)
     const orderObj = { ...res?.data[0] }
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj?.statusHistory

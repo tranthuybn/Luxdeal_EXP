@@ -3,6 +3,7 @@ import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   deleteDepartment,
+  getBranchList,
   getDepartmentList,
   getRankList,
   getTypePersonnelList

@@ -249,3 +249,51 @@ export const STATUS_ORDER_PURCHASE = [
     createdAt: ''
   }
 ]
+
+export const STATUS_ORDER_SELL = [
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 61,
+    orderStatusName: 'Duyệt đơn mua hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 63,
+    orderStatusName: 'Đặt hàng thành công',
+    createdAt: ''
+  },
+  {
+    orderStatus: 64,
+    orderStatusName: 'Mua hàng thành công',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 62,
+    orderStatusName: 'Duyệt đổi/trả hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 65,
+    orderStatusName: 'Hoàn thành đổi/trả hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  }
+]

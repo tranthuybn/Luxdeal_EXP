@@ -16,6 +16,7 @@ import {
   ElDialog,
   ElForm,
   ElRadio,
+  ElRadioGroup,
   ElFormItem,
   ElDatePicker,
   FormInstance,
@@ -321,6 +322,8 @@ const optionsCharacteristic = [
     label: 'Like new'
   }
 ]
+
+const radioTracking = ref(1)
 
 const ruleForm = reactive({
   orderCode: 'DHB039423',
@@ -751,9 +754,6 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.price = obj.price
   }
 }
-const checked2 = ref(false)
-const checked3 = ref(false)
-const checked4 = ref(false)
 
 // Danh mục brand unit origin api
 
@@ -1121,7 +1121,6 @@ const getValueOfCustomerSelected = (
   ruleForm.customerName = obj.label
 }
 
-const checked7 = ref(false)
 const input = ref('')
 
 const valueProvince = ref('')
@@ -1147,15 +1146,20 @@ const dialogAddQuick = ref(false)
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid) => {
-    if (valid) {
-    } else {
-    }
-  })
-  await formEl2.validate((valid) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
+      checkValidateForm.value = false
+    }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      // doubleDisabled.value = false
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -1164,7 +1168,6 @@ let idOrderPost = ref()
 // tạo đơn hàng
 const { push } = useRouter()
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
@@ -1201,7 +1204,7 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 1,
+      Status: 2,
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
@@ -3282,7 +3285,7 @@ onMounted(async () => {
                 />
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.deliveryDate')" prop="rentalPeriod">
+              <el-form-item :label="t('formDemo.depositTerm')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
                   :disabled="checkDisabled"
@@ -3689,31 +3692,12 @@ onMounted(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox
-              v-model="checked2"
-              :label="`${t('reuse.closedTheOrder')}`"
-              size="large"
-              disabled
-            />
-            <el-checkbox
-              v-model="checked3"
-              :label="`${t('formDemo.depositing')}`"
-              size="large"
-              disabled
-            />
-            <el-checkbox
-              v-model="checked4"
-              :label="`${t('formDemo.renewingConsignment')}`"
-              size="large"
-              disabled
-            />
-
-            <el-checkbox
-              v-model="checked7"
-              :label="`${t('common.doneLabel')}`"
-              size="large"
-              disabled
-            />
+            <el-radio-group v-model="radioTracking" :disabled="checkDisabled" class="ml-4">
+              <el-radio label="1">{{ t('formDemo.waitingDelivery') }}</el-radio>
+              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
+              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
+            </el-radio-group>
           </div>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
@@ -3783,9 +3767,17 @@ onMounted(async () => {
               @click="dialogBillLiquidation = true"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.saveAndPending')
-            }}</el-button>
+            <el-button
+              @click="
+                () => {
+                  submitForm(ruleFormRef, ruleFormRef2)
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.saveAndPending') }}</el-button
+            >
             <el-button
               @click="
                 () => {

@@ -8,7 +8,8 @@ import {
   CAMPAIGN_API,
   LOGIN_API_URL,
   WAREHOUSE_API,
-  POINT_API
+  POINT_API,
+  STAFF_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -29,6 +30,17 @@ export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//get staff
+export const getStaffList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -365,6 +377,17 @@ export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
     fixedBaseURL
   )
   return res.data && res.data.data
+}
+
+// Lấy danh sách kho
+export const getListWareHouse = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_WAREHOUSE_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
 }
 
 // update lịch sử nhập xuất/đổi trả

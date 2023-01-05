@@ -85,8 +85,7 @@ const changeMoney = new Intl.NumberFormat('vi', {
 })
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))

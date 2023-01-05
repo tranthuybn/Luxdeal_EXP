@@ -8,7 +8,8 @@ import {
   updatePotentialCustomer,
   UpdatePotentialCustomerHistory,
   deletePotentialCustomer,
-  deletePotentialCustomerHistory
+  deletePotentialCustomerHistory,
+  getOrderList
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -152,6 +153,18 @@ const postData = (data) => {
     potentialCustomerHistorys: customerHistory
   }
   addNewPotentialCustomer(payload)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    })
 }
 
 const collapseChangeEvent = (val) => {
@@ -563,20 +576,12 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.result'),
     component: 'Select',
     componentProps: {
+      onClick: () => getOrdersOptions(),
       allowCreate: true,
       filterable: true,
       placeholder: t('reuse.selectOrder'),
       style: 'width: 100%',
-      options: [
-        {
-          label: '1',
-          value: 1
-        },
-        {
-          label: '2',
-          value: 2
-        }
-      ]
+      options: []
     },
     colProps: {
       span: 20
@@ -641,6 +646,31 @@ const getCustomerOptions = async () => {
     }
   }
 }
+
+//get orderlist
+let callOrderAPI = 0
+let OrdersSelect: ComponentOptions[] = reactive([])
+const getOrdersOptions = async () => {
+  if (callOrderAPI == 0) {
+    await getOrderList({})
+      .then((res) => {
+        if (res.data) {
+          OrdersSelect = res.data.map((tag) => ({
+            label: tag.key,
+            value: tag.key,
+            id: tag.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callOrderAPI++)
+    columnProfileCustomer[19].componentProps!.options = OrdersSelect
+    columnProfileCustomer[19].componentProps!.loading = false
+  }
+}
+
 onBeforeMount(async () => {
   await getCustomerOptions()
 })

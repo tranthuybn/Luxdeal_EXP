@@ -76,6 +76,10 @@ export const CAMPAIGN_API = {
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
+  UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
+  CANCEL_ORDER: '/api/v1/Order/CancelOrder',
+  FINISH_ORDER: '/api/v1/Order/FinishOrder',
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',

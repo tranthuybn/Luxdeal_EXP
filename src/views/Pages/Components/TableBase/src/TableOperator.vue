@@ -377,7 +377,9 @@ const { push } = useRouter()
 const router = useRouter()
 const edit = () => {
   push({
+    // name: `human-resource-management.department-directory.${utility}`,
     name: `${String(router.currentRoute.value.name)}`,
+    // params: { id: row.id, type: type, tab: props.tabs }
     params: {
       backRoute: `${String(router.currentRoute.value.name)}`,
       tab: props.tab,

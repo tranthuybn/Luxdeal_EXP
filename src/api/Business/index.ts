@@ -183,6 +183,54 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Chỉnh sửa thông tin đơn hàng
+export const updateOrderInfo = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.UPDATE_ORDER_INFO,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Chỉnh sửa trạng thái đơn hàng
+export const updateOrderStatus = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.UPDATE_ORDER_STATUS,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Hủy đơn hàng
+export const cancelOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.CANCEL_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Đối soát và kết thúc đơn hàng
+export const finishOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.FINISH_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Lấy mã phiếu thu chi
 export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
   const res = await request.get(
@@ -221,8 +269,7 @@ export const getCodePaymentRequest = async (): Promise<IResponse> => {
 export const GetPaymentRequestDetail = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ORDER_API.GET_RECEIPT_PAYMENT_REQUEST_DETAIL}?${objectToQueryParams(params)}`,
-      data: params
+      url: `${ORDER_API.GET_RECEIPT_PAYMENT_REQUEST_DETAIL}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

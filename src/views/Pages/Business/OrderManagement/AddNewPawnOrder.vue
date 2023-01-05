@@ -187,6 +187,8 @@ const getValueOfCustomerSelected = (value, obj) => {
 }
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const tab = String(router.currentRoute.value.params.tab)
+
 const route = useRoute()
 const type = String(route.params.type)
 
@@ -295,10 +297,12 @@ const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
+    id: 1,
     label: t('formDemo.company')
   },
   {
     value: false,
+    id: 2,
     label: t('formDemo.individual')
   }
 ]
@@ -399,20 +403,62 @@ const changeAddressCustomer = (data) => {
 }
 
 // Call api danh sách cộng tác viên
-const listCollaborators = ref()
+const pageIndexCollaborator = ref(1)
+
 const optionsCollaborators = ref()
-let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
-  if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsInOrderList('')
-    listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
-      label: collaborator.name,
+  const res = await getCollaboratorsInOrderList({
+    PageIndex: pageIndexCollaborator.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsCollaborators.value = res.data.map((collaborator) => ({
+      label: collaborator.code + ' | ' + collaborator.accountName,
       value: collaborator.id,
-      collaboratorCommission: collaborator.collaboratorCommission
+      collaboratorCommission: collaborator.discount,
+      phone: collaborator.accountNumber
     }))
   }
-  optionCallCollaborators++
+}
+
+const scrollCollaboratorTop = ref(false)
+const scrollCollaboratorBottom = ref(false)
+
+const noMoreCollaboratorData = ref(false)
+
+const ScrollCollaboratorBottom = () => {
+  scrollCollaboratorBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCollaboratorData.value
+    ? ''
+    : getCollaboratorsInOrderList({ PageIndex: pageIndexCollaborator.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCollaboratorData.value = true)
+            : res.data.map((el) =>
+                optionsCollaborators.value.push({
+                  label: el.code + ' | ' + el.accountName,
+                  value: el.id,
+                  collaboratorCommission: el.discount,
+                  phone: el.accountNumber
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCollaboratorData.value = true
+        })
+}
+
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCollaboratorTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCollaboratorBottom()
+  }
 }
 
 let objIdPayment = ref()
@@ -650,19 +696,20 @@ const collapseChangeEvent = (val) => {
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      return 'submit'
-    } else {
-      return fields
-    }
-  })
-  await formEl2.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
       checkValidateForm.value = true
-      return 'submit!'
     } else {
-      return fields
+      checkValidateForm.value = false
+    }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      // doubleDisabled.value = false
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -740,72 +787,66 @@ const optionsCustomer = [
 ]
 let orderDetailsTable = reactive([{}])
 // tạo đơn hàng
-const { push } = useRouter()
 const checkDisabled = ref(false)
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
-  if (checkValidateForm.value) {
-    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-      ProductPropertyId: parseInt(val.productPropertyId),
-      Quantity: parseInt(val.quantity),
-      ProductPrice: 0,
-      UnitPrice: 0,
-      HirePrice: 0,
-      DepositePrice: 0,
-      TotalPrice: 0,
-      ConsignmentSellPrice: 0,
-      ConsignmentHirePrice: 0,
-      Accessory: val.accessory
-    }))
-    orderDetailsTable.pop()
-    const productPayment = JSON.stringify([...orderDetailsTable])
+  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    ProductPropertyId: parseInt(val.productPropertyId),
+    Quantity: parseInt(val.quantity),
+    ProductPrice: 0,
+    UnitPrice: 0,
+    HirePrice: 0,
+    DepositePrice: 0,
+    TotalPrice: 0,
+    ConsignmentSellPrice: 0,
+    ConsignmentHirePrice: 0,
+    Accessory: val.accessory
+  }))
+  orderDetailsTable.pop()
+  const productPayment = JSON.stringify([...orderDetailsTable])
 
-    const payload = {
-      ServiceType: 4,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'DEAL1212',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.collaboratorCommission,
-      Description: ruleForm.orderNotes,
-      CustomerId: 2,
-      DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: enterdetailAddress.value,
-      OrderDetail: productPayment,
-      fromDate: postDateTime(ruleForm.pawnTerm[0]),
-      toDate: postDateTime(ruleForm.pawnTerm[1]),
-      CampaignId: 2,
-      VAT: 1,
-      Days: ruleForm.paymentPeriod,
-      Status: 1,
-      TotalPrice: priceintoMoneyPawnGOC.value,
-      DepositePrice: 0,
-      DiscountMoney: 0,
-      InterestMoney: priceintoMoneyByday.value
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewSpaOrders(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  const payload = {
+    ServiceType: 4,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'DEAL1212',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.collaboratorCommission,
+    Description: ruleForm.orderNotes,
+    CustomerId: 2,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: valueProvince.value ?? 1,
+    DistrictId: valueDistrict.value ?? 1,
+    WardId: valueCommune.value ?? 1,
+    Address: enterdetailAddress.value,
+    OrderDetail: productPayment,
+    fromDate: postDateTime(ruleForm.pawnTerm[0]),
+    toDate: postDateTime(ruleForm.pawnTerm[1]),
+    CampaignId: 2,
+    VAT: 1,
+    Days: ruleForm.paymentPeriod,
+    Status: 1,
+    TotalPrice: priceintoMoneyPawnGOC.value,
+    DepositePrice: 0,
+    DiscountMoney: 0,
+    InterestMoney: priceintoMoneyByday.value
   }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await addNewSpaOrders(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
 }
 
 // Danh mục brand unit origin api
@@ -893,12 +934,6 @@ const getOriginSelectOptions = async () => {
   }
   callOriginAPI++
 }
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
@@ -1574,7 +1609,7 @@ const removeRow = (index) => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -1652,7 +1687,7 @@ const removeRow = (index) => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -1786,12 +1821,14 @@ const removeRow = (index) => {
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
-                      <el-option
-                        v-for="(item, index) in optionsCollaborators"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
-                      />
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                          v-for="(item, index) in optionsCollaborators"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </div>
                     </el-select>
                   </el-form-item>
                 </div>
@@ -2384,7 +2421,7 @@ const removeRow = (index) => {
           </div>
         </div>
         <div class="w-[100%] flex gap-4">
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-if="type == 'add'">
+          <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
             <el-button class="min-w-42 min-h-11" @click="openBillPawnDialog">{{
               t('formDemo.billPawn')
             }}</el-button>
@@ -2392,9 +2429,18 @@ const removeRow = (index) => {
             <el-button class="min-w-42 min-h-11" @click="openDepositDialog">{{
               t('formDemo.feePaymentSlip')
             }}</el-button>
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.saveAndPending')
-            }}</el-button>
+            <el-button
+              v-if="type == 'add'"
+              @click="
+                () => {
+                  submitForm(ruleFormRef, ruleFormRef2)
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.saveAndPending') }}</el-button
+            >
             <el-button
               @click="
                 () => {
@@ -2411,9 +2457,8 @@ const removeRow = (index) => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-else>
+          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-if="type == 'detail' || type == 'edit'">
             <el-button
-              v-if="type != 'add'"
               @click="
                 () => {
                   changeReturnGoods = true
@@ -2425,7 +2470,6 @@ const removeRow = (index) => {
               >Chuộc hàng trước hạn</el-button
             >
             <el-button
-              v-if="type != 'add'"
               @click="
                 () => {
                   changeReturnGoods = true
@@ -2437,7 +2481,6 @@ const removeRow = (index) => {
               >Chuộc hàng hết hạn</el-button
             >
             <el-button
-              v-if="type != 'add'"
               @click="
                 () => {
                   dutHang = true
@@ -2449,7 +2492,6 @@ const removeRow = (index) => {
               >Đứt hàng hết hạn</el-button
             >
             <el-button
-              v-if="type != 'add'"
               @click="
                 () => {
                   giaHan = true
@@ -2459,11 +2501,7 @@ const removeRow = (index) => {
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
-            <el-button
-              v-if="type != 'add'"
-              @click="() => {}"
-              type="warning"
-              class="min-w-42 min-h-11"
+            <el-button @click="() => {}" type="warning" class="min-w-42 min-h-11"
               >Hoàn thành đơn hàng</el-button
             >
           </div>
@@ -4036,5 +4074,11 @@ const removeRow = (index) => {
 }
 ::v-deep(.el-select .el-input) {
   width: 100% !important;
+}
+
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

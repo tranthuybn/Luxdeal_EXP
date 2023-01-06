@@ -564,6 +564,36 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// update order info
+export const updateOrderInfo = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_ORDER_INFORMATION}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// update status order
+export const updateStatusOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.UPDATE_ORDER_STATUS}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+// finish order sell
+export const finishStatusOrder = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_STATUS_FINISH_ORDER}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// cancel order
+export const cancelOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.CANCEL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

@@ -10,10 +10,11 @@ import {
   ElTableColumn,
   ElUpload,
   ElImage,
-  ElDialog
+  ElDialog,
+  ElInputNumber
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, ref, watch, computed } from 'vue'
 import SelectTable from '@/components/SelectTable.vue'
 import ChooseWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -21,7 +22,7 @@ import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 
 const { t } = useI18n()
-defineProps({
+const prop = defineProps({
   type: {
     type: String,
     default: ''
@@ -31,11 +32,13 @@ defineProps({
     default: 0
   },
   productData: {
-    type: Object,
-    default: () => {}
+    type: Array<ProductWarehouse>,
+    default: () => [{}]
   }
 })
-
+const ListOfProductsForSale = computed(() => {
+  return prop.productData
+})
 type ExportLots = {
   fromLotId: number
   quantity: number
@@ -63,7 +66,6 @@ type ProductWarehouse = {
   lot?: Options
   imageUrl?: string
 }
-let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
 let listProducts = ref()
 const callApiProductList = async () => {
@@ -82,9 +84,10 @@ watch(
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId !=
         null &&
-      forceRemove.value == false
+      forceRemove.value == false &&
+      prop.type !== 'detail'
     ) {
-      ListOfProductsForSale.value.push({} as ProductWarehouse)
+      AddRowTable()
     }
   },
   { deep: true }
@@ -151,11 +154,26 @@ const ScrollProductBottom = () => {
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
+
+const warehouseData = ref({
+  quantity: 0,
+  warehouse: { value: undefined, label: undefined },
+  location: { value: undefined, label: undefined },
+  lot: { value: undefined, label: undefined }
+})
 const openDialogWarehouse = (props) => {
   if (props.row.productPropertyId) {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
+
+    warehouseData.value.quantity = props.row.quantity
+    warehouseData.value.warehouse.value = props.row?.warehouseId
+    warehouseData.value.warehouse.label = props.row?.warehouseName
+    warehouseData.value.location.value = props.row?.locationId
+    warehouseData.value.location.label = props.row?.locationName
+    warehouseData.value.lot.value = props.row?.lotId
+    warehouseData.value.lot.label = props.row?.lotName
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -226,7 +244,7 @@ const warehouseFormat = (props) => {
       return `${props.row?.warehouse?.label}/${props.row?.location?.label}`
     }
   } else {
-    return ''
+    return ' '
   }
 }
 const checkValueOfTable = () => {
@@ -301,16 +319,23 @@ const searchProduct = async (keyword) => {
     tempListProducts.value = listProducts.value
   }
 }
+const disabled = computed(() => {
+  if (prop.type == 'detail') {
+    return true
+  }
+  return false
+})
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseWarehouse
-    :showDialog="dialogWarehouse"
+    v-model:showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     :transactionType="transactionType"
     :productPropertyId="curPPID"
+    :warehouseFormData="warehouseData"
   />
   <el-table
     border
@@ -334,6 +359,7 @@ const searchProduct = async (keyword) => {
           labelKey="productPropertyCode"
           :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
+          :disabled="disabled"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
           @keyword="searchProduct"
@@ -362,9 +388,10 @@ const searchProduct = async (keyword) => {
           :before-upload="beforeAvatarUpload"
           :auto-upload="false"
           :show-file-list="false"
+          :disabled="disabled"
         >
           <el-image v-if="props.row.imageUrl" :src="props.row.imageUrl" class="avatar" />
-          <el-button
+          <el-button :disabled="disabled"
             ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
           >
         </el-upload>
@@ -384,7 +411,10 @@ const searchProduct = async (keyword) => {
     </el-table-column>
     <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
       <template #default="data">
-        {{ data.row.quantity }}
+        <span v-if="disabled">
+          {{ data.row.quantity }}
+        </span>
+        <el-input-number v-else v-model="data.row.quantity" controls-position="right" />
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
@@ -425,5 +455,4 @@ const searchProduct = async (keyword) => {
       </template>
     </el-table-column>
   </el-table>
-  <el-button @click="AddRowTable">Thêm dòng</el-button>
 </template>

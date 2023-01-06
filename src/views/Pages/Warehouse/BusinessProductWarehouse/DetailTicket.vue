@@ -301,7 +301,7 @@ defineExpose({
       <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
         <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
       </div>
-      <ElFormItem class="w-[100%]" style="display: inline-block" :label="t('reuse.orderCode')">
+      <ElFormItem :label="t('reuse.orderCode')">
         {{ FormData.orderCode }}
       </ElFormItem>
     </div>

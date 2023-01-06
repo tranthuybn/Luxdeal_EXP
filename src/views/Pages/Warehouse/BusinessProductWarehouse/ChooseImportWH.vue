@@ -16,7 +16,7 @@ import {
   ElRadio
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { PropType, reactive, ref, watch } from 'vue'
+import { computed, PropType, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 
@@ -36,22 +36,11 @@ const props = defineProps({
     default: 0
   },
   warehouseFormData: {
-    type: Object as PropType<ChooseWarehouse>,
+    type: Object,
     default: () => {}
   }
 })
-type ChooseWarehouse = {
-  quantity: number
-  warehouseId: number
-  locationId: number
-  lotId: number
-}
-type ImportWarehouse = {
-  quantity: number
-  warehouseImportId: number
-  locationImportId: number | undefined
-  lotId: number
-}
+
 const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
@@ -74,14 +63,16 @@ const saveOldLot = () => {
 }
 const emit = defineEmits(['close-dialog-warehouse'])
 
-const warehouseForm = reactive<ImportWarehouse>({} as ImportWarehouse)
+const warehouseForm = computed(() => {
+  return props.warehouseFormData
+})
 watch(
-  () => props.warehouseFormData,
+  () => warehouseForm,
   () => {
-    warehouseForm.quantity = props.warehouseFormData.quantity
-    warehouseForm.warehouseImportId = props.warehouseFormData.warehouseId
-    warehouseForm.locationImportId = props.warehouseFormData.locationId
-    radioSelected.value = lotData.value.findIndex((lot) => lot.Id == props.warehouseFormData.lotId)
+    radioSelected.value = lotData.value.findIndex(
+      (lot) => lot.Id == props.warehouseFormData.lot?.value
+    )
+    console.log('radioSelected', radioSelected.value)
   }
 )
 const rules = reactive<FormRules>({
@@ -124,7 +115,7 @@ const tempLotData = ref()
 const loadingLot = ref(true)
 const totalInventory = ref(0)
 const changeWarehouseData = async (warehouseId) => {
-  warehouseForm.locationImportId = undefined
+  warehouseForm.value.locationImportId = undefined
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
@@ -154,8 +145,8 @@ const calculateInventory = () => {
   }, 0)
 }
 const calculateQuantity = (scope) => {
-  if (scope.row.inventory >= warehouseForm.quantity) {
-    return warehouseForm.quantity
+  if (scope.row.inventory >= warehouseForm.value.quantity) {
+    return warehouseForm.value.quantity
   } else {
     return scope.row.inventory
   }
@@ -205,16 +196,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       label-position="top"
     >
       <el-form-item :label="t('reuse.quantity')" prop="quantity">
-        <el-input
-          v-model="warehouseForm.quantity"
-          type="number"
-          :min="1"
-          @change="
-            (data) => {
-              warehouseData.quantity = Number(data)
-            }
-          "
-        />
+        {{ warehouseForm.quantity }}
       </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
         <div class="w-1/2">

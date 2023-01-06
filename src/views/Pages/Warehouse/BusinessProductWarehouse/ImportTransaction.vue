@@ -151,8 +151,8 @@ const callApiForData = async () => {
     if (res) {
       ticketData.value.ticketCode = res.data[0].transactionCode
       ticketData.value.createdAt = res.data[0].createdAt
-      ticketData.value.staffId = res.data[0]?.staffId
-      ticketData.value.customerId = res.data[0]?.customerId
+      ticketData.value.staffId = res.data[0]?.staffName
+      ticketData.value.customerId = res.data[0]?.customerName
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0].updatedAt

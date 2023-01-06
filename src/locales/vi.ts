@@ -1776,7 +1776,7 @@ export default {
     importToSelectedLot: 'Nhập vào lot đã chọn',
     createNewLot: 'Tạo lot mới',
     import: 'Nhập kho',
-    export: 'Chuyển kho',
+    export: 'Xuất kho',
     inStock: 'Đang tồn kho',
     outOfStockInventory: 'Hết tồn kho',
     exporting: 'Đang xuất kho',
@@ -1847,6 +1847,8 @@ export default {
     roleName: 'Tên phân quyền',
     addNewRole: 'Thêm mới phân quyền tài khoản',
     choosePermission: 'Chọn quyền',
-    exportExcelFailed: 'Dữ liệu trống không thể xuất file'
+    exportExcelFailed: 'Dữ liệu trống không thể xuất file',
+    //Kho
+    waitingTransfer: 'Chờ vận chuyển'
   }
 }

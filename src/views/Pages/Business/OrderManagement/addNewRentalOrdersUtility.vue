@@ -1191,8 +1191,7 @@ const editData = async () => {
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      // statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
-      statusOrder.value = 1
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
     }
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)

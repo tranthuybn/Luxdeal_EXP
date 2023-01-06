@@ -90,8 +90,7 @@ const changeMoney = new Intl.NumberFormat('vi', {
 })
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
@@ -1136,9 +1135,8 @@ const editData = async () => {
     const orderObj = { ...res?.data[0] }
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
-      arrayStatusOrder.value = orderObj.status
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
     }
     dataEdit.value = orderObj
     Files = orderObj.orderFiles
@@ -1166,16 +1164,16 @@ const editData = async () => {
       customerIdPromo.value = orderObj.customerId
 
       totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if (orderObj.customer?.isOrganization) {
+        infoCompany.name = orderObj.customer?.name
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+        infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       }
     }
     orderObj.orderFiles.map((element) => {

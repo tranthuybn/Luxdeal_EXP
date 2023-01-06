@@ -38,7 +38,7 @@ export const sellOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -175,7 +175,7 @@ export const rentalorder = [
     minWidth: '190'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -366,7 +366,7 @@ export const depositOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true
@@ -556,7 +556,7 @@ export const pawnOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150'
   },
@@ -759,7 +759,7 @@ export const spaOrder = [
     minWidth: '150'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.collaboratorsCode'),
     minWidth: '150',
     sortable: true

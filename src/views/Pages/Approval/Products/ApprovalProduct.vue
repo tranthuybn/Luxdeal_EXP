@@ -94,10 +94,10 @@ const columnsApprovalProduct = [
 ]
 
 const { push } = useRouter()
-const action = (row: any, type: string) => {
+const action = (row: any, _type: string) => {
   push({
     name: `products-services.productLibrary.Products.${utility}`,
-    params: { id: row.id, type: 'detail' }
+    params: { id: row.targetId, type: 'detail' }
   })
 }
 const utility = 'Utility'

@@ -8,7 +8,8 @@ import {
   CAMPAIGN_API,
   LOGIN_API_URL,
   WAREHOUSE_API,
-  POINT_API
+  POINT_API,
+  STAFF_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -29,6 +30,17 @@ export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//get staff
+export const getStaffList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

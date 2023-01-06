@@ -168,7 +168,7 @@ const props = defineProps({
 <style scoped>
 @font-face {
   font-family: foundry;
-  src: url('@/assets/fonts/Fort Foundry - Rift-Regular.otf');
+  src: url('@/assets/fonts/Fort_Foundry_Rift_Regular.otf');
 }
 .content {
   font-family: foundry;

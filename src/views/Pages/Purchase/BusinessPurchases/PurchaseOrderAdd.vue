@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, onMounted, computed } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -64,7 +64,9 @@ import {
   cancelOrder,
   finishOrder,
   GetPaymentRequestDetail,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  getListWareHouse,
+  getStaffList
 } from '@/api/Business'
 import { getWarehouseLot } from '@/api/Warehouse'
 import { FORM_IMAGES } from '@/utils/format'
@@ -146,7 +148,7 @@ const rules = reactive<FormRules>({
   ],
   warehouse: [
     {
-      required: false,
+      required: true,
       message: t('formDemo.pleaseChooseWarehouse'),
       trigger: 'change'
     }
@@ -344,16 +346,11 @@ const chooseDelivery = [
   }
 ]
 
-const chooseWarehouse = [
-  {
-    value: 0,
-    label: 'Hà Nội'
-  },
-  {
-    value: 1,
-    label: `Hồ Chí Minh`
-  }
-]
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 const radio1 = ref('')
 
@@ -734,10 +731,6 @@ interface statusOrderType {
 
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-
-if (type == 'add') {
-  arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
-}
 
 const updateStatusOrder = async (status: number, idOrder: any) => {
   const payload = {
@@ -1137,7 +1130,7 @@ const postData = async () => {
   // automaticCouponWareHouse(2)
 }
 
-// Phiếu xuất kho tự động
+// Phiếu nhập kho tự động
 // const automaticCouponWareHouse = async (index) => {
 //   const payload = {
 //     OrderId: idOrderPost.value.data,
@@ -1279,8 +1272,6 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
-    arrayStatusOrder.value[0].createdAt = ''
-    arrayStatusOrder.value[0].isActive = true
   }
 }
 
@@ -2096,7 +2087,6 @@ const callApiCollaborators = async () => {
 
 const scrollCollaboratorTop = ref(false)
 const scrollCollaboratorBottom = ref(false)
-
 const noMoreCollaboratorData = ref(false)
 
 const ScrollCollaboratorBottom = () => {
@@ -2134,9 +2124,81 @@ const scrolling = (e) => {
   }
 }
 
+//lấy danh sách staff
+const optionsRecharger = ref()
+
+const pageIndexRecharger = ref(1)
+const callApiRecharger = async () => {
+  const res = await getStaffList({
+    PageIndex: pageIndexRecharger.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsRecharger.value = res.data.map((recharger) => ({
+      label: recharger.name + ' | ' + recharger.phonenumber,
+      value: recharger.id
+    }))
+  }
+}
+
+const scrollRechargerTop = ref(false)
+const scrollRechargerBottom = ref(false)
+const noMoreRechargerData = ref(false)
+
+const ScrollRechargerBottom = () => {
+  scrollRechargerBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreRechargerData.value
+    ? ''
+    : getStaffList({ PageIndex: pageIndexRecharger.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreRechargerData.value = true)
+            : res.data.map((el) =>
+                optionsRecharger.value.push({
+                  label: el.name + ' | ' + el.phoneNumber,
+                  value: el.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreRechargerData.value = true
+        })
+}
+
+const scrollingRecharger = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollRechargerTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollRechargerBottom()
+  }
+}
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
+
 onBeforeMount(async () => {
+  await editData()
+  await callApiWarehouseList()
   callCustomersApi()
   callApiCollaborators()
+  callApiRecharger()
   await callApiProductList()
   callApiCity()
 
@@ -2145,10 +2207,10 @@ onBeforeMount(async () => {
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
+    arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
+    arrayStatusOrder.value[0].createdAt = ''
+    arrayStatusOrder.value[0].isActive = true
   }
-})
-onMounted(async () => {
-  await editData()
 })
 </script>
 
@@ -2521,7 +2583,7 @@ onMounted(async () => {
           </span>
         </template>
       </el-dialog>
-      ref
+
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"
@@ -2551,13 +2613,15 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -2670,13 +2734,15 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -2762,6 +2828,7 @@ onMounted(async () => {
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"
+        :lock-scroll="true"
       >
         <div>
           <el-divider />
@@ -2787,12 +2854,14 @@ onMounted(async () => {
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -2862,6 +2931,7 @@ onMounted(async () => {
                         autoCalculateOrder()
                       }
                     "
+                    type="number"
                     v-model="data.row.quantity"
                     style="width: 100%"
                   />
@@ -3234,13 +3304,15 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.warehouser') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Trần Hữu Dương | 0998844533">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -3348,13 +3420,15 @@ onMounted(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.warehouser') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Trần Hữu Dương | 0998844533">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -3962,11 +4036,7 @@ onMounted(async () => {
                 }}</el-divider>
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input
-                  :disabled="checkDisabled"
-                  style="width: 100%"
-                  v-model="ruleForm.orderCode"
-                />
+                <el-input :disabled="true" style="width: 100%" v-model="ruleForm.orderCode" />
               </el-form-item>
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
@@ -4123,6 +4193,15 @@ onMounted(async () => {
                       </div>
                     </el-form-item>
                   </div>
+                  <div class="w-[100%]">
+                    <el-form-item>
+                      <p
+                        v-if="ruleForm.customerName !== ''"
+                        class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
+                        >{{ t('formDemo.noDebt') }}</p
+                      >
+                    </el-form-item>
+                  </div>
                 </div>
                 <div class="flex-1">
                   <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
@@ -4165,16 +4244,7 @@ onMounted(async () => {
                   </el-form-item>
                 </div>
               </div>
-              <div class="flex w-[100%] gap-6">
-                <div class="w-[50%]">
-                  <el-form-item>
-                    <p
-                      v-if="ruleForm.customerName !== ''"
-                      class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
-                      >{{ t('formDemo.noDebt') }}</p
-                    >
-                  </el-form-item>
-                </div>
+              <div class="flex w-[100%] gap-6 justify-end">
                 <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
                   <p class="w-[150px] ml-2 text-[#828387] text-right">{{
                     t('formDemo.deliveryAddress')
@@ -5101,7 +5171,7 @@ onMounted(async () => {
           style="width: 100%"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="40" align="center" />
+          <el-table-column type="selection" width="60" align="center" />
           <el-table-column
             prop="createdAt"
             :label="t('formDemo.initializationDate')"
@@ -5179,7 +5249,7 @@ onMounted(async () => {
           >
             <template #default="props">
               <div v-if="props.row.deibt < 0" class="text-blue-500"> Phải thu </div>
-              <div v-else-if="props.row.deibt > 0" class="text-red-500"> Phải chi </div>
+              <div v-else class="text-red-500"> Phải chi </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -5562,6 +5632,23 @@ onMounted(async () => {
 
 ::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
   padding-left: 8px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 #content {

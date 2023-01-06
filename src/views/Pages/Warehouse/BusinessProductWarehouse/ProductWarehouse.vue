@@ -44,7 +44,6 @@ type Options = {
   value: number
   label: string
 }
-
 type ProductWarehouse = {
   productPropertyId?: number
   quantity?: number
@@ -231,7 +230,7 @@ const warehouseFormat = (props) => {
   }
 }
 const checkValueOfTable = () => {
-  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == true) {
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false) {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
       type: 'warning'

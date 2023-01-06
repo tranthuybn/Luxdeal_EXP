@@ -305,33 +305,48 @@ export const STATUS_ORDER_RENTAL = [
     createdAt: ''
   },
   {
-    orderStatus: 22,
-    orderStatusName: 'Duyệt trả hàng trước hạn',
-    createdAt: ''
-  },
-  {
     orderStatus: 2,
     orderStatusName: 'Chốt đơn hàng',
     createdAt: ''
   },
   {
-    orderStatus: 13,
-    orderStatusName: 'Hoàn thành đơn hàng',
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 32,
+    orderStatusName: 'Duyệt trả hàng trước hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 31,
+    orderStatusName: 'Bắt đầu thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 33,
+    orderStatusName: 'Hết hạn thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 34,
+    orderStatusName: 'Trả hàng hết hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 35,
+    orderStatusName: 'Bắt đầu gia hạn thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 36,
+    orderStatusName: 'Kết thúc gia hạn thuê',
     createdAt: ''
   },
   {
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
-    createdAt: ''
-  },
-  {
-    orderStatus: 14,
-    orderStatusName: 'Duyệt đổi/trả hàng',
-    createdAt: ''
-  },
-  {
-    orderStatus: 0,
-    orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
   }
 ]

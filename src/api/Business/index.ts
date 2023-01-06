@@ -183,35 +183,11 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
-// Chỉnh sửa thông tin đơn hàng
-export const updateOrderInfo = async (params: any): Promise<IResponse> => {
-  const res = await request.put(
-    {
-      url: ORDER_API.UPDATE_ORDER_INFO,
-      data: params
-    },
-    fixedBaseURL
-  )
-  return res.data && res.data.data
-}
-
 // Chỉnh sửa trạng thái đơn hàng
 export const updateOrderStatus = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
       url: ORDER_API.UPDATE_ORDER_STATUS,
-      data: params
-    },
-    fixedBaseURL
-  )
-  return res.data && res.data.data
-}
-
-// Hủy đơn hàng
-export const cancelOrder = async (params: any): Promise<IResponse> => {
-  const res = await request.put(
-    {
-      url: ORDER_API.CANCEL_ORDER,
       data: params
     },
     fixedBaseURL

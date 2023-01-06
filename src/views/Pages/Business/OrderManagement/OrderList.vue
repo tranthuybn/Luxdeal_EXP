@@ -57,7 +57,7 @@ const tabs: Array<Tab> = [
 let currentTab = ref()
 
 const changeParam = (val: '') => {
-  if (currentTab.value) {
+  if (currentTab.value != ':tab' && currentTab.value) {
     const index = API_ORDER.find((e) => e.label == currentTab.value)
     if (index) {
       params.ServiceType = index?.key

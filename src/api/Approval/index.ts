@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { API_URL, APPROVAL_API, PRODUCTS_AND_SERVICES_API } from '@/utils/API_URL'
+import { API_URL, APPROVAL_API, PRODUCTS_AND_SERVICES_API, ORDER_API } from '@/utils/API_URL'
 import { objectToQueryParams } from '@/utils/format'
 const request = useAxios()
 const fixedBaseURL = API_URL
@@ -29,8 +29,14 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-export const getOrderApproval = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/OrdersApproval/List', params })
+// Lấy danh sách order cần duyệt
+export const getOrderApproval = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.ORDER_APPROVAL_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }
 

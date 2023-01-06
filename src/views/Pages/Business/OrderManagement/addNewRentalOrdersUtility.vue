@@ -1228,16 +1228,16 @@ const editData = async () => {
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if (orderObj.customer?.isOrganization) {
+        infoCompany.name = orderObj.customer?.name
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+        infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       }
     }
     orderObj.orderFiles.map((element) => {
@@ -2497,6 +2497,7 @@ onBeforeMount(() => {
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
   }
+  if (type == 'detail') doubleDisabled.value = true
 })
 </script>
 
@@ -4834,7 +4835,14 @@ onBeforeMount(() => {
                 v-for="item in arrayStatusOrder"
                 :key="item.orderStatus"
               >
-                <div v-if="item.orderStatus == 1 || item.orderStatus == 5 || item.orderStatus == 7">
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4848,7 +4856,9 @@ onBeforeMount(() => {
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == 2 || item.orderStatus == 3 || item.orderStatus == 4
+                    item.orderStatus == STATUS_ORDER_RENTAL[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[6].orderStatus
                   "
                 >
                   <span
@@ -4862,7 +4872,7 @@ onBeforeMount(() => {
                     <span class="triangle-right right_2"> </span>
                   </span>
                 </div>
-                <div v-else-if="item.orderStatus == 6">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_RENTAL[11].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4876,7 +4886,9 @@ onBeforeMount(() => {
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == 8 || item.orderStatus == 9 || item.orderStatus == 10
+                    item.orderStatus == STATUS_ORDER_RENTAL[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[9].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[0].orderStatus
                   "
                 >
                   <span
@@ -4898,7 +4910,7 @@ onBeforeMount(() => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == 1 && priceChangeOrders == false"
+            v-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && priceChangeOrders == false"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button

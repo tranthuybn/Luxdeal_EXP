@@ -74,7 +74,7 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
-import { getProductStorage } from '@/api/Warehouse'
+import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
@@ -195,8 +195,9 @@ interface ListOfProductsForSaleType {
   paymentType: string
   edited: boolean
   totalPrice: number
-  fromLotId?: number
-  fromWarehouse?: Options
+  locationLot?: Options
+  lotCode?: Options
+  lotName?: Options
   fromLocation?: Options
   toWarehouse?: Options
   toLocation?: Options
@@ -812,6 +813,7 @@ const optionsApiServicesSpa = ref()
 const currentRow2 = ref(0)
 
 const callApiServicesSpa = async (scope) => {
+  console.log('scope', scope)
   indexSpa.value = scope.$index
   if (scope.row.productPropertyId) {
     dialogFormSettingServiceSpa.value = true
@@ -1067,7 +1069,7 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
-  warehouseParent: 1
+  warehouseParent: NaN
 })
 
 const rules = reactive<FormRules>({
@@ -1655,10 +1657,12 @@ const postPT = async () => {
   handleChangeReceipts()
 }
 const changeWH = ref(false)
+let idParentWH = ref(0)
 const getIDWarehouse = (index) => {
   changeWH.value = true
   console.log('changeWH', changeWH.value)
   console.log('data', index)
+  idParentWH.value = index
 }
 
 // Thêm mã phiếu thu/chi vào debtTable
@@ -1847,47 +1851,33 @@ const opendialogWarehouse = (props) => {
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
+  console.log('warehouseData', warehouseData)
+  console.log('warehouseData.lot.lotCode', warehouseData?.lot?.lotCode)
+
   if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRowWHTrans.value].quantity = warehouseData.quantity
-    ListOfProductsForSale.value[currentRowWHTrans.value].unitName = warehouseData.lot.unit
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromWarehouse = warehouseData.fromWarehouse
-    ListOfProductsForSale.value[currentRowWHTrans.value].toWarehouse = warehouseData.toWarehouse
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromLocation = warehouseData.fromLocation
-    ListOfProductsForSale.value[currentRowWHTrans.value].toLocation = warehouseData.toLocation
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromLotId = warehouseData.fromLotId
+    ListOfProductsForSale.value[currentRowWHTrans.value].locationLot = warehouseData.location
+    ListOfProductsForSale.value[currentRowWHTrans.value].lotName = warehouseData?.lot.lotCode
     ListOfProductsForSale.value[currentRowWHTrans.value].toLotId = warehouseData.toLot
   }
+  console.log('ListOfProductsForSale', ListOfProductsForSale.value[currentRowWHTrans.value])
   dialogWarehouse.value = false
   // toLotId
 }
 
 const fromWarehouseFormat = (props) => {
-  let fromWarehouseName = ''
-  let fromLocationName = ''
+  let locationLot = ''
   let lotName = ''
-
   if (
-    props.row.fromWarehouse !== undefined &&
-    props.row.fromWarehouse?.label !== null &&
-    props.row.fromWarehouse?.label !== undefined
+    props.row.locationLot !== undefined &&
+    props.row.locationLot?.label !== null &&
+    props.row.locationLot?.label !== undefined
   ) {
-    fromWarehouseName = props.row.fromWarehouse?.label
+    locationLot = props.row.locationLot?.label
   }
-  if (
-    props.row.fromLocation !== undefined &&
-    props.row.fromLocation?.label !== null &&
-    props.row.fromLocation?.label !== undefined
-  ) {
-    fromLocationName = props.row.fromLocation?.label
+  if (props.row.lotName !== undefined && props.row.lotName !== null) {
+    lotName = props.row.lotName
   }
-  if (
-    props.row.fromLotId !== undefined &&
-    props.row.fromLotId?.label !== null &&
-    props.row.fromLotId?.label !== undefined
-  ) {
-    lotName = props.row.lot?.label
-  }
-  return `${fromWarehouseName}/${fromLocationName}/${lotName}`
+  return `${locationLot}/${lotName}`
 }
 
 let tableSalesSlip = ref()
@@ -2062,6 +2052,31 @@ const addStatusDelay = () => {
   }, 4000)
 }
 const valueMoneyAccoungtingEntry = ref(0)
+
+const lotData = ref()
+const tempLotData = ref()
+const loadingLot = ref(true)
+const callApiWarehouseLot = async (props) => {
+  await getWarehouseLot({
+    WarehouseId: idParentWH.value,
+    productPropertyId: props.row.productPropertyId
+  })
+    .then((res) => {
+      lotData.value = res.data.map((item) => ({
+        warehouseId: item.warehouseId,
+        locationId: item.locationId,
+        location: item.locationName,
+        lotCode: item.code,
+        orderType: item.serviceType,
+        inventory: item.inventory,
+        unit: item?.unitName,
+        createdAt: item.createdAt
+      }))
+    })
+    .finally(() => (loadingLot.value = false))
+  tempLotData.value = lotData.value
+  console.log('tempLotData.value', tempLotData.value)
+}
 
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
@@ -2251,6 +2266,8 @@ const postReturnRequest = async (reason) => {
         :quantitySpa="quantitySpa"
         :warehouseIDParent="ruleForm.warehouseParent"
         :changeWH="changeWH"
+        :listLotWH="tempLotData"
+        :tempLotData="lotData"
       />
       <!-- Dialog In phiếu thu -->
       <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
@@ -3193,7 +3210,16 @@ const postReturnRequest = async (reason) => {
                   <div class="break-words">{{ fromWarehouseFormat(props) }}</div>
                 </div>
                 <div class="w-[40%]">
-                  <el-button :disabled="disabledEdit" text @click="opendialogWarehouse(props)">
+                  <el-button
+                    :disabled="disabledEdit"
+                    text
+                    @click="
+                      () => {
+                        opendialogWarehouse(props)
+                        callApiWarehouseLot(props)
+                      }
+                    "
+                  >
                     <span class="text-blue-500"> + {{ t('reuse.selectedLot') }}</span>
                   </el-button>
                 </div>

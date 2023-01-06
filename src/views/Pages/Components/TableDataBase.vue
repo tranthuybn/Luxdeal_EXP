@@ -10,6 +10,10 @@ import { addOperatorColumn, dynamicApi, dynamicColumns } from './TablesReusabili
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
+import moment from 'moment'
+import { ElNotification } from 'element-plus'
+import { excelParser } from './excel-parser'
+const { currentRoute } = useRouter()
 const { t } = useI18n()
 const props = defineProps({
   columns: {
@@ -92,6 +96,12 @@ const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
+  console.log(
+    'NoahKhalifa',
+    unref(tableBase01)!.tableObject.tableList,
+    'dynamicColumns',
+    dynamicColumns.value
+  )
 }
 
 //add operator for every table
@@ -121,6 +131,35 @@ function fnGetTotalRecord(val) {
 function fnGetSelectedRecord(val) {
   getSelectedRecord.value = val ?? []
 }
+
+const ExportExcelEvent = () => {
+  if (
+    unref(tableBase01)!.tableObject.tableList &&
+    unref(tableBase01)!.tableObject.tableList.length > 0
+  ) {
+    const exportData = unref(tableBase01)!.tableObject.tableList.map((el) => initMappingObject(el))
+    excelParser().exportDataFromJSON(
+      exportData,
+      'DDA.' + currentRoute.value.path + moment().format('yMMDDhmmss'),
+      null
+    )
+  } else
+    return ElNotification({
+      message: t('reuse.exportExcelFailed'),
+      type: 'error'
+    })
+}
+const initMappingObject = (el) => {
+  // map array element iteam to object key
+  if (dynamicColumns.value && dynamicColumns.value.length > 0) {
+    const dictionaryObject = dynamicColumns.value.reduce(function (map, obj) {
+      map[obj.label] = el[obj.field]
+      return map
+    }, {})
+    return dictionaryObject
+  }
+  return []
+}
 </script>
 <template>
   <section>
@@ -135,6 +174,7 @@ function fnGetSelectedRecord(val) {
       v-if="selection"
       :totalRecord="getTotalRecord"
       :selectedRecord="getSelectedRecord"
+      @export-excel-event="ExportExcelEvent"
     />
     <TableBase
       :removeDrawer="removeDrawer"

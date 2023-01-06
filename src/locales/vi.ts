@@ -1846,6 +1846,7 @@ export default {
     decentralization: 'Thông tin phân quyền tài khoản',
     roleName: 'Tên phân quyền',
     addNewRole: 'Thêm mới phân quyền tài khoản',
-    choosePermission: 'Chọn quyền'
+    choosePermission: 'Chọn quyền',
+    exportExcelFailed: 'Dữ liệu trống không thể xuất file'
   }
 }

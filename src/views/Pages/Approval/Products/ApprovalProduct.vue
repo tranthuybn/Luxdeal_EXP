@@ -95,7 +95,6 @@ const columnsApprovalProduct = [
 
 const { push } = useRouter()
 const action = (row: any, _type: string) => {
-  console.log('row: ', row)
   push({
     name: `products-services.productLibrary.Products.${utility}`,
     params: { id: row.targetId, type: 'detail' }

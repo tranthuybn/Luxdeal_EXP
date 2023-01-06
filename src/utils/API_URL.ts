@@ -103,9 +103,7 @@ export const ORDER_API = {
   GET_PRODUCT_PROPERTY_INVENTORY: '/api/v1/Order/GetProductPropertyInventory',
   GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
   UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
-  UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
-  UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
-  CANCEL_ORDER: '/api/v1/Order/CancelOrder'
+  UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -154,7 +152,8 @@ export const DEPARTMENT_DIRECTORY = {
   DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
   DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
   GET_LIST_POSITION: '/api/v1/Position/GetPosition',
-  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff'
+  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff',
+  ADD_NEW_STAFF: '/api/v1/AccountStaff/CreateAccountOne'
 }
 
 export const APPROVAL_API = {

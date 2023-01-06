@@ -22,7 +22,8 @@ import {
   ElCheckbox,
   ElRow,
   ElCol,
-  ElMessageBox
+  ElMessageBox,
+  ElNotification
 } from 'element-plus'
 import moment from 'moment'
 import { useI18n } from 'vue-i18n'
@@ -30,9 +31,12 @@ import { useForm } from '@/hooks/web/useForm'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { useRouter } from 'vue-router'
+import { FORM_IMAGES } from '@/utils/format'
 import {
+  addNewStaff,
   getBranchList,
   getDepartmentList,
+  getRankList,
   getTypePersonnelList
 } from '@/api/HumanResourceManagement'
 import { useValidator } from '@/hooks/web/useValidator'
@@ -85,7 +89,7 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
-const { ValidService, notSpace, removeVietnameseTones } = useValidator()
+const { ValidService, notSpace } = useValidator()
 
 const ruleForm = reactive({
   staffCode: curDate,
@@ -115,6 +119,7 @@ const ruleForm = reactive({
   ProvinceId: '',
   DistrictId: '',
   WardId: '',
+  roleAcces: '',
   Address: '',
   password: '',
   isActive: true
@@ -122,8 +127,47 @@ const ruleForm = reactive({
 
 const rules = reactive<FormRules>({
   name: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 30, message: 'Length should be 3 to 5', trigger: 'blur' }
+    { required: true, message: 'Vui lòng nhập tên', trigger: 'blur' },
+    { min: 1, max: 30, message: 'Độ dài phải lớn hơn 1 và nhỏ hơn 30', trigger: 'blur' }
+  ],
+  email: [ValidService.checkEmail],
+  branch: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  sex: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  jobPosition: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  typeOfEmployee: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  department: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  phoneNumber: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
+    ValidService.checkPhone
+  ],
+  cccdCreateAt: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Vui lòng chọn ngày cấp',
+      trigger: 'change'
+    }
+  ],
+  doB: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Vui lòng chọn ngày sinh',
+      trigger: 'change'
+    }
   ],
   userName: [
     { required: true, message: t('common.required'), trigger: 'blur' },
@@ -147,28 +191,18 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  count: [
+  cccdPlaceOfGrant: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  cccd: [
     {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        callback()
+      },
       required: true,
-      message: 'Please select Activity count',
-      trigger: 'change'
-    }
-  ],
-  date1: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a date',
-      trigger: 'change'
-    }
-  ],
-  date2: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a time',
-      trigger: 'change'
-    }
+      trigger: 'blur'
+    },
+    ValidService.checkCCCD
   ],
   type: [
     {
@@ -188,7 +222,7 @@ const rules = reactive<FormRules>({
   desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
 })
 
-const options = [
+const optionsGender = [
   {
     value: true,
     label: 'Nam'
@@ -248,8 +282,22 @@ const CallApiBranch = async () => {
   }
 }
 
-const branchChange = (data) => {
-  console.log('data:', data)
+const listPosition = ref()
+const CallApiPosition = async () => {
+  const res = await getRankList()
+  if (res) {
+    listPosition.value = res.data.map((position) => ({
+      label: position.name,
+      value: position.id
+    }))
+    return listPosition.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
 }
 
 const listDepartments = ref()
@@ -362,10 +410,10 @@ const cancel = async () => {
   })
 }
 
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-}
+// const resetForm = (formEl: FormInstance | undefined) => {
+//   if (!formEl) return
+//   formEl.resetFields()
+// }
 const disabledForm = ref(false)
 
 let FileDeleteIds: any = []
@@ -392,6 +440,24 @@ const beforeRemove = (uploadFile) => {
       })
     })
 }
+
+const optionsRole = [
+  {
+    id: 1,
+    label: 'admin',
+    value: 1
+  },
+  {
+    id: 2,
+    label: 'Cus',
+    value: 2
+  },
+  {
+    id: 3,
+    label: 'Tester',
+    value: 3
+  }
+]
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
@@ -422,34 +488,62 @@ const postData = async (typebtn) => {
   console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const payloadAcc = {
-      fullName: ruleForm.name,
-      email: ruleForm.email,
-      password: ruleForm.password,
-      confirmPassword: ruleForm.password,
-      userName: ruleForm.userName,
-      phoneNumber: ruleForm.phoneNumber
+    const payload = {
+      Code: ruleForm.staffCode,
+      Name: ruleForm.name,
+      Email: ruleForm.email,
+      Phone: ruleForm.phoneNumber,
+      CCCD: ruleForm.cccd,
+      NgayCap: ruleForm.cccdCreateAt,
+      NoiCap: ruleForm.cccdPlaceOfGrant,
+      Gender: ruleForm.sex,
+      BirthDay: ruleForm.doB,
+      Contact: ruleForm.link,
+      BranchId: valueBranch.value,
+      DepartmentId: ruleForm.department,
+      PositionId: ruleForm.jobPosition,
+      TypeOfStaff: ruleForm.typeOfEmployee,
+      AddressProvinceId: valueProvince.value,
+      AddressDistrictId: valueDistrict.value,
+      Address: ruleForm.Address,
+      BankAccountName: ruleForm.accountName,
+      WardId: valueCommune.value,
+      BankAccountNumber: ruleForm.accountNumber,
+      BankId: ruleForm.bankName,
+      IsActive: true
     }
-    console.log(payloadAcc)
+    console.log(payload)
 
-    // await addNewAuthRegister(JSON.stringify(payloadAcc))
-    //   .then(() => {
-    //     // postCustomer(typebtn)
-    //     console.log('tyaya')
-    //   })
-    //   .catch((res) =>
-    //     ElNotification({
-    //       message: res.response.data.message,
-    //       type: 'success'
-    //     })
-    //   )
+    const formDataPayLoad = FORM_IMAGES(payload)
+    await addNewStaff(formDataPayLoad)
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        if (typebtn === 'save') {
+          push({
+            name: 'human-resource-management.personnel-accounts',
+            params: { backRoute: 'human-resource-management.personnel-accounts' }
+          })
+        }
+      })
+      .catch((error) =>
+        ElNotification({
+          message: error,
+          type: 'warning'
+        })
+      )
+    // clear()
   }
+  // resetForm(ruleFormRef)
 }
 
 onBeforeMount(() => {
   callApiCity()
   CallApiBranch()
   CallApiDepartment()
+  CallApiPosition()
   CallApiStaff()
 })
 </script>
@@ -505,33 +599,45 @@ onBeforeMount(() => {
                   <el-input v-model="ruleForm.email" placeholder="Nhập email" />
                 </el-form-item>
 
-                <el-form-item :label="t('reuse.cmnd')" prop="cccd">
-                  <div class="flex gap-2 w-[100%] cccd">
-                    <el-input
-                      v-model="ruleForm.cccd"
-                      class="w-[25%] outline-none dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterCCCD')"
-                    />
-                    <el-date-picker
-                      prop="cccdCreateAt"
-                      v-model="ruleForm.cccdCreateAt"
-                      type="date"
-                      :placeholder="t('formDemo.supplyDate')"
-                      :disabled-date="disabledDate"
-                      :size="size"
-                      :editable="false"
-                      format="DD/MM/YYYY"
-                      value-format="YYYY-MM-DD"
-                      class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
-                    />
-                    <el-input
-                      prop="cccdPlaceOfGrant"
-                      v-model="ruleForm.cccdPlaceOfGrant"
-                      class="w-[25%] outline-none dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.supplyAddress')"
-                    />
+                <el-form-item :label="t('reuse.cmnd')">
+                  <div class="flex gap-2 w-[100%] cccd-format">
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccd">
+                        <el-input
+                          v-model="ruleForm.cccd"
+                          class="w-[25%] outline-none dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.enterCCCD')"
+                        />
+                      </el-form-item>
+                    </div>
+
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccdCreateAt">
+                        <el-date-picker
+                          v-model="ruleForm.cccdCreateAt"
+                          type="date"
+                          :placeholder="t('formDemo.supplyDate')"
+                          :disabled-date="disabledDate"
+                          :size="size"
+                          :editable="false"
+                          format="DD/MM/YYYY"
+                          value-format="YYYY-MM-DD"
+                          class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
+                        />
+                      </el-form-item>
+                    </div>
+
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccdPlaceOfGrant">
+                        <el-input
+                          v-model="ruleForm.cccdPlaceOfGrant"
+                          class="w-[25%] outline-none dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.supplyAddress')"
+                        />
+                      </el-form-item>
+                    </div>
                   </div>
                 </el-form-item>
 
@@ -539,30 +645,33 @@ onBeforeMount(() => {
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.dateOfBirthAnGender')"
                 >
-                  <div class="flex gap-2 w-[100%]">
+                  <div class="flex gap-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
-                      <el-date-picker
-                        prop="doB"
-                        v-model="ruleForm.doB"
-                        type="date"
-                        :placeholder="t('reuse.dateOfBirth')"
-                        :disabled-date="disabledDate"
-                        :size="size"
-                        :editable="false"
-                        format="DD/MM/YYYY"
-                        value-format="YYYY-MM-DD"
-                        @change="formatDate"
-                      />
+                      <el-form-item prop="doB">
+                        <el-date-picker
+                          v-model="ruleForm.doB"
+                          type="date"
+                          :placeholder="t('reuse.dateOfBirth')"
+                          :disabled-date="disabledDate"
+                          :size="size"
+                          :editable="false"
+                          format="DD/MM/YYYY"
+                          value-format="YYYY-MM-DD"
+                          @change="formatDate"
+                        />
+                      </el-form-item>
                     </div>
                     <div class="flex-1">
-                      <el-select v-model="ruleForm.sex" clearable placeholder="Select" prop="sex">
-                        <el-option
-                          v-for="item in options"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="sex">
+                        <el-select v-model="ruleForm.sex" clearable placeholder="Chọn giới tính">
+                          <el-option
+                            v-for="item in optionsGender"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                   </div>
                 </el-form-item>
@@ -586,33 +695,32 @@ onBeforeMount(() => {
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
-                      <el-select
-                        v-model="valueBranch"
-                        clearable
-                        placeholder="Chọn chi nhánh"
-                        @change="(data) => branchChange(data)"
-                      >
-                        <el-option
-                          v-for="item in listBranchs"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="branch">
+                        <el-select v-model="ruleForm.branch" clearable placeholder="Chọn chi nhánh">
+                          <el-option
+                            v-for="item in listBranchs"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                     <div class="flex-1">
-                      <el-select
-                        v-model="ruleForm.department"
-                        clearable
-                        placeholder="Chọn phòng ban"
-                      >
-                        <el-option
-                          v-for="item in listDepartments"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="department">
+                        <el-select
+                          v-model="ruleForm.department"
+                          clearable
+                          placeholder="Chọn phòng ban"
+                        >
+                          <el-option
+                            v-for="item in listDepartments"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                   </div>
                 </el-form-item>
@@ -623,32 +731,36 @@ onBeforeMount(() => {
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
-                      <el-select
-                        v-model="ruleForm.jobPosition"
-                        clearable
-                        placeholder="Chọn vị trí làm việc"
-                      >
-                        <el-option
-                          v-for="item in options"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="jobPosition">
+                        <el-select
+                          v-model="ruleForm.jobPosition"
+                          clearable
+                          placeholder="Chọn vị trí làm việc"
+                        >
+                          <el-option
+                            v-for="item in listPosition"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
-                    <div class="flex-1">
-                      <el-select
-                        v-model="ruleForm.typeOfEmployee"
-                        clearable
-                        placeholder="Chọn loại hình nhân viên"
-                      >
-                        <el-option
-                          v-for="item in listTypeOfStaff"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                    <div class="flex-1 mb-5">
+                      <el-form-item prop="typeOfEmployee">
+                        <el-select
+                          v-model="ruleForm.typeOfEmployee"
+                          clearable
+                          placeholder="Chọn loại hình nhân viên"
+                        >
+                          <el-option
+                            v-for="item in listTypeOfStaff"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                   </div>
                 </el-form-item>
@@ -661,14 +773,14 @@ onBeforeMount(() => {
 
                 <el-form-item label="Phân quyền" prop="decentralization" placeholder="Họ và tên">
                   <el-select
-                    v-model="ruleForm.typeOfEmployee"
+                    v-model="ruleForm.roleAcces"
                     clearable
                     placeholder="Chọn quyền"
-                    prop="sex"
+                    prop="role"
                   >
                     <el-option
-                      v-for="item in options"
-                      :key="item.label"
+                      v-for="item in optionsRole"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -760,12 +872,7 @@ onBeforeMount(() => {
                       t('reuse.save')
                     }}</el-button>
                     <el-button
-                      @click="
-                        () => {
-                          postData('saveAndAdd')
-                          resetForm(ruleFormRef)
-                        }
-                      "
+                      @click="postData('saveAndAdd')"
                       type="primary"
                       class="min-w-42 min-h-11"
                       >{{ t('reuse.saveAndAdd') }}</el-button
@@ -963,6 +1070,10 @@ onBeforeMount(() => {
 
 ::v-deep(.custom-select-w38 > .el-select) {
   width: 38%;
+}
+
+::v-deep(.cccd-format .fix-width .el-form-item__content > .el-input) {
+  width: 100% !important;
 }
 
 .el-icon.avatar-uploader-icon {

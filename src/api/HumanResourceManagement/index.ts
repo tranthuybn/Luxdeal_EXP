@@ -81,6 +81,17 @@ export const deleteDepartment = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+//post new nhan su
+export const addNewStaff = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: DEPARTMENT_DIRECTORY.ADD_NEW_STAFF,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
 
 export const getRankList = async (_params?: Params): Promise<IResponse> => {
   const res = await request.get(

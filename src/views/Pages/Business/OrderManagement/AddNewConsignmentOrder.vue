@@ -55,12 +55,14 @@ import {
   getDetailAccountingEntryById,
   addQuickCustomer,
   GetProductPropertyInventory,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  updateStatusOrder,
+  updateOrderStatus
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -566,71 +568,6 @@ const handleChangePaymentRequest = () => {
 }
 const checkDisabled = ref(false)
 
-const editData = async () => {
-  if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
-    disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 2 })
-    const transaction = await getOrderTransaction({ id: id })
-    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
-    debtTable.value = transaction.data
-    getReturnRequestTable()
-
-    console.log('res', res)
-    const orderObj = { ...res?.data[0] }
-    // arrayStatusOrder.value = orderObj.status
-    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-    dataEdit.value = orderObj
-    if (res.data) {
-      ruleForm.orderCode = orderObj.code
-      // sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaborator.id
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
-
-      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
-      ruleForm.orderNotes = orderObj.description
-      // totalPriceOrder.value = orderObj.totalPrice
-      // totalFinalOrder.value = orderObj.totalPrice
-
-      totalOrder.value = orderObj.totalPrice
-      if (ListOfProductsForSale.value?.length > 0)
-        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
-      ListOfProductsForSale.value = orderObj.orderDetails
-      customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOptionName
-      // customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
-      } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
-      }
-    }
-    orderObj.orderFiles.map(
-      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
-        if (element !== null) {
-          ListFileUpload.value.push({
-            url: `${element?.domainUrl}${element?.path}`,
-            name: element?.fileId,
-            uid: element?.id
-          })
-        }
-      }
-    )
-  } else if (type == 'add' || !type) {
-    ListOfProductsForSale.value.push({ ...productForSale })
-  }
-}
-
 //thêm nahnh sp
 
 const quickProductCode = ref()
@@ -880,92 +817,34 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
+let statusOrder = ref(STATUS_ORDER_PURCHASE[1].orderStatus)
 interface statusOrderType {
-  statusName: string
-  status: number
+  orderStatusName: string
+  orderStatus: number
+  createdAt: string | Date
   isActive?: boolean
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add')
-  arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
-    isActive: true
-  })
+
+const updateStatusOrder = async (status: number, idOrder: any) => {
+  const payload = {
+    OrderId: idOrder ? idOrder : id,
+    ServiceType: 6,
+    OrderStatus: status
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderStatus(formDataPayLoad)
+  statusOrder.value = status
+}
 
 const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
-        status: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
-          status: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      }
-
-      break
-  }
-}
-let statusOrder = ref(1)
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+  arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[index])
+  statusOrder.value = STATUS_ORDER_PURCHASE[index].orderStatus
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
+  updateStatusOrder(STATUS_ORDER_PURCHASE[index].orderStatus, id)
 }
 
 const addStatusDelay = () => {
@@ -1573,6 +1452,77 @@ const getReturnRequestTable = async () => {
   }
 }
 
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  if (type == 'edit' || type == 'detail') {
+    disabledEdit.value = true
+    const res = await getOrderList({ Id: id, ServiceType: 2 })
+    const transaction = await getOrderTransaction({ id: id })
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
+    getReturnRequestTable()
+
+    console.log('res', res)
+    const orderObj = { ...res?.data[0] }
+
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    }
+    // arrayStatusOrder.value = orderObj.status
+    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    dataEdit.value = orderObj
+    if (res.data) {
+      ruleForm.orderCode = orderObj.code
+      // sellOrderCode.value = ruleForm.orderCode
+      ruleForm.collaborators = orderObj.collaborator.id
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
+      ruleForm.customerName =
+        orderObj.customer.isOrganization == 'True'
+          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.orderNotes = orderObj.description
+      // totalPriceOrder.value = orderObj.totalPrice
+      // totalFinalOrder.value = orderObj.totalPrice
+
+      totalOrder.value = orderObj.totalPrice
+      if (ListOfProductsForSale.value?.length > 0)
+        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
+      ListOfProductsForSale.value = orderObj.orderDetails
+      customerAddress.value = orderObj.address
+      ruleForm.delivery = orderObj.deliveryOptionName
+      // customerIdPromo.value = orderObj.customerId
+      if (orderObj.customer.isOrganization) {
+        infoCompany.name = orderObj.customer.name
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = orderObj.customer.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      } else {
+        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = orderObj.customer.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      }
+    }
+    orderObj.orderFiles.map(
+      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
+        if (element !== null) {
+          ListFileUpload.value.push({
+            url: `${element?.domainUrl}${element?.path}`,
+            name: element?.fileId,
+            uid: element?.id
+          })
+        }
+      }
+    )
+  } else if (type == 'add' || !type) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
 const updatePrice = (_value, obj, scope) => {
@@ -1676,12 +1626,17 @@ const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
 const billLiquidationDis = ref(false)
-onBeforeMount(() => {
+onBeforeMount(async () => {
+  await editData()
+
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
 
   if (type == 'add' || type == ':type') {
+    arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
+    arrayStatusOrder.value[0].createdAt = ''
+    arrayStatusOrder.value[0].isActive = true
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
   }
@@ -3592,7 +3547,6 @@ onMounted(async () => {
           <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
 
           <el-table-column
-            :disabled="disabledEdit"
             prop="consignmentSellPrice"
             :label="t('formDemo.consignmentPriceForSale')"
             width="160"
@@ -3607,7 +3561,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            :disabled="disabledEdit"
             prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
             width="160"
@@ -3638,6 +3591,7 @@ onMounted(async () => {
                 <div class="flex-1 text-right">
                   <el-button
                     text
+                    :disabled="disabledEdit"
                     border
                     class="text-blue-500"
                     @click="
@@ -3660,6 +3614,7 @@ onMounted(async () => {
                 <div class="w-[60%]">
                   <el-button
                     text
+                    :disabled="disabledEdit"
                     @click="
                       () => {
                         callApiWarehouse(props)
@@ -3704,21 +3659,40 @@ onMounted(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
-                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+              <div
+                class="duplicate-status"
+                v-for="item in arrayStatusOrder"
+                :key="item.orderStatus"
+              >
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PURCHASE[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PURCHASE[7].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
                   <span
-                    class="box box_1 text-yellow-500 dark:text-black"
+                    class="box box_1 text-yellow-500 dark:text-divck"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_PURCHASE[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PURCHASE[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PURCHASE[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3726,11 +3700,14 @@ onMounted(async () => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 5">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[5].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3738,11 +3715,14 @@ onMounted(async () => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 7">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3750,9 +3730,12 @@ onMounted(async () => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
               </div>
             </div>
@@ -3781,8 +3764,6 @@ onMounted(async () => {
             <el-button
               @click="
                 () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
                   addStatusDelay()
                   statusOrder = 9
                   checkDisabled = !checkDisabled
@@ -3809,6 +3790,17 @@ onMounted(async () => {
               @click="
                 () => {
                   hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Sửa đơn hàng</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
                   setDataForReturnOrder()
                 }
               "
@@ -3819,12 +3811,58 @@ onMounted(async () => {
             <el-button
               @click="
                 () => {
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hủy trả hàng</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hoàn thành trả hàng</el-button
+            >
+
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Đối soát & kết thúc</el-button
+            >
+            <el-button
+              @click="
+                () => {
                   giaHan = true
                   setDataForReturnOrder()
                 }
               "
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
+            >
+
+            <el-button
+              @click="
+                () => {
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Trả hàng hết hạn</el-button
             >
           </div>
         </div>

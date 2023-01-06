@@ -347,7 +347,6 @@ const CallApiStaff = async () => {
     return
   }
 }
-const valueBranch = ref()
 const cities = ref()
 const district = ref()
 const ward = ref()
@@ -499,7 +498,7 @@ const postData = async (typebtn) => {
       Gender: ruleForm.sex,
       BirthDay: ruleForm.doB,
       Contact: ruleForm.link,
-      BranchId: valueBranch.value,
+      BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
       TypeOfStaff: ruleForm.typeOfEmployee,

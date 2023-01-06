@@ -29,7 +29,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
   CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
   GET_TAGS: '/api/v1/Product/GetTag',
-  GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
+  GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
   POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
@@ -76,6 +76,10 @@ export const CAMPAIGN_API = {
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
+  UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
+  CANCEL_ORDER: '/api/v1/Order/CancelOrder',
+  FINISH_ORDER: '/api/v1/Order/FinishOrder',
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
@@ -96,7 +100,11 @@ export const ORDER_API = {
   GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry',
   POST_AUTOMATIC_WAREHOUSE: '/api/v1/Warehouse/CreateTicketFromOrder',
   GET_PRODUCT_PROPERTY_ORDER_PRICE: '/api/v1/Order/GetProductPropertyOrderPrice',
-  GET_PRODUCT_PROPERTY_INVENTORY: '/api/v1/Order/GetProductPropertyInventory'
+  GET_PRODUCT_PROPERTY_INVENTORY: '/api/v1/Order/GetProductPropertyInventory',
+  GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
+  UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
+  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -138,14 +146,17 @@ export const POINT_API = {
   CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
 }
 export const DEPARTMENT_DIRECTORY = {
-  BRANCH_LIST: '/api/v1/Branch/GetlistBranch',
+  BRANCH_LIST: '/api/v1/Branch/GetBranch',
   DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
   POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
   UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
   DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
-  DEPARTMENT_BY_ID: '/api/v1/Department/GetId'
+  DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
+  GET_LIST_POSITION: '/api/v1/Position/GetPosition',
+  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff'
 }
 
 export const APPROVAL_API = {
-  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting'
+  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting',
+  GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove'
 }

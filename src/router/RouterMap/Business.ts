@@ -71,7 +71,7 @@ export default {
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: t('router.createANewOrder'),
+            title: t('reuse.order'),
             noCache: true,
             showMainRoute: true
           }
@@ -108,7 +108,7 @@ export default {
         },
 
         {
-          path: 'customerRatings',
+          path: 'customerRatings/:tab?',
           name: 'business.customer-management.customerRatings',
           component: () =>
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
@@ -118,7 +118,7 @@ export default {
           }
         },
         {
-          path: 'customerRatings-utility/:type?/:id?',
+          path: 'customerRatings-utility/:type?/:tab?/:id?',
           name: `business.customer-management.customerRatings.${utility}`,
           component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {

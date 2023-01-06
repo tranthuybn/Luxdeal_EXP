@@ -2,7 +2,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { computed } from 'vue'
 import { ElCol, ElRow } from 'element-plus'
-
 const { t } = useI18n()
 
 const props = defineProps({
@@ -25,14 +24,14 @@ const selectedNumber = computed(() =>
   <el-row class="mb-2">
     <el-col :xl="6" :lg="12" :xs="24">
       <div class="extension-function">
-        <p style="width: 26%">
+        <p style="width: 30%">
           <span>{{ t('reuse.choose') }}</span>
           <span>
             ({{ Array.isArray(selectedRecord) ? selectedRecord.length : 0 }}/{{ totalRecord }})
           </span>
         </p>
-        <p
-          ><span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{ t('reuse.exportExcel') }}</span
+        <p @click="$emit('ExportExcelEvent')"
+          ><span>{{ t('reuse.exportExcel') }}</span
           ><span>
             <Icon
               icon="file-icons:microsoft-excel"
@@ -42,7 +41,8 @@ const selectedNumber = computed(() =>
             />
           </span>
         </p>
-        <p>
+        <!-- Để giai đoạn sau -->
+        <p v-if="false">
           <span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{ t('reuse.duplicate') }}</span>
           <span>
             <Icon
@@ -53,7 +53,7 @@ const selectedNumber = computed(() =>
             />
           </span>
         </p>
-        <p>
+        <p v-if="false">
           <span :class="selectedNumber > 0 ? '' : 'opacity-20'">{{ t('reuse.delete') }}</span>
           <span>
             <Icon
@@ -75,7 +75,7 @@ const selectedNumber = computed(() =>
 }
 .extension-function {
   @include d-flex;
-  justify-content: space-between;
+  justify-content: flex-start;
 
   p {
     border-bottom: 2px solid var(--app-contnet-bg-color);

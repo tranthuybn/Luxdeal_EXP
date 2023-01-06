@@ -5,16 +5,15 @@ import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableBase, TableExtension } from './TableBase/index'
 import { Tab } from './Type'
-import {
-  dynamicApi,
-  dynamicColumns,
-  addOperatorColumn,
-  getTotalRecord,
-  getSelectedRecord
-} from './TablesReusabilityFunction'
+import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
+import moment from 'moment'
+import { ElNotification } from 'element-plus'
+import { excelParser } from './excel-parser'
+const { currentRoute } = useRouter()
+
 const { t } = useI18n()
 const props = defineProps({
   tabs: {
@@ -107,6 +106,33 @@ const pushAdd = () => {
 const pushWarehouse = (type) => {
   push({ path: `/inventory-management/business-product-warehouse/warehouse-transaction-${type}` })
 }
+
+const ExportExcelEvent = () => {
+  const tableData = unref(tableBase01)![0]!.tableObject.tableList
+  if (tableData && tableData.length > 0) {
+    const exportData = tableData.map((el) => initMappingObject(el))
+    excelParser().exportDataFromJSON(
+      exportData,
+      'DDA.' + currentRoute.value.path + moment().format('yMMDDhmmss'),
+      null
+    )
+  } else
+    return ElNotification({
+      message: t('reuse.exportExcelFailed'),
+      type: 'error'
+    })
+}
+const initMappingObject = (el) => {
+  // map array element iteam to object key
+  if (dynamicColumns.value && dynamicColumns.value.length > 0) {
+    const dictionaryObject = dynamicColumns.value.reduce(function (map, obj) {
+      map[obj.label] = el[obj.field]
+      return map
+    }, {})
+    return dictionaryObject
+  }
+  return []
+}
 </script>
 <template>
   <section>
@@ -147,7 +173,8 @@ const pushWarehouse = (type) => {
           <TableExtension
             v-if="props.selection"
             :totalRecord="getTotalRecords"
-            :selectedRecord="getSelectedRecords" />
+            :selectedRecord="getSelectedRecords"
+            @export-excel-event="ExportExcelEvent" />
           <TableBase
             ref="tableBase01"
             :selection="selection"

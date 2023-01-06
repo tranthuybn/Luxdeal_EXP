@@ -80,6 +80,10 @@ const columns = reactive<TableColumn[]>([
     }
   }
 ])
+
+// provide('parameters', {
+//   params
+// })
 </script>
 
 <template>

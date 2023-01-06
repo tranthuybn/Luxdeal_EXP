@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, watch, unref } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -55,8 +55,7 @@ const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, notSpecialCharacters, required, removeVietnameseTones } =
-  useValidator()
+const { ValidService, notSpace, removeVietnameseTones } = useValidator()
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -470,7 +469,6 @@ const postCustomer = async (typebtn) => {
   clear()
 }
 const postData = async (typebtn) => {
-  console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const payloadAcc = {
@@ -481,11 +479,14 @@ const postData = async (typebtn) => {
       userName: ruleForm.userName,
       phoneNumber: ruleForm.phonenumber
     }
-    console.log(payloadAcc)
 
     await addNewAuthRegister(JSON.stringify(payloadAcc))
       .then(() => {
         postCustomer(typebtn)
+        if (typebtn == 'saveAndAdd') {
+          unref(ruleFormRef)!.resetFields()
+          unref(ruleFormRef2)!.resetFields()
+        }
       })
       .catch((res) =>
         ElNotification({

@@ -81,8 +81,8 @@ const columns = reactive<TableColumn[]>([
     field: 'paymentOrder',
     label: t('router.paymentProposal'),
     minWidth: '150',
-    align: 'right',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+    align: 'center',
+    formatter: (_: Recordable, __: TableColumn, ___: boolean) => {
       return h(ElCheckbox)
     }
   },
@@ -92,8 +92,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'right',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      console.log(cellValue)
-
       return h('div', paidTransferToText(cellValue))
     }
   },

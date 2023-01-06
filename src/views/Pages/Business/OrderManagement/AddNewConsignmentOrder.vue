@@ -16,6 +16,7 @@ import {
   ElDialog,
   ElForm,
   ElRadio,
+  ElRadioGroup,
   ElFormItem,
   ElDatePicker,
   FormInstance,
@@ -83,19 +84,68 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 // Call api danh sách cộng tác viên
-const listCollaborators = ref()
+const pageIndexCollaborator = ref(1)
+
 const optionsCollaborators = ref()
-let optionCallCollaborators = 0
 const callApiCollaborators = async () => {
-  if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsInOrderList('')
-    listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((product: { name: any; id: any }) => ({
-      label: product.name,
-      value: product.id
+  const res = await getCollaboratorsInOrderList({
+    PageIndex: pageIndexCollaborator.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsCollaborators.value = res.data.map((collaborator) => ({
+      label: collaborator.code + ' | ' + collaborator.accountName,
+      value: collaborator.id,
+      collaboratorCommission: collaborator.discount,
+      phone: collaborator.accountNumber
     }))
   }
-  optionCallCollaborators++
+}
+
+const scrollCollaboratorTop = ref(false)
+const scrollCollaboratorBottom = ref(false)
+
+const noMoreCollaboratorData = ref(false)
+
+const ScrollCollaboratorBottom = () => {
+  scrollCollaboratorBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCollaboratorData.value
+    ? ''
+    : getCollaboratorsInOrderList({ PageIndex: pageIndexCollaborator.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCollaboratorData.value = true)
+            : res.data.map((el) =>
+                optionsCollaborators.value.push({
+                  label: el.code + ' | ' + el.accountName,
+                  value: el.id,
+                  collaboratorCommission: el.discount,
+                  phone: el.accountNumber
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCollaboratorData.value = true
+        })
+}
+
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCollaboratorTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCollaboratorBottom()
+  }
+}
+
+const autoCollaboratorCommission = (index) => {
+  optionsCollaborators.value.map((val) => {
+    if (val.value == index) ruleForm.collaboratorCommission = val.collaboratorCommission
+  })
 }
 
 // Call api danh sách khách hàng
@@ -141,10 +191,12 @@ const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
+    id: 1,
     label: t('formDemo.company')
   },
   {
     value: false,
+    id: 2,
     label: t('formDemo.individual')
   }
 ]
@@ -234,6 +286,15 @@ const detailedListExpenses = [
   }
 ]
 
+const checkPercent = (_rule: any, value: any, callback: any) => {
+  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
+  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
+  callback()
+}
+
 let customerAddress = ref('')
 
 let infoCompany = reactive({
@@ -262,6 +323,8 @@ const optionsCharacteristic = [
   }
 ]
 
+const radioTracking = ref(1)
+
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
@@ -283,6 +346,13 @@ const rules = reactive<FormRules>({
       required: true,
       message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
+    }
+  ],
+
+  collaboratorCommission: [
+    {
+      validator: checkPercent,
+      trigger: 'blur'
     }
   ],
   discount: [
@@ -684,9 +754,6 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.price = obj.price
   }
 }
-const checked2 = ref(false)
-const checked3 = ref(false)
-const checked4 = ref(false)
 
 // Danh mục brand unit origin api
 
@@ -1054,7 +1121,6 @@ const getValueOfCustomerSelected = (
   ruleForm.customerName = obj.label
 }
 
-const checked7 = ref(false)
 const input = ref('')
 
 const valueProvince = ref('')
@@ -1080,15 +1146,20 @@ const dialogAddQuick = ref(false)
 let checkValidateForm = ref(false)
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
   if (!formEl || !formEl2) return
-  await formEl.validate((valid) => {
-    if (valid) {
-    } else {
-    }
-  })
-  await formEl2.validate((valid) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
       checkValidateForm.value = true
     } else {
+      checkValidateForm.value = false
+    }
+  })
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      // doubleDisabled.value = false
+    } else {
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -1097,7 +1168,6 @@ let idOrderPost = ref()
 // tạo đơn hàng
 const { push } = useRouter()
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidateForm.value) {
     orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
@@ -1134,7 +1204,7 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 1,
+      Status: 2,
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
@@ -1650,7 +1720,7 @@ onMounted(async () => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -1728,7 +1798,7 @@ onMounted(async () => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -3215,7 +3285,7 @@ onMounted(async () => {
                 />
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.deliveryDate')" prop="rentalPeriod">
+              <el-form-item :label="t('formDemo.depositTerm')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
                   :disabled="checkDisabled"
@@ -3233,15 +3303,18 @@ onMounted(async () => {
                     <el-select
                       :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
+                      @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
-                      <el-option
-                        v-for="(item, index) in optionsCollaborators"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
-                      />
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                          v-for="(item, index) in optionsCollaborators"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </div>
                     </el-select>
                   </el-form-item>
 
@@ -3525,10 +3598,12 @@ onMounted(async () => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
+              <div v-if="type == 'add'">
+                <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
+              </div>
+              <div v-else>
                 {{ props.row.consignmentSellPrice }}
               </div>
-              <div v-else><CurrencyInputComponent v-model="props.row.consignmentSellPrice" /></div>
             </template>
           </el-table-column>
           <el-table-column
@@ -3538,11 +3613,11 @@ onMounted(async () => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.consignmentHirePrice }}
+              <div v-if="type == 'add'">
+                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
-                <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
+                {{ props.row.consignmentHirePrice }}
               </div>
             </template>
           </el-table-column>
@@ -3617,31 +3692,12 @@ onMounted(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox
-              v-model="checked2"
-              :label="`${t('reuse.closedTheOrder')}`"
-              size="large"
-              disabled
-            />
-            <el-checkbox
-              v-model="checked3"
-              :label="`${t('formDemo.depositing')}`"
-              size="large"
-              disabled
-            />
-            <el-checkbox
-              v-model="checked4"
-              :label="`${t('formDemo.renewingConsignment')}`"
-              size="large"
-              disabled
-            />
-
-            <el-checkbox
-              v-model="checked7"
-              :label="`${t('common.doneLabel')}`"
-              size="large"
-              disabled
-            />
+            <el-radio-group v-model="radioTracking" :disabled="checkDisabled" class="ml-4">
+              <el-radio label="1">{{ t('formDemo.waitingDelivery') }}</el-radio>
+              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
+              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
+              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
+            </el-radio-group>
           </div>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
@@ -3711,9 +3767,17 @@ onMounted(async () => {
               @click="dialogBillLiquidation = true"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
-            <el-button @click="postData" type="primary" class="min-w-42 min-h-11">{{
-              t('formDemo.saveAndPending')
-            }}</el-button>
+            <el-button
+              @click="
+                () => {
+                  submitForm(ruleFormRef, ruleFormRef2)
+                  statusOrder = 3
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.saveAndPending') }}</el-button
+            >
             <el-button
               @click="
                 () => {
@@ -4227,5 +4291,11 @@ onMounted(async () => {
 
 ::v-deep(.el-input__wrapper) {
   width: 100%;
+}
+
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

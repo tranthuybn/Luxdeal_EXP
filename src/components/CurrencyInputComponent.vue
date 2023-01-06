@@ -13,6 +13,11 @@ const propsObj = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  isReadOnly: {
+    required: false,
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['change', 'update:modelValue'])
@@ -58,6 +63,7 @@ const displayValue = computed({
       :class="className"
       v-model="displayValue"
       :disabled="disabled"
+      :readonly="isReadOnly"
       @blur="isInputActive = false"
       @focus="isInputActive = true"
       @change="valueHasChangedEvent"

@@ -343,7 +343,7 @@ const adminList = [
             }
           },
           {
-            path: 'customerRatings',
+            path: 'customerRatings/:tab?',
             name: 'business.customer-management.customerRatings',
             component: 'views/Pages/Business/CustomerManagement/TabsCustomerRatings',
             meta: {
@@ -351,7 +351,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:type?/:id?`,
+                path: `${utility}/:type?/:tab?/:id?`,
                 component: 'views/Pages/Business/CustomerManagement/AddNewRanking',
                 name: `business.customer-management.customerRatings.${utility}`,
                 meta: {
@@ -805,7 +805,7 @@ const adminList = [
             }
           },
           {
-            path: 'purchase-order-add',
+            path: 'purchase-order-add/:type?/:id?',
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
             name: 'purchase.business-purchases.purchase-order-add',
             meta: {
@@ -1054,7 +1054,7 @@ const adminList = [
       {
         path: 'orders-approval',
         name: 'approve.orders-approval',
-        redirect: { name: 'approve.orders-approval.oders-new' },
+        redirect: { name: 'approve.orders-approval.orders-new' },
         meta: {
           title: 'router.approveOrders'
         },
@@ -1342,7 +1342,21 @@ const adminList = [
         component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
         meta: {
           title: 'router.personnelAccounts'
-        }
+        },
+        children: [
+          {
+            path: `personnel-accounts-utility/:type?/:id?`,
+            component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/AddPersonnelAccounts',
+            name: `human-resource-management.personnel-accounts.${utility}`,
+            meta: {
+              title: 'reuse.addNewBranch',
+              noCache: true,
+              hidden: true,
+              canTo: true,
+              showMainRoute: true
+            }
+          }
+        ]
       },
       {
         path: 'department-directory',
@@ -1405,8 +1419,8 @@ const testList: string[] = [
   '/business/customer-management',
   '/business/customer-management/customerList',
   '/business/customer-management/customer-add/:type?/:id?',
-  '/business/customer-management/customerRatings',
-  `/business/customer-management/customerRatings-utility/:type?/:id?`,
+  '/business/customer-management/customerRatings/:tab?',
+  `/business/customer-management/customerRatings-utility/:type?/:tab?/:id?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
@@ -1455,7 +1469,7 @@ const testList: string[] = [
   '/purchase',
   '/purchase/business-purchases',
   '/purchase/business-purchases/purchase-order-list',
-  '/purchase/business-purchases/purchase-order-add',
+  '/purchase/business-purchases/purchase-order-add/:type?/:id?',
 
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
@@ -1519,8 +1533,11 @@ const testList: string[] = [
   '/new-and-advertisement/profile-admin/transaction-point',
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
+  '/human-resource-management/personnel-accounts-utility/:type?/:id?',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`
+  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`,
+  '/human-resource-management/set-role',
+  `/human-resource-management/set-role-utility/:type?/:id?`
 ]
 
 export default [

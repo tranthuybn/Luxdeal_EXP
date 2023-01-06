@@ -201,3 +201,152 @@ export const STATUS = [
     label: 'Đang hoạt động'
   }
 ]
+
+export const STATUS_ORDER_PURCHASE = [
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 61,
+    orderStatusName: 'Duyệt đơn mua hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 63,
+    orderStatusName: 'Đặt hàng thành công',
+    createdAt: ''
+  },
+  {
+    orderStatus: 64,
+    orderStatusName: 'Mua hàng thành công',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 62,
+    orderStatusName: 'Duyệt đổi/trả hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 65,
+    orderStatusName: 'Hoàn thành đổi/trả hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  }
+]
+
+export const STATUS_ORDER_SELL = [
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 1,
+    orderStatusName: 'Duyệt giá thay đổi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 22,
+    orderStatusName: 'Duyệt trả hàng trước hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 13,
+    orderStatusName: 'Hoàn thành đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 14,
+    orderStatusName: 'Duyệt đổi/trả hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  }
+]
+
+export const STATUS_ORDER_RENTAL = [
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 1,
+    orderStatusName: 'Duyệt giá thay đổi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 32,
+    orderStatusName: 'Duyệt trả hàng trước hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 31,
+    orderStatusName: 'Bắt đầu thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 33,
+    orderStatusName: 'Hết hạn thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 34,
+    orderStatusName: 'Trả hàng hết hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 35,
+    orderStatusName: 'Bắt đầu gia hạn thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 36,
+    orderStatusName: 'Kết thúc gia hạn thuê',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  }
+]

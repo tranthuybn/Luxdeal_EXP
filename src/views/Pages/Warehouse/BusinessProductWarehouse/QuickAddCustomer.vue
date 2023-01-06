@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addQuickCustomer, getAllCustomer } from '@/api/Business'
+import { addQuickCustomer } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
 import { FORM_IMAGES } from '@/utils/format'
 import {
@@ -145,8 +145,8 @@ const customerFormRef = ref<FormInstance>()
           <el-form-item :label="t('formDemo.classify')" prop="valueClassify">
             <el-select v-model="valueClassify" placeholder="Select">
               <el-option
-                v-for="item in optionsClassify"
-                :key="item.value"
+                v-for="(item, index) in optionsClassify"
+                :key="index"
                 :label="item.label"
                 :value="item.value"
               />
@@ -205,8 +205,8 @@ const customerFormRef = ref<FormInstance>()
           <el-form-item :label="t('formDemo.classify')" prop="valueClassify">
             <el-select v-model="valueClassify" placeholder="Select">
               <el-option
-                v-for="item in optionsClassify"
-                :key="item.value"
+                v-for="(item, index) in optionsClassify"
+                :key="index"
                 :label="item.label"
                 :value="item.value"
               />

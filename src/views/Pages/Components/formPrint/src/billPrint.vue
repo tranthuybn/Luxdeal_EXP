@@ -44,9 +44,6 @@ const policyDeposit = [
     id: 2
   }
 ]
-
-console.log('dataEdit: ', props.dataEdit)
-
 function getArraySum(arr) {
   var total = 0
   for (var i in arr) {

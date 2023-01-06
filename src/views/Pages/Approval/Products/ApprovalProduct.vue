@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-import { getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import { getProductsApproval } from '@/api/Approval'
 import { h } from 'vue'
 import TableType01 from '../../Components/TableDataBase.vue'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -19,7 +19,7 @@ const columnsApprovalProduct = [
     align: 'center'
   },
   {
-    field: 'productCode',
+    field: 'categoryName',
     label: t('reuse.productCode') + '/' + t('reuse.service'),
     minWidth: '150'
   },
@@ -37,18 +37,18 @@ const columnsApprovalProduct = [
     }
   },
   {
-    field: 'categories[1].value',
+    field: 'categories[1]?.value',
     label: t('reuse.category'),
     minWidth: '150',
     filters: filterTableCategory
   },
   {
-    field: 'productImages[0].path',
+    field: 'productImages[0]?.path',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, record.productImages[0]?.path)
+      setImageDisplayInDOm(record, column, record.image)
   },
   {
     field: 'createdAt',
@@ -94,10 +94,10 @@ const columnsApprovalProduct = [
 ]
 
 const { push } = useRouter()
-const action = (row: any, type: string) => {
+const action = (row: any, _type: string) => {
   push({
     name: `products-services.productLibrary.Products.${utility}`,
-    params: { id: row.id, type: 'detail' }
+    params: { id: row.targetId, type: 'detail' }
   })
 }
 const utility = 'Utility'
@@ -110,7 +110,7 @@ const utility = 'Utility'
   >
     <TableType01
       :columns="columnsApprovalProduct"
-      :api="getBusinessProductLibrary"
+      :api="getProductsApproval"
       isOperatorColumnCustomize
       :selection="false"
       :removeHeaderFilter="true"

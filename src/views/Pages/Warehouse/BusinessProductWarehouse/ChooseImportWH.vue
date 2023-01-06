@@ -10,13 +10,12 @@ import {
   ElSelect,
   ElFormItem,
   ElOption,
-  ElInput,
   ElTable,
   ElTableColumn,
   ElRadio
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { computed, PropType, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 

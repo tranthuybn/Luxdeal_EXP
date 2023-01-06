@@ -66,7 +66,8 @@ import {
   GetPaymentRequestDetail,
   getDetailAccountingEntryById,
   getListWareHouse,
-  getStaffList
+  getStaffList,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { getWarehouseLot } from '@/api/Warehouse'
 import { FORM_IMAGES } from '@/utils/format'
@@ -365,7 +366,7 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   quantity: number
-  businessManagement: {}
+  businessSetup: string
   accessory: string | undefined
   code: string | undefined
   unitName: string
@@ -385,7 +386,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   productPropertyId: '',
   quantity: 0,
-  businessManagement: {},
+  businessSetup: '',
   code: undefined,
   accessory: '',
   unitName: 'Chiếc',
@@ -397,20 +398,6 @@ const productForSale = reactive<ListOfProductsForSaleType>({
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
-
-interface historyTableType {
-  createdAt: string
-  productPropertyId: string
-  productPropertyName: string | undefined
-  accessory?: string
-  conditionProducts: string
-  quantity: number
-  unit?: string
-  refundUnitPrice?: number
-  intoUnitPrice?: number
-  invoiceGoodsEnteringWarehouse?: number
-  inventoryStatus?: string
-}
 
 const historyTable = ref<Array<any>>([])
 
@@ -613,7 +600,6 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productName = obj.name
 
     //TODO
-    // data.price = await getProductPropertyPrice(data.productPropertyId, 1, 1)
     data.totalPrice = data.unitPrice * data.quantity
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -635,6 +621,7 @@ const updatePrice = (_value, obj, scope) => {
   scope.row.refundUnitPrice = Number(obj.price)
 }
 const updateExchangePrice = (_value, obj, scope) => {
+  console.log('obj:', obj)
   scope.row.productPropertyId = obj.productPropertyId
   scope.row.unitPrices = Number(obj.price)
 }
@@ -778,24 +765,6 @@ const autoCalculateOrder = () => {
   })
 }
 
-const autoCalculateReturnExportChange = () => {
-  tableInvoiceExport.value[0].finalPrice = 0
-  tableInvoiceExport.value.map((val) => {
-    if (val.totalPrice) tableInvoiceExport.value[0].finalPrice += val.totalPrice
-  })
-  intoMoneyReturn.value =
-    tableInvoiceImport.value[0].finalPrice - tableInvoiceExport.value[0].finalPrice
-}
-
-const autoCalculateReturnImportChange = () => {
-  tableInvoiceImport.value[0].finalPrice = 0
-  tableInvoiceImport.value.map((val) => {
-    if (val.totalPrice) tableInvoiceImport.value[0].finalPrice += val.totalPrice
-  })
-  intoMoneyReturn.value =
-    tableInvoiceImport.value[0].finalPrice - tableInvoiceExport.value[0].finalPrice
-}
-
 // change address
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
@@ -858,7 +827,6 @@ const quickProductCode = ref()
 const quickManagementCode = ref()
 const quickProductName = ref()
 const quickDescription = ref()
-// const productCharacteristics = ref()
 const valueCharacteristics = ref()
 const chooseOrigin = ref()
 
@@ -1067,7 +1035,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    businessManagement: val.businessManagement,
+    BusinessSetup: val.businessSetup,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1115,10 +1083,6 @@ const postData = async () => {
       type: 'success'
     })
     await updateStatusOrder(2, res)
-    router.push({
-      name: 'purchase.business-purchases.purchase-order-list',
-      params: { backRoute: String(router.currentRoute.value.name) }
-    })
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -1127,18 +1091,18 @@ const postData = async () => {
   }
   idOrderPost.value = res
 
-  // automaticCouponWareHouse(2)
+  automaticCouponWareHouse(1)
 }
 
 // Phiếu nhập kho tự động
-// const automaticCouponWareHouse = async (index) => {
-//   const payload = {
-//     OrderId: idOrderPost.value.data,
-//     Type: index
-//   }
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value,
+    Type: index
+  }
 
-//   await postAutomaticWarehouse(payload)
-// }
+  await postAutomaticWarehouse(payload)
+}
 
 // total order
 let totalOrder = ref(0)
@@ -1186,8 +1150,6 @@ let tableInvoiceImport = ref([
   }
 ])
 
-let intoMoneyReturn = ref()
-
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail') {
@@ -1198,7 +1160,6 @@ const editData = async () => {
     paymentRequestId.value = transaction?.data[0]?.paymentRequestId
     getReturnRequestTable()
 
-    console.log('res', res)
     const orderObj = { ...res?.data[0] }
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj?.statusHistory
@@ -1224,6 +1185,10 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
+      if (orderObj.vat) {
+        VAT.value = true
+        moneyVAT.value = orderObj.vatMoney
+      }
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -1399,9 +1364,6 @@ const tableFullyIntegrated = [
   }
 ]
 
-//Thông tin phiếu đổi/trả
-const dialogInvoiceReturn = ref(false)
-
 // Thông tin phiếu nhập hoàn
 const invoiceForGoodsEntering = ref(false)
 const tableInvoice = [
@@ -1424,22 +1386,7 @@ const singleTableRef = ref<InstanceType<typeof ElTable>>()
 const changeReturnGoods = ref(false)
 const inputReasonReturn = ref('')
 
-const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
-
-if (tableReturnFullyIntegrated.value.length == 0)
-  tableReturnFullyIntegrated.value.push({
-    createdAt: '',
-    productPropertyId: '',
-    productPropertyName: '',
-    accessory: '0',
-    conditionProducts: '',
-    quantity: 1,
-    unit: '',
-    refundUnitPrice: 0,
-    intoUnitPrice: 0,
-    invoiceGoodsEnteringWarehouse: 0,
-    inventoryStatus: ''
-  })
+const tableReturnFullyIntegrated = ref()
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
@@ -1460,16 +1407,7 @@ const getReturnRequestTable = async () => {
   }
 }
 
-const tableProductInformationExportChange = ref([
-  {
-    productPropertyId: 0,
-    commodityName: '',
-    accessory: '',
-    quantity: 1,
-    unitPrices: 0,
-    intoMoney: 0
-  }
-])
+const tableProductInformationExportChange = ref()
 
 const alreadyPaidForTt = ref(true)
 
@@ -1805,7 +1743,7 @@ const postOrderStransaction = async (index: number) => {
     quantity: val.quantity
   }))
 
-  // childrenTable.value.pop()
+  // childrenTable.value.pop()childrenTable
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
@@ -1827,7 +1765,9 @@ const postOrderStransaction = async (index: number) => {
     status: 0,
     isReceiptedMoney: alreadyPaidForTt.value !== true ? 0 : 1,
     typeOfMoney: 1,
-    merchadiseTobePayfor: childrenTable.value
+    merchadiseTobePayfor: childrenTable.value,
+    ReturnRequestId: null,
+    TypeOfAccountingEntry: index == 1 ? 1 : index == 2 ? 2 : index == 3 ? 3 : 4
   }
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
@@ -1942,10 +1882,11 @@ const showIdWarehouse = (scope) => {
 }
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
-    label: e.applyExport,
-    value: e.id
-  }))
+  const x = val.map((e) => e.applyExport)
+  x.forEach((el) => {
+    ListOfProductsForSale.value[indexRow.value].businessSetup += el
+  })
+  console.log('map: ', x)
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -1971,24 +1912,47 @@ const exchangePrice = computed(() => {
 const getRefundPrice = () => {
   let price = 0
   tableReturnFullyIntegrated.value.map((item) => {
-    item.intoUnitPrice !== undefined ? (price += item.intoUnitPrice) : ''
+    price += item.totalPrice
   })
   return price
 }
 const getExportPrice = () => {
   let money = 0
   tableProductInformationExportChange.value.map((item) => {
-    money += item.intoMoney
+    money += item.totalPrice
   })
   return money
 }
-let productArray: any = []
+
 const listOfOrderProduct = ref()
 const getReturnOrder = () => {
-  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
-  })
+  listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
+    productPropertyId: row.productPropertyId,
+    productCode: row.productCode,
+    productPropertyName: row.productPropertyName,
+    quantity: row.quantity,
+    unitPrice: row.unitPrice,
+    totalPrice: row.totalPrice
+  }))
+  tableProductInformationExportChange.value = ListOfProductsForSale.value.map((order) => ({
+    productPropertyId: order.productPropertyId,
+    productCode: order.productCode,
+    productPropertyName: order.productPropertyName,
+    accessory: order.accessory,
+    quantity: order.quantity,
+    unitPrice: order.unitPrice,
+    totalPrice: order.totalPrice
+  }))
+
+  tableReturnFullyIntegrated.value = ListOfProductsForSale.value.map((order) => ({
+    productPropertyId: order.productPropertyId,
+    productCode: order.productCode,
+    productPropertyName: order.productPropertyName,
+    accessory: order.accessory,
+    quantity: order.quantity,
+    unitPrice: order.unitPrice,
+    totalPrice: order.totalPrice
+  }))
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -2045,16 +2009,6 @@ const editOrderInfo = async () => {
         type: 'success'
       })
     })
-}
-
-const createInvoiceReturn = () => {
-  // const payload_Transaction = {
-  //   orderId: id,
-  //   content: t('formDemo.returnPaymentSlip'),
-  //   paymentRequestId: null,
-  //   receiptOrPaymentVoucherId: null,
-  //   receiveMoney
-  // }
 }
 
 const finishOrderPurchase = async () => {
@@ -3098,7 +3052,10 @@ onBeforeMount(async () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <liquidationPurchaseContractPrint :data-customer="customerData" />
+              <liquidationPurchaseContractPrint
+                :dataEdit="dataEdit"
+                :data-customer="customerData"
+              />
             </slot>
           </div>
         </div>
@@ -3499,282 +3456,6 @@ onBeforeMount(async () => {
                 <el-button @click="invoiceForGoodsEntering = false">{{
                   t('reuse.exit')
                 }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
-
-      <!-- Thông tin phiếu thanh toán đổi/trả hàng -->
-      <el-dialog
-        v-model="dialogInvoiceReturn"
-        :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
-        width="40%"
-        @opened="alreadyPaidForTt = false"
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4">
-            <div class="flex-1 flex gap-4">
-              <label class="w-[50%] min-w-[162.73px] text-right">{{
-                t('formDemo.orderCode')
-              }}</label>
-              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
-                sellOrderCode
-              }}</div>
-            </div>
-            <div class="flex-1 flex items-start gap-4">
-              <span>
-                <div>Mã QR đơn hàng</div>
-              </span>
-
-              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%]">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%]">{{ infoCompany.phone }}</div>
-            </div>
-          </div>
-          <div>
-            <div class="flex gap-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <div class="w-[100%]">
-                <el-input :placeholder="t('formDemo.enterReasonReturnPayment')" />
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[45%] text-base font-bold break-w">{{
-              t('reuse.informationReturnExportProduct')
-            }}</span>
-            <span class="block h-1 w-[100%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableInvoiceExport" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
-              <template #default="data">
-                <el-input
-                  :disabled="checkDisabled"
-                  v-model="data.row.accessory"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
-              <template #default="data">
-                <div v-if="type == 'detail'">
-                  {{ data.row.quantity }}
-                </div>
-                <el-input
-                  v-else
-                  :disabled="checkDisabled"
-                  @change="
-                    () => {
-                      data.row.finalPrice = data.row.unitPrice * data.row.quantity
-                      autoCalculateReturnExportChange()
-                    }
-                  "
-                  v-model="data.row.quantity"
-                  style="width: 100%"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
-              <template #default="props">
-                <CurrencyInputComponent
-                  v-model="props.row.unitPrice"
-                  :disabled="checkDisabled"
-                  v-if="type != 'detail'"
-                  @change="
-                    () => {
-                      props.row.totalPrice = props.row.unitPrice * props.row.quantity
-                      autoCalculateReturnExportChange()
-                    }
-                  "
-                />
-                <div v-else>{{
-                  props.row.unitPrice != ''
-                    ? changeMoney.format(parseInt(props.row.unitPrice))
-                    : '0 đ'
-                }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
-              <template #default="props">
-                {{ changeMoney.format(props.row.totalPrice) }}
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="flex items-center pt-4 pb-4">
-            <span class="w-[45%] text-base font-bold break-w">{{
-              t('reuse.informationReturnImportProduct')
-            }}</span>
-            <span class="block h-1 w-[100%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <el-table ref="singleTableRef" :data="tableInvoiceImport" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90">
-              <template #default="data">
-                <el-input
-                  :disabled="checkDisabled"
-                  v-model="data.row.accessory"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
-              <template #default="data">
-                <div v-if="type == 'detail'">
-                  {{ data.row.quantity }}
-                </div>
-                <el-input
-                  v-else
-                  :disabled="checkDisabled"
-                  @change="
-                    () => {
-                      data.row.finalPrice = data.row.unitPrice * data.row.quantity
-                      autoCalculateReturnImportChange()
-                    }
-                  "
-                  v-model="data.row.quantity"
-                  style="width: 100%"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
-              <template #default="props">
-                <CurrencyInputComponent
-                  v-model="props.row.unitPrice"
-                  :disabled="checkDisabled"
-                  v-if="type != 'detail'"
-                  @change="
-                    () => {
-                      props.row.totalPrice = props.row.unitPrice * props.row.quantity
-                      autoCalculateReturnImportChange()
-                    }
-                  "
-                />
-                <div v-else>{{
-                  props.row.unitPrice != ''
-                    ? changeMoney.format(parseInt(props.row.unitPrice))
-                    : '0 đ'
-                }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
-              <template #default="props">
-                {{ changeMoney.format(props.row.totalPrice) }}
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="flex justify-end pt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black dark:text-white">Thành tiền mua</p>
-            </div>
-            <div class="w-[100px] text-right">
-              <p class="pr-2 text-black dark:text-white">{{
-                changeMoney.format(tableInvoiceImport[0].finalPrice)
-              }}</p>
-            </div>
-          </div>
-          <div class="flex justify-end pt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black dark:text-white">Thành tiền hoàn</p>
-            </div>
-            <div class="w-[100px] text-right">
-              <p class="pr-2 text-black dark:text-white">{{
-                changeMoney.format(tableInvoiceExport[0].finalPrice)
-              }}</p>
-            </div>
-          </div>
-          <div class="flex justify-end pt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">Thành tiền chênh lệch</p>
-            </div>
-            <div class="w-[100px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                intoMoneyReturn ? changeMoney.format(intoMoneyReturn) : '0 đ'
-              }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-end">
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  size="large"
-                  @click="
-                    () => {
-                      dialogInvoiceReturn = false
-                      createInvoiceReturn()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="dialogInvoiceReturn = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
           </div>
@@ -4359,8 +4040,9 @@ onBeforeMount(async () => {
       <!-- Thông tin đổi/trả hàng -->
       <el-dialog
         v-model="changeReturnGoods"
-        :title="t('formDemo.InformationChangeReturnGoods')"
+        :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
         width="40%"
+        @opened="alreadyPaidForTt = false"
       >
         <div>
           <el-divider />
@@ -4368,9 +4050,22 @@ onBeforeMount(async () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                sellOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -4397,68 +4092,7 @@ onBeforeMount(async () => {
         </div>
         <div class="flex items-center">
           <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.fullyIntegrated')
-          }}</span>
-          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table
-            ref="singleTableRef"
-            :data="tableReturnFullyIntegrated"
-            border
-            style="width: 100%"
-          >
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="productPropertyName"
-              :label="t('formDemo.commodityName')"
-              width="280"
-            >
-              <template #default="props">
-                <MultipleOptionsBox
-                  :defaultValue="props.row.productPropertyId"
-                  :fields="[
-                    t('reuse.productCode'),
-                    t('reuse.managementCode'),
-                    t('formDemo.productInformation')
-                  ]"
-                  filterable
-                  :items="listOfOrderProduct"
-                  valueKey="productPropertyId"
-                  labelKey="name"
-                  :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
-                  @scroll-top="ScrollProductTop"
-                  @scroll-bottom="ScrollProductBottom"
-                  :clearable="false"
-                  @update-value="(value, obj) => updatePrice(value, obj, props)"
-                />
-              </template>
-            </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
-              <template #default="props">
-                <el-input v-model="props.row.quantity" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
-              <template #default="props">
-                <CurrencyInputComponent v-model="props.row.refundUnitPrice" class="text-right" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
-              <template #default="props">
-                <div class="text-right">{{
-                  moneyFormat(
-                    (props.row.intoUnitPrice = props.row.quantity * props.row.refundUnitPrice)
-                  )
-                }}</div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div class="flex items-center pt-4">
-          <span class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationExportChange')
+            t('reuse.informationReturnExportProduct')
           }}</span>
           <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
         </div>
@@ -4486,7 +4120,7 @@ onBeforeMount(async () => {
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="name"
+                  labelKey="productCode"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4501,23 +4135,83 @@ onBeforeMount(async () => {
                 <el-input v-model="props.row.quantity" />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
+            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrices" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
               <template #default="props">
                 <div class="text-right">{{
-                  moneyFormat((props.row.intoMoney = props.row.quantity * props.row.unitPrices))
+                  moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
                 }}</div>
               </template>
             </el-table-column>
           </el-table>
         </div>
+        <div class="flex items-center pt-4">
+          <span class="w-[35%] text-base font-bold break-w">{{
+            t('reuse.informationReturnImportProduct')
+          }}</span>
+          <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table
+            ref="singleTableRef"
+            :data="tableReturnFullyIntegrated"
+            border
+            style="width: 100%"
+          >
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column
+              prop="productPropertyName"
+              :label="t('formDemo.commodityName')"
+              width="280"
+            >
+              <template #default="props">
+                <MultipleOptionsBox
+                  :defaultValue="props.row.productPropertyId"
+                  :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('formDemo.productInformation')
+                  ]"
+                  filterable
+                  :items="listOfOrderProduct"
+                  valueKey="productPropertyId"
+                  labelKey="productCode"
+                  :hiddenKey="['id']"
+                  :placeHolder="'Chọn mã sản phẩm'"
+                  @scroll-top="ScrollProductTop"
+                  @scroll-bottom="ScrollProductBottom"
+                  :clearable="false"
+                  @update-value="(value, obj) => updatePrice(value, obj, props)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+              <template #default="props">
+                <el-input v-model="props.row.quantity" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
+              <template #default="props">
+                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
+              <template #default="props">
+                <div class="text-right">{{
+                  moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
+                }}</div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
         <div class="flex justify-end">
           <div class="w-[145px] text-right">
-            <p>{{ t('reuse.totalSellMoney') }}</p>
+            <p>{{ t('reuse.totalPurchaseMoney') }}</p>
             <p>{{ t('reuse.totalReturnMoney') }}</p>
             <p class="text-black font-bold dark:text-white">{{ t('reuse.totalDiffMoney') }}</p>
           </div>
@@ -4571,8 +4265,7 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="changeReturnGoods = false">{{ t('button.print') }}</el-button>
+          <div class="flex justify-end">
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -4744,12 +4437,12 @@ onBeforeMount(async () => {
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"
-            prop="businessManagement"
+            prop="businessSetup"
           >
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
+                  <span v-for="item in data.row.businessSetup" :key="item.value">{{
                     item.label
                   }}</span>
                 </div>
@@ -5075,7 +4768,7 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
-                  dialogInvoiceReturn = true
+                  changeReturnGoods = true
                   getReturnOrder()
                 }
               "
@@ -5094,7 +4787,6 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
-                  statusOrder = 3
                   addStatusOrder(5)
                   finishOrderPurchase()
                 }
@@ -5133,7 +4825,6 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  statusOrder = 8
                   addStatusOrder(8)
                   cancelOrderPurchase()
                 }

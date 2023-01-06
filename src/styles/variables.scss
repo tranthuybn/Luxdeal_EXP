@@ -10,3 +10,8 @@ $main-color: #2c6dda;
 $black:#000;
 $color-warning: #f96447;
 $brown: #BF8D5C;
+$foundry: foundry;
+@font-face {
+    font-family: foundry;
+    src: url('@/assets/fonts/Fort_Foundry_Rift_Regular.otf');
+}

@@ -2,27 +2,26 @@
 import { ElTable, ElTableColumn } from 'element-plus'
 
 import { useI18n } from '@/hooks/web/useI18n'
-
 const { t } = useI18n()
-const tableData = [
-  {
-    stt: 1,
-    codeProduct: '159853',
-    name: 'Túi Dior lady mini màu metalic bạc khóa trắng',
-    code: '15-bo-1115',
-    assetsory: 'dây đeo dài',
-    price: '25,000,000',
-    category: 'Nhập Bán',
-    note: ''
-  }
-]
 
 const props = defineProps({
   dataCustomer: {
     type: Object,
     default: () => {}
+  },
+  dataEdit: {
+    type: Object,
+    default: () => {}
   }
 })
+
+function getArraySum(arr) {
+  var total = 0
+  for (var i in arr) {
+    if (arr[i].totalPrice !== 0) total = arr[i].totalPrice
+  }
+  return total
+}
 </script>
 
 <template>
@@ -100,21 +99,18 @@ const props = defineProps({
             món đồ đã qua sử dụng theo phương thức ký gửi các món đồ, giá cả, số lượng, tỉ lệ hoa
             hồng được chiết khấu theo bảng mục dưới đây:</P
           >
-          <el-table :data="tableData" border class="mt-2">
-            <el-table-column prop="stt" min-width="80" label="Stt" align="center" />
-            <el-table-column prop="codeProduct" label="Mã hàng" align="center" />
-            <el-table-column prop="name" min-width="150" label="Tên hàng" align="center" />
+          <el-table :data="dataEdit ? dataEdit.orderDetails : []" border class="mt-2">
+            <el-table-column prop="stt" type="index" min-width="80" label="Stt" align="center" />
+            <el-table-column prop="productCode" label="Mã hàng" align="center" />
+            <el-table-column prop="productName" min-width="150" label="Tên hàng" align="center" />
             <el-table-column prop="code" label="Code" align="center" />
-            <el-table-column prop="assetsory" label="Phụ kiện đi kèm" align="center" />
-            <el-table-column prop="price" label="Giá nhập" align="center" />
-            <el-table-column prop="category" label="Loại hàng" align="center" />
+            <el-table-column prop="accessory" label="Phụ kiện đi kèm" align="center" />
+            <el-table-column prop="unitPrice" label="Giá nhập" align="center" />
+            <el-table-column prop="businessSetup" label="Loại hàng" align="center" />
             <el-table-column prop="note" label="Ghi chú" align="center" />
           </el-table>
-          <!-- <el-table>
-            <el-table-column prop="note" align="center" />
-          </el-table> -->
-          <div class="total-money text-end pr-[115px]">
-            <p class="total">Tổng tiền 400.000</p>
+          <div class="total-money text-end pr-[115px]" v-if="dataEdit">
+            <p>Tổng tiền {{ getArraySum(dataEdit.orderDetails) }}</p>
           </div>
           <div class="mt-2">
             <p
@@ -165,13 +161,10 @@ const props = defineProps({
   </div>
 </template>
 
-<style scoped>
-@font-face {
-  font-family: foundry;
-  src: url('@/assets/fonts/Fort_Foundry_Rift_Regular.otf');
-}
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
 .content {
-  font-family: foundry;
+  font-family: $foundry;
   font-size: 13px;
 }
 ::v-deep(table) {

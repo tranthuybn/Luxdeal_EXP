@@ -29,11 +29,6 @@ export const getBusinessProductLibrary = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-// export const getOrderApproval = async (params: any): Promise<IResponse> => {
-//   const res = await request.get({ url: '/OrdersApproval/List', params })
-//   return res && res.data
-// }
-
 // Lấy danh sách order cần duyệt
 export const getOrderApproval = async (params): Promise<IResponse> => {
   const res = await request.get(

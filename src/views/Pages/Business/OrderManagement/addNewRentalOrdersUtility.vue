@@ -235,8 +235,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       postData()
-      statusOrder.value = 2
-      changeStatus(3)
       doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -1193,6 +1191,7 @@ const editData = async () => {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
     }
+    console.log('arrayStatusOrder: ', arrayStatusOrder.value)
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
@@ -1650,20 +1649,7 @@ const autoChangeAddress = () => {
     autoChangeProvince.value.label
 }
 
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
-}
-
-const addStatusDelay = (index) => {
-  setTimeout(() => {
-    addStatusOrder(index)
-  }, 4000)
-}
-
-// fake trạng thái đơn hàng cho thuê
-
+// Trạng thái đơn hàng cho thuê
 const priceChangeOrders = ref(false)
 let countPriceChange = 0
 const changePriceRowTable = (props) => {
@@ -1686,98 +1672,6 @@ if (type == 'add' && priceChangeOrders.value == false)
     orderStatus: 2,
     isActive: true
   })
-
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        orderStatusName: 'Duyệt giá thay đổi',
-        orderStatus: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Chốt đơn hàng',
-          orderStatus: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Bắt đầu thuê',
-          orderStatus: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Hết hạn thuê',
-          orderStatus: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Duyệt trả hàng trước hạn',
-          orderStatus: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Đối soát & kết thúc',
-          orderStatus: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Trả hàng hết hạn',
-          orderStatus: 7,
-          isActive: true
-        })
-      break
-
-    case 8:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Bắt đầu gia hạn thuê',
-          orderStatus: 8,
-          isActive: true
-        })
-      break
-    case 9:
-      ;(arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Kết thúc gia hạn thuê',
-          orderStatus: 9,
-          isActive: true
-        })
-      break
-    case 10:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Hủy đơn hàng',
-          orderStatus: 10,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          orderStatusName: 'Hủy đơn hàng',
-          orderStatus: 10,
-          isActive: true
-        })
-      }
-      break
-  }
-}
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
@@ -2453,7 +2347,6 @@ const updateOrderInfomation = async () => {
 
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
   if (typeState == STATUS_ORDER_RENTAL[0].orderStatus) {
     let payload = {
       OrderId: id
@@ -4910,7 +4803,7 @@ onBeforeMount(() => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && priceChangeOrders == false"
+            v-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && type == 'add'"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4927,36 +4820,20 @@ onBeforeMount(() => {
             >
             <el-button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  submitForm(ruleFormRef, ruleFormRef2)
-                }
-              "
+              @click="submitForm(ruleFormRef, ruleFormRef2)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 5
-                  addStatusOrder(3)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  statusOrder = 12
-                  addStatusOrder(10)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -4965,7 +4842,7 @@ onBeforeMount(() => {
           </div>
           <!-- Có thay đổi giá -->
           <div
-            v-if="statusOrder == 1 && priceChangeOrders == true"
+            v-if="statusOrder == STATUS_ORDER_RENTAL[0].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4985,9 +4862,6 @@ onBeforeMount(() => {
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 2
-                  changeStatus(3)
-                  addStatusDelay(2)
                 }
               "
               type="primary"
@@ -4995,13 +4869,7 @@ onBeforeMount(() => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(10)
-                  statusOrder = 9
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5009,15 +4877,9 @@ onBeforeMount(() => {
             >
           </div>
 
-          <div v-else-if="statusOrder == 2" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder == 110" class="w-[100%] flex ml-1 gap-4">
             <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(10)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5025,7 +4887,10 @@ onBeforeMount(() => {
             >
           </div>
           <!-- Không thay đổi giá -->
-          <div v-else-if="statusOrder == 3" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="doubleDisabled"
               @click="openBillDialog"
@@ -5040,30 +4905,19 @@ onBeforeMount(() => {
             >
             <el-button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  addStatusOrder(3)
-                  statusOrder = 5
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="statusOrder = 4"
+              @click="statusOrder = 111"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(10)
-                  addStatusDelay(7)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5076,7 +4930,8 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  statusOrder = 3
+                  updateOrderInfomation()
+                  statusOrder = STATUS_ORDER_RENTAL[2].orderStatus
                 }
               "
               type="primary"
@@ -5084,14 +4939,17 @@ onBeforeMount(() => {
               >{{ t('reuse.save') }}</el-button
             >
             <el-button
-              @click="statusOrder = 3"
+              @click="statusOrder = STATUS_ORDER_RENTAL[2].orderStatus"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="doubleDisabled"
               @click="openBillDialog"
@@ -5108,18 +4966,18 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  statusOrder = 6
-                  setDataForReturnOrder()
-                  addStatusOrder(5)
-                  changeStatus(7)
                   dialogReturnAheadOfTime = true
+                  updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.durationPrepayment') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[4].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               @click="statusOrder = 5"
               :disabled="checkDisabled"
@@ -5127,7 +4985,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder == 121" class="w-[100%] flex ml-1 gap-4">
             <button
               :disabled="checkDisabled"
               @click="
@@ -5140,13 +4998,13 @@ onBeforeMount(() => {
               >{{ t('formDemo.completePayment') }}</button
             >
             <el-button
-              @click="statusOrder = 5"
+              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder == 120" class="w-[100%] flex ml-1 gap-4">
             <el-button
               :disabled="doubleDisabled"
               @click="openBillDialog"
@@ -5161,17 +5019,15 @@ onBeforeMount(() => {
             >
             <button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 12
-                  addStatusOrder(6)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 9" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[6].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="doubleDisabled"
               @click="openBillDialog"
@@ -5186,13 +5042,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(8)
-                  addStatusDelay(9)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
@@ -5200,8 +5050,7 @@ onBeforeMount(() => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  statusOrder = 8
-                  addStatusOrder(7)
+                  statusOrder = STATUS_ORDER_RENTAL[7].orderStatus
                   setDataForReturnOrder()
                   dialogReturnExpired = !dialogReturnExpired
                 }
@@ -5225,24 +5074,13 @@ onBeforeMount(() => {
             >
             <button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(7)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
             <button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 8
-                  setDataForReturnOrder()
-                  addStatusOrder(7)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.aheadTimeReturns') }}</button
             >

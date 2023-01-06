@@ -124,6 +124,9 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    pleaseSelectWarehouse: 'Please select a warehouse',
+    selectAWarehouse: 'Select a warehouse',
+    selectExportWarehouse: 'Select export warehouse',
     validatePercentNum: 'Discount cannot be less than 0 and greater than 100',
     validatePercent: 'Discount must be numeric, no characters other than numbers can be entered',
     pleaseEnterANote: 'Please enter a note',

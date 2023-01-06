@@ -101,7 +101,9 @@ export const ORDER_API = {
   POST_AUTOMATIC_WAREHOUSE: '/api/v1/Warehouse/CreateTicketFromOrder',
   GET_PRODUCT_PROPERTY_ORDER_PRICE: '/api/v1/Order/GetProductPropertyOrderPrice',
   GET_PRODUCT_PROPERTY_INVENTORY: '/api/v1/Order/GetProductPropertyInventory',
-  GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse'
+  GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
+  UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

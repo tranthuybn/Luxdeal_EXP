@@ -11,7 +11,7 @@ interface Params {
 }
 
 interface Params2 {
-  pageidex?: number
+  pageindex?: number
   pagesize?: number
 }
 
@@ -20,7 +20,7 @@ export const getBranchList = async (_params?: Params2): Promise<IResponse> => {
     {
       url: `${DEPARTMENT_DIRECTORY.BRANCH_LIST}`,
       params: {
-        pageidex: 1,
+        pageindex: 1,
         pagesize: 20
       }
     },

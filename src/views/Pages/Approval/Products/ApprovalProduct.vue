@@ -37,18 +37,18 @@ const columnsApprovalProduct = [
     }
   },
   {
-    field: 'categories[1].value',
+    field: 'categories[1]?.value',
     label: t('reuse.category'),
     minWidth: '150',
     filters: filterTableCategory
   },
   {
-    field: 'productImages[0].path',
+    field: 'productImages[0]?.path',
     label: t('reuse.image'),
     minWidth: '150',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, record.productImages[0]?.path)
+      setImageDisplayInDOm(record, column, record.image)
   },
   {
     field: 'createdAt',

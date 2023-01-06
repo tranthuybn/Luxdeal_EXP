@@ -476,7 +476,6 @@ const handleSelectionChange = (val: tableDataType[]) => {
   } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
     checkReceiptOrPayment.value = true
   }
-  console.log(newTable.value)
 }
 
 // Dialog change address
@@ -740,20 +739,21 @@ if (type == 'add') {
   arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
 }
 
-const updateStatusOrder = async (status: number, idOrder: number) => {
+const updateStatusOrder = async (status: number, idOrder: any) => {
   const payload = {
-    OrderId: id ?? idOrder,
+    OrderId: idOrder ? idOrder : id,
     ServiceType: 6,
     OrderStatus: status
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderStatus(formDataPayLoad)
-  await getOrderList({ Id: id, ServiceType: 6 })
+  statusOrder.value = status
 }
 
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
   arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[index])
+  statusOrder.value = STATUS_ORDER_PURCHASE[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
   updateStatusOrder(STATUS_ORDER_PURCHASE[index].orderStatus, id)
@@ -1105,28 +1105,34 @@ const postData = async () => {
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
-    VAT: radioVAT.value,
+    VAT:
+      radioVAT.value == t('formDemo.VATNotIncluded')
+        ? null
+        : radioVAT.value == t('formDemo.doesNotIncludeVAT')
+        ? null
+        : parseInt(radioVAT.value),
     VATMoney: moneyVAT.value,
     orderStatus: 1
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  idOrderPost.value = await addNewOrderList(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      router.push({
-        name: 'purchase.business-purchases.purchase-order-list',
-        params: { backRoute: String(router.currentRoute.value.name) }
-      })
+  const res = await addNewOrderList(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+    await updateStatusOrder(2, res)
+    router.push({
+      name: 'purchase.business-purchases.purchase-order-list',
+      params: { backRoute: String(router.currentRoute.value.name) }
+    })
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+  idOrderPost.value = res
 
   // automaticCouponWareHouse(2)
 }
@@ -1196,7 +1202,7 @@ const editData = async () => {
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value?.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
-    paymentRequestId.value = transaction.data[0].paymentRequestId
+    paymentRequestId.value = transaction?.data[0]?.paymentRequestId
     getReturnRequestTable()
 
     console.log('res', res)
@@ -1207,6 +1213,9 @@ const editData = async () => {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
     }
+
+    if (orderObj.vat == null) radioVAT.value = t('formDemo.VATNotIncluded')
+    else radioVAT.value = orderObj.vat + '%'
 
     if (res.data) {
       customerData.customerId = orderObj.customerId
@@ -1270,6 +1279,8 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
+    arrayStatusOrder.value[0].createdAt = ''
+    arrayStatusOrder.value[0].isActive = true
   }
 }
 
@@ -2010,8 +2021,9 @@ const cancelOrderPurchase = async () => {
     OrderId: id,
     ServiceType: 6
   }
+  const formPayload = FORM_IMAGES(payload)
 
-  await cancelOrder(payload)
+  await cancelOrder(formPayload)
 }
 
 const editOrderInfo = async () => {
@@ -2058,7 +2070,8 @@ const finishOrderPurchase = async () => {
   const payload = {
     OrderId: id
   }
-  await finishOrder(payload)
+  const formPayload = FORM_IMAGES(payload)
+  await finishOrder(formPayload)
 }
 
 // infinity scroll CTV
@@ -4744,9 +4757,12 @@ onMounted(async () => {
                     <el-dropdown-item>
                       <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="0">{{
-                            t('formDemo.VATNotIncluded')
-                          }}</el-radio>
+                          <el-radio
+                            class="text-left"
+                            style="color: blue"
+                            :label="t('formDemo.VATNotIncluded')"
+                            >{{ t('formDemo.VATNotIncluded') }}</el-radio
+                          >
                         </div>
                         <div style="width: 100%">
                           <el-radio class="text-left" style="color: blue" label="10%"
@@ -4840,7 +4856,9 @@ onMounted(async () => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{ dateTimeFormat(item.createdAt) }}</i>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
                 <div
                   v-else-if="
@@ -4859,7 +4877,9 @@ onMounted(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{ dateTimeFormat(item.createdAt) }}</i>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[5].orderStatus">
                   <span
@@ -4872,7 +4892,9 @@ onMounted(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{ dateTimeFormat(item.createdAt) }}</i>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus">
                   <span
@@ -4885,7 +4907,9 @@ onMounted(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{ dateTimeFormat(item.createdAt) }}</i>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
               </div>
             </div>
@@ -4957,7 +4981,6 @@ onMounted(async () => {
               type="primary"
               @click="
                 () => {
-                  statusOrder = 3
                   addStatusOrder(3)
                 }
               "
@@ -4969,7 +4992,6 @@ onMounted(async () => {
               type="primary"
               @click="
                 () => {
-                  statusOrder = 4
                   addStatusOrder(4)
                 }
               "
@@ -5027,7 +5049,6 @@ onMounted(async () => {
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 2
                 }
               "
               type="primary"

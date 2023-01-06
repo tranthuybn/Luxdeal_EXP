@@ -1004,7 +1004,6 @@ const spaMoney = ref(0)
                 </template>
               </el-table-column>
             </el-table>
-            </el-table>
           </template>
           <template #tableProduct>
             <el-table

@@ -13,7 +13,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../Components/Type'
 import { useRouter } from 'vue-router'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, statusBranch } from '@/utils/format'
 import { ElButton, ElMessageBox, ElNotification } from 'element-plus'
 import { useAppStore } from '@/store/modules/app'
 
@@ -63,7 +63,10 @@ const columnsBranch = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   },
   {
     field: 'operator',
@@ -119,7 +122,10 @@ const columnsDepartment = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   },
   {
     field: 'operator',
@@ -175,7 +181,10 @@ const columnsRank = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   }
 ])
 const columnsTypePersonnel = reactive<TableColumn[]>([
@@ -219,7 +228,10 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   }
 ])
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })

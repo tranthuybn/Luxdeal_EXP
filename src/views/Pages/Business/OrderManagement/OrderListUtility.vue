@@ -68,6 +68,7 @@ import {
   updateOrderInfo,
   finishStatusOrder,
   updateStatusOrder,
+  approvalOrder,
   cancelOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
@@ -542,8 +543,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  productCode: product.code,
                   value: product.productCode,
+                  productCode: product.code,
                   name: product.name ?? '',
                   price: product.price.toString(),
                   productPropertyId: product.id,
@@ -1041,7 +1042,7 @@ const postData = async () => {
     ConsignmentHirePrice: 0,
     SpaServiceIds: null,
     WarehouseId: null,
-    PriceChange: false
+    PriceChange: priceChangeOrders.value
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -1115,6 +1116,8 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(route.params.tab)
 const type = String(route.params.type)
+const approvalId = String(route.params.approvalId)
+console.log('approvalId: ', approvalId)
 
 let dataEdit = ref()
 
@@ -1123,9 +1126,10 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
+const duplicateStatusButton = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     const transaction = await getOrderTransaction({ id: id })
     const res = await getOrderList({ Id: id, ServiceType: 1 })
@@ -1136,7 +1140,12 @@ const editData = async () => {
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
     }
     dataEdit.value = orderObj
     Files = orderObj.orderFiles
@@ -1458,7 +1467,8 @@ let statusOrder = ref(2)
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
 const priceChangeOrders = ref(false)
-const changePriceRowTable = () => {
+const changePriceRowTable = (props) => {
+  const data = props.row
   let countPriceChange = ref(0)
   countPriceChange.value++
   priceChangeOrders.value = true
@@ -1468,6 +1478,7 @@ const changePriceRowTable = () => {
     orderStatus: 1,
     isActive: true
   })
+  data.totalPrice = data.unitPrice * data.quantity
 }
 
 interface statusOrderType {
@@ -1475,6 +1486,7 @@ interface statusOrderType {
   orderStatus: number
   isActive?: boolean
   createdAt?: string
+  approvedAt?: string
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
@@ -2120,6 +2132,9 @@ const reloadStatusOrder = async () => {
   if (arrayStatusOrder.value?.length) {
     arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
     statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
   }
 }
 
@@ -2163,7 +2178,7 @@ const updateStatusOrders = async (typeState) => {
     }
     await cancelOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_SELL[5].orderStatus) {
+  } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
     let payload = {
       OrderId: id
     }
@@ -2187,9 +2202,11 @@ const updateStatusOrders = async (typeState) => {
   }
 }
 
-// onMounted(async () => {
-//   await editData()
-// })
+const approvalFunction = async () => {
+  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
 
 onBeforeMount(async () => {
   await editData()
@@ -4576,11 +4593,7 @@ onBeforeMount(async () => {
                 v-else
                 :disabled="disabledEdit"
                 v-model="props.row.quantity"
-                @change="
-                  (data) => {
-                    handleGetTotal(data, props)
-                  }
-                "
+                @change="(data) => handleGetTotal(data, props)"
                 style="width: 100%"
               />
             </template>
@@ -4599,7 +4612,7 @@ onBeforeMount(async () => {
                 v-if="type != 'detail'"
                 @change="
                   () => {
-                    changePriceRowTable()
+                    changePriceRowTable(props)
                     autoCalculateOrder()
                   }
                 "
@@ -4787,8 +4800,8 @@ onBeforeMount(async () => {
                 <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_SELL[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[6].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SELL[6].orderStatus
                   "
                 >
                   <span
@@ -4802,12 +4815,12 @@ onBeforeMount(async () => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  {{ dateTimeFormat(item.createdAt) ?? '' }}
+                  {{ item.approvedAt ? dateTimeFormat(item.approvedAt) : '' }}
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[4].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus
                   "
                 >
                   <span
@@ -4820,9 +4833,9 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  {{ dateTimeFormat(item.createdAt) ?? '' }}
+                  {{ item.approvedAt ? dateTimeFormat(item.approvedAt) : '' }}
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_SELL[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_SELL[4].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4833,7 +4846,7 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  {{ dateTimeFormat(item.createdAt) ?? '' }}
+                  {{ item.approvedAt ? dateTimeFormat(item.approvedAt) : '' }}
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_SELL[0].orderStatus">
                   <span
@@ -4846,7 +4859,7 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  {{ dateTimeFormat(item.createdAt) ?? '' }}
+                  {{ item.approvedAt ? dateTimeFormat(item.approvedAt) : '' }}
                 </div>
               </div>
             </div>
@@ -4857,7 +4870,7 @@ onBeforeMount(async () => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus && type == 'add'"
+            v-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus && type == 'add'"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4881,7 +4894,7 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="checkDisabled"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
+              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
@@ -4889,9 +4902,7 @@ onBeforeMount(async () => {
             <el-button
               @click="
                 () => {
-                  // arrayStatusOrder.splice(0, arrayStatusOrder.length)
                   updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  statusOrder = 9
                   checkDisabled = !checkDisabled
                 }
               "
@@ -4904,7 +4915,11 @@ onBeforeMount(async () => {
 
           <!-- Có thay đổi giá -->
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders == true"
+            v-else-if="
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus &&
+              !duplicateStatusButton &&
+              type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4927,12 +4942,7 @@ onBeforeMount(async () => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  statusOrder = 9
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -4940,14 +4950,17 @@ onBeforeMount(async () => {
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus && priceChangeOrders == true"
+            v-else-if="
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus &&
+              !duplicateStatusButton &&
+              type != 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  statusOrder = 9
                   checkDisabled = !checkDisabled
                 }
               "
@@ -4958,7 +4971,7 @@ onBeforeMount(async () => {
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{
@@ -4972,18 +4985,13 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="checkDisabled"
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
-                  statusOrder = STATUS_ORDER_SELL[4].orderStatus
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
             >
             <el-button
-              @click="statusOrder = 4"
+              @click="statusOrder = 120"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
@@ -5001,7 +5009,7 @@ onBeforeMount(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
+          <div v-if="statusOrder == 120" class="w-[100%] flex ml-1 gap-4">
             <el-button
               :disabled="checkDisabled"
               @click="updateOrderInfomation()"
@@ -5010,7 +5018,7 @@ onBeforeMount(async () => {
               >{{ t('reuse.save') }}</el-button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_SELL[3].orderStatus"
+              @click="statusOrder = STATUS_ORDER_SELL[2].orderStatus"
               :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5018,7 +5026,7 @@ onBeforeMount(async () => {
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[4].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
@@ -5036,7 +5044,7 @@ onBeforeMount(async () => {
                 () => {
                   changeReturnGoods = true
                   statusOrder = 6
-                  updateStatusOrders(STATUS_ORDER_SELL[6].orderStatus)
+                  updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
                   getReturnOrder()
                 }
               "
@@ -5047,7 +5055,7 @@ onBeforeMount(async () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
+                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
                   statusOrder = 9
                 }
               "
@@ -5055,12 +5063,15 @@ onBeforeMount(async () => {
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_SELL[5].orderStatus && !duplicateStatusButton"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               @click="
                 () => {
                   changeReturnGoods = true
-                  statusOrder == STATUS_ORDER_SELL[4].orderStatus
+                  statusOrder == STATUS_ORDER_SELL[3].orderStatus
                 }
               "
               :disabled="checkDisabled"
@@ -5068,7 +5079,10 @@ onBeforeMount(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_SELL[5].orderStatus && duplicateStatusButton"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <button
               :disabled="checkDisabled"
               @click="
@@ -5088,7 +5102,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder == 150" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -5102,15 +5116,15 @@ onBeforeMount(async () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  statusOrder = 9
+                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 15" class="w-[100%] flex ml-1 gap-4">
-            <el-button type="warning" class="min-w-42 min-h-11">{{
+          <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
             <el-button class="min-w-42 min-h-11 rounded font-bold">{{

@@ -67,7 +67,7 @@ export default {
           }
         },
         {
-          path: 'order-list-add/:type?/:tab?/:id?',
+          path: 'order-list-add/:type?/:tab?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {

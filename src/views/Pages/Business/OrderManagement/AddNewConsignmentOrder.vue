@@ -56,8 +56,7 @@ import {
   addQuickCustomer,
   GetProductPropertyInventory,
   postAutomaticWarehouse,
-  updateStatusOrder,
-  updateOrderStatus
+  updateStatusOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -827,14 +826,14 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-const updateStatusOrder = async (status: number, idOrder: any) => {
+const updateOrderStatus = async (status: number, idOrder: any) => {
   const payload = {
     OrderId: idOrder ? idOrder : id,
     ServiceType: 6,
     OrderStatus: status
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await updateOrderStatus(formDataPayLoad)
+  await updateStatusOrder(formDataPayLoad)
   statusOrder.value = status
 }
 
@@ -844,7 +843,7 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_PURCHASE[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
-  updateStatusOrder(STATUS_ORDER_PURCHASE[index].orderStatus, id)
+  updateOrderStatus(STATUS_ORDER_PURCHASE[index].orderStatus, id)
 }
 
 const addStatusDelay = () => {

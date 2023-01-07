@@ -210,11 +210,10 @@ const openDialogWarehouse = (props) => {
 }
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
-    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
     ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
+    console.log('after choose lot', warehouseData)
   }
   dialogWarehouse.value = false
 }

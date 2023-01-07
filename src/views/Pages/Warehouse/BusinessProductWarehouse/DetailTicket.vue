@@ -43,7 +43,7 @@ const FormData = computed(() => {
 const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
   staffId: [required(), requiredOption()],
-  ToWarehouse: [required()],
+  toWarehouseId: [required()],
   description: [required()],
   customerId: [required(), requiredOption()]
 })
@@ -255,7 +255,7 @@ const chooseImportWarehouse = (warehouseId) => {
       <ElFormItem
         :label="t('reuse.chooseImportWarehouse')"
         v-if="typeTransaction == 1"
-        prop="ToWarehouse"
+        prop="toWarehouseId"
       >
         <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
           <el-option

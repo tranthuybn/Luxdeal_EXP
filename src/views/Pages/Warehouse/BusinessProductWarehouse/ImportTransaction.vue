@@ -89,6 +89,8 @@ const addTransaction = async () => {
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
+    uploadData.toWarehouseId = detailTicketRef.value?.FormData.toWarehouseId
+    uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
     await createTicketManually(JSON.stringify(uploadData))
       .then(() => {
@@ -183,7 +185,7 @@ const callApiForData = async () => {
         lot: { value: item?.detail[0]?.toLotId, label: item?.detail[0]?.toLotName },
         imageUrl: item?.imageUrl
       }))
-
+      console.log('ticketData', ticketData.value)
       console.log('productData', productData.value)
     }
   } else {
@@ -356,16 +358,12 @@ const updateTicket = (warehouseId) => {
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="
-                serviceType == 6 &&
-                (type == 'add' || type == 'edit') &&
-                Number(ticketData.orderId) !== 0
-              "
+              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'add'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
-              v-if="serviceType == 6 && type == 'detail' && Number(ticketData.orderId) !== 0"
+              v-if="serviceType == 6 && type == 'detail' && Number(ticketData.orderId) == 0"
               @click="type = 'edit'"
               >{{ t('reuse.edit') }}</ElButton
             >

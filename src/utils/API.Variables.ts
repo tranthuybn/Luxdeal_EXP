@@ -321,11 +321,6 @@ export const STATUS_ORDER_SELL = [
     createdAt: ''
   },
   {
-    orderStatus: 22,
-    orderStatusName: 'Duyệt trả hàng trước hạn',
-    createdAt: ''
-  },
-  {
     orderStatus: 2,
     orderStatusName: 'Chốt đơn hàng',
     createdAt: ''

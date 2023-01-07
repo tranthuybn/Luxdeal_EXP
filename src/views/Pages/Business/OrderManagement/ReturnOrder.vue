@@ -73,7 +73,7 @@ type Product = {
   productPropertyCode: string
   hirePrice: Number
 }
-const updateValue = (value, obj, scope) => {
+const updateValue = (value, _obj, scope) => {
   scope.row.productPropertyId = value
   addRow()
 }

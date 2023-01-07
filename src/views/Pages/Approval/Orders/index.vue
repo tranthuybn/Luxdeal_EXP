@@ -38,7 +38,12 @@ const detailedBrowsing = (scope: any) => {
   const typeServiceOrder = API_ORDER.find((e) => e.key == data.serviceType)
   push({
     name: `business.order-management.order-list.${utility}`,
-    params: { type: 'detail', tab: typeServiceOrder?.label, id: data.targetId }
+    params: {
+      type: 'approval-order',
+      tab: typeServiceOrder?.label,
+      id: data.targetId,
+      approvalId: data.id
+    }
   })
 }
 

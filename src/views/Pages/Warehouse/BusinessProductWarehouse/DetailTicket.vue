@@ -216,7 +216,10 @@ const callAPIWarehouse = async () => {
 //
 const emit = defineEmits(['update-ticket'])
 const chooseImportWarehouse = (warehouseId) => {
-  emit('update-ticket', warehouseId)
+  const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
+  console.log('warehouseId', warehouseId, warehouseOptions.value, warehouse)
+
+  emit('update-ticket', warehouse)
 }
 </script>
 <template>

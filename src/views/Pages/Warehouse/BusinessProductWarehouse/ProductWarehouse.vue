@@ -38,9 +38,9 @@ const prop = defineProps({
     type: Number,
     default: 0
   },
-  warehouseId: {
-    type: Number,
-    default: 0
+  warehouse: {
+    type: Object,
+    default: () => {}
   }
 })
 const ListOfProductsForSale = computed(() => {
@@ -70,7 +70,7 @@ type ProductWarehouse = {
   unitName?: string
   warehouse?: Options
   location?: Options
-  lot?: Options
+  lot?: any
   imageUrl?: string
 }
 // Call api danh sách sản phẩm
@@ -179,7 +179,7 @@ const openDialogWarehouse = (props) => {
     })
     return
   }
-  if (prop.warehouseId == 0 || isNaN(prop.warehouseId)) {
+  if (prop.warehouse?.value == 0 || isNaN(prop.warehouse?.value)) {
     ElMessage({
       message: t('reuse.notChooseWarehouse'),
       type: 'warning'
@@ -210,8 +210,6 @@ const openDialogWarehouse = (props) => {
 }
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
-    ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
     console.log('after choose lot', warehouseData)
   }
@@ -263,22 +261,20 @@ const handleChange = async (props, uploadFile) => {
 }
 
 const warehouseFormat = (props) => {
-  if (props.row?.warehouse !== undefined && props.row?.warehouse?.label !== undefined) {
-    if (props.row?.location !== undefined && props.row?.location?.label !== undefined) {
-      if (props.row?.lot !== undefined && props.row?.lot?.label !== undefined) {
-        return `${props.row?.warehouse?.label}/${props.row?.location?.label}/${props.row?.lot?.label}`
-      } else {
-        return `${props.row?.warehouse?.label}/${props.row?.location?.label}`
-      }
+  console.log('props', prop.warehouse, props.row)
+  if (prop.warehouse !== undefined && prop?.warehouse?.label !== undefined) {
+    if (props.row?.lot !== undefined) {
+      return `${prop?.warehouse?.label}/${props.row?.lot.location}/${props.row?.lot.lotCode}`
     } else {
-      return `${props.row?.warehouse?.label}`
+      return `${prop?.warehouse?.label}`
     }
   } else {
     return ' '
   }
 }
 const checkValueOfTable = () => {
-  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false) {
+  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
       type: 'warning'
@@ -298,14 +294,6 @@ const checkValueOfTable = () => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
-        type: 'warning'
-      })
-      return (result = false)
-    }
-
-    if (row.warehouse == undefined || row.location == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
         type: 'warning'
       })
       return (result = false)
@@ -367,7 +355,7 @@ const disabled = computed(() => {
     :productPropertyId="curPPID"
     :warehouseFormData="warehouseData"
     :orderId="orderId"
-    :warehouseId="warehouseId"
+    :warehouse="warehouse"
   />
   <el-table
     border
@@ -434,7 +422,7 @@ const disabled = computed(() => {
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)">
+            <el-button text @click="openDialogWarehouse(props)" :disabled="disabled">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>

@@ -60,7 +60,6 @@ const back = async () => {
     name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
   })
 }
-
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
@@ -81,10 +80,7 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        fileId: row.fileId,
-        toLotId: row.lot?.value,
-        warehouseId: row.warehouse?.value,
-        locationId: row.location?.value
+        toLotId: row.lot?.id
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
@@ -113,6 +109,7 @@ const addTransaction = async () => {
         )
     }
     if (type.value == 'edit') {
+      uploadData.ticketId = id.value
       await updateTicketManually(JSON.stringify(uploadData))
         .then(() => {
           ElNotification({
@@ -144,6 +141,7 @@ const ticketData = ref({
   orderCode: '',
   updatedAt: '',
   fromWarehouseId: '',
+  warehouse: {},
   toWarehouseId: '',
   orderId: '',
   orderType: ''
@@ -185,12 +183,16 @@ const callApiForData = async () => {
     if (res) {
       ticketData.value.ticketCode = res.data[0].transactionCode
       ticketData.value.createdAt = res.data[0].createdAt
-      ticketData.value.staffId = res.data[0]?.staffName
-      ticketData.value.customerId = res.data[0]?.customerName
+      ticketData.value.staffId = res.data[0]?.staffId
+      ticketData.value.customerId = res.data[0]?.customerId
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0].updatedAt
       ticketData.value.toWarehouseId = res.data[0]?.toWarehouseId
+      ticketData.value.warehouse = {
+        value: res.data[0]?.toWarehouseId,
+        label: res.data[0]?.toWarehouseName
+      }
       ticketData.value.orderId = res.data[0]?.orderId
       serviceType.value = res.data[0]?.orderType
       status.value = res.data[0]?.status
@@ -204,7 +206,11 @@ const callApiForData = async () => {
         price: item?.detail[0]?.unitPrice,
         warehouse: { value: res.data[0]?.toWarehouseId, label: res.data[0]?.toWarehouseName },
         location: { value: item?.detail[0].toLocationId, label: item?.detail[0].toLocationName },
-        lot: { value: item?.detail[0]?.toLotId, label: item?.detail[0]?.toLotName },
+        lot: {
+          id: item?.detail[0]?.toLotId,
+          location: item?.detail[0]?.toLocationName,
+          lotCode: item.lotCode
+        },
         imageUrl: item?.imageUrl
       }))
       console.log('ticketData', ticketData.value)
@@ -233,6 +239,8 @@ const updateInventory = async () => {
     ticketId: id.value,
     type: 1
   }
+  //const id =
+  //trả về id dùng tiếp ko cần đẩy ra ngoài
   await UpdateInventory(JSON.stringify(payload))
     .then(() => {
       ElNotification({
@@ -284,8 +292,9 @@ const updateInventoryOrder = async () => {
     )
 }
 
-const updateTicket = (warehouseId) => {
-  ticketData.value.toWarehouseId = warehouseId
+const updateTicket = (warehouse) => {
+  ticketData.value.warehouse = warehouse
+  console.log('change warehouse', warehouse)
 }
 </script>
 <template>
@@ -326,7 +335,7 @@ const updateTicket = (warehouseId) => {
           :transactionType="transactionType"
           :productData="productData"
           :orderId="parseInt(ticketData.orderId)"
-          :warehouseId="parseInt(ticketData.toWarehouseId)"
+          :warehouse="ticketData.warehouse"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -381,6 +390,13 @@ const updateTicket = (warehouseId) => {
               type="primary"
               @click="addTransaction"
               v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'add'"
+              >{{ t('reuse.save') }}</ElButton
+            >
+            <ElButton
+              class="w-[150px]"
+              type="primary"
+              @click="addTransaction"
+              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'edit'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton

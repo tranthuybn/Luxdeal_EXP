@@ -43,9 +43,9 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  warehouseId: {
-    type: Number,
-    default: 0
+  warehouse: {
+    type: Object,
+    default: () => {}
   }
 })
 
@@ -58,7 +58,7 @@ const createNewLot = async () => {
     FORM_IMAGES({
       OrderId: isNaN(props.orderId) || props.orderId == 0 ? null : props.orderId,
       Code: Code,
-      WarehouseId: props.warehouseId,
+      WarehouseId: props.warehouse?.value,
       LocationId: warehouseData.value.location.value,
       ProductPropertyId: props.productPropertyId
     })
@@ -167,9 +167,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 watch(
   () => props.showDialog,
   async () => {
-    console.log('call api loc', props.warehouseId, warehouseForm.value)
-    await getLocation(props.warehouseId)
-    await changeWarehouseData(props.warehouseId)
+    console.log('call api loc', props.warehouse?.value, warehouseForm.value)
+    await getLocation(props.warehouse?.value)
+    await changeWarehouseData(props.warehouse?.value)
     radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
@@ -226,7 +226,7 @@ watch(
     >
       <template #append>
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
-        <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
+        <span class="pl-180px font-bold">{{ warehouseForm.quantity }}</span>
       </template>
       <el-table-column label="" width="70">
         <template #default="scope">

@@ -67,9 +67,9 @@ import {
   getDetailAccountingEntryById,
   getListWareHouse,
   getStaffList,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  GetProductPropertyInventory
 } from '@/api/Business'
-import { getWarehouseLot } from '@/api/Warehouse'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -115,7 +115,7 @@ const ruleForm = reactive({
   discount: '',
   orderNotes: '',
   customerName: '',
-  delivery: '',
+  delivery: 0,
   warehouse: '',
   orderFiles: []
 })
@@ -389,7 +389,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessSetup: '',
   code: undefined,
   accessory: '',
-  unitName: 'Chiếc',
+  unitName: '',
   unitPrice: 0,
   totalPrice: '',
   paymentType: '',
@@ -488,7 +488,7 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const tableWarehouse = ref([])
+const tableWarehouse = ref()
 
 const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 let infoCompany = reactive({
@@ -534,7 +534,7 @@ const callApiProductList = async () => {
       productCode: product.productCode,
       name: product.name ?? '',
       unitPrice: product.unitPrice,
-      unit: product.unitName,
+      unitName: product.unitName,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -598,6 +598,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.unitName = obj.unitName
+    callApiWarehouse(scope)
 
     //TODO
     data.totalPrice = data.unitPrice * data.quantity
@@ -791,7 +793,7 @@ const totalPaymentRequest = ref(0)
 watch(
   () => inputDeposit.value,
   () => {
-    moneyDeposit.value = totalFinalOrder.value - inputDeposit.value
+    moneyDeibt.value = moneyDeposit.value - inputDeposit.value
   }
 )
 
@@ -1035,7 +1037,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    BusinessSetup: val.businessSetup,
+    BusinessSetup: '',
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1179,9 +1181,10 @@ const editData = async () => {
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
       ruleForm.discount = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName =
+        orderObj.customer.isOrganization == 'True'
+          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
@@ -1466,7 +1469,13 @@ const nameDialog = ref('')
 let tableSalesSlip = ref()
 
 function openBillDialog() {
+  moneyDeposit.value = 0
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  debtTable.value.forEach((e) => {
+    moneyDeposit.value += e.deibt
+  })
+  inputDeposit.value = moneyDeposit.value
+  console.log('moneyDeposit: ', moneyDeposit.value)
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
@@ -1824,7 +1833,7 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
-let moneyDeposit = ref()
+let moneyDeposit = ref(0)
 let moneyDepositPayment = ref()
 
 const inputRecharger = ref()
@@ -1860,12 +1869,13 @@ const getFormReceipts = () => {
 const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
 const indexRow = ref()
+const totalProductInWarehouse = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
-  const res = await getWarehouseLot({
+  const res = await GetProductPropertyInventory({
     ProductPropertyId: data.productPropertyId
   })
   tableWarehouse.value = res.data.map((val) => ({
@@ -1873,6 +1883,11 @@ const callApiWarehouse = async (scope) => {
     name: val.name,
     inventory: val.inventory
   }))
+  totalProductInWarehouse.value = tableWarehouse.value.forEach((e) => {
+    totalProductInWarehouse.value += e.inventory
+    console.log('inventory: ', e.inventory)
+  })
+  console.log('total', totalProductInWarehouse.value)
 }
 
 const showIdWarehouse = (scope) => {
@@ -1886,7 +1901,6 @@ const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   x.forEach((el) => {
     ListOfProductsForSale.value[indexRow.value].businessSetup += el
   })
-  console.log('map: ', x)
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -1989,11 +2003,11 @@ const editOrderInfo = async () => {
     Description: ruleForm.orderNotes,
     Files: Files,
     DeleteFileIds: '',
-    DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery,
-    ProvinceId: dataEdit.value?.provinceId ?? formAddress.province,
-    DistrictId: dataEdit.value?.districtId ?? formAddress.district,
-    WardId: dataEdit.value?.wardId ?? formAddress.wardCommune,
-    Address: dataEdit.value?.address ?? formAddress.detailedAddress
+    DeliveryOptionId: ruleForm.delivery ? ruleForm.delivery : dataEdit.value?.deliveryOption,
+    ProvinceId: formAddress.province ? formAddress.province : dataEdit.value?.provinceId,
+    DistrictId: formAddress.district ? formAddress.district : dataEdit.value?.districtId,
+    WardId: formAddress.wardCommune ? formAddress.wardCommune : dataEdit.value?.wardId,
+    Address: formAddress.detailedAddress ? formAddress.detailedAddress : dataEdit.value?.address
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
@@ -2873,12 +2887,7 @@ onBeforeMount(async () => {
               </el-table-column>
               <el-table-column prop="quantity" :label="t('formDemo.sl')" align="center" width="80">
                 <template #default="data">
-                  <div v-if="type == 'detail'">
-                    {{ data.row.quantity }}
-                  </div>
                   <el-input
-                    v-else
-                    :disabled="checkDisabled"
                     @change="
                       () => {
                         data.row.totalPrice = data.row.unitPrice * data.row.quantity
@@ -2900,8 +2909,6 @@ onBeforeMount(async () => {
                 <template #default="props">
                   <CurrencyInputComponent
                     v-model="props.row.unitPrice"
-                    :disabled="checkDisabled"
-                    v-if="type != 'detail'"
                     @change="
                       () => {
                         props.row.totalPrice = props.row.unitPrice * props.row.quantity
@@ -2909,11 +2916,6 @@ onBeforeMount(async () => {
                       }
                     "
                   />
-                  <div v-else>{{
-                    props.row.unitPrice != ''
-                      ? changeMoney.format(parseInt(props.row.unitPrice))
-                      : '0 đ'
-                  }}</div>
                 </template>
               </el-table-column>
               <el-table-column
@@ -3165,7 +3167,7 @@ onBeforeMount(async () => {
                 class="handle-fix"
               />
               <p class="pr-2 text-red-600 pt-2">{{
-                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
+                moneyDeibt ? changeMoney.format(moneyDeibt) : '0 đ'
               }}</p>
             </div>
           </div>
@@ -3785,6 +3787,7 @@ onBeforeMount(async () => {
                   :auto-upload="false"
                   :on-change="handleChange"
                   class="relative"
+                  :disabled="checkDisabled"
                 >
                   <template #file="{ file }">
                     <div>
@@ -4354,7 +4357,7 @@ onBeforeMount(async () => {
           <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <el-input
-                :disabled="type == 'edit' ? true : false"
+                :disabled="checkDisabled"
                 v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -4364,7 +4367,7 @@ onBeforeMount(async () => {
           <el-table-column prop="code" :label="t('formDemo.code')" width="180">
             <template #default="data">
               <el-input
-                :disabled="type == 'edit' ? true : false"
+                :disabled="checkDisabled"
                 v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`"
               />
@@ -4375,7 +4378,7 @@ onBeforeMount(async () => {
             prop="quantity"
             :label="t('formDemo.amountBuy')"
             align="center"
-            width="90"
+            width="120"
           >
             <template #default="data">
               <div v-if="type == 'detail'">
@@ -4402,7 +4405,7 @@ onBeforeMount(async () => {
             align="center"
             min-width="100"
           />
-          <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" align="right" width="180">
+          <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" align="left" width="180">
             <template #default="props">
               <CurrencyInputComponent
                 v-model="props.row.unitPrice"
@@ -4450,7 +4453,7 @@ onBeforeMount(async () => {
                   <el-button
                     text
                     border
-                    :disabled="type == 'edit' ? true : false"
+                    :disabled="checkDisabled"
                     class="text-blue-500"
                     @click="
                       () => {
@@ -4467,25 +4470,9 @@ onBeforeMount(async () => {
           </el-table-column>
 
           <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" min-width="200">
-            <template #default="props">
-              <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    :disabled="type == 'edit' ? true : false"
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
-              </div>
-            </template>
+            <div class="flex w-[100%] items-center">
+              <div class="w-[40%]">{{ totalProductInWarehouse }}</div>
+            </div>
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
@@ -4735,7 +4722,6 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus"
-              :disabled="checkDisabled"
               @click="editButton = true"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
@@ -4829,7 +4815,6 @@ onBeforeMount(async () => {
                   cancelOrderPurchase()
                 }
               "
-              :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -4843,9 +4828,7 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
-          >+ Thêm bút toán</el-button
-        >
+        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
         <el-button :disabled="checkReceiptOrPayment" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >

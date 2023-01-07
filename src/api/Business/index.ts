@@ -340,7 +340,7 @@ export const GetProductPropertyInventory = async (params): Promise<IResponse> =>
     },
     fixedBaseURL
   )
-  return res && res.data
+  return res.data && res.data.data
 }
 
 // Phiếu nhập, xuất, chuyển kho tự động

@@ -286,7 +286,11 @@ export const VoucherType = (val) => {
 }
 
 export const dateTimeFormat = (val) => {
-  return moment(val).format('DD/MM/YYYY')
+  if (val) return moment(val).format('DD/MM/YYYY')
+  return ''
+}
+export const nullDateTime = (val) => {
+  console.log('val', val)
 }
 
 export const postDateTime = (val) => {

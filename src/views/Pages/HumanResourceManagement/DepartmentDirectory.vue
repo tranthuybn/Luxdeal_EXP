@@ -143,13 +143,13 @@ const columnsRank = reactive<TableColumn[]>([
   },
   {
     field: 'code',
-    label: t('reuse.managementCode'),
+    label: 'Mã cấp bậc',
     minWidth: '250',
     sortable: true
   },
   {
     field: 'name',
-    label: t('reuse.DepartmentName'),
+    label: 'Tên cấp bậc',
     minWidth: '200',
     sortable: true
   },
@@ -161,7 +161,10 @@ const columnsRank = reactive<TableColumn[]>([
   {
     field: 'createAt',
     label: t('reuse.createDate'),
-    minWidth: '200'
+    minWidth: '200',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createBy',
@@ -190,7 +193,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
   },
   {
     field: 'name',
-    label: t('reuse.DepartmentName'),
+    label: 'Tên cấp bậc',
     minWidth: '200',
     sortable: true
   },
@@ -200,9 +203,12 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createdAt',
+    field: 'createAt',
     label: t('reuse.createDate'),
-    minWidth: '200'
+    minWidth: '200',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createdBy',

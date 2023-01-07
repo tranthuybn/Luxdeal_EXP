@@ -202,6 +202,29 @@ export const STATUS = [
   }
 ]
 
+export const ORDER_STATUS = [
+  {
+    value: -1,
+    label: 'Giao hàng thất bại'
+  },
+  {
+    value: 0,
+    label: 'Chờ giao hàng'
+  },
+  {
+    value: 2,
+    label: 'Đang giao hàng'
+  },
+  {
+    value: 3,
+    label: 'Giao hàng thành công'
+  },
+  {
+    value: 4,
+    label: 'Đã nhận hàng'
+  }
+]
+
 export const STATUS_ORDER_PURCHASE = [
   {
     orderStatus: -1,
@@ -234,7 +257,7 @@ export const STATUS_ORDER_PURCHASE = [
     createdAt: ''
   },
   {
-    orderStatus: 62,
+    orderStatus: 14,
     orderStatusName: 'Duyệt đổi/trả hàng',
     createdAt: ''
   },

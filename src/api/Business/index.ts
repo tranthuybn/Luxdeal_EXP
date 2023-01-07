@@ -352,7 +352,7 @@ export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 // Lấy danh sách kho

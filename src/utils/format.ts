@@ -289,9 +289,6 @@ export const dateTimeFormat = (val) => {
   if (val) return moment(val).format('DD/MM/YYYY')
   return ''
 }
-export const nullDateTime = (val) => {
-  console.log('val', val)
-}
 
 export const postDateTime = (val) => {
   return moment(val).format('YYYY-MM-DD')

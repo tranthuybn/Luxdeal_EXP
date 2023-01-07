@@ -250,6 +250,65 @@ export const STATUS_ORDER_PURCHASE = [
   }
 ]
 
+export const STATUS_ORDER_DEPOSIT = [
+  //0
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 21,
+    orderStatusName: 'Bắt đầu ký gửi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 22,
+    orderStatusName: 'Duyệt trả hàng trước hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 23,
+    orderStatusName: 'Hết hạn ký gửi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 24,
+    orderStatusName: 'Trả hàng hết hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 25,
+    orderStatusName: 'Bắt đầu gia ký gửi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 26,
+    orderStatusName: 'Kết thúc gia ký gửi',
+    createdAt: ''
+  },
+  {
+    orderStatus: 99,
+    orderStatusName: 'Duyệt đơn hàng',
+    createdAt: ''
+  }
+]
+
 export const STATUS_ORDER_SELL = [
   {
     orderStatus: -1,

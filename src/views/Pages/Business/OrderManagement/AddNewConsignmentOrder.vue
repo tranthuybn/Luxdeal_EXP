@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -56,12 +56,14 @@ import {
   addQuickCustomer,
   GetProductPropertyInventory,
   postAutomaticWarehouse,
-  updateStatusOrder
+  updateStatusOrder,
+  updateOrderInfo,
+  cancelOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { PRODUCTS_AND_SERVICES, STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -271,18 +273,9 @@ const detailedListExpenses = [
     numberVouchers: '',
     dayVouchers: '',
     spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
+    quantity: 0,
+    unitPrices: 0,
+    intoMoney: 0,
     note: ''
   }
 ]
@@ -324,7 +317,7 @@ const optionsCharacteristic = [
   }
 ]
 
-const radioTracking = ref(1)
+const radioTracking = ref('1')
 
 const ruleForm = reactive({
   orderCode: 'DHB039423',
@@ -453,7 +446,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: '1',
+  quantity: '',
   accessory: '',
   businessManagement: {},
 
@@ -816,7 +809,7 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
-let statusOrder = ref(STATUS_ORDER_PURCHASE[1].orderStatus)
+let statusOrder = ref(STATUS_ORDER_DEPOSIT[10].orderStatus)
 interface statusOrderType {
   orderStatusName: string
   orderStatus: number
@@ -829,7 +822,7 @@ arrayStatusOrder.value.pop()
 const updateOrderStatus = async (status: number, idOrder: any) => {
   const payload = {
     OrderId: idOrder ? idOrder : id,
-    ServiceType: 6,
+    ServiceType: 2,
     OrderStatus: status
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -839,16 +832,16 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
 
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[index])
-  statusOrder.value = STATUS_ORDER_PURCHASE[index].orderStatus
+  arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
+  statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
-  updateOrderStatus(STATUS_ORDER_PURCHASE[index].orderStatus, id)
+  updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
 }
 
 const addStatusDelay = () => {
   setTimeout(() => {
-    addStatusOrder(7)
+    addStatusOrder(-1)
   }, 4000)
 }
 
@@ -1086,7 +1079,8 @@ const postData = async () => {
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
-      InterestMoney: 0
+      InterestMoney: 0,
+      orderStatus: 1
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
@@ -1450,6 +1444,7 @@ const getReturnRequestTable = async () => {
     }))
   }
 }
+const editButton = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1461,7 +1456,7 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    console.log('res', res)
+    console.log('res', res.data)
     const orderObj = { ...res?.data[0] }
 
     arrayStatusOrder.value = orderObj?.statusHistory
@@ -1520,6 +1515,43 @@ const editData = async () => {
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
+}
+
+const editOrderInfo = async () => {
+  const payload = {
+    Id: id,
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
+    Description: ruleForm.orderNotes,
+    // Files: Files,
+    DeleteFileIds: '',
+    DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderInfo(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'success'
+      })
+    })
+}
+
+//hủy đơn hàng
+const cancelOrderDO = async () => {
+  const payload = {
+    OrderId: id,
+    ServiceType: 6
+  }
+  const formPayload = FORM_IMAGES(payload)
+
+  await cancelOrder(formPayload)
 }
 
 // Dialog trả hàng trước hạn
@@ -1633,16 +1665,12 @@ onBeforeMount(async () => {
   callAPIProduct()
 
   if (type == 'add' || type == ':type') {
-    arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
+    arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[1])
     arrayStatusOrder.value[0].createdAt = ''
     arrayStatusOrder.value[0].isActive = true
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
   }
-})
-
-onMounted(async () => {
-  await editData()
 })
 </script>
 
@@ -3535,10 +3563,11 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
                 v-model="data.row.quantity"
+                :disabled="disabledEdit"
                 @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
@@ -3630,9 +3659,12 @@ onMounted(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <div class="flex gap-2">
-                <el-button @click.prevent="removeListProductsSale(scope.$index)" type="danger">{{
-                  t('reuse.delete')
-                }}</el-button>
+                <el-button
+                  :disabled="disabledEdit"
+                  @click.prevent="removeListProductsSale(scope.$index)"
+                  type="danger"
+                  >{{ t('reuse.delete') }}</el-button
+                >
               </div>
             </template>
           </el-table-column>
@@ -3665,9 +3697,9 @@ onMounted(async () => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PURCHASE[6].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PURCHASE[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
                 >
                   <span
@@ -3687,9 +3719,10 @@ onMounted(async () => {
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == STATUS_ORDER_PURCHASE[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PURCHASE[3].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PURCHASE[4].orderStatus
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
                   "
                 >
                   <span
@@ -3706,7 +3739,7 @@ onMounted(async () => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3721,7 +3754,7 @@ onMounted(async () => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3741,15 +3774,66 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="w-[100%] flex gap-4">
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
+        <div class="flex w-[100%] gap-2">
+          <div class="w-[12%]"></div>
+          <!-- edit -->
+          <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
             <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  editOrderInfo()
+                  editButton = false
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  editButton = false
+                  statusOrder = 2
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancel') }}</el-button
+            >
+          </div>
+          <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+              "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
               @click="dialogBillLiquidation = true"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
+              :disabled="checkDisabled"
+              type="primary"
+              @click="
+                () => {
+                  addStatusOrder(4)
+                }
+              "
+              class="min-w-42 min-h-11"
+              >Bắt đầu ký gửi theo kỳ hạn</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -3761,10 +3845,24 @@ onMounted(async () => {
               >{{ t('formDemo.saveAndPending') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
+              :disabled="checkDisabled"
+              @click="editButton = true"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.editOrder') }}</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+              "
               @click="
                 () => {
                   addStatusDelay()
-                  statusOrder = 9
+                  statusOrder = 0
+                  addStatusOrder(0)
+                  cancelOrderDO()
                   checkDisabled = !checkDisabled
                 }
               "
@@ -3774,6 +3872,7 @@ onMounted(async () => {
               >{{ t('button.cancelOrder') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus"
               @click="
                 () => {
                   changeReturnGoods = !changeReturnGoods
@@ -3783,31 +3882,25 @@ onMounted(async () => {
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng trước thời hạn</el-button
+              >Trả hàng trước hạn</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus"
               @click="
                 () => {
-                  hetHan = true
-                  // setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Sửa đơn hàng</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  hetHan = true
+                  changeReturnGoods = !changeReturnGoods
+                  truocHan = true
+                  addStatusOrder(5)
                   setDataForReturnOrder()
                 }
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng hết hạn</el-button
+              >Trả hàng trước thời hạn</el-button
             >
+
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
               @click="
                 () => {
                   hetHan = true
@@ -3818,9 +3911,27 @@ onMounted(async () => {
               class="min-w-42 min-h-11"
               >Hủy trả hàng</el-button
             >
+
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
+              "
               @click="
                 () => {
+                  hetHan = true
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Trả hàng hết hạn</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              @click="
+                () => {
+                  addStatusOrder(5)
                   hetHan = true
                   // setDataForReturnOrder()
                 }
@@ -3829,8 +3940,11 @@ onMounted(async () => {
               class="min-w-42 min-h-11"
               >Hoàn thành trả hàng</el-button
             >
-
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus
+              "
               @click="
                 () => {
                   hetHan = true
@@ -3841,7 +3955,12 @@ onMounted(async () => {
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
+
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+              "
               @click="
                 () => {
                   giaHan = true
@@ -3850,18 +3969,6 @@ onMounted(async () => {
               "
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
-            >
-
-            <el-button
-              @click="
-                () => {
-                  hetHan = true
-                  // setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Trả hàng hết hạn</el-button
             >
           </div>
         </div>

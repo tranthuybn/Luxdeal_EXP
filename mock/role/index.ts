@@ -1054,7 +1054,7 @@ const adminList = [
       {
         path: 'orders-approval',
         name: 'approve.orders-approval',
-        redirect: { name: 'approve.orders-approval.oders-new' },
+        redirect: { name: 'approve.orders-approval.orders-new' },
         meta: {
           title: 'router.approveOrders'
         },

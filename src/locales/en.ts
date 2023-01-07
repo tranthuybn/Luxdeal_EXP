@@ -1701,6 +1701,7 @@ export default {
     decentralization: 'decentralization',
     roleName: 'Role Name',
     addNewRole: 'Add new role',
-    choosePermission: 'choose permission'
+    choosePermission: 'choose permission',
+    exportExcelFailed: 'empty data can not be export'
   }
 }

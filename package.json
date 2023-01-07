@@ -1,6 +1,6 @@
 {
   "name": "111",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "CFT.ERP",
   "author": "Noah Khalifa",
   "private": true,
@@ -41,6 +41,7 @@
     "element-plus": "^2.2.9",
     "emoji-js": "^3.7.0",
     "escape-goat": "^4.0.0",
+    "export-from-json": "^1.7.0",
     "intro.js": "^6.0.0",
     "lodash-es": "^4.17.21",
     "mitt": "^3.0.0",

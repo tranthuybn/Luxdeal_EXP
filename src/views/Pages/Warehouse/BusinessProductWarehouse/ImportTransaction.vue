@@ -12,7 +12,8 @@ import {
   cancelTicket,
   createTicketManually,
   UpdateInventory,
-  UpdateInventoryOrder
+  UpdateInventoryOrder,
+  updateTicketManually
 } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
@@ -92,22 +93,43 @@ const addTransaction = async () => {
     uploadData.toWarehouseId = detailTicketRef.value?.FormData.toWarehouseId
     uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    await createTicketManually(JSON.stringify(uploadData))
-      .then(() => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        }),
-          push({
-            name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-          })
-      })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
+    console.log('type:', type)
+    if (type.value == 'add') {
+      await createTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
         })
-      )
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        )
+    }
+    if (type.value == 'edit') {
+      await updateTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
+        })
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
+    }
   }
 }
 const ticketData = ref({

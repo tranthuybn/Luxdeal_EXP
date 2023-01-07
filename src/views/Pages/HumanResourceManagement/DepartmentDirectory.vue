@@ -13,7 +13,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../Components/Type'
 import { useRouter } from 'vue-router'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, statusBranch } from '@/utils/format'
 import { ElButton, ElMessageBox, ElNotification } from 'element-plus'
 import { useAppStore } from '@/store/modules/app'
 
@@ -63,7 +63,10 @@ const columnsBranch = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   },
   {
     field: 'operator',
@@ -119,7 +122,10 @@ const columnsDepartment = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   },
   {
     field: 'operator',
@@ -143,13 +149,13 @@ const columnsRank = reactive<TableColumn[]>([
   },
   {
     field: 'code',
-    label: t('reuse.managementCode'),
+    label: 'Mã cấp bậc',
     minWidth: '250',
     sortable: true
   },
   {
     field: 'name',
-    label: t('reuse.DepartmentName'),
+    label: 'Tên cấp bậc',
     minWidth: '200',
     sortable: true
   },
@@ -161,7 +167,10 @@ const columnsRank = reactive<TableColumn[]>([
   {
     field: 'createAt',
     label: t('reuse.createDate'),
-    minWidth: '200'
+    minWidth: '200',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createBy',
@@ -172,7 +181,10 @@ const columnsRank = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   }
 ])
 const columnsTypePersonnel = reactive<TableColumn[]>([
@@ -190,7 +202,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
   },
   {
     field: 'name',
-    label: t('reuse.DepartmentName'),
+    label: 'Tên cấp bậc',
     minWidth: '200',
     sortable: true
   },
@@ -200,9 +212,12 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createdAt',
+    field: 'createAt',
     label: t('reuse.createDate'),
-    minWidth: '200'
+    minWidth: '200',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createdBy',
@@ -213,7 +228,10 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterDepartment
+    filters: filterDepartment,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return statusBranch(cellValue)
+    }
   }
 ])
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })

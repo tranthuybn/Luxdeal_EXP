@@ -209,7 +209,7 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
-let statusOrder = ref(1)
+let statusOrder = ref(2)
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
@@ -1658,19 +1658,19 @@ const autoChangeAddress = () => {
 
 // Trạng thái đơn hàng cho thuê
 const priceChangeOrders = ref(false)
-let countPriceChange = 0
 const changePriceRowTable = (props) => {
   const data = props.row
-  if (countPriceChange == 0 && type == 'add') {
-    countPriceChange++
+  if (type == 'add') {
     priceChangeOrders.value = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
     arrayStatusOrder.value.push({
       orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: 1,
+      orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
       isActive: true
     })
   }
+  doubleDisabled.value = !doubleDisabled.value
+  statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
   data.totalPrice = data.hirePrice * data.quantity
 }
 
@@ -2395,7 +2395,6 @@ const approvalId = String(route.params.approvalId)
 const approvalFunction = async () => {
   const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  updateStatusOrders(2)
   reloadStatusOrder()
 }
 
@@ -2406,12 +2405,10 @@ onBeforeMount(() => {
   editData()
   callApiWarehouseList()
   if (type == 'add') {
-    doubleDisabled.value = true
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
   }
-  if (type == 'detail') doubleDisabled.value = true
 })
 </script>
 
@@ -4840,7 +4837,11 @@ onBeforeMount(() => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && type == 'add'"
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              priceChangeOrders &&
+              type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4879,7 +4880,11 @@ onBeforeMount(() => {
           </div>
           <!-- Có thay đổi giá -->
           <div
-            v-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && type == 'add'"
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
+              priceChangeOrders &&
+              type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4915,7 +4920,7 @@ onBeforeMount(() => {
           </div>
 
           <div
-            v-else-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && !duplicateStatusButton"
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && duplicateStatusButton"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button

@@ -387,15 +387,20 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 interface historyTableType {
   createdAt: string
   productPropertyId: string
-  productPropertyName: string | undefined
+  productCode?: string
+  productPropertyName?: string
+  productName?: string
+  productPropertyCode?: string
   accessory?: string
-  conditionProducts: string
+  conditionProducts?: string
   quantity: number
   unit?: string
   refundUnitPrice?: number
   intoUnitPrice?: number
   invoiceGoodsEnteringWarehouse?: number
   inventoryStatus?: string
+  unitPrice?: number
+  totalPrice?: number
 }
 
 const historyTable = ref<Array<any>>([])
@@ -436,21 +441,33 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
-  console.log('val: ', val)
+  countExisted.value = 0
+  countExistedDNTT.value = 0
   newTable.value.map((el) => {
     if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
       disabledPTAccountingEntry.value = true
       disabledPCAccountingEntry.value = true
     } else {
-      disabledPTAccountingEntry.value = false
-      disabledPCAccountingEntry.value = false
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
     }
 
-    if (el.paymentRequestId) disabledDNTTAccountingEntry.value = true
-    else disabledDNTTAccountingEntry.value = false
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
   })
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
@@ -643,14 +660,42 @@ const handleGetTotal = async (_index, props) => {
   }
 }
 
+const duplicateProductChildren = ref()
 const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableReturnFullyIntegrated.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.refundUnitPrice = Number(obj.refundUnitPrice)
+    data.intoUnitPrice = Number(obj.refundUnitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+  }
 }
 const updateExchangePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitPrices = Number(obj.price)
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableProductInformationExportChange.value.find(
+    (val) => val.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.refundUnitPrice = Number(obj.refundUnitPrice)
+    data.intoUnitPrice = Number(obj.refundUnitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+  }
 }
+
 let customerID = ref()
 
 const getValueOfCustomerSelected = (value, obj) => {
@@ -1082,7 +1127,7 @@ const postData = async () => {
     ProvinceId: formAddress.province ?? 1,
     DistrictId: formAddress.district ?? 1,
     WardId: formAddress.wardCommune ?? 1,
-    Address: formAddress.detailedAddress,
+    Address: customerAddress.value,
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
@@ -1237,12 +1282,10 @@ const openDialogAcountingEntry = (scope) => {
 const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  console.log('formAccountingId', formAccountingId.value)
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableSalesSlip.value.forEach((e) => {
     e.totalPrice = e.unitPrice * e.quantity
   })
-  console.log('tableSalesSlip', tableSalesSlip.value)
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
   // paidMoney.value = formAccountingId.value?.paidMoney
@@ -1254,13 +1297,21 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
+  // inputReasonReturn.value =
+  console.log('formAccountingId: ', formAccountingId.value)
+  getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
   } else if (num == 2) {
     dialogDepositSlipAdvance.value = true
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
-  } else if (num == 3) changeReturnGoods.value = true
+  } else if (num == 3) {
+    tableReturnFullyIntegrated.value = formAccountingId.value?.paidMerchandises
+    tableProductInformationExportChange.value = formAccountingId.value?.paidMerchandises
+
+    changeReturnGoods.value = true
+  }
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
@@ -1414,13 +1465,17 @@ const changeReturnGoods = ref(false)
 const inputReasonReturn = ref('')
 
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
+const tableProductInformationExportChange = ref<Array<historyTableType>>([])
 
-if (tableReturnFullyIntegrated.value.length == 0)
+const addRowReturnFullyIntegrated = () => {
   tableReturnFullyIntegrated.value.push({
     createdAt: '',
     productPropertyId: '',
     productPropertyName: '',
-    accessory: '0',
+    productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    accessory: '',
     conditionProducts: '',
     quantity: 1,
     unit: '',
@@ -1429,6 +1484,71 @@ if (tableReturnFullyIntegrated.value.length == 0)
     invoiceGoodsEnteringWarehouse: 0,
     inventoryStatus: ''
   })
+}
+
+const addProductInformationExportChange = () => {
+  tableProductInformationExportChange.value.push({
+    createdAt: '',
+    productPropertyId: '',
+    productPropertyName: '',
+    productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    accessory: '',
+    conditionProducts: '',
+    quantity: 1,
+    unit: '',
+    refundUnitPrice: 0,
+    intoUnitPrice: 0,
+    invoiceGoodsEnteringWarehouse: 0,
+    inventoryStatus: ''
+  })
+}
+
+if (tableReturnFullyIntegrated.value.length == 0) addRowReturnFullyIntegrated()
+if (tableProductInformationExportChange.value.length == 0) addProductInformationExportChange()
+
+watch(
+  () => tableReturnFullyIntegrated.value,
+  () => {
+    if (
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
+        .productPropertyId &&
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].quantity &&
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
+        .refundUnitPrice &&
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].intoUnitPrice
+    )
+      addRowReturnFullyIntegrated()
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => tableProductInformationExportChange.value,
+  () => {
+    if (
+      tableProductInformationExportChange.value[
+        tableProductInformationExportChange.value.length - 1
+      ].productPropertyId &&
+      tableProductInformationExportChange.value[
+        tableProductInformationExportChange.value.length - 1
+      ].quantity &&
+      tableProductInformationExportChange.value[
+        tableProductInformationExportChange.value.length - 1
+      ].refundUnitPrice &&
+      tableProductInformationExportChange.value[
+        tableProductInformationExportChange.value.length - 1
+      ].intoUnitPrice
+    )
+      addProductInformationExportChange()
+  },
+  {
+    deep: true
+  }
+)
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
@@ -1448,17 +1568,6 @@ const getReturnRequestTable = async () => {
     }))
   }
 }
-
-const tableProductInformationExportChange = ref([
-  {
-    productPropertyId: 0,
-    commodityName: '',
-    accessory: '',
-    quantity: 1,
-    unitPrices: 0,
-    intoMoney: 0
-  }
-])
 
 const alreadyPaidForTt = ref(false)
 
@@ -1658,7 +1767,7 @@ const postOrderStransaction = async (index: number) => {
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
     typeOfAccountingEntry: index,
-    returnRequestId: index == 3 ? index : 0
+    returnRequestId: idReturnRequest.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1667,40 +1776,53 @@ const postOrderStransaction = async (index: number) => {
 }
 
 // Tạo mới yêu cầu đổi trả
+const idReturnRequest = ref()
 const postReturnRequest = async () => {
   codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  if (tableReturnFullyIntegrated.value.length < 2) {
-    return
-  }
-  if (tableProductInformationExportChange.value.length < 2) {
-    return
-  }
-  tableReturnFullyIntegrated.value.pop()
-  tableProductInformationExportChange.value.pop()
-  tableReturnPost.value.push(
-    tableReturnFullyIntegrated.value.map((e) => ({
-      productPropertyId: parseInt(e.productPropertyId),
-      quantity: e.quantity,
-      accessory: e.accessory
-    }))
+  const tableImportPost = ref()
+  const tableExportPost = ref()
+  if (
+    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
   )
-  tableReturnPost.value.push(
-    tableProductInformationExportChange.value.map((e) => ({
-      productPropertyId: e.productPropertyId,
-      quantity: e.quantity,
-      accessory: e.accessory
-    }))
+    tableReturnFullyIntegrated.value.pop()
+  if (
+    !tableProductInformationExportChange.value[tableProductInformationExportChange.value.length - 1]
+      .productPropertyId
   )
+    tableProductInformationExportChange.value.pop()
+  tableImportPost.value = tableReturnFullyIntegrated.value.map((el) => ({
+    productPropertyId: el.productPropertyId,
+    quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+    accessory: '',
+    returnDetailType: 1,
+    unitPrice: el.unitPrice,
+    totalPrice: el.totalPrice
+  }))
+
+  tableExportPost.value = tableProductInformationExportChange.value.map((el) => ({
+    productPropertyId: el.productPropertyId,
+    quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+    accessory: '',
+    returnDetailType: 1,
+    unitPrice: el.unitPrice,
+    totalPrice: el.totalPrice
+  }))
+
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng',
-    description: inputReasonReturn.value,
+    name: 'Đổi trả đơn hàng ',
+    description: inputReasonReturn.value ?? '',
     returnRequestType: 1,
-    details: tableReturnPost.value
+    tienBan: refundPrice.value ?? 0,
+    tienHoan: exportPrice.value ?? 0,
+    totalPrice: exchangePrice.value ?? 0,
+    nhapDetails: tableImportPost.value,
+    xuatDetails: tableExportPost.value,
+    isPaid: alreadyPaidForTt.value ? 0 : 1
   }
-  await createReturnRequest(payload)
+  idReturnRequest.value = await createReturnRequest(payload)
+  postOrderStransaction(3)
   getReturnRequestTable()
 }
 
@@ -1974,24 +2096,37 @@ const exchangePrice = computed(() => {
 const getRefundPrice = () => {
   let price = 0
   tableReturnFullyIntegrated.value.map((item) => {
-    item.intoUnitPrice !== undefined ? (price += item.intoUnitPrice) : ''
+    item.totalPrice !== undefined ? (price += item.totalPrice) : ''
   })
   return price
 }
 const getExportPrice = () => {
   let money = 0
   tableProductInformationExportChange.value.map((item) => {
-    money += item.intoMoney
+    item.totalPrice !== undefined ? (money += item.totalPrice) : ''
   })
   return money
 }
-let productArray: any = []
+
 const listOfOrderProduct = ref()
 const getReturnOrder = () => {
-  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
-  })
+  listOfOrderProduct.value = ListOfProductsForSale.value.map((el) => ({
+    productCode: el.productCode,
+    productPropertyCode: el.productPropertyCode,
+    productPropertyName: el.productPropertyName,
+    productPropertyId: el.productPropertyId,
+    unitPrice: el.unitPrice,
+    totalPrice: el.totalPrice,
+    maximumQuantity: el.quantity
+  }))
+}
+
+const showErrorMessage = (num) => {
+  ElMessage.error(`Vui lòng nhập số lượng bé hơn hoặc bằng ${num}`)
+}
+const checkMaximunQuantity = (scope) => {
+  const data = scope.row
+  if (data.quantity > data.maximumQuantity) showErrorMessage(data.maximumQuantity)
 }
 
 // disabled phiếu thanh toán và phiếu đặt cọc tạm ứng
@@ -2196,7 +2331,7 @@ const updateOrderInfomation = async () => {
     ProvinceId: formAddress.province ?? null,
     DistrictId: formAddress.district ?? null,
     WardId: formAddress.wardCommune ?? null,
-    Address: formAddress.detailedAddress ?? null
+    Address: customerAddress.value ?? null
   }
   const formUpdateOrder = FORM_IMAGES(payload)
   await updateOrderInfo(formUpdateOrder)
@@ -4317,7 +4452,7 @@ onBeforeMount(async () => {
       <el-dialog
         v-model="changeReturnGoods"
         :title="t('formDemo.InformationChangeReturnGoods')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -4383,7 +4518,7 @@ onBeforeMount(async () => {
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="name"
+                  labelKey="productCode"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4393,22 +4528,28 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
+              <template #default="props">
+                <el-input v-model="props.row.accessory" />
+              </template>
+            </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
-                <el-input v-model="props.row.quantity" />
+                <el-input
+                  @change="() => checkMaximunQuantity(props)"
+                  v-model="props.row.quantity"
+                />
               </template>
             </el-table-column>
-            <el-table-column prop="refundUnitPrice" :label="t('reuse.unitPrices')">
+            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.refundUnitPrice" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
               </template>
             </el-table-column>
-            <el-table-column prop="intoUnitPrice" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{
-                  moneyFormat(
-                    (props.row.intoUnitPrice = props.row.quantity * props.row.refundUnitPrice)
-                  )
+                  moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
                 }}</div>
               </template>
             </el-table-column>
@@ -4444,7 +4585,7 @@ onBeforeMount(async () => {
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="name"
+                  labelKey="productCode"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4454,20 +4595,28 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
+              <template #default="props">
+                <el-input v-model="props.row.accessory" />
+              </template>
+            </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
-                <el-input v-model="props.row.quantity" />
+                <el-input
+                  @change="() => checkMaximunQuantity(props)"
+                  v-model="props.row.quantity"
+                />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrices" :label="t('reuse.returnOrderPrice')">
+            <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrices" class="text-right" />
+                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
               <template #default="props">
                 <div class="text-right">{{
-                  moneyFormat((props.row.intoMoney = props.row.quantity * props.row.unitPrices))
+                  moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
                 }}</div>
               </template>
             </el-table-column>
@@ -4538,8 +4687,8 @@ onBeforeMount(async () => {
                   @click="
                     () => {
                       changeReturnGoods = false
-                      updateStatusOrders(STATUS_ORDER_SELL[6].orderStatus)
                       postReturnRequest()
+                      updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -5028,7 +5177,7 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="checkDisabled"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
+              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
@@ -5085,10 +5234,10 @@ onBeforeMount(async () => {
               :disabled="checkDisabled"
               @click="
                 () => {
-                  changeReturnGoods = true
-                  statusOrder = 6
-                  updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
+                  // statusOrder = 6
+                  // updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
                   getReturnOrder()
+                  changeReturnGoods = true
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"

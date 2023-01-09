@@ -425,9 +425,38 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
+  })
+
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
     return total
@@ -887,7 +916,7 @@ const postData = async () => {
     ProvinceId: formAddress.province ?? 1,
     DistrictId: formAddress.district ?? 1,
     WardId: formAddress.wardCommune ?? 1,
-    Address: formAddress.detailedAddress,
+    Address: customerAddress.value,
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
@@ -2342,7 +2371,7 @@ const updateOrderInfomation = async () => {
     ProvinceId: formAddress.province ?? null,
     DistrictId: formAddress.district ?? null,
     WardId: formAddress.wardCommune ?? null,
-    Address: formAddress.detailedAddress ?? null
+    Address: customerAddress.value ?? null
   }
   const formUpdateOrder = FORM_IMAGES(payload)
   await updateOrderInfo(formUpdateOrder)

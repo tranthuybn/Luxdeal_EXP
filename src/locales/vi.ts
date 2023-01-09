@@ -1849,6 +1849,7 @@ export default {
     choosePermission: 'Chọn quyền',
     exportExcelFailed: 'Dữ liệu trống không thể xuất file',
     //Kho
-    waitingTransfer: 'Chờ vận chuyển'
+    waitingTransfer: 'Chờ vận chuyển',
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
   }
 }

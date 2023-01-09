@@ -282,40 +282,28 @@ export const wareHouseContainer = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
+        [
+          row.transactionType == 1
+            ? row.toWarehouseName
+            : row.transactionType == 2
+            ? row.fromWarehouseName
+            : `${row.fromWarehouseName}->${row.toWarehouseName}`
+        ]
         // assuming `items` is a ref with array value
-        row.transactionDetails.map((item) => {
-          if (row.transactionType == 1) {
-            return h('li', item.toWarehouseName)
-          }
-          if (row.transactionType == 2) {
-            return h('li', item.fromWarehouseName)
-          }
-          if (row.transactionType == 3) {
-            return h('li', `${item.fromWarehouseName}->${item.toWarehouseName}`)
-          }
-        })
       )
     }
   },
 
   {
-    field: 'location',
+    field: 'locations',
     label: t('reuse.location'),
     minWidth: '250',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.transactionDetails.map((item) => {
-          if (row.transactionType == 1) {
-            return h('li', item.toLocationName)
-          }
-          if (row.transactionType == 2) {
-            return h('li', item.fromLocationName)
-          }
-          if (row.transactionType == 3) {
-            return h('li', `${item.fromLocationName}->${item.toLocationName}`)
-          }
+        row.transactionDetails.map(({ id, locationName }) => {
+          return h('li', { key: id }, locationName)
         })
       )
     }

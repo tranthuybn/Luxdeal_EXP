@@ -1700,6 +1700,9 @@ export default {
     roleName: 'Role Name',
     addNewRole: 'Add new role',
     choosePermission: 'choose permission',
-    exportExcelFailed: 'empty data can not be export'
+    exportExcelFailed: 'empty data can not be export',
+    //Kho
+    waitingTransfer: 'Waiting for transportation',
+    warehouseDoesntHaveLocation: "Haven't create location for warehouse"
   }
 }

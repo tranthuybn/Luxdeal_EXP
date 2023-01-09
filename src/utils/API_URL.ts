@@ -104,7 +104,8 @@ export const ORDER_API = {
   GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
   UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
-  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove'
+  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
+  APPROVAL_ORDER: '/api/v1/Approve/ApproveItem'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -114,6 +115,7 @@ export const ADDRESS_API = {
 }
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
@@ -149,14 +151,29 @@ export const POINT_API = {
   CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
 }
 export const DEPARTMENT_DIRECTORY = {
+  //Branch
   BRANCH_LIST: '/api/v1/Branch/GetBranch',
+  ADD_BRANCH: '/api/v1/Branch/CreatBranch',
+  UPDATE_BRANCH: '/api/v1/Branch/UpdateBranch',
+  DELETE_BRANCH: '/api/v1/Branch/DeleteBranch',
+  //Department
   DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
   POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
   UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
   DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
   DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
+  //POSITION
   GET_LIST_POSITION: '/api/v1/Position/GetPosition',
-  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff'
+  ADD_POSITION: '/api/v1/Position/GetPosition',
+  UPDATE_POSITION: '/api/v1/Position/UpdatePosition',
+  DELETE_POSITION: '/api/v1/Position/DeletePosition',
+  //TY OF STAFF
+  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff',
+  ADD_STAFF: '/api/v1/TypeOfStaff/CreateAccount',
+  UPDATE_STAFF: '/api/v1/TypeOfStaff/Update',
+  DELETE_STAFF: '/api/v1/TypeOfStaff/Delete',
+  //nhan su
+  ADD_NEW_STAFF: '/api/v1/AccountStaff/CreateAccountOne'
 }
 
 export const APPROVAL_API = {

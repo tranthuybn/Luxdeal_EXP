@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    orderStatus_Tracking: 'Tracking order',
     pleaseSelectWarehouse: 'Please select a warehouse',
     selectAWarehouse: 'Select a warehouse',
     selectExportWarehouse: 'Select export warehouse',
@@ -479,6 +480,7 @@ export default {
     commodityName: 'Commodity name',
     paymentSlip: 'Payment slip',
     depositSlipAdvance: 'Deposit slip or advance',
+    paymentDepositSlipAdvance: 'Payment or deposit or advance information',
     depositSlipAdvanceinformation: 'Deposit slip or advance information',
     paymentVoucherInformation: 'Payment voucher information',
     detailedListExpenses: 'Detailed list of expenses',

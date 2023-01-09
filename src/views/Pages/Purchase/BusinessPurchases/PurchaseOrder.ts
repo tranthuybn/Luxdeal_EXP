@@ -1,7 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { h } from 'vue'
 const { t } = useI18n()
-import { filtersStatus, filtersReceiptExpenditure } from '@/utils/filters'
+import { filtersStatus } from '@/utils/filters'
 import { dateTimeFormat } from '@/utils/format'
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -24,7 +24,7 @@ export const PurchaseOrderColumn = [
     minWidth: '200'
   },
   {
-    field: 'collaboratorId',
+    field: 'collaboratorCode',
     label: t('reuse.saleCode'),
     minWidth: '200',
     sortable: true

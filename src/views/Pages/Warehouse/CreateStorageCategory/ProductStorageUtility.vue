@@ -269,29 +269,29 @@ type FormDataPost = {
 var curDate = 'WH' + moment().format('hhmmss')
 
 const customPostData = (data) => {
-  console.log('data1:', data)
   const customData = {} as FormDataPost
-  customData.Id = data.Id
-  customData.Name = data.name
+  customData.Id = data?.Id
+  customData.Name = data?.name
   customData.Code = curDate
-  customData.ParentId = data.parentid
-  customData.Images = data.NewPhotos
+  customData.ParentId = data?.parentid
+  customData.Images = data?.NewPhotos
   customData.DeleteFileIds = data.DeleteFileIds.toString()
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
-  console.log('data', customData)
+  data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   return customData
 }
 
+const fixBugPost = (data) => {
+  const customData = {} as FormDataPost
+  customData.Name = data.name ? data.name : data.name2
+  customData.Code = curDate
+  customData.ParentId = data?.parentid
+  customData.Images = data?.Image
+  data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  return customData
+}
 const postData = async (data) => {
   //manipulate Data
-
-  if (data.status === 'active') {
-    data.isActive = true
-  } else {
-    data.isActive = false
-  }
-  data.Code = curDate
-
+  data = fixBugPost(data)
   await createNewProductStorage(FORM_IMAGES(data))
     .then(() => {
       ElNotification({

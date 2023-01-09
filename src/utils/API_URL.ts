@@ -90,7 +90,7 @@ export const ORDER_API = {
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
   UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
-  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
+  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
@@ -115,6 +115,7 @@ export const ADDRESS_API = {
 }
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
@@ -132,7 +133,10 @@ export const WAREHOUSE_API = {
   GET_WAREHOUSE_LOT: 'api/v1/Warehouse/GetWarehouseLot',
   CREATE_WAREHOUSE_LOT: 'api/v1/Warehouse/CreateWarehouseLot',
   CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually',
-  CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket'
+  CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket',
+  UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
+  UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
+  UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually'
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'

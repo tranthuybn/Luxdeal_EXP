@@ -316,6 +316,7 @@ export default {
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
     addNewSpaOrders: 'Thêm mới đơn hàng Spa',
     addNewFlashSale: 'Thêm mới Flash sale',
+    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewVoucher: 'Thêm mới Voucher',
     startDay: 'Ngày bắt đầu',
     endDay: 'Ngày kết thúc',
@@ -749,7 +750,7 @@ export default {
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
-    purchaseOrderAdd: 'Thêm mới đơn mua hàng',
+    purchaseOrderAdd: 'đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
     potentialCustomerAdd: 'Thêm mới KH tiềm năng',
     potentialCustomerList: 'Danh sách KH tiềm năng',
@@ -1776,7 +1777,7 @@ export default {
     importToSelectedLot: 'Nhập vào lot đã chọn',
     createNewLot: 'Tạo lot mới',
     import: 'Nhập kho',
-    export: 'Chuyển kho',
+    export: 'Xuất kho',
     inStock: 'Đang tồn kho',
     outOfStockInventory: 'Hết tồn kho',
     exporting: 'Đang xuất kho',
@@ -1786,6 +1787,7 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
+    totalPurchaseMoney: 'Thành tiền mua',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',
     informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
@@ -1847,6 +1849,9 @@ export default {
     roleName: 'Tên phân quyền',
     addNewRole: 'Thêm mới phân quyền tài khoản',
     choosePermission: 'Chọn quyền',
-    exportExcelFailed: 'Dữ liệu trống không thể xuất file'
+    exportExcelFailed: 'Dữ liệu trống không thể xuất file',
+    //Kho
+    waitingTransfer: 'Chờ vận chuyển',
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
   }
 }

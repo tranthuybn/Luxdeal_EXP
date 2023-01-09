@@ -1082,10 +1082,12 @@ const postData = async () => {
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
+      if (priceChangeOrders.value) {
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        })
+      }
     })
     .catch(() =>
       ElNotification({
@@ -1469,15 +1471,17 @@ let statusOrder = ref(2)
 const priceChangeOrders = ref(false)
 const changePriceRowTable = (props) => {
   const data = props.row
-  let countPriceChange = ref(0)
-  countPriceChange.value++
   priceChangeOrders.value = true
-  arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-  arrayStatusOrder.value.push({
-    orderStatusName: 'Duyệt giá thay đổi',
-    orderStatus: 1,
-    isActive: true
-  })
+  if (type == 'add') {
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
+      orderStatusName: 'Duyệt giá thay đổi',
+      orderStatus: STATUS_ORDER_SELL[1].orderStatus,
+      isActive: true
+    })
+  }
+  doubleDisabled.value = !doubleDisabled.value
+  statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
   data.totalPrice = data.unitPrice * data.quantity
 }
 
@@ -2205,7 +2209,6 @@ const updateStatusOrders = async (typeState) => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  updateStatusOrders(2)
   reloadStatusOrder()
 }
 
@@ -2218,12 +2221,10 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    doubleDisabled.value = true
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
   }
-  if (type == 'detail') doubleDisabled.value = true
 })
 </script>
 
@@ -4871,7 +4872,9 @@ onBeforeMount(async () => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus && type == 'add'"
+            v-if="
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -4917,15 +4920,13 @@ onBeforeMount(async () => {
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus &&
-              !duplicateStatusButton &&
-              type == 'add'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @disabled="doubleDisabled"
               @click="openBillDialog"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentSlip') }}</el-button
             >
@@ -4972,7 +4973,7 @@ onBeforeMount(async () => {
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus && duplicateStatusButton"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="dialogSalesSlipInfomation = true" class="min-w-42 min-h-11">{{

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { getStaff } from '@/api/Warehouse'
+import { getProductStorage, getStaff } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElButton, ElDivider, ElInput, ElForm, ElFormItem } from 'element-plus'
+import { ElButton, ElDivider, ElInput, ElForm, ElFormItem, ElSelect, ElOption } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { computed, onBeforeMount, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
@@ -43,6 +43,7 @@ const FormData = computed(() => {
 const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
   staffId: [required(), requiredOption()],
+  toWarehouseId: [required()],
   description: [required()],
   customerId: [required(), requiredOption()]
 })
@@ -189,12 +190,37 @@ const submitFormTicket = async () => {
   return validate
 }
 onBeforeMount(() => {
-  getListStaff(), callCustomersApi()
+  getListStaff(), callCustomersApi(), callAPIWarehouse()
 })
 defineExpose({
   FormData,
   submitFormTicket
 })
+
+//sửa giden lại phải làm thêm ;))
+const warehouseOptions = ref()
+const callAPIWarehouse = async () => {
+  await getProductStorage({
+    pageSize: 1000,
+    pageIndex: 1
+  }).then((res) => {
+    warehouseOptions.value = res.data
+      .filter((warehouse) => warehouse.children.length > 0)
+      .map((item) => ({
+        value: item.id,
+        label: item.name
+      }))
+  })
+}
+
+//
+const emit = defineEmits(['update-ticket'])
+const chooseImportWarehouse = (warehouseId) => {
+  const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
+  console.log('warehouseId', warehouseId, warehouseOptions.value, warehouse)
+
+  emit('update-ticket', warehouse)
+}
 </script>
 <template>
   <QuickAddCustomer
@@ -228,6 +254,20 @@ defineExpose({
         <div class="pl-6">{{
           FormData.createdAt ? dateTimeFormat(FormData.createdAt) : formattedToday
         }}</div>
+      </ElFormItem>
+      <ElFormItem
+        :label="t('reuse.chooseImportWarehouse')"
+        v-if="typeTransaction == 1"
+        prop="toWarehouseId"
+      >
+        <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
+          <el-option
+            v-for="item in warehouseOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </ElFormItem>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
@@ -301,9 +341,14 @@ defineExpose({
       <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
         <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
       </div>
-      <ElFormItem class="w-[100%]" style="display: inline-block" :label="t('reuse.orderCode')">
+      <ElFormItem :label="t('reuse.orderCode')">
         {{ FormData.orderCode }}
       </ElFormItem>
     </div>
   </ElForm>
 </template>
+<style scoped>
+:deep(.el-select) {
+  width: 100%;
+}
+</style>

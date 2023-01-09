@@ -843,10 +843,12 @@ export const getCommissionPaymentByIdList = async (params: any): Promise<IRespon
   )
   return res.data && res.data
 }
+
+// Danh sách phiếu thu chi
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+      url: `${ACCOUNTANT_API.GET_RECEIPT_EXPENDITURES_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

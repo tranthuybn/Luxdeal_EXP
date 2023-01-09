@@ -13,6 +13,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
 import { useAppStore } from '@/store/modules/app'
 import router from '@/router'
+import { API_ORDER } from '@/utils/API.Variables'
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -905,11 +906,15 @@ export const spaOrder = [
   }
 ]
 const action = (row: any, type: string, tab: string) => {
+  console.log('row: ', row)
+  console.log('tab: ', tab)
+  const curTab: any = API_ORDER.find((el) => el.key == row.serviceType)
+  console.log('curTab: ', curTab)
   router.push({
     name: `business.order-management.order-list.${utility}`,
     params: {
       backRoute: 'business.order-management.order-list',
-      tab: tab,
+      tab: curTab.label,
       id: row.id,
       type: type
     }

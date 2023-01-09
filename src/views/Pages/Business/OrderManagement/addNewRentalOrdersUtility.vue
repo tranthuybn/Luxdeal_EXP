@@ -1232,7 +1232,7 @@ const editData = async () => {
       tableData.value = orderObj.orderDetails
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOptionName
+      ruleForm.delivery = orderObj.deliveryOption
       customerIdPromo.value = orderObj.customerId
       if (orderObj.customer?.isOrganization) {
         infoCompany.name = orderObj.customer?.name
@@ -1660,6 +1660,7 @@ const autoChangeAddress = () => {
 const priceChangeOrders = ref(false)
 const changePriceRowTable = (props) => {
   const data = props.row
+  console.log('data: ', data)
   if (type == 'add') {
     priceChangeOrders.value = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
@@ -1669,9 +1670,11 @@ const changePriceRowTable = (props) => {
       isActive: true
     })
   }
-  doubleDisabled.value = !doubleDisabled.value
+  doubleDisabled.value = true
   statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
   data.totalPrice = data.hirePrice * data.quantity
+  autoCalculateOrder()
+  console.log('data: ', data)
 }
 
 arrayStatusOrder.value.pop()
@@ -2393,7 +2396,7 @@ const route = useRoute()
 const approvalId = String(route.params.approvalId)
 
 const approvalFunction = async () => {
-  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
 }
@@ -4547,7 +4550,7 @@ onBeforeMount(() => {
                 v-model="props.row.hirePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="changePriceRowTable"
+                @change="() => changePriceRowTable(props)"
               />
               <div v-else>{{
                 props.row.hirePrice != ''
@@ -4573,13 +4576,17 @@ onBeforeMount(() => {
             width="180"
           >
             <template #default="props">
-              <div class="text-right">
-                {{
-                  props.row.depositePrice != ''
-                    ? changeMoney.format(parseInt(props.row.depositePrice))
-                    : '0 đ'
-                }}
-              </div>
+              <CurrencyInputComponent
+                v-model="props.row.depositePrice"
+                :disabled="disabledEdit"
+                v-if="type != 'detail'"
+                @change="() => changePriceRowTable(props)"
+              />
+              <div v-else>{{
+                props.row.depositePrice != ''
+                  ? changeMoney.format(parseInt(props.row.depositePrice))
+                  : '0 đ'
+              }}</div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
@@ -4839,7 +4846,7 @@ onBeforeMount(() => {
           <div
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
-              priceChangeOrders &&
+              !priceChangeOrders &&
               type == 'add'
             "
             class="w-[100%] flex ml-1 gap-4"
@@ -4933,7 +4940,7 @@ onBeforeMount(() => {
           </div>
           <!-- Không thay đổi giá -->
           <div
-            v-else-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && duplicateStatusButton"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button

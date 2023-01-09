@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -115,7 +115,7 @@ const ruleForm = reactive({
   discount: '',
   orderNotes: '',
   customerName: '',
-  delivery: 0,
+  delivery: 2,
   warehouse: '',
   orderFiles: []
 })
@@ -338,11 +338,11 @@ const collapse: Array<Collapse> = [
 
 const chooseDelivery = [
   {
-    value: 0,
+    value: 2,
     label: t('formDemo.buyDelivery')
   },
   {
-    value: 1,
+    value: 3,
     label: t('formDemo.sellDelivery')
   }
 ]
@@ -353,7 +353,7 @@ interface typeWarehouse {
 }
 const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
-const radio1 = ref('')
+const statusTracking = ref('0')
 
 const input = ref('')
 
@@ -531,7 +531,7 @@ const callApiProductList = async () => {
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       value: product.productCode,
-      productCode: product.productCode,
+      code: product.code,
       name: product.name ?? '',
       unitPrice: product.unitPrice,
       unitName: product.unitName,
@@ -561,6 +561,7 @@ const ScrollProductBottom = () => {
             : res.data.map((product) =>
                 listProductsTable.value.push({
                   productCode: product.productCode,
+                  code: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
                   unitPrice: product.unitPrice.toString(),
@@ -620,12 +621,19 @@ const getValueOfSelected = async (_value, obj, scope) => {
 
 const updatePrice = (_value, obj, scope) => {
   scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
+  scope.row.unitPrice = Number(obj.unitPrice)
+  scope.row.accessory = obj.accessory
+  scope.row.quantity = Number(obj.quantity)
+  scope.row.totalPrice = Number(obj.totalPrice)
+  getRefundPrice()
 }
 const updateExchangePrice = (_value, obj, scope) => {
-  console.log('obj:', obj)
   scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitPrices = Number(obj.price)
+  scope.row.unitPrice = Number(obj.unitPrice)
+  scope.row.accessory = obj.accessory
+  scope.row.quantity = Number(obj.quantity)
+  scope.row.totalPrice = Number(obj.totalPrice)
+  getExportPrice()
 }
 let customerID = ref()
 
@@ -675,12 +683,13 @@ const createQuickCustomer = async () => {
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
+      callCustomersApi()
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail'),
@@ -793,14 +802,18 @@ const totalPaymentRequest = ref(0)
 watch(
   () => inputDeposit.value,
   () => {
-    moneyDeibt.value = moneyDeposit.value - inputDeposit.value
+    if (moneyDeposit.value !== 0) {
+      moneyDeibt.value = Math.abs(moneyDeposit.value - inputDeposit.value)
+    } else {
+      moneyDeibt.value = Math.abs(totalFinalOrder.value - inputDeposit.value)
+    }
   }
 )
 
 watch(
   () => inputDepositPayment.value,
   () => {
-    moneyDepositPayment.value = totalPaymentRequest.value - inputDepositPayment.value
+    moneyDepositPayment.value = Math.abs(totalPaymentRequest.value - inputDepositPayment.value)
     if (moneyDepositPayment.value > moneyDeibt.value) {
       ElNotification({
         message: 'Số tiền còn lại lớn hơn số tiền chi',
@@ -1076,7 +1089,8 @@ const postData = async () => {
         ? null
         : parseInt(radioVAT.value),
     VATMoney: moneyVAT.value,
-    orderStatus: 1
+    orderStatus: 1,
+    Status: statusTracking.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
@@ -1155,6 +1169,7 @@ let tableInvoiceImport = ref([
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
+  if (type == 'edit') hiddenButton.value = false
   if (type == 'edit' || type == 'detail') {
     checkDisabledProduct.value = true
     const res = await getOrderList({ Id: id, ServiceType: 6 })
@@ -1191,6 +1206,7 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
+      if (orderObj.status !== null) statusTracking.value = orderObj?.status.toString()
       if (orderObj.vat) {
         VAT.value = true
         moneyVAT.value = orderObj.vatMoney
@@ -1221,7 +1237,7 @@ const editData = async () => {
       tableInvoiceExport.value[0].finalPrice = orderObj.totalPrice
       tableInvoiceImport.value[0].finalPrice = orderObj.totalPrice
       customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOptionName
+      ruleForm.delivery = orderObj.deliveryOption
       customerIdPromo.value = orderObj.customerId
       if (orderObj.customer.isOrganization) {
         infoCompany.name = orderObj.customer.name
@@ -1250,11 +1266,13 @@ const editData = async () => {
 let formAccountingId = ref()
 const getAccountingEntry = (_index, scope) => {
   const data = scope.row
-  data.content?.indexOf('Phiếu thanh toán') != -1
-    ? openAcountingEntryDialog(data.id, 1)
-    : data.content?.indexOf('Phiếu thanh toán đổi/trả hàng') != -1
-    ? openAcountingEntryDialog(data.id, 3)
-    : openAcountingEntryDialog(data.id, 4)
+  if (data.content == 'Phiếu thanh toán') {
+    openAcountingEntryDialog(data.id, 1)
+  } else if (data.content == 'Phiếu thanh toán đổi/trả hàng') {
+    openAcountingEntryDialog(data.id, 3)
+  } else {
+    openAcountingEntryDialog(data.id, 4)
+  }
 }
 
 const openAcountingEntryDialog = async (index, num) => {
@@ -1264,24 +1282,54 @@ const openAcountingEntryDialog = async (index, num) => {
   tableSalesSlip.value.forEach((e) => {
     e.totalPrice = e.unitPrice * e.quantity
   })
-  tableAccountingEntry.value = formAccountingId.value?.accountingEntry
+  tableAccountingEntry.value[0] = formAccountingId.value?.accountingEntry
   inputDeposit.value = formAccountingId.value?.accountingEntry.paidMoney
   moneyDeposit.value = formAccountingId.value?.accountingEntry.deibt
+  alreadyPaidForTt.value = formAccountingId.value?.accountingEntry.isReceiptedMoney
+  payment.value = formAccountingId.value?.accountingEntry.typeOfPayment
   if (num == 1) {
-    openBillDialog()
-  } else if (num == 2) {
-    dialogDepositSlipAdvance.value = true
+    getSaleSlipInfo()
   } else if (num == 4) {
-    dialogAccountingEntryAdditional.value = true
+    getAccountingAdditional()
   } else if (num == 3) {
     getReturnRequestOrder()
   }
 }
 
+//lấy chi tiết bút toán bổ sung
+const getAccountingAdditional = async () => {
+  dialogAccountingEntryAdditional.value = true
+  tableAccountingEntry.value.map((val) => {
+    if (val.deibt) valueMoneyAccoungtingEntry.value += val.deibt
+  })
+}
+
+//lấy chi tiết phiếu thanh toán
+const getSaleSlipInfo = async () => {
+  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+}
+
 //lấy chi tiết đổi/trả hàng
 const getReturnRequestOrder = async () => {
-  // const res = await getReturnRequest({ CustomerOrderId: id })
-  // console.log(res.data)
+  const res = await getReturnRequest({ CustomerOrderId: id })
+  listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
+    productPropertyId: row.productPropertyId,
+    productCode: row.productCode,
+    productPropertyName: row.productPropertyName,
+    accessory: row.accessory,
+    quantity: row.quantity,
+    unitPrice: row.unitPrice,
+    totalPrice: row.totalPrice
+  }))
+  const objDetail = res?.data[0]
+  refundPrice.value = objDetail.tienHoan
+  exportPrice.value = objDetail.tienBan
+  exchangePrice.value = objDetail.totalPrice
+  inputReasonReturn.value = objDetail.description
+  if (objDetail.nhapDetails[0]?.productPropertyId)
+    tableReturnFullyIntegrated.value = objDetail.nhapDetails
+  if (objDetail.xuatDetails[0]?.productPropertyId)
+    tableProductInformationExportChange.value = objDetail.xuatDetails
   changeReturnGoods.value = true
 }
 
@@ -1358,9 +1406,6 @@ const getRequestPaymentDetail = async (_index, scope) => {
   dialogIPRForm.value = true
 }
 
-// Thông tin phiếu đặt cọc/tạm ứng
-const dialogDepositSlipAdvance = ref(false)
-
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
 
@@ -1399,28 +1444,90 @@ const singleTableRef = ref<InstanceType<typeof ElTable>>()
 const changeReturnGoods = ref(false)
 const inputReasonReturn = ref('')
 
-const tableReturnFullyIntegrated = ref()
-
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
-      createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
-      productPropertyName: e.productPropertyName,
-      accessory: e.accessory,
-      quantity: e.quantity,
-      unitName: e.unitName,
-      returnDetailType: e.returnDetailType,
-      returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      createdAt: e.createdAt ?? ''
     }))
   }
 }
 
-const tableProductInformationExportChange = ref()
+const tableProductInformationExportChange = ref([
+  {
+    productPropertyId: '' as any,
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    returnDetailType: 2
+  }
+])
+
+const tableReturnFullyIntegrated = ref([
+  {
+    productPropertyId: '' as any,
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    returnDetailType: 1
+  }
+])
+
+const addRowTableExportChange = () => {
+  tableProductInformationExportChange.value.push({
+    productPropertyId: '',
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    returnDetailType: 2
+  })
+}
+
+const addRowTableReturnFullyIntegrated = () => {
+  tableReturnFullyIntegrated.value.push({
+    productPropertyId: '',
+    accessory: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    returnDetailType: 1
+  })
+}
+
+watch(
+  () =>
+    tableProductInformationExportChange.value[tableProductInformationExportChange.value.length - 1],
+  () => {
+    if (
+      tableProductInformationExportChange.value[
+        tableProductInformationExportChange.value.length - 1
+      ].productPropertyId
+    )
+      addRowTableExportChange()
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1],
+  () => {
+    if (
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
+        .productPropertyId
+    )
+      addRowTableReturnFullyIntegrated()
+  },
+  {
+    deep: true
+  }
+)
 
 const alreadyPaidForTt = ref(true)
 
@@ -1430,10 +1537,9 @@ const dialogAccountingEntryAdditional = ref(false)
 const tableAccountingEntry = ref([
   {
     content: '',
-    kindOfMoney: '',
-    collected: 0,
-    spent: 0,
-    intoMoney: 0
+    receiveMoney: 0,
+    paidMoney: 0,
+    deibt: 0
   }
 ])
 
@@ -1480,12 +1586,12 @@ let tableSalesSlip = ref()
 
 function openBillDialog() {
   moneyDeposit.value = 0
+  alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   debtTable.value.forEach((e) => {
     moneyDeposit.value += e.deibt
   })
   inputDeposit.value = moneyDeposit.value
-  console.log('moneyDeposit: ', moneyDeposit.value)
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
@@ -1769,23 +1875,14 @@ const postOrderStransaction = async (index: number) => {
     content:
       index == 1
         ? t('formDemo.bill')
-        : index == 2
-        ? t('formDemo.depositSlipAdvance')
         : index == 3
         ? t('formDemo.returnPaymentSlip')
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney:
-      index == 1
-        ? totalFinalOrder.value
-        : index == 2
-        ? inputDeposit.value
-        : index == 3
-        ? tableAccountingEntry.value[0].collected
-        : 0,
-    paidMoney: index == 1 || index == 2 ? 0 : index == 3 ? tableAccountingEntry.value[0].spent : 0,
-    deibt: index !== 1 ? 0 : moneyDeposit.value,
+    receiveMoney: index == 1 ? 0 : tableAccountingEntry.value[0].receiveMoney,
+    paidMoney: index == 1 ? inputDeposit.value : tableAccountingEntry.value[0].paidMoney,
+    deibt: index == 1 ? moneyDeibt.value : valueMoneyAccoungtingEntry.value,
     typeOfPayment: payment.value,
     paymentMethods: 1,
     status: 0,
@@ -1803,6 +1900,18 @@ const postOrderStransaction = async (index: number) => {
 const returnRequestId = ref()
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
+  if (
+    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
+  ) {
+    tableReturnFullyIntegrated.value.pop()
+  }
+
+  if (
+    !tableProductInformationExportChange.value[tableProductInformationExportChange.value.length - 1]
+      .productPropertyId
+  ) {
+    tableProductInformationExportChange.value.pop()
+  }
   codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     customerOrderId: id,
@@ -1810,8 +1919,14 @@ const postReturnRequest = async () => {
     name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
-    nhapDetails: tableReturnFullyIntegrated.value,
-    xuatDetails: tableProductInformationExportChange.value,
+    nhapDetails:
+      tableReturnFullyIntegrated?.value[0]?.productPropertyId !== ''
+        ? tableReturnFullyIntegrated.value
+        : [],
+    xuatDetails:
+      tableProductInformationExportChange?.value[0]?.productPropertyId !== ''
+        ? tableProductInformationExportChange.value
+        : [],
     totalPrice: exchangePrice.value,
     tienBan: refundPrice.value,
     tienHoan: exportPrice.value,
@@ -1820,11 +1935,10 @@ const postReturnRequest = async () => {
   const res = await createReturnRequest(JSON.stringify(payload))
   if (res) {
     returnRequestId.value = res
-    if (exchangePrice.value > 0) tableAccountingEntry.value[0].spent = exchangePrice.value
-    else tableAccountingEntry.value[0].collected = exchangePrice.value
+    if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = exchangePrice.value
+    else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
     await postOrderStransaction(3)
   }
-  changeReturnGoods.value = false
   getReturnRequestTable()
 }
 
@@ -1917,59 +2031,60 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 //TruongNgo
-const refundPrice = computed(() => {
-  return getRefundPrice()
-})
-const exportPrice = computed(() => {
-  return getExportPrice()
-})
-const exchangePrice = computed(() => {
-  return refundPrice.value - exportPrice.value
-})
+const refundPrice = ref(0)
+const exportPrice = ref(0)
+const exchangePrice = ref(0)
+
+watch(
+  () => refundPrice.value,
+  () => {
+    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => exportPrice.value,
+  () => {
+    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
+  },
+  {
+    deep: true
+  }
+)
+
 const getRefundPrice = () => {
-  let price = 0
-  tableReturnFullyIntegrated.value.map((item) => {
-    price += item.totalPrice
-  })
-  return price
+  refundPrice.value = 0
+  if (tableReturnFullyIntegrated.value?.length) {
+    tableReturnFullyIntegrated?.value.map((item) => {
+      refundPrice.value += item.totalPrice
+    })
+  }
 }
 const getExportPrice = () => {
-  let money = 0
-  tableProductInformationExportChange.value?.map((item) => {
-    if (item.totalPrice) money += item.totalPrice
-  })
-  return money
+  exportPrice.value = 0
+  if (tableReturnFullyIntegrated.value?.length) {
+    tableProductInformationExportChange?.value?.map((item) => {
+      if (item.totalPrice) exportPrice.value += item.totalPrice
+    })
+  }
 }
 
 const listOfOrderProduct = ref()
-const getReturnOrder = () => {
+const openDialogReturnOrder = () => {
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
     productPropertyId: row.productPropertyId,
     productCode: row.productCode,
     productPropertyName: row.productPropertyName,
+    accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
     totalPrice: row.totalPrice
   }))
-  tableProductInformationExportChange.value = ListOfProductsForSale.value?.map((order) => ({
-    productPropertyId: order.productPropertyId,
-    productCode: order.productCode,
-    productPropertyName: order.productPropertyName,
-    accessory: order.accessory,
-    quantity: order.quantity,
-    unitPrice: order.unitPrice,
-    totalPrice: order.totalPrice
-  }))
-
-  tableReturnFullyIntegrated.value = ListOfProductsForSale.value.map((order) => ({
-    productPropertyId: order.productPropertyId,
-    productCode: order.productCode,
-    productPropertyName: order.productPropertyName,
-    accessory: order.accessory,
-    quantity: order.quantity,
-    unitPrice: order.unitPrice,
-    totalPrice: order.totalPrice
-  }))
+  changeReturnGoods.value = true
+  alreadyPaidForTt.value = false
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -1979,10 +2094,10 @@ const valueMoneyAccoungtingEntry = ref(0)
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
   const data = scope.row
-  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
+  data.deibt = Math.abs(parseInt(data.paidMoney) - parseInt(data.receiveMoney))
 
   tableAccountingEntry.value.map((val) => {
-    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+    if (val.deibt) valueMoneyAccoungtingEntry.value += val.deibt
   })
 }
 
@@ -2022,7 +2137,8 @@ const editOrderInfo = async () => {
     ProvinceId: formAddress.province ? formAddress.province : dataEdit.value?.provinceId,
     DistrictId: formAddress.district ? formAddress.district : dataEdit.value?.districtId,
     WardId: formAddress.wardCommune ? formAddress.wardCommune : dataEdit.value?.wardId,
-    Address: formAddress.detailedAddress ? formAddress.detailedAddress : dataEdit.value?.address
+    Address: formAddress.detailedAddress ? formAddress.detailedAddress : dataEdit.value?.address,
+    Status: statusTracking.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
@@ -2176,6 +2292,8 @@ const callApiWarehouseList = async () => {
   }
 }
 
+const hiddenButton = ref(false)
+
 onBeforeMount(async () => {
   await editData()
   await callApiWarehouseList()
@@ -2187,6 +2305,7 @@ onBeforeMount(async () => {
 
   if (type == 'add' || type == ':type') {
     doubleDisabled.value = true
+    hiddenButton.value = true
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
@@ -2417,7 +2536,6 @@ onBeforeMount(async () => {
                 () => {
                   dialogAddQuick = false
                   createQuickCustomer()
-                  callCustomersApi()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -2710,12 +2828,12 @@ onBeforeMount(async () => {
           </div>
           <div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
+              <label class="w-[30%] text-right">{{ t('formDemo.codePayment') }}</label>
               <div class="w-[100%] text-xl">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <div @scroll="scrollingRecharger" id="content">
@@ -2730,13 +2848,12 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
+                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
               <el-input
                 v-model="inputReasonCollectMoney"
                 style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
+                :placeholder="t('formDemo.enterReasonForThePayment')"
               />
             </div>
           </div>
@@ -2748,7 +2865,7 @@ onBeforeMount(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền chi</label>
-            <div class="w-[100%] text-xl">{{ moneyPaid }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyPaid) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3234,8 +3351,8 @@ onBeforeMount(async () => {
                   type="primary"
                   @click="
                     () => {
-                      dialogSalesSlipInfomation = false
                       postOrderStransaction(1)
+                      dialogSalesSlipInfomation = false
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3491,7 +3608,7 @@ onBeforeMount(async () => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
+          <div class="flex gap-4 pt-4 pb-4">
             <div class="flex-1 flex gap-4">
               <label class="w-[50%] min-w-[162.73px] text-right">{{
                 t('formDemo.orderCode')
@@ -3503,7 +3620,6 @@ onBeforeMount(async () => {
             <div class="flex-1 flex items-start gap-4">
               <span class="text-right">
                 <div>Mã QR đơn hàng</div>
-                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
               </span>
 
               <span class="border">
@@ -3544,27 +3660,27 @@ onBeforeMount(async () => {
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')">
+            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
                   class="handle-fix"
-                  v-model="props.row.collected"
+                  v-model="props.row.receiveMoney"
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="spent" :label="t('formDemo.spent')">
+            <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
                   class="handle-fix"
-                  v-model="props.row.spent"
+                  v-model="props.row.paidMoney"
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="deibt" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }} đ</div>
+                <div class="text-right">{{ changeMoney.format(props.row.deibt) }} đ</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3812,7 +3928,7 @@ onBeforeMount(async () => {
                   :auto-upload="false"
                   :on-change="handleChange"
                   class="relative"
-                  :disabled="true"
+                  :disabled="type == 'detail' ? true : false"
                 >
                   <template #file="{ file }">
                     <div>
@@ -4070,7 +4186,6 @@ onBeforeMount(async () => {
         v-model="changeReturnGoods"
         :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
         width="40%"
-        @opened="alreadyPaidForTt = false"
       >
         <div>
           <el-divider />
@@ -4133,7 +4248,7 @@ onBeforeMount(async () => {
           >
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="productPropertyName"
+              prop="productPropertyId"
               :label="t('formDemo.commodityName')"
               width="280"
             >
@@ -4148,7 +4263,7 @@ onBeforeMount(async () => {
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4158,17 +4273,30 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+              <template #default="props">
+                <el-input
+                  :v-model="props.row.accessory"
+                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
+                />
+              </template>
+            </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
                   @input="(event) => (props.row.quantity = Number(event))"
+                  @change="getExportPrice"
                 />
               </template>
             </el-table-column>
             <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
+                <CurrencyInputComponent
+                  @change="getExportPrice"
+                  v-model="props.row.unitPrice"
+                  class="text-right"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
@@ -4195,7 +4323,7 @@ onBeforeMount(async () => {
           >
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="productPropertyName"
+              prop="productPropertyId"
               :label="t('formDemo.commodityName')"
               width="280"
             >
@@ -4210,7 +4338,7 @@ onBeforeMount(async () => {
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4220,17 +4348,30 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+              <template #default="props">
+                <el-input
+                  :v-model="props.row.accessory"
+                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
+                />
+              </template>
+            </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
                   @input="(event) => (props.row.quantity = Number(event))"
+                  @change="getRefundPrice"
                 />
               </template>
             </el-table-column>
             <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
+                <CurrencyInputComponent
+                  @channge="getRefundPrice"
+                  v-model="props.row.unitPrice"
+                  class="text-right"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
@@ -4250,12 +4391,12 @@ onBeforeMount(async () => {
             <p class="text-black font-bold dark:text-white">{{ t('reuse.totalDiffMoney') }}</p>
           </div>
           <div class="w-[145px] text-right">
-            <p class="pr-2">{{ moneyFormat(refundPrice) }}</p>
-            <p class="pr-2">{{ moneyFormat(exportPrice) }}</p>
+            <p class="pr-2">{{ changeMoney.format(refundPrice) }}</p>
+            <p class="pr-2">{{ changeMoney.format(exportPrice) }}</p>
             <p class="pr-2 text-black font-bold dark:text-white">{{
-              moneyFormat(exchangePrice)
+              changeMoney.format(exchangePrice)
             }}</p>
-            <p class="pr-2" v-if="exchangePrice > 0">{{ t('reuse.haveToCollect') }}</p>
+            <p class="pr-2" v-if="refundPrice < exportPrice">{{ t('reuse.haveToCollect') }}</p>
             <p class="pr-2" v-else>{{ t('reuse.havetoPay') }}</p>
           </div>
         </div>
@@ -4304,6 +4445,7 @@ onBeforeMount(async () => {
                   @click="
                     () => {
                       postReturnRequest()
+                      changeReturnGoods = false
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -4594,15 +4736,15 @@ onBeforeMount(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus_Tracking') }}</label>
           <div class="w-[84%] pl-1">
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio :disabled="checkDisabled" label="1">{{
+            <el-radio-group v-model="statusTracking" class="ml-4">
+              <el-radio :disabled="checkDisabled" label="0">{{
                 t('formDemo.waitingDelivery')
               }}</el-radio>
               <el-radio :disabled="checkDisabled" label="2">{{ t('reuse.delivery') }}</el-radio>
               <el-radio :disabled="checkDisabled" label="3">{{
                 t('reuse.successfulDelivery')
               }}</el-radio>
-              <el-radio :disabled="checkDisabled" label="4">{{
+              <el-radio :disabled="checkDisabled" label="-1">{{
                 t('reuse.deliveryFailed')
               }}</el-radio>
             </el-radio-group>
@@ -4783,8 +4925,7 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
-                  changeReturnGoods = true
-                  getReturnOrder()
+                  openDialogReturnOrder()
                 }
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
@@ -4822,7 +4963,7 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="checkDisabled"
-              v-if="statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus"
+              v-if="hiddenButton"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -4857,7 +4998,16 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
+        <el-button
+          text
+          @click="
+            () => {
+              dialogAccountingEntryAdditional = true
+              alreadyPaidForTt = false
+            }
+          "
+          >+ Thêm bút toán</el-button
+        >
         <el-button :disabled="checkReceiptOrPayment" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -5027,7 +5177,7 @@ onBeforeMount(async () => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="productPropertyId"
+              prop="productCode"
               :label="t('formDemo.productManagementCode')"
               width="150"
             />

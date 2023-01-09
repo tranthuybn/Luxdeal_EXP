@@ -270,6 +270,11 @@ export const STATUS_ORDER_PURCHASE = [
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
+  },
+  {
+    orderStatus: -2,
+    orderStatusName: 'Tạo mới',
+    createdAt: ''
   }
 ]
 

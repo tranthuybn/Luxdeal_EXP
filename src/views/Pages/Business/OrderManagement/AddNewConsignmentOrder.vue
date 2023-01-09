@@ -33,6 +33,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
+import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import {
@@ -59,7 +60,8 @@ import {
   updateStatusOrder,
   updateOrderInfo,
   cancelOrder,
-  getListWareHouse
+  getListWareHouse,
+  approvalOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -69,6 +71,7 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+const { utility } = appModules
 
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -435,9 +438,11 @@ const dialogIPRForm = ref(false)
 const dialogPaymentVoucher = ref(false)
 // tạo đơn hàng
 const router = useRouter()
+const tab = String(router.currentRoute.value.params.tab)
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
+const approvalId = String(route.params.approvalId)
 
 interface ListOfProductsForSaleType {
   name: string
@@ -860,6 +865,29 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   statusOrder.value = status
 }
 
+const duplicateStatusButton = ref(false)
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 2 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
+  }
+}
+
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  addStatusOrder(1)
+  reloadStatusOrder()
+}
+
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
   arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
@@ -1104,12 +1132,11 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 4,
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
       InterestMoney: 0,
-      orderStatus: 1
+      Status: 4
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
@@ -1387,6 +1414,21 @@ const optionsTypeMoney = [
   }
 ]
 
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+        // approvalId: data.id
+      }
+    })
+  }
+}
+
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
@@ -1474,10 +1516,14 @@ const getReturnRequestTable = async () => {
   }
 }
 const editButton = ref(false)
+let changeButtonEdit = ref(false)
+const disableEditData = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
+  disableEditData.value = true
+
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
@@ -1489,12 +1535,22 @@ const editData = async () => {
     const orderObj = { ...res?.data[0] }
 
     arrayStatusOrder.value = orderObj?.statusHistory
+
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
     }
-    // arrayStatusOrder.value = orderObj.status
-    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+
+    if (statusOrder.value == 2 && type == 'edit') {
+      disableEditData.value = true
+      editButton.value = true
+    }
+
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
@@ -1562,7 +1618,8 @@ const editOrderInfo = async () => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
+      }),
+        router.go(-1)
     })
     .catch(() => {
       ElNotification({
@@ -1582,13 +1639,6 @@ const cancelOrderDO = async () => {
 
   await cancelOrder(formPayload)
 }
-
-// const approvalFunction = async () => {
-//   const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
-//   await approvalOrder(FORM_IMAGES(payload))
-//   updateStatusOrders(2)
-//   reloadStatusOrder()
-// }
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
@@ -3302,7 +3352,7 @@ onBeforeMount(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="checkDisabled"
+                  :disabled="disableEditData"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3312,7 +3362,7 @@ onBeforeMount(async () => {
               <el-form-item :label="t('formDemo.depositTerm')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
-                  :disabled="checkDisabled"
+                  :disabled="disableEditData"
                   unlink-panels
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
@@ -3757,7 +3807,6 @@ onBeforeMount(async () => {
                 <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
@@ -3779,6 +3828,7 @@ onBeforeMount(async () => {
                 </div>
                 <div
                   v-else-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
@@ -3842,7 +3892,7 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   editOrderInfo()
-                  editButton = false
+                  changeButtonEdit = false
                 }
               "
               type="primary"
@@ -3852,8 +3902,7 @@ onBeforeMount(async () => {
             <el-button
               @click="
                 () => {
-                  editButton = false
-                  statusOrder = 2
+                  router.go(-1)
                 }
               "
               :disabled="checkDisabled"
@@ -3866,13 +3915,12 @@ onBeforeMount(async () => {
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
@@ -3881,7 +3929,6 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
-              :disabled="checkDisabled"
               type="primary"
               @click="
                 () => {
@@ -3892,7 +3939,7 @@ onBeforeMount(async () => {
               >Bắt đầu ký gửi theo kỳ hạn</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -3904,8 +3951,7 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
-              :disabled="checkDisabled"
-              @click="editButton = true"
+              @click="changeEditInDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
@@ -3924,7 +3970,6 @@ onBeforeMount(async () => {
                   checkDisabled = !checkDisabled
                 }
               "
-              :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -4030,14 +4075,14 @@ onBeforeMount(async () => {
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
 
-            <!-- <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+            <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
               <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
                 t('router.approve')
               }}</el-button>
               <el-button class="min-w-42 min-h-11 rounded font-bold">{{
                 t('router.notApproval')
               }}</el-button>
-            </div> -->
+            </div>
           </div>
         </div>
       </el-collapse-item>

@@ -12,6 +12,7 @@ import {
   dateTimeFormat,
   formatTransactionStatus,
   formatTransactionType,
+  moneyFormat,
   orderType
 } from '@/utils/format'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
@@ -51,14 +52,24 @@ export const wareHouse = [
   {
     field: 'productPropertyName',
     label: t('reuse.productInformation'),
-    minWidth: '160'
+    minWidth: '200',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.productPropertyAttribute.map((item) => {
+          if (item.value) {
+            return h('span', `${item.value},`)
+          }
+        })
+      )
+    }
   },
 
   {
     field: 'accessory',
     label: t('reuse.accessory'),
-    minWidth: '150',
-    filters: filterService
+    minWidth: '150'
   },
   {
     field: 'LotImageUrl',
@@ -82,17 +93,15 @@ export const wareHouse = [
   {
     field: 'warehouse',
     label: t('router.warehouse'),
-    minWidth: '150',
-    filters: filterWarehouseManagement
+    minWidth: '150'
   },
   {
     field: 'locationWarehouse',
     label: t('reuse.location'),
-    minWidth: '150',
-    filters: filterLocation
+    minWidth: '150'
   },
   {
-    field: 'ticketCode',
+    field: 'lotCode',
     label: t('reuse.lotCode'),
     minWidth: '100'
   },
@@ -100,22 +109,24 @@ export const wareHouse = [
     field: 'orderServiceType',
     label: t('reuse.productType'),
     minWidth: '150',
-    filters: filterLocation,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+    filters: filterService,
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
       return orderType(cellValue)
     }
   },
   {
-    field: 'inputPrice',
+    field: 'orderDetailQuantity',
     label: t('reuse.amountImportLot'),
     minWidth: '100',
-    sortable: true
+    sortable: true,
+    align: 'right'
   },
   {
     field: 'inventory',
     label: t('reuse.quantityInventory'),
     minWidth: '100',
-    sortable: true
+    sortable: true,
+    align: 'right'
   },
   {
     field: 'productPropertyAttribute[2].value',
@@ -126,19 +137,20 @@ export const wareHouse = [
     field: 'inputPrice',
     label: t('reuse.priceImport'),
     minWidth: '150',
-    sortable: true
+    sortable: true,
+    align: 'right',
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return moneyFormat(cellValue)
+    }
   },
   {
     field: 'CashIntoInventory',
     label: t('reuse.CashIntoInventory'),
     minWidth: '150',
     sortable: true,
+    align: 'right',
     formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'span',
-        // assuming `items` is a ref with array value
-        `${row.inputPrice * row.inventory}`
-      )
+      return h('span', `${moneyFormat(row.inputPrice * row.inventory)}`)
     }
   },
   {
@@ -149,7 +161,6 @@ export const wareHouse = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
         row.bussinessSetups.map((item) => {
           if (item.value) {
             return h('li', item.key)
@@ -167,10 +178,16 @@ export const wareHouse = [
     }
   },
   {
-    field: 'status',
+    field: 'outOfStock',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterLotStatus
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '100',
+    align: 'center'
   }
 ]
 
@@ -234,7 +251,7 @@ export const wareHouseContainer = [
   {
     field: 'accessory',
     label: t('reuse.accessory'),
-    minWidth: '100',
+    minWidth: '150',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
@@ -252,9 +269,8 @@ export const wareHouseContainer = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        // assuming `items` is a ref with array value
-        row.transactionDetails.map((item) => {
-          return h('li', `${item.productType1Name}/${item.productTypeName}`)
+        row.transactionDetails.map(({ productType1Name, productTypeName }) => {
+          return h('li', [h('span', productType1Name), h('span', productTypeName)])
         })
       )
     }
@@ -266,40 +282,28 @@ export const wareHouseContainer = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
+        [
+          row.transactionType == 1
+            ? row.toWarehouseName
+            : row.transactionType == 2
+            ? row.fromWarehouseName
+            : `${row.fromWarehouseName}->${row.toWarehouseName}`
+        ]
         // assuming `items` is a ref with array value
-        row.transactionDetails.map((item) => {
-          if (row.transactionType == 1) {
-            return h('li', item.toWarehouseName)
-          }
-          if (row.transactionType == 2) {
-            return h('li', item.fromWarehouseName)
-          }
-          if (row.transactionType == 3) {
-            return h('li', `${item.fromWarehouseName}->${item.toWarehouseName}`)
-          }
-        })
       )
     }
   },
 
   {
-    field: 'location',
+    field: 'locations',
     label: t('reuse.location'),
     minWidth: '250',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.transactionDetails.map((item) => {
-          if (row.transactionType == 1) {
-            return h('li', item.toLocationName)
-          }
-          if (row.transactionType == 2) {
-            return h('li', item.fromLocationName)
-          }
-          if (row.transactionType == 3) {
-            return h('li', `${item.fromLocationName}->${item.toLocationName}`)
-          }
+        row.transactionDetails.map(({ id, locationName }) => {
+          return h('li', { key: id }, locationName)
         })
       )
     }
@@ -307,7 +311,7 @@ export const wareHouseContainer = [
   {
     field: 'lotCode',
     label: t('reuse.lotCode'),
-    minWidth: '100',
+    minWidth: '200',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
@@ -322,20 +326,27 @@ export const wareHouseContainer = [
     field: 'changeThisToOrderType',
     label: t('reuse.productType'),
     minWidth: '100',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return orderType(cellValue)
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row.transactionDetails.map((trans) => {
+          return h('li', { key: trans.productPropertyId }, orderType(trans.orderType))
+        })
+      )
     },
     filters: filterService
   },
   {
-    field: 'orderDescription',
+    field: 'description',
     label: t('reuse.note'),
     minWidth: '100'
   },
   {
     field: 'quantity',
     label: t('reuse.quantity'),
-    minWidth: '250',
+    minWidth: '100',
+    align: 'right',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
@@ -389,7 +400,8 @@ export const wareHouseContainer = [
   {
     field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '200',
+    minWidth: '100',
+    align: 'center',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', [h(ElButton, { icon: eyeIcon, onClick: () => action(row) })])
     }

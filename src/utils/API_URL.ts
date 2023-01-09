@@ -104,7 +104,8 @@ export const ORDER_API = {
   GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
   UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
-  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove'
+  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
+  APPROVAL_ORDER: '/api/v1/Approve/ApproveItem'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

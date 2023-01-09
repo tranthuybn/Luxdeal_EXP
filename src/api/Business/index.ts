@@ -582,6 +582,12 @@ export const cancelOrder = async (data): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// duyệt đơn hàng
+export const approvalOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.APPROVAL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

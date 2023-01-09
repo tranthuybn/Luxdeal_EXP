@@ -61,7 +61,7 @@ const changeTab = () => {
 }
 // click in nav
 const checkDisabledTab = () => {
-  if (checkTab == '/business/order-management/order-list-add/:type?/:tab?/:id?') {
+  if (checkTab == '/business/order-management/order-list-add/:type?/:tab?/:id?/:approvalId?') {
     disabledTab2.value = false
     disabledTab3.value = false
     disabledTab4.value = false

@@ -2203,7 +2203,7 @@ const updateStatusOrders = async (typeState) => {
 }
 
 const approvalFunction = async () => {
-  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
   updateStatusOrders(2)
   reloadStatusOrder()

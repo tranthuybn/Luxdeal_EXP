@@ -58,7 +58,8 @@ import {
   postAutomaticWarehouse,
   updateStatusOrder,
   updateOrderInfo,
-  cancelOrder
+  cancelOrder,
+  getListWareHouse
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -322,13 +323,14 @@ const radioTracking = ref('1')
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
-  rentalPeriod: [],
+  rentalPeriod: '',
   pawnTerm: '',
   paymentPeriod: '',
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: '',
+  warehouse: ''
 })
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -342,7 +344,13 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
+  ],
   collaboratorCommission: [
     {
       validator: checkPercent,
@@ -368,6 +376,27 @@ const rules = reactive<FormRules>({
     }
   ]
 })
+
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
 
 const options = [
   {
@@ -813,8 +842,9 @@ let statusOrder = ref(STATUS_ORDER_DEPOSIT[10].orderStatus)
 interface statusOrderType {
   orderStatusName: string
   orderStatus: number
-  createdAt: string | Date
+  createdAt?: string
   isActive?: boolean
+  approvedAt?: string
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
@@ -835,7 +865,6 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
 }
 
@@ -958,7 +987,7 @@ const callApiWarehouse = async (scope) => {
 
   const res = await GetProductPropertyInventory({
     ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ServiceType: 2
   })
   tableWarehouse.value = res.data.map((val) => ({
     warehouseCheckbox: val.id,
@@ -1075,7 +1104,7 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 2,
+      Status: 4,
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
@@ -1471,8 +1500,8 @@ const editData = async () => {
       ruleForm.orderCode = orderObj.code
       // sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
+      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
-
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName =
         orderObj.customer.isOrganization == 'True'
@@ -1554,13 +1583,20 @@ const cancelOrderDO = async () => {
   await cancelOrder(formPayload)
 }
 
+// const approvalFunction = async () => {
+//   const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+//   await approvalOrder(FORM_IMAGES(payload))
+//   updateStatusOrders(2)
+//   reloadStatusOrder()
+// }
+
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
-const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-}
+// const updatePrice = (_value, obj, scope) => {
+//   scope.row.productPropertyId = obj.productPropertyId
+//   scope.row.refundUnitPrice = Number(obj.price)
+//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+// }
 
 // Thông tin phiếu thanh toán phí ký gửi spa
 const dialogDepositFeeInformation = ref(false)
@@ -1650,6 +1686,14 @@ const postReturnRequest = async (reason) => {
   await createReturnRequest(payload)
 }
 
+if (type == 'add') {
+  arrayStatusOrder.value.push({
+    orderStatusName: 'Duyệt đơn hàng',
+    orderStatus: 4,
+    isActive: true
+  })
+}
+
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
 }
@@ -1663,11 +1707,9 @@ onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
+  callApiWarehouseList()
 
   if (type == 'add' || type == ':type') {
-    arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[1])
-    arrayStatusOrder.value[0].createdAt = ''
-    arrayStatusOrder.value[0].isActive = true
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
   }
@@ -3425,6 +3467,25 @@ onBeforeMount(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
+                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
@@ -3565,6 +3626,7 @@ onBeforeMount(async () => {
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
+                v-else
                 v-model="data.row.quantity"
                 :disabled="disabledEdit"
                 @change="handleTotal(data)"
@@ -3635,14 +3697,13 @@ onBeforeMount(async () => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" width="200">
+          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <div class="w-[40%]">{{ props.row.warehouseName }}</div>
                 <div class="w-[60%]">
                   <el-button
                     text
-                    :disabled="disabledEdit"
                     @click="
                       () => {
                         callApiWarehouse(props)
@@ -3679,10 +3740,8 @@ onBeforeMount(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radioTracking" :disabled="checkDisabled" class="ml-4">
-              <el-radio label="1">{{ t('formDemo.waitingDelivery') }}</el-radio>
+              <el-radio label="1">Đã nhận hàng</el-radio>
               <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
             </el-radio-group>
           </div>
         </div>
@@ -3697,6 +3756,7 @@ onBeforeMount(async () => {
               >
                 <div
                   v-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
@@ -3719,7 +3779,6 @@ onBeforeMount(async () => {
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
@@ -3774,7 +3833,7 @@ onBeforeMount(async () => {
           </div>
         </div>
 
-        <div class="flex w-[100%] gap-2">
+        <div class="flex w-[100%] gap-2 mt-2">
           <div class="w-[12%]"></div>
           <!-- edit -->
           <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
@@ -3837,7 +3896,6 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 3
                 }
               "
               type="primary"
@@ -3948,6 +4006,7 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   hetHan = true
+                  addStatusOrder(-1)
                   // setDataForReturnOrder()
                 }
               "
@@ -3970,6 +4029,15 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
+
+            <!-- <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+                t('router.approve')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+                t('router.notApproval')
+              }}</el-button>
+            </div> -->
           </div>
         </div>
       </el-collapse-item>

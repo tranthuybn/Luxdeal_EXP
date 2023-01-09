@@ -60,7 +60,6 @@ import {
   createReturnRequest,
   getReturnRequest,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
   updateOrderTransaction,
   GetPaymentRequestDetail
 } from '@/api/Business'
@@ -1029,14 +1028,14 @@ const postData = async () => {
   // warehouseTranferAuto(3)
 }
 // chuyển kho auto
-const warehouseTranferAuto = async (type) => {
-  const payload = {
-    OrderId: orderIdSpa.value.data,
-    Type: type
-  }
+// const warehouseTranferAuto = async (type) => {
+//   const payload = {
+//     OrderId: orderIdSpa.value.data,
+//     Type: type
+//   }
 
-  await postAutomaticWarehouse(payload)
-}
+//   await postAutomaticWarehouse(payload)
+// }
 
 const form = reactive({
   name: '',
@@ -1711,14 +1710,6 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
-const tableData = [
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    address: 'No. 189, Grove St, Los Angeles'
-  }
-]
-
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
 
@@ -2039,12 +2030,6 @@ const addStatusOrder = (index) => {
   }
 }
 let statusOrder = ref(1)
-
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
-}
 
 const addStatusDelay = () => {
   setTimeout(() => {

@@ -303,8 +303,72 @@ export const STATUS_ORDER_DEPOSIT = [
     createdAt: ''
   },
   {
-    orderStatus: 99,
+    orderStatus: 4,
     orderStatusName: 'Duyệt đơn hàng',
+    createdAt: ''
+  }
+]
+
+export const STATUS_ORDER_PAWN = [
+  //0
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 4,
+    orderStatusName: 'Duyệt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 41,
+    orderStatusName: 'Bắt đầu cầm đồ',
+    createdAt: ''
+  },
+  {
+    orderStatus: 42,
+    orderStatusName: 'Duyệt trả hàng trước hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 43,
+    orderStatusName: 'Hết hạn cầm đồ',
+    createdAt: ''
+  },
+  {
+    orderStatus: 44,
+    orderStatusName: 'Duyệt chuộc hàng hết hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 45,
+    orderStatusName: 'Duyệt đứt hàng hết hạn',
+    createdAt: ''
+  },
+  {
+    orderStatus: 46,
+    orderStatusName: 'Bắt đầu gia hạn cầm đồ',
+    createdAt: ''
+  },
+  {
+    orderStatus: 47,
+    orderStatusName: 'Kết thúc gia hạn cầm đồ',
     createdAt: ''
   }
 ]

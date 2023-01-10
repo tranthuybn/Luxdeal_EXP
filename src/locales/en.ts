@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    orderStatus_Tracking: 'Tracking order',
     pleaseSelectWarehouse: 'Please select a warehouse',
     selectAWarehouse: 'Select a warehouse',
     selectExportWarehouse: 'Select export warehouse',
@@ -479,6 +480,7 @@ export default {
     commodityName: 'Commodity name',
     paymentSlip: 'Payment slip',
     depositSlipAdvance: 'Deposit slip or advance',
+    paymentDepositSlipAdvance: 'Payment or deposit or advance information',
     depositSlipAdvanceinformation: 'Deposit slip or advance information',
     paymentVoucherInformation: 'Payment voucher information',
     detailedListExpenses: 'Detailed list of expenses',
@@ -1699,6 +1701,10 @@ export default {
     decentralization: 'decentralization',
     roleName: 'Role Name',
     addNewRole: 'Add new role',
-    choosePermission: 'choose permission'
+    choosePermission: 'choose permission',
+    exportExcelFailed: 'empty data can not be export',
+    //Kho
+    waitingTransfer: 'Waiting for transportation',
+    warehouseDoesntHaveLocation: "Haven't create location for warehouse"
   }
 }

@@ -809,7 +809,7 @@ const adminList = [
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
             name: 'purchase.business-purchases.purchase-order-add',
             meta: {
-              title: 'router.purchaseOrderAdd'
+              title: 'router.purchaseOrder'
             }
           }
         ]

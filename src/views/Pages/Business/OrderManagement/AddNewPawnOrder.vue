@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -27,6 +27,8 @@ import {
   UploadProps
 } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { appModules } from '@/config/app'
+
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
 import type { UploadFile } from 'element-plus'
 import { dateTimeFormat, formatOrderReturnReason, postDateTime } from '@/utils/format'
@@ -39,7 +41,7 @@ import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
-  addNewSpaOrders,
+  addNewOrderList,
   getOrderList,
   getOrderTransaction,
   createQuickProduct,
@@ -55,17 +57,22 @@ import {
   getReturnRequest,
   addQuickCustomer,
   getDetailAccountingEntryById,
-  GetProductPropertyInventory
+  GetProductPropertyInventory,
+  getListWareHouse,
+  updateStatusOrder,
+  updateOrderInfo,
+  approvalOrder
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
 import { getCategories } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
+const { utility } = appModules
 
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
@@ -186,10 +193,12 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 const router = useRouter()
+const route = useRoute()
+
 const id = Number(router.currentRoute.value.params.id)
 const tab = String(router.currentRoute.value.params.tab)
+const approvalId = String(route.params.approvalId)
 
-const route = useRoute()
 const type = String(route.params.type)
 
 interface ListOfProductsForSaleType {
@@ -618,9 +627,10 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
+      unit: product.unitName,
       name: product.name ?? '',
-      price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      price: product.price,
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
@@ -735,12 +745,13 @@ const ruleFormRef2 = ref<FormInstance>()
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
-  pawnTerm: [],
+  pawnTerm: '',
   paymentPeriod: 10,
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: '',
+  warehouse: ''
 })
 const inputDeposit = ref(0)
 
@@ -750,6 +761,13 @@ const rules = reactive<FormRules>({
     {
       required: true,
       message: t('formDemo.pleaseSelectCollaboratorCode'),
+      trigger: 'change'
+    }
+  ],
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
       trigger: 'change'
     }
   ],
@@ -794,6 +812,7 @@ const optionsCustomer = [
   }
 ]
 let orderDetailsTable = reactive([{}])
+const disableEditData = ref(false)
 // tạo đơn hàng
 const checkDisabled = ref(false)
 const postData = async () => {
@@ -819,7 +838,7 @@ const postData = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.collaboratorCommission,
     Description: ruleForm.orderNotes,
-    CustomerId: 2,
+    CustomerId: customerID.value,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
@@ -831,14 +850,14 @@ const postData = async () => {
     CampaignId: 2,
     VAT: 1,
     Days: ruleForm.paymentPeriod,
-    Status: 1,
     TotalPrice: priceintoMoneyPawnGOC.value,
     DepositePrice: 0,
     DiscountMoney: 0,
-    InterestMoney: priceintoMoneyByday.value
+    InterestMoney: priceintoMoneyByday.value,
+    Status: 4
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await addNewSpaOrders(formDataPayLoad)
+  await addNewOrderList(formDataPayLoad)
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
@@ -855,6 +874,27 @@ const postData = async () => {
         type: 'warning'
       })
     )
+}
+const duplicateStatusButton = ref(false)
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 4 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
+  }
+}
+
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
 }
 
 // Danh mục brand unit origin api
@@ -1070,6 +1110,7 @@ const getReturnRequestTable = async () => {
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
+const earlyEedemption = ref(false)
 const dutHang = ref(false)
 const giaHan = ref(false)
 
@@ -1270,6 +1311,50 @@ const formBusuness = reactive({
   check: '',
   applyExport: ''
 })
+const { push } = useRouter()
+let changeButtonEdit = ref(false)
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+        // approvalId: data.id
+      }
+    })
+  }
+}
+
+const editButton = ref(false)
+const editOrderInfo = async () => {
+  const payload = {
+    Id: id,
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
+    Description: ruleForm.orderNotes,
+    // Files: Files,
+    DeleteFileIds: '',
+    DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderInfo(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        router.go(-1)
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'success'
+      })
+    })
+}
 
 const listApplyExport = [
   {
@@ -1348,7 +1433,8 @@ const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
+  disableEditData.value = true
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     const res = await getOrderList({ Id: id, ServiceType: 4 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1358,9 +1444,27 @@ const editData = async () => {
 
     console.log('res', res)
     const orderObj = { ...res.data[0] }
+
     dataEdit.value = orderObj
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
+
+    if (statusOrder.value == 2 && type == 'edit') {
+      disableEditData.value = true
+      editButton.value = true
+    }
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      // @ts-ignore
       ruleForm.pawnTerm = [orderObj.fromDate, orderObj.toDate]
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
@@ -1405,6 +1509,27 @@ const editData = async () => {
   }
 }
 
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
+
 const getReceiptCode = async () => {
   codeReceipts.value = await getReceiptPaymentVoucher()
 }
@@ -1437,98 +1562,41 @@ const getAccountingEntry = async (index, num) => {
   }
 }
 
+let statusOrder = ref(STATUS_ORDER_PAWN[3].orderStatus)
 interface statusOrderType {
-  statusName: string
-  status: number
+  orderStatusName: string
+  orderStatus: number
+  createdAt?: string
   isActive?: boolean
+  approvedAt?: string
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
+
 if (type == 'add')
   arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
+    orderStatusName: 'Duyệt đơn hàng',
+    orderStatus: 4,
     isActive: true
   })
 
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
-        status: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
-          status: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      }
-
-      break
+const updateOrderStatus = async (status: number, idOrder: any) => {
+  const payload = {
+    OrderId: idOrder ? idOrder : id,
+    ServiceType: 4,
+    OrderStatus: status
   }
-}
-let statusOrder = ref(1)
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateStatusOrder(formDataPayLoad)
+  statusOrder.value = status
 }
 
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(7)
-  }, 4000)
+const addStatusOrder = (index) => {
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+  arrayStatusOrder.value.push(STATUS_ORDER_PAWN[index])
+  statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+  updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
 }
 
 const codeReceipts = ref()
@@ -1545,22 +1613,23 @@ var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 const dialogBillLiquidation = ref(false)
-onBeforeMount(() => {
+
+onBeforeMount(async () => {
+  await editData()
+
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
+  callApiWarehouseList()
 
   if (type == 'add') {
+    disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
-})
-
-onMounted(async () => {
-  await editData()
 })
 
 //TruongNgo
@@ -1784,8 +1853,8 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
+                  :disabled="disableEditData"
                   v-model="ruleForm.orderCode"
-                  :disabled="checkDisabled"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />
@@ -1793,8 +1862,8 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
                 <el-date-picker
+                  :disabled="disableEditData"
                   v-model="ruleForm.pawnTerm"
-                  :disabled="checkDisabled"
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -1970,6 +2039,25 @@ const removeRow = (index) => {
                 </div>
 
                 <div class="flex-1">
+                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
@@ -2288,7 +2376,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" width="200">
+          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <div class="w-[40%]">{{ props.row.warehouseName }}</div>
@@ -2374,21 +2462,41 @@ const removeRow = (index) => {
           <label class="w-[11%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
-                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+              <div
+                class="duplicate-status"
+                v-for="item in arrayStatusOrder"
+                :key="item.orderStatus"
+              >
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
                   <span
-                    class="box box_1 text-yellow-500 dark:text-black"
+                    class="box box_1 text-yellow-500 dark:text-divck"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -2396,11 +2504,14 @@ const removeRow = (index) => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 5">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_PAWN[2].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -2408,11 +2519,19 @@ const removeRow = (index) => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 7">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_PAWN[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -2420,29 +2539,103 @@ const removeRow = (index) => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="w-[100%] flex gap-4">
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="openBillPawnDialog">{{
-              t('formDemo.billPawn')
-            }}</el-button>
-
-            <el-button class="min-w-42 min-h-11" @click="openDepositDialog">{{
-              t('formDemo.feePaymentSlip')
-            }}</el-button>
+        <div class="w-[100%] flex gap-4 mt-2">
+          <div class="w-[12%]"></div>
+          <!-- edit -->
+          <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
             <el-button
-              v-if="type == 'add'"
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  editOrderInfo()
+                  changeButtonEdit = false
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  statusOrder = 1
+                  router.go(-1)
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancel') }}</el-button
+            >
+          </div>
+
+          <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+              "
+              class="min-w-42 min-h-11"
+              @click="openBillPawnDialog"
+              >{{ t('formDemo.billPawn') }}</el-button
+            >
+
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+              "
+              class="min-w-42 min-h-11"
+              @click="openDepositDialog"
+              >{{ t('formDemo.feePaymentSlip') }}</el-button
+            >
+
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[2].orderStatus
+              "
+              type="primary"
+              @click="
+                () => {
+                  addStatusOrder(5)
+                }
+              "
+              class="min-w-43 min-h-11"
+              >Bắt đầu cầm đồ theo kỳ hạn</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[1].orderStatus"
+              @click="changeEditInDetail"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.editOrder') }}</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add'"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 3
                 }
               "
               type="primary"
@@ -2450,26 +2643,30 @@ const removeRow = (index) => {
               >{{ t('formDemo.saveAndPending') }}</el-button
             >
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[3].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+                (statusOrder == STATUS_ORDER_PAWN[1].orderStatus &&
+                  !duplicateStatusButton &&
+                  type != 'add')
+              "
               @click="
                 () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                  addStatusDelay()
-                  statusOrder = 9
+                  addStatusOrder(0)
                   checkDisabled = !checkDisabled
                 }
               "
-              :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
-          </div>
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4" v-if="type == 'detail' || type == 'edit'">
             <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
               @click="
                 () => {
                   changeReturnGoods = true
+                  earlyEedemption = true
+                  addStatusOrder(1)
                   setDataForReturnOrder()
                 }
               "
@@ -2477,7 +2674,60 @@ const removeRow = (index) => {
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
+            <div v-if="earlyEedemption == true">
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
+                type="warning"
+                class="min-w-42 min-h-11"
+                >Hoàn thành chuộc hàng</el-button
+              >
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
+                @click="
+                  () => {
+                    earlyEedemption == false
+                  }
+                "
+                type="warning"
+                class="min-w-42 min-h-11"
+                >Hủy chuộc hàng</el-button
+              >
+            </div>
             <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
+              @click="() => {}"
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hủy đứt hàng</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
+              @click="() => {}"
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hoàn thành đứt hàng</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[6].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[9].orderStatus
+              "
+              @click="
+                () => {
+                  addStatusOrder(-1)
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Đối soát & kết thúc</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus
+              "
               @click="
                 () => {
                   changeReturnGoods = true
@@ -2489,6 +2739,10 @@ const removeRow = (index) => {
               >Chuộc hàng hết hạn</el-button
             >
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
+              "
               @click="
                 () => {
                   dutHang = true
@@ -2500,6 +2754,10 @@ const removeRow = (index) => {
               >Đứt hàng hết hạn</el-button
             >
             <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
+              "
               @click="
                 () => {
                   giaHan = true
@@ -2509,9 +2767,14 @@ const removeRow = (index) => {
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
-            <el-button @click="() => {}" type="warning" class="min-w-42 min-h-11"
-              >Hoàn thành đơn hàng</el-button
-            >
+            <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+                t('router.approve')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+                t('router.notApproval')
+              }}</el-button>
+            </div>
           </div>
         </div>
       </el-collapse-item>

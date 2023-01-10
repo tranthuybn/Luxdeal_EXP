@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -33,6 +33,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { dateTimeFormat } from '@/utils/format'
+import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import {
@@ -55,16 +56,22 @@ import {
   getDetailAccountingEntryById,
   addQuickCustomer,
   GetProductPropertyInventory,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+  updateStatusOrder,
+  updateOrderInfo,
+  cancelOrder,
+  getListWareHouse,
+  approvalOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+const { utility } = appModules
 
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
@@ -270,18 +277,9 @@ const detailedListExpenses = [
     numberVouchers: '',
     dayVouchers: '',
     spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
+    quantity: 0,
+    unitPrices: 0,
+    intoMoney: 0,
     note: ''
   }
 ]
@@ -323,18 +321,19 @@ const optionsCharacteristic = [
   }
 ]
 
-const radioTracking = ref(1)
+const radioTracking = ref('1')
 
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
-  rentalPeriod: [],
+  rentalPeriod: '',
   pawnTerm: '',
   paymentPeriod: '',
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  delivery: '',
+  warehouse: ''
 })
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -348,7 +347,13 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
+  ],
   collaboratorCommission: [
     {
       validator: checkPercent,
@@ -374,6 +379,27 @@ const rules = reactive<FormRules>({
     }
   ]
 })
+
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
 
 const options = [
   {
@@ -412,9 +438,11 @@ const dialogIPRForm = ref(false)
 const dialogPaymentVoucher = ref(false)
 // tạo đơn hàng
 const router = useRouter()
+const tab = String(router.currentRoute.value.params.tab)
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
+const approvalId = String(route.params.approvalId)
 
 interface ListOfProductsForSaleType {
   name: string
@@ -452,7 +480,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: '1',
+  quantity: '',
   accessory: '',
   businessManagement: {},
 
@@ -566,71 +594,6 @@ const handleChangePaymentRequest = () => {
 }
 const checkDisabled = ref(false)
 
-const editData = async () => {
-  if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
-    disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 2 })
-    const transaction = await getOrderTransaction({ id: id })
-    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
-    debtTable.value = transaction.data
-    getReturnRequestTable()
-
-    console.log('res', res)
-    const orderObj = { ...res?.data[0] }
-    // arrayStatusOrder.value = orderObj.status
-    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-    dataEdit.value = orderObj
-    if (res.data) {
-      ruleForm.orderCode = orderObj.code
-      // sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaborator.id
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
-
-      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
-      ruleForm.orderNotes = orderObj.description
-      // totalPriceOrder.value = orderObj.totalPrice
-      // totalFinalOrder.value = orderObj.totalPrice
-
-      totalOrder.value = orderObj.totalPrice
-      if (ListOfProductsForSale.value?.length > 0)
-        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
-      ListOfProductsForSale.value = orderObj.orderDetails
-      customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOptionName
-      // customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
-      } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
-      }
-    }
-    orderObj.orderFiles.map(
-      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
-        if (element !== null) {
-          ListFileUpload.value.push({
-            url: `${element?.domainUrl}${element?.path}`,
-            name: element?.fileId,
-            uid: element?.id
-          })
-        }
-      }
-    )
-  } else if (type == 'add' || !type) {
-    ListOfProductsForSale.value.push({ ...productForSale })
-  }
-}
-
 //thêm nahnh sp
 
 const quickProductCode = ref()
@@ -672,23 +635,15 @@ const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
-    listProducts.value = res.data.map(
-      (product: {
-        code: any
-        productCode: any
-        name: any
-        price: { toString: () => any }
-        id: { toString: () => any }
-        productPropertyCode: any
-      }) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      })
-    )
+    listProducts.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      unit: product.unitName,
+      name: product.name ?? '',
+      price: product.price,
+      productPropertyId: product.id,
+      productPropertyCode: product.productPropertyCode
+    }))
   }
 }
 
@@ -880,97 +835,61 @@ const handleTotal = (scope: {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
 
+let statusOrder = ref(STATUS_ORDER_DEPOSIT[10].orderStatus)
 interface statusOrderType {
-  statusName: string
-  status: number
+  orderStatusName: string
+  orderStatus: number
+  createdAt?: string
   isActive?: boolean
+  approvedAt?: string
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add')
-  arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
-    isActive: true
-  })
 
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
-        status: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
-          status: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      }
+const updateOrderStatus = async (status: number, idOrder: any) => {
+  const payload = {
+    OrderId: idOrder ? idOrder : id,
+    ServiceType: 2,
+    OrderStatus: status
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateStatusOrder(formDataPayLoad)
+  statusOrder.value = status
+}
 
-      break
+const duplicateStatusButton = ref(false)
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 2 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
   }
 }
-let statusOrder = ref(1)
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
+
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
+
+const addStatusOrder = (index) => {
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+  arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
+  statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+  updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
 }
 
 const addStatusDelay = () => {
   setTimeout(() => {
-    addStatusOrder(7)
+    addStatusOrder(-1)
   }, 4000)
 }
 
@@ -1087,7 +1006,7 @@ const callApiWarehouse = async (scope) => {
 
   const res = await GetProductPropertyInventory({
     ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ServiceType: 2
   })
   tableWarehouse.value = res.data.map((val) => ({
     warehouseCheckbox: val.id,
@@ -1108,10 +1027,7 @@ const consignOrderCode = ref()
 
 let customerID = ref()
 
-const getValueOfCustomerSelected = (
-  value: any,
-  obj: { provinceId: string; districtId: string; wardId: string; address: never[]; label: string }
-) => {
+const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
   valueProvince.value = obj.provinceId
@@ -1192,7 +1108,7 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
-      CustomerId: 2,
+      CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
       DistrictId: valueDistrict.value ?? 1,
@@ -1204,26 +1120,24 @@ const postData = async () => {
       OrderDetail: productPayment,
       CampaignId: 2,
       VAT: 1,
-      Status: 2,
       TotalPrice: 0,
       DepositePrice: 0,
       DiscountMoney: 0,
-      InterestMoney: 0
+      InterestMoney: 0,
+      Status: 4
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        })
+      })
       .catch(() =>
         ElNotification({
           message: t('reuse.addFail'),
@@ -1486,6 +1400,21 @@ const optionsTypeMoney = [
   }
 ]
 
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+        // approvalId: data.id
+      }
+    })
+  }
+}
+
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
@@ -1572,14 +1501,137 @@ const getReturnRequestTable = async () => {
     }))
   }
 }
+const editButton = ref(false)
+let changeButtonEdit = ref(false)
+const disableEditData = ref(false)
+
+const editData = async () => {
+  if (type == 'detail') checkDisabled.value = true
+  disableEditData.value = true
+
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
+    disabledEdit.value = true
+    const res = await getOrderList({ Id: id, ServiceType: 2 })
+    const transaction = await getOrderTransaction({ id: id })
+    if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
+    debtTable.value = transaction.data
+    getReturnRequestTable()
+
+    const orderObj = { ...res?.data[0] }
+
+    arrayStatusOrder.value = orderObj?.statusHistory
+
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
+
+    if (statusOrder.value == 2 && type == 'edit') {
+      disableEditData.value = true
+      editButton.value = true
+    }
+
+    dataEdit.value = orderObj
+    if (res.data) {
+      ruleForm.orderCode = orderObj.code
+      // sellOrderCode.value = ruleForm.orderCode
+      ruleForm.collaborators = orderObj.collaborator.id
+      // @ts-ignore
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
+      ruleForm.customerName =
+        orderObj.customer.isOrganization == 'True'
+          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
+          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.orderNotes = orderObj.description
+      // totalPriceOrder.value = orderObj.totalPrice
+      // totalFinalOrder.value = orderObj.totalPrice
+
+      totalOrder.value = orderObj.totalPrice
+      if (ListOfProductsForSale.value?.length > 0)
+        ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
+      ListOfProductsForSale.value = orderObj.orderDetails
+      customerAddress.value = orderObj.address
+      ruleForm.delivery = orderObj.deliveryOptionName
+      // customerIdPromo.value = orderObj.customerId
+      if (orderObj.customer.isOrganization) {
+        infoCompany.name = orderObj.customer.name
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = orderObj.customer.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      } else {
+        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+        infoCompany.taxCode = orderObj.customer.taxCode
+        infoCompany.phone = orderObj.customer.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer.email
+      }
+    }
+    orderObj.orderFiles.map(
+      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
+        if (element !== null) {
+          ListFileUpload.value.push({
+            url: `${element?.domainUrl}${element?.path}`,
+            name: element?.fileId,
+            uid: element?.id
+          })
+        }
+      }
+    )
+  } else if (type == 'add' || !type) {
+    ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
+const editOrderInfo = async () => {
+  const payload = {
+    Id: id,
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
+    Description: ruleForm.orderNotes,
+    // Files: Files,
+    DeleteFileIds: '',
+    DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderInfo(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        router.go(-1)
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'success'
+      })
+    })
+}
+
+//hủy đơn hàng
+const cancelOrderDO = async () => {
+  const payload = {
+    OrderId: id,
+    ServiceType: 6
+  }
+  const formPayload = FORM_IMAGES(payload)
+
+  await cancelOrder(formPayload)
+}
 
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
-const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.refundUnitPrice = Number(obj.price)
-  scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-}
+// const updatePrice = (_value, obj, scope) => {
+//   scope.row.productPropertyId = obj.productPropertyId
+//   scope.row.refundUnitPrice = Number(obj.price)
+//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
+// }
 
 // Thông tin phiếu thanh toán phí ký gửi spa
 const dialogDepositFeeInformation = ref(false)
@@ -1669,6 +1721,14 @@ const postReturnRequest = async (reason) => {
   await createReturnRequest(payload)
 }
 
+if (type == 'add') {
+  arrayStatusOrder.value.push({
+    orderStatusName: 'Duyệt đơn hàng',
+    orderStatus: 4,
+    isActive: true
+  })
+}
+
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
 }
@@ -1676,19 +1736,19 @@ const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
 const billLiquidationDis = ref(false)
-onBeforeMount(() => {
+onBeforeMount(async () => {
+  await editData()
+
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
+  callApiWarehouseList()
 
   if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
+    disableEditData.value = false
   }
-})
-
-onMounted(async () => {
-  await editData()
 })
 </script>
 
@@ -3278,7 +3338,7 @@ onMounted(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="checkDisabled"
+                  :disabled="disableEditData"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3288,7 +3348,7 @@ onMounted(async () => {
               <el-form-item :label="t('formDemo.depositTerm')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
-                  :disabled="checkDisabled"
+                  :disabled="disableEditData"
                   unlink-panels
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
@@ -3443,6 +3503,25 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="flex-1">
+                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
@@ -3581,10 +3660,12 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
+                v-else
                 v-model="data.row.quantity"
+                :disabled="disabledEdit"
                 @change="handleTotal(data)"
-                v-if="data.row.edited"
                 style="width: 100%"
               />
             </template>
@@ -3592,7 +3673,6 @@ onMounted(async () => {
           <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
 
           <el-table-column
-            :disabled="disabledEdit"
             prop="consignmentSellPrice"
             :label="t('formDemo.consignmentPriceForSale')"
             width="160"
@@ -3607,7 +3687,6 @@ onMounted(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            :disabled="disabledEdit"
             prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
             width="160"
@@ -3638,6 +3717,7 @@ onMounted(async () => {
                 <div class="flex-1 text-right">
                   <el-button
                     text
+                    :disabled="disabledEdit"
                     border
                     class="text-blue-500"
                     @click="
@@ -3653,7 +3733,7 @@ onMounted(async () => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="warehouseName" :label="t('reuse.importWarehouse')" width="200">
+          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <div class="w-[40%]">{{ props.row.warehouseName }}</div>
@@ -3676,9 +3756,12 @@ onMounted(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <div class="flex gap-2">
-                <el-button @click.prevent="removeListProductsSale(scope.$index)" type="danger">{{
-                  t('reuse.delete')
-                }}</el-button>
+                <el-button
+                  :disabled="disabledEdit"
+                  @click.prevent="removeListProductsSale(scope.$index)"
+                  type="danger"
+                  >{{ t('reuse.delete') }}</el-button
+                >
               </div>
             </template>
           </el-table-column>
@@ -3693,10 +3776,8 @@ onMounted(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radioTracking" :disabled="checkDisabled" class="ml-4">
-              <el-radio label="1">{{ t('formDemo.waitingDelivery') }}</el-radio>
+              <el-radio label="1">Đã nhận hàng</el-radio>
               <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
-              <el-radio label="3">{{ t('reuse.successfulDelivery') }}</el-radio>
-              <el-radio label="4">{{ t('reuse.deliveryFailed') }}</el-radio>
             </el-radio-group>
           </div>
         </div>
@@ -3704,21 +3785,41 @@ onMounted(async () => {
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
-                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+              <div
+                class="duplicate-status"
+                v-for="item in arrayStatusOrder"
+                :key="item.orderStatus"
+              >
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
                   <span
-                    class="box box_1 text-yellow-500 dark:text-black"
+                    class="box box_1 text-yellow-500 dark:text-divck"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3726,11 +3827,14 @@ onMounted(async () => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 5">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3738,11 +3842,14 @@ onMounted(async () => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 7">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3750,28 +3857,78 @@ onMounted(async () => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="w-[100%] flex gap-4">
-          <div class="ml-[10%] w-[100%] flex ml-1 gap-4">
+        <div class="flex w-[100%] gap-2 mt-2">
+          <div class="w-[12%]"></div>
+          <!-- edit -->
+          <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
             <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  editOrderInfo()
+                  changeButtonEdit = false
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  router.go(-1)
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancel') }}</el-button
+            >
+          </div>
+          <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
+              "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
               @click="dialogBillLiquidation = true"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
+              type="primary"
+              @click="
+                () => {
+                  addStatusOrder(4)
+                }
+              "
+              class="min-w-42 min-h-11"
+              >Bắt đầu ký gửi theo kỳ hạn</el-button
+            >
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 3
                 }
               "
               type="primary"
@@ -3779,21 +3936,32 @@ onMounted(async () => {
               >{{ t('formDemo.saveAndPending') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
+              @click="changeEditInDetail"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.editOrder') }}</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+              "
               @click="
                 () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
                   addStatusDelay()
-                  statusOrder = 9
+                  statusOrder = 0
+                  addStatusOrder(0)
+                  cancelOrderDO()
                   checkDisabled = !checkDisabled
                 }
               "
-              :disabled="checkDisabled"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus"
               @click="
                 () => {
                   changeReturnGoods = !changeReturnGoods
@@ -3803,9 +3971,41 @@ onMounted(async () => {
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng trước thời hạn</el-button
+              >Trả hàng trước hạn</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus"
+              @click="
+                () => {
+                  changeReturnGoods = !changeReturnGoods
+                  truocHan = true
+                  addStatusOrder(5)
+                  setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Trả hàng trước thời hạn</el-button
+            >
+
+            <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              @click="
+                () => {
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hủy trả hàng</el-button
+            >
+
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
+              "
               @click="
                 () => {
                   hetHan = true
@@ -3817,6 +4017,40 @@ onMounted(async () => {
               >Trả hàng hết hạn</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              @click="
+                () => {
+                  addStatusOrder(5)
+                  hetHan = true
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Hoàn thành trả hàng</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus
+              "
+              @click="
+                () => {
+                  hetHan = true
+                  addStatusOrder(-1)
+                  // setDataForReturnOrder()
+                }
+              "
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Đối soát & kết thúc</el-button
+            >
+
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+              "
               @click="
                 () => {
                   giaHan = true
@@ -3826,6 +4060,15 @@ onMounted(async () => {
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
+
+            <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+                t('router.approve')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+                t('router.notApproval')
+              }}</el-button>
+            </div>
           </div>
         </div>
       </el-collapse-item>

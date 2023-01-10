@@ -82,7 +82,7 @@ const columns = reactive<TableColumn[]>([
     label: t('router.paymentProposal'),
     minWidth: '150',
     align: 'center',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+    formatter: (_: Recordable, __: TableColumn, ___: boolean) => {
       return h(ElCheckbox)
     }
   },

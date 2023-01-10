@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
+import { getProductStorage } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
 import { orderType } from '@/utils/format'
 import {
@@ -49,6 +49,14 @@ const props = defineProps({
   changeWH: {
     type: Boolean,
     default: false
+  },
+  listLotWH: {
+    type: Array<ListLotWarehouse>,
+    default: () => {}
+  },
+  tempLotData: {
+    type: Array<ListLotWarehouse>,
+    default: () => {}
   }
 })
 
@@ -64,6 +72,21 @@ type ImportWarehouse = {
   locationImportId: number | undefined
   lotId: number
 }
+type ListLotWarehouse = {
+  code: string
+  createdAt: string
+  Id: number
+  inventory: number
+  locationId: number
+  locationName: string
+  serviceTypeName: string
+  unitName: string
+  warehouseId: number
+  warehouseName: string
+}
+
+const warehouseListLot = reactive<ListLotWarehouse>({} as ListLotWarehouse)
+console.log('warehouseListLot', warehouseListLot)
 
 const saveOldLot = () => {
   radioSelected.value == -1
@@ -78,12 +101,15 @@ watch(
     warehouseForm.quantity = props.warehouseFormData.quantity
     warehouseForm.warehouseImportId = props.warehouseFormData.warehouseId
     warehouseForm.locationImportId = props.warehouseFormData.locationId
-    radioSelected.value = lotData.value.findIndex((lot) => lot.Id == props.warehouseFormData.lotId)
+    radioSelected.value = props.listLotWH.findIndex(
+      (lot) => lot.Id == props.warehouseFormData.lotId
+    )
+    console.log('radioSelected.value', radioSelected.value)
   }
 )
 
 const closeDialog = () => {
-  emit('close-dialog-warehouse', null)
+  emit('close-dialog-warehouse', warehouseData.value)
 }
 
 const rules = reactive<FormRules>({
@@ -91,7 +117,6 @@ const rules = reactive<FormRules>({
   warehouseImportId: [required()],
   locationImportId: [required()]
 })
-const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
 const locationOptions = ref()
 const getLocation = async (parentId) => {
@@ -104,35 +129,12 @@ const getLocation = async (parentId) => {
   })
 }
 const lotData = ref()
-const tempLotData = ref()
 const loadingLot = ref(true)
 const totalInventory = ref(0)
-const changeWarehouseData = async (warehouseId) => {
-  warehouseForm.locationImportId = undefined
-  await getWarehouseLot({
-    WarehouseId: props.warehouseIDParent,
-    productPropertyId: props.productPropertyId
-  })
-    .then((res) => {
-      lotData.value = res.data.map((item) => ({
-        warehouseId: item.warehouseId,
-        locationId: item.locationId,
-        location: item.locationName,
-        lotCode: item.code,
-        orderType: item.serviceType,
-        inventory: item.inventory,
-        unit: item?.unitName,
-        createdAt: item.createdAt
-      }))
-    })
-    .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
-  tempLotData.value = lotData.value
-  warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
-}
 
 const filterLotData = (locationId) => {
-  lotData.value = tempLotData.value
-  lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
+  lotData.value = props.tempLotData
+  lotData.value = props.listLotWH.filter((lot) => lot.locationId == locationId)
   warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
   calculateInventory()
 }
@@ -150,7 +152,7 @@ const calculateQuantity = (scope) => {
 }
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
-  const index = lotData.value.findIndex((lot) => lot == row)
+  const index = props.listLotWH.findIndex((lot) => lot == row)
   index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
   warehouseData.value.lot = row
 }
@@ -202,12 +204,7 @@ const ruleFormRef = ref<FormInstance>()
                 getLocation(props.warehouseIDParent)
               }
             "
-            @change="
-              () => {
-                changeWarehouseData
-                filterLotData
-              }
-            "
+            @change="filterLotData"
           >
             <el-option
               v-for="item in locationOptions"
@@ -222,7 +219,7 @@ const ruleFormRef = ref<FormInstance>()
     </el-form>
     <div>{{ t('reuse.lotList') }}</div>
     <el-table
-      :data="lotData"
+      :data="listLotWH"
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row
@@ -246,7 +243,7 @@ const ruleFormRef = ref<FormInstance>()
       </el-table-column>
       <el-table-column prop="location" :label="t('reuse.location')" width="180" />
       <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
-      <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
+      <el-table-column prop="serviceTypeName" :label="t('reuse.type')" width="180">
         <template #default="scope">
           {{ orderType(scope.row.orderType) }}
         </template></el-table-column

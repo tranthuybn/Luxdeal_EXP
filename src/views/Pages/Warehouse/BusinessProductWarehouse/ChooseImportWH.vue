@@ -10,15 +10,16 @@ import {
   ElSelect,
   ElFormItem,
   ElOption,
-  ElInput,
   ElTable,
   ElTableColumn,
-  ElRadio
+  ElRadio,
+  ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { PropType, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
+import moment from 'moment'
 
 const { required } = useValidator()
 const { t } = useI18n()
@@ -36,29 +37,33 @@ const props = defineProps({
     default: 0
   },
   warehouseFormData: {
-    type: Object as PropType<ChooseWarehouse>,
+    type: Object,
     default: () => {}
+  },
+  orderId: {
+    type: Number,
+    default: 0
+  },
+  warehouse: {
+    type: Object,
+    default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
-type ChooseWarehouse = {
-  quantity: number
-  warehouseId: number
-  locationId: number
-  lotId: number
-}
-type ImportWarehouse = {
-  quantity: number
-  warehouseImportId: number
-  locationImportId: number | undefined
-  lotId: number
-}
+
 const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
 const createNewLot = async () => {
+  const Code = 'lot' + moment().format('hhmmss')
   const res = await createWarehouseLot(
     FORM_IMAGES({
-      WarehouseId: warehouseData.value.warehouse.value,
+      OrderId: isNaN(props.orderId) || props.orderId == 0 ? null : props.orderId,
+      Code: Code,
+      WarehouseId: props.warehouse?.value,
       LocationId: warehouseData.value.location.value,
       ProductPropertyId: props.productPropertyId
     })
@@ -74,42 +79,16 @@ const saveOldLot = () => {
 }
 const emit = defineEmits(['close-dialog-warehouse'])
 
-const warehouseForm = reactive<ImportWarehouse>({} as ImportWarehouse)
-watch(
-  () => props.warehouseFormData,
-  () => {
-    warehouseForm.quantity = props.warehouseFormData.quantity
-    warehouseForm.warehouseImportId = props.warehouseFormData.warehouseId
-    warehouseForm.locationImportId = props.warehouseFormData.locationId
-    radioSelected.value = lotData.value.findIndex((lot) => lot.Id == props.warehouseFormData.lotId)
-  }
-)
+const warehouseForm = computed(() => {
+  return props.warehouseFormData
+})
 const rules = reactive<FormRules>({
   quantity: [required()],
   warehouseImportId: [required()],
   locationImportId: [required()]
 })
-const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
 const locationOptions = ref()
-let callAPIWarehouseTimes = 0
-const callAPIWarehouse = async () => {
-  if (callAPIWarehouseTimes == 0) {
-    await getProductStorage({
-      pageSize: 1000,
-      pageIndex: 1
-    }).then((res) => {
-      warehouseOptions.value = res.data
-        .filter((warehouse) => warehouse.children.length > 0)
-        .map((item) => ({
-          value: item.id,
-          label: item.name
-        }))
-      loadingWarehouse.value = false
-      callAPIWarehouseTimes++
-    })
-  }
-}
 const getLocation = async (parentId) => {
   await getProductStorage({ Id: parentId }).then((res) => {
     locationOptions.value = res.data[0].children.map((item) => ({
@@ -124,10 +103,11 @@ const tempLotData = ref()
 const loadingLot = ref(true)
 const totalInventory = ref(0)
 const changeWarehouseData = async (warehouseId) => {
-  warehouseForm.locationImportId = undefined
+  warehouseForm.value.locationImportId = undefined
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
+        id: item.id,
         warehouseId: item.warehouseId,
         locationId: item.locationId,
         location: item.locationName,
@@ -137,10 +117,14 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
+      lotData.value = lotData.value.filter((lot) => lot.orderType == props.serviceType)
+
+      console.log('radioSelected', radioSelected.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-  warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
+
+  // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   lotData.value = tempLotData.value
@@ -148,14 +132,24 @@ const filterLotData = (locationId) => {
   warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
   calculateInventory()
 }
+const checkLocationData = () => {
+  if (locationOptions.value == undefined || locationOptions.value.length == 0) {
+    ElMessage({
+      message: t('reuse.warehouseDoesntHaveLocation'),
+      type: 'warning'
+    })
+  }
+}
 const calculateInventory = () => {
-  totalInventory.value = lotData.value.reduce(function (accumulator, curValue) {
-    return accumulator + curValue.inventory
-  }, 0)
+  if (lotData.value !== undefined) {
+    totalInventory.value = lotData.value.reduce(function (accumulator, curValue) {
+      return accumulator + curValue.inventory
+    }, 0)
+  }
 }
 const calculateQuantity = (scope) => {
-  if (scope.row.inventory >= warehouseForm.quantity) {
-    return warehouseForm.quantity
+  if (scope.row.inventory >= warehouseForm.value.quantity) {
+    return warehouseForm.value.quantity
   } else {
     return scope.row.inventory
   }
@@ -182,6 +176,17 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+
+//fix bug
+watch(
+  () => props.showDialog,
+  async () => {
+    console.log('call api loc', props.warehouse?.value, warehouseForm.value)
+    await getLocation(props.warehouse?.value)
+    await changeWarehouseData(props.warehouse?.value)
+    radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
+  }
+)
 </script>
 <template>
   <el-dialog
@@ -196,7 +201,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
       <el-divider class="!mb-0" />
     </template>
-
     <el-form
       ref="ruleFormRef"
       :model="warehouseForm"
@@ -205,102 +209,27 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       label-position="top"
     >
       <el-form-item :label="t('reuse.quantity')" prop="quantity">
-        <el-input
-          v-model="warehouseForm.quantity"
-          type="number"
-          :min="1"
-          @change="
-            (data) => {
-              warehouseData.quantity = Number(data)
-            }
-          "
-        />
+        {{ warehouseForm.quantity }}
+      </el-form-item>
+      <el-form-item :label="t('reuse.type')" prop="serviceType">
+        {{ orderType(serviceType) }}
       </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
-        <div class="w-1/2">
-          <el-form-item
-            :label="t('reuse.chooseImportWarehouse')"
-            prop="warehouseImportId"
+        <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
+          <el-select
             class="w-full"
+            v-model="warehouseForm.locationImportId"
+            @change="filterLotData"
+            @focus="checkLocationData"
           >
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.warehouseImportId"
-              @click="callAPIWarehouse"
-              :loading="loadingWarehouse"
-              @change="(data) => changeWarehouseData(data)"
-            >
-              <el-option
-                v-for="item in warehouseOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="pl-8 w-1/2">
-          <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.locationImportId"
-              @click="
-                () => {
-                  getLocation(warehouseForm.warehouseImportId)
-                }
-              "
-              @change="filterLotData"
-            >
-              <el-option
-                v-for="item in locationOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-      </div>
-      <div class="flex export" v-if="transactionType != 1">
-        <div class="w-1/2">
-          <el-form-item label="Chọn kho xuất" class="w-full">
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.warehouseImportId"
-              @click="callAPIWarehouse"
-              :loading="loadingWarehouse"
-              @change="(data) => changeWarehouseData(data)"
-            >
-              <el-option
-                v-for="item in warehouseOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="pl-8 w-1/2">
-          <el-form-item label="Chọn vị trí" class="w-full">
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.locationImportId"
-              @click="
-                () => {
-                  getLocation(warehouseForm.warehouseImportId)
-                }
-              "
-              @change="filterLotData"
-            >
-              <el-option
-                v-for="item in locationOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
+            <el-option
+              v-for="item in locationOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
       </div>
     </el-form>
     <div>{{ t('reuse.lotList') }}</div>
@@ -315,7 +244,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     >
       <template #append>
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
-        <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
+        <span class="pl-180px font-bold">{{ warehouseForm.quantity }}</span>
       </template>
       <el-table-column label="" width="70">
         <template #default="scope">

@@ -377,6 +377,17 @@ export const getReturnRequest = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+//lấy lịch sử nhập xuất đổi/trả theo id đổi trả
+export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_RETURN_REQUEST_FOR_ORDER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Thêm nhanh khách hàng
 export const addQuickCustomer = async (params: any): Promise<IResponse> => {
   const res = await request.post(
@@ -533,15 +544,6 @@ export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-// export const getOrderList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get(
-//     {
-//       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
-//     },
-//     fixedBaseURL
-//   )
-//   return res && res.data
-// }
 export const getOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -549,6 +551,7 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
+
   return res && res.data
 }
 

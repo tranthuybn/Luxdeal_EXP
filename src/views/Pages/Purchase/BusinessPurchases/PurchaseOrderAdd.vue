@@ -68,7 +68,8 @@ import {
   getListWareHouse,
   getStaffList,
   postAutomaticWarehouse,
-  GetProductPropertyInventory
+  GetProductPropertyInventory,
+  getReturnRequestForOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
@@ -447,6 +448,7 @@ interface tableDataType {
 }
 
 const checkReceiptOrPayment = ref(false)
+const checkAccountEntry = ref(false)
 const checkPaymentRequest = ref(false)
 
 let debtTable = ref<Array<tableDataType>>([])
@@ -454,6 +456,8 @@ let newTable = ref()
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  checkReceiptOrPayment.value = false
+  checkPaymentRequest.value = false
   newTable.value = val
   if (newTable.value[0].paymentRequestCode) {
     checkPaymentRequest.value = true
@@ -724,6 +728,7 @@ interface statusOrderType {
   orderStatusName: string
   orderStatus: number
   createdAt: string | Date
+  approvedAt: string | Date
   isActive?: boolean
 }
 
@@ -739,6 +744,7 @@ const updateStatusOrder = async (status: number, idOrder: any) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderStatus(formDataPayLoad)
   statusOrder.value = status
+  reloadStatusOrder()
 }
 
 const addStatusOrder = (index) => {
@@ -746,8 +752,22 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[index])
   statusOrder.value = STATUS_ORDER_PURCHASE[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].createdAt = new Date()
   updateStatusOrder(STATUS_ORDER_PURCHASE[index].orderStatus, id)
+}
+
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 6 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
+  }
 }
 
 const autoCalculateOrder = () => {
@@ -1044,6 +1064,7 @@ const fileList = ref<UploadUserFile[]>([])
 let orderDetailsTable = reactive([{}]) as any[]
 
 let idOrderPost = ref()
+const checkValidatorProduct = ref(false)
 // Tạo đơn hàng
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
@@ -1060,55 +1081,78 @@ const postData = async () => {
     Accessory: val.accessory
   }))
   orderDetailsTable.pop()
-  const productPayment = JSON.stringify([...orderDetailsTable])
-  const payload = {
-    ServiceType: 6,
-    OrderCode: ruleForm.orderCode,
-    PromotionCode: 'AA12',
-    CollaboratorId: ruleForm.collaborators,
-    CollaboratorCommission: ruleForm.discount,
-    Description: ruleForm.orderNotes,
-    CustomerId: customerID.value,
-    Files: Files,
-    DeliveryOptionId: ruleForm.delivery,
-    WarehouseId: ruleForm.warehouse,
-    ProvinceId: formAddress.province ?? 1,
-    DistrictId: formAddress.district ?? 1,
-    WardId: formAddress.wardCommune ?? 1,
-    Address: formAddress.detailedAddress,
-    OrderDetail: productPayment,
-    CampaignId: 2,
-    TotalPrice: totalFinalOrder.value,
-    DepositePrice: 0,
-    DiscountMoney: 0,
-    InterestMoney: 0,
-    VAT:
-      radioVAT.value == t('formDemo.VATNotIncluded')
-        ? null
-        : radioVAT.value == t('formDemo.doesNotIncludeVAT')
-        ? null
-        : parseInt(radioVAT.value),
-    VATMoney: moneyVAT.value,
-    orderStatus: 1,
-    Status: statusTracking.value
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  const res = await addNewOrderList(formDataPayLoad)
-  if (res) {
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
+  if (orderDetailsTable?.length > 0) {
+    orderDetailsTable.forEach((el) => {
+      if (el.Quantity == 0) {
+        checkValidatorProduct.value = true
+      }
     })
-    // await updateStatusOrder(2, res)
+    if (checkValidatorProduct.value) {
+      const productPayment = JSON.stringify([...orderDetailsTable])
+      const payload = {
+        ServiceType: 6,
+        OrderCode: ruleForm.orderCode,
+        PromotionCode: 'AA12',
+        CollaboratorId: ruleForm.collaborators,
+        CollaboratorCommission: ruleForm.discount,
+        Description: ruleForm.orderNotes,
+        CustomerId: customerID.value,
+        Files: Files,
+        DeliveryOptionId: ruleForm.delivery,
+        WarehouseId: ruleForm.warehouse,
+        ProvinceId: formAddress.province ?? 1,
+        DistrictId: formAddress.district ?? 1,
+        WardId: formAddress.wardCommune ?? 1,
+        Address: formAddress.detailedAddress,
+        OrderDetail: productPayment,
+        CampaignId: 2,
+        TotalPrice: totalFinalOrder.value,
+        DepositePrice: 0,
+        DiscountMoney: 0,
+        InterestMoney: 0,
+        VAT:
+          radioVAT.value == t('formDemo.VATNotIncluded')
+            ? null
+            : radioVAT.value == t('formDemo.doesNotIncludeVAT')
+            ? null
+            : parseInt(radioVAT.value),
+        VATMoney: moneyVAT.value,
+        orderStatus: 1,
+        Status: statusTracking.value
+      }
+      const formDataPayLoad = FORM_IMAGES(payload)
+      const res = await addNewOrderList(formDataPayLoad)
+      if (res) {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        hiddenButton.value = false
+        router.push({
+          name: 'purchase.business-purchases.purchase-order-list',
+          params: { backRoute: String(router.currentRoute.value.name) }
+        })
+      } else {
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      }
+      idOrderPost.value = res
+
+      automaticCouponWareHouse(1)
+    } else {
+      ElNotification({
+        message: 'Hãy nhập số lượng mua',
+        type: 'warning'
+      })
+    }
   } else {
     ElNotification({
-      message: t('reuse.addFail'),
+      message: 'Hãy chọn sản phẩm mua',
       type: 'warning'
     })
   }
-  idOrderPost.value = res
-
-  automaticCouponWareHouse(1)
 }
 
 // Phiếu nhập kho tự động
@@ -1167,9 +1211,18 @@ let tableInvoiceImport = ref([
   }
 ])
 
+const duplicateStatusButton = ref(false)
+const checkDisabledEditButton = ref(false)
+const hiddenEditButton = ref(false)
 const editData = async () => {
-  if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit') hiddenButton.value = false
+  if (type == 'detail') {
+    checkDisabled.value = true
+    editButton.value = false
+  }
+  if (type == 'edit') {
+    editButton.value = true
+    hiddenButton.value = false
+  }
   if (type == 'edit' || type == 'detail') {
     checkDisabledProduct.value = true
     const res = await getOrderList({ Id: id, ServiceType: 6 })
@@ -1186,6 +1239,24 @@ const editData = async () => {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
     }
+
+    if (
+      arrayStatusOrder.value.find((e) => e.orderStatus == STATUS_ORDER_PURCHASE[3].orderStatus) ||
+      arrayStatusOrder.value.find((e) => e.orderStatus == 0)
+    ) {
+      checkDisabledEditButton.value = true
+    }
+
+    if (arrayStatusOrder.value.find((e) => e.orderStatus == 61)) {
+      checkPaymentRequest.value = true
+      checkReceiptOrPayment.value = true
+      checkAccountEntry.value = true
+    }
+
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt) {
+      duplicateStatusButton.value = true
+      hiddenEditButton.value = true
+    } else duplicateStatusButton.value = false
 
     if (orderObj.vat == null) radioVAT.value = t('formDemo.VATNotIncluded')
     else radioVAT.value = orderObj.vat + '%'
@@ -1446,11 +1517,20 @@ const inputReasonReturn = ref('')
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
-      createdAt: e.createdAt ?? ''
+      createdAt: e.returnRequestInfo?.createdAt ?? '',
+      productPropertyId: e.productPropertyId,
+      productPropertyName: e.productPropertyName,
+      accessory: e.accessory,
+      quantity: e.quantity,
+      unitName: e.unitName,
+      warehouseTicketCode: e.warehouseTicketCode,
+      returnDetailType: e.returnDetailType,
+      returnDetailTypeName: e.returnDetailTypeName,
+      returnDetailStatusName: e.returnDetailStatusName
     }))
   }
 }
@@ -2306,6 +2386,7 @@ onBeforeMount(async () => {
   if (type == 'add' || type == ':type') {
     doubleDisabled.value = true
     hiddenButton.value = true
+    hiddenEditButton.value = true
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
@@ -4489,7 +4570,7 @@ onBeforeMount(async () => {
                 :disabled="type == 'edit' ? true : false"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="value"
+                labelKey="code"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -4649,7 +4730,7 @@ onBeforeMount(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <el-button
-                :disabled="checkDisabled"
+                :disabled="type == 'edit' || type == 'detail' ? true : false"
                 @click.prevent="removeListProductsSale(scope.$index)"
                 class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 >{{ t('reuse.delete') }}</el-button
@@ -4668,7 +4749,11 @@ onBeforeMount(async () => {
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
             <div class="text-blue-500 cursor-pointer">
-              <el-dropdown :disabled="checkDisabled" class="flex justify-end" trigger="click">
+              <el-dropdown
+                :disabled="type == 'edit' || type == 'detail' ? true : false"
+                class="flex justify-end"
+                trigger="click"
+              >
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                   {{ radioVAT }}
                   <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
@@ -4777,9 +4862,10 @@ onBeforeMount(async () => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i class="text-gray-300" v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -4798,9 +4884,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i class="text-gray-300" v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[5].orderStatus">
                   <span
@@ -4813,9 +4900,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i class="text-gray-300" v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus">
                   <span
@@ -4828,9 +4916,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i class="text-gray-300" v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -4841,7 +4930,7 @@ onBeforeMount(async () => {
           <div class="w-[12%]"></div>
           <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
             <el-button
-              :disabled="checkDisabled"
+              :disabled="checkDisabledEditButton"
               @click="
                 () => {
                   editOrderInfo()
@@ -4856,10 +4945,9 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   editButton = false
-                  statusOrder = 2
                 }
               "
-              :disabled="checkDisabled"
+              :disabled="checkDisabledEditButton"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancel') }}</el-button
@@ -4868,11 +4956,12 @@ onBeforeMount(async () => {
           <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus
+                hiddenEditButton &&
+                (statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus)
               "
               :disabled="doubleDisabled"
               @click="dialogBillLiquidation = true"
@@ -4882,10 +4971,11 @@ onBeforeMount(async () => {
             <el-button
               @click="openBillDialog"
               v-if="
-                statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus
+                hiddenEditButton &&
+                (statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus)
               "
               :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
@@ -4935,7 +5025,7 @@ onBeforeMount(async () => {
             <button
               :disabled="checkDisabled"
               @click="statusOrder = 8"
-              v-if="statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus && !duplicateStatusButton"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
               >{{ t('formDemo.completeExchangeReturn') }}</button
             >
@@ -4957,7 +5047,6 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
-              :disabled="checkDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
@@ -5006,6 +5095,7 @@ onBeforeMount(async () => {
               alreadyPaidForTt = false
             }
           "
+          :disabled="checkAccountEntry"
           >+ Thêm bút toán</el-button
         >
         <el-button :disabled="checkReceiptOrPayment" @click="openReceiptDialog" text
@@ -5148,12 +5238,10 @@ onBeforeMount(async () => {
               <div class="flex">
                 <button
                   @click="(index) => getAccountingEntry(index, data)"
-                  v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
                 </button>
-                <div v-else>{{ t('reuse.detail') }}</div>
               </div>
             </template>
           </el-table-column>
@@ -5188,12 +5276,7 @@ onBeforeMount(async () => {
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
-                <el-input
-                  :v-model="data.row.accessory"
-                  v-if="type != 'detail'"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-                <div v-else>{{ data.row.accessory }}</div>
+                <div>{{ data.row.accessory }}</div>
               </template>
             </el-table-column>
 
@@ -5201,26 +5284,17 @@ onBeforeMount(async () => {
             <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
             <el-table-column
-              prop="invoiceGoodsEnteringWarehouse"
+              prop="warehouseTicketCode"
               :label="t('formDemo.importExportWarehouse')"
               align="left"
               width="200"
             >
               <template #default="props">
-                <div
-                  v-if="props.row.invoiceGoodsEnteringWarehouse == 0"
-                  @click="informationWarehouseReceipt = true"
-                  class="text-blue-500"
-                >
-                  NK3424
-                </div>
-                <div v-else @click="invoiceForGoodsEntering = true" class="text-blue-500">
-                  NK3424
-                </div>
+                <div class="text-blue-500"> {{ props.row.warehouseTicketCode }} </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="inventoryStatus"
+              prop="returnDetailStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

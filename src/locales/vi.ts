@@ -473,6 +473,7 @@ export default {
     debtHistory: 'Lịch sử công nợ',
     browsePriceChanges: 'Duyệt giá thay đổi',
     waitingDelivery: 'Chờ giao hàng',
+    receivedDelivery: 'Đã nhận hàng',
     quicklyAddProducts: 'Thêm nhanh sản phẩm',
     productCharacteristics: 'Đặc tính sản phẩm',
     AddSelectProductCode: 'Thêm hoặc chọn mã sản phẩm',

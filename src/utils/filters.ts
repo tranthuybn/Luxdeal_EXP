@@ -150,6 +150,15 @@ export const filtersStatus: Array<Filter> = [
   { text: t('common.doneLabel'), value: 7 },
   { text: t('reuse.cancelled'), value: 8 }
 ]
+
+export const filterStatusOrder: Array<Filter> = [
+  { text: t('reuse.deliveryFailed'), value: -1 },
+  { text: t('formDemo.waitingDelivery'), value: 0 },
+  { text: t('reuse.delivery'), value: 2 },
+  { text: t('reuse.successfulDelivery'), value: 3 },
+  { text: t('formDemo.receivedDelivery'), value: 4 }
+]
+
 export const filterStatus: Array<Filter> = [
   { text: t('reuse.notSeen'), value: 2 },
   { text: t('reuse.takingCare'), value: 1 },

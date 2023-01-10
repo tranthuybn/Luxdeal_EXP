@@ -4,6 +4,7 @@ interface RoleParams {
   roleName: string
 }
 import { LOGIN_API_URL, API_URL } from '@/utils/API_URL'
+const fixedBaseURL = API_URL
 
 const request = useAxios()
 export const loginApi = async (data: UserType): Promise<IResponse<UserType>> => {
@@ -24,10 +25,13 @@ export const getUserListApi = ({ params }: AxiosConfig) => {
 }
 
 export const getRoutesAsRolesApi = async (params: RoleParams): Promise<IResponse<any>> => {
+  const res = await request.get({ url: '/role/list', params })
+  return res && res.data
+}
+export const GetRouterByStaffAccountId = async (params): Promise<IResponse<any>> => {
   const res = await request.get(
-    { url: '/role/list', params }
-    // { url: 'api/v1/Authorization/GetRouterOfEachRole', params },
-    // API_URL
+    { url: 'api/v1/Authorization/GetRouterByStaffAccountId', params },
+    fixedBaseURL
   )
   return res && res.data
 }

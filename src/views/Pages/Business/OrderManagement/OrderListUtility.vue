@@ -54,6 +54,7 @@ import {
   addTPV,
   createReturnRequest,
   getReturnRequest,
+  getReturnRequestForOrder,
   getReceiptPaymentVoucher,
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
@@ -1184,6 +1185,7 @@ let dataEdit = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
+  console.log('debtTable: ', debtTable.value)
 }
 
 const disabledDeleteRow = ref(false)
@@ -1304,7 +1306,7 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
   // inputReasonReturn.value =
-  console.log('formAccountingId: ', formAccountingId.value)
+
   getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
@@ -1313,9 +1315,16 @@ const openAcountingEntryDialog = async (index, num) => {
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
   } else if (num == 3) {
-    tableReturnFullyIntegrated.value = formAccountingId.value?.paidMerchandises
-    tableProductInformationExportChange.value = formAccountingId.value?.paidMerchandises
-
+    const res = await getReturnRequest({ CustomerOrderId: id })
+    const optionsReturnRequest = res.data
+    if (optionsReturnRequest[0].nhapDetails)
+      tableReturnFullyIntegrated.value = optionsReturnRequest[0].nhapDetails
+    if (optionsReturnRequest[0].xuatDetails)
+      tableProductInformationExportChange.value = optionsReturnRequest[0].xuatDetails
+    inputReasonReturn.value = optionsReturnRequest[0].description
+    console.log('optionsReturnRequest: ', optionsReturnRequest)
+    console.log('tableReturnFullyIntegrated: ', tableReturnFullyIntegrated.value)
+    console.log('tableProductInformationExportChange: ', tableProductInformationExportChange.value)
     changeReturnGoods.value = true
   }
 }
@@ -1557,8 +1566,9 @@ watch(
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
+
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
@@ -1808,7 +1818,7 @@ const postReturnRequest = async () => {
     productPropertyId: el.productPropertyId,
     quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
     accessory: '',
-    returnDetailType: 1,
+    returnDetailType: 2,
     unitPrice: el.unitPrice,
     totalPrice: el.totalPrice
   }))

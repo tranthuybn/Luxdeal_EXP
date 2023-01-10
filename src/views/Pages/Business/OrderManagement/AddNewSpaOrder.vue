@@ -61,22 +61,26 @@ import {
   getReturnRequest,
   getDetailAccountingEntryById,
   updateOrderTransaction,
-  GetPaymentRequestDetail
+  GetPaymentRequestDetail,
+  updateStatusOrder,
+  updateOrderInfo
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { appModules } from '@/config/app'
 
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_SPA } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
+const { utility } = appModules
 
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
@@ -406,6 +410,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id.toString(),
       productPropertyCode: product.productPropertyCode
@@ -937,6 +942,8 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(router.currentRoute.value.params.tab)
 const type = String(route.params.type)
+// const approvalId = String(route.params.approvalId)
+
 let orderDetailsTable = reactive([{}])
 let orderIdSpa = ref()
 
@@ -1728,14 +1735,46 @@ const postPC = async () => {
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
   handleChangeReceipts()
 }
+
+let statusOrder = ref(STATUS_ORDER_SPA[1].orderStatus)
+interface statusOrderType {
+  orderStatusName: string
+  orderStatus: number
+  createdAt?: string
+  isActive?: boolean
+  approvedAt?: string
+}
+let arrayStatusOrder = ref(Array<statusOrderType>())
+arrayStatusOrder.value.pop()
+
+const updateOrderStatus = async (status: number, idOrder: any) => {
+  const payload = {
+    OrderId: idOrder ? idOrder : id,
+    ServiceType: 2,
+    OrderStatus: status
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateStatusOrder(formDataPayLoad)
+  statusOrder.value = status
+}
+const addStatusOrder = (index) => {
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+  arrayStatusOrder.value.push(STATUS_ORDER_SPA[index])
+  statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
+  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
+}
+
 const showPromo = ref(false)
 const disabledEdit = ref(false)
+const duplicateStatusButton = ref(false)
+const startSpa = ref(false)
 const editData = async () => {
   if (type == 'detail') {
     checkDisabled.value = true
     disabledCustomer.value = true
   }
-  if (type == 'edit' || type == 'detail') {
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     checkDisabled3.value = true
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 5 })
@@ -1747,12 +1786,21 @@ const editData = async () => {
     getReturnRequestTable()
     const orderObj = { ...res.data[0] }
 
-    dataEdit.value = orderObj
-    // arrayStatusOrder.value = orderObj.status
-    // arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+    arrayStatusOrder.value = orderObj?.statusHistory
+
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
 
     Files = orderObj.orderFiles
 
+    dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
@@ -1802,7 +1850,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || !type || type != 'approval-order') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
@@ -1930,92 +1978,9 @@ const editor = ref()
 
 const indexSpa = ref()
 
-interface statusOrderType {
-  statusName: string
-  status: number
-  isActive?: boolean
-}
-let arrayStatusOrder = ref(Array<statusOrderType>())
-arrayStatusOrder.value.pop()
-if (type == 'add')
-  arrayStatusOrder.value.push({
-    statusName: 'Chốt đơn hàng',
-    status: 2,
-    isActive: true
-  })
-
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        statusName: 'Duyệt giá thay đổi',
-        status: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Chốt đơn hàng',
-          status: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Hoàn thành đơn hàng',
-          status: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt đổi/trả hàng',
-          status: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Đối soát & kết thúc',
-          status: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          statusName: 'Duyệt hủy đơn hàng',
-          status: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          statusName: 'Hủy đơn hàng',
-          status: 7,
-          isActive: true
-        })
-      }
-
-      break
-  }
-}
-let statusOrder = ref(1)
-
 const addStatusDelay = () => {
   setTimeout(() => {
-    addStatusOrder(7)
+    addStatusOrder(-1)
   }, 4000)
 }
 const valueMoneyAccoungtingEntry = ref(0)
@@ -2053,6 +2018,51 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
   tableAccountingEntry.value.map((val) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
+}
+const { push } = useRouter()
+const editButton = ref(false)
+let changeButtonEdit = ref(false)
+
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+        // approvalId: data.id
+      }
+    })
+  }
+}
+
+const editOrderInfo = async () => {
+  const payload = {
+    Id: id,
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
+    Description: ruleForm.orderNotes,
+    // Files: Files,
+    DeleteFileIds: '',
+    DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateOrderInfo(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        router.go(-1)
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'success'
+      })
+    })
 }
 
 // Bút toán bổ sung
@@ -2144,7 +2154,7 @@ onBeforeMount(async () => {
   callAPIProduct()
   if (type == 'add') {
     checkDisabled2.value = true
-
+    startSpa.value = true
     ruleForm.orderCode = curDate
     spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
@@ -2159,11 +2169,16 @@ const priceBillPayment = () => {
 }
 
 const changePriceSpa = ref(false)
-
+const priceChangeSpa = ref(false)
 const changePriceSpaService = (data) => {
   changePriceSpa.value = true
-  console.log('changePriceSpa.value', changePriceSpa.value)
-  console.log('data:', data)
+  if (changePriceSpa.value) {
+    priceChangeSpa.value = true
+    console.log('changePriceSpa.value', changePriceSpa.value)
+    console.log('data:', data)
+  } else {
+    priceChangeSpa.value = false
+  }
 }
 
 onMounted(async () => {
@@ -3302,21 +3317,39 @@ const postReturnRequest = async (reason) => {
           <label class="ml-10">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%]">
-              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.status">
-                <div v-if="item.status == 1 || item.status == 4 || item.status == 6">
+              <div
+                class="duplicate-status"
+                v-for="item in arrayStatusOrder"
+                :key="item.orderStatus"
+              >
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
                   <span
-                    class="box box_1 text-yellow-500 dark:text-black"
+                    class="box box_1 text-yellow-500 dark:text-divck"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 2 || item.status == 3">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_SPA[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3324,11 +3357,14 @@ const postReturnRequest = async (reason) => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 5">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[2].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3336,11 +3372,14 @@ const postReturnRequest = async (reason) => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
-                <div v-else-if="item.status == 7">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[5].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3348,11 +3387,133 @@ const postReturnRequest = async (reason) => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.statusName }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
+                  <i class="text-gray-300">{{
+                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  }}</i>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex w-[100%] gap-2 mt-2">
+          <div class="w-[12%]"></div>
+          <!-- edit -->
+          <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
+            <el-button
+              :disabled="checkDisabled"
+              @click="
+                () => {
+                  editOrderInfo()
+                  changeButtonEdit = false
+                }
+              "
+              type="primary"
+              class="min-w-42 min-h-11"
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button
+              @click="
+                () => {
+                  router.go(-1)
+                }
+              "
+              :disabled="checkDisabled"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancel') }}</el-button
+            >
+          </div>
+          <!-- Có thay đổi giá dịch vụ Spa -->
+          <div v-if="priceChangeSpa == true">
+            <div class="w-[100%] flex ml-1 gap-3" v-if="!editButton">
+              <el-button class="min-w-42 min-h-11" @click="dialogPrinBillSpa = true">{{
+                t('formDemo.printSpaBill')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
+                t('formDemo.bill')
+              }}</el-button>
+              <el-button
+                :disabled="checkDisabled"
+                @click="
+                  () => {
+                    submitForm(ruleFormRef, ruleFormRef2)
+                    statusOrder = 3
+                  }
+                "
+                type="primary"
+                class="min-w-42 min-h-11"
+                >{{ t('reuse.saveAndPending') }}</el-button
+              >
+              <el-button
+                @click="
+                  () => {
+                    arrayStatusOrder.splice(0, arrayStatusOrder.length)
+                    addStatusOrder(7)
+                    addStatusDelay()
+                    statusOrder = 9
+                    checkDisabled = !checkDisabled
+                  }
+                "
+                :disabled="checkDisabled"
+                type="danger"
+                class="min-w-42 min-h-11"
+                >{{ t('button.cancelOrder') }}</el-button
+              >
+            </div>
+          </div>
+          <!-- Trạng thái không thay đổi giá dv Spa-->
+          <div v-else>
+            <div v-if="!editButton" class="w-[100%] flex ml-1 gap-3">
+              <el-button class="min-w-42 min-h-11" @click="dialogPrinBillSpa = true">{{
+                t('formDemo.printSpaBill')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
+                t('formDemo.bill')
+              }}</el-button>
+
+              <el-button
+                :disabled="checkDisabled"
+                @click="
+                  () => {
+                    submitForm(ruleFormRef, ruleFormRef2)
+                    statusOrder = 3
+                  }
+                "
+                type="primary"
+                class="min-w-42 min-h-11"
+                >{{ t('formDemo.saveCloseOrder') }}</el-button
+              >
+              <el-button :disabled="startSpa" type="primary" class="min-w-42 min-h-11">
+                Bắt đầu quá trình Spa
+              </el-button>
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
+                @click="changeEditInDetail"
+                class="min-w-42 min-h-11"
+                >{{ t('formDemo.editOrder') }}</el-button
+              >
+              <el-button
+                @click="
+                  () => {
+                    addStatusOrder(7)
+                    addStatusDelay()
+                    checkDisabled = !checkDisabled
+                  }
+                "
+                :disabled="checkDisabled"
+                type="danger"
+                class="min-w-42 min-h-11"
+                >{{ t('button.cancelOrder') }}</el-button
+              >
+              <el-button type="primary" class="min-w-42 min-h-11"> Thay đổi dịch vụ Spa </el-button>
+              <el-button type="primary" class="min-w-42 min-h-11"> Trả hàng Spa </el-button>
+              <el-button type="primary" class="min-w-42 min-h-11"> Hủy trả hàng </el-button>
+              <el-button type="primary" class="min-w-42 min-h-11"> Hoàn thành trả hàng </el-button>
+              <el-button type="primary" class="min-w-42 min-h-11"> Đối soát & kết thúc </el-button>
             </div>
           </div>
         </div>
@@ -3360,39 +3521,6 @@ const postReturnRequest = async (reason) => {
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <div class="w-[100%] flex ml-1 gap-4">
-            <el-button class="min-w-42 min-h-11" @click="dialogPrinBillSpa = true">{{
-              t('formDemo.printSpaBill')
-            }}</el-button>
-            <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
-              t('formDemo.bill')
-            }}</el-button>
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  submitForm(ruleFormRef, ruleFormRef2)
-                  statusOrder = 3
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('reuse.saveAndPending') }}</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(7)
-                  addStatusDelay()
-                  statusOrder = 9
-                  checkDisabled = !checkDisabled
-                }
-              "
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
             <el-button
               v-if="type == 'edit'"
               @click="

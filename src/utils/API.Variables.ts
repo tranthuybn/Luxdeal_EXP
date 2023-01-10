@@ -401,6 +401,55 @@ export const STATUS_ORDER_PAWN = [
   }
 ]
 
+export const STATUS_ORDER_SPA = [
+  //0
+  {
+    orderStatus: -1,
+    orderStatusName: 'Hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 3,
+    orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 4,
+    orderStatusName: 'Duyệt đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 0,
+    orderStatusName: 'Duyệt hủy đơn hàng',
+    createdAt: ''
+  },
+  {
+    orderStatus: 51,
+    orderStatusName: 'Bắt đầu quá trình spa',
+    createdAt: ''
+  },
+  {
+    orderStatus: 52,
+    orderStatusName: 'Trả hàng spa',
+    createdAt: ''
+  },
+  {
+    orderStatus: 53,
+    orderStatusName: 'Hết hạn spa',
+    createdAt: ''
+  },
+  {
+    orderStatus: 54,
+    orderStatusName: 'Duyệt thay đổi dịch vụ spa',
+    createdAt: ''
+  }
+]
+
 export const STATUS_ORDER_SELL = [
   {
     orderStatus: -1,

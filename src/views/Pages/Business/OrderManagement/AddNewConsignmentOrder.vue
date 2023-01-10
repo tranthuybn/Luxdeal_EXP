@@ -635,23 +635,15 @@ const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
-    listProducts.value = res.data.map(
-      (product: {
-        code: any
-        productCode: any
-        name: any
-        price: { toString: () => any }
-        id: { toString: () => any }
-        productPropertyCode: any
-      }) => ({
-        productCode: product.code,
-        value: product.productCode,
-        name: product.name ?? '',
-        price: product.price.toString(),
-        productPropertyId: product.id.toString(),
-        productPropertyCode: product.productPropertyCode
-      })
-    )
+    listProducts.value = res.data.map((product) => ({
+      productCode: product.code,
+      value: product.productCode,
+      unit: product.unitName,
+      name: product.name ?? '',
+      price: product.price,
+      productPropertyId: product.id,
+      productPropertyCode: product.productPropertyCode
+    }))
   }
 }
 
@@ -884,7 +876,6 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  addStatusOrder(1)
   reloadStatusOrder()
 }
 
@@ -1036,10 +1027,7 @@ const consignOrderCode = ref()
 
 let customerID = ref()
 
-const getValueOfCustomerSelected = (
-  value: any,
-  obj: { provinceId: string; districtId: string; wardId: string; address: never[]; label: string }
-) => {
+const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
   valueProvince.value = obj.provinceId
@@ -1120,7 +1108,7 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
-      CustomerId: 2,
+      CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
       DistrictId: valueDistrict.value ?? 1,
@@ -1529,7 +1517,6 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
 
-    console.log('res', res.data)
     const orderObj = { ...res?.data[0] }
 
     arrayStatusOrder.value = orderObj?.statusHistory

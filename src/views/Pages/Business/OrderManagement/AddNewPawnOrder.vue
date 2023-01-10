@@ -627,9 +627,10 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
+      unit: product.unitName,
       name: product.name ?? '',
-      price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      price: product.price,
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
@@ -837,7 +838,7 @@ const postData = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.collaboratorCommission,
     Description: ruleForm.orderNotes,
-    CustomerId: 2,
+    CustomerId: customerID.value,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
@@ -893,7 +894,6 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  addStatusOrder(1)
   reloadStatusOrder()
 }
 
@@ -1621,16 +1621,13 @@ onBeforeMount(() => {
   callApiWarehouseList()
 
   if (type == 'add') {
+    disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
-})
-
-onMounted(async () => {
-  await editData()
 })
 
 //TruongNgo

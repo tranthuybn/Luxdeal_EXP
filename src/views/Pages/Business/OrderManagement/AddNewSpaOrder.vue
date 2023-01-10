@@ -818,15 +818,14 @@ const callApiServicesSpa = async (scope) => {
       value: product.price,
       name: product.spaServiceName
     }))
-    console.log('optionsApiServicesSpa.value', listServicesSpa.value)
     currentRow2.value = scope.$index
-    if (countSpaClick.value > 1 && res.data > 0) {
+    if (countSpaClick.value > 1 && res.data.length > 0) {
       ElNotification({
         title: 'Warning',
         message: 'Bạn vui lòng chọn lại dịch vụ nhé!',
         type: 'warning'
       })
-    } else {
+    } else if (res.data.length === 0) {
       ElNotification({
         title: 'Warning',
         message: 'Không có dịch vụ spa!',
@@ -839,8 +838,6 @@ const callApiServicesSpa = async (scope) => {
       type: 'warning'
     })
   }
-
-  console.log('countSpaClick.value', countSpaClick.value)
 }
 
 const checkProductSelected = (scope) => {

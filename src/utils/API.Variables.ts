@@ -447,6 +447,11 @@ export const STATUS_ORDER_SPA = [
     orderStatus: 54,
     orderStatusName: 'Duyệt thay đổi dịch vụ spa',
     createdAt: ''
+  },
+  {
+    orderStatus: 1,
+    orderStatusName: 'Duyệt giá thay đổi',
+    createdAt: ''
   }
 ]
 

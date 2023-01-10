@@ -321,8 +321,6 @@ const optionsCharacteristic = [
   }
 ]
 
-const radioTracking = ref('1')
-
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   collaborators: '',
@@ -1293,6 +1291,7 @@ const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
+const radioTracking = ref('2')
 
 const inputRecharger = ref()
 const moneyReceipts = ref(105000000)
@@ -1539,7 +1538,6 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      // sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj.collaborator.id
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
@@ -1549,8 +1547,6 @@ const editData = async () => {
           ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
           : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
-      // totalPriceOrder.value = orderObj.totalPrice
-      // totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -3775,9 +3771,10 @@ onBeforeMount(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-radio-group v-model="radioTracking" :disabled="checkDisabled" class="ml-4">
-              <el-radio label="1">Đã nhận hàng</el-radio>
-              <el-radio label="2">{{ t('reuse.delivery') }}</el-radio>
+            <el-radio-group v-model="radioTracking" class="ml-4">
+              <el-radio label="2" value="2" size="large">{{
+                t('formDemo.receivedDelivery')
+              }}</el-radio>
             </el-radio-group>
           </div>
         </div>

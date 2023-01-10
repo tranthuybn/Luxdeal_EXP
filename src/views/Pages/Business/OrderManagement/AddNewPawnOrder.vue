@@ -15,6 +15,7 @@ import {
   ElTableColumn,
   ElInput,
   ElDialog,
+  ElRadioGroup,
   ElDatePicker,
   FormRules,
   ElForm,
@@ -524,7 +525,6 @@ const postQuickCustomer = async () => {
   await createQuickProduct(payload)
 }
 
-const checked2 = ref(false)
 const dialogAddQuick = ref(false)
 const historyTable = ref<Array<any>>([])
 
@@ -612,6 +612,7 @@ function printPage(id: string, { url, title, w, h }) {
     newWindow?.close()
   }, 500)
 }
+const radioTracking = ref('2')
 
 const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
@@ -1470,7 +1471,7 @@ const editData = async () => {
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
       priceintoMoneyByday.value = orderObj.interestMoney
       ruleForm.collaborators = orderObj.collaboratorCode
-      ruleForm.collaboratorCommission = orderObj.CollaboratorCommission
+      ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
@@ -2455,7 +2456,11 @@ const removeRow = (index) => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[11%] text-right">{{ t('formDemo.orderTrackingStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <el-checkbox v-model="checked2" :label="t('reuse.closedTheOrder')" size="large" />
+            <el-radio-group v-model="radioTracking" class="ml-4">
+              <el-radio label="2" value="2" size="large">{{
+                t('formDemo.receivedDelivery')
+              }}</el-radio>
+            </el-radio-group>
           </div>
         </div>
         <div class="flex w-[100%] ml-1 items-center pb-3 mb-2">

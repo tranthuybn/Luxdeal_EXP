@@ -2064,9 +2064,11 @@ const postOrderStransaction = async (index: number) => {
     orderId: id,
     content:
       index == 1
-        ? t('formDemo.collectRentalDeposit')
+        ? t('formDemo.rentalFeePaymentSlip')
         : index == 2
         ? feePaymentPeriod.value
+        : index == 3
+        ? 'Trả hàng trước hạn'
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,

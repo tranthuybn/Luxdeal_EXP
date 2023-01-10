@@ -12,7 +12,8 @@ import {
   ElOption,
   ElTable,
   ElTableColumn,
-  ElRadio
+  ElRadio,
+  ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { computed, reactive, ref, watch } from 'vue'
@@ -46,6 +47,10 @@ const props = defineProps({
   warehouse: {
     type: Object,
     default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
 
@@ -112,6 +117,7 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
+      lotData.value = lotData.value.filter((lot) => lot.orderType == props.serviceType)
 
       console.log('radioSelected', radioSelected.value)
     })
@@ -125,6 +131,14 @@ const filterLotData = (locationId) => {
   lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
   warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
   calculateInventory()
+}
+const checkLocationData = () => {
+  if (locationOptions.value == undefined || locationOptions.value.length == 0) {
+    ElMessage({
+      message: t('reuse.warehouseDoesntHaveLocation'),
+      type: 'warning'
+    })
+  }
 }
 const calculateInventory = () => {
   if (lotData.value !== undefined) {
@@ -197,12 +211,16 @@ watch(
       <el-form-item :label="t('reuse.quantity')" prop="quantity">
         {{ warehouseForm.quantity }}
       </el-form-item>
+      <el-form-item :label="t('reuse.type')" prop="serviceType">
+        {{ orderType(serviceType) }}
+      </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
         <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
           <el-select
             class="w-full"
             v-model="warehouseForm.locationImportId"
             @change="filterLotData"
+            @focus="checkLocationData"
           >
             <el-option
               v-for="item in locationOptions"

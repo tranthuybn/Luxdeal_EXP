@@ -70,12 +70,12 @@ export const filterRentTerm: Array<Filter> = [
   { text: t('reuse.byYear'), value: 4 }
 ]
 export const filterBranch: Array<Filter> = [
-  { text: t('reuse.hanoi'), value: 1 },
-  { text: t('reuse.hochiminh'), value: 2 }
+  { text: t('reuse.hanoi'), value: true },
+  { text: t('reuse.hochiminh'), value: false }
 ]
 export const filterDepartment: Array<Filter> = [
-  { text: t('reuse.administrative'), value: 1 },
-  { text: t('reuse.humanResources'), value: 2 }
+  { text: t('reuse.administrative'), value: true },
+  { text: t('reuse.humanResources'), value: false }
 ]
 export const filterRankEmployee: Array<Filter> = [
   { text: t('reuse.employee'), value: 1 },

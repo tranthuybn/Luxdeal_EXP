@@ -286,7 +286,13 @@ export const VoucherType = (val) => {
 }
 
 export const dateTimeFormat = (val) => {
-  return moment(val).format('DD/MM/YYYY')
+  if (val) return moment(val).format('DD/MM/YYYY')
+  return ''
+}
+
+export const statusBranch = (val) => {
+  if (val == true) return `${t('reuse.active')}`
+  else if (val == false) return `${t('reuse.inactive')}`
 }
 
 export const postDateTime = (val) => {

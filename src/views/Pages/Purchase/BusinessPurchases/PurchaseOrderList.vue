@@ -16,5 +16,6 @@ provide('parameters', {
     :title-add="t('formDemo.addNewPurchaseOrders')"
     :columns="PurchaseOrderColumn"
     :api="getPurchaseOrderList"
+    :customOperator="5"
   />
 </template>

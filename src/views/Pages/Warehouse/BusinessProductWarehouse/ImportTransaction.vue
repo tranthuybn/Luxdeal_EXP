@@ -336,6 +336,7 @@ const updateTicket = (warehouse) => {
           :productData="productData"
           :orderId="parseInt(ticketData.orderId)"
           :warehouse="ticketData.warehouse"
+          :orderType="serviceType"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -373,16 +374,17 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="updateInventory"
-              >{{ t('reuse.importWarehouseNow') }}</ElButton
-            >
-            <ElButton
-              class="w-[150px]"
-              type="primary"
               v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
+              >{{ t('reuse.importWarehouseNow') }}</ElButton
+            >
+            <ElButton
+              v-else
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventory"
               >{{ t('reuse.importWarehouseNow') }}</ElButton
             >
             <ElButton

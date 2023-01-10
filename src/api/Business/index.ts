@@ -340,7 +340,7 @@ export const GetProductPropertyInventory = async (params): Promise<IResponse> =>
     },
     fixedBaseURL
   )
-  return res && res.data
+  return res.data && res.data.data
 }
 
 // Phiếu nhập, xuất, chuyển kho tự động
@@ -579,6 +579,12 @@ export const finishStatusOrder = async (data): Promise<IResponse> => {
 // cancel order
 export const cancelOrder = async (data): Promise<IResponse> => {
   const res = await request.put({ url: `${ORDER_API.CANCEL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+// duyệt đơn hàng
+export const approvalOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.APPROVAL_ORDER}`, data }, fixedBaseURL)
   return res.data && res.data.data
 }
 
@@ -837,10 +843,12 @@ export const getCommissionPaymentByIdList = async (params: any): Promise<IRespon
   )
   return res.data && res.data
 }
+
+// Danh sách phiếu thu chi
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+      url: `${ACCOUNTANT_API.GET_RECEIPT_EXPENDITURES_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

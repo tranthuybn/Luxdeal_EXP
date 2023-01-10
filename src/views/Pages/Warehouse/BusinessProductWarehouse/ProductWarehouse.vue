@@ -41,6 +41,10 @@ const prop = defineProps({
   warehouse: {
     type: Object,
     default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
 const ListOfProductsForSale = computed(() => {
@@ -174,14 +178,14 @@ const openDialogWarehouse = (props) => {
   console.log('before open warehouse', props.row, props.row.quantity == undefined)
   if (isNaN(props.row.quantity) || props.row.quantity == undefined) {
     ElMessage({
-      message: t('reuse.notChooseQuantity'),
+      message: t('reuse.pleaseChooseProduct'),
       type: 'warning'
     })
     return
   }
   if (prop.warehouse?.value == 0 || isNaN(prop.warehouse?.value)) {
     ElMessage({
-      message: t('reuse.notChooseWarehouse'),
+      message: t('reuse.pleaseChooseWarehouse'),
       type: 'warning'
     })
     return
@@ -264,7 +268,11 @@ const warehouseFormat = (props) => {
   console.log('props', prop.warehouse, props.row)
   if (prop.warehouse !== undefined && prop?.warehouse?.label !== undefined) {
     if (props.row?.lot !== undefined) {
-      return `${prop?.warehouse?.label}/${props.row?.lot.location}/${props.row?.lot.lotCode}`
+      if (props.row?.lot.lotCode == null) {
+        return `${prop?.warehouse?.label}`
+      } else {
+        return `${prop?.warehouse?.label}/${props.row?.lot.location}/${props.row?.lot.lotCode}`
+      }
     } else {
       return `${prop?.warehouse?.label}`
     }
@@ -356,6 +364,7 @@ const disabled = computed(() => {
     :warehouseFormData="warehouseData"
     :orderId="orderId"
     :warehouse="warehouse"
+    :serviceType="serviceType"
   />
   <el-table
     border
@@ -422,7 +431,7 @@ const disabled = computed(() => {
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)" :disabled="disabled">
+            <el-button text @click="openDialogWarehouse(props)">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>

@@ -316,6 +316,7 @@ export default {
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
     addNewSpaOrders: 'Thêm mới đơn hàng Spa',
     addNewFlashSale: 'Thêm mới Flash sale',
+    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewVoucher: 'Thêm mới Voucher',
     startDay: 'Ngày bắt đầu',
     endDay: 'Ngày kết thúc',
@@ -1786,6 +1787,7 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
+    totalPurchaseMoney: 'Thành tiền mua',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',
     informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
@@ -1849,6 +1851,7 @@ export default {
     choosePermission: 'Chọn quyền',
     exportExcelFailed: 'Dữ liệu trống không thể xuất file',
     //Kho
-    waitingTransfer: 'Chờ vận chuyển'
+    waitingTransfer: 'Chờ vận chuyển',
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
   }
 }

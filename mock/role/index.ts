@@ -293,7 +293,7 @@ const adminList = [
             }
           },
           {
-            path: '${utility}/:id?/:type/:tab?',
+            path: '${utility}/:id?/:type/:tab?/:approvalId?',
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
@@ -1414,7 +1414,7 @@ const testList: string[] = [
 
   '/business/order-management',
   '/business/order-management/order-list/:tab?',
-  '/business/order-management/order-list-add/:type?/:tab?/:id?',
+  '/business/order-management/order-list-add/:type?/:tab?/:id?/:approvalId?',
 
   '/business/customer-management',
   '/business/customer-management/customerList',

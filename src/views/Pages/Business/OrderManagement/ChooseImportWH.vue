@@ -59,7 +59,6 @@ const props = defineProps({
     default: () => {}
   }
 })
-console.log('listLotWH', props.listLotWH)
 
 type ChooseWarehouse = {
   quantity: number
@@ -110,7 +109,7 @@ watch(
 )
 
 const closeDialog = () => {
-  emit('close-dialog-warehouse', null)
+  emit('close-dialog-warehouse', warehouseData.value)
 }
 
 const rules = reactive<FormRules>({

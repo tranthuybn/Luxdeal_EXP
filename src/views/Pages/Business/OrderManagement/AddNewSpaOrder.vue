@@ -197,6 +197,7 @@ interface ListOfProductsForSaleType {
   locationLot?: Options
   lotCode?: Options
   lotName?: Options
+  idLot: number
   fromLocation?: Options
   toWarehouse?: Options
   toLocation?: Options
@@ -219,6 +220,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   unitName: '',
   price: '',
   totalPrice: 0,
+  idLot: 0,
   examinationContent: '',
   paymentType: '',
   edited: true
@@ -288,7 +290,6 @@ const informationWarehouseReceipt = ref(false)
 // Dialog change address
 
 const dialogAddQuick = ref(false)
-const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
 
 // api địa chỉ
@@ -306,19 +307,6 @@ const getValueOfCustomerSelected = (value, obj) => {
   enterdetailAddress.value = obj.address
   ruleForm.customerName = obj.label
 }
-
-const tableWarehouse = [
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hà Nội',
-    address: ''
-  },
-  {
-    warehouseCheckbox: '',
-    name: 'Kho Hồ Chí Minh',
-    address: ''
-  }
-]
 
 //call api kho
 const warehouseOptions = ref()
@@ -341,7 +329,6 @@ const callAPIWarehouse = async () => {
       callAPIWarehouseTimes++
     })
   }
-  console.log('warehouseOptions', warehouseOptions)
 }
 
 const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
@@ -812,7 +799,6 @@ const optionsApiServicesSpa = ref()
 const currentRow2 = ref(0)
 
 const callApiServicesSpa = async (scope) => {
-  console.log('scope', scope)
   indexSpa.value = scope.$index
   if (scope.row.productPropertyId) {
     dialogFormSettingServiceSpa.value = true
@@ -833,8 +819,6 @@ const callApiServicesSpa = async (scope) => {
       type: 'warning'
     })
   }
-
-  // spaSelection.value[currentRow2.value].forEach((spa) => toggleSelection([listServicesSpa.value[spa.value]]))
 }
 
 const checkProductSelected = (scope) => {
@@ -886,7 +870,6 @@ const createQuickCustomer = async () => {
     Address: 1,
     CustomerType: valueSelectCustomer.value
   }
-  console.log('payload', payload)
 
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
@@ -957,6 +940,19 @@ const type = String(route.params.type)
 let orderDetailsTable = reactive([{}])
 let orderIdSpa = ref()
 
+let idLotData = ref(0)
+const closeDialogWarehouse = (warehouseData) => {
+  idLotData.value = 0
+  if (warehouseData != null) {
+    ListOfProductsForSale.value[currentRowWHTrans.value].locationLot = warehouseData.location
+    ListOfProductsForSale.value[currentRowWHTrans.value].lotName = warehouseData?.lot.lotCode
+    ListOfProductsForSale.value[currentRowWHTrans.value].idLot = warehouseData?.lot.idLot
+  }
+  dialogWarehouse.value = false
+
+  idLotData.value = warehouseData?.lot.idLot
+}
+
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
@@ -968,7 +964,8 @@ const postData = async () => {
     IsPaid: true,
     Accessory: val.accessory,
     WarehouseId: null,
-    PriceChange: false
+    PriceChange: false,
+    WarehouseLotId: idLotData.value
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -1005,7 +1002,7 @@ const postData = async () => {
     FromDate: moment().format('YYYY-MM-DD'),
     ToDate: postDateTime(ruleForm.dateOfReturn)
   }
-  console.log('payload', payload)
+  console.log('payload:', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
   orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
     .then(() => {
@@ -1068,7 +1065,7 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
-  warehouseParent: NaN
+  warehouseParent: ''
 })
 
 const rules = reactive<FormRules>({
@@ -1447,7 +1444,6 @@ const dialogBillSpaInfomation = ref(false)
 function openBillSpaDialog() {
   dialogBillSpaInfomation.value = !dialogBillSpaInfomation.value
   ListInfoSpa.value = ListOfProductsForSale.value
-  console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
   nameDialog.value = 'billPawn'
 }
 const clearData = () => {
@@ -1659,8 +1655,6 @@ const changeWH = ref(false)
 let idParentWH = ref(0)
 const getIDWarehouse = (index) => {
   changeWH.value = true
-  console.log('changeWH', changeWH.value)
-  console.log('data', index)
   idParentWH.value = index
 }
 
@@ -1814,6 +1808,7 @@ const editData = async () => {
 }
 
 type ChooseWarehouse = {
+  idLot: number
   quantity: number | undefined
   fromWarehouseId: number | undefined
   fromLocationId: number | undefined
@@ -1840,19 +1835,6 @@ const opendialogWarehouse = (props) => {
       type: 'warning'
     })
   }
-}
-const closeDialogWarehouse = (warehouseData) => {
-  console.log('warehouseData', warehouseData)
-  console.log('warehouseData.lot.lotCode', warehouseData?.lot?.lotCode)
-
-  if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRowWHTrans.value].locationLot = warehouseData.location
-    ListOfProductsForSale.value[currentRowWHTrans.value].lotName = warehouseData?.lot.lotCode
-    ListOfProductsForSale.value[currentRowWHTrans.value].toLotId = warehouseData.toLot
-  }
-  console.log('ListOfProductsForSale', ListOfProductsForSale.value[currentRowWHTrans.value])
-  dialogWarehouse.value = false
-  // toLotId
 }
 
 const fromWarehouseFormat = (props) => {
@@ -2048,6 +2030,7 @@ const callApiWarehouseLot = async (props) => {
   })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
+        idLot: item.id,
         warehouseId: item.warehouseId,
         locationId: item.locationId,
         location: item.locationName,
@@ -2060,7 +2043,6 @@ const callApiWarehouseLot = async (props) => {
     })
     .finally(() => (loadingLot.value = false))
   tempLotData.value = lotData.value
-  console.log('tempLotData.value', tempLotData.value)
 }
 
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
@@ -2176,6 +2158,14 @@ const priceBillPayment = () => {
   remainingMoney.value = totalPriceOrder.value - inputPaymentBill.value
 }
 
+const changePriceSpa = ref(false)
+
+const changePriceSpaService = (data) => {
+  changePriceSpa.value = true
+  console.log('changePriceSpa.value', changePriceSpa.value)
+  console.log('data:', data)
+}
+
 onMounted(async () => {
   await editData()
 })
@@ -2249,7 +2239,7 @@ const postReturnRequest = async (reason) => {
         :productPropertyId="curPPID"
         :warehouseData="warehouseData"
         :quantitySpa="quantitySpa"
-        :warehouseIDParent="ruleForm.warehouseParent"
+        :warehouseIDParent="parseInt(ruleForm.warehouseParent)"
         :changeWH="changeWH"
         :listLotWH="tempLotData"
         :tempLotData="lotData"
@@ -2868,41 +2858,6 @@ const postReturnRequest = async (reason) => {
           </div>
         </div>
       </el-collapse-item>
-
-      <!-- DialogChooseWarehouse -->
-      <el-dialog
-        v-model="openDialogChooseWarehouse"
-        :title="t('formDemo.inventoryInformation')"
-        width="35%"
-        align-center
-        class="z-50"
-      >
-        <el-divider />
-        <el-table :data="tableWarehouse" border>
-          <el-table-column prop="warehouseCheckbox" width="90" align="center">
-            <template #default="props">
-              <el-checkbox v-model="props.row.warehouseCheckbox" size="large" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
-        </el-table>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
-            <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
 
       <!-- DialogPromotion -->
       <el-dialog
@@ -3757,7 +3712,15 @@ const postReturnRequest = async (reason) => {
           >
             <el-table-column type="selection" width="55" />
             <el-table-column prop="spaServiceName" label="Thông tin dịch vụ Spa" width="320" />
-            <el-table-column prop="price" label="Bảng giá" width="auto" show-overflow-tooltip />
+            <el-table-column prop="price" label="Bảng giá" width="auto" show-overflow-tooltip>
+              <template #default="data">
+                <CurrencyInputComponent
+                  class="handle-fix"
+                  @change="changePriceSpaService(data)"
+                  v-model="data.row.price"
+                />
+              </template>
+            </el-table-column>
           </el-table>
         </el-form>
         <div class="flex justify-between px-3 mt-2">

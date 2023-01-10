@@ -1140,18 +1140,16 @@ const postData = async () => {
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        })
+      })
       .catch(() =>
         ElNotification({
           message: t('reuse.addFail'),
@@ -1762,6 +1760,7 @@ onBeforeMount(async () => {
   if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
+    disableEditData.value = false
   }
 })
 </script>

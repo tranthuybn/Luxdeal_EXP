@@ -354,7 +354,7 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  productPropertyId: string
+  productPropertyId: string | number | any
   quantity: string
   accessory: string | undefined
   unitName: string
@@ -362,6 +362,7 @@ interface ListOfProductsForSaleType {
   totalPrice: string
   paymentType: string
   warehouseId: number | undefined
+  warehouseTotal?: number | any
   warehouseName: string
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -371,7 +372,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  productPropertyId: '',
+  productPropertyId: 0,
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
@@ -673,8 +674,8 @@ const updatePrice = (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.productCode
     data.productPropertyName = obj.productPropertyName
-    data.refundUnitPrice = Number(obj.refundUnitPrice)
-    data.intoUnitPrice = Number(obj.refundUnitPrice) * data.quantity
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
   }
 }
@@ -690,8 +691,8 @@ const updateExchangePrice = (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.productCode
     data.productPropertyName = obj.productPropertyName
-    data.refundUnitPrice = Number(obj.refundUnitPrice)
-    data.intoUnitPrice = Number(obj.refundUnitPrice) * data.quantity
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
   }
 }
@@ -1088,7 +1089,10 @@ let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-    ProductPropertyId: parseInt(val.productPropertyId),
+    ProductPropertyId:
+      typeof val.productPropertyId != 'number'
+        ? parseInt(val.productPropertyId)
+        : val.productPropertyId,
     Accessory: val.accessory,
     Description: null,
     Quantity: parseInt(val.quantity),
@@ -1174,7 +1178,6 @@ const route = useRoute()
 const tab = String(route.params.tab)
 const type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
-console.log('approvalId: ', approvalId)
 
 let dataEdit = ref()
 
@@ -1183,11 +1186,13 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 
+const disabledDeleteRow = ref(false)
 const duplicateStatusButton = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disabledDeleteRow.value = true
     const transaction = await getOrderTransaction({ id: id })
     const res = await getOrderList({ Id: id, ServiceType: 1 })
     if (debtTable.value?.length > 0) debtTable.value?.splice(0, debtTable.value?.length - 1)
@@ -1225,6 +1230,7 @@ const editData = async () => {
         promoCash.value = orderObj.discountMoney
       }
       ListOfProductsForSale.value = orderObj.orderDetails
+      getTotalWarehouse()
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOption
       customerIdPromo.value = orderObj.customerId
@@ -1293,6 +1299,7 @@ const openAcountingEntryDialog = async (index, num) => {
   tableAccountingEntry.value.forEach((el) => {
     el.intoMoney = Math.abs(el.paidMoney - el.receiveMoney)
   })
+  valueMoneyAccoungtingEntry.value = 0
   tableAccountingEntry.value.map((val) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
@@ -1479,8 +1486,8 @@ const addRowReturnFullyIntegrated = () => {
     conditionProducts: '',
     quantity: 1,
     unit: '',
-    refundUnitPrice: 0,
-    intoUnitPrice: 0,
+    unitPrice: 0,
+    totalPrice: 0,
     invoiceGoodsEnteringWarehouse: 0,
     inventoryStatus: ''
   })
@@ -1498,8 +1505,8 @@ const addProductInformationExportChange = () => {
     conditionProducts: '',
     quantity: 1,
     unit: '',
-    refundUnitPrice: 0,
-    intoUnitPrice: 0,
+    unitPrice: 0,
+    totalPrice: 0,
     invoiceGoodsEnteringWarehouse: 0,
     inventoryStatus: ''
   })
@@ -1515,9 +1522,8 @@ watch(
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
         .productPropertyId &&
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].quantity &&
-      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
-        .refundUnitPrice &&
-      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].intoUnitPrice
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].unitPrice &&
+      tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].totalPrice
     )
       addRowReturnFullyIntegrated()
   },
@@ -1538,10 +1544,10 @@ watch(
       ].quantity &&
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
-      ].refundUnitPrice &&
+      ].unitPrice &&
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
-      ].intoUnitPrice
+      ].totalPrice
     )
       addProductInformationExportChange()
   },
@@ -1819,7 +1825,7 @@ const postReturnRequest = async () => {
     totalPrice: exchangePrice.value ?? 0,
     nhapDetails: tableImportPost.value,
     xuatDetails: tableExportPost.value,
-    isPaid: alreadyPaidForTt.value ? 0 : 1
+    isPaid: alreadyPaidForTt.value
   }
   idReturnRequest.value = await createReturnRequest(payload)
   postOrderStransaction(3)
@@ -2058,9 +2064,29 @@ const handleChangePaymentOrder = async () => {
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
+const totalWarehouse = ref()
 
 const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId,
+    ServiceType: serviceType
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.data?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+  })
+}
+
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
@@ -2070,7 +2096,10 @@ const callApiWarehouse = async (scope) => {
     ProductPropertyId: data.productPropertyId,
     ServiceType: 1
   })
-  tableWarehouse.value = res.data.map((val) => ({
+
+  data.warehouseTotal = res.data.total
+  totalWarehouse.value = res.data.total
+  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
@@ -2098,6 +2127,7 @@ const getRefundPrice = () => {
   tableReturnFullyIntegrated.value.map((item) => {
     item.totalPrice !== undefined ? (price += item.totalPrice) : ''
   })
+  console.log('price: ', price)
   return price
 }
 const getExportPrice = () => {
@@ -2105,6 +2135,7 @@ const getExportPrice = () => {
   tableProductInformationExportChange.value.map((item) => {
     item.totalPrice !== undefined ? (money += item.totalPrice) : ''
   })
+  console.log('money: ', money)
   return money
 }
 
@@ -2387,6 +2418,9 @@ const approvalFunction = async () => {
   await approvalOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
 }
+
+// disabled button type detail
+let statusButtonDetail = ref(false)
 
 onBeforeMount(async () => {
   await editData()
@@ -4344,6 +4378,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
         </el-table>
+        <div class="flex justify-end mr-[156px] text-right font-medium">{{ totalWarehouse }}</div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
@@ -4827,42 +4862,43 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="warehouseName"
+            prop="warehouseTotal"
             :label="t('formDemo.exportWarehouse')"
             min-width="200"
           >
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
 
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
-              <button
-                :disabled="checkDisabled"
+              <el-button
+                :disabled="disabledDeleteRow"
                 @click.prevent="removeListProductsSale(scope.$index)"
-                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                >{{ t('reuse.delete') }}</button
+                type="danger"
+                >{{ t('reuse.delete') }}</el-button
               >
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" v-if="type != 'detail'" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" v-if="type == 'add'" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -4871,7 +4907,7 @@ onBeforeMount(async () => {
             <div class="text-blue-500 cursor-pointer">
               <el-button
                 text
-                :disabled="checkDisabled"
+                :disabled="disabledEdit"
                 @click="
                   () => {
                     openDialogChoosePromotion = true
@@ -4893,7 +4929,12 @@ onBeforeMount(async () => {
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group @change="changePriceVAT" v-model="radioVAT" class="flex-col">
+                      <el-radio-group
+                        :disabled="disabledEdit"
+                        @change="changePriceVAT"
+                        v-model="radioVAT"
+                        class="flex-col"
+                      >
                         <div style="width: 100%">
                           <el-radio
                             class="text-left"
@@ -5092,14 +5133,14 @@ onBeforeMount(async () => {
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="submitForm(ruleFormRef, ruleFormRef2)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
@@ -5112,7 +5153,7 @@ onBeforeMount(async () => {
                   checkDisabled = !checkDisabled
                 }
               "
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5139,7 +5180,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="submitForm(ruleFormRef, ruleFormRef2)"
               type="primary"
               class="min-w-42 min-h-11"
@@ -5147,7 +5188,7 @@ onBeforeMount(async () => {
             >
             <el-button
               @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5165,10 +5206,9 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  checkDisabled = !checkDisabled
                 }
               "
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5181,14 +5221,11 @@ onBeforeMount(async () => {
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+              t('formDemo.depositSlipAdvance')
+            }}</el-button>
             <el-button
-              @click="openDepositDialog"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
-            <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
@@ -5196,7 +5233,7 @@ onBeforeMount(async () => {
             >
             <el-button
               @click="statusOrder = 120"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
@@ -5207,7 +5244,7 @@ onBeforeMount(async () => {
                   statusOrder = 9
                 }
               "
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5215,7 +5252,7 @@ onBeforeMount(async () => {
           </div>
           <div v-if="statusOrder == 120" class="w-[100%] flex ml-1 gap-4">
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateOrderInfomation()"
               type="primary"
               class="min-w-42 min-h-11"
@@ -5223,7 +5260,7 @@ onBeforeMount(async () => {
             >
             <el-button
               @click="statusOrder = STATUS_ORDER_SELL[2].orderStatus"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancel') }}</el-button
@@ -5238,16 +5275,14 @@ onBeforeMount(async () => {
             }}</el-button>
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
-                  // statusOrder = 6
-                  // updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
                   getReturnOrder()
                   changeReturnGoods = true
                 }
@@ -5256,7 +5291,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.exchangeReturnGoods') }}</button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
@@ -5278,7 +5313,7 @@ onBeforeMount(async () => {
                   statusOrder == STATUS_ORDER_SELL[3].orderStatus
                 }
               "
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
@@ -5288,11 +5323,11 @@ onBeforeMount(async () => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   changeReturnGoods = true
-                  statusOrder = 8
+                  statusOrder = 150
                   getReturnRequestTable()
                 }
               "
@@ -5300,8 +5335,8 @@ onBeforeMount(async () => {
               >{{ t('formDemo.completeExchangeReturn') }}</button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_SELL[4].orderStatus"
-              :disabled="checkDisabled"
+              @click="statusOrder = STATUS_ORDER_SELL[3].orderStatus"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
@@ -5317,7 +5352,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)

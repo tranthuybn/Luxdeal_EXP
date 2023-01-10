@@ -377,6 +377,7 @@ interface tableRentalProduct {
   totalPrice: number
   unitName: string
   intoARentalDeposit: string
+  warehouseTotal?: number
   id: string
 }
 
@@ -1203,6 +1204,7 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
 // let totalOrder = ref(0)
 let customerIdPromo = ref()
 let duplicateStatusButton = ref(false)
+const disabledDeleteRow = ref(false)
 
 interface statusOrderType {
   orderStatusName: string
@@ -1216,6 +1218,7 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disabledDeleteRow.value = true
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     arrayStatusOrder.value = orderObj?.statusHistory
@@ -1259,6 +1262,7 @@ const editData = async () => {
       }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+      getTotalWarehouse()
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOption
@@ -1647,18 +1651,6 @@ const dialogDepositSlip = ref(false)
 
 // Thông tin phiếu nhập kho trả hàng cho thuê
 const dialogWarehouseRentalPayment = ref(false)
-
-const tableWarehouse = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '01',
-    unitPriceWarehouse: '2,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ',
-    conditionProducts: 'Đa hỏng mất linh kiện'
-  }
-]
 
 const tableChooseWarehouse = ref([])
 
@@ -2171,21 +2163,6 @@ const postReturnRequest = async (reason) => {
 
 const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
-// Lấy danh sách kho theo mã sản phẩm và sericeType
-const callApiWarehouse = async (scope) => {
-  const data = scope.row
-  indexRowWarehouse.value = scope.$index
-
-  const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
-  })
-  tableChooseWarehouse.value = res.data.map((val) => ({
-    warehouseCheckbox: val.id,
-    name: val.name,
-    inventory: val.inventory
-  }))
-}
 
 const openDialogChooseWarehouse = ref(false)
 const showIdWarehouse = (scope) => {
@@ -2428,6 +2405,46 @@ const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
+}
+
+const totalWarehouse = ref()
+const tableWarehouse = ref()
+
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId,
+    ServiceType: serviceType
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.data?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  tableData.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+  })
+}
+
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+
+  data.warehouseTotal = res.data.total
+  totalWarehouse.value = res.data.total
+  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
 }
 
 onBeforeMount(() => {
@@ -4618,38 +4635,39 @@ onBeforeMount(() => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="c" :label="t('formDemo.exportWarehouse')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" width="90">
             <template #default="scope">
-              <button
-                :disabled="disabledEdit"
+              <el-button
+                :disabled="disabledDeleteRow"
                 @click="removeTableData(scope.$index)"
-                class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-                >{{ t('reuse.delete') }}</button
+                type="danger"
+                >{{ t('reuse.delete') }}</el-button
               >
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button v-if="type == 'add'" class="ml-4 mt-4" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">

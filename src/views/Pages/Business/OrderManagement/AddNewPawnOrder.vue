@@ -2574,7 +2574,6 @@ const removeRow = (index) => {
             <el-button
               @click="
                 () => {
-                  statusOrder = 1
                   router.go(-1)
                 }
               "

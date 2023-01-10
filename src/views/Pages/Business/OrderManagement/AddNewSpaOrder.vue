@@ -450,18 +450,47 @@ const ScrollProductBottom = () => {
           noMoreProductData.value = true
         })
 }
-
+// disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
 let totalSettingSpa = ref(0)
-
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
+  })
+
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
     return total
   }, 0)
 }
+
 const handleSelectionChange2 = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
     label: e.spaServiceName,
@@ -796,6 +825,23 @@ const changeNamePromo = () => {
   isActivePromo.value = promo.value.isActive
 }
 
+const startSpaProcess = () => {
+  if (type == 'detail') {
+    changeServiceSpa.value = true
+
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+        // approvalId: data.id
+      }
+    })
+  }
+}
+
 // api Spa
 
 const listServicesSpa = ref()
@@ -839,6 +885,7 @@ const callApiServicesSpa = async (scope) => {
     })
   }
 }
+const changeServiceSpa = ref(false)
 
 const checkProductSelected = (scope) => {
   if (scope.row.productPropertyId) {
@@ -1086,7 +1133,8 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
-  warehouseParent: ''
+  warehouseParent: '',
+  orderFiles: []
 })
 
 const rules = reactive<FormRules>({
@@ -1791,7 +1839,7 @@ const postPC = async () => {
 const updateOrderStatus = async (status: number, idOrder: any) => {
   const payload = {
     OrderId: idOrder ? idOrder : id,
-    ServiceType: 2,
+    ServiceType: 5,
     OrderStatus: status
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -1859,7 +1907,8 @@ const editData = async () => {
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaboratorCode
+      ruleForm.collaborators = orderObj?.collaborator?.id
+
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -2076,7 +2125,6 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
 }
 const { push } = useRouter()
 const editButton = ref(false)
-let changeButtonEdit = ref(false)
 
 const changeEditInDetail = () => {
   if (type == 'detail') {
@@ -2099,7 +2147,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    // Files: Files,
+    Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -3365,9 +3413,8 @@ const postReturnRequest = async (reason) => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[9].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[8].orderStatus
                   "
                 >
                   <span
@@ -3388,7 +3435,10 @@ const postReturnRequest = async (reason) => {
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_SPA[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[4].orderStatus
                   "
                 >
@@ -3421,7 +3471,7 @@ const postReturnRequest = async (reason) => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[0].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3450,7 +3500,6 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   editOrderInfo()
-                  changeButtonEdit = false
                 }
               "
               type="primary"
@@ -3547,7 +3596,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
-                    addStatusOrder(5)
+                    startSpaProcess()
                   }
                 "
                 :disabled="startSpa"
@@ -3557,12 +3606,13 @@ const postReturnRequest = async (reason) => {
                 Bắt đầu quá trình Spa
               </el-button>
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'edit'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'detail'"
                 @click="changeEditInDetail"
                 class="min-w-42 min-h-11"
                 >{{ t('formDemo.editOrder') }}</el-button
               >
               <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
                     addStatusOrder(0)
@@ -3576,6 +3626,11 @@ const postReturnRequest = async (reason) => {
                 >{{ t('button.cancelOrder') }}</el-button
               >
               <el-button
+                @click="
+                  () => {
+                    addStatusOrder(8)
+                  }
+                "
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus
@@ -3588,14 +3643,21 @@ const postReturnRequest = async (reason) => {
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[2].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[7].orderStatus
                 "
                 type="primary"
+                @click="
+                  () => {
+                    changeReturnGoods = true
+                    setDataForReturnOrder()
+                    addStatusOrder(6)
+                  }
+                "
                 class="min-w-42 min-h-11"
               >
                 Trả hàng Spa
               </el-button>
+
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[6].orderStatus ||
@@ -3619,9 +3681,36 @@ const postReturnRequest = async (reason) => {
               >
                 Đối soát & kết thúc
               </el-button>
+            </div>
+            <div v-if="changeServiceSpa" class="w-[100%] flex ml-1 gap-3">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
+                @click="
+                  () => {
+                    addStatusOrder(8)
+                  }
+                "
                 type="primary"
+                class="min-w-42 min-h-11"
+                >{{ t('reuse.saveAndPending') }}</el-button
+              >
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
+                @click="
+                  () => {
+                    router.go(-1)
+                    changeServiceSpa = false
+                  }
+                "
+                type="danger"
+                class="min-w-42 min-h-11"
+                >{{ t('button.cancel') }}</el-button
+              >
+            </div>
+
+            <div v-if="!changeServiceSpa">
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
                 class="min-w-42 min-h-11"
               >
                 Hủy thay đổi dịch vụ Spa
@@ -3629,6 +3718,11 @@ const postReturnRequest = async (reason) => {
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
                 type="warning"
+                @click="
+                  () => {
+                    addStatusOrder(7)
+                  }
+                "
                 class="min-w-42 min-h-11"
               >
                 Hoàn thành thay đổi dịch vụ Spa
@@ -3639,20 +3733,7 @@ const postReturnRequest = async (reason) => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <div class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              v-if="type == 'edit'"
-              @click="
-                () => {
-                  changeReturnGoods = true
-                  setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Trả hàng Spa</el-button
-            >
-          </div>
+          <div class="w-[100%] flex ml-1 gap-4"> </div>
         </div>
       </el-collapse-item>
 
@@ -4624,14 +4705,14 @@ const postReturnRequest = async (reason) => {
         <el-button :disabled="checkDisabled2" text @click="dialogAccountingEntryAdditional = true"
           >+ Thêm bút toán</el-button
         >
-        <el-button :disabled="checkDisabled2" @click="openReceiptDialog()" text
+        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog()" text
           >+ Thêm phiếu thu</el-button
         >
-        <el-button :disabled="checkDisabled2" @click="openPaymentDialog()" text
+        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog()" text
           >+ Thêm phiếu chi</el-button
         >
         <el-button
-          :disabled="checkDisabled2"
+          :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
               newCodePaymentRequest()

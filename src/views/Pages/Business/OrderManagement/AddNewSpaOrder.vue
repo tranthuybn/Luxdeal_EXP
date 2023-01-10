@@ -2038,7 +2038,7 @@ const indexSpa = ref()
 
 const addStatusDelay = () => {
   setTimeout(() => {
-    addStatusOrder(-1)
+    addStatusOrder(0)
   }, 4000)
 }
 const valueMoneyAccoungtingEntry = ref(0)
@@ -3496,10 +3496,7 @@ const postReturnRequest = async (reason) => {
               <el-button
                 @click="
                   () => {
-                    arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                    addStatusOrder(7)
                     addStatusDelay()
-                    statusOrder = 9
                     checkDisabled = !checkDisabled
                   }
                 "
@@ -3551,6 +3548,11 @@ const postReturnRequest = async (reason) => {
               >
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
+                @click="
+                  () => {
+                    addStatusOrder(5)
+                  }
+                "
                 :disabled="startSpa"
                 type="primary"
                 class="min-w-42 min-h-11"
@@ -3566,7 +3568,7 @@ const postReturnRequest = async (reason) => {
               <el-button
                 @click="
                   () => {
-                    addStatusOrder(7)
+                    addStatusOrder(0)
                     addStatusDelay()
                     checkDisabled = !checkDisabled
                   }

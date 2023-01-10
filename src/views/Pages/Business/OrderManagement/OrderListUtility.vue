@@ -1266,7 +1266,6 @@ let formAccountingId = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
-  console.log('data: ', data)
   switch (data.typeOfAccountingEntry) {
     case 1:
       openAcountingEntryDialog(data.id, 1)
@@ -3880,18 +3879,6 @@ onBeforeMount(async () => {
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <!-- <el-table-column prop="kindOfMoney" :label="t('formDemo.kindOfMoney')" width="150">
-              <template #default="props">
-                <el-select v-model="props.row.kindOfMoney" class="m-2">
-                  <el-option
-                    v-for="item in optionsKindOfMoney"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </template>
-            </el-table-column> -->
             <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
                 <CurrencyInputComponent

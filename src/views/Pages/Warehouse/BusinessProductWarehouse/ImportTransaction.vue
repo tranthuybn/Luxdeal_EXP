@@ -259,6 +259,9 @@ const updateInventory = async () => {
     )
 }
 const updateInventoryOrder = async () => {
+  if (!productWarehouseRef.value?.checkValueOfTable()) {
+    return
+  }
   const payload = {
     ticketId: id.value,
     type: 1,
@@ -268,10 +271,7 @@ const updateInventoryOrder = async () => {
       price: row.price,
       accessory: row.accessory,
       productPropertyQuality: row.productPropertyQuality,
-      fileId: row.fileId,
-      toLotId: row.lot?.value,
-      warehouseId: row.warehouse?.value,
-      locationId: row.location?.value
+      toLotId: row.lot?.id
     }))
   }
   await UpdateInventoryOrder(JSON.stringify(payload))

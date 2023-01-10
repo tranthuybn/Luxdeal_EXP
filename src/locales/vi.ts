@@ -1852,6 +1852,13 @@ export default {
     exportExcelFailed: 'Dữ liệu trống không thể xuất file',
     //Kho
     waitingTransfer: 'Chờ vận chuyển',
-    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho',
+    currentWarehouseLocation: 'Vị trí kho hiện tại',
+    allowToExport: 'Cho phép xuất hàng',
+    QRCodeProduct: 'Mã QR sản phẩm',
+    warehouseManagementInformation: 'Thông tin quản lý kho',
+    ticketCreatedDay: 'Ngày tạo phiếu',
+    stackInventory: 'Tồn kho cộng dồn',
+    importOrderPrice: 'Đơn giá nhập'
   }
 }

@@ -45,6 +45,9 @@ const back = async () => {
     name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
   })
 }
+
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
 </script>
 
 <template>
@@ -63,7 +66,7 @@ const back = async () => {
             </div>
           </div>
         </template>
-        <LotDetail />
+        <LotDetail :id="id" />
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[1].name">
@@ -71,7 +74,7 @@ const back = async () => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <LotHistoryTransaction />
+        <LotHistoryTransaction :id="id" />
       </el-collapse-item>
     </el-collapse>
   </div>

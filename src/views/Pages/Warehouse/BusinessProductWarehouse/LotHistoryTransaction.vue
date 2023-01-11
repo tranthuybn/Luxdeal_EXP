@@ -81,8 +81,8 @@ const formatStack = (prop) => {
   <el-table :data="tableData" border style="width: 100%" header-row-class-name="breakWords">
     <template #append>
       <span class="pl-6/10 font-bold">{{ stack[stack.length - 1] }}</span>
-      <span class="pl-1/10 font-bold">{{ tableData[0]?.unitPrice }}</span>
-      <span class="pl-1/10 font-bold">{{
+      <span class="pl-1/15 font-bold">{{ tableData[0]?.unitPrice }}</span>
+      <span class="pl-1/15 font-bold">{{
         moneyFormat(stack[stack.length - 1] * Number(tableData[0]?.unitPrice))
       }}</span>
     </template>

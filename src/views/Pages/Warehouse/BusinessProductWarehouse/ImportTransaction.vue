@@ -80,7 +80,7 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        toLotId: row.lot?.id
+        toLotId: row.lot?.value
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
@@ -143,8 +143,8 @@ const ticketData = ref({
   fromWarehouseId: '',
   warehouse: {},
   toWarehouseId: '',
-  orderId: '',
-  orderType: ''
+  orderId: 0,
+  orderType: 0
 })
 type ExportLots = {
   fromLotId: number
@@ -336,7 +336,7 @@ const updateTicket = (warehouse) => {
           :productData="productData"
           :orderId="parseInt(ticketData.orderId)"
           :warehouse="ticketData.warehouse"
-          :orderType="serviceType"
+          :serviceType="serviceType"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

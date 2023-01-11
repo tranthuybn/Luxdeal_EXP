@@ -12,7 +12,8 @@ import {
   ElOption,
   ElInput,
   ElTable,
-  ElTableColumn
+  ElTableColumn,
+  ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { computed, reactive, ref, watch } from 'vue'
@@ -54,26 +55,28 @@ const props = defineProps({
 const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
-const createNewLot = async () => {
-  const res = await createWarehouseLot(
-    FORM_IMAGES({
-      WarehouseId: warehouseData.value.warehouse.value,
-      LocationId: warehouseData.value.location.value,
-      ProductPropertyId: props.productPropertyId
-    })
-  )
-  if (res) {
-    warehouseData.value.lot.value = res.data
-  }
-  emit('close-dialog-warehouse', warehouseData.value)
-}
 const getSelection = () => {
-  const rowSelected = multipleTableRef.value!.getSelectionRows()
-  warehouseData.value.exportLots = rowSelected.map((item) => ({
-    value: item.id,
-    label: item.lotCode,
-    quantity: item.quantity
-  }))
+  if (warehouseForm.value.quantity > 0) {
+    const rowSelected = multipleTableRef.value!.getSelectionRows()
+    warehouseData.value.exportLots = rowSelected.map((item) => ({
+      value: item.id,
+      label: item.lotCode,
+      quantity: item.quantity
+    }))
+  } else {
+    ElMessage({
+      message: t('reuse.notEnough'),
+      type: 'warning'
+    })
+  }
+}
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      saveOldLot()
+    }
+  })
 }
 const saveOldLot = () => {
   getSelection()
@@ -89,7 +92,6 @@ const rules = reactive<FormRules>({
   warehouseImportId: [required()],
   locationImportId: [required()]
 })
-const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
 const locationOptions = ref()
 const getLocation = async () => {
@@ -118,7 +120,8 @@ const changeWarehouseData = async (warehouseId) => {
         orderType: item.serviceType,
         inventory: item.inventory,
         unit: item?.unitName,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        exportQuantity: 0
       }))
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
@@ -140,18 +143,47 @@ const calculateInventory = () => {
   }
 }
 const calculateQuantity = (scope) => {
-  if (scope.row.inventory >= warehouseForm.value.quantity) {
-    return warehouseForm.value.quantity
+  console.log('render scope', scope.row)
+  if (scope.row.exportQuantity > 0) {
+    return scope.row.exportQuantity
   } else {
-    return scope.row.inventory
+    return ' '
   }
 }
 
 const multipleSelection = ref()
 const radioSelected = ref(-1)
-const rowClick = (row, __column, _event) => {
-  multipleSelection.value = row
-  // const index = lotData.value.findIndex((lot) => lot == row)
+const totalExport = ref(0)
+const selectedRow: number[] = []
+const rowClick = (selection, curRow) => {
+  if (curRow.inventory < 1) {
+    ElMessage({
+      message: t('reuse.ko co j ma xuat'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+  }
+
+  multipleSelection.value = curRow
+  const index: number = lotData.value.findIndex((lot) => lot == curRow)
+
+  //Kiểm tra xem đã check chưa
+  if (!selectedRow.includes(index)) {
+    //nếu chưa check thì +
+    selectedRow.push(index)
+    if (warehouseForm.value.quantity < curRow.inventory) {
+      lotData.value[index].exportQuantity = warehouseForm.value.quantity
+      totalExport.value += warehouseForm.value.quantity
+    } else {
+      lotData.value[index].exportQuantity = curRow.inventory
+      totalExport.value += curRow.inventory
+    }
+  } else {
+    selectedRow.splice(selectedRow.findIndex((select) => select == index))
+    lotData.value[index].exportQuantity = 0
+    totalExport.value -= curRow.inventory
+  }
+
   // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
   // warehouseData.value.lot = row
 }
@@ -164,14 +196,6 @@ const warehouseData = ref({
 })
 
 const ruleFormRef = ref<FormInstance>()
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid) => {
-    if (valid) {
-      createNewLot()
-    }
-  })
-}
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const closeDialogExport = () => {
   emit('close-dialog')
@@ -248,13 +272,14 @@ watch(
     <el-table
       :data="lotData"
       ref="multipleTableRef"
-      @selection-change="rowClick"
+      @select="rowClick"
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row
       border
     >
       <template #append>
+        {{ totalExport }}
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
         <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
       </template>
@@ -314,7 +339,7 @@ watch(
         <el-button
           class="w-[150px]"
           type="primary"
-          @click="saveOldLot"
+          @click="submitForm(ruleFormRef)"
           :disabled="lotData == undefined || lotData?.length == 0"
           >{{ t('reuse.exportToSelectedLot') }}
         </el-button>

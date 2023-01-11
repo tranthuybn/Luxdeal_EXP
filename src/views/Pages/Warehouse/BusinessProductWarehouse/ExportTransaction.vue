@@ -116,8 +116,8 @@ const ticketData = ref({
   fromWarehouseId: '',
   warehouse: {},
   toWarehouseId: '',
-  orderId: '',
-  orderType: ''
+  orderId: 0,
+  orderType: 0
 })
 type ExportLots = {
   fromLotId: number
@@ -306,9 +306,9 @@ const updateTicket = (warehouse) => {
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :orderId="parseInt(ticketData.orderId)"
+          :orderId="ticketData.orderId"
           :warehouse="ticketData.warehouse"
-          :orderType="serviceType"
+          :serviceType="serviceType"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

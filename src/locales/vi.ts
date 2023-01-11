@@ -123,6 +123,11 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    reasonRevenueExpenditure: 'Lý do thu/chi',
+    formCode: 'Mã phiếu',
+    pleaseSelectWarehouse: 'Vui lòng chọn kho',
+    selectAWarehouse: 'Chọn kho',
+    selectExportWarehouse: 'Chọn kho xuất',
     validatePercentNum: 'Chiết khấu không được bé hơn 0 và lớn hơn 100',
     validatePercent: 'Chiết khấu phải là số, không được nhập kí tự khác ngoài số',
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
@@ -470,6 +475,7 @@ export default {
     debtHistory: 'Lịch sử công nợ',
     browsePriceChanges: 'Duyệt giá thay đổi',
     waitingDelivery: 'Chờ giao hàng',
+    receivedDelivery: 'Đã nhận hàng',
     quicklyAddProducts: 'Thêm nhanh sản phẩm',
     productCharacteristics: 'Đặc tính sản phẩm',
     AddSelectProductCode: 'Thêm hoặc chọn mã sản phẩm',
@@ -752,7 +758,7 @@ export default {
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
-    purchaseOrderAdd: 'Thêm mới đơn mua hàng',
+    purchaseOrderAdd: 'đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
     potentialCustomerAdd: 'Thêm mới KH tiềm năng',
     potentialCustomerList: 'Danh sách KH tiềm năng',
@@ -1781,7 +1787,7 @@ export default {
     importToSelectedLot: 'Nhập vào lot đã chọn',
     createNewLot: 'Tạo lot mới',
     import: 'Nhập kho',
-    export: 'Chuyển kho',
+    export: 'Xuất kho',
     inStock: 'Đang tồn kho',
     outOfStockInventory: 'Hết tồn kho',
     exporting: 'Đang xuất kho',
@@ -1851,6 +1857,10 @@ export default {
     decentralization: 'Thông tin phân quyền tài khoản',
     roleName: 'Tên phân quyền',
     addNewRole: 'Thêm mới phân quyền tài khoản',
-    choosePermission: 'Chọn quyền'
+    choosePermission: 'Chọn quyền',
+    exportExcelFailed: 'Dữ liệu trống không thể xuất file',
+    //Kho
+    waitingTransfer: 'Chờ vận chuyển',
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
   }
 }

@@ -105,3 +105,33 @@ export const cancelTicket = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const UpdateInventory = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_INVENTORY}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const UpdateInventoryOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_INVENTORY_ORDER}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateTicketManually = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_TICKET_MANUALLY}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

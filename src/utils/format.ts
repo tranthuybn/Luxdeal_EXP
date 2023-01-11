@@ -240,7 +240,7 @@ export const orderType = (val) => {
     case 6:
       return t('reuse.internal')
     default:
-      return ''
+      return ' '
   }
 }
 
@@ -303,9 +303,11 @@ export const formatTransactionStatus = (val) => {
     case 1:
       return t('reuse.waitingConfirm')
     case 2:
-      return t('reuse.confirmed')
+      return t('reuse.waitingTransfer')
     case 3:
       return t('reuse.cancelled')
+    case 4:
+      return t('reuse.confirmed')
     default:
       return ''
   }
@@ -368,6 +370,21 @@ export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))
 }
 
+export const statusOrder = (val) => {
+  switch (val) {
+    case -1:
+      return t('reuse.deliveryFailed')
+    case 0:
+      return t('formDemo.waitingDelivery')
+    case 2:
+      return t('reuse.delivery')
+    case 3:
+      return t('reuse.successfulDelivery')
+    case 4:
+      return t('formDemo.receivedDelivery')
+  }
+}
+
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
@@ -388,5 +405,6 @@ export default {
   VoucherType,
   valueDateFormat,
   dateFormType,
-  dateTimeDisable
+  dateTimeDisable,
+  statusOrder
 }

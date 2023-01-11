@@ -124,6 +124,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    reasonRevenueExpenditure: 'Reason for revenue/expenditure',
+    formCode: 'Form code',
     orderStatus_Tracking: 'Tracking order',
     pleaseSelectWarehouse: 'Please select a warehouse',
     selectAWarehouse: 'Select a warehouse',
@@ -1702,6 +1704,9 @@ export default {
     roleName: 'Role Name',
     addNewRole: 'Add new role',
     choosePermission: 'choose permission',
-    exportExcelFailed: 'empty data can not be export'
+    exportExcelFailed: 'empty data can not be export',
+    //Kho
+    waitingTransfer: 'Waiting for transportation',
+    warehouseDoesntHaveLocation: "Haven't create location for warehouse"
   }
 }

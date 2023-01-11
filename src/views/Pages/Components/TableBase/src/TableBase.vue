@@ -219,7 +219,11 @@ const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
-      params: { id: row.id, type: type, tab: row.typeName ?? props.currentT }
+      params: {
+        id: row.id,
+        type: type,
+        tab: row.typeName ?? props.currentT
+      }
     })
   } else {
     if (buttonShow === true) {

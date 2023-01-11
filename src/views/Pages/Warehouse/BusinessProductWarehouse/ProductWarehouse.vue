@@ -13,7 +13,7 @@ import {
   ElDialog
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, ref, watch, computed } from 'vue'
 import SelectTable from '@/components/SelectTable.vue'
 import ChooseWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -21,7 +21,7 @@ import { FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { createLotWarehouseImage } from '@/api/Warehouse'
 
 const { t } = useI18n()
-defineProps({
+const prop = defineProps({
   type: {
     type: String,
     default: ''
@@ -31,11 +31,25 @@ defineProps({
     default: 0
   },
   productData: {
+    type: Array<ProductWarehouse>,
+    default: () => [{}]
+  },
+  orderId: {
+    type: Number,
+    default: 0
+  },
+  warehouse: {
     type: Object,
     default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
-
+const ListOfProductsForSale = computed(() => {
+  return prop.productData
+})
 type ExportLots = {
   fromLotId: number
   quantity: number
@@ -44,7 +58,6 @@ type Options = {
   value: number
   label: string
 }
-
 type ProductWarehouse = {
   productPropertyId?: number
   quantity?: number
@@ -61,10 +74,9 @@ type ProductWarehouse = {
   unitName?: string
   warehouse?: Options
   location?: Options
-  lot?: Options
+  lot?: any
   imageUrl?: string
 }
-let ListOfProductsForSale = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 // Call api danh sách sản phẩm
 let listProducts = ref()
 const callApiProductList = async () => {
@@ -73,7 +85,8 @@ const callApiProductList = async () => {
     productCode: product.code,
     productPropertyId: product.id,
     productPropertyCode: product.productCode,
-    name: product.name
+    name: product.name,
+    unit: product.unitName
   }))
 }
 onBeforeMount(async () => await callApiProductList())
@@ -83,9 +96,10 @@ watch(
     if (
       ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId !=
         null &&
-      forceRemove.value == false
+      forceRemove.value == false &&
+      prop.type !== 'detail'
     ) {
-      ListOfProductsForSale.value.push({} as ProductWarehouse)
+      AddRowTable()
     }
   },
   { deep: true }
@@ -98,6 +112,7 @@ const AddRowTable = () => {
 }
 const forceRemove = ref(false)
 const changeProduct = (value, obj, scope) => {
+  console.log('obj', obj)
   forceRemove.value = false
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
@@ -152,25 +167,55 @@ const ScrollProductBottom = () => {
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
+
+const warehouseData = ref({
+  quantity: 0,
+  warehouse: { value: undefined, label: undefined },
+  location: { value: undefined, label: undefined },
+  lot: { value: undefined, label: undefined }
+})
 const openDialogWarehouse = (props) => {
-  if (props.row.productPropertyId) {
-    dialogWarehouse.value = true
-    curPPID.value = props.row.productPropertyId
-    currentRow.value = props.$index
-  } else {
+  console.log('before open warehouse', props.row, props.row.quantity == undefined)
+  if (isNaN(props.row.quantity) || props.row.quantity == undefined) {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
       type: 'warning'
     })
+    return
+  }
+  if (prop.warehouse?.value == 0 || isNaN(prop.warehouse?.value)) {
+    ElMessage({
+      message: t('reuse.pleaseChooseWarehouse'),
+      type: 'warning'
+    })
+    return
+  }
+  if (!props.row.productPropertyId) {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+    return
+  } else {
+    dialogWarehouse.value = true
+    curPPID.value = props.row.productPropertyId
+    currentRow.value = props.$index
+
+    warehouseData.value.quantity = props.row.quantity
+    warehouseData.value.warehouse = props.row?.warehouse
+    warehouseData.value.location.value = props.row?.location?.value
+    warehouseData.value.location.label = props.row?.location?.label
+    warehouseData.value.lot.value = props.row?.lot?.value
+    warehouseData.value.lot.label = props.row?.lot?.label
+
+    console.log('listProduct', ListOfProductsForSale)
+    console.log('warehouseData', warehouseData.value)
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
-    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
-    ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
-    ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
+    console.log('after choose lot', warehouseData)
   }
   dialogWarehouse.value = false
 }
@@ -220,18 +265,24 @@ const handleChange = async (props, uploadFile) => {
 }
 
 const warehouseFormat = (props) => {
-  if (props.row?.warehouse !== undefined) {
-    if (props.row?.lot?.label !== undefined) {
-      return `${props.row?.warehouse?.label}/${props.row?.location?.label}/${props.row?.lot?.lotCode}`
+  console.log('props', prop.warehouse, props.row)
+  if (prop.warehouse !== undefined && prop?.warehouse?.label !== undefined) {
+    if (props.row?.lot !== undefined) {
+      if (props.row?.lot.lotCode == null) {
+        return `${prop?.warehouse?.label}`
+      } else {
+        return `${prop?.warehouse?.label}/${props.row?.lot.location}/${props.row?.lot.lotCode}`
+      }
     } else {
-      return `${props.row?.warehouse?.label}/${props.row?.location?.label}`
+      return `${prop?.warehouse?.label}`
     }
   } else {
-    return ''
+    return ' '
   }
 }
 const checkValueOfTable = () => {
-  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == true) {
+  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
       type: 'warning'
@@ -251,14 +302,6 @@ const checkValueOfTable = () => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
-        type: 'warning'
-      })
-      return (result = false)
-    }
-
-    if (row.warehouse == undefined || row.location == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
         type: 'warning'
       })
       return (result = false)
@@ -302,16 +345,26 @@ const searchProduct = async (keyword) => {
     tempListProducts.value = listProducts.value
   }
 }
+const disabled = computed(() => {
+  if (prop.type == 'detail') {
+    return true
+  }
+  return false
+})
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseWarehouse
-    :showDialog="dialogWarehouse"
+    v-model:showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     :transactionType="transactionType"
     :productPropertyId="curPPID"
+    :warehouseFormData="warehouseData"
+    :orderId="orderId"
+    :warehouse="warehouse"
+    :serviceType="serviceType"
   />
   <el-table
     border
@@ -335,6 +388,7 @@ const searchProduct = async (keyword) => {
           labelKey="productPropertyCode"
           :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
+          :disabled="disabled"
           @scroll-top="ScrollProductTop"
           @scroll-bottom="ScrollProductBottom"
           @keyword="searchProduct"
@@ -363,9 +417,10 @@ const searchProduct = async (keyword) => {
           :before-upload="beforeAvatarUpload"
           :auto-upload="false"
           :show-file-list="false"
+          :disabled="disabled"
         >
           <el-image v-if="props.row.imageUrl" :src="props.row.imageUrl" class="avatar" />
-          <el-button
+          <el-button :disabled="disabled"
             ><span class="text-blue-500">+ {{ t('reuse.addImage') }}</span></el-button
           >
         </el-upload>
@@ -385,7 +440,14 @@ const searchProduct = async (keyword) => {
     </el-table-column>
     <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
       <template #default="data">
-        {{ data.row.quantity }}
+        <span v-if="disabled">
+          {{ data.row.quantity }}
+        </span>
+        <el-input
+          v-else
+          :modelValue="data.row.quantity"
+          @input="(event) => (data.row.quantity = parseInt(event))"
+        />
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
@@ -397,7 +459,7 @@ const searchProduct = async (keyword) => {
     >
       <template #default="props">
         <div v-if="type == 'detail'">
-          {{ props.row.price }}
+          {{ moneyFormat(props.row.price) }}
         </div>
         <CurrencyInputComponent v-else v-model="props.row.price" />
       </template>
@@ -426,5 +488,4 @@ const searchProduct = async (keyword) => {
       </template>
     </el-table-column>
   </el-table>
-  <el-button @click="AddRowTable">Thêm dòng</el-button>
 </template>

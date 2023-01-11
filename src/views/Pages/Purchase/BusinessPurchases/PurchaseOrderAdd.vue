@@ -4920,7 +4920,8 @@ onBeforeMount(async () => {
                   v-if="
                     item.orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PURCHASE[6].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PURCHASE[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_PURCHASE[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus
                   "
                 >
                   <span
@@ -4977,7 +4978,7 @@ onBeforeMount(async () => {
                   }}</i>
                   <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[8].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_PURCHASE[0].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>

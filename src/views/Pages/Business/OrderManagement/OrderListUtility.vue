@@ -1682,12 +1682,14 @@ const nameDialog = ref('')
 // const testDialog = ref(false)
 
 function openBillDialog() {
+  alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
 
 function openDepositDialog() {
+  alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
@@ -1745,6 +1747,8 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 
+const checkPTC = ref(0)
+
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
@@ -1752,6 +1756,11 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
+  if (index == 4) {
+    tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
+      ? (checkPTC.value = 1)
+      : (checkPTC.value = 0)
+  }
   const payload = {
     orderId: id,
     content:
@@ -1775,7 +1784,7 @@ const postOrderStransaction = async (index: number) => {
     paidMoney:
       index == 1 || index == 2 ? 0 : index == 3 ? 0 : tableAccountingEntry.value[0].paidMoney,
     deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
-    typeOfPayment: moneyDeposit.value ? 0 : 1,
+    typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
@@ -3323,10 +3332,10 @@ onBeforeMount(async () => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
+            <span class="w-[30%] text-base font-bold break-w">{{
               t('formDemo.productInformationSale')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
@@ -5409,7 +5418,7 @@ onBeforeMount(async () => {
             align="center"
           >
             <template #default="data">
-              {{ data.row.createdAt }}
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -5855,5 +5864,22 @@ onBeforeMount(async () => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

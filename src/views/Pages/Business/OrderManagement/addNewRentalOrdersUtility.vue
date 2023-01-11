@@ -5028,7 +5028,7 @@ onBeforeMount(() => {
           </div>
 
           <div
-            v-else-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && duplicateStatusButton"
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && !duplicateStatusButton"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -5313,7 +5313,7 @@ onBeforeMount(() => {
             align="center"
           >
             <template #default="data">
-              {{ data.row.createdAt }}
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -5704,5 +5704,22 @@ onBeforeMount(() => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

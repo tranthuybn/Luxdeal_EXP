@@ -54,6 +54,7 @@ import {
   addTPV,
   createReturnRequest,
   getReturnRequest,
+  getReturnRequestForOrder,
   getReceiptPaymentVoucher,
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
@@ -1184,6 +1185,7 @@ let dataEdit = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
+  console.log('debtTable: ', debtTable.value)
 }
 
 const disabledDeleteRow = ref(false)
@@ -1304,7 +1306,7 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
   // inputReasonReturn.value =
-  console.log('formAccountingId: ', formAccountingId.value)
+
   getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
@@ -1313,9 +1315,13 @@ const openAcountingEntryDialog = async (index, num) => {
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
   } else if (num == 3) {
-    tableReturnFullyIntegrated.value = formAccountingId.value?.paidMerchandises
-    tableProductInformationExportChange.value = formAccountingId.value?.paidMerchandises
-
+    const res = await getReturnRequest({ CustomerOrderId: id })
+    const optionsReturnRequest = res.data
+    if (optionsReturnRequest[0].nhapDetails)
+      tableReturnFullyIntegrated.value = optionsReturnRequest[0].nhapDetails
+    if (optionsReturnRequest[0].xuatDetails)
+      tableProductInformationExportChange.value = optionsReturnRequest[0].xuatDetails
+    inputReasonReturn.value = optionsReturnRequest[0].description
     changeReturnGoods.value = true
   }
 }
@@ -1557,8 +1563,9 @@ watch(
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
+
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
@@ -1672,12 +1679,14 @@ const nameDialog = ref('')
 // const testDialog = ref(false)
 
 function openBillDialog() {
+  alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
 
 function openDepositDialog() {
+  alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
@@ -1735,6 +1744,8 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 
+const checkPTC = ref(0)
+
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
@@ -1742,6 +1753,11 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
+  if (index == 4) {
+    tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
+      ? (checkPTC.value = 1)
+      : (checkPTC.value = 0)
+  }
   const payload = {
     orderId: id,
     content:
@@ -1765,7 +1781,7 @@ const postOrderStransaction = async (index: number) => {
     paidMoney:
       index == 1 || index == 2 ? 0 : index == 3 ? 0 : tableAccountingEntry.value[0].paidMoney,
     deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
-    typeOfPayment: moneyDeposit.value ? 0 : 1,
+    typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
@@ -1808,7 +1824,7 @@ const postReturnRequest = async () => {
     productPropertyId: el.productPropertyId,
     quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
     accessory: '',
-    returnDetailType: 1,
+    returnDetailType: 2,
     unitPrice: el.unitPrice,
     totalPrice: el.totalPrice
   }))
@@ -3313,10 +3329,10 @@ onBeforeMount(async () => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
+            <span class="w-[30%] text-base font-bold break-w">{{
               t('formDemo.productInformationSale')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
@@ -5399,7 +5415,7 @@ onBeforeMount(async () => {
             align="center"
           >
             <template #default="data">
-              {{ data.row.createdAt }}
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -5845,5 +5861,22 @@ onBeforeMount(async () => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

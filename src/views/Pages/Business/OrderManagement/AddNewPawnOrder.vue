@@ -62,7 +62,8 @@ import {
   getListWareHouse,
   updateStatusOrder,
   updateOrderInfo,
-  approvalOrder
+  approvalOrder,
+  GetPaymentRequestDetail
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -692,6 +693,14 @@ const getValueOfSelected = (_value, obj, scope) => {
   }
 }
 
+// disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
+
+// check disabled
+const disabledEdit = ref(false)
+
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -1053,17 +1062,6 @@ function openBillPawnDialog() {
   dialogPawnCouponInfomation.value = !dialogPawnCouponInfomation.value
   nameDialog.value = 'billPawn'
 }
-
-function openReceiptDialog() {
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
-  nameDialog.value = 'Phiếu thu'
-}
-
-function openPaymentDialog() {
-  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-  nameDialog.value = 'Phiếu chi'
-}
-
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
   let tableReturnPost = [{}]
@@ -1106,6 +1104,27 @@ const getReturnRequestTable = async () => {
       returnDetailTypeName: e.returnDetailTypeName,
       returnDetailStatusName: e.returnDetailStatusName
     }))
+  }
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  const res = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
   }
 }
 
@@ -1168,26 +1187,7 @@ const tableAccountingEntry = ref([
     intoMoney: ''
   }
 ])
-const detailedListExpenses = [
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  }
-]
+
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReturnRequest = ref()
 
@@ -1375,11 +1375,42 @@ const listApplyExport = [
   }
 ]
 const indexRow = ref()
+const moneyReceipts = ref(0)
 
 let newTable = ref()
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
+  })
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
@@ -1417,6 +1448,8 @@ const ckeckChooseProduct = (scope) => {
       type: 'info'
     })
   } else {
+    console.log('formBusuness', formBusuness)
+    console.log('multipleTableRef', multipleTableRef)
     dialogbusinessManagement.value = true
   }
 }
@@ -1436,6 +1469,7 @@ const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
+    disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1530,6 +1564,40 @@ const callApiWarehouseList = async () => {
     })
   }
 }
+// input nhập tiền viết bằng chữ
+const enterMoney = ref()
+const inputRecharger = ref()
+
+// Tổng tiền table phiếu đề nghị thanh toán nếu có
+const totalPayment = ref(0)
+const depositePayment = ref(0)
+const debtPayment = ref(0)
+
+const clearData = () => {
+  totalPayment.value = 0
+  depositePayment.value = 0
+  debtPayment.value = 0
+  inputReasonCollectMoney.value = ''
+  enterMoney.value = ''
+  inputRecharger.value = undefined
+
+  detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
+  addRowDetailedListExpoenses()
+}
+
+function openReceiptDialog() {
+  getReceiptCode()
+  clearData()
+  dialogInformationReceipts.value = true
+  nameDialog.value = 'Phiếu thu'
+}
+
+function openPaymentDialog() {
+  getcodeExpenditures()
+  clearData()
+  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+  nameDialog.value = 'Phiếu chi'
+}
 
 const getReceiptCode = async () => {
   codeReceipts.value = await getReceiptPaymentVoucher()
@@ -1538,11 +1606,65 @@ const getReceiptCode = async () => {
 const getcodeExpenditures = async () => {
   codeExpenditures.value = await getReceiptPaymentVoucher()
 }
-let formDetailPaymentReceipt = ref()
-// Lấy chi tiết phiếu thu chi
-const getDetailPayment = () => {
-  openReceiptDialog()
+
+const detailedListExpenses = ref([
+  {
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  }
+])
+
+const addRowDetailedListExpoenses = () => {
+  detailedListExpenses.value.push({
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  })
 }
+
+watch(
+  () => detailedListExpenses.value[detailedListExpenses.value.length - 1],
+  () => {
+    if (
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].dayVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].spentFor &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].quantity &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrice &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].note
+    )
+      addRowDetailedListExpoenses()
+  },
+  {
+    deep: true
+  }
+)
+
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = async (_index, scope) => {
+  formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
+  nameDialog.value = 'Phiếu thu'
+  codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+  codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+  payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+  dialogInformationReceipts.value = true
+}
+
 const dialogAccountingEntryAdditional = ref(false)
 
 // xem chi tiết lịch sử công nợ theo id
@@ -2323,7 +2445,12 @@ const removeRow = (index) => {
             :label="t('formDemo.productInformation')"
             min-width="620"
           />
-          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
+          <el-table-column
+            :disabled="disabledEdit"
+            prop="accessory"
+            :label="t('reuse.accessory')"
+            width="180"
+          >
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
               <el-input
@@ -2334,7 +2461,12 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90">
+          <el-table-column
+            :disabled="disabledEdit"
+            prop="quantity"
+            :label="t('reuse.pawnNumber')"
+            width="90"
+          >
             <template #default="data">
               <el-input
                 v-model="data.row.quantity"
@@ -2360,6 +2492,7 @@ const removeRow = (index) => {
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
+                    :disabled="disabledEdit"
                     text
                     border
                     class="text-blue-500"
@@ -2384,6 +2517,7 @@ const removeRow = (index) => {
                 <div class="w-[60%]">
                   <el-button
                     text
+                    :disabled="disabledEdit"
                     @click="
                       () => {
                         callApiWarehouse(props)
@@ -2401,9 +2535,12 @@ const removeRow = (index) => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <div class="flex gap-2">
-                <el-button @click.prevent="removeListProductsSale(scope.$index)" type="danger">{{
-                  t('reuse.delete')
-                }}</el-button>
+                <el-button
+                  :disabled="disabledEdit"
+                  @click.prevent="removeListProductsSale(scope.$index)"
+                  type="danger"
+                  >{{ t('reuse.delete') }}</el-button
+                >
               </div>
             </template>
           </el-table-column>
@@ -2574,7 +2711,6 @@ const removeRow = (index) => {
             <el-button
               @click="
                 () => {
-                  statusOrder = 1
                   router.go(-1)
                 }
               "
@@ -2624,6 +2760,7 @@ const removeRow = (index) => {
               type="primary"
               @click="
                 () => {
+                  // addStatusOrder(3)
                   addStatusOrder(5)
                 }
               "
@@ -2657,7 +2794,7 @@ const removeRow = (index) => {
               "
               @click="
                 () => {
-                  addStatusOrder(0)
+                  addStatusOrder(4)
                   checkDisabled = !checkDisabled
                 }
               "
@@ -2917,30 +3054,18 @@ const removeRow = (index) => {
         <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
           >+ Thêm bút toán</el-button
         >
-        <el-button
-          @click="
-            () => {
-              getReceiptCode()
-              openReceiptDialog()
-            }
-          "
-          text
+        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
-        <el-button
-          @click="
-            () => {
-              getcodeExpenditures()
-              openPaymentDialog()
-            }
-          "
-          text
+        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
         <el-button
+          :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
               newCodePaymentRequest()
+              clearData()
               dialogIPRForm = true
             }
           "
@@ -2957,58 +3082,45 @@ const removeRow = (index) => {
           <el-table-column
             prop="createdAt"
             :label="t('formDemo.initializationDate')"
-            width="150"
+            min-width="150"
             align="center"
           >
             <template #default="data">
-              <el-date-picker
-                v-model="data.row.createdAt"
-                v-if="type != 'detail'"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-              <div v-else>{{ data.row.createdAt }}</div>
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="t('formDemo.certificateInformationAndServiceArising')"
-            width="240"
+            :label="t('formDemo.certificateInformation')"
+            min-width="240"
           />
           <el-table-column
-            prop="receiptOrPaymentVoucherId"
+            prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
             min-width="120"
             align="left"
           >
             <template #default="data">
               <div
-                @click="
-                  () => {
-                    formDetailPaymentReceipt.value = getDetailReceiptPaymentVoucher({
-                      id: data.row.idPTC
-                    })
-                    getDetailPayment()
-                  }
-                "
+                @click="(index) => getDetailPayment(index, data)"
                 class="cursor-pointer text-blue-500"
               >
-                {{ data.row.receiptOrPaymentVoucherId }}
+                {{ data.row.receiptOrPaymentVoucherCode }}
               </div>
             </template>
           </el-table-column>
-
           <el-table-column
-            prop="paymentRequestId"
+            prop="paymentRequestCode"
             :label="t('formDemo.paymentOrder')"
             align="left"
             min-width="150"
           >
             <template #default="props">
-              <div @click="dialogIPRForm = true" class="cursor-pointer text-blue-500">{{
-                props.row.paymentRequestId
-              }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="cursor-pointer text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
 

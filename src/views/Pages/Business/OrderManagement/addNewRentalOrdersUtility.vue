@@ -597,7 +597,7 @@ const callCustomersApi = async () => {
         taxCode: customer.taxCode,
         phone: customer.phonenumber,
         email: customer.email,
-        id: customer.id.toString()
+        id: customer.id
       }))
     }
   }
@@ -804,7 +804,7 @@ const callApiProductList = async () => {
       productCode: product.code,
       name: product.name ?? '',
       price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode,
       hirePrice: product.hirePrice,
       finalPrice: product.finalPrice,
@@ -836,7 +836,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   name: product.name ?? '',
                   price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
+                  productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
                 })
               )
@@ -1247,9 +1247,7 @@ const editData = async () => {
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
 
       // totalOrder.value = orderObj.totalPrice
@@ -3111,7 +3109,6 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
-
       <el-dialog
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
@@ -3322,6 +3319,7 @@ onBeforeMount(() => {
           </div>
         </template>
       </el-dialog>
+
       <!-- Thông tin phiếu thanh toán tiền phí thuê -->
       <el-dialog
         v-model="dialogRentalPaymentInformation"
@@ -4129,6 +4127,7 @@ onBeforeMount(() => {
                               t('reuse.customerInfo')
                             ]"
                             filterable
+                            :disabled="checkDisabled"
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
@@ -4579,7 +4578,7 @@ onBeforeMount(() => {
                 :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="value"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"

@@ -450,7 +450,7 @@ interface ListOfProductsForSaleType {
   quantity: string
   accessory: string | undefined
   unitName: string
-
+  warehouseTotal?: number | any
   price: string | number | undefined
   consignmentSellPrice: string | number | undefined
   consignmentHirePrice: string | number | undefined
@@ -671,6 +671,8 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productCode = obj.value
     data.productName = obj.name
     data.price = obj.price
+    data.unitName = obj.unitName
+    callApiWarehouse(scope)
   }
 }
 
@@ -961,28 +963,42 @@ const collapse: Array<Collapse> = [
 
 const tableWarehouse = ref([])
 
-const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+const totalProductInWarehouse = ref()
+const totalWarehouse = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 2
+    ProductPropertyId: data.productPropertyId
   })
-  tableWarehouse.value = res.data.map((val) => ({
+  tableWarehouse.value = res?.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
   }))
+  totalProductInWarehouse.value = res.total
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
 }
 
-const showIdWarehouse = (scope) => {
-  radioWarehouseId.value = scope.row.warehouseCheckbox
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+const callApiWarehouseTotal = async (productPropertyId = 0) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId))
+  })
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
@@ -1586,6 +1602,8 @@ const editData = async () => {
       if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      getTotalWarehouse()
+
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       // customerIdPromo.value = orderObj.customerId
@@ -1772,7 +1790,7 @@ onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
   callAPIProduct()
-  callApiWarehouseList()
+  await callApiWarehouseList()
 
   if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
@@ -3767,23 +3785,24 @@ onBeforeMount(async () => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -4154,25 +4173,23 @@ onBeforeMount(async () => {
       >
         <el-divider />
         <el-table :data="tableWarehouse" border>
-          <el-table-column label="" width="50">
-            <template #default="props">
-              <el-radio
-                v-model="radioWarehouseId"
-                @change="() => showIdWarehouse(props)"
-                :label="props.row.warehouseCheckbox"
-                style="color: #fff; margin-right: -25px"
-                ><span></span
-              ></el-radio>
-            </template>
-          </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
           <el-table-column prop="inventory" :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1" v-if="props.row.inventory > 0">{{ props.row.inventory }}</span>
+                <span v-else class="text-yellow-500">Hết hàng</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
+        <div class="flex justify-end">
+          <div class="flex">
+            <span class="font-bold">{{ totalWarehouse }}</span>
+            <span class="">Chiếc</span>
+          </div>
+        </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"

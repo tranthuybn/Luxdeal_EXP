@@ -690,6 +690,7 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.unitName = obj.unit
     data.price = obj.price
   }
 }
@@ -1767,7 +1768,7 @@ onBeforeMount(async () => {
 
   callCustomersApi()
   callApiCollaborators()
-  callAPIProduct()
+  await callAPIProduct()
   callApiWarehouseList()
 
   if (type == 'add') {

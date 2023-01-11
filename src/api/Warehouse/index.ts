@@ -135,3 +135,12 @@ export const updateTicketManually = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getLotHistory = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.GET_LOT_HISTORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

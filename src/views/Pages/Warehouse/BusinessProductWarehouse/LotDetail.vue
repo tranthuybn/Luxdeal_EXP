@@ -4,7 +4,9 @@ import { Qrcode } from '@/components/Qrcode'
 import { ElDivider, ElImage, ElCheckboxGroup, ElCheckbox } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { orderType } from '@/utils/format'
+import { orderType, moneyFormat } from '@/utils/format'
+import { API_URL } from '@/utils/API_URL'
+
 const { t } = useI18n()
 const props = defineProps({
   id: {
@@ -48,10 +50,11 @@ const callAPI = async () => {
     lotDetail.value.totalImport = res.data[0]?.totalImport
     lotDetail.value.inventory = res.data[0]?.inventory
     lotDetail.value.inputPrice = res.data[0]?.inputPrice
-    lotDetail.value.bussinessSetups = res.data[0]?.bussinessSetups
+    lotDetail.value.bussinessSetups = res.data[0]?.bussinessSetup
     lotDetail.value.lotImageUrl = res.data[0]?.lotImageUrl
     lotDetail.value.serviceType = res.data[0]?.orderServiceType
   })
+  console.log('lotDetail', lotDetail.value)
 }
 onBeforeMount(() => callAPI())
 </script>
@@ -119,7 +122,7 @@ onBeforeMount(() => callAPI())
           <div class="flex">
             <div class="w-1/4 text-right pr-4">{{ t('reuse.CashIntoInventory') }}</div>
             <div class="w-7/10 break-words">{{
-              Number(lotDetail.inventory) * Number(lotDetail.inputPrice)
+              moneyFormat(Number(lotDetail.inventory) * Number(lotDetail.inputPrice))
             }}</div></div
           >
         </div>
@@ -143,7 +146,11 @@ onBeforeMount(() => callAPI())
     <div class="w-4/10">
       <div>
         <ElDivider content-position="left">{{ t('reuse.addImage') }}</ElDivider>
-        <ElImage :src="lotDetail.lotImageUrl" />
+        <ElImage
+          :src="`${API_URL}${lotDetail.lotImageUrl}`"
+          style="width: 250px; height: 200px"
+          fit="scale-down"
+        />
       </div>
       <div>
         <ElDivider content-position="left">{{ t('reuse.QRCodeProduct') }}</ElDivider>

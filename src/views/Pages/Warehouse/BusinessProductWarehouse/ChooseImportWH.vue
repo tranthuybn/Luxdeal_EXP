@@ -117,7 +117,6 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
-      lotData.value = lotData.value.filter((lot) => lot.orderType == props.serviceType)
 
       console.log('radioSelected', radioSelected.value)
     })

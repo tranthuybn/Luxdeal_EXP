@@ -34,6 +34,18 @@ const prop = defineProps({
   productData: {
     type: Array<ProductWarehouse>,
     default: () => [{}]
+  },
+  orderId: {
+    type: Number,
+    default: 0
+  },
+  warehouse: {
+    type: Object,
+    default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
 
@@ -156,6 +168,7 @@ type ChooseWarehouse = {
   warehouseId: number | undefined
   locationId: number | undefined
   lotId: number | undefined
+  locationImportId: number | undefined
 }
 const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 const dialogWarehouse = ref(false)
@@ -166,10 +179,9 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
-    warehouseData.value.quantity = prop.productData[currentRow.value]?.quantity
-    warehouseData.value.warehouseId = prop.productData[currentRow.value].warehouse?.value
-    warehouseData.value.locationId = prop.productData[currentRow.value].location?.value
-    warehouseData.value.lotId = prop.productData[currentRow.value].lot?.value
+    warehouseData.value.quantity = props.row.quantity
+    warehouseData.value.locationImportId = undefined
+    console.log('warehouseData', warehouseData.value)
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -241,11 +253,11 @@ const warehouseFormat = (props) => {
   let lotName = ''
 
   if (
-    props.row.warehouse !== undefined &&
-    props.row.warehouse?.label !== null &&
-    props.row.warehouse?.label !== undefined
+    prop.warehouse !== undefined &&
+    prop.warehouse?.label !== null &&
+    prop.warehouse?.label !== undefined
   ) {
-    warehouseName = props.row.warehouse?.label
+    warehouseName = prop.warehouse?.label
   }
   if (
     props.row.location !== undefined &&
@@ -335,8 +347,12 @@ const searchProduct = async (keyword) => {
     @close-dialog="closeDialogExport"
     :transactionType="transactionType"
     :productPropertyId="curPPID"
-    :warehouseData="warehouseData"
+    :warehouseFormData="warehouseData"
+    :orderId="orderId"
+    :warehouse="warehouse"
+    :serviceType="serviceType"
   />
+  {{ ListOfProductsForSale }}
   <el-table
     border
     :class="[

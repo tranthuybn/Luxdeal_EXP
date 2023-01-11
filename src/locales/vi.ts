@@ -123,6 +123,8 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    reasonRevenueExpenditure: 'Lý do thu/chi',
+    formCode: 'Mã phiếu',
     pleaseSelectWarehouse: 'Vui lòng chọn kho',
     selectAWarehouse: 'Chọn kho',
     selectExportWarehouse: 'Chọn kho xuất',

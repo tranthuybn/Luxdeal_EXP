@@ -373,7 +373,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  productPropertyId: 0,
+  productPropertyId: undefined,
   quantity: '1',
   accessory: '',
   unitName: 'Cái',
@@ -532,7 +532,7 @@ const callCustomersApi = async () => {
       taxCode: customer.taxCode,
       phone: customer.phonenumber,
       email: customer.email,
-      id: customer.id.toString()
+      id: customer.id
     }))
   }
 }
@@ -548,8 +548,8 @@ const callApiProductList = async () => {
       value: product.productCode,
       productCode: product.code,
       name: product.name ?? '',
-      price: product.price,
       unit: product.unitName,
+      price: product.price.toString(),
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -578,6 +578,7 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   productCode: product.code,
                   name: product.name ?? '',
+                  unit: product.unitName,
                   price: product.price.toString(),
                   productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
@@ -613,7 +614,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
-
+    getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
@@ -666,7 +667,7 @@ const duplicateProductChildren = ref()
 const updatePrice = (_value, obj, scope) => {
   const data = scope.row
   duplicateProductChildren.value = undefined
-  duplicateProductChildren.value = tableReturnFullyIntegrated.value.find(
+  duplicateProductChildren.value = tableReturnFullyIntegrated.value?.find(
     (val) => val.productPropertyId == _value
   )
   if (duplicateProductChildren.value) {
@@ -683,7 +684,7 @@ const updatePrice = (_value, obj, scope) => {
 const updateExchangePrice = (_value, obj, scope) => {
   const data = scope.row
   duplicateProductChildren.value = undefined
-  duplicateProductChildren.value = tableProductInformationExportChange.value.find(
+  duplicateProductChildren.value = tableProductInformationExportChange.value?.find(
     (val) => val.productPropertyId == _value
   )
   if (duplicateProductChildren.value) {
@@ -1145,6 +1146,8 @@ const postData = async () => {
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      automaticCouponWareHouse(2)
+
       router.push({
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
@@ -1156,7 +1159,6 @@ const postData = async () => {
         type: 'warning'
       })
     )
-  automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
@@ -1185,7 +1187,6 @@ let dataEdit = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
-  console.log('debtTable: ', debtTable.value)
 }
 
 const disabledDeleteRow = ref(false)
@@ -1218,10 +1219,8 @@ const editData = async () => {
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      customerID.value = orderObj.customer.id
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
@@ -1268,6 +1267,7 @@ let formAccountingId = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
+  console.log('data: ', data)
   switch (data.typeOfAccountingEntry) {
     case 1:
       openAcountingEntryDialog(data.id, 1)
@@ -1317,9 +1317,9 @@ const openAcountingEntryDialog = async (index, num) => {
   } else if (num == 3) {
     const res = await getReturnRequest({ CustomerOrderId: id })
     const optionsReturnRequest = res.data
-    if (optionsReturnRequest[0].nhapDetails)
+    if (optionsReturnRequest[0]?.nhapDetails)
       tableReturnFullyIntegrated.value = optionsReturnRequest[0].nhapDetails
-    if (optionsReturnRequest[0].xuatDetails)
+    if (optionsReturnRequest[0]?.xuatDetails)
       tableProductInformationExportChange.value = optionsReturnRequest[0].xuatDetails
     inputReasonReturn.value = optionsReturnRequest[0].description
     changeReturnGoods.value = true
@@ -1567,16 +1567,16 @@ const getReturnRequestTable = async () => {
   const optionsReturnRequest = res.data
 
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
-    historyTable.value = optionsReturnRequest.map((e) => ({
+    historyTable.value = optionsReturnRequest?.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
-      productPropertyName: e.productPropertyName,
-      accessory: e.accessory,
-      quantity: e.quantity,
-      unitName: e.unitName,
-      returnDetailType: e.returnDetailType,
-      returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      productPropertyId: e?.productPropertyId,
+      productPropertyName: e?.productPropertyName,
+      accessory: e?.accessory,
+      quantity: e?.quantity,
+      unitName: e?.unitName,
+      returnDetailType: e?.returnDetailType,
+      returnDetailTypeName: e?.returnDetailTypeName,
+      returnDetailStatusName: e?.returnDetailStatusName
     }))
   }
 }
@@ -1803,32 +1803,33 @@ const postReturnRequest = async () => {
   const tableImportPost = ref()
   const tableExportPost = ref()
   if (
-    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
+    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
+      ?.productPropertyId
   )
     tableReturnFullyIntegrated.value.pop()
   if (
     !tableProductInformationExportChange.value[tableProductInformationExportChange.value.length - 1]
-      .productPropertyId
+      ?.productPropertyId
   )
     tableProductInformationExportChange.value.pop()
-  tableImportPost.value = tableReturnFullyIntegrated.value.map((el) => ({
-    productPropertyId: el.productPropertyId,
-    quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-    accessory: '',
-    returnDetailType: 1,
-    unitPrice: el.unitPrice,
-    totalPrice: el.totalPrice
-  }))
-
-  tableExportPost.value = tableProductInformationExportChange.value.map((el) => ({
-    productPropertyId: el.productPropertyId,
-    quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-    accessory: '',
-    returnDetailType: 2,
-    unitPrice: el.unitPrice,
-    totalPrice: el.totalPrice
-  }))
-
+  if (tableReturnFullyIntegrated.value?.length)
+    tableImportPost.value = tableReturnFullyIntegrated.value?.map((el) => ({
+      productPropertyId: el?.productPropertyId,
+      quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+      accessory: '',
+      returnDetailType: 1,
+      unitPrice: el.unitPrice,
+      totalPrice: el.totalPrice
+    }))
+  if (tableProductInformationExportChange.value?.length)
+    tableExportPost.value = tableProductInformationExportChange.value?.map((el) => ({
+      productPropertyId: el?.productPropertyId,
+      quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+      accessory: '',
+      returnDetailType: 2,
+      unitPrice: el.unitPrice,
+      totalPrice: el.totalPrice
+    }))
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
@@ -1838,8 +1839,8 @@ const postReturnRequest = async () => {
     tienBan: refundPrice.value ?? 0,
     tienHoan: exportPrice.value ?? 0,
     totalPrice: exchangePrice.value ?? 0,
-    nhapDetails: tableImportPost.value,
-    xuatDetails: tableExportPost.value,
+    nhapDetails: tableImportPost.value ?? [],
+    xuatDetails: tableExportPost.value ?? [],
     isPaid: alreadyPaidForTt.value
   }
   idReturnRequest.value = await createReturnRequest(payload)
@@ -1938,6 +1939,7 @@ const getDetailPayment = async (_index, scope) => {
   formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
+  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
   nameDialog.value = 'Phiếu thu'
   codeReceipts.value = formDetailPaymentReceipt.value.data?.code
   codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
@@ -2100,6 +2102,7 @@ const getTotalWarehouse = () => {
   ListOfProductsForSale.value.forEach(async (el) => {
     el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
   })
+  console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
 }
 
 // Lấy danh sách kho theo mã sản phẩm và sericeType
@@ -2142,7 +2145,6 @@ const getRefundPrice = () => {
   tableReturnFullyIntegrated.value.map((item) => {
     item.totalPrice !== undefined ? (price += item.totalPrice) : ''
   })
-  console.log('price: ', price)
   return price
 }
 const getExportPrice = () => {
@@ -2150,20 +2152,19 @@ const getExportPrice = () => {
   tableProductInformationExportChange.value.map((item) => {
     item.totalPrice !== undefined ? (money += item.totalPrice) : ''
   })
-  console.log('money: ', money)
   return money
 }
 
 const listOfOrderProduct = ref()
 const getReturnOrder = () => {
-  listOfOrderProduct.value = ListOfProductsForSale.value.map((el) => ({
-    productCode: el.productCode,
-    productPropertyCode: el.productPropertyCode,
-    productPropertyName: el.productPropertyName,
-    productPropertyId: el.productPropertyId,
-    unitPrice: el.unitPrice,
-    totalPrice: el.totalPrice,
-    maximumQuantity: el.quantity
+  listOfOrderProduct.value = ListOfProductsForSale.value?.map((el) => ({
+    productCode: el?.productCode,
+    productPropertyCode: el?.productPropertyCode,
+    productPropertyName: el?.productPropertyName,
+    productPropertyId: el?.productPropertyId,
+    unitPrice: el?.unitPrice,
+    totalPrice: el?.totalPrice,
+    maximumQuantity: el?.quantity
   }))
 }
 
@@ -3481,10 +3482,10 @@ onBeforeMount(async () => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
+            <span class="w-[30%] text-base font-bold break-w">{{
               t('formDemo.productInformationSale')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
@@ -3846,7 +3847,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4">
             <div class="flex-1 flex gap-4">
-              <label class="w-[50%] min-w-[162.73px] text-right">{{
+              <label class="w-[50%] min-w-[162.73px] text-right pt-1">{{
                 t('formDemo.orderCode')
               }}</label>
               <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
@@ -3855,7 +3856,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex-1 flex items-start gap-4">
               <span>
-                <div>Mã QR đơn hàng</div>
+                <div class="text-right">Mã QR đơn hàng</div>
                 <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
               </span>
 
@@ -3970,24 +3971,22 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right pb-10">
-            <span class="dialog-footer">
-              <el-button
-                size="large"
-                type="primary"
-                @click="
-                  () => {
-                    postOrderStransaction(4)
-                    dialogAccountingEntryAdditional = false
-                  }
-                "
-                >{{ t('formDemo.saveRecordDebts') }}</el-button
-              >
-              <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
-                t('reuse.exit')
-              }}</el-button>
-            </span>
-          </div>
+          <span class="dialog-footer">
+            <el-button
+              size="large"
+              type="primary"
+              @click="
+                () => {
+                  postOrderStransaction(4)
+                  dialogAccountingEntryAdditional = false
+                }
+              "
+              >{{ t('formDemo.saveRecordDebts') }}</el-button
+            >
+            <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
         </template>
       </el-dialog>
 
@@ -4667,13 +4666,14 @@ onBeforeMount(async () => {
             <p class="text-black font-bold dark:text-white">{{ t('reuse.totalDiffMoney') }}</p>
           </div>
           <div class="w-[145px] text-right">
-            <p class="pr-2">{{ moneyFormat(refundPrice) }}</p>
             <p class="pr-2">{{ moneyFormat(exportPrice) }}</p>
+            <p class="pr-2">{{ moneyFormat(refundPrice) }}</p>
             <p class="pr-2 text-black font-bold dark:text-white">{{
-              moneyFormat(exchangePrice)
+              moneyFormat(Math.abs(exchangePrice))
             }}</p>
-            <p class="pr-2" v-if="exchangePrice > 0">{{ t('reuse.haveToCollect') }}</p>
-            <p class="pr-2" v-else>{{ t('reuse.havetoPay') }}</p>
+            <p class="pr-2" v-if="exchangePrice > 0">{{ t('reuse.havetoPay') }}</p>
+            <p class="pr-2" v-else-if="exchangePrice == 0"></p>
+            <p class="pr-2" v-else>{{ t('reuse.haveToCollect') }}</p>
           </div>
         </div>
         <div class="flex items-center">
@@ -4726,7 +4726,6 @@ onBeforeMount(async () => {
                     () => {
                       changeReturnGoods = false
                       postReturnRequest()
-                      updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -4757,21 +4756,17 @@ onBeforeMount(async () => {
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="value"
+                labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -5027,7 +5022,7 @@ onBeforeMount(async () => {
         <div class="flex gap-2 pb-8">
           <label class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center flex-wrap w-[100%]">
               <div
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
@@ -5298,7 +5293,6 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
-                  statusOrder = 9
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"

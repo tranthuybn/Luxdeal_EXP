@@ -1322,9 +1322,6 @@ const openAcountingEntryDialog = async (index, num) => {
     if (optionsReturnRequest[0].xuatDetails)
       tableProductInformationExportChange.value = optionsReturnRequest[0].xuatDetails
     inputReasonReturn.value = optionsReturnRequest[0].description
-    console.log('optionsReturnRequest: ', optionsReturnRequest)
-    console.log('tableReturnFullyIntegrated: ', tableReturnFullyIntegrated.value)
-    console.log('tableProductInformationExportChange: ', tableProductInformationExportChange.value)
     changeReturnGoods.value = true
   }
 }

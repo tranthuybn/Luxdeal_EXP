@@ -972,14 +972,6 @@ const adminList = [
               title: 'router.receiptsAndExpendituresList'
             }
           },
-          // {
-          //   path: 'receipts-add',
-          //   component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',
-          //   name: 'accountant.receipts-expenditures.receipts-add',
-          //   meta: {
-          //     title: 'router.receiptsAdd'
-          //   }
-          // },
           {
             path: 'receipts-expenditures-list/:type?/:id?',
             component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',

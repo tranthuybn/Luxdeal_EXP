@@ -1859,6 +1859,9 @@ export default {
     warehouseManagementInformation: 'Thông tin quản lý kho',
     ticketCreatedDay: 'Ngày tạo phiếu',
     stackInventory: 'Tồn kho cộng dồn',
-    importOrderPrice: 'Đơn giá nhập'
+    importOrderPrice: 'Đơn giá nhập',
+    moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
+    pleaseChooseQuantity: 'Chọn số lượng',
+    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm'
   }
 }

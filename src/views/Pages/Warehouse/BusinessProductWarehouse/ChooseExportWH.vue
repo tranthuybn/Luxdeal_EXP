@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { createWarehouseLot, getProductStorage, getWarehouseLot } from '@/api/Warehouse'
+import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
-import { FORM_IMAGES, orderType } from '@/utils/format'
+import { orderType } from '@/utils/format'
 import {
   ElButton,
   ElDivider,
@@ -16,7 +16,7 @@ import {
   ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 
@@ -56,16 +56,27 @@ const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
 const getSelection = () => {
-  if (warehouseForm.value.quantity > 0) {
-    const rowSelected = multipleTableRef.value!.getSelectionRows()
+  const rowSelected = multipleTableRef.value!.getSelectionRows()
+  console.log('rowSelected', rowSelected)
+  if (rowSelected.length == 0) {
+    return
+  }
+  console.log('totalExport.value', totalExport.value)
+  if (warehouseForm.value.quantity == totalExport.value) {
+    console.log('rowSelected', rowSelected)
     warehouseData.value.exportLots = rowSelected.map((item) => ({
       value: item.id,
-      label: item.lotCode,
-      quantity: item.quantity
+      quantity: item.exportQuantity
     }))
+    warehouseData.value.location = rowSelected.map((item) => item.location).toString()
+    warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()
+    warehouseData.value.unit = rowSelected[0].unit
+
+    console.log('before emit', warehouseData.value)
+    emit('close-dialog-warehouse', warehouseData.value)
   } else {
     ElMessage({
-      message: t('reuse.notEnough'),
+      message: t('reuse.moreOrLessQuantity'),
       type: 'warning'
     })
   }
@@ -80,7 +91,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 const saveOldLot = () => {
   getSelection()
-  emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse', 'close-dialog'])
 
@@ -143,7 +153,6 @@ const calculateInventory = () => {
   }
 }
 const calculateQuantity = (scope) => {
-  console.log('render scope', scope.row)
   if (scope.row.exportQuantity > 0) {
     return scope.row.exportQuantity
   } else {
@@ -156,12 +165,21 @@ const radioSelected = ref(-1)
 const totalExport = ref(0)
 const selectedRow: number[] = []
 const rowClick = (selection, curRow) => {
-  if (curRow.inventory < 1) {
+  if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
     ElMessage({
-      message: t('reuse.ko co j ma xuat'),
+      message: t('reuse.pleaseChooseQuantity'),
       type: 'warning'
     })
     multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+  if (curRow.inventory < 1) {
+    ElMessage({
+      message: t('reuse.pleaseChooseLotHasInventory'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
   }
 
   multipleSelection.value = curRow
@@ -171,28 +189,35 @@ const rowClick = (selection, curRow) => {
   if (!selectedRow.includes(index)) {
     //nếu chưa check thì +
     selectedRow.push(index)
-    if (warehouseForm.value.quantity < curRow.inventory) {
-      lotData.value[index].exportQuantity = warehouseForm.value.quantity
-      totalExport.value += warehouseForm.value.quantity
-    } else {
+
+    //nếu lấy hết mà vẫn chưa đủ số lượng
+    if (warehouseForm.value.quantity > curRow.inventory + totalExport.value) {
       lotData.value[index].exportQuantity = curRow.inventory
-      totalExport.value += curRow.inventory
+      totalExport.value += Number(lotData.value[index].exportQuantity)
+      return
+    }
+    //nếu lấy hết mà thừa số lượng thì lấy 1 phần
+    if (warehouseForm.value.quantity < curRow.inventory + totalExport.value) {
+      //mong đúng :))
+      lotData.value[index].exportQuantity = warehouseForm.value.quantity - totalExport.value
+      totalExport.value += Number(lotData.value[index].exportQuantity)
+      return
     }
   } else {
     selectedRow.splice(selectedRow.findIndex((select) => select == index))
+    totalExport.value -= Number(curRow.exportQuantity)
     lotData.value[index].exportQuantity = 0
-    totalExport.value -= curRow.inventory
   }
-
+  console.log('totalExport', totalExport.value)
   // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
   // warehouseData.value.lot = row
 }
 const warehouseData = ref({
   quantity: 0,
-  warehouse: { value: undefined, label: undefined },
   exportLots: [{ value: undefined, label: undefined, quantity: undefined }],
-  location: { value: undefined, label: undefined },
-  lot: { value: undefined, label: undefined }
+  location: '',
+  lot: '',
+  unit: ''
 })
 
 const ruleFormRef = ref<FormInstance>()
@@ -202,13 +227,10 @@ const closeDialogExport = () => {
 }
 
 //fix bug
-watch(
-  () => props.showDialog,
-  async () => {
-    console.log('call api loc', props.warehouse?.value, warehouseForm.value)
-    await changeWarehouseData(props.warehouse?.value)
-  }
-)
+onBeforeMount(async () => {
+  console.log('call api loc', props.warehouse?.value, warehouseForm.value)
+  await changeWarehouseData(props.warehouse?.value)
+})
 </script>
 <template>
   <el-dialog
@@ -218,6 +240,7 @@ watch(
     align-center
     class="z-50"
     @close="closeDialogExport"
+    destroy-on-close
   >
     <template #header>
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
@@ -279,7 +302,6 @@ watch(
       border
     >
       <template #append>
-        {{ totalExport }}
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
         <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
       </template>

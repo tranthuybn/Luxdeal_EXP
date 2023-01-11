@@ -190,10 +190,11 @@ const openDialogWarehouse = (props) => {
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
+  console.log('warehouseData', warehouseData)
   if (warehouseData != null) {
     ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
     ListOfProductsForSale.value[currentRow.value].exportLots = warehouseData.exportLots
-    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
+    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.unit
     ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
@@ -259,23 +260,23 @@ const warehouseFormat = (props) => {
   ) {
     warehouseName = prop.warehouse?.label
   }
-  if (
-    props.row.location !== undefined &&
-    props.row.location?.label !== null &&
-    props.row.location?.label !== undefined
-  ) {
-    locationName = props.row.location?.label
+  if (props.row.location !== undefined && props.row.location !== null) {
+    locationName = props.row?.location
   }
-  if (
-    props.row.lot !== undefined &&
-    props.row.lot?.label !== null &&
-    props.row.lot?.label !== undefined
-  ) {
-    lotName = props.row.lot?.label
+  if (props.row.lot !== undefined && props.row.lot !== null) {
+    lotName = props.row?.lot
   }
   return `${warehouseName}/${locationName}/${lotName}`
 }
 const checkValueOfTable = () => {
+  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+    return false
+  }
   if (
     ListOfProductsForSale.value.length > 1 &&
     Object.keys(ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]).length === 0
@@ -284,26 +285,25 @@ const checkValueOfTable = () => {
     ListOfProductsForSale.value.splice(ListOfProductsForSale.value.length - 1, 1)
     forceRemove.value = true
   }
-  let valid = true
+  let result = true
   ListOfProductsForSale.value.forEach((row) => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
         type: 'warning'
       })
-      valid = false
-      return
+      return (result = false)
     }
-    if (row.warehouse?.value == undefined) {
+    if (row.exportLots == undefined || row.exportLots.length == 0) {
       ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
+        message: t('reuse.pleaseChooseLot'),
         type: 'warning'
       })
-      valid = false
-      return
+      return (result = false)
     }
   })
-  return valid
+
+  return result
 }
 const closeDialogExport = () => {
   dialogWarehouse.value = false
@@ -341,7 +341,7 @@ const searchProduct = async (keyword) => {
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseExportWarehouse
-    v-if="transactionType == 2"
+    v-if="dialogWarehouse"
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     @close-dialog="closeDialogExport"
@@ -352,7 +352,6 @@ const searchProduct = async (keyword) => {
     :warehouse="warehouse"
     :serviceType="serviceType"
   />
-  {{ ListOfProductsForSale }}
   <el-table
     border
     :class="[

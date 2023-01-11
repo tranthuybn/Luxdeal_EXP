@@ -146,11 +146,16 @@ onBeforeMount(() => callAPI())
     <div class="w-4/10">
       <div>
         <ElDivider content-position="left">{{ t('reuse.addImage') }}</ElDivider>
-        <ElImage
+        <el-image
           :src="`${API_URL}${lotDetail.lotImageUrl}`"
           style="width: 250px; height: 200px"
           fit="scale-down"
-        />
+          ><template #error>
+            <div class="image-slot">
+              {{ t('reuse.ko tim thay anh') }}
+            </div>
+          </template>
+        </el-image>
       </div>
       <div>
         <ElDivider content-position="left">{{ t('reuse.QRCodeProduct') }}</ElDivider>

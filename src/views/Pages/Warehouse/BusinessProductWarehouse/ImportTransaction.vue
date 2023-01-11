@@ -80,7 +80,8 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        toLotId: row.lot?.value
+        toLotId: row.lot?.value,
+        fileId: row?.fileId
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
@@ -334,7 +335,7 @@ const updateTicket = (warehouse) => {
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :orderId="parseInt(ticketData.orderId)"
+          :orderId="ticketData.orderId"
           :warehouse="ticketData.warehouse"
           :serviceType="serviceType"
         />

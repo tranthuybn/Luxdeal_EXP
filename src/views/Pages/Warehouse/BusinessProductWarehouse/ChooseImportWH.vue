@@ -158,8 +158,6 @@ const calculateQuantity = (scope) => {
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
   if (lotData.value !== undefined) {
-    const index = lotData.value.findIndex((lot) => lot == row)
-    index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
     warehouseData.value.lot = row
   }
 }
@@ -238,7 +236,6 @@ watch(
     </el-form>
     <div v-if="orderId == 0">
       <div>{{ t('reuse.lotList') }}</div>
-      {{ warehouseForm }}
       <el-table
         :data="lotData"
         style="width: 100%"

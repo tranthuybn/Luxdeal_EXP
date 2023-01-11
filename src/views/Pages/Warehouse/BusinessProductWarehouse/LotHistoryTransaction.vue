@@ -27,7 +27,10 @@ const tableData = ref([
     type: '',
     unitName: '',
     unitPrice: '',
-    updatedAt: ''
+    updatedAt: '',
+    importPrice: 0,
+    totalImport: 0,
+    totalInventoryMoney: 0
   }
 ])
 const stack = ref<any[]>([])
@@ -51,7 +54,10 @@ const callAPI = async () => {
       type: res.type,
       unitName: res.unitName,
       unitPrice: res.unitPrice,
-      updatedAt: res.updatedAt
+      updatedAt: res.updatedAt,
+      importPrice: res.importPrice,
+      totalImport: res.totalImport,
+      totalInventoryMoney: res.totalInventoryMoney
     }))
   })
   console.log('tableData', tableData.value)
@@ -76,12 +82,19 @@ const formatQuantity = (prop) => {
 const formatStack = (prop) => {
   return stack.value[prop.$index]
 }
+const formatImportMoney = (prop) => {
+  if (prop.$index == 0) return moneyFormat(prop.row.importPrice)
+  else return ''
+}
+const formatInventoryMoney = (prop) => {
+  return moneyFormat(prop.row.importPrice * stack.value[prop.$index])
+}
 </script>
 <template>
   <el-table :data="tableData" border style="width: 100%" header-row-class-name="breakWords">
     <template #append>
       <span class="pl-6/10 font-bold">{{ stack[stack.length - 1] }}</span>
-      <span class="pl-1/15 font-bold">{{ tableData[0]?.unitPrice }}</span>
+      <span class="pl-1/15 font-bold">{{ moneyFormat(tableData[0]?.importPrice) }}</span>
       <span class="pl-1/15 font-bold">{{
         moneyFormat(stack[stack.length - 1] * Number(tableData[0]?.unitPrice))
       }}</span>
@@ -116,12 +129,12 @@ const formatStack = (prop) => {
     </el-table-column>
     <el-table-column :label="t('reuse.importOrderPrice')" :min-width="1">
       <template #default="prop">
-        {{ moneyFormat(prop.row.unitPrice) }}
+        {{ formatImportMoney(prop) }}
       </template>
     </el-table-column>
     <el-table-column :label="t('reuse.CashIntoInventory')" :min-width="1">
       <template #default="prop">
-        {{ moneyFormat(prop.row.quantity * prop.row.unitPrice) }}
+        {{ formatInventoryMoney(prop) }}
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.unit')" :min-width="1" />

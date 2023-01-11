@@ -1323,7 +1323,7 @@ const getValueOfSelected = async (value, obj, scope) => {
       )
       data.hirePrice = objPrice.price
       data.depositePrice = objPrice.deposite * data.quantity
-      data.totalPrice = data.hirePrice * data.quantity * days
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
       tableData.value.map((val) => {
         if (val.totalPrice) totalPriceOrder.value += val.totalPrice
         if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -1678,7 +1678,6 @@ const autoChangeAddress = () => {
 const priceChangeOrders = ref(false)
 const changePriceRowTable = (props) => {
   const data = props.row
-  console.log('data: ', data)
   if (type == 'add') {
     priceChangeOrders.value = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
@@ -1692,7 +1691,6 @@ const changePriceRowTable = (props) => {
   statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
   data.totalPrice = data.hirePrice * data.quantity
   autoCalculateOrder()
-  console.log('data: ', data)
 }
 
 arrayStatusOrder.value.pop()
@@ -2337,6 +2335,21 @@ const changeDateRange = (data) => {
     el.fromDate = data[0]
     el.toDate = data[1]
   })
+  if (tableData.value?.length) {
+    if (tableData.value[0].productPropertyId) {
+      let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      tableData.value.map((val) => {
+        val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
+      })
+      autoCalculateOrder()
+    }
+  }
 }
 
 const scrolling = (e) => {

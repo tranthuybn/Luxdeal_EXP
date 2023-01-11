@@ -1417,6 +1417,8 @@ const ckeckChooseProduct = (scope) => {
       type: 'info'
     })
   } else {
+    console.log('formBusuness', formBusuness)
+    console.log('multipleTableRef', multipleTableRef)
     dialogbusinessManagement.value = true
   }
 }

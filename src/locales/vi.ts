@@ -123,9 +123,6 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
-    pleaseSelectWarehouse: 'Vui lòng chọn kho',
-    selectAWarehouse: 'Chọn kho',
-    selectExportWarehouse: 'Chọn kho xuất',
     validatePercentNum: 'Chiết khấu không được bé hơn 0 và lớn hơn 100',
     validatePercent: 'Chiết khấu phải là số, không được nhập kí tự khác ngoài số',
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
@@ -271,7 +268,7 @@ export default {
     amount: 'Số lượng',
     amountBuy: 'Số lượng mua',
     code: 'Code',
-    exportWarehouse: 'Tồn kho',
+    exportWarehouse: 'Kho xuất',
     manipulation: 'Thao tác',
     debtTrackingSheet: 'Bảng theo dõi công nợ',
     dateOfPayment: 'Ngày thanh toán',
@@ -311,12 +308,12 @@ export default {
     month: 'Tháng',
     byMonth: 'Theo tháng',
     addNewSalesOrders: 'Thêm đơn hàng bán',
+    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
     addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
     addNewSpaOrders: 'Thêm mới đơn hàng Spa',
     addNewFlashSale: 'Thêm mới Flash sale',
-    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewVoucher: 'Thêm mới Voucher',
     startDay: 'Ngày bắt đầu',
     endDay: 'Ngày kết thúc',
@@ -524,6 +521,7 @@ export default {
     examinationContentProduct: 'Nội dung thăm khám sản phẩm',
     sl: 'SL',
     amountSpent: 'Số tiền chi',
+    amountCollect: 'Số tiền thu',
     inventoryStatus: 'Trạng thái nhập kho',
     informationWarehouseReceipt: 'Thông tin phiếu nhập kho hoàn hàng đổi/trả',
     receiptCode: 'Mã phiếu nhập kho',
@@ -596,7 +594,8 @@ export default {
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
     codePayment: 'Mã phiếu chi',
     infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
-    infoReturnExpired: 'Trả hàng hết hạn'
+    infoReturnExpired: 'Trả hàng hết hạn',
+    planningAccount: 'Tài khoản hoạch toán'
   },
   button: {
     add: 'Thêm nhanh',
@@ -606,7 +605,10 @@ export default {
     cancelVoucher: 'Hủy voucher',
     cancelResult: 'Hủy kết quả',
     cancelOrder: 'Hủy đơn hàng',
-    print: 'In phiếu'
+    print: 'In phiếu',
+    carrying: 'Ghi sổ',
+    plan: 'Hoạch toán',
+    cancelPlan: 'Hủy Hoạch Toán'
   },
   router: {
     notApproval: 'Không duyệt',
@@ -873,7 +875,9 @@ export default {
     showExpandedRows: 'Trình diễn',
     hiddenExpandedRows: 'Ẩn',
     changeTitle: 'Sửa đổi tiêu đề',
-    header: 'Phần đầu'
+    header: 'Phần đầu',
+    paid: 'Đã thanh toán',
+    notPaid: 'Chưa thanh toán'
   },
   userDemo: {
     title: 'Quản lý người dùng',
@@ -1787,7 +1791,6 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
-    totalPurchaseMoney: 'Thành tiền mua',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',
     informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
@@ -1848,7 +1851,6 @@ export default {
     decentralization: 'Thông tin phân quyền tài khoản',
     roleName: 'Tên phân quyền',
     addNewRole: 'Thêm mới phân quyền tài khoản',
-    choosePermission: 'Chọn quyền',
-    exportExcelFailed: 'Dữ liệu trống không thể xuất file'
+    choosePermission: 'Chọn quyền'
   }
 }

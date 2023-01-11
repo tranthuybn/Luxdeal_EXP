@@ -241,6 +241,17 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
+// edit chi tiết phiếu thu chi
+export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 // Lấy mã phiếu đề nghị thanh toán
 export const getCodePaymentRequest = async (): Promise<IResponse> => {

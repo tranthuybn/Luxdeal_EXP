@@ -124,6 +124,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    reasonRevenueExpenditure: 'Reason for revenue/expenditure',
+    formCode: 'Form code',
     orderStatus_Tracking: 'Tracking order',
     pleaseSelectWarehouse: 'Please select a warehouse',
     selectAWarehouse: 'Select a warehouse',

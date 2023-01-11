@@ -40,7 +40,18 @@ export const getOrderApproval = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+// export const getOrderPayments = async (params: any): Promise<IResponse> => {
+//   const res = await request.get({ url: '/OrdersApproval/Payments', params })
+//   return res && res.data
+// }
+
+// Lấy danh sách phiếu thu chi và đề nghị thanh toán
 export const getOrderPayments = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/OrdersApproval/Payments', params })
+  const res = await request.get(
+    {
+      url: `${ORDER_API.APPROVAL_API_PAYMENT_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }

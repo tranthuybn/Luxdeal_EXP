@@ -1304,6 +1304,7 @@ const getValueOfSelected = async (value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    getTotalWarehouse()
     if (data.fromDate && data.toDate) {
       totalPriceOrder.value = 0
       totalFinalOrder.value = 0
@@ -2474,16 +2475,15 @@ const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => 
     ProductPropertyId: productPropertyId,
     ServiceType: serviceType
   }
-  // lấy giá tiền của một sản phẩm
   const res = await GetProductPropertyInventory(getTotalPayload)
-  const total = res?.data?.total ?? 'Hết hàng'
-
+  const total = res?.total
   return total
 }
 
 const getTotalWarehouse = () => {
   tableData.value.forEach(async (el) => {
-    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+    if (el.productPropertyId)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
   })
 }
 

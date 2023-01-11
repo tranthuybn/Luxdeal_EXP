@@ -600,6 +600,45 @@ const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
 
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId,
+    ServiceType: serviceType
+  }
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    if (el.productPropertyId)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+  })
+}
+
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+
+  data.warehouseTotal = res.data.total
+  totalWarehouse.value = res.data.total
+  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
 const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
@@ -2082,47 +2121,6 @@ const handleChangePaymentOrder = async () => {
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
 const totalWarehouse = ref()
-
-const radioWarehouseId = ref()
-const indexRowWarehouse = ref()
-
-const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
-  const getTotalPayload = {
-    ProductPropertyId: productPropertyId,
-    ServiceType: serviceType
-  }
-  // lấy giá tiền của một sản phẩm
-  const res = await GetProductPropertyInventory(getTotalPayload)
-  const total = res?.data?.total ?? 'Hết hàng'
-
-  return total
-}
-
-const getTotalWarehouse = () => {
-  ListOfProductsForSale.value.forEach(async (el) => {
-    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
-  })
-  console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
-}
-
-// Lấy danh sách kho theo mã sản phẩm và sericeType
-const callApiWarehouse = async (scope) => {
-  const data = scope.row
-  indexRowWarehouse.value = scope.$index
-
-  const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
-  })
-
-  data.warehouseTotal = res.data.total
-  totalWarehouse.value = res.data.total
-  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
-    warehouseCheckbox: val.id,
-    name: val.name,
-    inventory: val.inventory
-  }))
-}
 
 const showIdWarehouse = (scope) => {
   radioWarehouseId.value = scope.row.warehouseCheckbox

@@ -27,10 +27,8 @@ import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
-  editReceiptPaymentVoucher,
-  addNewOrderList,
-  getOrderList,
-  updateOrderStatus
+  editStatusReceiptPaymentVoucher,
+  getOrderList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
@@ -243,7 +241,6 @@ const collapseChangeEvent = (val) => {
 }
 const petitionerData = ref('')
 const parentingStatusData = ref({ title: 'Không xác định', value: false })
-const StatusData = ref()
 const activeName = ref(collapse[0].name)
 // dataDetail
 interface ReceiptOrPaymentVoucherDetail {
@@ -255,7 +252,7 @@ interface ReceiptOrPaymentVoucherDetail {
   peopleType: number | undefined
   peopleName: string
   peopleId: string | number | undefined
-  status: string | number | undefined
+  status: number | undefined
   accountNumber: string | number | undefined
   accountName: string
   accountingDate: string | Date
@@ -273,14 +270,12 @@ const callApiCity = async () => {
   cities.value = await getCity()
 }
 
-const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 let infoCompany = reactive({
   name: '',
   taxCode: '',
   phone: '',
   email: ''
 })
-
 let customerAddress = ref('')
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
@@ -401,7 +396,6 @@ const printPage = (id: string, { url, title, w, h }) => {
                   </head>
                   <body>
                     ${printContents}
-
                   </body>
                 </html>`)
 
@@ -436,16 +430,28 @@ watch(
   }
 )
 
-// Phiếu xuất kho tự động
-// const automaticCouponWareHouse = async (index) => {
-//   const payload = {
-//     OrderId: idOrderPost.value.data,
-//     Type: index
-//   }
-
-//   await postAutomaticWarehouse(payload)
-// }
-
+let listStatus = ref([
+  {
+    color: 'info',
+    text: t('reuse.initializeAndWrite')
+  },
+  {
+    color: 'warning',
+    text: t('reuse.checkReceipts')
+  },
+  {
+    color: 'class="status bg-gray-300 day-updated text-blue-500',
+    text: t('reuse.collectedMoney')
+  },
+  {
+    color: 'class="status bg-gray-300 day-updated text-blue-500',
+    text: t('reuse.planned')
+  },
+  {
+    color: 'status bg-gray-300 day-updated text-red-500',
+    text: t('reuse.cancelled')
+  }
+])
 // total order
 let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
   code: '',
@@ -456,7 +462,7 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
   peopleType: 0,
   peopleName: '',
   peopleId: '',
-  status: '',
+  status: 0,
   accountNumber: '',
   accountName: '',
   accountingDate: '',
@@ -572,24 +578,22 @@ const callApiCollaborators = async () => {
   }
 }
 
-const updateStatus = async (status) => {
-  debugger
-  EditReceiptAndPaymentVoucherData.value = { ...dataDetail }
-  console.log(EditReceiptAndPaymentVoucherData.value)
-  EditReceiptAndPaymentVoucherData.value.status = status
-  await editReceiptPaymentVoucher(EditReceiptAndPaymentVoucherData.value)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
+const updateStatus = async (status: number) => {
+  const payload = {
+    status: status,
+    TypeOfPayment: dataDetail.value.typeOfPayment,
+    PeopleType: dataDetail.value.peopleType,
+    PeopleId: dataDetail.value.peopleId,
+    Id: dataDetail.value.id,
+    Type: 1
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await editStatusReceiptPaymentVoucher(formDataPayLoad).then(() => {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'error'
-      })
-    )
+  })
 }
 onBeforeMount(async () => {
   getListStaff()
@@ -782,13 +786,13 @@ onBeforeMount(async () => {
                 :label="t('formDemo.status')"
               >
                 <div class="flex items-center">
-                  <div class="ml-5">
+                  <div class="ml-5" v-for="(item, index) in listStatus" :key="index">
                     <div class="flex items-center">
                       <span
                         class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
                       ></span>
-                      <span class="box dark:text-black">
-                        Khởi tạo & ghi sổ
+                      <span class="box" :type="item.color">
+                        {{ item.text }}
                         <span class="triangle-right"> </span>
                       </span>
                     </div>

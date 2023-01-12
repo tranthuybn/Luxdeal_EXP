@@ -2632,7 +2632,11 @@ onBeforeMount(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>

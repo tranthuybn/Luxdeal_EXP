@@ -468,19 +468,28 @@ const postCustomer = async (typebtn) => {
     )
   clear()
 }
+
 const postData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const payloadAcc = {
-      fullName: ruleForm.name,
-      email: ruleForm.email,
-      password: ruleForm.password,
-      confirmPassword: ruleForm.password,
-      userName: ruleForm.userName,
-      phoneNumber: ruleForm.phonenumber
-    }
+    // const payloadAcc = {
+    //   FullName: ruleForm.name,
+    //   Email: ruleForm.email,
+    //   Password: ruleForm.password,
+    //   ConfirmPassword: ruleForm.password,
+    //   UserName: ruleForm.userName,
+    //   PhoneNumber: ruleForm.phonenumber
+    // }
 
-    await addNewAuthRegister(JSON.stringify(payloadAcc))
+    // const formDataPayload = FORM_IMAGES(payloadAcc)
+    await addNewAuthRegister({
+      FullName: ruleForm.name,
+      Email: ruleForm.email,
+      Password: ruleForm.password,
+      ConfirmPassword: ruleForm.password,
+      UserName: ruleForm.userName,
+      PhoneNumber: ruleForm.phonenumber
+    })
       .then(() => {
         postCustomer(typebtn)
         if (typebtn == 'saveAndAdd') {

@@ -175,8 +175,7 @@ export const addNewCustomer = async (params: any): Promise<IResponse> => {
 export const addNewAuthRegister = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
-      url: CUSTOMER_API.POST_AUTH_REGISTER,
-      data: params
+      url: `${CUSTOMER_API.POST_AUTH_REGISTER}?${objectToQueryParams(params)}`
     },
     LOGIN_API_URL
   )

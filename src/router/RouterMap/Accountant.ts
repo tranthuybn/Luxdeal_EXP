@@ -59,10 +59,10 @@ export default {
           }
         },
         {
-          path: 'receipts-add',
+          path: `receipts-expenditures-list/:type?/:id?`,
           component: () =>
             import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd.vue'),
-          name: 'accountant.receipts-expenditures.receipts-add',
+          name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
           meta: {
             title: t('router.receiptsAdd')
           }

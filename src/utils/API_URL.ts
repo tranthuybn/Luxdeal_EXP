@@ -79,7 +79,9 @@ export const ORDER_API = {
   UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
   CANCEL_ORDER: '/api/v1/Order/CancelOrder',
+  CANCEL_RETURN_REQUEST: '/api/v1/Order/CancelReturnRequest',
   FINISH_ORDER: '/api/v1/Order/FinishOrder',
+  FINISH_RETURN_REQUEST: '/api/v1/Order/FinishReturnRequest',
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
@@ -88,9 +90,11 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
+  EDIT_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
   UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
-  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
+  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
+  GET_RETURN_REQUEST_FOR_ORDER: '/api/v1/Order/GetReturnRequestForOrder',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
@@ -105,7 +109,8 @@ export const ORDER_API = {
   UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
   ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
-  APPROVAL_ORDER: '/api/v1/Approve/ApproveItem'
+  APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
+  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -130,6 +135,7 @@ export const WAREHOUSE_API = {
   GET_WAREHOUSE_INVENTORY_API: '/api/v1/Warehouse/GetWarehouseInventory',
   GET_WAREHOUSE_TRANSACTION_API: 'api/v1/Warehouse/GetWarehouseTransaction',
   CREATE_LOT_WAREHOUSE_IMAGE: 'api/v1/Warehouse/CreateWarehouseLotImage',
+  CREATE_TICKET_FROM_RETURN_ORDER: 'api/v1/Warehouse/CreateTicketFromReturnOrder',
   GET_WAREHOUSE_LOT: 'api/v1/Warehouse/GetWarehouseLot',
   CREATE_WAREHOUSE_LOT: 'api/v1/Warehouse/CreateWarehouseLot',
   CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually',

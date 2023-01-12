@@ -1,8 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { h } from 'vue'
 const { t } = useI18n()
-import { filtersStatus } from '@/utils/filters'
-import { dateTimeFormat } from '@/utils/format'
+import { filterStatusOrder } from '@/utils/filters'
+import { dateTimeFormat, statusOrder } from '@/utils/format'
 
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -101,9 +100,9 @@ export const PurchaseOrderColumn = [
     label: t('reuse.status'),
     minWidth: '150',
     align: 'left',
-    filters: filtersStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang giao hàng' : 'Ngưng hoạt động')
+    filters: filterStatusOrder,
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return statusOrder(cellValue)
     }
   }
 ]

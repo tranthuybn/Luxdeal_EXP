@@ -531,7 +531,9 @@ export default {
     inventoryStatus: 'Trạng thái nhập kho',
     informationWarehouseReceipt: 'Thông tin phiếu nhập kho hoàn hàng đổi/trả',
     receiptCode: 'Mã phiếu nhập kho',
+    exportCode: 'Mã phiếu xuất kho',
     warehouser: 'Người nhập kho',
+    warehouserExport: 'Người xuất kho',
     ReasonExchangeReturn: 'Lý do đổi/Trả',
     fullyIntegrated: 'Thông tin sản phẩm nhập hoàn',
     unitPriceWarehouse: 'Đơn giá nhập kho',
@@ -554,7 +556,8 @@ export default {
     totalSalesDebt: 'Tổng công nợ bán hàng',
     informationOnExchangeAndReturnPaymentVouchers: 'Thông tin phiếu thanh toán đổi/trả hàng',
     informationOnSpaService: 'Thông tin phiếu thanh toán dịch vụ spa',
-    infoCouponExportExchange: 'Thông tin phiếu xuất đổi',
+    infoCouponExportExchange: 'Thông tin phiếu xuất trả',
+    infoCouponInvoice: 'Thông tin phiếu nhập đổi',
     invoiceForGoodsEntering: 'Phiếu nhập hoàn',
     productInformationExportChange: 'Thông tin sản phẩm xuất đổi',
     completeOrder: 'Hoàn thành đơn hàng',
@@ -612,6 +615,8 @@ export default {
     cancelResult: 'Hủy kết quả',
     cancelOrder: 'Hủy đơn hàng',
     print: 'In phiếu',
+    printImport: 'Lưu & ghi phiếu nhập đổi',
+    printExport: 'Lưu & ghi phiếu xuất trả',
     carrying: 'Ghi sổ',
     plan: 'Hoạch toán',
     cancelPlan: 'Hủy Hoạch Toán'
@@ -1871,6 +1876,7 @@ export default {
     importOrderPrice: 'Đơn giá nhập',
     moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
     pleaseChooseQuantity: 'Chọn số lượng',
-    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm'
+    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm',
+    pleaseChooseLot: 'Vui lòng chọn lot'
   }
 }

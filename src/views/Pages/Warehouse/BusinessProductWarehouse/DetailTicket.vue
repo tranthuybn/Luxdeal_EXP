@@ -187,7 +187,6 @@ const submitFormTicket = async () => {
       return (validate = false)
     }
   })
-  console.log('end submit', validate)
   return validate
 }
 onBeforeMount(() => {
@@ -216,13 +215,11 @@ const callAPIWarehouse = async () => {
 const emit = defineEmits(['update-ticket'])
 const chooseImportWarehouse = (warehouseId) => {
   const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
-  console.log('TowarehouseId', warehouseId, warehouseOptions.value, warehouse)
 
   emit('update-ticket', warehouse, 1)
 }
 const chooseExportWarehouse = (warehouseId) => {
   const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
-  console.log('FromwarehouseId', warehouseId, warehouseOptions.value, warehouse)
 
   emit('update-ticket', warehouse, 2)
 }

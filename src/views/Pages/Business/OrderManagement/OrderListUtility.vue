@@ -192,7 +192,11 @@ const rulesAddress = reactive<FormRules>({
 
 let checkValidateForm = ref(false)
 
-const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+const submitForm = async (
+  formEl: FormInstance | undefined,
+  formEl2: FormInstance | undefined,
+  pushBack: boolean
+) => {
   if (!formEl || !formEl2) return
   await formEl.validate((valid, _fields) => {
     if (valid) {
@@ -203,7 +207,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
-      postData()
+      postData(pushBack)
       doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -1128,7 +1132,7 @@ let orderDetailsTable = reactive([{}])
 
 let idOrderPost = ref()
 // Tạo đơn hàng
-const postData = async () => {
+const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId:
       typeof val?.productPropertyId != 'number'
@@ -1180,31 +1184,34 @@ const postData = async () => {
     WarehouseId: ruleForm.warehouse
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  idOrderPost.value = await addNewOrderList(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      automaticCouponWareHouse(2)
-
+  const res = await addNewOrderList(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    if (pushBack == false) {
       router.push({
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
+    }
+  } else {
+    reloadStatusOrder()
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+  }
+
+  idOrderPost.value = res
+  automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value.data,
+    OrderId: idOrderPost.value,
     Type: index
   }
 
@@ -1262,6 +1269,8 @@ const editData = async () => {
       customerID.value = orderObj.customer.id
       ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj.warehouseId
+
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
 
@@ -5162,14 +5171,14 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="submitForm(ruleFormRef, ruleFormRef2)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, false)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, true)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
@@ -5209,7 +5218,7 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="submitForm(ruleFormRef, ruleFormRef2)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, false)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('button.saveAndWaitApproval') }}</el-button

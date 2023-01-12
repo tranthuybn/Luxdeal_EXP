@@ -4,9 +4,10 @@ import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
-import { loginApi, getRoutesAsRolesApi } from '@/api/login'
+import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
+// import { getRoutesAsRolesApi } from '@/api/login'
+import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
-import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRouter } from 'vue-router'
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
@@ -15,9 +16,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 
 const { required, notSpecialCharacters } = useValidator()
 
-const emit = defineEmits(['to-register'])
-
-const appStore = useAppStore()
+// const emit = defineEmits(['to-register'])
 
 const permissionStore = usePermissionStore()
 
@@ -131,8 +130,16 @@ const signIn = () => {
         if (res) {
           const now = new Date()
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
-          await setPermissionForUser(res.data)
-          getRole()
+          const accountId = res.data['userInformation']?.id ?? null
+          if (accountId) {
+            await getUserInfoByAccountId(accountId)
+            await setPermissionForUser(res.data)
+            getRole(accountId)
+          } else
+            ElNotification({
+              message: t('reuse.accountInfo'),
+              type: 'error'
+            })
         }
       } finally {
         loading.value = false
@@ -142,14 +149,15 @@ const signIn = () => {
 }
 
 // Get role information
-const getRole = async () => {
-  // get role will return all router's names
-  const userRole = wsCache.get(permissionStore.getUserRole)
-  if (Array.isArray(userRole) && userRole.length > 0) {
-    // get role list
-    const routers = await getRouterByRolesApi(userRole)
-    if (routers && routers.length > 0) {
-      generateRouter(routers)
+const getRole = async (accountId) => {
+  // get role list
+  try {
+    const routers = await GetRouterByStaffAccountId({ id: accountId })
+    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+    if (routers?.data && routers.data.length > 0) {
+      const urlList = routers.data.map((el) => el.url)
+      // console.log(urlList)
+      generateRouter(urlList)
     } else {
       ElNotification({
         message: t('reuse.accountInfo'),
@@ -157,26 +165,12 @@ const getRole = async () => {
       })
       wsCache.clear()
     }
-  } else
+  } catch {
     ElNotification({
-      message: t('reuse.authorized'),
+      message: `${t('reuse.authorized')}`,
       type: 'error'
     })
-}
-const getRouterByRolesApi = async (userRole) => {
-  let routers: string[] = []
-  for (let element of userRole) {
-    try {
-      const res = await getRoutesAsRolesApi({ roleName: element })
-      routers = routers.concat(res.data ?? [])
-    } catch {
-      ElNotification({
-        message: `${t('reuse.authorized')} ${element}`,
-        type: 'error'
-      })
-    }
   }
-  return routers
 }
 const generateRouter = (routers) => {
   // save roles in local storage
@@ -190,17 +184,30 @@ const generateRouter = (routers) => {
   permissionStore.setIsAddRouters(true)
   push({ path: redirect.value || permissionStore.addRouters[0].path })
 }
+const getUserInfoByAccountId = (id) => {
+  getStaffInfoByAccountId({ Id: id })
+    .then((res) => {
+      if (res.data && Object.keys(res.data).length > 0) {
+        wsCache.set(permissionStore.getStaffInfo, res.data)
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+      ElNotification({
+        message: t('reuse.accountInfo'),
+        type: 'error'
+      })
+    })
+}
 // store user information
 const setPermissionForUser = (data) => {
-  wsCache.set(appStore.getUserInfo, data['userInformation'])
   wsCache.set(permissionStore.getAccessToken, data['accessToken'] ?? '')
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
-  wsCache.set(permissionStore.getUserRole, data['role'] ?? '')
 }
 // Go to register a page
-const toRegister = () => {
-  emit('to-register')
-}
+// const toRegister = () => {
+//   emit('to-register')
+// }
 </script>
 
 <template>
@@ -236,11 +243,12 @@ const toRegister = () => {
           {{ t('login.login') }}
         </ElButton>
       </div>
-      <div class="w-[100%] mt-15px">
+      <!-- bỏ chức năng đăng ký -->
+      <!-- <div class="w-[100%] mt-15px">
         <ElButton class="w-[100%]" @click="toRegister">
           {{ t('login.register') }}
         </ElButton>
-      </div>
+      </div> -->
     </template>
 
     <template #otherIcon>

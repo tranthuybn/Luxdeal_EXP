@@ -61,7 +61,9 @@ import {
   updateOrderInfo,
   cancelOrder,
   getListWareHouse,
-  approvalOrder
+  approvalOrder,
+  updateOrderTransaction,
+  finishStatusOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -72,7 +74,11 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 const { utility } = appModules
-
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 const { t } = useI18n()
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
@@ -272,18 +278,6 @@ const optionsCustomer = [
   }
 ]
 
-const detailedListExpenses = [
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: 0,
-    unitPrices: 0,
-    intoMoney: 0,
-    note: ''
-  }
-]
-
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
   else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
@@ -399,21 +393,6 @@ const callApiWarehouseList = async () => {
   }
 }
 
-const options = [
-  {
-    value: 1,
-    label: t('reuse.byDay')
-  },
-  {
-    value: 7,
-    label: t('reuse.byWeek')
-  },
-  {
-    value: 30,
-    label: t('reuse.byMonth')
-  }
-]
-
 const choosePayment = [
   {
     value: 0,
@@ -457,7 +436,7 @@ interface ListOfProductsForSaleType {
   quantity: string
   accessory: string | undefined
   unitName: string
-
+  warehouseTotal?: number | any
   price: string | number | undefined
   consignmentSellPrice: string | number | undefined
   consignmentHirePrice: string | number | undefined
@@ -492,7 +471,6 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   warehouseId: undefined,
   warehouseName: ''
 })
-const recharger = ref('Trần Hữu Dương | 0998844533')
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
@@ -519,8 +497,6 @@ watch(
 // total order
 let totalOrder = ref(0)
 let dataEdit = ref()
-
-const ListFileUpload = ref<UploadUserFile[]>([])
 
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
@@ -550,32 +526,6 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
-}
-
-// Thêm mã phiếu thu vào debtTable
-const handleChangeReceipts = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeReceipts.value
-        }
-      })
-    })
-  }
-}
-
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeExpenditures.value
-        }
-      })
-    })
-  }
 }
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
@@ -636,8 +586,8 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
-      unit: product.unitName,
       name: product.name ?? '',
+      unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
@@ -705,6 +655,8 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productCode = obj.value
     data.productName = obj.name
     data.price = obj.price
+    data.unitName = obj.unit
+    callApiWarehouse(scope)
   }
 }
 
@@ -884,11 +836,37 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
 }
-
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(-1)
-  }, 4000)
+// Cập nhật trạng thái đơn hàng
+const updateStatusOrders = async (typeState) => {
+  // 13 hoàn thành đơn hàng
+  if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await cancelOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else if (typeState == STATUS_ORDER_DEPOSIT[2].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await finishStatusOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else {
+    if (type == 'add') {
+      let payload = {
+        OrderId: 0,
+        ServiceType: 2,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(paylpad))
+      reloadStatusOrder()
+    }
+  }
 }
 
 const chooseDelivery = [
@@ -995,31 +973,103 @@ const collapse: Array<Collapse> = [
 
 const tableWarehouse = ref([])
 
-const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+const totalProductInWarehouse = ref()
+const totalWarehouse = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 2
+    ProductPropertyId: data.productPropertyId
   })
-  tableWarehouse.value = res.data.map((val) => ({
+  tableWarehouse.value = res?.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
   }))
+  totalProductInWarehouse.value = res.total
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
 }
 
-const showIdWarehouse = (scope) => {
-  radioWarehouseId.value = scope.row.warehouseCheckbox
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+const callApiWarehouseTotal = async (productPropertyId = 0) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total ?? 'Hết hàng'
+
+  return total
 }
 
-const value = ref('')
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId))
+  })
+}
+
+// disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
+
+// Tổng tiền table phiếu đề nghị thanh toán nếu có
+const totalPayment = ref(0)
+const depositePayment = ref(0)
+const debtPayment = ref(0)
+
+const clearData = () => {
+  totalPayment.value = 0
+  depositePayment.value = 0
+  debtPayment.value = 0
+  inputReasonCollectMoney.value = ''
+  enterMoney.value = ''
+  inputRecharger.value = undefined
+
+  detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
+  addRowDetailedListExpoenses()
+}
+
+const detailedListExpenses = ref([
+  {
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  }
+])
+
+const addRowDetailedListExpoenses = () => {
+  detailedListExpenses.value.push({
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  })
+}
+
+function openReceiptDialog() {
+  getReceiptCode()
+  clearData()
+  dialogInformationReceipts.value = true
+  nameDialog.value = 'Phiếu thu'
+}
+
+function openPaymentDialog() {
+  getcodeExpenditures()
+  clearData()
+  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
+  nameDialog.value = 'Phiếu chi'
+}
 
 const consignOrderCode = ref()
 
@@ -1106,6 +1156,8 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
+      WarehouseId: ruleForm.warehouse,
+      Files: Files,
       CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
@@ -1125,35 +1177,35 @@ const postData = async () => {
       Status: 4
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
-      .then(() => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        })
-        router.push({
-          name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-        })
+    const res = await addNewSpaOrders(formDataPayLoad)
+    if (res) {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
       })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    } else {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    }
+    idOrderPost.value = res
+    automaticCouponWareHouse(1)
   }
-  automaticCouponWareHouse(2)
 }
 
-// Phiếu xuất kho tự động
+// Phiếu nhap kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value.data,
+    OrderId: idOrderPost.value,
     Type: index
   }
 
-  await postAutomaticWarehouse(payload)
+  await postAutomaticWarehouse(JSON.stringify(payload))
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -1253,18 +1305,6 @@ const inputReasonCollectMoney = ref()
 
 const nameDialog = ref('')
 
-function openReceiptDialog() {
-  getReceiptCode()
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
-  nameDialog.value = 'Phiếu thu'
-}
-
-function openPaymentDialog() {
-  getcodeExpenditures()
-  dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-  nameDialog.value = 'Phiếu chi'
-}
-
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -1319,17 +1359,37 @@ const getFormReceipts = () => {
   }
 }
 
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+  await getOrderStransactionList()
+}
+
 // Thêm mới phiếu thu
 let objidPT = ref()
 let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1338,6 +1398,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
 // Thêm mới phiếu chi
@@ -1345,12 +1406,12 @@ let objidPC = ref()
 let idPC = ref()
 const postPC = async () => {
   const payload = {
-    Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    Code: codeExpenditures.value,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -1359,6 +1420,7 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
 // Lấy chi tiết phiếu thu chi
@@ -1431,12 +1493,8 @@ const postOrderStransaction = async () => {
     content: tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: tableAccountingEntry.value[0].collected
-      ? parseInt(tableAccountingEntry.value[0].collected)
-      : 0,
-    paidMoney: tableAccountingEntry.value[0].spent
-      ? parseInt(tableAccountingEntry.value[0].spent)
-      : 0,
+    receiveMoney: 0,
+    paidMoney: 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
@@ -1503,6 +1561,7 @@ const getReturnRequestTable = async () => {
 const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
+const disableCreateOrder = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1510,6 +1569,8 @@ const editData = async () => {
 
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disableCreateOrder.value = true
+
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1529,6 +1590,7 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
+    Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -1547,11 +1609,14 @@ const editData = async () => {
           ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
           : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj?.warehouseId
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      getTotalWarehouse()
+
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       // customerIdPromo.value = orderObj.customerId
@@ -1589,7 +1654,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    // Files: Files,
+    Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -1609,18 +1674,6 @@ const editOrderInfo = async () => {
       })
     })
 }
-
-//hủy đơn hàng
-const cancelOrderDO = async () => {
-  const payload = {
-    OrderId: id,
-    ServiceType: 6
-  }
-  const formPayload = FORM_IMAGES(payload)
-
-  await cancelOrder(formPayload)
-}
-
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
 // const updatePrice = (_value, obj, scope) => {
@@ -1725,6 +1778,77 @@ if (type == 'add') {
   })
 }
 
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const handleRemove = (file: UploadFile) => {
+  return file
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
+
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
 }
@@ -1737,10 +1861,12 @@ onBeforeMount(async () => {
 
   callCustomersApi()
   callApiCollaborators()
-  callAPIProduct()
-  callApiWarehouseList()
+  await callAPIProduct()
+  await callApiWarehouseList()
 
   if (type == 'add' || type == ':type') {
+    disableCreateOrder.value = true
+
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
     disableEditData.value = false
@@ -2297,15 +2423,15 @@ onBeforeMount(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptsCode') }}</label>
-              <div class="w-[100%] text-xl font-bold">PT890345</div>
+              <div class="w-[100%] text-xl font-bold">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Chọn người nộp tiền">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2425,9 +2551,9 @@ onBeforeMount(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người nhận tiền">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nhận tiền">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2438,7 +2564,11 @@ onBeforeMount(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
+              <el-input
+                v-model="inputReasonCollectMoney"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterReasonForThePayment')"
+              />
             </div>
           </div>
           <div class="flex items-center">
@@ -2449,7 +2579,7 @@ onBeforeMount(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền chi</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -2492,7 +2622,6 @@ onBeforeMount(async () => {
                   @click="
                     () => {
                       dialogPaymentVoucher = false
-                      handleChangeExpenditures()
                       postPC()
                     }
                   "
@@ -2536,9 +2665,9 @@ onBeforeMount(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người đề nghị">
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2550,6 +2679,7 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')"
               />
@@ -3334,7 +3464,7 @@ onBeforeMount(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableEditData"
+                  :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3411,8 +3541,11 @@ onBeforeMount(async () => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  v-model:file-list="fileList"
                   :limit="10"
+                  :multiple="true"
                   :on-exceed="handleExceed"
+                  :on-change="handleChange"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -3506,7 +3639,7 @@ onBeforeMount(async () => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
-                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                          :placeholder="t('formDemo.selectAWarehouse')"
                         >
                           <el-option
                             v-for="i in chooseWarehouse"
@@ -3729,23 +3862,24 @@ onBeforeMount(async () => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -3791,6 +3925,7 @@ onBeforeMount(async () => {
                   v-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
                 >
@@ -3813,7 +3948,6 @@ onBeforeMount(async () => {
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
                   "
                 >
@@ -3846,7 +3980,12 @@ onBeforeMount(async () => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[0].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3946,11 +4085,7 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  addStatusDelay()
-                  statusOrder = 0
-                  addStatusOrder(0)
-                  cancelOrderDO()
-                  checkDisabled = !checkDisabled
+                  updateStatusOrders(STATUS_ORDER_DEPOSIT[0].orderStatus)
                 }
               "
               type="danger"
@@ -4116,25 +4251,23 @@ onBeforeMount(async () => {
       >
         <el-divider />
         <el-table :data="tableWarehouse" border>
-          <el-table-column label="" width="50">
-            <template #default="props">
-              <el-radio
-                v-model="radioWarehouseId"
-                @change="() => showIdWarehouse(props)"
-                :label="props.row.warehouseCheckbox"
-                style="color: #fff; margin-right: -25px"
-                ><span></span
-              ></el-radio>
-            </template>
-          </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
           <el-table-column prop="inventory" :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1" v-if="props.row.inventory > 0">{{ props.row.inventory }}</span>
+                <span v-else class="text-yellow-500">Hết hàng</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
+        <div class="flex justify-end">
+          <div class="flex">
+            <span class="font-bold">{{ totalWarehouse }}</span>
+            <span class="">Chiếc</span>
+          </div>
+        </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
@@ -4155,9 +4288,24 @@ onBeforeMount(async () => {
         <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
           >+ Thêm bút toán</el-button
         >
-        <el-button @click="openReceiptDialog" text>+ Thêm phiếu thu</el-button>
-        <el-button @click="openPaymentDialog" text>+ Thêm phiếu chi</el-button>
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
+          >+ Thêm phiếu thu</el-button
+        >
+        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
+          >+ Thêm phiếu chi</el-button
+        >
+        <el-button
+          :disabled="disabledDNTTAccountingEntry"
+          @click="
+            () => {
+              newCodePaymentRequest()
+              clearData()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"

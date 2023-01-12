@@ -63,7 +63,11 @@ import {
   updateStatusOrder,
   updateOrderInfo,
   approvalOrder,
-  GetPaymentRequestDetail
+  GetPaymentRequestDetail,
+  cancelOrder,
+  finishStatusOrder,
+  updateOrderTransaction,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -92,6 +96,12 @@ const handlePictureCardPreview = (file: UploadFile) => {
 const handleDownload = (file: UploadFile) => {
   return file
 }
+
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -173,17 +183,6 @@ const collapse: Array<Collapse> = [
 
 const value = ref('')
 
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1'
-  },
-  {
-    value: 'Option2',
-    label: 'Option2'
-  }
-]
-
 let customerID = ref()
 const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
@@ -212,6 +211,7 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   spaServices: string
+  warehouseTotal?: number | any
   amountSpa: number
   quantity: string
   businessManagement: {}
@@ -257,6 +257,9 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
+let tablePawnSlip = ref<any[]>([{}])
+// const tableData = ref<Array<ListOfProductsForSaleType>>([])
+
 // debtTable
 interface tableDataType {
   [x: string]: any
@@ -297,7 +300,6 @@ watch(
 let totalOrder = ref(0)
 let dataEdit = ref()
 
-const ListFileUpload = ref<UploadUserFile[]>([])
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
@@ -629,8 +631,8 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
-      unit: product.unitName,
       name: product.name ?? '',
+      unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
@@ -689,7 +691,9 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.unitName = obj.unit
     data.price = obj.price
+    callApiWarehouse(scope)
   }
 }
 
@@ -761,7 +765,8 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
-  warehouse: ''
+  warehouse: '',
+  orderFiles: []
 })
 const inputDeposit = ref(0)
 
@@ -825,6 +830,8 @@ let orderDetailsTable = reactive([{}])
 const disableEditData = ref(false)
 // tạo đơn hàng
 const checkDisabled = ref(false)
+let idOrderPost = ref()
+
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
@@ -853,12 +860,14 @@ const postData = async () => {
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
     WardId: valueCommune.value ?? 1,
+    Files: Files,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
     fromDate: postDateTime(ruleForm.pawnTerm[0]),
     toDate: postDateTime(ruleForm.pawnTerm[1]),
     CampaignId: 2,
     VAT: 1,
+    WarehouseId: ruleForm.warehouse,
     Days: ruleForm.paymentPeriod,
     TotalPrice: priceintoMoneyPawnGOC.value,
     DepositePrice: 0,
@@ -867,24 +876,36 @@ const postData = async () => {
     Status: 4
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await addNewOrderList(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
+  const res = await addNewOrderList(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+    router.push({
+      name: 'business.order-management.order-list',
+      params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+    })
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+  idOrderPost.value = res
+  automaticCouponWareHouse(1)
 }
+
+// Phiếu nhap kho tự động
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(JSON.stringify(payload))
+}
+
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
 const reloadStatusOrder = async () => {
@@ -1054,13 +1075,17 @@ const nameDialog = ref('')
 
 const dialogFeePaymentSlip = ref(false)
 function openDepositDialog() {
+  alreadyPaidForTt.value = true
   dialogFeePaymentSlip.value = !dialogFeePaymentSlip.value
+  tablePawnSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
 }
 const dialogPawnCouponInfomation = ref(false)
 function openBillPawnDialog() {
+  alreadyPaidForTt.value = true
   dialogPawnCouponInfomation.value = !dialogPawnCouponInfomation.value
   nameDialog.value = 'billPawn'
+  tablePawnSlip.value = ListOfProductsForSale.value
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
@@ -1134,35 +1159,28 @@ const earlyEedemption = ref(false)
 const dutHang = ref(false)
 const giaHan = ref(false)
 
-// Thêm mã phiếu thu vào debtTable
-const handleChangeReceipts = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeReceipts.value
-        }
-      })
-    })
-  }
-}
-
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
-
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
   if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeExpenditures.value
-        }
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
       })
     })
   }
+  await getOrderStransactionList()
 }
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
@@ -1189,7 +1207,6 @@ const tableAccountingEntry = ref([
 ])
 
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
-const codeReturnRequest = ref()
 
 let childrenTable = ref()
 let objOrderStransaction = ref()
@@ -1201,8 +1218,6 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
-  childrenTable.value.pop()
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content:
@@ -1213,17 +1228,13 @@ const postOrderStransaction = async (index: number) => {
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: tableAccountingEntry.value[0].collected
-      ? parseInt(tableAccountingEntry.value[0].collected)
-      : 0,
-    paidMoney: tableAccountingEntry.value[0].spent
-      ? parseInt(tableAccountingEntry.value[0].spent)
-      : 0,
+    receiveMoney: 0,
+    paidMoney: 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -1242,12 +1253,12 @@ let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
-    OrderId: 117,
+    PeopleId: inputRecharger.value,
+    OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1255,6 +1266,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
 let objidPC = ref()
@@ -1262,13 +1274,13 @@ let idPC = ref()
 // Thêm mới phiếu chi
 const postPC = async () => {
   const payload = {
-    Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    Code: codeExpenditures.value,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
-    OrderId: 117,
+    PeopleId: inputRecharger.value,
+    OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1276,6 +1288,7 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
+  handleChangeReceipts()
 }
 
 const openDialogChooseWarehouse = ref(false)
@@ -1283,28 +1296,42 @@ const dialogbusinessManagement = ref(false)
 
 const tableWarehouse = ref([])
 
-const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+const totalProductInWarehouse = ref()
+const totalWarehouse = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ProductPropertyId: data.productPropertyId
   })
-  tableWarehouse.value = res.data.map((val) => ({
+  tableWarehouse.value = res?.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
   }))
+  totalProductInWarehouse.value = res.total
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
 }
 
-const showIdWarehouse = (scope) => {
-  radioWarehouseId.value = scope.row.warehouseCheckbox
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+const callApiWarehouseTotal = async (productPropertyId = 0) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId))
+  })
 }
 
 const formBusuness = reactive({
@@ -1448,11 +1475,76 @@ const ckeckChooseProduct = (scope) => {
       type: 'info'
     })
   } else {
-    console.log('formBusuness', formBusuness)
-    console.log('multipleTableRef', multipleTableRef)
     dialogbusinessManagement.value = true
   }
 }
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
 
 let formData = reactive({})
 const handle = () => {
@@ -1463,6 +1555,8 @@ const handle = () => {
     phone: 1212321
   }
 }
+const disableCreateOrder = ref(false)
+
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
@@ -1470,6 +1564,7 @@ const editData = async () => {
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disableCreateOrder.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1477,7 +1572,6 @@ const editData = async () => {
 
     getReturnRequestTable()
 
-    console.log('res', res)
     const orderObj = { ...res.data[0] }
 
     dataEdit.value = orderObj
@@ -1497,6 +1591,8 @@ const editData = async () => {
       editButton.value = true
     }
 
+    Files = orderObj.orderFiles
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       // @ts-ignore
@@ -1510,11 +1606,14 @@ const editData = async () => {
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj?.warehouseId
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      getTotalWarehouse()
+
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
 
@@ -1668,12 +1767,11 @@ const getDetailPayment = async (_index, scope) => {
 const dialogAccountingEntryAdditional = ref(false)
 
 // xem chi tiết lịch sử công nợ theo id
-let tableSalesSlip = ref()
 let formAccountingId = ref()
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tableSalesSlip.value = formAccountingId.value.paidMerchandises
+  tablePawnSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
 
   if (num == 1) {
@@ -1722,6 +1820,39 @@ const addStatusOrder = (index) => {
   updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
 }
 
+// Cập nhật trạng thái đơn hàng
+const updateStatusOrders = async (typeState) => {
+  // 13 hoàn thành đơn hàng
+  if (typeState == STATUS_ORDER_PAWN[0].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await cancelOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else if (typeState == STATUS_ORDER_PAWN[2].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await finishStatusOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else {
+    if (type == 'add') {
+      let payload = {
+        OrderId: 0,
+        ServiceType: 4,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(paylpad))
+      reloadStatusOrder()
+    }
+  }
+}
+
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
@@ -1739,13 +1870,15 @@ const dialogBillLiquidation = ref(false)
 
 onBeforeMount(async () => {
   await editData()
+  await callAPIProduct()
+  await callApiWarehouseList()
 
   callCustomersApi()
   callApiCollaborators()
-  callAPIProduct()
-  callApiWarehouseList()
 
   if (type == 'add') {
+    disableCreateOrder.value = true
+
     disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -1976,7 +2109,7 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableEditData"
+                  :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -2073,8 +2206,11 @@ const removeRow = (index) => {
                   list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
+                  :multiple="true"
                   :auto-upload="false"
                   class="relative"
+                  :on-change="handleChange"
+                  v-model:file-list="fileList"
                 >
                   <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
@@ -2169,7 +2305,7 @@ const removeRow = (index) => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
-                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                          :placeholder="t('formDemo.selectAWarehouse')"
                         >
                           <el-option
                             v-for="i in chooseWarehouse"
@@ -2510,24 +2646,24 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    :disabled="disabledEdit"
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -2613,6 +2749,7 @@ const removeRow = (index) => {
                   v-if="
                     item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
                   "
@@ -2635,8 +2772,7 @@ const removeRow = (index) => {
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus
+                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus
                   "
                 >
                   <span
@@ -2794,8 +2930,7 @@ const removeRow = (index) => {
               "
               @click="
                 () => {
-                  addStatusOrder(4)
-                  checkDisabled = !checkDisabled
+                  updateStatusOrders(STATUS_ORDER_PAWN[0].orderStatus)
                 }
               "
               type="danger"
@@ -2808,7 +2943,7 @@ const removeRow = (index) => {
                 () => {
                   changeReturnGoods = true
                   earlyEedemption = true
-                  addStatusOrder(1)
+                  addStatusOrder(8)
                   setDataForReturnOrder()
                 }
               "
@@ -3015,25 +3150,23 @@ const removeRow = (index) => {
       >
         <el-divider />
         <el-table :data="tableWarehouse" border>
-          <el-table-column label="" width="50">
-            <template #default="props">
-              <el-radio
-                v-model="radioWarehouseId"
-                @change="() => showIdWarehouse(props)"
-                :label="props.row.warehouseCheckbox"
-                style="color: #fff; margin-right: -25px"
-                ><span></span
-              ></el-radio>
-            </template>
-          </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
           <el-table-column prop="inventory" :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1" v-if="props.row.inventory > 0">{{ props.row.inventory }}</span>
+                <span v-else class="text-yellow-500">Hết hàng</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
+        <div class="flex justify-end">
+          <div class="flex">
+            <span class="font-bold">{{ totalWarehouse }}</span>
+            <span class="">Chiếc</span>
+          </div>
+        </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
@@ -3051,9 +3184,7 @@ const removeRow = (index) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
-          >+ Thêm bút toán</el-button
-        >
+        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -3123,8 +3254,6 @@ const removeRow = (index) => {
               >
             </template>
           </el-table-column>
-
-          <el-table-column :label="t('formDemo.kindOfMoney')">đ</el-table-column>
 
           <el-table-column
             prop="receiveMoney"
@@ -3255,7 +3384,10 @@ const removeRow = (index) => {
               </div>
               <div class="flex gap-4 py-2 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
-                <div class="text-xl">20/20/2022</div>
+                <div class="w-[60%] text-black dark:text-light-50"
+                  >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
+                >
               </div>
               <div class="flex gap-4 pb-4 items-center">
                 <label class="text-right w-[170px]"
@@ -3301,15 +3433,15 @@ const removeRow = (index) => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
-            <el-table-column prop="productName" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column prop="unit" :label="t('reuse.unit')" />
+            <el-table-column prop="unitName" :label="t('reuse.unit')" />
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
@@ -3423,12 +3555,16 @@ const removeRow = (index) => {
               </div>
               <div class="flex gap-4 py-2 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
-                <div class="text-xl">20/20/2022</div>
+                <div class="w-[60%] text-black dark:text-light-50"
+                  >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
+                >
               </div>
               <div class="flex gap-4 pb-4 items-center">
                 <label class="text-right w-[170px]"
                   >{{ t('formDemo.pawnFeePaymentTime') }}<span class="text-red-500">*</span></label
                 >
+
                 <div class="">
                   <div class=""> {{ ruleForm.paymentPeriod }} {{ t('formDemo.day') }} </div>
                 </div>
@@ -3470,15 +3606,15 @@ const removeRow = (index) => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
-            <el-table-column prop="productName" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column prop="unit" :label="t('reuse.unit')" />
+            <el-table-column prop="unitName" :label="t('reuse.unit')" />
           </el-table>
 
           <div class="flex justify-end">
@@ -3769,9 +3905,9 @@ const removeRow = (index) => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người nộp tiền">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -3784,6 +3920,7 @@ const removeRow = (index) => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -3797,7 +3934,7 @@ const removeRow = (index) => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3841,7 +3978,6 @@ const removeRow = (index) => {
                     () => {
                       dialogInformationReceipts = false
                       postPT()
-                      handleChangeReceipts()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3885,9 +4021,9 @@ const removeRow = (index) => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người nhận tiền">
+              <el-select v-model="inputRecharger" placeholder="Chọn người nhận tiền">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -3898,7 +4034,11 @@ const removeRow = (index) => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
               >
-              <el-input style="width: 100%" :placeholder="t('formDemo.enterReasonForThePayment')" />
+              <el-input
+                v-model="inputReasonCollectMoney"
+                style="width: 100%"
+                :placeholder="t('formDemo.enterReasonForThePayment')"
+              />
             </div>
           </div>
           <div class="flex items-center">
@@ -3909,13 +4049,17 @@ const removeRow = (index) => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền chi</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -3952,7 +4096,6 @@ const removeRow = (index) => {
                   @click="
                     () => {
                       dialogPaymentVoucher = false
-                      handleChangeExpenditures()
                       postPC()
                     }
                   "
@@ -4042,9 +4185,9 @@ const removeRow = (index) => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Chọn người đề nghị">
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"

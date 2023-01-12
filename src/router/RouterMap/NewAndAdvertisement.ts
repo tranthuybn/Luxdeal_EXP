@@ -9,7 +9,8 @@ export default {
   meta: {
     title: t('router.newsAndAdvertisement'),
     icon: 'arcticons:social',
-    alwaysShow: true
+    alwaysShow: true,
+    hidden: true
   },
   children: [
     {

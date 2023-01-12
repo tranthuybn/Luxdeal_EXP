@@ -64,7 +64,11 @@ import {
   GetPaymentRequestDetail,
   updateStatusOrder,
   updateOrderInfo,
-  getListWareHouse
+  getListWareHouse,
+  postAutomaticWarehouse,
+  cancelOrder,
+  finishStatusOrder,
+  approvalOrder
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -401,6 +405,12 @@ const changeAddressCustomer = (data) => {
   customerIdPromo.value = infoCustomerId.value.id
   callPromoApi()
 }
+
+const totalPriceSpa = (scope) => {
+  let quantityInput = scope.row.quantity
+  scope.row.totalPrice = quantityInput * totalSettingSpa.value
+}
+
 const inputDeposit = ref(0)
 const inputPaymentBill = ref(0)
 // Call api danh sách sản phẩm
@@ -959,7 +969,7 @@ var curDate = 'SPA' + moment().format('hhmmss')
 
 const optionsTypeSpa = [
   {
-    value: 2,
+    value: 0,
     label: 'Khách spa'
   },
   {
@@ -980,18 +990,15 @@ const chooseDelivery = [
   }
 ]
 
-// tạo đơn hàng
-
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(router.currentRoute.value.params.tab)
 const type = String(route.params.type)
-// const approvalId = String(route.params.approvalId)
+const approvalId = String(route.params.approvalId)
 
 let orderDetailsTable = reactive([{}])
-let orderIdSpa = ref()
 
 let idLotData = ref(0)
 const closeDialogWarehouse = (warehouseData) => {
@@ -1033,9 +1040,10 @@ const postData = async (pushBack: boolean) => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.collaboratorCommission,
     Description: ruleForm.orderNotes,
-    CustomerId: customerID.value,
+    CustomerId: valueTypeSpa.value == 0 ? customerID.value : 2,
     Files: Files,
-    DeliveryOptionId: 0,
+    WarehouseId: valueTypeSpa.value == 0 ? ruleForm.warehouseImport : ruleForm.warehouseParent,
+    DeliveryOptionId: ruleForm.delivery ?? 0,
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
     WardId: valueCommune.value ?? 1,
@@ -1057,59 +1065,52 @@ const postData = async (pushBack: boolean) => {
     ToDate: postDateTime(ruleForm.dateOfReturn),
     Status: 2
   }
-  console.log('payload:', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
-  resIdPostOrder.value = await addNewSpaOrders(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      if (pushBack == true) {
-        router.push({
-          name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-        })
-      }
+  const res = await addNewSpaOrders(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
+    if (pushBack == true) {
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
-    )
-  console.log('clickStarSpa.value', clickStarSpa.value)
+    }
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
   // get data
-
+  resIdPostOrder.value = res
+  warehouseTranferAuto(1)
   if (clickStarSpa.value == true) {
-    // orderIdSpa.value = resIdPostOrder.value.data
-    // console.log('orderIdSpa: ', orderIdSpa.value)
-    console.log('resIdPostOrder: ', resIdPostOrder.value)
     startSpaProcess()
   }
-
-  // warehouseTranferAuto(3)
 }
 
 const clickStarSpa = ref(false)
 const startSpaProcess = async () => {
   const payload = {
-    OrderId: orderIdSpa.value,
+    OrderId: resIdPostOrder.value,
     ServiceType: 5,
     OrderStatus: 5
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateStatusOrder(formDataPayLoad)
 }
-// chuyển kho auto
-// const warehouseTranferAuto = async (type) => {
-//   const payload = {
-//     OrderId: orderIdSpa.value.data,
-//     Type: type
-//   }
+// nhập kho auto
+const warehouseTranferAuto = async (type) => {
+  const payload = {
+    OrderId: resIdPostOrder.value,
+    Type: type
+  }
 
-//   await postAutomaticWarehouse(payload)
-// }
+  await postAutomaticWarehouse(JSON.stringify(payload))
+}
 
 const form = reactive({
   name: '',
@@ -1564,7 +1565,7 @@ let payment = ref(choosePayment[0].value)
 
 let disabledCustomer = ref(false)
 const checkDisabledCustomer = () => {
-  if (valueTypeSpa.value == 2) {
+  if (valueTypeSpa.value == 0) {
     disabledCustomer.value = false
     customerID.value = null
   } else {
@@ -1688,7 +1689,7 @@ const tableAccountingEntry = ref([
   }
 ])
 const invoiceForGoodsEntering = ref(false)
-const alreadyPaidForTt = ref(false)
+const alreadyPaidForTt = ref(true)
 
 // debtTable
 interface tableDataType {
@@ -1891,6 +1892,10 @@ interface statusOrderType {
   approvedAt?: string
 }
 
+const disabledDate = (time: Date) => {
+  return time.getTime() <= Date.now()
+}
+
 // disabled phiếu thanh toán và phiếu đặt cọc tạm ứng
 const doubleDisabled = ref(false)
 const changePriceSpa = ref(false)
@@ -1955,6 +1960,12 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateStatusOrder(formDataPayLoad)
   statusOrder.value = status
+  reloadStatusOrder()
+}
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
 }
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
@@ -1962,6 +1973,54 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
+}
+
+// Cập nhật trạng thái đơn hàng
+const updateStatusOrders = async (typeState) => {
+  // 13 hoàn thành đơn hàng
+  if (typeState == STATUS_ORDER_SPA[0].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await cancelOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else if (typeState == STATUS_ORDER_SPA[2].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await finishStatusOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else {
+    if (type == 'add') {
+      let payload = {
+        OrderId: 0,
+        ServiceType: 5,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let paylpad = { OrderId: id, ServiceType: 5, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(paylpad))
+      reloadStatusOrder()
+    }
+  }
+}
+
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 5 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
+  }
 }
 
 const showPromo = ref(false)
@@ -1975,9 +2034,9 @@ const editData = async () => {
   }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     checkDisabled3.value = true
+    disableCreateOrder.value = true
     disabledEdit.value = true
     const res = await getOrderList({ Id: id, ServiceType: 5 })
-    console.log('data', res)
 
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -2024,6 +2083,8 @@ const editData = async () => {
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouseImport = orderObj?.warehouseId
+      ruleForm.warehouseParent = orderObj?.warehouseId
 
       valueTypeSpa.value = orderObj.spaType
       ruleForm.dateOfReturn = orderObj.toDate
@@ -2374,15 +2435,17 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   Files = ListFileUpload.value.map((el) => el?.raw)
 }
 const fileList = ref<UploadUserFile[]>([])
-
+const disableCreateOrder = ref(false)
 onBeforeMount(async () => {
   await editData()
+  await callApiWarehouseList()
+  await callAPIProduct()
+  await callAPIWarehouse()
   callCustomersApi()
   callApiCollaborators()
-  await callAPIProduct()
   callApiCity()
-  callApiWarehouseList()
   if (type == 'add') {
+    disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
     ruleForm.orderCode = curDate
@@ -2927,7 +2990,7 @@ const postReturnRequest = async (reason) => {
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   v-model="ruleForm.orderCode"
-                  :disabled="checkDisabled"
+                  :disabled="disableCreateOrder"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />
@@ -2955,6 +3018,7 @@ const postReturnRequest = async (reason) => {
                     v-model="ruleForm.dateOfReturn"
                     :disabled="checkDisabled"
                     type="date"
+                    :disabled-date="disabledDate"
                     format="DD/MM/YYYY"
                     :placeholder="t('formDemo.returnDate')"
                     style="width: 100%"
@@ -3145,7 +3209,7 @@ const postReturnRequest = async (reason) => {
                     </div>
                   </el-form-item>
                   <el-form-item
-                    v-if="valueTypeSpa == 2"
+                    v-if="valueTypeSpa == 0"
                     prop="warehouseImport"
                     :label="t('reuse.chooseImportWarehouse')"
                   >
@@ -3169,7 +3233,7 @@ const postReturnRequest = async (reason) => {
                     </div>
                   </el-form-item>
                   <el-form-item
-                    v-if="valueTypeSpa == 2"
+                    v-if="valueTypeSpa == 0"
                     :label="t('formDemo.chooseShipping')"
                     prop="delivery"
                   >
@@ -3509,7 +3573,7 @@ const postReturnRequest = async (reason) => {
                 v-else
                 @change="
                   () => {
-                    data.row.totalPrice = data.row.quantity * totalSettingSpa
+                    totalPriceSpa(data)
                     autoCalculateOrder()
                   }
                 "
@@ -3702,6 +3766,7 @@ const postReturnRequest = async (reason) => {
                 <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_SPA[9].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[4].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[8].orderStatus
                   "
                 >
@@ -3726,8 +3791,7 @@ const postReturnRequest = async (reason) => {
                     item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[4].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
                   "
                 >
                   <span
@@ -3831,7 +3895,6 @@ const postReturnRequest = async (reason) => {
                 @click="
                   () => {
                     addStatusDelay()
-                    checkDisabled = !checkDisabled
                   }
                 "
                 :disabled="checkDisabled"
@@ -3915,12 +3978,9 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
-                    addStatusOrder(0)
-                    addStatusDelay()
-                    checkDisabled = !checkDisabled
+                    updateStatusOrders(STATUS_ORDER_SPA[0].orderStatus)
                   }
                 "
-                :disabled="checkDisabled"
                 type="danger"
                 class="min-w-42 min-h-11"
                 >{{ t('button.cancelOrder') }}</el-button
@@ -4027,6 +4087,14 @@ const postReturnRequest = async (reason) => {
               >
                 Hoàn thành thay đổi dịch vụ Spa
               </el-button>
+            </div>
+            <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+                t('router.approve')
+              }}</el-button>
+              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+                t('router.notApproval')
+              }}</el-button>
             </div>
           </div>
         </div>
@@ -5082,8 +5150,6 @@ const postReturnRequest = async (reason) => {
               >
             </template>
           </el-table-column>
-
-          <el-table-column :label="t('formDemo.kindOfMoney')" align="right">đ</el-table-column>
 
           <el-table-column
             prop="receiveMoney"

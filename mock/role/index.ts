@@ -805,9 +805,9 @@ const adminList = [
             }
           },
           {
-            path: 'purchase-order-add/:type?/:id?',
+            path: 'purchase-order-add/:type?/:id?/:approvalId?',
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
-            name: 'purchase.business-purchases.purchase-order-add',
+            name: `purchase.business-purchases.purchase-order-list.${utility}`,
             meta: {
               title: 'router.purchaseOrder'
             }
@@ -1469,7 +1469,7 @@ const testList: string[] = [
   '/purchase',
   '/purchase/business-purchases',
   '/purchase/business-purchases/purchase-order-list',
-  '/purchase/business-purchases/purchase-order-add/:type?/:id?',
+  '/purchase/business-purchases/purchase-order-add/:type?/:id?/:approvalId?',
 
   '/inventory-management',
   '/inventory-management/business-product-warehouse',

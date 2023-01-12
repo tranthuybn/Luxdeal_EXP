@@ -70,11 +70,14 @@ const createNewLot = async () => {
   )
   if (res) {
     warehouseData.value.lot.value = res.data
+    warehouseData.value.quantity = warehouseForm.value.quantity
   }
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
   radioSelected.value == -1
+  warehouseData.value.quantity = warehouseForm.value.quantity
+  warehouseData.value.lot.value = warehouseData.value.lot['id']
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
@@ -118,20 +121,17 @@ const changeWarehouseData = async (warehouseId) => {
         createdAt: item.createdAt
       }))
       lotData.value = lotData.value.filter((lot) => lot.orderType == 6)
-      console.log('radioSelected', radioSelected.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-
-  // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   if (lotData.value !== undefined) {
     lotData.value = tempLotData.value
     lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
-    warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
     calculateInventory()
   }
+  warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
 }
 const checkLocationData = () => {
   if (locationOptions.value == undefined || locationOptions.value.length == 0) {
@@ -182,11 +182,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 watch(
   () => props.showDialog,
   async () => {
-    console.log('call api loc', props.warehouse?.value, warehouseForm.value)
-    console.log('open dialog orderId:', props.orderId)
     await getLocation(props.warehouse?.value)
     props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
-    radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
 </script>

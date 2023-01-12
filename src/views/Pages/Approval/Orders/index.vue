@@ -37,26 +37,15 @@ const getListOrder = async () => {
 const detailedBrowsing = (scope: any) => {
   const data = scope.row
   const typeServiceOrder = API_ORDER.find((e) => e.key == data.serviceType)
-  if (typeServiceOrder?.key == 6) {
-    push({
-      name: `purchase.business-purchases.purchase-order-list.${utility}`,
-      params: {
-        type: 'approval-order',
-        id: data.targetId,
-        approvalId: data.id
-      }
-    })
-  } else {
-    push({
-      name: `business.order-management.order-list.${utility}`,
-      params: {
-        type: 'approval-order',
-        tab: typeServiceOrder?.label,
-        id: data.targetId,
-        approvalId: data.id
-      }
-    })
-  }
+  push({
+    name: `business.order-management.order-list.${utility}`,
+    params: {
+      type: 'approval-order',
+      tab: typeServiceOrder?.label,
+      id: data.targetId,
+      approvalId: data.id
+    }
+  })
 }
 
 onBeforeMount(() => {
@@ -87,9 +76,7 @@ onBeforeMount(() => {
               ? 'Đơn ký gửi'
               : props.row.serviceType == 4
               ? 'Đơn cầm đồ'
-              : props.row.serviceType == 5
-              ? 'Đơn spa'
-              : 'Đơn mua'
+              : 'Đơn spa'
           }}
         </template>
       </el-table-column>
@@ -101,15 +88,11 @@ onBeforeMount(() => {
       </el-table-column>
       <el-table-column prop="createdBy" :label="t('formDemo.createdByEdit')" width="180" />
       <el-table-column
-        prop="browsingConditions"
+        prop="orderActionName"
         :label="t('formDemo.browsingConditions')"
         width="180"
       />
-      <el-table-column prop="status" :label="t('formDemo.status')" width="180">
-        <template #default="props">
-          {{ props.row.status == 0 ? 'Đang chờ duyệt' : 'Đã duyệt' }}
-        </template>
-      </el-table-column>
+      <el-table-column prop="status" :label="t('formDemo.status')" width="180" />
       <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="120">
         <template #default="props">
           <el-button @click="() => detailedBrowsing(props)" class="w-[100%]" type="primary">{{

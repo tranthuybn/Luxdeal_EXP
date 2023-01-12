@@ -112,7 +112,6 @@ const AddRowTable = () => {
 }
 const forceRemove = ref(false)
 const changeProduct = (value, obj, scope) => {
-  console.log('obj', obj)
   forceRemove.value = false
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
@@ -131,6 +130,7 @@ const changeProduct = (value, obj, scope) => {
     scope.row.productName = obj.name
     scope.row.productPropertyId = obj.productPropertyId
     scope.row.unitName = obj.unit
+    scope.row.lot = undefined
   }
 }
 const scrollProductTop = ref(false)
@@ -175,7 +175,6 @@ const warehouseData = ref({
   lot: { value: undefined, label: undefined }
 })
 const openDialogWarehouse = (props) => {
-  console.log('before open warehouse', props.row, props.row.quantity == undefined)
   if (isNaN(props.row.quantity) || props.row.quantity == undefined) {
     ElMessage({
       message: t('reuse.pleaseChooseQuantity'),
@@ -207,15 +206,11 @@ const openDialogWarehouse = (props) => {
     warehouseData.value.location.label = props.row?.location?.label
     warehouseData.value.lot.value = props.row?.lot?.value
     warehouseData.value.lot.label = props.row?.lot?.label
-
-    console.log('listProduct', ListOfProductsForSale)
-    console.log('warehouseData', warehouseData.value)
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
-    console.log('after choose lot', warehouseData)
   }
   dialogWarehouse.value = false
 }
@@ -280,7 +275,6 @@ const warehouseFormat = (props) => {
   }
 }
 const checkValueOfTable = () => {
-  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
   if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),

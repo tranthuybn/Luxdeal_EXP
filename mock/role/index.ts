@@ -807,7 +807,7 @@ const adminList = [
           {
             path: 'purchase-order-add/:type?/:id?/:approvalId?',
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
-            name: `purchase.business-purchases.purchase-order-add.${utility}`,
+            name: `purchase.business-purchases.purchase-order-list.${utility}`,
             meta: {
               title: 'router.purchaseOrder'
             }

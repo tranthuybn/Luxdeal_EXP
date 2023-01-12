@@ -33,7 +33,7 @@ export default {
         {
           path: 'purchase-order-add/:type?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd.vue'),
-          name: `purchase.business-purchases.purchase-order-add.${utility}`,
+          name: `purchase.business-purchases.purchase-order-list.${utility}`,
           meta: {
             title: t('router.purchaseOrderAdd'),
             noCache: true,

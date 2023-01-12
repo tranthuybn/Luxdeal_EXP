@@ -54,7 +54,6 @@ const callAPI = async () => {
     lotDetail.value.lotImageUrl = res.data[0]?.lotImageUrl
     lotDetail.value.serviceType = res.data[0]?.orderServiceType
   })
-  console.log('lotDetail', lotDetail.value)
 }
 onBeforeMount(() => callAPI())
 </script>

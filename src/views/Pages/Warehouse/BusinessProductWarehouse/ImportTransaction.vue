@@ -67,9 +67,7 @@ const addTransaction = async () => {
   let validTicket: any = false
   validTicket = await detailTicketRef.value?.submitFormTicket()
   let validTable = productWarehouseRef.value?.checkValueOfTable()
-  console.log('validTicket', validTicket, validTable, validTicket && validTable)
   if (validTicket && validTable) {
-    console.log('run here')
     let uploadData: any = {}
     uploadData.type = 1
     uploadData.warehouseProductJson = [{}]
@@ -90,7 +88,6 @@ const addTransaction = async () => {
     uploadData.toWarehouseId = detailTicketRef.value?.FormData.toWarehouseId
     uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    console.log('type:', type)
     if (type.value == 'add') {
       await createTicketManually(JSON.stringify(uploadData))
         .then(() => {
@@ -214,8 +211,6 @@ const callApiForData = async () => {
         },
         imageUrl: item?.imageUrl
       }))
-      console.log('ticketData', ticketData.value)
-      console.log('productData', productData.value)
     }
   } else {
     type.value = 'add'
@@ -295,7 +290,6 @@ const updateInventoryOrder = async () => {
 
 const updateTicket = (warehouse) => {
   ticketData.value.warehouse = warehouse
-  console.log('change warehouse', warehouse)
 }
 </script>
 <template>

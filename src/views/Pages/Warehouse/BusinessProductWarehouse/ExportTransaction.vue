@@ -85,7 +85,6 @@ const addTransaction = async () => {
     uploadData.fromWarehouseId = detailTicketRef.value?.FormData.fromWarehouseId
     uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    console.log('type:', type)
     if (type.value == 'add') {
       await createTicketManually(JSON.stringify(uploadData))
         .then(() => {
@@ -190,7 +189,6 @@ const callApiForData = async () => {
         label: res.data[0]?.fromWarehouseName
       }
       ticketData.value.orderId = res.data[0]?.orderId
-      console.log('ticketData', ticketData.value)
       serviceType.value = res.data[0]?.orderType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,

@@ -60,7 +60,6 @@ const callAPI = async () => {
       totalInventoryMoney: res.totalInventoryMoney
     }))
   })
-  console.log('tableData', tableData.value)
   stack.value[0] = tableData.value[0].quantity
   for (let i = 1; i < tableData.value.length; i++) {
     if (tableData.value[i].nhapXuat == 1) {

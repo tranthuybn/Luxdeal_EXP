@@ -187,5 +187,7 @@ export const DEPARTMENT_DIRECTORY = {
 
 export const APPROVAL_API = {
   GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting',
-  GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove'
+  GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove',
+  GET_LIST_ACOUNT: '/api/v1/AccountStaff/GetAccount',
+  GET_LIST_ACOUNT_BY_ID: '/api/v1/AccountStaff/GetId'
 }

@@ -40,6 +40,7 @@ import {
   getTypePersonnelList
 } from '@/api/HumanResourceManagement'
 import { useValidator } from '@/hooks/web/useValidator'
+import { getEmployeeById } from '@/api/Accountant'
 const { t } = useI18n()
 
 //random mã
@@ -538,7 +539,29 @@ const postData = async (typebtn) => {
   // resetForm(ruleFormRef)
 }
 
+const formValue = ref()
+//get data from table
+const getTableValue = async () => {
+  if (!isNaN(id)) {
+    const res = await getEmployeeById({ Id: id })
+    if (res) {
+      if (res.data?.list !== undefined) {
+        formValue.value = res.data?.list[0]
+      } else {
+        formValue.value = res.data
+      }
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+}
+
 onBeforeMount(() => {
+  getTableValue()
+
   callApiCity()
   CallApiBranch()
   CallApiDepartment()

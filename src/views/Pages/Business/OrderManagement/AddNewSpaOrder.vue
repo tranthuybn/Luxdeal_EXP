@@ -5644,6 +5644,23 @@ const postReturnRequest = async (reason) => {
   padding-left: 8px;
 }
 
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #content {
   height: 200px;
   overflow: auto;

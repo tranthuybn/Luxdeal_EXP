@@ -39,7 +39,7 @@ const detailedBrowsing = (scope: any) => {
   const typeServiceOrder = API_ORDER.find((e) => e.key == data.serviceType)
   if (typeServiceOrder?.key == 6) {
     push({
-      name: `purchase.business-purchases.purchase-order-add.${utility}`,
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
       params: {
         type: 'approval-order',
         id: data.targetId,

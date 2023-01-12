@@ -15,7 +15,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 
 const { required, notSpecialCharacters } = useValidator()
 
-const emit = defineEmits(['to-register'])
+// const emit = defineEmits(['to-register'])
 
 const permissionStore = usePermissionStore()
 
@@ -152,6 +152,7 @@ const getRole = async (accountId) => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
+
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
       generateRouter(urlList)
@@ -202,9 +203,9 @@ const setPermissionForUser = (data) => {
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
 }
 // Go to register a page
-const toRegister = () => {
-  emit('to-register')
-}
+// const toRegister = () => {
+//   emit('to-register')
+// }
 </script>
 
 <template>
@@ -240,11 +241,12 @@ const toRegister = () => {
           {{ t('login.login') }}
         </ElButton>
       </div>
-      <div class="w-[100%] mt-15px">
+      <!-- bỏ chức năng đăng ký -->
+      <!-- <div class="w-[100%] mt-15px">
         <ElButton class="w-[100%]" @click="toRegister">
           {{ t('login.register') }}
         </ElButton>
-      </div>
+      </div> -->
     </template>
 
     <template #otherIcon>

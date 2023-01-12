@@ -218,3 +218,12 @@ export const getStaffInfoByAccountId = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getRoleList = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.GET_ROLE_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

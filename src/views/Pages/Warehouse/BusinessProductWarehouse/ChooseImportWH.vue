@@ -117,7 +117,7 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt
       }))
-
+      lotData.value = lotData.value.filter((lot) => lot.orderType == 6)
       console.log('radioSelected', radioSelected.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
@@ -126,10 +126,12 @@ const changeWarehouseData = async (warehouseId) => {
   // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
-  lotData.value = tempLotData.value
-  lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
-  warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
-  calculateInventory()
+  if (lotData.value !== undefined) {
+    lotData.value = tempLotData.value
+    lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
+    warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
+    calculateInventory()
+  }
 }
 const checkLocationData = () => {
   if (locationOptions.value == undefined || locationOptions.value.length == 0) {
@@ -155,9 +157,9 @@ const calculateQuantity = (scope) => {
 }
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
-  const index = lotData.value.findIndex((lot) => lot == row)
-  index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
-  warehouseData.value.lot = row
+  if (lotData.value !== undefined) {
+    warehouseData.value.lot = row
+  }
 }
 const warehouseData = ref({
   quantity: 0,
@@ -181,8 +183,9 @@ watch(
   () => props.showDialog,
   async () => {
     console.log('call api loc', props.warehouse?.value, warehouseForm.value)
+    console.log('open dialog orderId:', props.orderId)
     await getLocation(props.warehouse?.value)
-    await changeWarehouseData(props.warehouse?.value)
+    props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
     radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
@@ -231,53 +234,56 @@ watch(
         </el-form-item>
       </div>
     </el-form>
-    <div>{{ t('reuse.lotList') }}</div>
-    <el-table
-      :data="lotData"
-      style="width: 100%"
-      :loading="loadingLot"
-      highlight-current-row
-      border
-      @row-click="rowClick"
-      ref="singleTableRef"
-    >
-      <template #append>
-        <span class="pl-650px font-bold">{{ totalInventory }}</span>
-        <span class="pl-180px font-bold">{{ warehouseForm.quantity }}</span>
-      </template>
-      <el-table-column label="" width="70">
-        <template #default="scope">
-          <el-radio
-            v-model="radioSelected"
-            :label="scope.$index"
-            style="color: #fff; margin-right: -25px"
-            ><span></span
-          ></el-radio>
-        </template>
-      </el-table-column>
-      <el-table-column prop="location" :label="t('reuse.location')" width="180" />
-      <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
-      <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
-        <template #default="scope">
-          {{ orderType(scope.row.orderType) }}
-        </template></el-table-column
+    <div v-if="orderId == 0">
+      <div>{{ t('reuse.lotList') }}</div>
+      <el-table
+        :data="lotData"
+        style="width: 100%"
+        :loading="loadingLot"
+        highlight-current-row
+        border
+        @row-click="rowClick"
+        ref="singleTableRef"
       >
-      <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
-      <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
-        <template #default="scope">
-          {{ calculateQuantity(scope) }}
+        <template #append>
+          <span class="pl-650px font-bold">{{ totalInventory }}</span>
+          <span class="pl-180px font-bold">{{ warehouseForm.quantity }}</span>
         </template>
-      </el-table-column>
-      <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
-      <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180">
-        <template #default="scope">
-          {{ dateTimeFormat(scope.row.createdAt) }}
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="" width="70">
+          <template #default="scope">
+            <el-radio
+              v-model="radioSelected"
+              :label="scope.$index"
+              style="color: #fff; margin-right: -25px"
+              ><span></span
+            ></el-radio>
+          </template>
+        </el-table-column>
+        <el-table-column prop="location" :label="t('reuse.location')" width="180" />
+        <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
+        <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
+          <template #default="scope">
+            {{ orderType(scope.row.orderType) }}
+          </template></el-table-column
+        >
+        <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
+        <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
+          <template #default="scope">
+            {{ calculateQuantity(scope) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
+        <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180">
+          <template #default="scope">
+            {{ dateTimeFormat(scope.row.createdAt) }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button
+          v-if="orderId == 0"
           class="w-[150px]"
           type="primary"
           @click="saveOldLot"

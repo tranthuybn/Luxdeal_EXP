@@ -72,27 +72,29 @@ const addTransaction = async () => {
       productPropertyId: row.productPropertyId,
       quantity: row.quantity,
       accessory: row.accessory,
-      productPropertyQuality: row.productPropertyQuality,
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
         fromLotId: val.value,
         quantity: val.quantity
-      })),
-      warehouseId: row.warehouse?.value,
-      locationId: row.location?.value
+      }))
     }))
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
+    uploadData.fromWarehouseId = detailTicketRef.value?.FormData.fromWarehouseId
+    uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
     await createTicketManually(JSON.stringify(uploadData))
-      .then((res) => {
+      .then(() => {
         ElNotification({
           message: t('reuse.addSuccess'),
           type: 'success'
         })
-        id.value = res.data
-        type.value = 'detail'
+        // id.value = res.data
+        // type.value = 'detail'
+        push({
+          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+        })
       })
       .catch(() =>
         ElNotification({
@@ -116,8 +118,8 @@ const ticketData = ref({
   fromWarehouseId: '',
   warehouse: {},
   toWarehouseId: '',
-  orderId: '',
-  orderType: ''
+  orderId: 0,
+  orderType: 0
 })
 type ExportLots = {
   fromLotId: number
@@ -180,8 +182,8 @@ const callApiForData = async () => {
           fromLotId: detail.fromLotId,
           quantity: detail.quantity
         })),
-        location: { value: item?.toLocationId, label: item.locationName },
-        lot: { value: item?.lotId, label: item.lotCode },
+        location: item.locationName,
+        lot: item.lotCode,
         imageUrl: item?.imageUrl,
         quantity: item.quantity
       }))
@@ -192,6 +194,7 @@ const callApiForData = async () => {
   } else {
     type.value = 'add'
     ticketData.value.updatedAt = moment().format()
+    ticketData.value.ticketCode = 'XK' + moment().format('hhmmss')
   }
 }
 const cancelTicketWarehouse = async () => {
@@ -235,15 +238,17 @@ const updateInventoryOrder = async () => {
   }
   const payload = {
     ticketId: id.value,
-    type: 2
-    // warehouseProductJson: ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
-    //   productPropertyId: row.productPropertyId,
-    //   quantity: row.quantity,
-    //   price: row.price,
-    //   accessory: row.accessory,
-    //   productPropertyQuality: row.productPropertyQuality,
-    //   toLotId: row.lot?.id
-    // }))
+    type: 2,
+    warehouseProductJson: ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
+      productPropertyId: row.productPropertyId,
+      quantity: row.quantity,
+      accessory: row.accessory,
+      fileId: row.fileId,
+      exportLots: row.exportLots?.map((val) => ({
+        fromLotId: val.value,
+        quantity: val.quantity
+      }))
+    }))
   }
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
@@ -287,7 +292,6 @@ const updateTicket = (warehouse) => {
         <div class="flex w-[100%]">
           <DetailTicket
             ref="detailTicketRef"
-            v-if="transactionType"
             :transactionType="transactionType"
             :type="type"
             :ticketData="ticketData"
@@ -306,9 +310,9 @@ const updateTicket = (warehouse) => {
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :orderId="parseInt(ticketData.orderId)"
+          :orderId="ticketData.orderId"
           :warehouse="ticketData.warehouse"
-          :orderType="serviceType"
+          :serviceType="serviceType"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -340,7 +344,7 @@ const updateTicket = (warehouse) => {
         </div>
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.printExportTicket')
+            t('reuse.printDeliveryNote')
           }}</ElButton>
           <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
             <ElButton
@@ -349,7 +353,7 @@ const updateTicket = (warehouse) => {
               v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
-              >{{ t('reuse.exportWarehouseNow') }}</ElButton
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
               v-else
@@ -357,7 +361,7 @@ const updateTicket = (warehouse) => {
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventory"
-              >{{ t('reuse.exportWarehouseNow') }}</ElButton
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
               class="w-[150px]"

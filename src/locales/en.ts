@@ -1714,6 +1714,9 @@ export default {
     warehouseManagementInformation: 'Warehouse management information',
     ticketCreatedDay: 'Ticket created day',
     stackInventory: 'Stack inventory',
-    importOrderPrice: 'Import order price'
+    importOrderPrice: 'Import order price',
+    moreOrLessQuantity: 'Choose more or less quantity',
+    pleaseChooseQuantity: 'Please choose quantity',
+    pleaseChooseLotHasInventory: 'Please choose lot has inventory'
   }
 }

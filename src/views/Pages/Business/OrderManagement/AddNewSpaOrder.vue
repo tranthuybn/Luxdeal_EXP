@@ -63,7 +63,8 @@ import {
   updateOrderTransaction,
   GetPaymentRequestDetail,
   updateStatusOrder,
-  updateOrderInfo
+  updateOrderInfo,
+  getListWareHouse
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -78,6 +79,7 @@ import { PRODUCTS_AND_SERVICES, STATUS_ORDER_SPA } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
+import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 
 const { t } = useI18n()
 const { utility } = appModules
@@ -190,9 +192,10 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   spaServices: Options[]
   amountSpa: number
-  quantity: string
+  quantity: number
   accessory: string | undefined
   unitName: string
+  warehouseLotId: number
   examinationContent: string
   price: string | number | undefined
   paymentType: string
@@ -219,9 +222,10 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: [{ value: 0, label: '' }],
   amountSpa: 2,
   productPropertyId: '',
-  quantity: '1',
+  quantity: 1,
   accessory: '',
   unitName: '',
+  warehouseLotId: 0,
   price: '',
   totalPrice: 0,
   idLot: 0,
@@ -261,7 +265,7 @@ const tableFullyIntegrated = [
     commodityName:
       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
     accessory: '',
-    quantity: '2',
+    quantity: 0,
     unitPriceWarehouse: '5,000,000 đ',
     intoMoneyWarehouse: '5,000,000 đ'
   }
@@ -284,7 +288,7 @@ const activeName = ref([collapse[0].name, collapse[1].name])
 const onAddHistoryTableItem = () => {
   historyTable.value.push({
     name: '',
-    quantity: '',
+    quantity: '0',
     unit: t('formDemo.psc')
   })
 }
@@ -450,18 +454,47 @@ const ScrollProductBottom = () => {
           noMoreProductData.value = true
         })
 }
-
+// disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
 let totalSettingSpa = ref(0)
-
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
+  })
+
   moneyReceipts.value = val.reduce((total, value) => {
     total += parseInt(value.receiveMoney)
     return total
   }, 0)
 }
+
 const handleSelectionChange2 = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
     label: e.spaServiceName,
@@ -474,11 +507,6 @@ const handleSelectionChange2 = (val: tableDataType[]) => {
     totalSettingSpa.value += val.price
   })
 }
-
-const duplicateProductMessage = () => {
-  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
-}
-const duplicateProduct = ref()
 
 // Cập nhật lại giá tiền khi thay đổi VAT
 const valueVAT = ref()
@@ -496,20 +524,18 @@ let promoCash = ref(0)
 
 const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
-  console.log('dataSelect,', data)
-  duplicateProduct.value = undefined
-  duplicateProduct.value = ListOfProductsForSale.value.find(
-    (val) => val.productPropertyId == _value
-  )
-  if (duplicateProduct.value) {
-    duplicateProductMessage()
-  } else {
-    totalPriceOrder.value = 0
-    totalFinalOrder.value = 0
-    data.productPropertyId = obj.productPropertyId
-    data.productCode = obj.value
-    data.productName = obj.name
-  }
+
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  data.productPropertyId = obj.productPropertyId
+  data.productCode = obj.value
+  data.productName = obj.name
+  data.unitName = obj.unit
+  data.quantity = 1
+  data.spaServices = {}
+  data.totalPrice = 0
+  data.accessory = ''
+  data.examinationContent = ''
 
   ListOfProductsForSale.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
@@ -530,11 +556,6 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (scope.$index == ListOfProductsForSale.value.length - 1) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
-}
-
-const totalPriceSpa = (scope) => {
-  let quantityInput = scope.row.quantity
-  scope.row.totalPrice = quantityInput * totalSettingSpa.value
 }
 
 const autoCalculateOrder = () => {
@@ -795,7 +816,6 @@ const changeNamePromo = () => {
   campaignId.value = promo.value.id
   isActivePromo.value = promo.value.isActive
 }
-
 // api Spa
 
 const listServicesSpa = ref()
@@ -821,9 +841,9 @@ const callApiServicesSpa = async (scope) => {
     currentRow2.value = scope.$index
     if (countSpaClick.value > 1 && res.data.length > 0) {
       ElNotification({
-        title: 'Warning',
-        message: 'Bạn vui lòng chọn lại dịch vụ nhé!',
-        type: 'warning'
+        title: 'Info',
+        message: 'Bạn vui lòng chọn dịch vụ nhé!',
+        type: 'info'
       })
     } else if (res.data.length === 0) {
       ElNotification({
@@ -839,6 +859,7 @@ const callApiServicesSpa = async (scope) => {
     })
   }
 }
+const changeServiceSpa = ref(false)
 
 const checkProductSelected = (scope) => {
   if (scope.row.productPropertyId) {
@@ -938,15 +959,26 @@ var curDate = 'SPA' + moment().format('hhmmss')
 
 const optionsTypeSpa = [
   {
-    value: 1,
+    value: 2,
     label: 'Khách spa'
   },
   {
-    value: 2,
+    value: 1,
     label: 'Nội bộ spa'
   }
 ]
 const valueTypeSpa = ref(optionsTypeSpa[0].value)
+
+const chooseDelivery = [
+  {
+    value: 0,
+    label: t('formDemo.pickUpGoodsAtTheCounter')
+  },
+  {
+    value: 1,
+    label: t('formDemo.receiveGoodsAtCustomerAddress')
+  }
+]
 
 // tạo đơn hàng
 
@@ -974,10 +1006,12 @@ const closeDialogWarehouse = (warehouseData) => {
   idLotData.value = warehouseData?.lot.idLot
 }
 
-const postData = async () => {
+const resIdPostOrder = ref()
+
+const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
-    Quantity: parseInt(val.quantity),
+    Quantity: val.quantity,
     ProductPrice: val.price,
     UnitPrice: totalSettingSpa.value,
     SpaServiceIds: val.spaServices.map((spa) => spa.value).toString(),
@@ -1025,16 +1059,18 @@ const postData = async () => {
   }
   console.log('payload:', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
-  orderIdSpa.value = await addNewSpaOrders(formDataPayLoad)
+  resIdPostOrder.value = await addNewSpaOrders(formDataPayLoad)
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
+      if (pushBack == true) {
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        })
+      }
     })
     .catch(() =>
       ElNotification({
@@ -1042,8 +1078,28 @@ const postData = async () => {
         type: 'warning'
       })
     )
+  console.log('clickStarSpa.value', clickStarSpa.value)
+  // get data
+
+  if (clickStarSpa.value == true) {
+    // orderIdSpa.value = resIdPostOrder.value.data
+    // console.log('orderIdSpa: ', orderIdSpa.value)
+    console.log('resIdPostOrder: ', resIdPostOrder.value)
+    startSpaProcess()
+  }
 
   // warehouseTranferAuto(3)
+}
+
+const clickStarSpa = ref(false)
+const startSpaProcess = async () => {
+  const payload = {
+    OrderId: orderIdSpa.value,
+    ServiceType: 5,
+    OrderStatus: 5
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updateStatusOrder(formDataPayLoad)
 }
 // chuyển kho auto
 // const warehouseTranferAuto = async (type) => {
@@ -1077,6 +1133,39 @@ const checkDisabled2 = ref(false)
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
+const ruleFormAddress = ref<FormInstance>()
+const formAddress = reactive({
+  province: '',
+  district: '',
+  wardCommune: '',
+  detailedAddress: ''
+})
+const rulesAddress = reactive<FormRules>({
+  province: [
+    {
+      required: true,
+      message: 'Tỉnh/thành phố không được để trống ',
+      trigger: 'change'
+    }
+  ],
+  district: [
+    {
+      required: true,
+      message: 'Quận/huyện kkhông được để trống ',
+      trigger: 'blur'
+    }
+  ],
+  wardCommune: [
+    {
+      required: true,
+      message: 'Phường/Xã không được để trống ',
+      trigger: 'blur'
+    }
+  ],
+  detailedAddress: [
+    { required: true, message: 'Địa chỉ chi tiết không được để trống ', trigger: 'blur' }
+  ]
+})
 
 const ruleForm = reactive({
   orderCode: '',
@@ -1085,8 +1174,10 @@ const ruleForm = reactive({
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: '',
-  warehouseParent: ''
+  delivery: 1,
+  warehouseParent: '',
+  warehouseImport: '',
+  orderFiles: []
 })
 
 const rules = reactive<FormRules>({
@@ -1098,7 +1189,13 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-
+  warehouseImport: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
+  ],
   collaboratorCommission: [
     {
       validator: checkPercent,
@@ -1132,7 +1229,11 @@ const rules = reactive<FormRules>({
 })
 
 let checkValidateForm = ref(false)
-const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+const submitForm = async (
+  formEl: FormInstance | undefined,
+  formEl2: FormInstance | undefined,
+  pushBack: boolean
+) => {
   if (!formEl || !formEl2) return
   await formEl.validate((valid, _fields) => {
     if (valid) {
@@ -1143,13 +1244,63 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
-      postData()
+      postData(pushBack)
       // doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
     }
   })
+}
+const submitFormAddress = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, _fields) => {
+    if (valid) {
+      autoChangeAddress()
+      dialogFormVisible.value = false
+    } else {
+    }
+  })
+}
+
+// change address
+let autoChangeCommune = ref()
+let autoChangeDistrict = ref()
+let autoChangeProvince = ref()
+
+const autoChangeAddress = () => {
+  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
+  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
+  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
+  customerAddress.value =
+    formAddress.detailedAddress +
+    ', ' +
+    autoChangeCommune.value.label +
+    ', ' +
+    autoChangeDistrict.value.label +
+    ', ' +
+    autoChangeProvince.value.label
+}
+
+const dialogFormVisible = ref(false)
+
+const cities = ref()
+const district = ref()
+const ward = ref()
+
+const callApiCity = async () => {
+  cities.value = await getCity()
+}
+
+const CityChange = async (value) => {
+  formAddress.district = ''
+  formAddress.wardCommune = ''
+  formAddress.detailedAddress = ''
+  district.value = await getDistrict(value)
+}
+
+const districtChange = async (value) => {
+  ward.value = await getWard(value)
 }
 
 //thêm nahnh sp
@@ -1413,10 +1564,11 @@ let payment = ref(choosePayment[0].value)
 
 let disabledCustomer = ref(false)
 const checkDisabledCustomer = () => {
-  if (valueTypeSpa.value == 1) {
+  if (valueTypeSpa.value == 2) {
     disabledCustomer.value = false
-    customerID.value = 1
+    customerID.value = null
   } else {
+    ruleForm.customerName = ''
     disabledCustomer.value = true
   }
 }
@@ -1569,7 +1721,7 @@ let childrenTable = ref()
 const postOrderStransaction = async (num: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.id),
-    quantity: parseInt(val.quantity)
+    quantity: val.quantity
   }))
 
   const payload = {
@@ -1700,6 +1852,12 @@ const handleChangeReceipts = async () => {
   await getOrderStransactionList()
 }
 
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouseImport = reactive<Array<typeWarehouse>>([])
+
 const codePaymentRequest = ref()
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
@@ -1791,7 +1949,7 @@ const postPC = async () => {
 const updateOrderStatus = async (status: number, idOrder: any) => {
   const payload = {
     OrderId: idOrder ? idOrder : id,
-    ServiceType: 2,
+    ServiceType: 5,
     OrderStatus: status
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -1859,7 +2017,8 @@ const editData = async () => {
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       spaOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaboratorCode
+      ruleForm.collaborators = orderObj?.collaborator?.id
+
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.isOrganization
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
@@ -1907,6 +2066,21 @@ const editData = async () => {
     })
   } else if (type == 'add' || !type || type != 'approval-order') {
     ListOfProductsForSale.value.push({ ...productForSale })
+  }
+}
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouseImport.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
   }
 }
 
@@ -2076,7 +2250,6 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
 }
 const { push } = useRouter()
 const editButton = ref(false)
-let changeButtonEdit = ref(false)
 
 const changeEditInDetail = () => {
   if (type == 'detail') {
@@ -2099,7 +2272,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    // Files: Files,
+    Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -2206,7 +2379,9 @@ onBeforeMount(async () => {
   await editData()
   callCustomersApi()
   callApiCollaborators()
-  callAPIProduct()
+  await callAPIProduct()
+  callApiCity()
+  callApiWarehouseList()
   if (type == 'add') {
     checkDisabled2.value = true
     startSpa.value = true
@@ -2647,6 +2822,92 @@ const postReturnRequest = async (reason) => {
         </template>
       </el-dialog>
 
+      <!-- Địa chỉ nhận hàng -->
+      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+        <el-divider />
+        <el-form
+          ref="ruleFormAddress"
+          :model="formAddress"
+          :rules="rulesAddress"
+          label-width="150px"
+          class="demo-ruleForm"
+          status-icon
+        >
+          <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
+            <el-select
+              v-model="formAddress.province"
+              style="width: 96%"
+              class="fix-full-width"
+              :placeholder="t('formDemo.selectProvinceCity')"
+              @change="(data) => CityChange(data)"
+            >
+              <el-option
+                v-for="item in cities"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
+            <el-select
+              v-model="formAddress.district"
+              style="width: 96%"
+              class="fix-full-width"
+              :placeholder="t('formDemo.selectDistrict')"
+              @change="(data) => districtChange(data)"
+            >
+              <el-option
+                v-for="item in district"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
+            <el-select
+              v-model="formAddress.wardCommune"
+              style="width: 96%"
+              class="fix-full-width"
+              :placeholder="t('formDemo.chooseWard')"
+            >
+              <el-option
+                v-for="item in ward"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
+            <el-input
+              v-model="formAddress.detailedAddress"
+              style="width: 96%"
+              class="fix-full-width"
+              :placeholder="t('formDemo.detailedAddress')"
+            />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button
+              class="w-[150px]"
+              type="primary"
+              @click="
+                () => {
+                  submitFormAddress(ruleFormAddress)
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
+            <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
@@ -2688,7 +2949,7 @@ const postReturnRequest = async (reason) => {
                 </el-select>
               </el-form-item>
 
-              <el-form-item :label="t('formDemo.deliveryDate')" prop="dateOfReturn" required>
+              <el-form-item :label="t('formDemo.deliveryDate')" prop="dateOfReturn">
                 <div class="custom-date">
                   <el-date-picker
                     v-model="ruleForm.dateOfReturn"
@@ -2857,7 +3118,11 @@ const postReturnRequest = async (reason) => {
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item prop="warehouseParent" :label="t('reuse.chooseExportWarehouse')">
+                  <el-form-item
+                    v-if="valueTypeSpa == 1"
+                    prop="warehouseParent"
+                    :label="t('reuse.chooseExportWarehouse')"
+                  >
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
@@ -2879,6 +3144,53 @@ const postReturnRequest = async (reason) => {
                       </div>
                     </div>
                   </el-form-item>
+                  <el-form-item
+                    v-if="valueTypeSpa == 2"
+                    prop="warehouseImport"
+                    :label="t('reuse.chooseImportWarehouse')"
+                  >
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          class="w-full"
+                          v-model="ruleForm.warehouseImport"
+                          :loading="loadingWarehouse"
+                          placeholder="Chọn kho"
+                        >
+                          <el-option
+                            v-for="item in chooseWarehouseImport"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
+                  <el-form-item
+                    v-if="valueTypeSpa == 2"
+                    :label="t('formDemo.chooseShipping')"
+                    prop="delivery"
+                  >
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.delivery"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseDelivery"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
                 </div>
               </div>
               <div class="flex w-[100%] gap-6">
@@ -2890,6 +3202,21 @@ const postReturnRequest = async (reason) => {
                       >{{ t('formDemo.noDebt') }}</p
                     >
                   </el-form-item>
+                </div>
+                <div class="flex w-[50%] gap-2 items-center" v-if="ruleForm.customerName !== ''">
+                  <p class="w-[150px] ml-2 text-[#828387] text-right">{{
+                    t('formDemo.deliveryAddress')
+                  }}</p>
+                  <p>{{ customerAddress }}</p>
+                  <p>
+                    <el-button
+                      class="hover:bg-transparent; focus:bg-transparent"
+                      :disabled="checkDisabled"
+                      text
+                      @click="dialogFormVisible = true"
+                      ><span class="text-blue-500">+ {{ t('formDemo.changeTheAddress') }}</span>
+                    </el-button>
+                  </p>
                 </div>
               </div>
               <el-form-item
@@ -3182,10 +3509,11 @@ const postReturnRequest = async (reason) => {
                 v-else
                 @change="
                   () => {
-                    totalPriceSpa(data)
+                    data.row.totalPrice = data.row.quantity * totalSettingSpa
                     autoCalculateOrder()
                   }
                 "
+                type="number"
                 v-model="data.row.quantity"
                 :disabled="disabledEdit"
                 style="width: 100%"
@@ -3197,11 +3525,19 @@ const postReturnRequest = async (reason) => {
 
           <el-table-column prop="totalPrice" :label="t('formDemo.spaFeePayment')" width="100" />
 
-          <el-table-column :label="t('reuse.selectedLotSpa')" min-width="210">
+          <el-table-column
+            v-if="valueTypeSpa == 1"
+            prop="warehouseLotId"
+            :label="t('reuse.selectedLotSpa')"
+            min-width="210"
+          >
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="flex-left w-[60%]">
+                <div v-if="type == 'add'" class="flex-left w-[60%]">
                   <div class="break-words">{{ fromWarehouseFormat(props) }}</div>
+                </div>
+                <div v-if="type != 'add'" class="flex-left w-[60%]">
+                  {{ props.row.warehouseLotId }}
                 </div>
                 <div class="w-[40%]">
                   <el-button
@@ -3365,9 +3701,8 @@ const postReturnRequest = async (reason) => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[9].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[8].orderStatus
                   "
                 >
                   <span
@@ -3388,7 +3723,10 @@ const postReturnRequest = async (reason) => {
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_SPA[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[4].orderStatus
                   "
                 >
@@ -3421,7 +3759,7 @@ const postReturnRequest = async (reason) => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[0].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3450,7 +3788,6 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   editOrderInfo()
-                  changeButtonEdit = false
                 }
               "
               type="primary"
@@ -3482,7 +3819,7 @@ const postReturnRequest = async (reason) => {
                 :disabled="checkDisabled"
                 @click="
                   () => {
-                    submitForm(ruleFormRef, ruleFormRef2)
+                    submitForm(ruleFormRef, ruleFormRef2, true)
                     statusOrder = 3
                   }
                 "
@@ -3536,7 +3873,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'add'"
                 @click="
                   () => {
-                    submitForm(ruleFormRef, ruleFormRef2)
+                    submitForm(ruleFormRef, ruleFormRef2, true)
                   }
                 "
                 type="primary"
@@ -3544,25 +3881,38 @@ const postReturnRequest = async (reason) => {
                 >{{ t('formDemo.saveCloseOrder') }}</el-button
               >
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'add'"
                 @click="
                   () => {
-                    addStatusOrder(5)
+                    submitForm(ruleFormRef, ruleFormRef2, false)
+                    clickStarSpa = true
                   }
                 "
-                :disabled="startSpa"
                 type="primary"
                 class="min-w-42 min-h-11"
               >
                 Bắt đầu quá trình Spa
               </el-button>
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'edit'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add'"
+                @click="
+                  () => {
+                    addStatusOrder(5)
+                  }
+                "
+                type="primary"
+                class="min-w-42 min-h-11"
+              >
+                Bắt đầu quá trình Spa
+              </el-button>
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'detail'"
                 @click="changeEditInDetail"
                 class="min-w-42 min-h-11"
                 >{{ t('formDemo.editOrder') }}</el-button
               >
               <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
                     addStatusOrder(0)
@@ -3576,6 +3926,11 @@ const postReturnRequest = async (reason) => {
                 >{{ t('button.cancelOrder') }}</el-button
               >
               <el-button
+                @click="
+                  () => {
+                    addStatusOrder(8)
+                  }
+                "
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus
@@ -3588,14 +3943,21 @@ const postReturnRequest = async (reason) => {
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[2].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[7].orderStatus
                 "
                 type="primary"
+                @click="
+                  () => {
+                    changeReturnGoods = true
+                    setDataForReturnOrder()
+                    addStatusOrder(6)
+                  }
+                "
                 class="min-w-42 min-h-11"
               >
                 Trả hàng Spa
               </el-button>
+
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[6].orderStatus ||
@@ -3619,9 +3981,36 @@ const postReturnRequest = async (reason) => {
               >
                 Đối soát & kết thúc
               </el-button>
+            </div>
+            <div v-if="changeServiceSpa" class="w-[100%] flex ml-1 gap-3">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
+                @click="
+                  () => {
+                    addStatusOrder(8)
+                  }
+                "
                 type="primary"
+                class="min-w-42 min-h-11"
+                >{{ t('reuse.saveAndPending') }}</el-button
+              >
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
+                @click="
+                  () => {
+                    router.go(-1)
+                    changeServiceSpa = false
+                  }
+                "
+                type="danger"
+                class="min-w-42 min-h-11"
+                >{{ t('button.cancel') }}</el-button
+              >
+            </div>
+
+            <div v-if="!changeServiceSpa">
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
                 class="min-w-42 min-h-11"
               >
                 Hủy thay đổi dịch vụ Spa
@@ -3629,6 +4018,11 @@ const postReturnRequest = async (reason) => {
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
                 type="warning"
+                @click="
+                  () => {
+                    addStatusOrder(7)
+                  }
+                "
                 class="min-w-42 min-h-11"
               >
                 Hoàn thành thay đổi dịch vụ Spa
@@ -3639,20 +4033,7 @@ const postReturnRequest = async (reason) => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <div class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              v-if="type == 'edit'"
-              @click="
-                () => {
-                  changeReturnGoods = true
-                  setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Trả hàng Spa</el-button
-            >
-          </div>
+          <div class="w-[100%] flex ml-1 gap-4"> </div>
         </div>
       </el-collapse-item>
 
@@ -4624,14 +5005,14 @@ const postReturnRequest = async (reason) => {
         <el-button :disabled="checkDisabled2" text @click="dialogAccountingEntryAdditional = true"
           >+ Thêm bút toán</el-button
         >
-        <el-button :disabled="checkDisabled2" @click="openReceiptDialog()" text
+        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog()" text
           >+ Thêm phiếu thu</el-button
         >
-        <el-button :disabled="checkDisabled2" @click="openPaymentDialog()" text
+        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog()" text
           >+ Thêm phiếu chi</el-button
         >
         <el-button
-          :disabled="checkDisabled2"
+          :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
               newCodePaymentRequest()

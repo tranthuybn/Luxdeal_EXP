@@ -973,9 +973,9 @@ const adminList = [
             }
           },
           {
-            path: 'receipts-add',
+            path: 'receipts-expenditures-list/:type?/:id?',
             component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',
-            name: 'accountant.receipts-expenditures.receipts-add',
+            name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
             meta: {
               title: 'router.receiptsAdd'
             }
@@ -1490,7 +1490,7 @@ const testList: string[] = [
 
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',
-  '/accountant/receipts-expenditures/receipts-add',
+  '/accountant/receipts-expenditures/receipts-expenditures-list/:type?/:id?',
   '/accountant/receipts-expenditures/payment-add',
   '/accountant/balanceSheet',
   `/accountant/balanceSheet-utility`,

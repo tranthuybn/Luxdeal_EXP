@@ -38,10 +38,18 @@ const getListOrder = async () => {
 }
 
 const detailedBrowsing = (_scope: any) => {
-  push({
-    name: `business.order-management.order-list.${utility}`,
-    params: { type: 'detail', tab: 'orderSell', id: 147 }
-  })
+  if (type != 'proposal') {
+    push({
+      name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
+      params: { type: 'detail', id: 147 }
+    })
+  } else {
+    // push({
+    //   name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
+    //   params: { type: 'detail', id: 147 }
+    // })
+    alert('Chưa có màn chi tiết đề nghị thanh toán :))))))')
+  }
 }
 
 onBeforeMount(() => {

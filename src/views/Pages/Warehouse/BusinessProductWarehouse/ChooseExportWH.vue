@@ -57,13 +57,10 @@ const closeDialog = () => {
 }
 const getSelection = () => {
   const rowSelected = multipleTableRef.value!.getSelectionRows()
-  console.log('rowSelected', rowSelected)
   if (rowSelected.length == 0) {
     return
   }
-  console.log('totalExport.value', totalExport.value)
   if (warehouseForm.value.quantity == totalExport.value) {
-    console.log('rowSelected', rowSelected)
     warehouseData.value.exportLots = rowSelected.map((item) => ({
       value: item.id,
       quantity: item.exportQuantity
@@ -72,7 +69,6 @@ const getSelection = () => {
     warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()
     warehouseData.value.unit = rowSelected[0].unit
 
-    console.log('before emit', warehouseData.value)
     emit('close-dialog-warehouse', warehouseData.value)
   } else {
     ElMessage({
@@ -136,8 +132,6 @@ const changeWarehouseData = async (warehouseId) => {
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-  console.log('lotData', lotData.value)
-  // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   lotData.value = tempLotData.value
@@ -208,9 +202,6 @@ const rowClick = (selection, curRow) => {
     totalExport.value -= Number(curRow.exportQuantity)
     lotData.value[index].exportQuantity = 0
   }
-  console.log('totalExport', totalExport.value)
-  // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
-  // warehouseData.value.lot = row
 }
 const warehouseData = ref({
   quantity: 0,
@@ -228,7 +219,6 @@ const closeDialogExport = () => {
 
 //fix bug
 onBeforeMount(async () => {
-  console.log('call api loc', props.warehouse?.value, warehouseForm.value)
   await changeWarehouseData(props.warehouse?.value)
 })
 </script>

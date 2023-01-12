@@ -124,8 +124,6 @@ const changeWarehouseData = async (warehouseId) => {
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-
-  // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   if (lotData.value !== undefined) {
@@ -186,7 +184,6 @@ watch(
   async () => {
     await getLocation(props.warehouse?.value)
     props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
-    // radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
 </script>

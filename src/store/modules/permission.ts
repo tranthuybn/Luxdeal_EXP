@@ -14,6 +14,7 @@ export interface PermissionState {
   refreshToken: string
   roles: string
   routerByRoles: string
+  staffInfo: string
 }
 
 export const usePermissionStore = defineStore({
@@ -26,7 +27,8 @@ export const usePermissionStore = defineStore({
     accessToken: 'ACCESS_TOKEN',
     refreshToken: 'REFRESH_TOKEN',
     roles: 'ROLES',
-    routerByRoles: 'ROUTER_BY_ROLES'
+    routerByRoles: 'ROUTER_BY_ROLES',
+    staffInfo: 'STAFF_INFO'
   }),
   persist: {
     enabled: true
@@ -55,6 +57,9 @@ export const usePermissionStore = defineStore({
     },
     getRouterByRoles(): string {
       return this.routerByRoles
+    },
+    getStaffInfo(): string {
+      return this.staffInfo
     }
   },
   actions: {

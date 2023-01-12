@@ -1,5 +1,4 @@
 import router from './router'
-import { useAppStoreWithOut } from '@/store/modules/app'
 import { useCache } from '@/hooks/web/useCache'
 import type { RouteRecordRaw } from 'vue-router'
 import { useTitle } from '@/hooks/web/useTitle'
@@ -10,9 +9,6 @@ import { usePageLoading } from '@/hooks/web/usePageLoading'
 import { getDictApi } from '@/api/common'
 
 const permissionStore = usePermissionStoreWithOut()
-
-const appStore = useAppStoreWithOut()
-
 const dictStore = useDictStoreWithOut()
 
 const { wsCache } = useCache()
@@ -26,7 +22,7 @@ const whiteList = ['/login'] // Don’t reconstruct a white list
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
-  const userInfo = wsCache.get(appStore.getUserInfo)
+  const userInfo = wsCache.get(permissionStore.getStaffInfo)
   if (userInfo) {
     if (to.path === '/login') {
       next({ path: '/' })

@@ -175,11 +175,19 @@ type ChooseWarehouse = {
   lotId: number | undefined
   locationImportId: number | undefined
 }
+
 const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
 const openDialogWarehouse = (props) => {
+  if (!prop.warehouse) {
+    ElMessage({
+      message: t('reuse.pleaseChooseWarehouse'),
+      type: 'warning'
+    })
+    return
+  }
   if (props.row.productPropertyId) {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
@@ -341,6 +349,12 @@ const searchProduct = async (keyword) => {
     tempListProducts.value = listProducts.value
   }
 }
+const disabled = computed(() => {
+  if (prop.type == 'detail') {
+    return true
+  }
+  return false
+})
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
@@ -369,6 +383,7 @@ const searchProduct = async (keyword) => {
       <template #default="scope">
         <SelectTable
           v-model="scope.row.productPropertyId"
+          :disabled="disabled"
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),

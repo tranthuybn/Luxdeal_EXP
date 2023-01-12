@@ -12,9 +12,10 @@ import {
 } from 'element-plus'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import SelectTable from '@/components/SelectTable.vue'
-import ChooseTransferWarehouse from './ChooseTransferWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
+import ChooseExportWarehouse from './ChooseExportWH.vue'
+import ChooseImportWarehouse from './ChooseImportWH.vue'
 
 const { t } = useI18n()
 const prop = defineProps({
@@ -30,16 +31,12 @@ const prop = defineProps({
     type: Array<ProductWarehouse>,
     default: () => [{}]
   },
-  testReactive: {
-    type: String,
-    default: ''
+  ticketData: {
+    type: Object,
+    default: () => {}
   }
 })
 
-type ExportLots = {
-  fromLotId: number
-  quantity: number
-}
 type Options = {
   value: number
   label: string
@@ -47,21 +44,17 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
-  quantity?: number
-  price?: number
+  quantity: number
+  price: number
   productPropertyQuality?: string
   accessory?: string
-  fromLotId?: number
-  toLotId?: number
-  exportLots?: Array<ExportLots>
   productName?: string
   finalPrice?: string
   unitName?: string
-  fromWarehouse?: Options
   fromLocation?: Options
-  toWarehouse?: Options
   toLocation?: Options
-  lot?: Options
+  fromLot?: Options
+  toLot?: Options
 }
 const ListOfProductsForSale = computed(() => {
   return prop.productData
@@ -159,22 +152,21 @@ type ChooseWarehouse = {
 
 const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 //dialog warehouse chuyen kho
-const dialogWarehouseTransfer = ref(false)
-const currentRowWHTrans = ref(0)
-const curPPIDWHTrans = ref(0)
-const openDialogWarehouseTransfer = (props) => {
+const currentRow = ref(0)
+const curPPID = ref(0)
+const openDialogWarehouseImport = (props) => {
+  if (!prop.ticketData.toWarehouse) {
+    ElMessage({
+      message: t('reuse.pleaseChooseWarehouse'),
+      type: 'warning'
+    })
+    return
+  }
   if (props.row.productPropertyId) {
-    dialogWarehouseTransfer.value = true
-    curPPIDWHTrans.value = props.row.productPropertyId
-    currentRowWHTrans.value = props.$index
-    warehouseData.value.quantity = prop.productData[currentRowWHTrans.value]?.quantity
-    warehouseData.value.fromWarehouseId =
-      prop.productData[currentRowWHTrans.value].fromWarehouse?.value
-    warehouseData.value.fromLocationId =
-      prop.productData[currentRowWHTrans.value].fromLocation?.value
-    warehouseData.value.toWarehouseId = prop.productData[currentRowWHTrans.value].toWarehouse?.value
-    warehouseData.value.toLocationId = prop.productData[currentRowWHTrans.value].toLocation?.value
-    warehouseData.value.tolotId = prop.productData[currentRowWHTrans.value].lot?.value
+    dialogWarehouseImport.value = true
+    curPPID.value = props.row.productPropertyId
+    currentRow.value = props.$index
+    warehouseData.value.quantity = props.row.quantity
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -182,21 +174,48 @@ const openDialogWarehouseTransfer = (props) => {
     })
   }
 }
-const closeDialogWarehouseTrasfer = (warehouseData) => {
-  if (warehouseData != null) {
-    ListOfProductsForSale.value[currentRowWHTrans.value].quantity = warehouseData.quantity
-    ListOfProductsForSale.value[currentRowWHTrans.value].unitName = warehouseData.lot.unit
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromWarehouse = warehouseData.fromWarehouse
-    ListOfProductsForSale.value[currentRowWHTrans.value].toWarehouse = warehouseData.toWarehouse
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromLocation = warehouseData.fromLocation
-    ListOfProductsForSale.value[currentRowWHTrans.value].toLocation = warehouseData.toLocation
-    ListOfProductsForSale.value[currentRowWHTrans.value].fromLotId = warehouseData.fromLotId
-    ListOfProductsForSale.value[currentRowWHTrans.value].toLotId = warehouseData.toLot
+const openDialogWarehouseExport = (props) => {
+  if (!prop.ticketData.toWarehouse) {
+    ElMessage({
+      message: t('reuse.pleaseChooseWarehouse'),
+      type: 'warning'
+    })
+    return
   }
-  dialogWarehouseTransfer.value = false
-  // toLotId
+  if (props.row.productPropertyId) {
+    dialogWarehouseExport.value = true
+    curPPID.value = props.row.productPropertyId
+    currentRow.value = props.$index
+    warehouseData.value.quantity = props.row.quantity
+  } else {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+  }
 }
-
+const closeDialogWarehouseImport = (warehouseData) => {
+  if (warehouseData != null) {
+    ListOfProductsForSale.value[currentRow.value].toLot = warehouseData.lot
+    ListOfProductsForSale.value[currentRow.value].toLocation = warehouseData.location
+  }
+  dialogWarehouseImport.value = false
+}
+const closeDialogWarehouseExport = (warehouseData) => {
+  if (warehouseData != null) {
+    ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
+    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.unit
+    ListOfProductsForSale.value[currentRow.value].fromLocation = {
+      value: warehouseData?.exportLots[0].value,
+      label: warehouseData?.location
+    }
+    ListOfProductsForSale.value[currentRow.value].fromLot = {
+      value: warehouseData?.exportLots[0].value,
+      label: warehouseData.lot
+    }
+  }
+  dialogWarehouseExport.value = false
+}
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const fromWarehouseFormat = (props) => {
@@ -204,26 +223,14 @@ const fromWarehouseFormat = (props) => {
   let fromLocationName = ''
   let lotName = ''
 
-  if (
-    props.row.fromWarehouse !== undefined &&
-    props.row.fromWarehouse?.label !== null &&
-    props.row.fromWarehouse?.label !== undefined
-  ) {
-    fromWarehouseName = props.row.fromWarehouse?.label
+  if (prop.ticketData?.fromWarehouse?.label) {
+    fromWarehouseName = prop.ticketData?.fromWarehouse.label
   }
-  if (
-    props.row.fromLocation !== undefined &&
-    props.row.fromLocation?.label !== null &&
-    props.row.fromLocation?.label !== undefined
-  ) {
+  if (props.row.fromLocation && props.row.fromLocation?.label) {
     fromLocationName = props.row.fromLocation?.label
   }
-  if (
-    props.row.fromLotId !== undefined &&
-    props.row.fromLotId?.label !== null &&
-    props.row.fromLotId?.label !== undefined
-  ) {
-    lotName = props.row.lot?.label
+  if (props.row.fromLot && props.row.fromLot?.label) {
+    lotName = props.row.fromLot?.label
   }
   return `${fromWarehouseName}/${fromLocationName}/${lotName}`
 }
@@ -233,26 +240,14 @@ const toWarehouseFormat = (props) => {
   let toLocationName = ''
   let toLotName = ''
 
-  if (
-    props.row.toWarehouse !== undefined &&
-    props.row.toWarehouse?.label !== null &&
-    props.row.toWarehouse?.label !== undefined
-  ) {
-    toWarehouseName = props.row.toWarehouse?.label
+  if (prop.ticketData?.toWarehouse?.label) {
+    toWarehouseName = prop.ticketData?.toWarehouse.label
   }
-  if (
-    props.row.toLocation !== undefined &&
-    props.row.toLocation?.label !== null &&
-    props.row.toLocation?.label !== undefined
-  ) {
+  if (props.row.toLocation && props.row.toLocation?.label) {
     toLocationName = props.row.toLocation?.label
   }
-  if (
-    props.row.toLotId !== undefined &&
-    props.row.toLotId?.label !== null &&
-    props.row.toLotId?.label !== undefined
-  ) {
-    toLotName = props.row.lot?.label
+  if (props.row.toLot && props.row.toLot?.label) {
+    toLotName = props.row.toLot?.label
   }
   return `${toWarehouseName}/${toLocationName}/${toLotName}`
 }
@@ -275,25 +270,17 @@ const checkValueOfTable = () => {
       valid = false
       return
     }
-    if (row.fromWarehouse?.value == undefined || row.fromLocation?.value == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
-        type: 'warning'
-      })
-      valid = false
-      return
-    }
-    if (row.toWarehouse?.value == undefined || row.toLocation?.value == undefined) {
-      ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
-        type: 'warning'
-      })
-      valid = false
-      return
-    }
     if (row.price == undefined) {
       ElMessage({
         message: t('reuse.pleaseChoosePrice'),
+        type: 'warning'
+      })
+      valid = false
+      return
+    }
+    if (!row.toLot || !row.fromLot) {
+      ElMessage({
+        message: t('reuse.pleaseChooseLot'),
         type: 'warning'
       })
       valid = false
@@ -329,17 +316,53 @@ const searchProduct = async (keyword) => {
     tempListProducts.value = listProducts.value
   }
 }
+
+//fix bug
+const dialogWarehouseImport = ref(false)
+const dialogWarehouseExport = ref(false)
+
+const closeDialogExport = () => {
+  dialogWarehouseExport.value = false
+}
+const disabled = computed(() => {
+  if (prop.type == 'detail') {
+    return true
+  }
+  return false
+})
+const totalMoney = () => {
+  if (ListOfProductsForSale.value !== undefined) {
+    return ListOfProductsForSale.value.reduce(function (accumulator, curValue) {
+      return accumulator + curValue?.price * curValue?.quantity
+    }, 0)
+  }
+}
 </script>
 <template>
   <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
-  <ChooseTransferWarehouse
-    :showDialog="dialogWarehouseTransfer"
-    @close-dialog-warehouse="closeDialogWarehouseTrasfer"
+  <ChooseImportWarehouse
+    v-model:showDialog="dialogWarehouseImport"
+    @close-dialog-warehouse="closeDialogWarehouseImport"
     :transactionType="transactionType"
-    :productPropertyId="curPPIDWHTrans"
-    :warehouseData="warehouseData"
+    :productPropertyId="curPPID"
+    :warehouseFormData="warehouseData"
+    :orderId="ticketData.orderId"
+    :warehouse="ticketData.toWarehouse"
+    :serviceType="ticketData.serviceType"
+  />
+  <ChooseExportWarehouse
+    v-if="dialogWarehouseExport"
+    :showDialog="dialogWarehouseExport"
+    @close-dialog-warehouse="closeDialogWarehouseExport"
+    @close-dialog="closeDialogExport"
+    :transactionType="transactionType"
+    :productPropertyId="curPPID"
+    :warehouseFormData="warehouseData"
+    :orderId="ticketData.orderId"
+    :warehouse="ticketData.fromWarehouse"
+    :serviceType="ticketData.serviceType"
   />
   <el-table
     border
@@ -348,10 +371,15 @@ const searchProduct = async (keyword) => {
     ]"
     :data="ListOfProductsForSale"
   >
+    <template #append>
+      <span class="ml-1/4 font-bold">{{ t('reuse.totalMoneyTransferWarehouse') }}</span>
+      <span class="ml-4 font-bold">{{ moneyFormat(totalMoney()) }}</span>
+    </template>
     <el-table-column :label="t('formDemo.productManagementCode')" min-width="160">
       <template #default="scope">
         <SelectTable
           v-model="scope.row.productPropertyId"
+          :disabled="disabled"
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
@@ -383,24 +411,9 @@ const searchProduct = async (keyword) => {
       </template>
     </el-table-column>
 
-    <el-table-column :label="t('reuse.importExportWarehouse')" min-width="250">
-      <template #default="props">
-        <div class="flex w-[100%] items-center">
-          <div class="flex-left w-[60%]">
-            <div class="break-words">Từ kho:{{ fromWarehouseFormat(props) }}</div>
-            <div class="break-words">Đến kho:{{ toWarehouseFormat(props) }}</div>
-          </div>
-          <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouseTransfer(props)">
-              <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-            </el-button>
-          </div>
-        </div>
-      </template>
-    </el-table-column>
     <el-table-column prop="quantity" :label="t('formDemo.amount')" align="center" width="90">
-      <template #default="data">
-        {{ data.row.quantity }}
+      <template #default="props">
+        {{ props.row.quantity }}
       </template>
     </el-table-column>
     <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" min-width="100" />
@@ -414,10 +427,26 @@ const searchProduct = async (keyword) => {
     </el-table-column>
 
     <el-table-column :label="t('formDemo.intoMoneyTransWarehouse')" width="150"
-      ><template #default="props">
-        {{ moneyFormat(props.row.price * props.row.quantity) }}
+      ><template #default="scope">
+        {{ moneyFormat(scope.row.price * scope.row.quantity) }}
       </template></el-table-column
     >
+    <el-table-column :label="t('reuse.detailExportWarehouse')" min-width="250">
+      <template #default="props">
+        {{ fromWarehouseFormat(props) }}
+        <el-button text @click="openDialogWarehouseExport(props)">
+          <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+        </el-button>
+      </template>
+    </el-table-column>
+    <el-table-column :label="t('reuse.detailImportWarehouse')" min-width="250">
+      <template #default="props">
+        {{ toWarehouseFormat(props) }}
+        <el-button text @click="openDialogWarehouseImport(props)">
+          <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
+        </el-button>
+      </template>
+    </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
         <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{

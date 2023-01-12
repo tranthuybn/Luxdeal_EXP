@@ -154,7 +154,7 @@ onBeforeMount(() => callAPI())
           fit="scale-down"
           ><template #error>
             <div class="image-slot">
-              {{ t('reuse.ko tim thay anh') }}
+              {{ t('reuse.notHaveImage') }}
             </div>
           </template>
         </el-image>

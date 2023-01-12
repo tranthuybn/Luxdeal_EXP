@@ -131,6 +131,7 @@ const changeProduct = (value, obj, scope) => {
     scope.row.productName = obj.name
     scope.row.productPropertyId = obj.productPropertyId
     scope.row.unitName = obj.unit
+    scope.row.lot = undefined
   }
 }
 const scrollProductTop = ref(false)

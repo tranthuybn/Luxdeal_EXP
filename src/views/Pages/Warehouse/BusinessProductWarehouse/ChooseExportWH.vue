@@ -158,7 +158,7 @@ const multipleSelection = ref()
 const radioSelected = ref(-1)
 const totalExport = ref(0)
 const selectedRow: number[] = []
-const rowClick = (selection, curRow) => {
+const rowClick = (_selection, curRow) => {
   if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
     ElMessage({
       message: t('reuse.pleaseChooseQuantity'),
@@ -170,6 +170,14 @@ const rowClick = (selection, curRow) => {
   if (curRow.inventory < 1) {
     ElMessage({
       message: t('reuse.pleaseChooseLotHasInventory'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+  if (totalExport.value == warehouseForm.value.quantity) {
+    ElMessage({
+      message: t('reuse.moreOrLessQuantity'),
       type: 'warning'
     })
     multipleTableRef.value!.toggleRowSelection(curRow, false)

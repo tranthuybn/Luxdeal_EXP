@@ -1871,6 +1871,7 @@ export default {
     importOrderPrice: 'Đơn giá nhập',
     moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
     pleaseChooseQuantity: 'Chọn số lượng',
-    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm'
+    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm',
+    pleaseChooseLot: 'Vui lòng chọn lot'
   }
 }

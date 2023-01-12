@@ -130,6 +130,7 @@ const changeProduct = (value, obj, scope) => {
     scope.row.productName = obj.name
     scope.row.productPropertyId = obj.productPropertyId
     scope.row.unitName = obj.unit
+    scope.row.lot = undefined
   }
 }
 const scrollProductTop = ref(false)
@@ -294,7 +295,11 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
-    if (row.exportLots == undefined || row.exportLots.length == 0) {
+    if (
+      row.exportLots == undefined ||
+      row.exportLots.length == 0 ||
+      row?.exportLots[0]?.fromLotId == 0
+    ) {
       ElMessage({
         message: t('reuse.pleaseChooseLot'),
         type: 'warning'

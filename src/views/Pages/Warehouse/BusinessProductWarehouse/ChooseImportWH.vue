@@ -70,11 +70,16 @@ const createNewLot = async () => {
   )
   if (res) {
     warehouseData.value.lot.value = res.data
+    warehouseData.value.quantity = warehouseForm.value.quantity
   }
+  console.log('warehouse:', warehouseData.value, warehouseForm)
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
   radioSelected.value == -1
+  console.log('warehouse:', warehouseData.value, warehouseForm)
+  warehouseData.value.quantity = warehouseForm.value.quantity
+  warehouseData.value.lot.value = warehouseData.value.lot['id']
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse'])
@@ -129,9 +134,10 @@ const filterLotData = (locationId) => {
   if (lotData.value !== undefined) {
     lotData.value = tempLotData.value
     lotData.value = lotData.value.filter((lot) => lot.locationId == locationId)
-    warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
     calculateInventory()
   }
+  warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
+  console.log('location', warehouseData.value.location)
 }
 const checkLocationData = () => {
   if (locationOptions.value == undefined || locationOptions.value.length == 0) {
@@ -186,7 +192,7 @@ watch(
     console.log('open dialog orderId:', props.orderId)
     await getLocation(props.warehouse?.value)
     props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
-    radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
+    // radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
 </script>

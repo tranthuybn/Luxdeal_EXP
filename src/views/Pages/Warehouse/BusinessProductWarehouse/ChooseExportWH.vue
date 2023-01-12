@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { createWarehouseLot, getProductStorage, getWarehouseLot } from '@/api/Warehouse'
+import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
-import { FORM_IMAGES, orderType } from '@/utils/format'
+import { orderType } from '@/utils/format'
 import {
   ElButton,
   ElDivider,
@@ -12,10 +12,11 @@ import {
   ElOption,
   ElInput,
   ElTable,
-  ElTableColumn
+  ElTableColumn,
+  ElMessage
 } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { PropType, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 
@@ -35,90 +36,72 @@ const props = defineProps({
     default: 0
   },
   warehouseFormData: {
-    type: Object as PropType<ChooseWarehouse>,
+    type: Object,
     default: () => {}
+  },
+  orderId: {
+    type: Number,
+    default: 0
+  },
+  warehouse: {
+    type: Object,
+    default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
-type ChooseWarehouse = {
-  quantity: number
-  warehouseId: number
-  locationId: number
-  lotId: number
-}
-type ImportWarehouse = {
-  quantity: number
-  warehouseImportId: number
-  locationImportId: number | undefined
-  lotId: number
-}
 const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
-const createNewLot = async () => {
-  const res = await createWarehouseLot(
-    FORM_IMAGES({
-      WarehouseId: warehouseData.value.warehouse.value,
-      LocationId: warehouseData.value.location.value,
-      ProductPropertyId: props.productPropertyId
-    })
-  )
-  if (res) {
-    warehouseData.value.lot.value = res.data
-  }
-  emit('close-dialog-warehouse', warehouseData.value)
-}
 const getSelection = () => {
   const rowSelected = multipleTableRef.value!.getSelectionRows()
-  warehouseData.value.exportLots = rowSelected.map((item) => ({
-    value: item.id,
-    label: item.lotCode,
-    quantity: item.quantity
-  }))
+  if (rowSelected.length == 0) {
+    return
+  }
+  if (warehouseForm.value.quantity == totalExport.value) {
+    warehouseData.value.exportLots = rowSelected.map((item) => ({
+      value: item.id,
+      quantity: item.exportQuantity
+    }))
+    warehouseData.value.location = rowSelected.map((item) => item.location).toString()
+    warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()
+    warehouseData.value.unit = rowSelected[0].unit
+
+    emit('close-dialog-warehouse', warehouseData.value)
+  } else {
+    ElMessage({
+      message: t('reuse.moreOrLessQuantity'),
+      type: 'warning'
+    })
+  }
+}
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      saveOldLot()
+    }
+  })
 }
 const saveOldLot = () => {
   getSelection()
-  emit('close-dialog-warehouse', warehouseData.value)
 }
 const emit = defineEmits(['close-dialog-warehouse', 'close-dialog'])
 
-const warehouseForm = reactive<ImportWarehouse>({} as ImportWarehouse)
-watch(
-  () => props.warehouseFormData,
-  () => {
-    warehouseForm.quantity = props.warehouseFormData.quantity
-    warehouseForm.warehouseImportId = props.warehouseFormData.warehouseId
-    warehouseForm.locationImportId = props.warehouseFormData.locationId
-    radioSelected.value = lotData.value.findIndex((lot) => lot.Id == props.warehouseFormData.lotId)
-  }
-)
+const warehouseForm = computed(() => {
+  return props.warehouseFormData
+})
 const rules = reactive<FormRules>({
   quantity: [required()],
   warehouseImportId: [required()],
   locationImportId: [required()]
 })
-const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
 const locationOptions = ref()
-let callAPIWarehouseTimes = 0
-const callAPIWarehouse = async () => {
-  if (callAPIWarehouseTimes == 0) {
-    await getProductStorage({
-      pageSize: 1000,
-      pageIndex: 1
-    }).then((res) => {
-      warehouseOptions.value = res.data
-        .filter((warehouse) => warehouse.children.length > 0)
-        .map((item) => ({
-          value: item.id,
-          label: item.name
-        }))
-      loadingWarehouse.value = false
-      callAPIWarehouseTimes++
-    })
-  }
-}
-const getLocation = async (parentId) => {
-  await getProductStorage({ Id: parentId }).then((res) => {
+const getLocation = async () => {
+  await getProductStorage({ Id: props.warehouse.value }).then((res) => {
     locationOptions.value = res.data[0].children.map((item) => ({
       value: item.id,
       label: item.name
@@ -131,7 +114,7 @@ const tempLotData = ref()
 const loadingLot = ref(true)
 const totalInventory = ref(0)
 const changeWarehouseData = async (warehouseId) => {
-  warehouseForm.locationImportId = undefined
+  warehouseForm.value.locationImportId = undefined
   await getWarehouseLot({ WarehouseId: warehouseId, productPropertyId: props.productPropertyId })
     .then((res) => {
       lotData.value = res.data.map((item) => ({
@@ -143,12 +126,12 @@ const changeWarehouseData = async (warehouseId) => {
         orderType: item.serviceType,
         inventory: item.inventory,
         unit: item?.unitName,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        exportQuantity: 0
       }))
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-  warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   lotData.value = tempLotData.value
@@ -157,48 +140,95 @@ const filterLotData = (locationId) => {
   calculateInventory()
 }
 const calculateInventory = () => {
-  totalInventory.value = lotData.value.reduce(function (accumulator, curValue) {
-    return accumulator + curValue.inventory
-  }, 0)
+  if (lotData.value !== undefined) {
+    totalInventory.value = lotData?.value.reduce(function (accumulator, curValue) {
+      return accumulator + curValue.inventory
+    }, 0)
+  }
 }
 const calculateQuantity = (scope) => {
-  if (scope.row.inventory >= warehouseForm.quantity) {
-    return warehouseForm.quantity
+  if (scope.row.exportQuantity > 0) {
+    return scope.row.exportQuantity
   } else {
-    return scope.row.inventory
+    return ' '
   }
 }
 
 const multipleSelection = ref()
 const radioSelected = ref(-1)
-const rowClick = (row, __column, _event) => {
-  multipleSelection.value = row
-  // const index = lotData.value.findIndex((lot) => lot == row)
-  // index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
-  // warehouseData.value.lot = row
+const totalExport = ref(0)
+const selectedRow: number[] = []
+const rowClick = (_selection, curRow) => {
+  if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
+    ElMessage({
+      message: t('reuse.pleaseChooseQuantity'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+  if (curRow.inventory < 1) {
+    ElMessage({
+      message: t('reuse.pleaseChooseLotHasInventory'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+  if (totalExport.value == warehouseForm.value.quantity) {
+    ElMessage({
+      message: t('reuse.moreOrLessQuantity'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+
+  multipleSelection.value = curRow
+  const index: number = lotData.value.findIndex((lot) => lot == curRow)
+
+  //Kiểm tra xem đã check chưa
+  if (!selectedRow.includes(index)) {
+    //nếu chưa check thì +
+    selectedRow.push(index)
+
+    //nếu lấy hết mà vẫn chưa đủ số lượng
+    if (warehouseForm.value.quantity > curRow.inventory + totalExport.value) {
+      lotData.value[index].exportQuantity = curRow.inventory
+      totalExport.value += Number(lotData.value[index].exportQuantity)
+      return
+    }
+    //nếu lấy hết mà thừa số lượng thì lấy 1 phần
+    if (warehouseForm.value.quantity < curRow.inventory + totalExport.value) {
+      //mong đúng :))
+      lotData.value[index].exportQuantity = warehouseForm.value.quantity - totalExport.value
+      totalExport.value += Number(lotData.value[index].exportQuantity)
+      return
+    }
+  } else {
+    selectedRow.splice(selectedRow.findIndex((select) => select == index))
+    totalExport.value -= Number(curRow.exportQuantity)
+    lotData.value[index].exportQuantity = 0
+  }
 }
 const warehouseData = ref({
   quantity: 0,
-  warehouse: { value: undefined, label: undefined },
   exportLots: [{ value: undefined, label: undefined, quantity: undefined }],
-  location: { value: undefined, label: undefined },
-  lot: { value: undefined, label: undefined }
+  location: '',
+  lot: '',
+  unit: ''
 })
 
 const ruleFormRef = ref<FormInstance>()
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid) => {
-    if (valid) {
-      createNewLot()
-    }
-  })
-}
-console.log(submitForm)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const closeDialogExport = () => {
   emit('close-dialog')
 }
+
+//fix bug
+onBeforeMount(async () => {
+  await changeWarehouseData(props.warehouse?.value)
+})
 </script>
 <template>
   <el-dialog
@@ -208,6 +238,7 @@ const closeDialogExport = () => {
     align-center
     class="z-50"
     @close="closeDialogExport"
+    destroy-on-close
   >
     <template #header>
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>
@@ -224,6 +255,7 @@ const closeDialogExport = () => {
       <el-form-item :label="t('reuse.quantity')" prop="quantity">
         <el-input
           v-model="warehouseForm.quantity"
+          :disabled="orderId != 0"
           type="number"
           :min="1"
           @change="
@@ -233,78 +265,15 @@ const closeDialogExport = () => {
           "
         />
       </el-form-item>
-      <div class="flex import" v-if="transactionType != 2">
-        <div class="w-1/2">
-          <el-form-item
-            :label="t('reuse.chooseImportWarehouse')"
-            prop="warehouseImportId"
-            class="w-full"
-          >
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.warehouseImportId"
-              @click="callAPIWarehouse"
-              :loading="loadingWarehouse"
-              @change="(data) => changeWarehouseData(data)"
-            >
-              <el-option
-                v-for="item in warehouseOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="pl-8 w-1/2">
-          <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.locationImportId"
-              @click="
-                () => {
-                  getLocation(warehouseForm.warehouseImportId)
-                }
-              "
-              @change="filterLotData"
-            >
-              <el-option
-                v-for="item in locationOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-      </div>
-      <div class="flex export" v-if="transactionType != 1">
-        <div class="w-1/2">
-          <el-form-item label="Chọn kho xuất" class="w-full">
-            <el-select
-              class="w-full"
-              v-model="warehouseForm.warehouseImportId"
-              @click="callAPIWarehouse"
-              :loading="loadingWarehouse"
-              @change="(data) => changeWarehouseData(data)"
-            >
-              <el-option
-                v-for="item in warehouseOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="pl-8 w-1/2">
+      <div class="flex export">
+        <div>
           <el-form-item label="Chọn vị trí" class="w-full">
             <el-select
               class="w-full"
               v-model="warehouseForm.locationImportId"
               @click="
                 () => {
-                  getLocation(warehouseForm.warehouseImportId)
+                  getLocation()
                 }
               "
               @change="filterLotData"
@@ -324,7 +293,7 @@ const closeDialogExport = () => {
     <el-table
       :data="lotData"
       ref="multipleTableRef"
-      @selection-change="rowClick"
+      @select="rowClick"
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row
@@ -390,7 +359,7 @@ const closeDialogExport = () => {
         <el-button
           class="w-[150px]"
           type="primary"
-          @click="saveOldLot"
+          @click="submitForm(ruleFormRef)"
           :disabled="lotData == undefined || lotData?.length == 0"
           >{{ t('reuse.exportToSelectedLot') }}
         </el-button>

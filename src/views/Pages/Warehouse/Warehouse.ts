@@ -1,8 +1,6 @@
 import {
   filterService,
   filterDeposit,
-  filterLocation,
-  filterWarehouseManagement,
   filterTransactionType,
   filterLotStatus
 } from '@/utils/filters'
@@ -13,7 +11,8 @@ import {
   formatTransactionStatus,
   formatTransactionType,
   moneyFormat,
-  orderType
+  orderType,
+  lotBusinessSetup
 } from '@/utils/format'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import { ElButton } from 'element-plus'
@@ -57,7 +56,7 @@ export const wareHouse = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.productPropertyAttribute.map((item) => {
+        row?.productPropertyAttribute.map((item) => {
           if (item.value) {
             return h('span', `${item.value},`)
           }
@@ -115,7 +114,7 @@ export const wareHouse = [
     }
   },
   {
-    field: 'orderDetailQuantity',
+    field: 'totalImport',
     label: t('reuse.amountImportLot'),
     minWidth: '100',
     sortable: true,
@@ -134,7 +133,7 @@ export const wareHouse = [
     minWidth: '100'
   },
   {
-    field: 'inputPrice',
+    field: 'importPrice',
     label: t('reuse.priceImport'),
     minWidth: '150',
     sortable: true,
@@ -144,13 +143,13 @@ export const wareHouse = [
     }
   },
   {
-    field: 'CashIntoInventory',
+    field: 'totalInventoryMoney',
     label: t('reuse.CashIntoInventory'),
     minWidth: '150',
     sortable: true,
     align: 'right',
-    formatter: (row, _column, _cellValue, _index) => {
-      return h('span', `${moneyFormat(row.inputPrice * row.inventory)}`)
+    formatter: (_row, _column, cellValue, _index) => {
+      return moneyFormat(cellValue)
     }
   },
   {
@@ -161,10 +160,8 @@ export const wareHouse = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.bussinessSetups.map((item) => {
-          if (item.value) {
-            return h('li', item.key)
-          }
+        row?.bussinessSetup.map((item) => {
+          return h('li', lotBusinessSetup(item))
         })
       )
     }
@@ -181,7 +178,10 @@ export const wareHouse = [
     field: 'outOfStock',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterLotStatus
+    filters: filterLotStatus,
+    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', row.inventory > 0 ? t('reuse.stocking') : t('reuse.outOfStock'))
+    }
   },
   {
     field: 'operator',
@@ -228,7 +228,7 @@ export const wareHouseContainer = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row.transactionDetails.map(({ id, productPropertyCode }) => {
+        row?.transactionDetails.map(({ id, productPropertyCode }) => {
           return h('li', { key: id }, productPropertyCode)
         })
       )
@@ -327,13 +327,7 @@ export const wareHouseContainer = [
     label: t('reuse.productType'),
     minWidth: '100',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h(
-        'ul',
-        // assuming `items` is a ref with array value
-        row.transactionDetails.map((trans) => {
-          return h('li', { key: trans.productPropertyId }, orderType(trans.orderType))
-        })
-      )
+      return h('div', orderType(row?.orderType))
     },
     filters: filterService
   },

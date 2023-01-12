@@ -67,9 +67,7 @@ const addTransaction = async () => {
   let validTicket: any = false
   validTicket = await detailTicketRef.value?.submitFormTicket()
   let validTable = productWarehouseRef.value?.checkValueOfTable()
-  console.log('validTicket', validTicket, validTable, validTicket && validTable)
   if (validTicket && validTable) {
-    console.log('run here')
     let uploadData: any = {}
     uploadData.type = 1
     uploadData.warehouseProductJson = [{}]
@@ -80,7 +78,8 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        toLotId: row.lot?.id
+        toLotId: row.lot?.value,
+        fileId: row?.fileId
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
@@ -89,7 +88,6 @@ const addTransaction = async () => {
     uploadData.toWarehouseId = detailTicketRef.value?.FormData.toWarehouseId
     uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    console.log('type:', type)
     if (type.value == 'add') {
       await createTicketManually(JSON.stringify(uploadData))
         .then(() => {
@@ -143,8 +141,8 @@ const ticketData = ref({
   fromWarehouseId: '',
   warehouse: {},
   toWarehouseId: '',
-  orderId: '',
-  orderType: ''
+  orderId: 0,
+  orderType: 0
 })
 type ExportLots = {
   fromLotId: number
@@ -207,14 +205,12 @@ const callApiForData = async () => {
         warehouse: { value: res.data[0]?.toWarehouseId, label: res.data[0]?.toWarehouseName },
         location: { value: item?.detail[0].toLocationId, label: item?.detail[0].toLocationName },
         lot: {
-          id: item?.detail[0]?.toLotId,
+          value: item?.detail[0]?.toLotId,
           location: item?.detail[0]?.toLocationName,
           lotCode: item.lotCode
         },
         imageUrl: item?.imageUrl
       }))
-      console.log('ticketData', ticketData.value)
-      console.log('productData', productData.value)
     }
   } else {
     type.value = 'add'
@@ -259,6 +255,9 @@ const updateInventory = async () => {
     )
 }
 const updateInventoryOrder = async () => {
+  if (!productWarehouseRef.value?.checkValueOfTable()) {
+    return
+  }
   const payload = {
     ticketId: id.value,
     type: 1,
@@ -268,10 +267,7 @@ const updateInventoryOrder = async () => {
       price: row.price,
       accessory: row.accessory,
       productPropertyQuality: row.productPropertyQuality,
-      fileId: row.fileId,
-      toLotId: row.lot?.value,
-      warehouseId: row.warehouse?.value,
-      locationId: row.location?.value
+      toLotId: row.lot?.value
     }))
   }
   await UpdateInventoryOrder(JSON.stringify(payload))
@@ -294,7 +290,6 @@ const updateInventoryOrder = async () => {
 
 const updateTicket = (warehouse) => {
   ticketData.value.warehouse = warehouse
-  console.log('change warehouse', warehouse)
 }
 </script>
 <template>
@@ -334,9 +329,9 @@ const updateTicket = (warehouse) => {
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :orderId="parseInt(ticketData.orderId)"
+          :orderId="ticketData.orderId"
           :warehouse="ticketData.warehouse"
-          :orderType="serviceType"
+          :serviceType="serviceType"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -374,7 +369,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="primary"
-              v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
               >{{ t('reuse.importWarehouseNow') }}</ElButton
@@ -391,26 +386,26 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'add'"
+              v-if="Number(ticketData.orderId) == 0 && type == 'add'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'edit'"
+              v-if="Number(ticketData.orderId) == 0 && type == 'edit'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
-              v-if="serviceType == 6 && type == 'detail' && Number(ticketData.orderId) == 0"
+              v-if="type == 'detail' && Number(ticketData.orderId) == 0"
               @click="type = 'edit'"
               >{{ t('reuse.edit') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="danger"
-              v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton

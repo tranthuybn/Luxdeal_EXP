@@ -12,10 +12,27 @@ import {
   ElTree,
   FormRules
 } from 'element-plus'
-import { reactive, ref } from 'vue'
-import { usePermissionStore } from '@/store/modules/permission'
+import { onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { appModules } from '@/config/app'
 
-const permissionStore = usePermissionStore()
+const { utility } = appModules
+let ElTreeData = reactive<any[]>([])
+const router = useRouter()
+onMounted(() => {
+  console.log(router.getRoutes)
+  const decentralizedRoute = router.getRoutes().map((route) => {
+    const { path, meta } = route
+    if (path && !path.includes(utility) && meta.title) {
+      return {
+        id: path,
+        label: meta.title
+      }
+    }
+  })
+  if (decentralizedRoute.length > 0) ElTreeData = decentralizedRoute
+})
+
 const { t } = useI18n()
 
 const decentralizationRef = ref<FormInstance>()
@@ -33,8 +50,6 @@ const defaultProps = {
   children: 'children',
   label: 'label'
 }
-
-const ElTreeData = permissionStore.addRouters
 </script>
 <template>
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">

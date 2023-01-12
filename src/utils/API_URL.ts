@@ -180,7 +180,9 @@ export const DEPARTMENT_DIRECTORY = {
   UPDATE_STAFF: '/api/v1/TypeOfStaff/Update',
   DELETE_STAFF: '/api/v1/TypeOfStaff/Delete',
   //nhan su
-  ADD_NEW_STAFF: '/api/v1/AccountStaff/CreateAccountOne'
+  ADD_NEW_STAFF: '/api/v1/AccountStaff/CreateAccountOne',
+  GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
+  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList'
 }
 
 export const APPROVAL_API = {

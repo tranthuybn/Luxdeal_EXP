@@ -2943,7 +2943,7 @@ const removeRow = (index) => {
                 () => {
                   changeReturnGoods = true
                   earlyEedemption = true
-                  addStatusOrder(1)
+                  addStatusOrder(8)
                   setDataForReturnOrder()
                 }
               "

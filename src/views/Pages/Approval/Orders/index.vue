@@ -37,26 +37,15 @@ const getListOrder = async () => {
 const detailedBrowsing = (scope: any) => {
   const data = scope.row
   const typeServiceOrder = API_ORDER.find((e) => e.key == data.serviceType)
-  if (typeServiceOrder?.key == 6) {
-    push({
-      name: `purchase.business-purchases.purchase-order-list.${utility}`,
-      params: {
-        type: 'approval-order',
-        id: data.targetId,
-        approvalId: data.id
-      }
-    })
-  } else {
-    push({
-      name: `business.order-management.order-list.${utility}`,
-      params: {
-        type: 'approval-order',
-        tab: typeServiceOrder?.label,
-        id: data.targetId,
-        approvalId: data.id
-      }
-    })
-  }
+  push({
+    name: `business.order-management.order-list.${utility}`,
+    params: {
+      type: 'approval-order',
+      tab: typeServiceOrder?.label,
+      id: data.targetId,
+      approvalId: data.id
+    }
+  })
 }
 
 onBeforeMount(() => {
@@ -87,16 +76,14 @@ onBeforeMount(() => {
               ? 'Đơn ký gửi'
               : props.row.serviceType == 4
               ? 'Đơn cầm đồ'
-              : props.row.serviceType == 5
-              ? 'Đơn spa'
-              : 'Đơn mua hàng'
+              : 'Đơn spa'
           }}
         </template>
       </el-table-column>
       <el-table-column prop="customerName" :label="t('formDemo.customer')" />
       <el-table-column prop="createdAt" :label="t('formDemo.createdAtEdit')" width="180">
         <template #default="props">
-          <div> {{ dateTimeFormat(props.row.createdAt) }}</div>
+          {{ dateTimeFormat(props.row.createdAt) }}
         </template>
       </el-table-column>
       <el-table-column prop="createdBy" :label="t('formDemo.createdByEdit')" width="180" />
@@ -105,7 +92,7 @@ onBeforeMount(() => {
         :label="t('formDemo.browsingConditions')"
         width="180"
       />
-      <el-table-column prop="statusName" :label="t('formDemo.status')" width="180" />
+      <el-table-column prop="status" :label="t('formDemo.status')" width="180" />
       <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="120">
         <template #default="props">
           <el-button @click="() => detailedBrowsing(props)" class="w-[100%]" type="primary">{{

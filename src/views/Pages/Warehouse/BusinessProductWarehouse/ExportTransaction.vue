@@ -170,6 +170,7 @@ type ExportPW = {
 }
 const productData = ref<ExportPW[]>([{} as ExportPW])
 const serviceType = ref(6)
+const returnRequestId = ref(0)
 const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
@@ -190,6 +191,7 @@ const callApiForData = async () => {
       }
       ticketData.value.orderId = res.data[0]?.orderId
       serviceType.value = res.data[0]?.orderType
+      returnRequestId.value = res.data[0]?.returnRequestId
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
         productPropertyQuality: item.productPropertyQuality,
@@ -197,7 +199,7 @@ const callApiForData = async () => {
         productName: item.productPropertyName,
         unitName: item.unitName,
         exportLots: item?.detail.map((detail) => ({
-          fromLotId: detail.fromLotId,
+          value: detail.fromLotId,
           quantity: detail.quantity
         })),
         location: item.locationName,
@@ -329,6 +331,7 @@ const updateTicket = (warehouse) => {
           :orderId="ticketData.orderId"
           :warehouse="ticketData.warehouse"
           :serviceType="serviceType"
+          :returnRequestId="returnRequestId"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

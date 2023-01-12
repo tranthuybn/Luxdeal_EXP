@@ -91,7 +91,9 @@ onBeforeMount(() => callAPI())
         >
         <div class="flex">
           <div class="w-1/4 text-right pr-4">{{ t('reuse.accessory') }}</div>
-          <div class="w-7/10 break-words">{{ lotDetail.accessory }}</div></div
+          <div class="w-7/10 break-words">{{
+            lotDetail.accessory ? lotDetail.accessory : 'Không có'
+          }}</div></div
         >
       </div>
       <div>

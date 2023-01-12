@@ -1990,6 +1990,7 @@ const checkMaximunQuantity = (scope) => {
 const returnRequestId = ref()
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
+  changeReturnGoods.value = false
   if (
     !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
   ) {
@@ -2009,6 +2010,7 @@ const postReturnRequest = async () => {
     name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
+    giaHanDetails: [],
     nhapDetails:
       tableReturnFullyIntegrated?.value[0]?.productPropertyId !== ''
         ? tableReturnFullyIntegrated.value
@@ -4575,7 +4577,6 @@ onBeforeMount(async () => {
                   @click="
                     () => {
                       postReturnRequest()
-                      changeReturnGoods = false
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button

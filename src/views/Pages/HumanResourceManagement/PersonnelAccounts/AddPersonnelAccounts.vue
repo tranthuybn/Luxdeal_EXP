@@ -41,6 +41,7 @@ import {
 } from '@/api/HumanResourceManagement'
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 
 //random mã
@@ -556,6 +557,58 @@ const getTableValue = async () => {
         type: 'warning'
       })
     }
+  }
+  if (type == 'detail' || type == 'edit') {
+    ruleForm.isActive = formValue.value?.isActive
+    ruleForm.customerCode = formValue.value?.code
+    if (formValue.value?.sex) {
+      ruleForm.sex = true
+    } else {
+      ruleForm.sex = false
+    }
+    formValue.value?.customerFiles?.map((element) => {
+      if (element.file !== null) {
+        ListFileUpload.value.push({
+          url: `${API_URL}${element?.file?.path}`,
+          name: element?.file?.fileName
+          // id: element?.file?.id
+        })
+      }
+    })
+    ruleForm.name = formValue.value.name
+    ruleForm.accountName = formValue.value.accountName
+    ruleForm.cccd = formValue.value.cccd
+    ruleForm.cccdCreateAt = formValue.value.cccdNgayCap
+    ruleForm.cccdPlaceOfGrant = formValue.value.cccdNoiCap
+    ruleForm.email = formValue.value.email
+    ruleForm.phoneNumber = formValue.value.phone
+    ruleForm.link = formValue.value.link
+    ruleForm.bankName = formValue.value.bank?.name
+    ruleForm.accountNumber = formValue.value.accountNumber
+    ruleForm.doB = formValue.value.birthday
+    ruleForm.userName = formValue.value.userName
+    ruleForm.Address = formValue.value.address
+    ruleForm.ProvinceId = formValue.value.provinceId
+    ruleForm.DistrictId = formValue.value.districtId
+    ruleForm.WardId = formValue.value.wardId
+    ruleForm.branch = formValue.value.branchId
+    ruleForm.department = formValue.value.departmentId
+    ruleForm.jobPosition = formValue.value.positionId
+    ruleForm.typeOfEmployee = formValue.value.typeStaffId
+    ruleForm.Address = formValue.value.address
+    valueCommune.value = formValue.value.addressDistrictId
+    valueProvince.value = formValue.value.addressProvinceId
+    valueDistrict.value = formValue.value.addressDistrictId
+    await callApiCity()
+    await CityChange(formValue.value.provinceId)
+    await districtChange(formValue.value.districtId)
+    const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
+    valueProvince.value = result1?.label
+    const result2 = district.value.find((e) => e.value == formValue.value.districtId)
+    valueDistrict.value = result2?.label
+
+    const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
+    valueCommune.value = result3?.label
   }
 }
 

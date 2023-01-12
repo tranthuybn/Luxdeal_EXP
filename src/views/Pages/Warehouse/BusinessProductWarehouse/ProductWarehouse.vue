@@ -206,7 +206,6 @@ const openDialogWarehouse = (props) => {
     warehouseData.value.location.label = props.row?.location?.label
     warehouseData.value.lot.value = props.row?.lot?.value
     warehouseData.value.lot.label = props.row?.lot?.label
-
   }
 }
 const closeDialogWarehouse = (warehouseData) => {

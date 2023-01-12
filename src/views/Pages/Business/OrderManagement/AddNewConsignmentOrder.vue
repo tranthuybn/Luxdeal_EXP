@@ -62,7 +62,8 @@ import {
   cancelOrder,
   getListWareHouse,
   approvalOrder,
-  updateOrderTransaction
+  updateOrderTransaction,
+  finishStatusOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -392,21 +393,6 @@ const callApiWarehouseList = async () => {
   }
 }
 
-const options = [
-  {
-    value: 1,
-    label: t('reuse.byDay')
-  },
-  {
-    value: 7,
-    label: t('reuse.byWeek')
-  },
-  {
-    value: 30,
-    label: t('reuse.byMonth')
-  }
-]
-
 const choosePayment = [
   {
     value: 0,
@@ -512,8 +498,6 @@ watch(
 let totalOrder = ref(0)
 let dataEdit = ref()
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
@@ -602,8 +586,8 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
-      unit: product.unitName,
       name: product.name ?? '',
+      unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
@@ -671,7 +655,7 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productCode = obj.value
     data.productName = obj.name
     data.price = obj.price
-    data.unitName = obj.unitName
+    data.unitName = obj.unit
     callApiWarehouse(scope)
   }
 }
@@ -852,11 +836,37 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
 }
-
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(-1)
-  }, 4000)
+// Cập nhật trạng thái đơn hàng
+const updateStatusOrders = async (typeState) => {
+  // 13 hoàn thành đơn hàng
+  if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await cancelOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else if (typeState == STATUS_ORDER_DEPOSIT[2].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await finishStatusOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else {
+    if (type == 'add') {
+      let payload = {
+        OrderId: 0,
+        ServiceType: 2,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(paylpad))
+      reloadStatusOrder()
+    }
+  }
 }
 
 const chooseDelivery = [
@@ -1146,6 +1156,8 @@ const postData = async () => {
       CollaboratorId: ruleForm.collaborators,
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
+      WarehouseId: ruleForm.warehouse,
+      Files: Files,
       CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
@@ -1165,35 +1177,35 @@ const postData = async () => {
       Status: 4
     }
     const formDataPayLoad = FORM_IMAGES(payload)
-    idOrderPost.value = await addNewSpaOrders(formDataPayLoad)
-      .then(() => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        })
-        router.push({
-          name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-        })
+    const res = await addNewSpaOrders(formDataPayLoad)
+    if (res) {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
       })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    } else {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    }
+    idOrderPost.value = res
+    automaticCouponWareHouse(1)
   }
-  automaticCouponWareHouse(2)
 }
 
-// Phiếu xuất kho tự động
+// Phiếu nhap kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value.data,
+    OrderId: idOrderPost.value,
     Type: index
   }
 
-  await postAutomaticWarehouse(payload)
+  await postAutomaticWarehouse(JSON.stringify(payload))
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -1481,12 +1493,8 @@ const postOrderStransaction = async () => {
     content: tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: tableAccountingEntry.value[0].collected
-      ? parseInt(tableAccountingEntry.value[0].collected)
-      : 0,
-    paidMoney: tableAccountingEntry.value[0].spent
-      ? parseInt(tableAccountingEntry.value[0].spent)
-      : 0,
+    receiveMoney: 0,
+    paidMoney: 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
@@ -1553,6 +1561,7 @@ const getReturnRequestTable = async () => {
 const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
+const disableCreateOrder = ref(false)
 
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1560,6 +1569,8 @@ const editData = async () => {
 
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disableCreateOrder.value = true
+
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1579,6 +1590,7 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
+    Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -1597,6 +1609,7 @@ const editData = async () => {
           ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
           : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj?.warehouseId
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -1641,7 +1654,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    // Files: Files,
+    Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -1661,18 +1674,6 @@ const editOrderInfo = async () => {
       })
     })
 }
-
-//hủy đơn hàng
-const cancelOrderDO = async () => {
-  const payload = {
-    OrderId: id,
-    ServiceType: 6
-  }
-  const formPayload = FORM_IMAGES(payload)
-
-  await cancelOrder(formPayload)
-}
-
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
 // const updatePrice = (_value, obj, scope) => {
@@ -1777,6 +1778,77 @@ if (type == 'add') {
   })
 }
 
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const handleRemove = (file: UploadFile) => {
+  return file
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
+
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
 }
@@ -1789,10 +1861,12 @@ onBeforeMount(async () => {
 
   callCustomersApi()
   callApiCollaborators()
-  callAPIProduct()
+  await callAPIProduct()
   await callApiWarehouseList()
 
   if (type == 'add' || type == ':type') {
+    disableCreateOrder.value = true
+
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
     disableEditData.value = false
@@ -2357,7 +2431,7 @@ onBeforeMount(async () => {
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -3390,7 +3464,7 @@ onBeforeMount(async () => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableEditData"
+                  :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3467,8 +3541,11 @@ onBeforeMount(async () => {
                 <el-upload
                   action="#"
                   list-type="picture-card"
+                  v-model:file-list="fileList"
                   :limit="10"
+                  :multiple="true"
                   :on-exceed="handleExceed"
+                  :on-change="handleChange"
                   :auto-upload="false"
                   class="relative"
                 >
@@ -3562,7 +3639,7 @@ onBeforeMount(async () => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
-                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                          :placeholder="t('formDemo.selectAWarehouse')"
                         >
                           <el-option
                             v-for="i in chooseWarehouse"
@@ -3848,6 +3925,7 @@ onBeforeMount(async () => {
                   v-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
                 >
@@ -3870,7 +3948,6 @@ onBeforeMount(async () => {
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
                   "
                 >
@@ -3903,7 +3980,12 @@ onBeforeMount(async () => {
                     item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
                   }}</i>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[0].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4003,11 +4085,7 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  addStatusDelay()
-                  statusOrder = 0
-                  addStatusOrder(0)
-                  cancelOrderDO()
-                  checkDisabled = !checkDisabled
+                  updateStatusOrders(STATUS_ORDER_DEPOSIT[0].orderStatus)
                 }
               "
               type="danger"

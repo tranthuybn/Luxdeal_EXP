@@ -66,7 +66,8 @@ import {
   GetPaymentRequestDetail,
   cancelOrder,
   finishStatusOrder,
-  updateOrderTransaction
+  updateOrderTransaction,
+  postAutomaticWarehouse
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -210,6 +211,7 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   spaServices: string
+  warehouseTotal?: number | any
   amountSpa: number
   quantity: string
   businessManagement: {}
@@ -298,7 +300,6 @@ watch(
 let totalOrder = ref(0)
 let dataEdit = ref()
 
-const ListFileUpload = ref<UploadUserFile[]>([])
 const removeListProductsSale = (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
     ListOfProductsForSale.value.splice(index, 1)
@@ -630,8 +631,8 @@ const callAPIProduct = async () => {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
-      unit: product.unitName,
       name: product.name ?? '',
+      unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
@@ -692,6 +693,7 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.productName = obj.name
     data.unitName = obj.unit
     data.price = obj.price
+    callApiWarehouse(scope)
   }
 }
 
@@ -763,7 +765,8 @@ const ruleForm = reactive({
   orderNotes: '',
   customerName: '',
   delivery: '',
-  warehouse: ''
+  warehouse: '',
+  orderFiles: []
 })
 const inputDeposit = ref(0)
 
@@ -827,6 +830,8 @@ let orderDetailsTable = reactive([{}])
 const disableEditData = ref(false)
 // tạo đơn hàng
 const checkDisabled = ref(false)
+let idOrderPost = ref()
+
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
@@ -855,12 +860,14 @@ const postData = async () => {
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
     WardId: valueCommune.value ?? 1,
+    Files: Files,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
     fromDate: postDateTime(ruleForm.pawnTerm[0]),
     toDate: postDateTime(ruleForm.pawnTerm[1]),
     CampaignId: 2,
     VAT: 1,
+    WarehouseId: ruleForm.warehouse,
     Days: ruleForm.paymentPeriod,
     TotalPrice: priceintoMoneyPawnGOC.value,
     DepositePrice: 0,
@@ -869,24 +876,36 @@ const postData = async () => {
     Status: 4
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await addNewOrderList(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
+  const res = await addNewOrderList(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+    router.push({
+      name: 'business.order-management.order-list',
+      params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+    })
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+  idOrderPost.value = res
+  automaticCouponWareHouse(1)
 }
+
+// Phiếu nhap kho tự động
+const automaticCouponWareHouse = async (index) => {
+  const payload = {
+    OrderId: idOrderPost.value,
+    Type: index
+  }
+
+  await postAutomaticWarehouse(JSON.stringify(payload))
+}
+
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
 const reloadStatusOrder = async () => {
@@ -1277,28 +1296,42 @@ const dialogbusinessManagement = ref(false)
 
 const tableWarehouse = ref([])
 
-const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
+const totalProductInWarehouse = ref()
+const totalWarehouse = ref()
 // Lấy danh sách kho theo mã sản phẩm và sericeType
 const callApiWarehouse = async (scope) => {
   const data = scope.row
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ProductPropertyId: data.productPropertyId
   })
-  tableWarehouse.value = res.data.map((val) => ({
+  tableWarehouse.value = res?.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
   }))
+  totalProductInWarehouse.value = res.total
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
 }
 
-const showIdWarehouse = (scope) => {
-  radioWarehouseId.value = scope.row.warehouseCheckbox
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
-  ListOfProductsForSale.value[indexRowWarehouse.value].warehouseName = scope.row.name
+const callApiWarehouseTotal = async (productPropertyId = 0) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId))
+  })
 }
 
 const formBusuness = reactive({
@@ -1442,11 +1475,76 @@ const ckeckChooseProduct = (scope) => {
       type: 'info'
     })
   } else {
-    console.log('formBusuness', formBusuness)
-    console.log('multipleTableRef', multipleTableRef)
     dialogbusinessManagement.value = true
   }
 }
+let Files = reactive({})
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+const ListFileUpload = ref()
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const fileList = ref<UploadUserFile[]>([])
 
 let formData = reactive({})
 const handle = () => {
@@ -1457,6 +1555,8 @@ const handle = () => {
     phone: 1212321
   }
 }
+const disableCreateOrder = ref(false)
+
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
@@ -1464,6 +1564,7 @@ const editData = async () => {
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
+    disableCreateOrder.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -1471,7 +1572,6 @@ const editData = async () => {
 
     getReturnRequestTable()
 
-    console.log('res', res)
     const orderObj = { ...res.data[0] }
 
     dataEdit.value = orderObj
@@ -1491,6 +1591,8 @@ const editData = async () => {
       editButton.value = true
     }
 
+    Files = orderObj.orderFiles
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       // @ts-ignore
@@ -1504,11 +1606,14 @@ const editData = async () => {
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj?.warehouseId
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      getTotalWarehouse()
+
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
 
@@ -1734,14 +1839,14 @@ const updateStatusOrders = async (typeState) => {
     if (type == 'add') {
       let payload = {
         OrderId: 0,
-        ServiceType: 1,
+        ServiceType: 4,
         OrderStatus: typeState
       }
       // @ts-ignore
       submitForm(ruleFormRef, ruleFormRef2)
       updateStatusOrder(FORM_IMAGES(payload))
     } else {
-      let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
+      let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
       await updateStatusOrder(FORM_IMAGES(paylpad))
       reloadStatusOrder()
     }
@@ -1765,13 +1870,15 @@ const dialogBillLiquidation = ref(false)
 
 onBeforeMount(async () => {
   await editData()
+  await callAPIProduct()
+  await callApiWarehouseList()
 
   callCustomersApi()
   callApiCollaborators()
-  await callAPIProduct()
-  callApiWarehouseList()
 
   if (type == 'add') {
+    disableCreateOrder.value = true
+
     disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -2002,7 +2109,7 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableEditData"
+                  :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -2099,8 +2206,11 @@ const removeRow = (index) => {
                   list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
+                  :multiple="true"
                   :auto-upload="false"
                   class="relative"
+                  :on-change="handleChange"
+                  v-model:file-list="fileList"
                 >
                   <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
@@ -2195,7 +2305,7 @@ const removeRow = (index) => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
-                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                          :placeholder="t('formDemo.selectAWarehouse')"
                         >
                           <el-option
                             v-for="i in chooseWarehouse"
@@ -2536,24 +2646,24 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <div class="w-[40%]">{{ props.row.warehouseName }}</div>
-                <div class="w-[60%]">
-                  <el-button
-                    text
-                    :disabled="disabledEdit"
-                    @click="
-                      () => {
-                        callApiWarehouse(props)
-                        openDialogChooseWarehouse = true
-                      }
-                    "
-                  >
-                    <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
-                  </el-button>
-                </div>
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
+                    props.row.warehouseTotal
+                  }}</span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -2821,7 +2931,6 @@ const removeRow = (index) => {
               @click="
                 () => {
                   updateStatusOrders(STATUS_ORDER_PAWN[0].orderStatus)
-                  checkDisabled = !checkDisabled
                 }
               "
               type="danger"
@@ -3041,25 +3150,23 @@ const removeRow = (index) => {
       >
         <el-divider />
         <el-table :data="tableWarehouse" border>
-          <el-table-column label="" width="50">
-            <template #default="props">
-              <el-radio
-                v-model="radioWarehouseId"
-                @change="() => showIdWarehouse(props)"
-                :label="props.row.warehouseCheckbox"
-                style="color: #fff; margin-right: -25px"
-                ><span></span
-              ></el-radio>
-            </template>
-          </el-table-column>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
           <el-table-column prop="inventory" :label="t('reuse.inventory')">
-            <div class="flex">
-              <span class="flex-1">20</span>
-              <span class="flex-1 text-right">Chiếc</span>
-            </div> </el-table-column
-          >>
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1" v-if="props.row.inventory > 0">{{ props.row.inventory }}</span>
+                <span v-else class="text-yellow-500">Hết hàng</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
+        <div class="flex justify-end">
+          <div class="flex">
+            <span class="font-bold">{{ totalWarehouse }}</span>
+            <span class="">Chiếc</span>
+          </div>
+        </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
@@ -3147,8 +3254,6 @@ const removeRow = (index) => {
               >
             </template>
           </el-table-column>
-
-          <el-table-column :label="t('formDemo.kindOfMoney')">đ</el-table-column>
 
           <el-table-column
             prop="receiveMoney"

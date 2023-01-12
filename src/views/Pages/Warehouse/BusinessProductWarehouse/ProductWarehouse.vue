@@ -45,6 +45,10 @@ const prop = defineProps({
   serviceType: {
     type: Number,
     default: 6
+  },
+  returnRequestId: {
+    type: Number,
+    default: 0
   }
 })
 const ListOfProductsForSale = computed(() => {
@@ -431,7 +435,11 @@ const disabled = computed(() => {
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)">
+            <el-button
+              text
+              @click="openDialogWarehouse(props)"
+              :disabled="Number(returnRequestId) != 0"
+            >
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>

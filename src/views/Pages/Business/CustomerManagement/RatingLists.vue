@@ -42,7 +42,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'annualSales',
     label: t('customerList.salesYear'),
-    minWidth: '150',
+    minWidth: '180',
     align: 'right',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
@@ -80,6 +80,10 @@ const columns = reactive<TableColumn[]>([
     }
   }
 ])
+
+// provide('parameters', {
+//   params
+// })
 </script>
 
 <template>

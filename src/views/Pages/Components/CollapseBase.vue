@@ -18,6 +18,18 @@ const props = defineProps({
   default: {
     type: String,
     default: ''
+  },
+  type: {
+    type: String,
+    default: ''
+  },
+  tabs: {
+    type: String,
+    default: ''
+  },
+  id: {
+    type: Number,
+    default: NaN
   }
 })
 const { getPrefixCls } = useDesign()
@@ -44,7 +56,6 @@ const activeName = ref(props.default)
 // const currentRoute = String(router.currentRoute.value.params.backRoute)
 const emit = defineEmits(['post-data'])
 const postData = (data) => {
-  console.log('runhere', data)
   emit('post-data', data)
 }
 </script>

@@ -5,6 +5,12 @@ interface Filter {
   text: string
   value: any
 }
+export const filterLotStatus: Array<Filter> = [
+  { text: t('reuse.inStock'), value: 1 },
+  { text: t('reuse.outOfStockInventory'), value: 2 },
+  { text: t('reuse.exporting'), value: 3 },
+  { text: t('reuse.importing'), value: 4 }
+]
 export const filterPaymentCheckbox: Array<Filter> = [
   { text: t('reuse.alreadyPaid'), value: true },
   { text: t('reuse.notPaid'), value: false }
@@ -21,15 +27,20 @@ export const filterStatusCustomerRatings: Array<Filter> = [
   { text: t('common.cancel'), value: 3 }
 ]
 export const filterRankCustomer: Array<Filter> = [
-  { text: t('reuse.silver'), value: 1 },
-  { text: t('reuse.gold'), value: 2 },
-  { text: t('reuse.platinum'), value: 3 },
-  { text: 'Titan', value: 4 }
+  { text: t('reuse.silver'), value: 0 },
+  { text: t('reuse.gold'), value: 1 },
+  { text: t('reuse.platinum'), value: 2 },
+  { text: 'Titan', value: 3 }
 ]
 export const filterPotentialCustomerStatus: Array<Filter> = [
   { text: t('reuse.newData'), value: 1 },
   { text: t('reuse.takingCare'), value: 2 },
   { text: t('common.doneLabel'), value: 3 }
+]
+export const filterTransactionType: Array<Filter> = [
+  { text: t('reuse.import'), value: 1 },
+  { text: t('reuse.export'), value: 2 },
+  { text: t('reuse.transfer'), value: 3 }
 ]
 export const filterIventory: Array<Filter> = [
   { text: t('reuse.outOfStock'), value: 0 },
@@ -59,12 +70,12 @@ export const filterRentTerm: Array<Filter> = [
   { text: t('reuse.byYear'), value: 4 }
 ]
 export const filterBranch: Array<Filter> = [
-  { text: t('reuse.hanoi'), value: 1 },
-  { text: t('reuse.hochiminh'), value: 2 }
+  { text: t('reuse.hanoi'), value: true },
+  { text: t('reuse.hochiminh'), value: false }
 ]
 export const filterDepartment: Array<Filter> = [
-  { text: t('reuse.administrative'), value: 1 },
-  { text: t('reuse.humanResources'), value: 2 }
+  { text: t('reuse.administrative'), value: true },
+  { text: t('reuse.humanResources'), value: false }
 ]
 export const filterRankEmployee: Array<Filter> = [
   { text: t('reuse.employee'), value: 1 },
@@ -102,8 +113,8 @@ export const filterAuctionResult: Array<Filter> = [
   { text: t('reuse.notBuy'), value: 2 }
 ]
 export const filterProductStatus: Array<Filter> = [
-  { text: t('reuse.active'), value: true },
-  { text: t('reuse.inactive'), value: false }
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 }
 ]
 export const filterPending: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
@@ -139,6 +150,15 @@ export const filtersStatus: Array<Filter> = [
   { text: t('common.doneLabel'), value: 7 },
   { text: t('reuse.cancelled'), value: 8 }
 ]
+
+export const filterStatusOrder: Array<Filter> = [
+  { text: t('reuse.deliveryFailed'), value: -1 },
+  { text: t('formDemo.waitingDelivery'), value: 0 },
+  { text: t('reuse.delivery'), value: 2 },
+  { text: t('reuse.successfulDelivery'), value: 3 },
+  { text: t('formDemo.receivedDelivery'), value: 4 }
+]
+
 export const filterStatus: Array<Filter> = [
   { text: t('reuse.notSeen'), value: 2 },
   { text: t('reuse.takingCare'), value: 1 },
@@ -151,7 +171,7 @@ export const filterGender: Array<Filter> = [
 export const filterStatusCustomer: Array<Filter> = [
   { text: t('reuse.active'), value: 1 },
   { text: t('reuse.pause'), value: 2 },
-  { text: t('reuse.lockAccount'), value: 0 }
+  { text: t('formDemo.cancelled'), value: 0 }
 ]
 export const filterResultTable: Array<Filter> = [
   { text: t('reuse.success'), value: 1 },
@@ -167,7 +187,8 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.deposit'), value: 2 },
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
-  { text: t('workplace.spa'), value: 5 }
+  { text: t('workplace.spa'), value: 5 },
+  { text: t('reuse.internal'), value: 6 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },
@@ -196,11 +217,14 @@ export const filterType: Array<Filter> = [
   { text: t('reuse.enterprise'), value: 1 },
   { text: t('reuse.personal'), value: 2 }
 ]
-export const filterAccount: Array<Filter> = [{ text: t('reuse.customer'), value: 1 }]
+export const filterAccount: Array<Filter> = [
+  { text: t('reuse.customer'), value: 0 },
+  { text: t('reuse.supplier'), value: 1 },
+  { text: t('formDemo.joint'), value: 2 }
+]
 export const filterSubject: Array<Filter> = [
-  { text: t('reuse.allCustomer'), value: 1 },
-  { text: t('reuse.groupCustomer'), value: 2 },
-  { text: t('reuse.onlyCustomer'), value: 3 }
+  { text: t('reuse.allCustomer'), value: 2 },
+  { text: t('reuse.groupCustomer'), value: 3 }
 ]
 export const filterPromotionPrice: Array<Filter> = [
   { text: t('reuse.sale30'), value: 1 },
@@ -260,4 +284,17 @@ export const filterTypePolicies: Array<Filter> = [
 export const filterShow: Array<Filter> = [
   { text: t('reuse.home'), value: 1 },
   { text: t('reuse.trending'), value: 2 }
+]
+export const filterPointSettingType: Array<Filter> = [
+  { text: t('router.buyPointsPackage'), value: 1 },
+  { text: t('reuse.pointsForSellOrder'), value: 2 },
+  { text: t('reuse.pointsForRentOrder'), value: 3 },
+  { text: t('reuse.pointsForDepositOrder'), value: 4 },
+  { text: t('reuse.pointsForPawnOrder'), value: 5 },
+  { text: t('reuse.pointsForSpaOrder'), value: 6 },
+  { text: t('reuse.pointsForAffiliate'), value: 7 }
+]
+export const filterStatusSettingPoint: Array<Filter> = [
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 0 }
 ]

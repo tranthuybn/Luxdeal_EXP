@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onBeforeMount, unref } from 'vue'
+import { reactive, ref, onBeforeMount, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -25,28 +25,29 @@ import {
   ElNotification,
   UploadUserFile,
   ElTreeSelect,
+  UploadProps,
   ElMessage
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { FORM_IMAGES } from '@/utils/format'
+import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { dateTimeFormat } from '@/utils/format'
+import { PRODUCTS_AND_SERVICES, STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
+import { dateTimeFormat, postDateTime } from '@/utils/format'
 import {
   getCollaboratorsInOrderList,
   getAllCustomer,
   getPromotionsList,
   getProductsList,
   addNewOrderList,
-  getSellOrderList,
+  getOrderList,
   createQuickProduct,
   getCheckProduct,
   getproductId,
   addQuickCustomer,
-  getTotalOrder,
+  getPriceOfSpecificProduct,
   addTPV,
   getReturnRequest,
   getDetailReceiptPaymentVoucher,
@@ -55,7 +56,18 @@ import {
   getOrderTransaction,
   createReturnRequest,
   getReceiptPaymentVoucher,
-  getDetailAccountingEntryById
+  getDetailAccountingEntryById,
+  updateOrderTransaction,
+  GetPaymentRequestDetail,
+  getCodePaymentRequest,
+  getListWareHouse,
+  // postAutomaticWarehouse,
+  GetProductPropertyInventory,
+  updateOrderInfo,
+  finishStatusOrder,
+  updateStatusOrder,
+  approvalOrder,
+  cancelOrder
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -65,7 +77,10 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 
 import type { FormInstance, FormRules } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import ReturnOrder from './ReturnOrder.vue'
+import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
 
@@ -75,92 +90,156 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
+const checkPercent = (_rule: any, value: any, callback: any) => {
+  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
+  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
+  callback()
+}
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
+const ruleFormAddress = ref<FormInstance>()
+
 const ruleForm = reactive({
   orderCode: 'DHB039423',
-  leaseTerm: t('reuse.byMonth'),
-  rentalPeriod: [],
-  rentalPaymentPeriod: 1,
+  leaseTerm: 30,
+  rentalPeriod: '',
+  rentalPaymentPeriod: 5,
   collaborators: '',
-  discount: '',
+  discount: 0,
   orderNotes: '',
   customerName: '',
-  delivery: ''
+  warehouse: '',
+  delivery: 0
 })
 
 const rules = reactive<FormRules>({
-  orderCode: [{ required: true, message: 'Please input order code', trigger: 'blur' }],
+  orderCode: [{ required: true, message: t('formDemo.pleaseEnterOrderCode'), trigger: 'blur' }],
   leaseTerm: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectARentalTerm'),
       trigger: 'change'
     }
   ],
   rentalPaymentPeriod: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectRentalPaymentPeriod'),
       trigger: 'change'
     }
   ],
   collaborators: [
     {
       required: true,
-      message: 'Please select Activity zone',
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
       trigger: 'change'
     }
   ],
   discount: [
     {
-      required: true,
-      message: 'Please select Activity count',
+      validator: checkPercent,
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: 'Please input order note', trigger: 'blur' }],
-  customerName: [{ required: true, message: 'Please select Customer', trigger: 'change' }],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseEnterANote'), trigger: 'blur' }],
+  customerName: [
+    { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
+  ],
+  warehouse: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectWarehouse'),
+      trigger: 'change'
+    }
+  ],
   delivery: [
     {
       required: true,
-      message: 'Please select activity resource',
+      message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
   ]
 })
 
-let checkValidate = ref(false)
+const formAddress = reactive({
+  province: '',
+  district: '',
+  wardCommune: '',
+  detailedAddress: ''
+})
+const rulesAddress = reactive<FormRules>({
+  province: [
+    {
+      required: true,
+      message: 'Không được để trống Tỉnh/thành phố',
+      trigger: 'change'
+    }
+  ],
+  district: [
+    {
+      required: true,
+      message: 'Không được để trống Quận/huyện',
+      trigger: 'change'
+    }
+  ],
+  wardCommune: [
+    {
+      required: true,
+      message: 'Không được để trống Phường/Xã',
+      trigger: 'change'
+    }
+  ],
+  detailedAddress: [
+    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+  ]
+})
+
+const submitFormAddress = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, _fields) => {
+    if (valid) {
+      autoChangeAddress()
+      dialogFormVisible.value = false
+    } else {
+    }
+  })
+}
+
+let statusOrder = ref(2)
 
 var curDate = 'DCT' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
-// var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 
-const codeReturnRequest = ref()
+// const codeReturnRequest = ref()
 const rentalOrderCode = ref()
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
 
+let checkValidateForm = ref(false)
+
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
-  console.log('ruleForm:', ruleForm)
   if (!formEl || !formEl2) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid, _fields) => {
     if (valid) {
-      console.log('submit!')
+      checkValidateForm.value = true
     } else {
-      console.log('error submit!', fields)
+      checkValidateForm.value = true
     }
   })
-  await formEl2.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-      checkValidate.value = true
+  await formEl2.validate((valid, _fields) => {
+    if (valid && checkValidateForm.value) {
+      postData()
+      doubleDisabled.value = false
     } else {
-      console.log('error submit!', fields)
+      ElMessage.error(t('reuse.notFillAllInformation'))
+      checkValidateForm.value = false
     }
   })
 }
@@ -170,7 +249,7 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 
 const handleRemove = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -179,7 +258,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
 }
 
 const handleDownload = (file: UploadFile) => {
-  console.log(file)
+  return file
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -205,7 +284,7 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.productAndPayment'),
     columns: [],
@@ -262,14 +341,20 @@ const collapse: Array<Collapse> = [
 
 const chooseDelivery = [
   {
-    value: 'deliveryAtTheCounter',
+    value: 0,
     label: t('formDemo.selfDelivery')
   },
   {
-    value: 'deliveryToYourPlace',
+    value: 1,
     label: t('formDemo.deliveryToYourPlace')
   }
 ]
+
+interface typeWarehouse {
+  value: any
+  label: any
+}
+const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 const radio1 = ref('')
 const percentageIcon = useIcon({ icon: 'material-symbols:percent' })
@@ -280,15 +365,20 @@ interface tableRentalProduct {
   productPropertyId: string
   productName: string
   accessory: string
-  fromDate: string
-  toDate: string
+  dateRange: any
+  fromDate: any
+  toDate: any
   quantity: string
-  hirePrice: string
-  depositePrice: string
+  unitPrice: number
+  hirePrice: number
+  depositePrice: number
   warehouseId: number
-  finalPrice: string
+  warehouseName: string
+  totalPrice: number
   unitName: string
   intoARentalDeposit: string
+  warehouseTotal?: number
+  id: string
 }
 
 const tableData = ref<Array<tableRentalProduct>>([])
@@ -297,26 +387,35 @@ const productForSale = reactive<tableRentalProduct>({
   productPropertyId: '',
   productName: '',
   accessory: '',
+  dateRange: '',
   fromDate: '',
   toDate: '',
   quantity: '1',
-  hirePrice: '',
-  depositePrice: '',
+  unitPrice: 0,
+  hirePrice: 0,
+  depositePrice: 0,
   warehouseId: 0,
-  finalPrice: '',
+  warehouseName: '',
+  totalPrice: 0,
   unitName: t('formDemo.psc'),
-  intoARentalDeposit: ''
+  intoARentalDeposit: '',
+  id: ''
 })
 
 interface tableDataType {
   initializationDate: string
   content: string
-  receiptOrPaymentVoucherId: string
+  receiptOrPaymentVoucherId: number | undefined
+  receiptOrPaymentVoucherCode: string
+  paymentRequestId: string | undefined
+  paymentRequestCode: string
   quantity: number
   unitPrice: string
   intoMoney: string
   collected: string
   spent: string
+  receiveMoney: string
+  paidMoney: string
   rentalFeeDebt: string
   kindOfMoney: string
   paymentProposal: string
@@ -327,29 +426,42 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  console.log('val: ', val)
   newTable.value = val
-}
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
 
-const onAddDebtTableDeposit = () => {
-  debtTable.value.push({
-    initializationDate: moment().format('L').toString(),
-    content: feePaymentPeriod.value,
-    receiptOrPaymentVoucherId: '',
-    quantity: 0,
-    unitPrice: '',
-    intoMoney: '',
-    collected: '',
-    spent: '',
-    rentalFeeDebt: '',
-    kindOfMoney: '',
-    paymentProposal: '',
-    payment: '',
-    alreadyPaidForTt: false,
-    statusAccountingEntry: ''
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
   })
+
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 
 const historyTable = ref<Array<any>>([])
@@ -366,18 +478,19 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const activeName = ref(collapse[0].name)
+const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
-// phân loại khách hàng: 1: công ty, 2: cá nhân
 const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
+    id: 1,
     label: t('formDemo.company')
   },
   {
     value: false,
+    id: 2,
     label: t('formDemo.individual')
   }
 ]
@@ -391,29 +504,57 @@ const optionsCustomer = [
   }
 ]
 
-// const openDialogChoosePromotion = ref(false)
-const radioVAT = ref(false)
+const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
 
-// Chọn kỳ thanh toán phí thuê
-// const chooseRentalPaymentPeriod = ref(t('reuse.byMonth'))
-
+// infinity scroll CTV
 // Call api danh sách cộng tác viên
-const listCollaborators = ref()
 const optionsCollaborators = ref()
-let optionCallCollaborators = 0
+
+const pageIndexCollaborator = ref(1)
 const callApiCollaborators = async () => {
-  if (optionCallCollaborators == 0) {
-    const res = await getCollaboratorsInOrderList('')
-    listCollaborators.value = res.data
-    optionsCollaborators.value = listCollaborators.value.map((collaborator) => ({
-      label: collaborator.name,
-      value: collaborator.id
+  const res = await getCollaboratorsInOrderList({
+    PageIndex: pageIndexCollaborator.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsCollaborators.value = res.data.map((collaborator) => ({
+      label: collaborator.code + ' | ' + collaborator.accountName,
+      value: collaborator.id,
+      collaboratorCommission: collaborator.discount,
+      phone: collaborator.accountNumber
     }))
   }
-  optionCallCollaborators++
+}
+
+const scrollCollaboratorTop = ref(false)
+const scrollCollaboratorBottom = ref(false)
+
+const noMoreCollaboratorData = ref(false)
+
+const ScrollCollaboratorBottom = () => {
+  scrollCollaboratorBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCollaboratorData.value
+    ? ''
+    : getCollaboratorsInOrderList({ PageIndex: pageIndexCollaborator.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCollaboratorData.value = true)
+            : res.data.map((el) =>
+                optionsCollaborators.value.push({
+                  label: el.code + ' | ' + el.accountName,
+                  value: el.id,
+                  collaboratorCommission: el.discount,
+                  phone: el.accountNumber
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCollaboratorData.value = true
+        })
 }
 
 let customerAddress = ref('')
@@ -451,19 +592,19 @@ const callCustomersApi = async () => {
           : customer.name + ' | ' + customer.phonenumber,
         address: customer.address,
         name: customer.name,
-        value: customer.id.toString(),
+        value: customer.id,
         isOrganization: customer.isOrganization,
         taxCode: customer.taxCode,
         phone: customer.phonenumber,
         email: customer.email,
-        id: customer.id.toString()
+        id: customer.id
       }))
     }
   }
   optionCallCustomerAPi++
 }
 
-// Call api promo list
+// Call api danh sách mã giảm giá
 let promoTable = ref()
 const promoLoading = ref(true)
 const listPromotions = ref()
@@ -477,6 +618,8 @@ const callPromoApi = async () => {
       label: product.code,
       value: product.name,
       description: product.description,
+      reducePercent: product.reducePercent,
+      reduceCash: product.reduceCash,
       discount: product.reduce,
       voucherConditionType: product.voucherConditionType,
       voucherConditionTypeName:
@@ -511,7 +654,13 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val: undefined) => {
+  promoCash.value = 0
+  promoValue.value = 0
   currentRow.value = val
+  promo.value = val
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
 }
@@ -536,7 +685,12 @@ const changeRowPromo = () => {
 }
 
 const handleChangePromo = (data) => {
+  promoCash.value = 0
+  promoValue.value = 0
   promo.value = promoTable.value.find((e) => e.value == data)
+  promo.value?.reduceCash != 0
+    ? (promoCash.value = promo.value.reduceCash)
+    : (promoValue.value = promo.value?.reducePercent)
   changeNamePromo()
   checkPromo.value = true
 }
@@ -562,7 +716,6 @@ const changeNamePromo = () => {
 
 const changeAddressCustomer = (data) => {
   if (data) {
-    // customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
     const result = optionsCustomerApi.value.find((e) => e.value == data)
     optionCallPromoAPi = 0
     customerIdPromo.value = result.id
@@ -582,58 +735,57 @@ const changeAddressCustomer = (data) => {
     }
   } else {
     customerAddress.value = ''
-    // deliveryMethod.value = ''
   }
 }
 
-interface tableOrderDetailType {
-  productPropertyId: number
-  quantity: number
-  accessory: string | undefined
-  spaServiceIds: string
-}
-let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref()
 let totalFinalOrder = ref()
-let totalDeposit = ref()
+let promoValue = ref(0)
+let promoCash = ref(0)
+let totalDeposit = ref(0)
+
 // Total order
-const autoCalculateOrder = async () => {
-  if (tableData.value[tableData.value.length - 1].productPropertyId == '') tableData.value.pop()
-  tableOrderDetail.value = tableData.value.map((e) => ({
-    productPropertyId: parseInt(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
-    spaServiceIds: ''
-  }))
-  const payload = {
-    serviceType: 3,
-    fromDate: '2022-11-07T07:21:33.634Z',
-    toDate: '2022-12-07T07:21:33.634Z',
-    paymentPeriod: 1,
-    days: 30,
-    campaignId: campaignId.value,
-    orderDetail: tableOrderDetail.value
+const getProductPropertyPrice = async (
+  productPropertyId = 0,
+  serviceType = 3,
+  quantity = 1,
+  period = 1
+): Promise<any> => {
+  const getPricePayload = {
+    Id: productPropertyId,
+    serviceType: serviceType,
+    Quantity: quantity,
+    Period: period
   }
-  const res = await getTotalOrder(payload)
+  // lấy giá tiền của một sản phẩm
+  const res = await getPriceOfSpecificProduct(getPricePayload)
+  const objPrice = res.data
+  return objPrice
+}
 
-  for (let i = 0; i < tableData.value.length - 1; i++) {
-    tableData.value[i].finalPrice = res[i].finalPrice
-    tableData.value[i].hirePrice = res[i].hirePrice
-    tableData.value[i].depositePrice = res[i].depositePrice
+const autoCalculateOrder = () => {
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
+  totalDeposit.value = 0
+  tableData.value.map((val) => {
+    if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+    if (val.depositePrice) totalDeposit.value += val.depositePrice
+  })
+
+  promoCash.value != 0
+    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+    : (totalFinalOrder.value =
+        totalPriceOrder.value -
+        (totalPriceOrder.value * promoValue.value) / 100 +
+        totalDeposit.value)
+
+  if (radioVAT.value.length < 4) {
+    VAT.value = true
+    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+    if (totalFinalOrder.value) {
+      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+    }
   }
-
-  totalPriceOrder.value = res.reduce((total, e) => {
-    total += e.totalPrice
-    return total
-  }, 0)
-  totalFinalOrder.value = res.reduce((total, e) => {
-    total += e.finalPrice
-    return total
-  }, 0)
-  totalDeposit.value = res.reduce((total, e) => {
-    total += e.depositePrice
-    return total
-  }, 0)
 }
 
 // Call api danh sách sản phẩm
@@ -646,14 +798,13 @@ const callApiProductList = async () => {
     PageIndex: pageIndexProducts.value,
     PageSize: 20
   })
-  console.log('res: ', res.data)
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
       price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode,
       hirePrice: product.hirePrice,
       finalPrice: product.finalPrice,
@@ -685,7 +836,7 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   name: product.name ?? '',
                   price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
+                  productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
                 })
               )
@@ -717,69 +868,95 @@ const districtChange = async (value) => {
   ward.value = await getWard(value)
 }
 
-const ListFileUpload = ref<UploadUserFile[]>([])
-const Files = ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+let idOrderPost = ref()
 
-const { push } = useRouter()
 // tạo đơn hàng
 let postTable = ref()
 const postData = async () => {
-  submitForm(ruleFormRef.value, ruleFormRef2.value)
   postTable.value = tableData.value.map((e) => ({
     ProductPropertyId: e.productPropertyId,
-    Quantity: e.quantity,
-    ProductPrice: e.hirePrice,
-    SoldPrice: e.depositePrice,
     Accessory: e.accessory,
-    WarehouseId: e.warehouseId,
-    IsPaid: true
+    Description: null,
+    Quantity: e.quantity,
+    UnitPrice: 0,
+    HirePrice: e.hirePrice,
+    DepositePrice: e.depositePrice,
+    TotalPrice: e.totalPrice,
+    ConsignmentSellPrice: 0,
+    ConsignmentHirePrice: 0,
+    SpaServiceIds: null,
+    WarehouseId: null,
+    PriceChange: priceChangeOrders.value,
+    FromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    ToDate: postDateTime(ruleForm.rentalPeriod[1])
   }))
-  postTable.value.pop()
-  if (checkValidate.value) {
-    const productPayment = JSON.stringify([...postTable.value])
-    const payload = {
-      ServiceType: 3,
-      OrderCode: ruleForm.orderCode,
-      PromotionCode: 'TEST',
-      CollaboratorId: ruleForm.collaborators,
-      CollaboratorCommission: ruleForm.discount,
-      Description: ruleForm.orderNotes,
-      CustomerId: customerID.value,
-      fromDate: ruleForm.rentalPeriod[0],
-      toData: ruleForm.rentalPeriod[1],
-      Files: Files,
-      DeliveryOptionId: ruleForm.delivery,
-      ProvinceId: valueProvince.value ?? 1,
-      DistrictId: valueDistrict.value ?? 1,
-      WardId: valueCommune.value ?? 1,
-      Address: 'trieu khuc',
-      OrderDetail: productPayment,
-      CampaignId: 2,
-      VAT: 1,
-      Status: 1
-    }
-    const formDataPayLoad = FORM_IMAGES(payload)
-    await addNewOrderList(formDataPayLoad)
-      .then(
-        () =>
-          ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
-          }),
-        () =>
-          push({
-            name: 'business.order-management.order-list',
-            params: { backRoute: String(router.currentRoute.value.name) }
-          })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+  if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
+  const productPayment = JSON.stringify([...postTable.value])
+  const payload = {
+    ServiceType: 3,
+    OrderCode: ruleForm.orderCode,
+    PromotionCode: 'TEST',
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.discount,
+    Description: ruleForm.orderNotes,
+    CustomerId: customerID.value,
+    fromDate: postDateTime(ruleForm.rentalPeriod[0]),
+    toDate: postDateTime(ruleForm.rentalPeriod[1]),
+    TotalPrice: totalPriceOrder.value,
+    DepositePrice: totalDeposit.value,
+    DiscountMoney:
+      promoCash.value != 0
+        ? promoCash.value
+        : promoValue.value != 0
+        ? (totalPriceOrder.value * promoValue.value) / 100
+        : 0,
+    InterestMoney: 0,
+    VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+    Files: Files,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: formAddress.province ?? 1,
+    DistrictId: formAddress.district ?? 1,
+    WardId: formAddress.wardCommune ?? 1,
+    Address: customerAddress.value,
+    OrderDetail: productPayment,
+    CampaignId: 2,
+    VAT: 1,
+    Status: 2,
+    Days: ruleForm.leaseTerm,
+    PaymentPeriod: 1
   }
+
+  const formDataPayLoad = FORM_IMAGES(payload)
+  idOrderPost.value = await addNewOrderList(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+
+  // automaticCouponWareHouse(2)
 }
+
+// Phiếu xuất kho tự động
+// const automaticCouponWareHouse = async (index) => {
+//   const payload = {
+//     OrderId: idOrderPost.value.data,
+//     Type: index
+//   }
+
+//   if (!payload?.OrderId) await postAutomaticWarehouse(payload)
+// }
 
 const hirePeriod = [
   {
@@ -996,69 +1173,233 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-let totalOrder = ref(0)
-let customerIdPromo = ref()
+// options loại tiền bút toán bổ sung
+const optionsKindOfMoney = [
+  {
+    value: 1,
+    label: 'Tiền cọc(Không tính vào Công nợ phí thuê)'
+  },
+  {
+    value: 2,
+    label: 'Tiền phí(Tính vào Công nợ phí thuê)'
+  },
+  {
+    value: 3,
+    label: 'Tiền khác(Không tính vào Công nợ phí thuê)'
+  }
+]
 
+const valueMoneyAccoungtingEntry = ref(0)
+const autoChangeMoneyAccountingEntry = (_val, scope) => {
+  valueMoneyAccoungtingEntry.value = 0
+  const data = scope.row
+  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
+
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
+}
+
+// let totalOrder = ref(0)
+let customerIdPromo = ref()
+let duplicateStatusButton = ref(false)
+const disabledDeleteRow = ref(false)
+
+interface statusOrderType {
+  orderStatusName: string
+  orderStatus: number
+  isActive?: boolean
+  createdAt?: string
+  approvedAt?: string
+}
+let arrayStatusOrder = ref(Array<statusOrderType>())
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
-  if (type == 'edit' || type == 'detail') {
-    const res = await getSellOrderList({ Id: id, ServiceType: 3 })
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
+    disabledEdit.value = true
+    disabledDeleteRow.value = true
+    const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
+    arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value?.length) {
+      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
     dataEdit.value = orderObj
+
     if (res.data) {
       ruleForm.orderCode = orderObj.code
+      rentalOrderCode.value = orderObj.code
       ruleForm.collaborators = orderObj.collaboratorId
-      ruleForm.discount = orderObj.CollaboratorCommission
+      ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.leaseTerm = orderObj.days
+      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
 
-      totalOrder.value = orderObj.totalPrice
+      // totalOrder.value = orderObj.totalPrice
+      totalPriceOrder.value = orderObj.totalPrice
+      totalDeposit.value = orderObj.depositePrice
+      totalFinalOrder.value = totalPriceOrder.value + totalDeposit.value
+      if (orderObj.discountMoney != 0) {
+        showPromo.value = true
+        promoCash.value = orderObj.discountMoney
+      }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+      getTotalWarehouse()
+      changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOptionName
+      ruleForm.delivery = orderObj.deliveryOption
       customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if (orderObj.customer?.isOrganization) {
+        infoCompany.name = orderObj.customer?.name
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+        infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
+        infoCompany.taxCode = orderObj.customer?.taxCode
+        infoCompany.phone = orderObj.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj.customer?.email
       }
     }
     orderObj.orderFiles.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
     })
   } else if (type == 'add' || !type) {
     tableData.value.push({ ...productForSale })
   }
 }
 
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.productName = obj.name
-  scope.row.price = obj.price
-  console.log('getValueOfSelected')
+const fileList = ref<UploadUserFile[]>([])
+const duplicateProduct = ref()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
+const getValueOfSelected = async (value, obj, scope) => {
+  const data = scope.row
+  duplicateProduct.value = undefined
+  duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
+
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj.productPropertyId
+    data.productCode = obj.value
+    data.productName = obj.name
+    if (data.fromDate && data.toDate) {
+      totalPriceOrder.value = 0
+      totalFinalOrder.value = 0
+      totalDeposit.value = 0
+
+      let start = moment(data.fromDate, 'YYYY-MM-DD')
+      let end = moment(data.toDate, 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      let objPrice = await getProductPropertyPrice(
+        data.productPropertyId,
+        3,
+        !Number.isNaN(data.quantity) ? parseInt(data.quantity) : data.quantity,
+        ruleForm.leaseTerm
+      )
+      data.hirePrice = objPrice.price
+      data.depositePrice = objPrice.deposite * data.quantity
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
+      tableData.value.map((val) => {
+        if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+        if (val.depositePrice) totalDeposit.value += val.depositePrice
+      })
+      promoCash.value != 0
+        ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+        : (totalFinalOrder.value =
+            totalPriceOrder.value -
+            (totalPriceOrder.value * promoValue.value) / 100 +
+            totalDeposit.value)
+
+      if (radioVAT.value.length < 4) {
+        VAT.value = true
+        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+        if (totalFinalOrder.value) {
+          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+        }
+      }
+      // add new row
+      if (scope.$index == tableData.value.length - 1) {
+        tableData.value.push({ ...productForSale })
+        changeDateRange(ruleForm.rentalPeriod)
+      }
+    } else {
+      if (scope.$index == tableData.value.length - 1) {
+        tableData.value.push({ ...productForSale })
+        changeDateRange(ruleForm.rentalPeriod)
+      }
+    }
+  }
+}
+
+// chọn ngày thì ra giá tiền
+const handleGetTotal = async (_value, props) => {
+  const data = props.row
+  if (data.fromDate && data.toDate) {
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
+    totalDeposit.value = 0
+    let start = moment(data.fromDate, 'YYYY-MM-DD')
+    let end = moment(data.toDate, 'YYYY-MM-DD')
+
+    //Difference in number of days
+    let day = moment.duration(start.diff(end)).asDays() * -1
+    let days = Math.ceil(day / ruleForm.leaseTerm)
+
+    let objPrice = await getProductPropertyPrice(
+      data.productPropertyId,
+      3,
+      !Number.isNaN(data.quantity) ? parseInt(data.quantity) : data.quantity,
+      ruleForm.leaseTerm
+    )
+    data.hirePrice = objPrice.price
+    data.depositePrice = objPrice.deposite * data.quantity
+    data.totalPrice = data.hirePrice * data.quantity * days
+    tableData.value.map((val) => {
+      if (val.totalPrice) totalPriceOrder.value += val.totalPrice
+      if (val.depositePrice) totalDeposit.value += val.depositePrice
+    })
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
+  }
+}
+
+const recalculatePrice = () => {
+  tableData.value.splice(0, tableData.value.length)
+  tableData.value.push(productForSale)
+}
+
+// Xóa sản phẩm trong table sản phẩm và thanh toán
+const removeTableData = (index) => {
+  tableData.value.splice(index, 1)
 }
 
 const dialogAddProduct = ref(false)
@@ -1188,7 +1529,6 @@ const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProductsTable.value.find(
     (product) => product.productPropertyId == data
   )
-  // quickProductName.value = dataSelectedObj.name
 
   // call API checkProduct
   let codeCheckProduct = ref()
@@ -1284,7 +1624,7 @@ const choosePayment = [
   }
 ]
 
-const inputDeposit = ref('10,000,000 đ')
+const inputDeposit = ref(0)
 const payment = ref(choosePayment[0].value)
 // Thông tin phiếu thu
 const dialogInformationReceipts = ref(false)
@@ -1295,263 +1635,81 @@ const dialogIPRForm = ref(false)
 // Thông tin phiếu chi
 const dialogPaymentVoucher = ref(false)
 
-const detailedListExpenses = [
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  },
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spendFor: '',
-    quantity: '',
-    unitPrices: 'đ',
-    intoMoney: 'đ',
-    note: ''
-  }
-]
-
 const alreadyPaidForTt = ref(true)
 
 // Thông tin phiếu bán hàng
 const dialogRentalPaymentInformation = ref(false)
 const singleTableRef = ref<InstanceType<typeof ElTable>>()
 
-// const tableSalesSlip = [
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '2',
-//     rentalUnitPrice: '2,000,000 đ',
-//     rentalFee: '4,000,000 đ'
-//   }
-// ]
-
-const feePaymentPeriod = ref('Kỳ thanh toán phí thuê theo tháng/Ngày 22/02/2022/ Tháng thứ 2')
+const feePaymentPeriod = ref('')
 
 // Thông tin phiếu thanh toán tiền cọc thuê
 const dialogDepositSlip = ref(false)
-// let totalDepositPrice = ref
-
-// const tableDeposit = [
-//   {
-//     commodityName:
-//       'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-//     quantity: '2',
-//     intoARentalDeposit: '15,000,000 đ'
-//   }
-// ]
 
 // Thông tin phiếu nhập kho trả hàng cho thuê
 const dialogWarehouseRentalPayment = ref(false)
 
-const tableWarehouse = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '01',
-    unitPriceWarehouse: '2,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ',
-    conditionProducts: 'Đa hỏng mất linh kiện'
-  }
-]
+const tableChooseWarehouse = ref([])
 
 //add row to the end of table if fill all table
 const addLastIndexSellTable = () => {
   tableData.value.push({ ...productForSale })
+  changeDateRange(ruleForm.rentalPeriod)
 }
-
-watch(
-  () => tableData,
-  () => {
-    if (tableData.value[tableData.value.length - 1].productPropertyId && type !== 'detail') {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
-watch(
-  () => checkValidate.value,
-  () => {
-    if (checkValidate.value === true) {
-      postData()
-    }
-  }
-)
 
 let autoChangeCommune = ref()
 let autoChangeDistrict = ref()
 let autoChangeProvince = ref()
-watch(
-  () => enterdetailAddress.value,
-  () => {
-    if (enterdetailAddress.value && district.value && ward.value) {
-      autoChangeProvince.value = cities.value.find((e) => e.value == valueProvince.value)
-      autoChangeDistrict.value = district.value.find((e) => e.value == valueDistrict.value)
-      autoChangeCommune.value = ward.value.find((e) => e.value == valueCommune.value)
-      customerAddress.value =
-        enterdetailAddress.value +
-        ', ' +
-        autoChangeCommune.value.label +
-        ', ' +
-        autoChangeDistrict.value.label +
-        ', ' +
-        autoChangeProvince.value.label
-    }
-  }
-)
-
-let statusOrder = ref(1)
-const changeStatus = (index) => {
-  setTimeout(() => {
-    statusOrder.value = index
-  }, 4000)
+const autoChangeAddress = () => {
+  autoChangeProvince.value = cities.value.find((e) => e.value == formAddress.province)
+  autoChangeDistrict.value = district.value.find((e) => e.value == formAddress.district)
+  autoChangeCommune.value = ward.value.find((e) => e.value == formAddress.wardCommune)
+  customerAddress.value =
+    formAddress.detailedAddress +
+    ', ' +
+    autoChangeCommune.value.label +
+    ', ' +
+    autoChangeDistrict.value.label +
+    ', ' +
+    autoChangeProvince.value.label
 }
 
-const addStatusDelay = (index) => {
-  setTimeout(() => {
-    addStatusOrder(index)
-  }, 4000)
-}
-
-// fake trạng thái đơn hàng cho thuê
-// bắt thay đổi đơn hàng
-
+// Trạng thái đơn hàng cho thuê
 const priceChangeOrders = ref(false)
-let countPriceChange = 0
 const changePriceRowTable = (props) => {
-  if (props.row.rentalUnitPrice != props.row.rentalFee && countPriceChange == 0 && type == 'add') {
-    countPriceChange++
+  const data = props.row
+  if (type == 'add') {
     priceChangeOrders.value = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
     arrayStatusOrder.value.push({
-      label: 'Duyệt giá thay đổi',
-      value: 1,
+      orderStatusName: 'Duyệt giá thay đổi',
+      orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
       isActive: true
     })
   }
+  doubleDisabled.value = true
+  statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
+  data.totalPrice = data.hirePrice * data.quantity
+  autoCalculateOrder()
 }
 
-interface statusOrderType {
-  label: string
-  value: number
-  isActive?: boolean
-}
-let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 if (type == 'add' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
-    label: 'Chốt đơn hàng',
-    value: 2,
+    orderStatusName: 'Chốt đơn hàng',
+    orderStatus: 2,
     isActive: true
   })
-
-const addStatusOrder = (index) => {
-  switch (index) {
-    case 1:
-      arrayStatusOrder.value.push({
-        label: 'Duyệt giá thay đổi',
-        value: 1
-      })
-      break
-    case 2:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Chốt đơn hàng',
-          value: 2,
-          isActive: true
-        })
-      break
-    case 3:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Bắt đầu thuê',
-          value: 3,
-          isActive: true
-        })
-      break
-    case 4:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Hết hạn thuê',
-          value: 4,
-          isActive: true
-        })
-      break
-    case 5:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Duyệt trả hàng trước hạn',
-          value: 5,
-          isActive: true
-        })
-      break
-    case 6:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Đối soát & kết thúc',
-          value: 6,
-          isActive: true
-        })
-      break
-    case 7:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Trả hàng hết hạn',
-          value: 7,
-          isActive: true
-        })
-      break
-
-    case 8:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Bắt đầu gia hạn thuê',
-          value: 8,
-          isActive: true
-        })
-      break
-    case 9:
-      ;(arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false),
-        arrayStatusOrder.value.push({
-          label: 'Kết thúc gia hạn thuê',
-          value: 9,
-          isActive: true
-        })
-      break
-    case 10:
-      if (arrayStatusOrder.value.length > 0) {
-        arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-        arrayStatusOrder.value.push({
-          label: 'Hủy đơn hàng',
-          value: 10,
-          isActive: true
-        })
-      } else {
-        arrayStatusOrder.value.push({
-          label: 'Hủy đơn hàng',
-          value: 10,
-          isActive: true
-        })
-      }
-      break
-  }
-}
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
 const tableAccountingEntry = ref([
   {
-    content: 'Trả lại tiền cọc cho khách',
-    collected: '',
-    spent: '10,000,000 đ',
-    intoMoney: '10,000,000 đ'
+    content: '',
+    kindOfMoney: '',
+    receiveMoney: 0,
+    paidMoney: 0,
+    intoMoney: 0
   }
 ])
 
@@ -1568,15 +1726,10 @@ function openDepositDialog() {
   nameDialog.value = 'deposit'
 }
 
-function openReceiptDialog() {
-  getReceiptCode()
-  dialogInformationReceipts.value = !dialogInformationReceipts.value
-  nameDialog.value = 'Phiếu thu'
-}
-
-// function openPaymentDialog() {
-//   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
-//   nameDialog.value = 'Phiếu chi'
+// function openReceiptDialog() {
+//   getReceiptCode()
+//   dialogInformationReceipts.value = !dialogInformationReceipts.value
+//   nameDialog.value = 'Phiếu thu'
 // }
 
 function printPage(id: string) {
@@ -1611,56 +1764,56 @@ function printPage(id: string) {
 const recharger = ref('Trần Hữu Dương | 0998844533')
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
-// const inputReasonReturn = ref('')
 
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
 
-// Thêm mã phiếu thu vào debtTable
-const handleChangeReceipts = () => {
+// Thêm mã phiếu thu/chi vào debtTable
+const handleChangeReceipts = async () => {
   if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeReceipts.value
-        }
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: 0,
+        receiptOrPaymentVoucherId: idPT.value ?? idPC.value,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
       })
     })
   }
+  await getOrderStransactionList()
 }
 
-// Thêm mã phiếu chi vào debtTable
-const handleChangeExpenditures = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.receiptOrPaymentVoucherId = codeExpenditures.value
-        }
-      })
-    })
-  }
-}
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = async (_index, scope) => {
+  const res = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
 
-// Thêm mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentRequest = () => {
-  if (newTable.value?.length) {
-    newTable.value.forEach((val) => {
-      debtTable.value.forEach((e) => {
-        if (e.content == val.content) {
-          e.paymentProposal = codePaymentRequest.value
-        }
-      })
-    })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+    nameDialog.value = 'Phiếu thu'
+    codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+    codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+    moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+    payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+    inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+    dialogInformationReceipts.value = true
   }
 }
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
 const formReceipts = ref()
-const moneyReceipts = ref(105000000)
+const moneyReceipts = ref(0)
 const inputRecharger = ref()
 
 const getFormReceipts = () => {
@@ -1674,8 +1827,6 @@ const getFormReceipts = () => {
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
     }
-
-    // PrintReceipts.value = !PrintReceipts.value
   } else {
     ElMessage({
       showClose: true,
@@ -1688,7 +1839,6 @@ const getFormReceipts = () => {
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
-  console.log('res: ', res.data)
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1711,11 +1861,11 @@ let idPT = ref()
 const postPT = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1724,7 +1874,7 @@ const postPT = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
   idPT.value = objidPT.value.receiptAndpaymentVoucherId
-  console.log('idPT: ', idPT.value)
+  handleChangeReceipts()
 }
 
 // Thêm mới phiếu chi
@@ -1733,12 +1883,12 @@ let idPC = ref()
 const postPC = async () => {
   const payload = {
     Code: codeReceipts.value,
-    TotalMoney: 21325465,
+    TotalMoney: moneyReceipts.value,
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
-    OrderId: 117,
+    PeopleId: inputRecharger.value,
+    OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
     AccountingEntryId: undefined
@@ -1746,35 +1896,153 @@ const postPC = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
   idPC.value = objidPC.value.receiptAndpaymentVoucherId
-  console.log('idPC: ', idPC.value)
+  handleChangeReceipts()
 }
 
-// Lấy chi tiết phiếu thu chi
-let formDetailPaymentReceipt = ref()
-const getDetailPayment = () => {
-  openReceiptDialog()
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
+// table đề nghị thanh toán
+const detailedListExpenses = ref([
+  {
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  }
+])
+
+const addRowDetailedListExpoenses = () => {
+  detailedListExpenses.value.push({
+    numberVouchers: '',
+    dayVouchers: '',
+    spentFor: '',
+    quantity: 0,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: ''
+  })
 }
 
-// // Thêm mới phiếu đề nghị thanh toán
+watch(
+  () => detailedListExpenses.value[detailedListExpenses.value.length - 1],
+  () => {
+    if (
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].dayVouchers &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].spentFor &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].quantity &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].unitPrice &&
+      detailedListExpenses.value[detailedListExpenses.value.length - 1].note
+    )
+      addRowDetailedListExpoenses()
+  },
+  {
+    deep: true
+  }
+)
+
+const getReceiptCode = async () => {
+  codeReceipts.value = await getReceiptPaymentVoucher()
+}
+
+const getcodeExpenditures = async () => {
+  codeExpenditures.value = await getReceiptPaymentVoucher()
+}
+
+const newCodePaymentRequest = async () => {
+  codePaymentRequest.value = await getCodePaymentRequest()
+}
+
+// Thêm mới phiếu đề nghị thanh toán
 let objIdPayment = ref()
 let idPayment = ref()
 const postPaymentRequest = async () => {
+  if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
+    detailedListExpenses.value.pop()
   const payload = {
     Code: codePaymentRequest.value,
-    TotalMoney: 121325,
-    PaymentType: 0,
-    PeopleId: 2,
+    TotalMoney: moneyReceipts.value,
+    PaymentType: payment.value,
+    PeopleId: inputRecharger.value,
     status: 0,
     PeopleType: 1,
     OrderId: id,
     Description: '',
     Document: undefined,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    ReasonCollectMoney: inputReasonCollectMoney.value,
+    EnterMoney: enterMoney.value,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value),
+    DepositeMoney: depositePayment.value,
+    DebtMoney: debtPayment.value,
+    TotalPrice: totalPayment.value
   }
+
   const formDataPayLoad = FORM_IMAGES(payload)
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
+  handleChangePaymentOrder()
+}
+
+// Thêm mới mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentOrder = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: idPayment.value,
+        receiptOrPaymentVoucherId: 0,
+        isReceiptedMoney: true,
+        status: 0,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+}
+
+// Tổng tiền table phiếu đề nghị thanh toán nếu có
+const totalPayment = ref(0)
+const depositePayment = ref(0)
+const debtPayment = ref(0)
+
+const autoChangeDepositePayment = () => {
+  debtPayment.value = totalPayment.value - depositePayment.value
+}
+
+const autoCalculateMoneyPayment = () => {
+  totalPayment.value = 0
+  detailedListExpenses.value.map((el) => {
+    if (el.unitPrice && el.quantity) {
+      el.totalPrice = el.unitPrice * el.quantity
+      totalPayment.value += el.totalPrice
+    }
+  })
+  autoChangeDepositePayment()
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  const res = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
+  }
 }
 
 // Thêm bút toán cho đơn hàng
@@ -1783,33 +2051,38 @@ let idStransaction = ref()
 let objOrderStransaction = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = tableData.value.map((val) => ({
-    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    merchadiseTobePayforId: parseInt(val.id),
     quantity: parseInt(val.quantity)
   }))
-  childrenTable.value.pop()
-  codeReturnRequest.value = autoCodeReturnRequest
-  codeReturnRequest.value = autoCodeReturnRequest
+
   const payload = {
     orderId: id,
     content:
       index == 1
-        ? t('formDemo.collectRentalDeposit')
+        ? t('formDemo.rentalFeePaymentSlip')
         : index == 2
-        ? feePaymentPeriod
+        ? feePaymentPeriod.value
+        : index == 3
+        ? 'Trả hàng trước hạn'
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: tableAccountingEntry.value[0].collected
-      ? parseInt(tableAccountingEntry.value[0].collected)
-      : 0,
-    paidMoney: tableAccountingEntry.value[0].spent
-      ? parseInt(tableAccountingEntry.value[0].spent)
+    receiveMoney:
+      index == 1
+        ? totalFinalOrder.value
+        : index == 2
+        ? inputDeposit.value
+        : index == 3
+        ? tableAccountingEntry.value[0].receiveMoney
+        : 0,
+    paidMoney: tableAccountingEntry.value[0].paidMoney
+      ? tableAccountingEntry.value[0].paidMoney
       : 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -1819,64 +2092,467 @@ const postOrderStransaction = async (index: number) => {
   getOrderStransactionList()
 }
 
-const inputReturnReason = ref('Trả hàng trước hạn')
-// Tạo mới yêu cầu đổi trả
-const postReturnRequest = async () => {
-  codeReturnRequest.value = autoCodeReturnRequest
-  const tableReturnPost = ref()
-  tableReturnPost.value = tableData.value.map((e) => ({
-    productPropertyId: e.productPropertyId,
-    quantity: e.quantity,
-    acessory: e.accessory ?? '2'
-  }))
-  tableReturnPost.value.pop()
-  console.log('tableReturnPost: ', tableReturnPost.value)
-  const payload = {
-    customerOrderId: id,
-    code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng',
-    description: inputReturnReason.value,
-    returnRequestType: 1,
-    details: tableReturnPost.value
+// Call api chi tiết bút toán theo id
+let tableSalesSlip = ref()
+let formAccountingId = ref()
+const openDialogAcountingEntry = (scope) => {
+  const data = scope.row
+  switch (data.typeOfAccountingEntry) {
+    case 1:
+      openAcountingEntryDialog(data.id, 1)
+      break
+    case 2:
+      openAcountingEntryDialog(data.id, 2)
+      break
+    case 3:
+      openAcountingEntryDialog(data.id, 3)
+      break
+    case 4:
+      openAcountingEntryDialog(data.id, 4)
+      break
+    default:
+      console.log(`Sorry, we are out of ${data.typeOfAccountingEntry}.`)
   }
-  await createReturnRequest(payload)
 }
 
-// Call api chi tiết bút toán theo id
-let formAccountingId = ref()
-let tableSalesSlip = ref()
-const getAccountingEntry = async (index, num) => {
+const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tableSalesSlip.value = formAccountingId.value.paidMerchandises
-  tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  console.log('tableSalesSlip: ', tableSalesSlip.value)
-  console.log('tableAccountingEntry: ', tableAccountingEntry.value)
-  if (num == 1) dialogRentalPaymentInformation.value = true
-  if (num == 2) dialogDepositSlip.value = true
-  if (num == 3) dialogAccountingEntryAdditional.value = true
+  tableSalesSlip.value = formAccountingId.value?.paidMerchandises
+  tableSalesSlip.value.forEach((e) => {
+    e.totalPrice = e.unitPrice * e.quantity
+  })
+  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
+  // moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
+  // paidMoney.value = formAccountingId.value?.paidMoney
+  tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
+  tableAccountingEntry.value.forEach((el) => {
+    el.intoMoney = Math.abs(el.paidMoney - el.receiveMoney)
+  })
+  valueMoneyAccoungtingEntry.value = 0
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
+  alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
+  // inputReasonReturn.value =
+  console.log('formAccountingId: ', formAccountingId.value)
+  // getReturnOrder()
+  if (num == 1) {
+    dialogRentalPaymentInformation.value = true
+  } else if (num == 2) {
+    dialogDepositSlip.value = true
+  } else if (num == 4) {
+    dialogAccountingEntryAdditional.value = true
+  } else if (num == 3) {
+    // tableReturnFullyIntegrated.value = formAccountingId.value?.paidMerchandises
+    // tableProductInformationExportChange.value = formAccountingId.value?.paidMerchandises
+    // changeReturnGoods.value = true
+  }
 }
 
+const listOfOrderProduct = ref()
+// const getReturnOrder = () => {
+//   listOfOrderProduct.value = ListOfProductsForSale.value.map((el) => ({
+//     productCode: el.productCode,
+//     productPropertyCode: el.productPropertyCode,
+//     productPropertyName: el.productPropertyName,
+//     productPropertyId: el.productPropertyId,
+//     unitPrice: el.unitPrice,
+//     totalPrice: el.totalPrice,
+//     maximumQuantity: el.quantity
+//   }))
+// }
+// const openAcountingEntryDialog = async (index, num) => {
+//   const res = await getDetailAccountingEntryById({ id: index })
+//   formAccountingId.value = { ...res.data }
+//   tableSalesSlip.value = formAccountingId.value.paidMerchandises
+//   tableAccountingEntry.value = formAccountingId.value.accountingEntry
+//   if (num == 1) dialogRentalPaymentInformation.value = true
+//   else if (num == 2) dialogDepositSlip.value = true
+//   else if (num == 3) dialogAccountingEntryAdditional.value = true
+// }
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
-const getReceiptCode = async () => {
-  codeReceipts.value = await getReceiptPaymentVoucher()
+//TruongNgo
+const rentReturnOrder = ref({} as any)
+let productArray: any = []
+const setDataForReturnOrder = () => {
+  productArray = tableData.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
+  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
+  rentReturnOrder.value.period = ruleForm.rentalPeriod
+  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.customerAddress = customerAddress
+  rentReturnOrder.value.phone = infoCompany.phone
+  rentReturnOrder.value.tableData = tableData.value
 }
+// Tạo mới yêu cầu đổi trả
+const postReturnRequest = async (reason) => {
+  let tableReturnPost = [{}]
+  if (rentReturnOrder.value.tableData.length < 2) {
+    return
+  }
+  rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: parseInt(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Đổi trả đơn hàng',
+    description: formatOrderReturnReason(reason),
+    returnRequestType: 1,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
+}
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+
+const openDialogChooseWarehouse = ref(false)
+const showIdWarehouse = (scope) => {
+  radioWarehouseId.value = scope.row.warehouseCheckbox
+  tableData.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
+  tableData.value[indexRowWarehouse.value].warehouseName = scope.row.name
+}
+
+const addRow = () => {
+  rentReturnOrder.value.tableData.push({ ...productForSale })
+  changeDateRange(ruleForm.rentalPeriod)
+}
+const removeRow = (index) => {
+  rentReturnOrder.value.tableData.splice(index, 1)
+}
+
+const doubleDisabled = ref(false)
+const showPromo = ref(false)
+
+// import and show image
+let Files = reactive({})
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )}${files.length + uploadFiles.length}`
+  )
+}
+
+const ListFileUpload = ref<UploadUserFile[]>([])
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  uploadFiles.map((file) => {
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+  })
+  Files = ListFileUpload.value.map((el) => el?.raw)
+}
+const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
+const beforeAvatarUpload = (rawFile, type: string) => {
+  if (rawFile) {
+    //nếu là 1 ảnh
+    if (type === 'single') {
+      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
+        ElMessage.error(t('reuse.notImageFile'))
+        return false
+      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+        return false
+      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
+        ElMessage.error(t('reuse.imageOver4MB'))
+        return false
+      } else if (rawFile.name?.split('.')[0].length > 100) {
+        ElMessage.error(t('reuse.checkNameImageLength'))
+        return false
+      }
+    }
+    //nếu là 1 list ảnh
+    if (type === 'list') {
+      let inValid = true
+      rawFile.map((file) => {
+        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
+          ElMessage.error(t('reuse.notImageFile'))
+          inValid = false
+        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
+          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
+          inValid = false
+          return false
+        } else if (file.size / 1024 / 1024 > 4) {
+          ElMessage.error(t('reuse.imageOver4MB'))
+          inValid = false
+        } else if (file.name?.split('.')[0].length > 100) {
+          ElMessage.error(t('reuse.checkNameImageLength'))
+          inValid = false
+          return false
+        }
+      })
+      return inValid
+    }
+    return true
+  }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
+}
+
+// Cập nhật lại giá tiền khi thay đổi VAT
+const valueVAT = ref()
+const VAT = ref(false)
+const changePriceVAT = () => {
+  autoCalculateOrder()
+}
+
+// check disabled
+const disabledEdit = ref(false)
+
+const autoCollaboratorCommission = (index) => {
+  optionsCollaborators.value.map((val) => {
+    if (val.value == index) ruleForm.discount = val.collaboratorCommission
+  })
+}
+
+const changeDateRange = (data) => {
+  tableData.value.forEach((el) => {
+    el.fromDate = data[0]
+    el.toDate = data[1]
+  })
+  if (tableData.value?.length) {
+    if (tableData.value[0].productPropertyId) {
+      let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      tableData.value.map((val) => {
+        val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
+      })
+      autoCalculateOrder()
+    }
+  }
+}
+
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCollaboratorTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCollaboratorBottom()
+  }
+}
+
+const clearData = () => {
+  totalPayment.value = 0
+  depositePayment.value = 0
+  debtPayment.value = 0
+  inputReasonCollectMoney.value = ''
+  enterMoney.value = ''
+  inputRecharger.value = undefined
+
+  detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
+  addRowDetailedListExpoenses()
+}
+
+// Lấy danh sách kho
+const callApiWarehouseList = async () => {
+  const res = await getListWareHouse('')
+  if (res?.data) {
+    res?.data.map((el) => {
+      if (el.children) {
+        chooseWarehouse.push({
+          value: el.id,
+          label: el.name
+        })
+      }
+    })
+  }
+}
+
+// load lại trạng thái đơn hàng
+const reloadStatusOrder = async () => {
+  const res = await getOrderList({ Id: id, ServiceType: 3 })
+
+  const orderObj = { ...res?.data[0] }
+  arrayStatusOrder.value = orderObj?.statusHistory
+  if (arrayStatusOrder.value?.length) {
+    arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
+  }
+}
+
+// Sửa thông tin đơn hàng
+const updateOrderInfomation = async () => {
+  const payload = {
+    Id: id,
+    CollaboratorId: ruleForm.collaborators,
+    CollaboratorCommission: ruleForm.discount,
+    Description: ruleForm.orderNotes,
+    DeleteFileIds: '',
+    Files: Files,
+    DeliveryOptionId: ruleForm.delivery,
+    ProvinceId: formAddress.province ?? null,
+    DistrictId: formAddress.district ?? null,
+    WardId: formAddress.wardCommune ?? null,
+    Address: customerAddress.value ?? null
+  }
+  const formUpdateOrder = FORM_IMAGES(payload)
+  await updateOrderInfo(formUpdateOrder)
+    .then(() => {
+      ElNotification({
+        message: 'Sửa thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Sửa thất bại',
+        type: 'warning'
+      })
+    )
+}
+
+// Cập nhật trạng thái đơn hàng
+const updateStatusOrders = async (typeState) => {
+  if (typeState == STATUS_ORDER_RENTAL[0].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await cancelOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else if (typeState == STATUS_ORDER_RENTAL[10].orderStatus) {
+    let payload = {
+      OrderId: id
+    }
+    await finishStatusOrder(FORM_IMAGES(payload))
+    reloadStatusOrder()
+  } else {
+    if (type == 'add') {
+      let payload = {
+        OrderId: idOrderPost.value,
+        ServiceType: 3,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let payload = { OrderId: id, ServiceType: 3, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(payload))
+      reloadStatusOrder()
+    }
+  }
+}
+
+const route = useRoute()
+const { push } = useRouter()
+const approvalId = String(route.params.approvalId)
+const tab = String(route.params.tab)
+
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
+}
+
+const totalWarehouse = ref()
+const tableWarehouse = ref()
+
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId,
+    ServiceType: serviceType
+  }
+  // lấy giá tiền của một sản phẩm
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.data?.total ?? 'Hết hàng'
+
+  return total
+}
+
+const getTotalWarehouse = () => {
+  tableData.value.forEach(async (el) => {
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+  })
+}
+
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+
+  data.warehouseTotal = res.data.total
+  totalWarehouse.value = res.data.total
+  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
+}
+
+const utility = 'Utility'
+const buttonDuplicate = ref(false)
+const statusButtonDetail = ref(false)
+const editOrder = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+      }
+    })
+  } else {
+    buttonDuplicate.value = !buttonDuplicate.value
+  }
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
   editData()
+  callApiWarehouseList()
   if (type == 'add') {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
-    codePaymentRequest.value = autoCodePaymentRequest
   }
+  if (type == 'detail') buttonDuplicate.value = true
 })
 </script>
 
@@ -1893,8 +2569,8 @@ onBeforeMount(() => {
       <div id="recpPaymentPrint">
         <slot>
           <receiptsPaymentPrint
+            v-if="getFormReceipts"
             :dataEdit="getFormReceipts"
-            getFormReceipts
             :nameDialog="nameDialog"
           />
         </slot>
@@ -1928,7 +2604,7 @@ onBeforeMount(() => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2006,7 +2682,7 @@ onBeforeMount(() => {
                   <el-select v-model="valueClassify" placeholder="Select">
                     <el-option
                       v-for="item in optionsClassify"
-                      :key="item.value"
+                      :key="item.id"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -2259,9 +2935,9 @@ onBeforeMount(() => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2274,6 +2950,7 @@ onBeforeMount(() => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2286,14 +2963,18 @@ onBeforeMount(() => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <label class="w-[30%] text-right">Số tiền thu</label>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2332,7 +3013,6 @@ onBeforeMount(() => {
                     () => {
                       dialogInformationReceipts = false
                       postPT()
-                      handleChangeReceipts()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2377,9 +3057,9 @@ onBeforeMount(() => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Select">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2392,6 +3072,7 @@ onBeforeMount(() => {
                 <span class="text-red-500">*</span></label
               >
               <el-input
+                v-model="inputReasonCollectMoney"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')"
               />
@@ -2404,14 +3085,18 @@ onBeforeMount(() => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Mã phiếu thu</label>
-            <div class="w-[100%] text-xl">105,000,000 đ</div>
+            <label class="w-[30%] text-right">Số tiền chi</label>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -2447,7 +3132,6 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogPaymentVoucher = false
-                      handleChangeExpenditures()
                       postPC()
                     }
                   "
@@ -2463,9 +3147,8 @@ onBeforeMount(() => {
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
         v-model="dialogIPRForm"
-        class="font-bold"
         :title="t('formDemo.informationPaymentRequestForm')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -2485,17 +3168,15 @@ onBeforeMount(() => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.PaymentRequestCode') }}</label>
-              <div class="w-[100%] text-xl text-black dark:text-light-50">{{
-                codePaymentRequest
-              }}</div>
+              <div class="w-[100%] text-xl">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="recharger" placeholder="Select">
+              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in optionsCustomerApi"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -2508,6 +3189,7 @@ onBeforeMount(() => {
               >
               <el-input
                 style="width: 100%"
+                v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')"
               />
             </div>
@@ -2525,21 +3207,50 @@ onBeforeMount(() => {
                 prop="numberVouchers"
                 :label="t('formDemo.numberVouchers')"
                 width="80"
-              />
-              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80" />
-              <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120" />
-              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50" />
-              <el-table-column prop="unitPrices" :label="t('reuse.unitPrices')">
+              >
                 <template #default="props">
-                  <div class="text-right">{{ props.row.unitPrices }}</div>
+                  <el-input v-model="props.row.numberVouchers" />
                 </template>
               </el-table-column>
-              <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="150">
                 <template #default="props">
-                  <div class="text-right">{{ props.row.intoMoney }}</div>
+                  <el-date-picker
+                    v-model="props.row.dayVouchers"
+                    type="date"
+                    placeholder="Pick a day"
+                    format="DD/MM/YYYY"
+                  />
                 </template>
               </el-table-column>
-              <el-table-column prop="note" :label="t('reuse.note')" width="90" />
+              <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" width="120">
+                <template #default="props">
+                  <el-input v-model="props.row.spentFor" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="quantity" :label="t('formDemo.sl')" width="100">
+                <template #default="props">
+                  <el-input @change="autoCalculateMoneyPayment" v-model="props.row.quantity" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
+                <template #default="props">
+                  <CurrencyInputComponent
+                    @change="autoCalculateMoneyPayment"
+                    class="handle-fix"
+                    v-model="props.row.unitPrice"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
+                <template #default="props">
+                  <div class="text-right">{{ changeMoney.format(props.row.totalPrice) }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="note" :label="t('reuse.note')" width="90">
+                <template #default="props">
+                  <el-input v-model="props.row.note" />
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <div class="flex justify-end mr-[90px]">
@@ -2547,23 +3258,28 @@ onBeforeMount(() => {
               <p class="text-black font-bold dark:text-white">Tổng tiền</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(totalPayment)
+              }}</p>
             </div>
           </div>
           <span
             class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
           ></span>
           <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right">
-              <p class="mb-2">Đặt cọc</p>
-              <p class="text-red-600">Còn lại</p>
+            <div class="w-[145px] items-center text-right">
+              <p class="text-blue-400 leading-8">Đặt cọc <span class="text-red-500">*</span></p>
+              <p class="text-red-600 leading-8">Còn lại</p>
             </div>
             <div class="w-[145px] text-right">
-              <input
-                v-model="inputDeposit"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
+              <CurrencyInputComponent
+                v-model="depositePayment"
+                @change="autoChangeDepositePayment"
+                class="text-right outline-none mb-2 handle-fix"
               />
-              <p class="pr-2 text-red-600">đ</p>
+              <p class="pr-2 text-red-600">{{
+                debtPayment ? changeMoney.format(debtPayment) : '0 đ'
+              }}</p>
             </div>
             <div class="w-[90px]"></div>
           </div>
@@ -2575,13 +3291,17 @@ onBeforeMount(() => {
         <div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.amountSpent') }}</label>
-            <div class="w-[100%] text-xl">10,000,000 đ</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -2611,21 +3331,25 @@ onBeforeMount(() => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogIPRForm = false">{{ t('button.print') }}</el-button>
+            <el-button size="large" @click="printPage('IPRFormPrint')">{{
+              t('button.print')
+            }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  size="large"
                   @click="
                     () => {
                       dialogIPRForm = false
-                      handleChangePaymentRequest()
                       postPaymentRequest()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
+                <el-button size="large" @click="dialogIPRForm = false">{{
+                  t('reuse.exit')
+                }}</el-button>
               </span>
             </div>
           </div>
@@ -2646,7 +3370,7 @@ onBeforeMount(() => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex pt-4 pb-4 items-center">
+          <div class="flex pt-4 pb-2 items-center">
             <div class="flex-1">
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -2657,9 +3381,9 @@ onBeforeMount(() => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -2673,19 +3397,19 @@ onBeforeMount(() => {
               </div>
             </div>
 
-            <div class="flex-1"> QRCode </div>
+            <div class="flex-1 flex gap-4">
+              <span>
+                <div class="text-right">Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex gap-4 items-center pb-4">
             <label class="w-[20%] text-right">{{ t('formDemo.feePaymentPeriod') }}</label>
             <div class="w-[80%]">
-              <el-select v-model="feePaymentPeriod" placeholder="Select">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
+              <el-input v-model="feePaymentPeriod" placeholder="Kỳ thanh toán phí thuê" />
             </div>
           </div>
           <div class="flex items-center">
@@ -2718,14 +3442,20 @@ onBeforeMount(() => {
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.price }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="hirePrice" :label="t('formDemo.rentalFee')">
+            <el-table-column prop="hirePrice" :label="t('formDemo.rentalUnitPrice')">
               <template #default="props">
                 <div class="text-right">{{ props.row.hirePrice }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalPrice" :label="t('formDemo.rentalFee')" width="180">
+              <template #default="props">
+                <div class="text-right">
+                  {{
+                    props.row.totalPrice != ''
+                      ? changeMoney.format(parseInt(props.row.totalPrice))
+                      : '0 đ'
+                  }}
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -2795,7 +3525,7 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogRentalPaymentInformation = false
-                      postOrderStransaction(2)
+                      postOrderStransaction(1)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -2833,9 +3563,9 @@ onBeforeMount(() => {
               <div class="flex gap-4">
                 <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
                 <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
+                  ruleForm.leaseTerm == 1
                     ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
+                    : ruleForm.leaseTerm == 7
                     ? 'Theo tuần'
                     : 'Theo tháng'
                 }}</div>
@@ -2849,7 +3579,14 @@ onBeforeMount(() => {
               </div>
             </div>
 
-            <div class="flex-1"> QRCode </div>
+            <div class="flex-1 flex gap-4">
+              <span>
+                <div class="text-right">Mã QR đơn hàng</div>
+                <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -2949,7 +3686,7 @@ onBeforeMount(() => {
                   @click="
                     () => {
                       dialogDepositSlip = false
-                      postOrderStransaction(1)
+                      postOrderStransaction(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3106,361 +3843,46 @@ onBeforeMount(() => {
       </el-dialog>
 
       <!-- Thông tin trả hàng trước hạn -->
-      <el-dialog
+      <ReturnOrder
         v-model="dialogReturnAheadOfTime"
-        class="font-bold"
-        :title="t('formDemo.infoReturnAheadOfTime')"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex pt-4 pb-4 items-center">
-            <div class="flex-1">
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
-                <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">{{
-                  ruleForm.orderCode
-                }}</div>
-              </div>
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
-                    ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
-                    ? 'Theo tuần'
-                    : 'Theo tháng'
-                }}</div>
-              </div>
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('formDemo.rentalPeriod') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50"
-                  >{{ dateTimeFormat(ruleForm.rentalPeriod[0]) }} đến
-                  {{ dateTimeFormat(ruleForm.rentalPeriod[1]) }}</div
-                >
-              </div>
-            </div>
-
-            <div class="flex-1"> QRCode </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.phone }}</div>
-            </div>
-            <div class="flex gap-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.returnReason') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ inputReturnReason }}</div>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[30%] text-base font-bold break-w">{{
-              t('formDemo.fullyIntegrated')
-            }}</span>
-            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table :data="tableData" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.price }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="hirePrice" :label="t('formDemo.rentalFee')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.hirePrice }}</div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p>{{ t('formDemo.rentalFee') }}</p>
-              <p>Khuyến mại</p>
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.totalRentalFee') }}</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
-              }}</p>
-              <p class="pr-2">đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
-              }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogReturnAheadOfTime = false
-                      onAddDebtTableDeposit()
-                      getReturnRequestTable()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="dialogReturnAheadOfTime = false">{{
-                  t('reuse.exit')
-                }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="2"
+        :type="2"
+      />
 
       <!-- Thông tin trả hàng hết hạn -->
-      <el-dialog
+      <ReturnOrder
         v-model="dialogReturnExpired"
-        class="font-bold"
-        :title="t('formDemo.infoReturnAheadOfTime')"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div class="flex pt-4 pb-4 items-center">
-            <div class="flex-1">
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
-                <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">{{
-                  rentalOrderCode
-                }}</div>
-              </div>
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('reuse.rentalTerm') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50">{{
-                  ruleForm.leaseTerm == '1'
-                    ? 'Theo ngày'
-                    : ruleForm.leaseTerm == '7'
-                    ? 'Theo tuần'
-                    : 'Theo tháng'
-                }}</div>
-              </div>
-              <div class="flex gap-4">
-                <label class="w-[40%] text-right">{{ t('formDemo.rentalPeriod') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50"
-                  >{{ dateTimeFormat(ruleForm.rentalPeriod[0]) }} đến
-                  {{ dateTimeFormat(ruleForm.rentalPeriod[1]) }}</div
-                >
-              </div>
-            </div>
-
-            <div class="flex-1"> QRCode </div>
-          </div>
-          <div class="flex gap-4 items-center pb-4">
-            <label class="w-[20%] text-right">{{ t('formDemo.feePaymentPeriod') }}</label>
-            <div class="w-[80%]">
-              <el-select v-model="feePaymentPeriod" placeholder="Select">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.name }}</div>
-            </div>
-            <div class="flex gap-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ customerAddress }}</div>
-            </div>
-            <div class="flex gap-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
-              <div class="w-[100%] text-black dark:text-light-50">{{ infoCompany.phone }}</div>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[30%] text-base font-bold break-w">{{
-              t('formDemo.rentalProductInformation')
-            }}</span>
-            <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div class="pt-2 pb-2">
-          <el-table :data="tableData" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="price" :label="t('formDemo.rentalUnitPrice')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.price }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="hirePrice" :label="t('formDemo.rentalFee')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.hirePrice }}</div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p>{{ t('formDemo.rentalFee') }}</p>
-              <p>Khuyến mại</p>
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.totalRentalFee') }}</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
-              }}</p>
-              <p class="pr-2">đ</p>
-              <p class="pr-2 text-black font-bold dark:text-white">{{
-                totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
-              }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
-            <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
-            </div>
-          </div>
-          <div class="flex gap-4 pt-2 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
-            <div>
-              <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogReturnExpired = false
-                      onAddDebtTableDeposit()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button @click="dialogReturnExpired = false">{{ t('reuse.exit') }}</el-button>
-              </span>
-            </div>
-          </div>
-        </template>
-      </el-dialog>
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="3"
+        :type="2"
+      />
 
       <!-- Dialog Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
-        <div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.provinceOrCity') }} <span class="text-red-500">*</span></label
-            >
+        <el-form
+          ref="ruleFormAddress"
+          :model="formAddress"
+          :rules="rulesAddress"
+          label-width="150px"
+          class="demo-ruleForm"
+          status-icon
+        >
+          <el-form-item :label="t('formDemo.provinceAndCity')" prop="province">
             <el-select
-              v-model="valueProvince"
+              v-model="formAddress.province"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectProvinceCity')"
               @change="(data) => CityChange(data)"
             >
@@ -3471,15 +3893,12 @@ onBeforeMount(() => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.countyOrDistrict') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.countyAndDistrict')" prop="district">
             <el-select
-              v-model="valueDistrict"
+              v-model="formAddress.district"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.selectDistrict')"
               @change="(data) => districtChange(data)"
             >
@@ -3490,16 +3909,12 @@ onBeforeMount(() => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.wardOrCommune') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.wardOrCommune')" prop="wardCommune">
             <el-select
-              v-model="valueCommune"
-              clearable
+              v-model="formAddress.wardCommune"
               style="width: 96%"
-              class="m-2 fix-full-width"
+              class="fix-full-width"
               :placeholder="t('formDemo.chooseWard')"
             >
               <el-option
@@ -3509,24 +3924,28 @@ onBeforeMount(() => {
                 :value="item.value"
               />
             </el-select>
-          </div>
-          <div class="flex w-[100%] gap-4 items-center">
-            <label class="w-[25%] text-right"
-              >{{ t('formDemo.detailedAddress') }} <span class="text-red-500">*</span></label
-            >
+          </el-form-item>
+          <el-form-item :label="t('formDemo.detailedAddress')" prop="detailedAddress">
             <el-input
-              v-model="enterdetailAddress"
+              v-model="formAddress.detailedAddress"
               style="width: 96%"
-              class="m-2 fix-full-width"
-              :placeholder="t('formDemo.enterDetailAddress')"
+              class="fix-full-width"
+              :placeholder="t('formDemo.detailedAddress')"
             />
-          </div>
-        </div>
+          </el-form-item>
+        </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="dialogFormVisible = false">{{
-              t('reuse.save')
-            }}</el-button>
+            <el-button
+              class="w-[150px]"
+              type="primary"
+              @click="
+                () => {
+                  submitFormAddress(ruleFormAddress)
+                }
+              "
+              >{{ t('reuse.save') }}</el-button
+            >
             <el-button class="w-[150px]" @click="dialogFormVisible = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -3559,7 +3978,13 @@ onBeforeMount(() => {
                 <el-input style="width: 100%" v-model="ruleForm.orderCode" />
               </el-form-item>
               <el-form-item :label="t('formDemo.leaseTerm')">
-                <el-select v-model="ruleForm.leaseTerm" placeholder="Select" clearable>
+                <el-select
+                  v-model="ruleForm.leaseTerm"
+                  :disabled="checkDisabled"
+                  @change="recalculatePrice"
+                  placeholder="Select"
+                  clearable
+                >
                   <el-option
                     v-for="item in hirePeriod"
                     :key="item.value"
@@ -3571,7 +3996,10 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.rentalPeriod')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
+                  :disabled="checkDisabled"
                   type="daterange"
+                  unlink-panels
+                  @change="changeDateRange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
                   format="DD/MM/YYYY"
@@ -3579,7 +4007,7 @@ onBeforeMount(() => {
               </el-form-item>
               <el-form-item :label="t('formDemo.rentalPaymentPeriod')" prop="rentalPaymentPeriod">
                 <div class="flex gap-2">
-                  <el-select v-model="ruleForm.rentalPaymentPeriod" placeholder="Select">
+                  <el-select v-model="ruleForm.rentalPaymentPeriod" :disabled="checkDisabled">
                     <el-option
                       v-for="item in optionsRentalPaymentPeriod"
                       :key="item.value"
@@ -3588,9 +4016,10 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == '4'"
+                    v-if="ruleForm.rentalPaymentPeriod == 4"
+                    :disabled="checkDisabled"
                     v-model="week"
-                    placeholder="Select"
+                    :placeholder="t('formDemo.ChooseADayWeek')"
                   >
                     <el-option
                       v-for="item in periodicallyDuringWeek"
@@ -3600,9 +4029,10 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == '5'"
+                    v-if="ruleForm.rentalPaymentPeriod == 5"
+                    :disabled="checkDisabled"
                     v-model="month"
-                    placeholder="Select"
+                    :placeholder="t('formDemo.selectRecurringDayMonth')"
                   >
                     <el-option
                       v-for="item in periodicallyInMonth"
@@ -3617,16 +4047,20 @@ onBeforeMount(() => {
                 <div class="w-[60%] max-w-[528px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
+                      :disabled="checkDisabled"
                       v-model="ruleForm.collaborators"
+                      @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
                       filterable
                     >
-                      <el-option
-                        v-for="(item, index) in optionsCollaborators"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
-                      />
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                          v-for="(item, index) in optionsCollaborators"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </div>
                     </el-select>
                   </el-form-item>
                 </div>
@@ -3634,9 +4068,10 @@ onBeforeMount(() => {
                   <el-form-item prop="discount" label-width="0">
                     <div class="flex items-center">
                       <el-input
+                        :disabled="checkDisabled"
                         v-model="ruleForm.discount"
-                        class="w-[100%] border-none outline-none bg-transparent"
-                        :placeholder="`${t('formDemo.enterDiscount')}`"
+                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        :placeholder="t('formDemo.enterDiscount')"
                         :suffix-icon="percentageIcon"
                       />
                     </div>
@@ -3644,7 +4079,11 @@ onBeforeMount(() => {
                 </div>
               </div>
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input v-model="ruleForm.orderNotes" :placeholder="t('formDemo.addNotes')" />
+                <el-input
+                  v-model="ruleForm.orderNotes"
+                  :disabled="checkDisabled"
+                  :placeholder="t('formDemo.addNotes')"
+                />
               </el-form-item>
             </el-form>
           </div>
@@ -3660,8 +4099,14 @@ onBeforeMount(() => {
               <div class="pl-4">
                 <el-upload
                   action="#"
+                  :disabled="checkDisabled"
+                  v-model:file-list="fileList"
+                  :multiple="true"
                   list-type="picture-card"
+                  :limit="10"
+                  :on-exceed="handleExceed"
                   :auto-upload="false"
+                  :on-change="handleChange"
                   class="relative"
                 >
                   <template #file="{ file }">
@@ -3714,9 +4159,8 @@ onBeforeMount(() => {
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
+                    <div class="w-[20%] max-w-[170px] text-right pr-[12px]">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
-                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
@@ -3728,6 +4172,7 @@ onBeforeMount(() => {
                               t('reuse.customerInfo')
                             ]"
                             filterable
+                            :disabled="checkDisabled"
                             width="700px"
                             :items="optionsCustomerApi"
                             valueKey="value"
@@ -3747,7 +4192,29 @@ onBeforeMount(() => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item label-width="0" prop="delivery">
+                  <el-form-item class="fix-err" label-width="0" prop="warehouse">
+                    <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
+                      <label class="w-[170px] text-[#828387] text-right">{{
+                        t('formDemo.selectExportWarehouse')
+                      }}</label>
+                      <div class="flex w-[80%] gap-4">
+                        <el-select
+                          :disabled="checkDisabled"
+                          v-model="ruleForm.warehouse"
+                          class="fix-full-width"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
+                        >
+                          <el-option
+                            v-for="i in chooseWarehouse"
+                            :key="i.value"
+                            :label="i.label"
+                            :value="i.value"
+                          />
+                        </el-select>
+                      </div>
+                    </div>
+                  </el-form-item>
+                  <el-form-item class="fix-err" label-width="0" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <label class="w-[170px] text-[#828387] text-right">{{
                         t('formDemo.chooseShipping')
@@ -3757,7 +4224,7 @@ onBeforeMount(() => {
                           :disabled="checkDisabled"
                           v-model="ruleForm.delivery"
                           class="fix-full-width"
-                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
+                          :placeholder="t('formDemo.choseDeliveryMethod')"
                         >
                           <el-option
                             v-for="i in chooseDelivery"
@@ -3769,7 +4236,6 @@ onBeforeMount(() => {
                       </div>
                     </div>
                   </el-form-item>
-                  <!-- </el-form-item> -->
                 </div>
               </div>
               <div class="flex w-[100%] gap-6">
@@ -3836,10 +4302,10 @@ onBeforeMount(() => {
         <div>
           <div class="flex items-center gap-3">
             <el-select
-              @change="(data) => handleChangePromo(data)"
               v-model="input"
               filterable
               :placeholder="t('formDemo.enterPromoCode')"
+              @change="(data) => handleChangePromo(data)"
             >
               <el-option
                 v-for="item in promoTable"
@@ -3852,6 +4318,7 @@ onBeforeMount(() => {
               @click="
                 () => {
                   autoCalculateOrder()
+                  showPromo = true
                   openDialogChoosePromotion = false
                 }
               "
@@ -3915,11 +4382,54 @@ onBeforeMount(() => {
         </template>
       </el-dialog>
 
+      <!-- DialogChooseWarehouse -->
+      <el-dialog
+        v-model="openDialogChooseWarehouse"
+        :title="t('formDemo.inventoryInformation')"
+        width="35%"
+        align-center
+        class="z-50"
+      >
+        <el-divider />
+        <el-table :data="tableChooseWarehouse" border>
+          <el-table-column prop="warehouseCheckbox" width="90" align="center">
+            <template #default="props">
+              <el-radio
+                v-model="radioWarehouseId"
+                @change="() => showIdWarehouse(props)"
+                :label="props.row.warehouseCheckbox"
+                style="color: #fff; margin-right: -25px"
+                ><span></span
+              ></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
+          <el-table-column prop="inventory" :label="t('reuse.inventory')">
+            <template #default="props">
+              <div class="flex">
+                <span class="flex-1">{{ props.row.inventory }}</span>
+                <span class="flex-1 text-right">Chiếc</span>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
+              >{{ t('reuse.save') }}
+            </el-button>
+            <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <!-- Bút toán bổ sung -->
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -3928,9 +4438,22 @@ onBeforeMount(() => {
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">{{ rentalOrderCode }}</div>
+          <div class="flex gap-4 pt-4 pb-4">
+            <div class="flex-1 flex gap-4">
+              <label class="w-[50%] min-w-[162.73px] text-right">{{
+                t('formDemo.orderCode')
+              }}</label>
+              <div class="w-[70%] text-xl text-bold text-black dark:text-light">{{
+                rentalOrderCode
+              }}</div>
+            </div>
+            <div class="flex-1 flex items-start gap-4">
+              <span>
+                <div>Mã QR đơn hàng</div>
+              </span>
+
+              <span class="border"><Qrcode :width="100" :text="rentalOrderCode" /></span>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3960,24 +4483,44 @@ onBeforeMount(() => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="280">
+            <el-table-column prop="content" :label="t('reuse.content')" width="240">
               <template #default="props">
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
+            <el-table-column prop="kindOfMoney" :label="t('formDemo.kindOfMoney')" width="150">
               <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.collected" />
+                <el-select v-model="props.row.kindOfMoney" class="m-2">
+                  <el-option
+                    v-for="item in optionsKindOfMoney"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </template>
             </el-table-column>
-            <el-table-column prop="spent" :label="t('formDemo.spent')">
+            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.spent" />
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.receiveMoney"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
+              <template #default="props">
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.paidMoney"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <CurrencyInputComponent class="handle-fix" v-model="props.row.intoMoney" />
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3986,7 +4529,9 @@ onBeforeMount(() => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(valueMoneyAccoungtingEntry)
+              }}</p>
             </div>
           </div>
         </div>
@@ -4030,20 +4575,20 @@ onBeforeMount(() => {
           </div>
         </div>
         <template #footer>
-          <div class="float-right">
+          <div class="float-right pb-10">
             <span class="dialog-footer">
               <el-button
+                size="large"
                 type="primary"
                 @click="
                   () => {
                     postOrderStransaction(3)
-                    getOrderStransactionList()
                     dialogAccountingEntryAdditional = false
                   }
                 "
                 >{{ t('formDemo.saveRecordDebts') }}</el-button
               >
-              <el-button @click="dialogAccountingEntryAdditional = false">{{
+              <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
                 t('reuse.exit')
               }}</el-button>
             </span>
@@ -4061,31 +4606,27 @@ onBeforeMount(() => {
           <el-table-column
             prop="productPropertyId"
             :label="t('formDemo.productManagementCode')"
-            width="150"
+            width="180"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
+                :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyCode"
+                :defaultValue="props.row.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-                @change="autoCalculateOrder"
                 ><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
@@ -4106,6 +4647,7 @@ onBeforeMount(() => {
             <template #default="props">
               <el-input
                 v-if="type != 'detail'"
+                :disabled="disabledEdit"
                 v-model="props.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
               />
@@ -4113,142 +4655,168 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
           <el-table-column prop="fromDate" :label="t('formDemo.rentalStartDate')" width="120">
-            <template #default="props">
-              <div v-if="props.row.fromDate != ''">
-                {{ dateTimeFormat(props.row.fromDate) }}
-              </div>
-              <el-date-picker
-                v-else
-                v-model="props.row.fromDate"
-                type="date"
-                placeholder="Chọn ngày"
-                format="DD/MM/YYYY"
-              />
+            <template #default="scope">
+              {{ scope.row.fromDate ? dateTimeFormat(scope.row.fromDate) : '' }}
             </template>
           </el-table-column>
           <el-table-column prop="toDate" :label="t('formDemo.rentalEndDate')" width="120">
-            <template #default="props">
-              <div v-if="props.row.toDate != ''">
-                {{ dateTimeFormat(props.row.toDate) }}
-              </div>
-              <el-date-picker
-                v-else
-                v-model="props.row.toDate"
-                type="date"
-                placeholder="Chọn ngày"
-                format="DD/MM/YYYY"
-              />
+            <template #default="scope">
+              {{ scope.row.fromDate ? dateTimeFormat(scope.row.toDate) : '' }}
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('formDemo.rentalQuantity')" width="90">
-            <template #default="props">
-              <div v-if="type == 'detail'">{{ props.row.quantity }}</div>
-              <el-input v-model="props.row.quantity" />
+            <template #default="scope">
+              <div v-if="type == 'detail'">
+                {{ scope.row.quantity }}
+              </div>
+              <el-input
+                v-else
+                :disabled="disabledEdit"
+                @change="
+                  (data) => {
+                    handleGetTotal(data, scope)
+                    autoCalculateOrder()
+                  }
+                "
+                v-model="scope.row.quantity"
+                style="width: 100%"
+              />
             </template>
           </el-table-column>
-          <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="100" />
-          <el-table-column
-            prop="price"
-            :label="t('formDemo.rentalUnitPrice')"
-            align="right"
-            width="180"
-          >
+          <el-table-column prop="unitName" :label="t('reuse.dram')" width="100" />
+          <el-table-column prop="hirePrice" :label="t('formDemo.rentalUnitPrice')" width="180">
             <template #default="props">
               <CurrencyInputComponent
-                v-model="props.row.price"
+                v-model="props.row.hirePrice"
+                :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="changePriceRowTable"
+                @change="() => changePriceRowTable(props)"
               />
               <div v-else>{{
-                props.row.price != '' ? changeMoney.format(parseInt(props.row.price)) : '0 đ'
+                props.row.hirePrice != ''
+                  ? changeMoney.format(parseInt(props.row.hirePrice))
+                  : '0 đ'
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="hirePrice"
-            :label="t('formDemo.rentalFee')"
-            align="right"
-            width="180"
-          >
+          <el-table-column prop="totalPrice" :label="t('formDemo.rentalFee')" width="180">
             <template #default="props">
-              {{
-                props.row.finalPrice != ''
-                  ? changeMoney.format(parseInt(props.row.finalPrice))
-                  : '0 đ'
-              }}
+              <div class="text-right">
+                {{
+                  props.row.totalPrice != ''
+                    ? changeMoney.format(parseInt(props.row.totalPrice))
+                    : '0 đ'
+                }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="depositePrice"
             :label="t('formDemo.intoARentalDeposit')"
-            align="right"
             width="180"
           >
             <template #default="props">
-              {{
+              <CurrencyInputComponent
+                v-model="props.row.depositePrice"
+                :disabled="disabledEdit"
+                v-if="type != 'detail'"
+                @change="() => changePriceRowTable(props)"
+              />
+              <div v-else>{{
                 props.row.depositePrice != ''
                   ? changeMoney.format(parseInt(props.row.depositePrice))
                   : '0 đ'
-              }}
+              }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.exportWarehouse')" width="200">
-            <div class="flex w-[100%]">
-              <div class="flex-1">Còn hàng</div>
-              <div class="flex-1 text-right text-blue-500 cursor-pointer"
-                >+ {{ t('formDemo.chooseWarehouse') }}</div
-              >
-            </div>
+          <el-table-column prop="c" :label="t('formDemo.exportWarehouse')" width="200">
+            <template #default="props">
+              <div class="flex w-[100%] items-center">
+                <el-button
+                  text
+                  :disabled="disabledEdit"
+                  @click="
+                    () => {
+                      callApiWarehouse(props)
+                      openDialogChooseWarehouse = true
+                    }
+                  "
+                >
+                  <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">
+                    {{ props.row.warehouseTotal }}
+                  </span>
+                  <span v-else class="text-yellow-500">Hết hàng</span>
+                </el-button>
+              </div>
+            </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" align="center" width="90">
-            <button class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded">{{
-              t('reuse.delete')
-            }}</button>
+            <template #default="scope">
+              <el-button
+                :disabled="disabledDeleteRow"
+                @click="removeTableData(scope.$index)"
+                type="danger"
+                >{{ t('reuse.delete') }}</el-button
+              >
+            </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button v-if="type == 'add'" class="ml-4 mt-4" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.rentalFee') }}</div>
             <div class="text-blue-500 cursor-pointer">
-              <el-button text @click="openDialogChoosePromotion = true" style="padding: 0">
+              <el-button
+                :disabled="disabledEdit"
+                text
+                @click="openDialogChoosePromotion = true"
+                style="padding: 0"
+              >
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
             <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
-                  {{ t('formDemo.doesNotIncludeVAT') }}
+                  {{ radioVAT }}
                   <Icon icon="material-symbols:keyboard-arrow-down" :size="16" />
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-radio-group v-model="radioVAT" class="flex-col">
+                      <el-radio-group
+                        :disabled="disabledEdit"
+                        @change="changePriceVAT"
+                        v-model="radioVAT"
+                        class="flex-col"
+                      >
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="1">{{
-                            t('formDemo.VATNotIncluded')
-                          }}</el-radio>
+                          <el-radio
+                            class="text-left"
+                            style="color: blue"
+                            :label="t('formDemo.doesNotIncludeVAT')"
+                            >{{ t('formDemo.VATNotIncluded') }}</el-radio
+                          >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="2"
+                          <el-radio class="text-left" style="color: blue" label="10%"
                             >VAT 10%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="3"
+                          <el-radio class="text-left" style="color: blue" label="8%"
                             >VAT 8%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="4"
+                          <el-radio class="text-left" style="color: blue" label="5%"
                             >VAT 5%</el-radio
                           >
                         </div>
                         <div style="width: 100%">
-                          <el-radio class="text-left" style="color: blue" label="5"
+                          <el-radio class="text-left" style="color: blue" label="0%"
                             >VAT 0%</el-radio
                           >
                         </div>
@@ -4270,17 +4838,18 @@ onBeforeMount(() => {
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
-            <div class="h-[32px] text-right dark:text-[#fff]"
-              >-
-              {{
-                totalPriceOrder != undefined
-                  ? changeMoney.format(totalPriceOrder - totalFinalOrder)
-                  : '0 đ'
-              }}
+            <div class="h-[32px] text-right dark:text-[#fff]">
+              <div v-if="showPromo">{{
+                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
+              }}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div class="text-right dark:text-[#fff] text-transparent dark:text-transparent">s</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
+              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
+            }}</div>
+            <div v-else class="text-transparent :dark:text-transparent">s</div>
             <div class="text-right dark:text-[#fff]">{{
-              totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
+              totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>
             <div class="text-right dark:text-[#fff]">{{
               totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'
@@ -4289,7 +4858,7 @@ onBeforeMount(() => {
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+            <div v-if="showPromo" class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
               {{ promoActive }}
             </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -4300,10 +4869,9 @@ onBeforeMount(() => {
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
+          <label class="w-[9%] text-right">Tracking đơn hàng</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <!-- <el-radio label="1">{{ t('reuse.closedTheOrder') }}</el-radio> -->
               <el-radio :disabled="checkDisabled" label="1">{{
                 t('formDemo.waitingDelivery')
               }}</el-radio>
@@ -4314,27 +4882,26 @@ onBeforeMount(() => {
               <el-radio :disabled="checkDisabled" label="4">{{
                 t('reuse.deliveryFailed')
               }}</el-radio>
-              <!-- <el-radio label="5">{{ t('reuse.paying') }}</el-radio>
-              <el-radio label="6">{{ t('common.doneLabel') }}</el-radio> -->
             </el-radio-group>
           </div>
         </div>
         <div class="flex gap-2 pb-8">
-          <div class="w-[11%]"></div>
+          <div class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</div>
           <div class="w-[89%]">
             <div class="flex items-center w-[100%] flex-wrap">
               <div
-                @click="
-                  () => {
-                    statusOrder = 9
-                    addStatusOrder(4)
-                  }
-                "
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
-                :key="item.value"
+                :key="item.orderStatus"
               >
-                <div v-if="item.value == 1 || item.value == 5 || item.value == 7">
+                <div
+                  v-if="
+                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[1].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4342,11 +4909,21 @@ onBeforeMount(() => {
                     class="box box_1 text-yellow-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_1"> </span>
                   </span>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.value == 2 || item.value == 3 || item.value == 4">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_RENTAL[2].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[6].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4354,11 +4931,15 @@ onBeforeMount(() => {
                     class="box box_2 text-blue-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.value == 6">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_RENTAL[10].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4366,11 +4947,21 @@ onBeforeMount(() => {
                     class="box box_3 text-black dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.value == 8 || item.value == 9 || item.value == 10">
+                <div
+                  v-else-if="
+                    item.orderStatus == STATUS_ORDER_RENTAL[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[9].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[0].orderStatus
+                  "
+                >
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4378,9 +4969,13 @@ onBeforeMount(() => {
                     class="box box_4 text-rose-500 dark:text-black"
                     :class="{ active: item.isActive }"
                   >
-                    {{ item.label }}
+                    {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -4390,53 +4985,42 @@ onBeforeMount(() => {
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->
           <div
-            v-if="statusOrder == 1 && priceChangeOrders == false"
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              !priceChangeOrders &&
+              type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  statusOrder = 2
-                  changeStatus(3)
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="submitForm(ruleFormRef, ruleFormRef2)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  statusOrder = 5
-                  addStatusOrder(3)
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  statusOrder = 12
-                  addStatusOrder(10)
-                }
-              "
-              :disabled="checkDisabled"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -4444,26 +5028,30 @@ onBeforeMount(() => {
           </div>
           <!-- Có thay đổi giá -->
           <div
-            v-if="statusOrder == 1 && priceChangeOrders == true"
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
+              priceChangeOrders &&
+              type == 'add'
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
-                  postData()
-                  statusOrder = 2
-                  changeStatus(3)
-                  addStatusDelay(2)
+                  submitForm(ruleFormRef, ruleFormRef2)
                 }
               "
               type="primary"
@@ -4471,14 +5059,8 @@ onBeforeMount(() => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(10)
-                  statusOrder = 9
-                }
-              "
-              :disabled="checkDisabled"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -4486,191 +5068,225 @@ onBeforeMount(() => {
           </div>
 
           <div
-            v-else-if="statusOrder == 2 && priceChangeOrders == true"
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[1].orderStatus && !duplicateStatusButton"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  arrayStatusOrder.splice(0, arrayStatusOrder.length)
-                  addStatusOrder(10)
-                }
-              "
-              :disabled="checkDisabled"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
           <!-- Không thay đổi giá -->
-          <div v-else-if="statusOrder == 3" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+          <div
+            v-else-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              duplicateStatusButton &&
+              buttonDuplicate
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  addStatusOrder(3)
-                  statusOrder = 5
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="statusOrder = 4"
-              :disabled="checkDisabled"
+              @click="editOrder"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(10)
-                  addStatusDelay(7)
-                }
-              "
-              :disabled="checkDisabled"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
 
-          <div v-if="statusOrder == 4" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              type == 'edit' &&
+              !buttonDuplicate
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData
-                  statusOrder = 3
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateOrderInfomation()"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('reuse.save') }}</el-button
             >
             <el-button
-              @click="statusOrder = 3"
-              :disabled="checkDisabled"
+              @click="
+                () => {
+                  statusOrder = STATUS_ORDER_RENTAL[2].orderStatus
+                  buttonDuplicate = !buttonDuplicate
+                }
+              "
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 5" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
-                  statusOrder = 6
-                  dialogReturnAheadOfTime = !dialogReturnAheadOfTime
-                  postReturnRequest()
-                  addStatusOrder(5)
-                  changeStatus(7)
+                  dialogReturnAheadOfTime = true
+                  updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.durationPrepayment') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 6" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && !duplicateStatusButton"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
-              @click="statusOrder = 5"
-              :disabled="checkDisabled"
+              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 7" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && duplicateStatusButton"
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
+                  dialogReturnAheadOfTime = true
                   getReturnRequestTable()
-                  statusOrder = 8
+                  statusOrder = 120
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.completePayment') }}</button
             >
             <el-button
-              @click="statusOrder = 5"
-              :disabled="checkDisabled"
+              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 8" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+          <div v-else-if="statusOrder == 120" class="w-[100%] flex ml-1 gap-4">
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 12
-                  addStatusOrder(6)
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 9" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+          <div
+            v-else-if="statusOrder == STATUS_ORDER_RENTAL[8].orderStatus"
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(8)
-                  addStatusDelay(9)
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)"
+              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              >{{ t('formDemo.aheadTimeReturns') }}</button
+            >
+          </div>
+          <div
+            v-else-if="
+              statusOrder == STATUS_ORDER_RENTAL[9].orderStatus ||
+              statusOrder == STATUS_ORDER_RENTAL[6].orderStatus
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button
+              :disabled="doubleDisabled"
+              @click="openBillDialog"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
+            >
+            <el-button
+              @click="openDepositDialog"
+              :disabled="doubleDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.depositSlip') }}</el-button
+            >
+            <button
+              :disabled="statusButtonDetail"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
-                  statusOrder = 8
-                  addStatusOrder(7)
+                  statusOrder = STATUS_ORDER_RENTAL[7].orderStatus
+                  setDataForReturnOrder()
                   dialogReturnExpired = !dialogReturnExpired
                 }
               "
@@ -4678,38 +5294,18 @@ onBeforeMount(() => {
               >{{ t('formDemo.returnsExpired') }}</button
             >
           </div>
-          <div v-else-if="statusOrder == 10" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
-              t('formDemo.rentalVoucher')
-            }}</el-button>
+          <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
+            <button
+              :disabled="statusButtonDetail"
+              @click="approvalFunction"
+              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              >Duyệt</button
+            >
             <el-button
               @click="openDepositDialog"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlip') }}</el-button
-            >
-            <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  statusOrder = 9
-                  addStatusOrder(7)
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
-              >{{ t('formDemo.leaseExtension') }}</button
-            >
-            <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  postData()
-                  statusOrder = 8
-                  addStatusOrder(7)
-                }
-              "
-              class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.aheadTimeReturns') }}</button
+              >Không duyệt</el-button
             >
           </div>
         </div>
@@ -4724,6 +5320,7 @@ onBeforeMount(() => {
         <el-button
           @click="
             () => {
+              clearData()
               dialogInformationReceipts = true
               getReceiptCode()
             }
@@ -4731,8 +5328,28 @@ onBeforeMount(() => {
           text
           >+ Thêm phiếu thu</el-button
         >
-        <el-button @click="dialogPaymentVoucher = true" text>+ Thêm phiếu chi</el-button>
-        <el-button @click="dialogIPRForm = true" text>+ Thêm đề nghị thanh toán</el-button>
+        <el-button
+          @click="
+            () => {
+              clearData()
+              getcodeExpenditures()
+              dialogPaymentVoucher = true
+            }
+          "
+          text
+          >+ Thêm phiếu chi</el-button
+        >
+        <el-button
+          @click="
+            () => {
+              newCodePaymentRequest()
+              clearData()
+              dialogIPRForm = true
+            }
+          "
+          text
+          >+ Thêm đề nghị thanh toán</el-button
+        >
         <el-table
           ref="multipleTableRef"
           :data="debtTable"
@@ -4747,14 +5364,7 @@ onBeforeMount(() => {
             align="center"
           >
             <template #default="data">
-              <el-date-picker
-                v-model="data.row.createdAt"
-                v-if="type != 'detail'"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-              <div v-else>{{ data.row.createdAt }}</div>
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -4763,44 +5373,25 @@ onBeforeMount(() => {
             width="240"
           />
           <el-table-column
-            prop="receiptOrPaymentVoucherId"
+            prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
-            align="right"
           >
             <template #default="data">
-              <!-- <div
-                @click="
-                  data.row.receiptOrPayment.includes('PT')
-                    ? openReceiptDialog()
-                    : openPaymentDialog()
-                "
-                class="cursor-pointer text-blue-500"
-                >{{ data.row.receiptOrPayment }}</div
-              > -->
               <div
-                @click="
-                  () => {
-                    formDetailPaymentReceipt.value = getDetailReceiptPaymentVoucher({
-                      id: data.row.idPTC
-                    })
-                    getDetailPayment()
-                  }
-                "
+                @click="(index) => getDetailPayment(index, data)"
                 class="cursor-pointer text-blue-500"
               >
-                {{ data.row.receiptOrPaymentVoucherId }}
+                {{ data.row.receiptOrPaymentVoucherCode }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentProposal"
-            :label="t('router.paymentProposal')"
-            align="right"
-          >
+          <el-table-column prop="paymentRequestCode" :label="t('router.paymentProposal')">
             <template #default="props">
-              <div @click="dialogIPRForm = true" class="text-blue-500">{{
-                props.row.paymentProposal
-              }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
           <el-table-column prop="typeOfMoney" :label="t('formDemo.kindOfMoney')">
@@ -4808,52 +5399,68 @@ onBeforeMount(() => {
               <div>{{ props.row.typeOfMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="collected" :label="t('formDemo.collected')" align="left">
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
             <template #default="props">
-              <el-input v-model="props.row.collected" />
+              <el-input v-model="props.row.receiveMoney" />
             </template>
           </el-table-column>
-          <el-table-column prop="spent" :label="t('formDemo.spent')" align="right">
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
             <template #default="props">
-              <el-input v-model="props.row.spent" />
+              <el-input v-model="props.row.paidMoney" />
             </template>
           </el-table-column>
           <el-table-column
-            prop="rentalFeeDebt"
-            :label="`${t('formDemo.rentalFeeDebt')}`"
+            prop="deibt"
+            width="140"
+            :label="t('formDemo.rentalFeeDebt')"
             align="right"
-          />
-          <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
-            <div>Phải thu</div>
+          >
+            <template #default="data">
+              {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            width="100"
+          >
+            <template #default="props">
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
+            </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
             <template #default="props">
               <div>{{ props.row.payment }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" align="center" width="90">
-            <template #default="props">
-              <el-checkbox v-model="props.row.alreadyPaidForTt" />
+          <el-table-column
+            prop="isReceiptedMoney"
+            :label="t('formDemo.alreadyPaidForTt')"
+            align="center"
+            width="90"
+          >
+            <template #default="scope">
+              <el-checkbox :disabled="true" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
             prop="statusAccountingEntry"
-            align="center"
             min-width="120"
           />
-          <el-table-column :label="t('formDemo.manipulation')" width="90" align="center">
+          <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
             <template #default="data">
-              <el-button
-                @click="
-                  data.row.certificateInformation.includes(feePaymentPeriod)
-                    ? getAccountingEntry(data.row.id, 1)
-                    : data.row.certificateInformation.includes('Thu tiền cọc thuê')
-                    ? getAccountingEntry(data.row.id, 2)
-                    : getAccountingEntry(data.row.id, 3)
-                "
-                >{{ t('reuse.detail') }}</el-button
-              >
+              <div class="flex">
+                <button
+                  @click="() => openDialogAcountingEntry(data)"
+                  v-if="type != 'detail'"
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+                >
+                  {{ t('reuse.detail') }}
+                </button>
+                <div v-else>{{ t('reuse.detail') }}</div>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -5138,5 +5745,32 @@ onBeforeMount(() => {
 
 ::v-deep(.handle-fix > .el-input > .el-input__wrapper > .el-input__inner) {
   text-align: right;
+}
+
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  margin-left: 178px;
+}
+
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

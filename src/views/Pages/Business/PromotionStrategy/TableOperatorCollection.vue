@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { getAllCustomer, getProductsList } from '@/api/Business'
+import { deleteCampaign, getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -116,15 +116,33 @@ const props = defineProps({
   },
   showProduct: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  typeCombo: {
+    type: Boolean,
+    default: false
+  },
+  tabActive: {
+    type: Number,
+    default: NaN
   }
 })
+
+// eslint-disable-next-line vue/no-setup-props-destructure
+let schema = props.schema
+const { register, methods, elFormRef } = useForm({
+  schema
+})
+let fileList = ref<UploadUserFile[]>([])
+
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const formValue = ref()
+
 const dataTable = reactive({
   customerData: [{ id: -1, code: '', name: null }],
   productData: [{ id: -1, code: '', name: null, isActive: true }],
-  spaData: [{ id: -1, code: '', name: null, service: [] }],
+  spaData: [{ id: -1, isActive: 1, code: '', name: null, service: [] }],
+  spaVoucherData: [{ id: -1, code: '', name: null, service: [] }],
   auctionData: [{ id: -1, code: '', name: null }]
 })
 //get data from table
@@ -146,12 +164,6 @@ const getTableValue = async () => {
     }
   }
 }
-// eslint-disable-next-line vue/no-setup-props-destructure
-const schema = props.schema
-const { register, methods, elFormRef } = useForm({
-  schema
-})
-let fileList = ref<UploadUserFile[]>([])
 
 //formValue lay tu api
 const customizeData = async () => {
@@ -170,6 +182,7 @@ const setFormValue = async () => {
 
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
+
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -183,6 +196,13 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
+
+watch(
+  () => props.params,
+  () => {
+    if (props.params.CampaignType == '5') console.log('true')
+  }
+)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
@@ -202,6 +222,30 @@ watch(
     immediate: true
   }
 )
+
+watch(
+  () => formValue.value,
+  () => {
+    if (formValue.value) {
+      if (props.type === 'detail' || props.type === 'edit') {
+        let newArr = ref(formValue.value[0].productProperties)
+        let formService = ref([])
+        newArr.value[0]?.spaServices.map((e) => {
+          formService.value.push(e.name)
+        })
+        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+          code: val.code,
+          id: val.id,
+          isActive: val.isActive,
+          service: formService.value
+        }))
+        dataTable.spaData = formDataTable
+        spaMoney.value = formValue.value[0].comboValue
+        imageUrl.value = formValue.value[0].images
+      }
+    }
+  }
+)
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -210,7 +254,7 @@ defineExpose({
 const loading = ref(false)
 
 //doc du lieu tu bang roi emit len goi API
-const { go } = useRouter()
+// const { go } = useRouter()
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
@@ -233,8 +277,7 @@ const save = async (type) => {
             ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
-
-      if (data.target == 3) {
+      if (data.target == 3 || data.target == undefined) {
         data.customers = null
       } else {
         if (dataTable.customerData.length > 1) {
@@ -272,6 +315,13 @@ const save = async (type) => {
           return
         }
       }
+      data.spa = spaMoney.value
+      // dataTable.spaData.pop()
+      data.tableProductOfCombo = dataTable.spaData
+      //voucher product
+      dataTable.spaVoucherData.pop()
+      data.spaVoucher = dataTable.spaVoucherData
+
       //callback cho hàm emit
       if (type == 'add') {
         emit('post-data', data)
@@ -288,6 +338,7 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
+        data.Name = formValue.value.campaignTypeName
         emit('edit-data', data)
         loading.value = false
       }
@@ -391,7 +442,7 @@ const router = useRouter()
 const edit = () => {
   push({
     name: `${String(router.currentRoute.value.name)}`,
-    params: { id: props.id, type: 'edit' }
+    params: { id: props.id, type: 'edit', tab: props.tabActive }
   })
 }
 //xóa dữ liệu sản phẩm
@@ -405,19 +456,19 @@ const delAction = async () => {
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
+        deleteCampaign({ id: props.id })
+          .then(() =>
+            ElNotification({
+              message: t('reuse.deleteSuccess'),
+              type: 'success'
+            })
+          )
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.deleteFail'),
+              type: 'warning'
+            })
           })
-        }
       })
       .catch(() => {
         ElNotification({
@@ -466,15 +517,6 @@ type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
-//this is fake data if has api should do form['tableCustomer'] same for product
-
-type SpaProduct = {
-  id: number
-  code: string
-  name: string
-  service: Array<string>
-}
-const fakeSpaProductData = reactive<SpaProduct[]>([{ id: -1, code: '', name: '', service: [] }])
 const forceRemove = ref(false)
 watch(
   () => dataTable.customerData[dataTable.customerData?.length - 1],
@@ -486,6 +528,21 @@ watch(
         forceRemove.value == false)
     ) {
       addLastIndexCustomerTable()
+    }
+  },
+  { deep: true }
+)
+
+watch(
+  () => dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1],
+  () => {
+    if (
+      dataTable.spaVoucherData?.length < 1 ||
+      (dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1].code !== '' &&
+        dataTable.spaVoucherData[dataTable.spaVoucherData?.length - 1].name !== null &&
+        forceRemove.value == false)
+    ) {
+      addLastIndexSpaProductVoucher()
     }
   },
   { deep: true }
@@ -555,20 +612,74 @@ const addLastIndexProductTable = () => {
 
 const addLastIndexProductOfComboTable = () => {
   let idTable3 = Date.now()
-  dataTable.spaData.push({ id: idTable3, code: '', name: null, service: [] })
+  dataTable.spaData.push({ id: idTable3, isActive: 1, code: '', name: null, service: [] })
 }
 
 const addLastIndexProductOfAuctionTable = () => {
   let idTable4 = Date.now()
   dataTable.auctionData.push({ id: idTable4, code: '', name: null })
 }
+const addLastIndexSpaProductVoucher = () => {
+  let idTable5 = Date.now()
+  dataTable.spaVoucherData.push({ id: idTable5, code: '', name: null, service: [] })
+}
 
-//fake option
-const listProductsTable = reactive([
-  { value: 'dev1', label: '1', name: '111', id: 1 },
-  { value: '22', label: '2', name: '222', id: 2 },
-  { value: '33', label: '3', name: '333', id: 3 }
-])
+// //fake option
+// const listProductsTable = reactive([
+//   { value: 'dev1', label: '1', name: '111', id: 1 },
+//   { value: '22', label: '2', name: '222', id: 2 },
+//   { value: '33', label: '3', name: '333', id: 3 }
+// ])
+
+// const listProductsTable = ref()
+
+// // const pageIndexProducts = ref(1)
+// const callApiProductList = async () => {
+//   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+//   if (res.data && res.data?.length > 0) {
+//     listProductsTable.value = res.data.map((product) => ({
+//       productCode: product.code,
+//       value: product.productCode,
+//       name: product.name ?? '',
+//       price: product.price.toString(),
+//       productPropertyId: product.id,
+//       productPropertyCode: product.productPropertyCode
+//     }))
+//   }
+// }
+
+// // const scrollProductTop = ref(false)
+// // const scrollProductBottom = ref(false)
+
+// // const ScrollProductTop = () => {
+// //   scrollProductTop.value = true
+// // }
+// const noMoreProductData = ref(false)
+
+// const ScrollProductBottom = () => {
+//   scrollProductBottom.value = true
+//   pageIndexProducts.value++
+//   noMoreProductData.value
+//     ? ''
+//     : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+//         .then((res) => {
+//           res.data.length == 0
+//             ? (noMoreProductData.value = true)
+//             : res.data.map((product) =>
+//                 listProductsTable.value.push({
+//                   productCode: product.code,
+//                   value: product.productCode,
+//                   name: product.name ?? '',
+//                   price: product.price.toString(),
+//                   productPropertyId: product.id,
+//                   productPropertyCode: product.productPropertyCode
+//                 })
+//               )
+//         })
+//         .catch(() => {
+//           noMoreProductData.value = true
+//         })
+// }
 
 //get list customer
 const listCustomer = ref()
@@ -596,7 +707,8 @@ const callAPIProduct = async () => {
       value: product.productCode,
       label: product.code,
       name: product.name,
-      id: product.id
+      id: product.id,
+      Id: product.id
     }))
   }
 }
@@ -604,10 +716,8 @@ const callAPIProduct = async () => {
 //process logic data when click select
 const changeName = (data, scope) => {
   forceRemove.value = false
-  //change data of code
+
   scope.row.code = data
-  // need a function to find the name of the option selected
-  //then scope.row.name = result find
 }
 const changeProduct = (data, scope) => {
   forceRemove.value = false
@@ -691,7 +801,8 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   label: product.code,
                   name: product.name,
-                  id: product.id
+                  id: product.id,
+                  Id: product.id
                 })
               )
         })
@@ -711,13 +822,17 @@ const removeSpaProduct = (scope) => {
   forceRemove.value = true
   dataTable.spaData.splice(scope.$index, 1)
 }
-
+const removeSpaProductVoucher = (scope) => {
+  forceRemove.value = true
+  dataTable.spaVoucherData.splice(scope.$index, 1)
+}
 const removeAuctionProduct = (scope) => {
   forceRemove.value = true
   dataTable.auctionData.splice(scope.$index, 1)
 }
 const getValueOfSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
+  scope.row.id = obj.id
 }
 const getProductSelected = (_value, obj, scope) => {
   scope.row.name = obj.name
@@ -744,7 +859,7 @@ const getSpaOptions = async () => {
       (res) =>
         (SpaSelectOptions.value = res.data.map((spa) => ({
           name: spa.name,
-          value: spa.id,
+          value: spa.id.toString(),
           code: spa.code,
           label: spa.name,
           cost: spa.cost,
@@ -826,11 +941,6 @@ const handleCurrentChangeSelection = (val) => {
   setValues({ condition: radioSelected.value })
 }
 const radioSelected = ref()
-
-onBeforeMount(() => {
-  callAPICustomer(), getSpaOptions()
-  callAPIProduct()
-})
 const selectLoading = ref(true)
 const spaCost = ref()
 const getSpaSelected = (spaServices) => {
@@ -841,6 +951,12 @@ const getSpaSelected = (spaServices) => {
     return accumulator + curValue.cost
   }, 0)
 }
+onBeforeMount(() => {
+  callAPICustomer(), getSpaOptions()
+  callAPIProduct()
+})
+
+const spaMoney = ref(0)
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -1000,7 +1116,8 @@ const getSpaSelected = (spaServices) => {
                         t('reuse.explainEnterComboSpaMoney')
                       }}</div>
                     </span>
-                    <span><el-input /></span
+                    <!-- <span><el-input v-model="" /></span -->
+                    <span><CurrencyInputComponent v-model="spaMoney" /></span
                   ></div>
                 </div>
               </template>
@@ -1014,8 +1131,8 @@ const getSpaSelected = (spaServices) => {
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
-                    valueKey="value"
+                    :items="listProducts"
+                    valueKey="Id"
                     labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
@@ -1076,7 +1193,7 @@ const getSpaSelected = (spaServices) => {
             </el-table>
           </template>
           <template #spaProduct>
-            <el-table :data="fakeSpaProductData" border>
+            <el-table :data="dataTable.spaVoucherData" border>
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
                 ><template #default="scope">
                   <MultipleOptionsBox
@@ -1087,8 +1204,8 @@ const getSpaSelected = (spaServices) => {
                     ]"
                     filterable
                     width="500px"
-                    :items="listProductsTable"
-                    valueKey="value"
+                    :items="listProducts"
+                    valueKey="Id"
                     labelKey="value"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')"
@@ -1140,9 +1257,12 @@ const getSpaSelected = (spaServices) => {
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
-                    t('reuse.delete')
-                  }}</el-button>
+                  <el-button
+                    type="danger"
+                    v-if="scope.row.code"
+                    @click="removeSpaProductVoucher(scope)"
+                    >{{ t('reuse.delete') }}</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>

@@ -28,7 +28,7 @@ import {
 } from '../../Components/TablesReusabilityFunction'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
+import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton, ElCheckbox } from 'element-plus'
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -81,7 +81,10 @@ const columns = reactive<TableColumn[]>([
     field: 'paymentOrder',
     label: t('router.paymentProposal'),
     minWidth: '150',
-    align: 'right'
+    align: 'center',
+    formatter: (_: Recordable, __: TableColumn, ___: boolean) => {
+      return h(ElCheckbox)
+    }
   },
   {
     field: 'paid',

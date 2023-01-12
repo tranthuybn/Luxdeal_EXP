@@ -22,7 +22,7 @@ export default {
       children: [
         {
           path: 'newly-initialized',
-          component: () => import('@/views/Pages/Approval/Products/index.vue'),
+          component: () => import('@/views/Pages/Approval/Products/ApprovalProduct.vue'),
           name: 'approve.products-approval.newly-initialized',
           meta: {
             title: t('router.newlyInitialized')
@@ -30,7 +30,7 @@ export default {
         },
         {
           path: 'edit',
-          component: () => import('@/views/Pages/Approval/Products/index.vue'),
+          component: () => import('@/views/Pages/Approval/Products/ApprovalProduct.vue'),
           name: 'approve.products-approval.edit',
           meta: {
             title: t('router.edit')
@@ -40,24 +40,32 @@ export default {
     },
     {
       path: 'orders-approval',
-      redirect: { name: 'approve.orders-approval.oders-new' },
+      redirect: { name: 'approve.orders-approval.orders-new' },
       name: 'approve.orders-approval',
       meta: {
         title: t('router.approveOrders')
       },
       children: [
         {
-          path: 'oders-new',
+          path: 'orders-new',
           component: () => import('@/views/Pages/Approval/Orders/index.vue'),
-          name: 'approve.orders-approval.oders-new',
+          name: 'approve.orders-approval.orders-new',
           meta: {
             title: t('router.odersNew')
           }
         },
         {
-          path: 'oders-cancel',
+          path: 'orders-edit',
           component: () => import('@/views/Pages/Approval/Orders/index.vue'),
-          name: 'approve.orders-approval.oders-cancel',
+          name: 'approve.orders-approval.orders-edit',
+          meta: {
+            title: t('router.odersEdit')
+          }
+        },
+        {
+          path: 'orders-cancel',
+          component: () => import('@/views/Pages/Approval/Orders/index.vue'),
+          name: 'approve.orders-approval.orders-cancel',
           meta: {
             title: t('router.odersCancel')
           }

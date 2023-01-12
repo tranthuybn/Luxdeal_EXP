@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
-const activeName = ref('first-page')
+const activeName = ref('1')
 const disabledTab1 = ref(false)
 const disabledTab2 = ref(false)
 const router = useRouter()
@@ -16,7 +16,6 @@ const tabName = String(router.currentRoute.value.params.tab)
 
 onBeforeMount(() => changeTab())
 const changeTab = () => {
-  console.log('tabName', tabName)
   activeName.value = tabName
   switch (tabName) {
     case '1':

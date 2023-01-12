@@ -69,8 +69,7 @@ export const createLotWarehouseImage = async (params: any): Promise<IResponse> =
 export const getWarehouseLot = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${WAREHOUSE_API.GET_WAREHOUSE_LOT}`,
-      data: params
+      url: `${WAREHOUSE_API.GET_WAREHOUSE_LOT}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -92,6 +91,54 @@ export const createTicketManually = async (params: any): Promise<IResponse> => {
     {
       url: `${WAREHOUSE_API.CREATE_TICKET_MANUALLY}`,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const cancelTicket = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${WAREHOUSE_API.CANCEL_TICKET}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const UpdateInventory = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_INVENTORY}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const UpdateInventoryOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_INVENTORY_ORDER}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateTicketManually = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_TICKET_MANUALLY}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getLotHistory = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.GET_LOT_HISTORY}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

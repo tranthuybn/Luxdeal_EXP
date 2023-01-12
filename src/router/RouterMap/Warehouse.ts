@@ -32,16 +32,29 @@ export default {
           }
         },
         {
-          path: 'warehouse-transaction-1',
+          path: 'inventory-tracking-utility/:type?/:id?',
+          component: () =>
+            import('@/views/Pages/Warehouse/BusinessProductWarehouse/FollowInventoryUtility.vue'),
+          name: `Inventorymanagement.ListWarehouse.inventory-tracking.${utility}`,
+          meta: {
+            title: t('reuse.lotDetailProduct'),
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            showMainRoute: true
+          }
+        },
+        {
+          path: 'warehouse-transaction-1/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.import',
           meta: {
-            title: t('router.warehouse')
+            title: t('reuse.import')
           }
         },
         {
-          path: 'warehouse-transaction-2',
+          path: 'warehouse-transaction-2/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.export',
@@ -50,7 +63,7 @@ export default {
           }
         },
         {
-          path: 'warehouse-transaction-3',
+          path: 'warehouse-transaction-3/:id?',
           component: () =>
             import('@/views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction.vue'),
           name: 'Inventorymanagement.ListWarehouse.transfer',

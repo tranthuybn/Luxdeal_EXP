@@ -4,6 +4,8 @@ import {
   ProductsApprovalList,
   ProductsApprovalListMock
 } from './productsApproval/productsApprovalTable'
+import { OrderNew, OrderNewListMock } from './order/ordersNew'
+import { payment, OrderPaymentsListMock } from './payments/orderPayment'
 import { serviceResponse } from '../_reponseStructure'
 interface ApprovalManagement {
   id: Number
@@ -39,7 +41,10 @@ for (let i = 0; i < count; i++) {
       ]
     })
   )
+  OrderNew.push(Mock.mock(OrderNewListMock))
+  payment.push(Mock.mock(OrderPaymentsListMock))
 }
+
 const { result_code } = config
 const timeout = 1000
 
@@ -76,6 +81,46 @@ export default [
         pageSize: pageSize,
         pageIndex: pageIndex,
         count: ProductsApprovalList.length
+      })
+      return {
+        ...responseStructure
+      }
+    }
+  },
+  {
+    url: '/OrdersApproval/List',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      console.log('OrderNew', OrderNew)
+      const pageList = OrderNew.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: OrderNew.length
+      })
+      return {
+        ...responseStructure
+      }
+    }
+  },
+  {
+    url: '/OrdersApproval/Payments',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      console.log('payment', payment)
+      const pageList = payment.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: payment.length
       })
       return {
         ...responseStructure

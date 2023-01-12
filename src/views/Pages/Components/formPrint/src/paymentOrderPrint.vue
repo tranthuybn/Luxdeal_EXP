@@ -14,8 +14,6 @@ const props = defineProps({
     default: () => ''
   }
 })
-
-console.log('dataEdit: ', props.dataEdit)
 </script>
 
 <template>

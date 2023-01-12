@@ -6,6 +6,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
   GET_CATEGORY_BY_ID: '/api/v1/Category/GetCategoryById',
   UPDATE_CATEGORY: '/api/v1/Category/updateCategory',
+  HIDE_CATEGORY: '/api/v1/Category/HideCategory',
   DELETE_CATEGORY: '/api/v1/Categories/DeleteCategory',
   GET_PRODUCT: '/api/v1/Product/GetProduct',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
@@ -28,7 +29,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/GetPrice',
   CHANGE_PRICE_PRODUCT_PROPERTY: '/api/v1/Product/ChangePrice',
   GET_TAGS: '/api/v1/Product/GetTag',
-  GET_COLLABORATORS: 'api/v1/Order/GetCollaborator',
+  GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
   POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
@@ -75,6 +76,12 @@ export const CAMPAIGN_API = {
 export const ORDER_API = {
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
+  UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_ORDER_STATUS: '/api/v1/Order/UpdateOrderStatus',
+  CANCEL_ORDER: '/api/v1/Order/CancelOrder',
+  CANCEL_RETURN_REQUEST: '/api/v1/Order/CancelReturnRequest',
+  FINISH_ORDER: '/api/v1/Order/FinishOrder',
+  FINISH_RETURN_REQUEST: '/api/v1/Order/FinishReturnRequest',
   CREATE_QUICK_PRODUCT: '/api/v1/Product/CreateQuickProductProperty',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCT_ID: '/api/v1/Product/GetProduct',
@@ -83,14 +90,27 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
+  EDIT_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
+  UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
-  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequestForOrder',
+  GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
+  GET_RETURN_REQUEST_FOR_ORDER: '/api/v1/Order/GetReturnRequestForOrder',
   GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
+  GET_RECEIPT_PAYMENT_REQUEST_DETAIL: '/api/v1/Accountant/GetPaymentRequestDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST: '/api/v1/Accountant/CreateANewPaymentRequest',
   ADD_ORDER_STRANSACTION: '/api/v1/Accountant/AddAOrderStransaction',
-  GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry'
+  GET_ACCOUNTING_ENTRY_BY_ID: '/api/v1/Accountant/getDetailAccountingEntry',
+  POST_AUTOMATIC_WAREHOUSE: '/api/v1/Warehouse/CreateTicketFromOrder',
+  GET_PRODUCT_PROPERTY_ORDER_PRICE: '/api/v1/Order/GetProductPropertyOrderPrice',
+  GET_PRODUCT_PROPERTY_INVENTORY: '/api/v1/Order/GetProductPropertyInventory',
+  GET_WAREHOUSE_LIST: '/api/v1/Warehouse/GetWarehouse',
+  UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
+  UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
+  ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
+  APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
+  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -100,6 +120,7 @@ export const ADDRESS_API = {
 }
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
@@ -114,10 +135,59 @@ export const WAREHOUSE_API = {
   GET_WAREHOUSE_INVENTORY_API: '/api/v1/Warehouse/GetWarehouseInventory',
   GET_WAREHOUSE_TRANSACTION_API: 'api/v1/Warehouse/GetWarehouseTransaction',
   CREATE_LOT_WAREHOUSE_IMAGE: 'api/v1/Warehouse/CreateWarehouseLotImage',
+  CREATE_TICKET_FROM_RETURN_ORDER: 'api/v1/Warehouse/CreateTicketFromReturnOrder',
   GET_WAREHOUSE_LOT: 'api/v1/Warehouse/GetWarehouseLot',
   CREATE_WAREHOUSE_LOT: 'api/v1/Warehouse/CreateWarehouseLot',
-  CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually'
+  CREATE_TICKET_MANUALLY: 'api/v1/Warehouse/CreateTicketManually',
+  CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket',
+  UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
+  UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
+  UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
+  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory'
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff'
+}
+export const POINT_API = {
+  GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
+  GET_DETAIL_CUSTOMER_POINT: '/api/v1/Point/GetDetailCustomerPoint',
+  GET_SETTING_POINT: '/api/v1/Point/GetSettingPoint',
+  CANCEL_POINT_TRANSACTION: '/api/v1/Point/CancelPointTransaction',
+  CREATE_POINT_EXCHANGE: '/api/v1/Point/CreatePointExchange',
+  UPDATE_POINT_EXCHANGE: '/api/v1/Point/UpdatePointExchange',
+  CANCEL_POINT_EXCHANGE: '/api/v1/Point/CancelPointExchange'
+}
+export const DEPARTMENT_DIRECTORY = {
+  //Branch
+  BRANCH_LIST: '/api/v1/Branch/GetBranch',
+  ADD_BRANCH: '/api/v1/Branch/CreatBranch',
+  UPDATE_BRANCH: '/api/v1/Branch/UpdateBranch',
+  DELETE_BRANCH: '/api/v1/Branch/DeleteBranch',
+  //Department
+  DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
+  POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',
+  UPDATE_DEPARTMENT: '/api/v1/Department/updateDepartment',
+  DELETE_DEPARTMENT: '/api/v1/Department/DeleteDepartment',
+  DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
+  //POSITION
+  GET_LIST_POSITION: '/api/v1/Position/GetPosition',
+  ADD_POSITION: '/api/v1/Position/GetPosition',
+  UPDATE_POSITION: '/api/v1/Position/UpdatePosition',
+  DELETE_POSITION: '/api/v1/Position/DeletePosition',
+  //TY OF STAFF
+  GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff',
+  ADD_STAFF: '/api/v1/TypeOfStaff/CreateAccount',
+  UPDATE_STAFF: '/api/v1/TypeOfStaff/Update',
+  DELETE_STAFF: '/api/v1/TypeOfStaff/Delete',
+  //nhan su
+  ADD_NEW_STAFF: '/api/v1/AccountStaff/CreateAccountOne',
+  GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
+  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList'
+}
+
+export const APPROVAL_API = {
+  GET_LIST_APPROVAL: '/api/v1/Approve/GetApproveSetting',
+  GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove',
+  GET_LIST_ACOUNT: '/api/v1/AccountStaff/GetAccount',
+  GET_LIST_ACOUNT_BY_ID: '/api/v1/AccountStaff/GetId'
 }

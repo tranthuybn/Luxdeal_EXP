@@ -40,7 +40,7 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
           :content="props.message"
         >
           <div class="flex justify-between w-full">
-            <div class="max-w-250px font-medium">{{ t(`${props.title}`) }}</div>
+            <div class="font-medium">{{ t(`${props.title}`) }}</div>
             <el-button v-if="backButton" @click="go(-1)" :icon="deleteIcon">{{
               t('reuse.exit')
             }}</el-button>
@@ -51,8 +51,8 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
     <div>
       <slot></slot>
     </div>
-    <div :class="[`${prefixCls}-header__title`, 'flex flex-1  justify-center pb-8']"
-      ><slot name="under"></slot
-    ></div>
+    <div :class="[`${prefixCls}-header__title`, 'flex flex-1 gap-2 pb-8']">
+      <slot name="under"></slot>
+    </div>
   </ElCard>
 </template>

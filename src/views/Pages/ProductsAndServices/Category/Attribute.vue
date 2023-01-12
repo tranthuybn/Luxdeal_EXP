@@ -9,10 +9,11 @@ import {
 } from './CategoryManagement'
 import { Tab } from '../../Components/Type'
 import { useI18n } from '@/hooks/web/useI18n'
-import { provide, reactive } from 'vue'
+import { onBeforeMount, provide, reactive, ref, watch } from 'vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCategories, deleteCategory } from '@/api/LibraryAndSetting'
-let params = reactive({ TypeName: 'mausac' })
+import { useRoute } from 'vue-router'
+let params = reactive({ TypeName: '' })
 provide('parameters', {
   params
 })
@@ -60,11 +61,53 @@ const tabs: Array<Tab> = [
   }
 ]
 
+// const router = useRouter()
+const route = useRoute()
+
+const getCurrentTab = () => {
+  const tab = String(route.params.tab)
+  if (tab != ':tab') {
+    changeParam(tab)
+  } else {
+    params.TypeName = 'mausac'
+  }
+  console.log('tab', tab)
+}
+let currentTab = ref('')
+
+watch(
+  () => params.TypeName,
+  () => {
+    currentTab.value = params.TypeName
+  }
+)
+
 const changeParam = (val = '') => {
-  if (val.length > 0) params.TypeName = val
+  if (val.length > 0) {
+    params.TypeName = val
+    currentTab.value = val
+  }
   provide('parameters', {
     params
   })
 }
+
+onBeforeMount(() => {
+  getCurrentTab()
+})
 </script>
-<template> <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" /> </template>
+<template>
+  <productCategoryTable :tabs="tabs" @tab-change-event="changeParam" />
+</template>
+<style scoped>
+::v-deep(.custom-empty > .el-empty) {
+  padding: 5px 0;
+}
+::v-deep(.custom-empty .el-empty > .el-empty__description) {
+  margin-top: 5px;
+}
+
+::v-deep(.el-table__row--level-1 > td > .cell > .custom-empty) {
+  padding-left: 5rem;
+}
+</style>

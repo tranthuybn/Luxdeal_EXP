@@ -13,6 +13,7 @@ import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
+import moment from 'moment'
 const { t } = useI18n()
 const params = {}
 let timesCallAPI = 0
@@ -32,7 +33,7 @@ const schema = reactive<FormSchema[]>([
     modelValue: 1,
     value: 1,
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       style: 'width: 100%',
@@ -69,10 +70,11 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameWarehouseLevel1'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
-      placeholder: t('reuse.inputNameWarehouseLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: false
   },
@@ -81,21 +83,22 @@ const schema = reactive<FormSchema[]>([
     label: t('reuse.nameWarehouseLevel1'),
     component: 'Select',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       options: [],
       style: 'width: 100%',
-      placeholder: t('reuse.inputNameWarehouseLevel1')
+      placeholder: t('reuse.inputNameWarehouseLevel1'),
+      formatter: (value) => value.replace(/^\s+$/gm, '')
     },
     hidden: true
   },
   {
-    field: 'name',
+    field: 'name2',
     label: t('reuse.nameWarehouseLevel2'),
     component: 'Input',
     colProps: {
-      span: 20
+      span: 24
     },
     componentProps: {
       placeholder: t('reuse.inputNameWarehouseLevel2')
@@ -159,7 +162,26 @@ if (type === 'add') {
 } else if (type === 'edit') {
   title.value = t('reuse.editProductCategory')
 }
-const formDataCustomize = ref()
+
+//set up empty form customize
+type SetFormData = {
+  name: string
+  rankWarehouse: number
+  reduce: number
+  status: any
+  isDelete: boolean
+  customers: any
+  products: any
+  Image: any
+  target: number
+  percent: number
+  money: number
+  imageurl?: string
+  name2: string
+}
+const emptyFormData = {} as SetFormData
+const formDataCustomize = reactive(emptyFormData)
+
 //custom data before set Value to Form
 const customizeData = async (formData) => {
   //disable parent select
@@ -169,22 +191,32 @@ const customizeData = async (formData) => {
   if (schema[1].componentProps !== undefined) {
     schema[1].componentProps.disabled = true
   }
-  formDataCustomize.value = formData[0]
-  formDataCustomize.value['status'] = []
-  if (formData[0].parentid == 0) {
-    formDataCustomize.value.rankWarehouse = 1
-  } else {
-    formDataCustomize.value.rankWarehouse = 2
-    await addFormSchema(timesCallAPI, formData[0].name)
-  }
+  formDataCustomize.status = []
+
   if (formData[0].isActive == true) {
-    formDataCustomize.value['status'].push('active')
+    formDataCustomize.status.push('active')
   }
   if (formData[0].isHide == true) {
-    formDataCustomize.value['status'].push('hide')
+    formDataCustomize.status.push('hide')
   }
-  formDataCustomize.value.imageurl = `${API_URL}${formData[0].imageurl}`
-  formDataCustomize.value.isDelete = false
+  if (formData[0].parentid == 0) {
+    formDataCustomize.rankWarehouse = 1
+  } else {
+    formDataCustomize.rankWarehouse = 2
+    await addFormSchema(timesCallAPI, formData[0].name)
+  }
+
+  console.log('form data', formData[0])
+  console.log('formDataCustomize', formDataCustomize)
+
+  formDataCustomize.Image = formData[0].warehouseImages[0].path
+  formDataCustomize.imageurl = `${API_URL}${formData[0].warehouseImages[0].path}`
+  if (formData[0].parentid == 0) {
+    formDataCustomize.name = formData[0].name
+  } else {
+    formDataCustomize.name2 = formData[0].name
+  }
+  formDataCustomize.isDelete = false
 }
 
 //call api for select options
@@ -234,30 +266,32 @@ type FormDataPost = {
   isActive: boolean
   DeleteFileIds: string
 }
+var curDate = 'WH' + moment().format('hhmmss')
 
 const customPostData = (data) => {
   const customData = {} as FormDataPost
-  customData.Id = data.id
-  customData.Name = data.name
-  customData.Code = data.name
-  customData.ParentId = data.parentid
-  customData.Images = data.Images
-  data.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  customData.Id = data?.Id
+  customData.Name = data?.name
+  customData.Code = curDate
+  customData.ParentId = data?.parentid
+  customData.Images = data?.NewPhotos
+  customData.DeleteFileIds = data.DeleteFileIds.toString()
+  data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   return customData
 }
 
+const fixBugPost = (data) => {
+  const customData = {} as FormDataPost
+  customData.Name = data.name ? data.name : data.name2
+  customData.Code = curDate
+  customData.ParentId = data?.parentid
+  customData.Images = data?.Image
+  data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
+  return customData
+}
 const postData = async (data) => {
   //manipulate Data
-  if (data.ParentId == undefined) {
-    data.ParentId = 0
-  }
-  if (data.status === 'active') {
-    data.isActive = true
-  } else {
-    data.isActive = false
-  }
-  data.Code = 'HN91ads'
-
+  data = fixBugPost(data)
   await createNewProductStorage(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
@@ -316,5 +350,6 @@ const editData = async (data) => {
     :formDataCustomize="formDataCustomize"
     @customize-form-data="customizeData"
     :delApi="deleteProductStorage"
+    :multipleImages="false"
   />
 </template>

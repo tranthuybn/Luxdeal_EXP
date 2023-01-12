@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, watch, unref } from 'vue'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -18,8 +18,12 @@ import {
   UploadProps,
   ElMessageBox,
   UploadUserFile,
-  ElCheckbox
+  ElCheckbox,
+  ElRow,
+  ElCol
 } from 'element-plus'
+import moment from 'moment'
+import { dateTimeFormat } from '@/utils/format'
 import { FORM_IMAGES } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -49,7 +53,10 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const customerClassification = ref('Khách hàng')
 
-const { ValidService, notSpace, notSpecialCharacters, required } = useValidator()
+const escape = useIcon({ icon: 'quill:escape' })
+
+const { ValidService, notSpace, removeVietnameseTones } = useValidator()
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
@@ -97,7 +104,65 @@ const rules = reactive<FormRules>({
     { validator: notSpace }
   ],
   password: [{ required: true, message: t('common.required'), trigger: 'blur' }],
-  confirmPassword: [{ required: true, message: t('common.required'), trigger: 'blur' }]
+  confirmPassword: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value !== ruleForm.password) {
+          callback(new Error(t('reuse.confirmPasswordError')))
+        }
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    }
+  ],
+  cccd: [
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        callback()
+      },
+      required: true,
+      trigger: 'blur'
+    },
+    ValidService.checkCCCD
+  ]
+})
+
+// let customerCode = ref()
+let ruleForm = reactive({
+  customerCode: '',
+  referralCode: '',
+  businessClassification: false,
+  name: '',
+  customerName: '',
+  representative: '',
+  accountName: '',
+  accountNumber: '',
+  bankName: '',
+  cccd: '',
+  cccdCreateAt: '',
+  cccdPlaceOfGrant: '',
+  email: '',
+  link: '',
+  phonenumber: '',
+  sex: true,
+  taxCode: '',
+  doB: '',
+  userName: '',
+  isActive: true,
+  password: '',
+  confirmPassword: '',
+  ProvinceId: '',
+  DistrictId: '',
+  WardId: '',
+  Address: ''
 })
 
 let checkValidate = ref(false)
@@ -173,35 +238,6 @@ const bankList = [
   }
 ]
 
-// let customerCode = ref()
-let ruleForm = reactive({
-  customerCode: '',
-  referralCode: '',
-  businessClassification: false,
-  name: '',
-  customerName: '',
-  representative: '',
-  accountName: '',
-  accountNumber: '',
-  bankName: '',
-  cccd: '',
-  cccdCreateAt: '',
-  cccdPlaceOfGrant: '',
-  email: '',
-  link: '',
-  phonenumber: '',
-  sex: true,
-  taxCode: '',
-  doB: '',
-  userName: '',
-  isActive: true,
-  password: '',
-  confirmPassword: '',
-  ProvinceId: '',
-  DistrictId: '',
-  WardId: '',
-  Address: ''
-})
 const formValue = ref()
 //get data from table
 const getTableValue = async () => {
@@ -209,7 +245,7 @@ const getTableValue = async () => {
     const res = await getCustomerById({ Id: id })
     if (res) {
       if (res.data?.list !== undefined) {
-        formValue.value = res.data.list[0]
+        formValue.value = res.data?.list[0]
       } else {
         formValue.value = res.data
       }
@@ -221,15 +257,15 @@ const getTableValue = async () => {
     }
   }
   if (type == 'detail' || type == 'edit') {
-    ruleForm.isActive = formValue.value.isActive
-    ruleForm.customerCode = formValue.value.code
-    ruleForm.referralCode = formValue.value.referralCode
-    if (formValue.value.isOrganization) {
+    ruleForm.isActive = formValue.value?.isActive
+    ruleForm.customerCode = formValue.value?.code
+    ruleForm.referralCode = formValue.value?.referralCode
+    if (formValue.value?.isOrganization) {
       ruleForm.businessClassification = true
     } else {
       ruleForm.businessClassification = false
     }
-    if (formValue.value.sex) {
+    if (formValue.value?.sex) {
       ruleForm.sex = true
     } else {
       ruleForm.sex = false
@@ -265,14 +301,13 @@ const getTableValue = async () => {
     await callApiCity()
     await CityChange(formValue.value.provinceId)
     await districtChange(formValue.value.districtId)
-    console.log('cities.value', cities, cities.value, formValue.value.provinceId)
     const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
-    valueProvince.value = result1.label
+    valueProvince.value = result1?.label
     const result2 = district.value.find((e) => e.value == formValue.value.districtId)
-    valueDistrict.value = result2.label
+    valueDistrict.value = result2?.label
 
     const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
-    valueCommune.value = result3.label
+    valueCommune.value = result3?.label
   }
 }
 
@@ -440,13 +475,18 @@ const postData = async (typebtn) => {
       fullName: ruleForm.name,
       email: ruleForm.email,
       password: ruleForm.password,
-      confirmPassword: ruleForm.confirmPassword,
+      confirmPassword: ruleForm.password,
       userName: ruleForm.userName,
       phoneNumber: ruleForm.phonenumber
     }
+
     await addNewAuthRegister(JSON.stringify(payloadAcc))
       .then(() => {
         postCustomer(typebtn)
+        if (typebtn == 'saveAndAdd') {
+          unref(ruleFormRef)!.resetFields()
+          unref(ruleFormRef2)!.resetFields()
+        }
       })
       .catch((res) =>
         ElNotification({
@@ -459,12 +499,12 @@ const postData = async (typebtn) => {
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
 
-let disableData = false
+let disableData = ref(false)
 watch(
   () => type,
   () => {
     if (type === 'detail') {
-      disableData = true
+      disableData.value = true
     }
     if (type === 'detail' || type === 'edit') {
       getTableValue()
@@ -477,16 +517,21 @@ watch(
 )
 const change = () => {
   if (type == 'detail') {
-    disableData = true
+    disableData.value = true
   }
 }
+
+const formatDate = () => {
+  console.log(ruleForm.doB)
+}
+
 const ListFileUpload = ref<UploadUserFile[]>([])
 const disabledForm = ref(false)
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -508,6 +553,7 @@ const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
       })
     })
 }
+
 onBeforeMount(() => {
   change()
   callApiCity()
@@ -520,8 +566,16 @@ onBeforeMount(() => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name" :disabled="disableData">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-[100%] justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="cancel()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
 
         <div class="flex w-[100%] gap-6">
@@ -665,17 +719,17 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('formDemo.enterEmail')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      :formatter="(value) => removeVietnameseTones(value)"
                     />
                   </div>
                 </ElFormItem>
 
                 <ElFormItem
-                  class="flex items-center w-[100%] mt-5"
+                  class="flex items-center w-[100%] mt-5 fix-err"
                   :label="t('reuse.cmnd')"
                   prop="cccd"
                 >
-                  <div class="flex gap-2 w-[100%]">
+                  <div class="flex gap-2 w-[100%] cccd">
                     <el-input
                       v-model="ruleForm.cccd"
                       class="w-[25%] outline-none pl-2 dark:bg-transparent"
@@ -690,9 +744,10 @@ onBeforeMount(() => {
                       :placeholder="t('formDemo.supplyDate')"
                       :disabled-date="disabledDate"
                       :size="size"
+                      :editable="false"
                       format="DD/MM/YYYY"
                       value-format="YYYY-MM-DD"
-                      class="w-[25%] min-w-[203px] outline-none pl-2 dark:bg-transparent"
+                      class="w-[25%] min-w-[203px] cccd-createAt outline-none pl-2 dark:bg-transparent"
                     />
                     <el-input
                       prop="cccdPlaceOfGrant"
@@ -718,8 +773,10 @@ onBeforeMount(() => {
                         :placeholder="t('reuse.dateOfBirth')"
                         :disabled-date="disabledDate"
                         :size="size"
+                        :editable="false"
                         format="DD/MM/YYYY"
                         value-format="YYYY-MM-DD"
+                        @change="formatDate"
                       />
                     </div>
                     <div class="flex-1">
@@ -873,8 +930,9 @@ onBeforeMount(() => {
                       {{ t('login.password') }} <span class="text-red-600">*</span>
                     </label>
                     <el-input
+                      v-model="ruleForm.password"
                       class="w-[50%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
+                      type="password"
                       :placeholder="t('formDemo.enterPassword')"
                       :formatter="(value) => value.replace(/^\s+$/gm, '')"
                     />
@@ -901,6 +959,7 @@ onBeforeMount(() => {
                             {{ t('reuse.newPassword') }} <span class="text-red-600">*</span>
                           </label>
                           <el-input
+                            v-model="ruleForm.password"
                             class="w-[80%] outline-none pl-2 dark:bg-transparent"
                             type="text"
                             :placeholder="t('reuse.enterNewPassword')"
@@ -980,10 +1039,25 @@ onBeforeMount(() => {
                   </div>
                 </ElFormItem>
               </div>
-              <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.status')">
-                <el-checkbox v-model="ruleForm.isActive" class="pl-2">{{
+              <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
+                <el-checkbox class="ml-4" v-model="ruleForm.isActive">{{
                   t('formDemo.isActive')
                 }}</el-checkbox>
+              </ElFormItem>
+              <ElFormItem
+                class="flex align-items-start items-center w-[100%]"
+                :label="t('formDemo.statusAccount')"
+              >
+                <ElRow class="ml-2">
+                  <ElCol>
+                    <span class="day-updated">
+                      {{ t('formDemo.isNewAccount') }}
+                    </span>
+                  </ElCol>
+                  <ElCol
+                    ><label style="font-style: italic"> {{ dateTimeFormat(moment()) }}</label>
+                  </ElCol>
+                </ElRow>
               </ElFormItem>
             </ElForm>
             <div class="option-page mt-5">
@@ -1025,7 +1099,7 @@ onBeforeMount(() => {
                 </el-dialog>
               </div>
               <div v-else-if="type === 'edit'" class="flex justify-center">
-                <el-button type="primary" class="min-w-42 min-h-11">{{
+                <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
                 <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
@@ -1341,8 +1415,60 @@ onBeforeMount(() => {
   padding-left: 179px;
 }
 
+::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
+  padding-left: 8px !important;
+}
+
 ::v-deep(.el-dialog__header) {
   border-bottom: 1px solid rgb(214, 209, 209);
   margin-right: 0;
+}
+
+::v-deep(.align-items-start) {
+  align-items: flex-start !important;
+}
+
+@media (max-width: 1366px) {
+  .cccd {
+    display: grid !important;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  ::v-deep(.el-date-editor.el-input),
+  .cccd-createAt {
+    width: 100% !important;
+  }
+}
+
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+  color: var(--el-color-primary);
+  background: rgba(44, 109, 218, 0.05);
+}
+
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid rgba(44, 109, 218, 0.05);
+}
+
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 12px solid white;
 }
 </style>

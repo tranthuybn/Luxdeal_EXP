@@ -79,6 +79,8 @@ let optionCallAPi = 0
 const callAPiPaymentRequest = async (id) => {
   if (optionCallAPi == 0) {
     const res = await getPaymentList({ PeopleId: id })
+    console.log(res)
+
     listPayments.value = res.data
     optionsPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -216,7 +218,6 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
-  console.log('formValue', formValue)
   if (!isNaN(id)) {
     const res = await getCommissionPaymentByIdList({ id: id })
     if (res && res.data) {
@@ -306,8 +307,8 @@ type FormDataPost = {
 
 const cancel = async () => {
   push({
-    name: 'business.collaborators.collaboratorsList',
-    params: { backRoute: 'business.collaborators.collaboratorsList' }
+    name: 'business.collaborators.paymentRequest',
+    params: { backRoute: 'business.collaborators.paymentRequest' }
   })
 }
 
@@ -325,7 +326,7 @@ onBeforeMount(() => {
   }
 })
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -371,9 +372,9 @@ const setFormValue = async () => {
     infoCompany.doB = formValue.value.collaborator?.customer?.doB
     FormData.ReceiptOrPaymentVoucherId = formValue.value.receiptOrPaymentVoucherId
     FormData.PaymentOrder = formValue.value.paymentOrder
-    if (formValue.value.status === 1) {
+    if (formValue.value.status === 2) {
       FormData.CollaboratorStatus = true
-    } else if (formValue.value.status === 0) {
+    } else if (formValue.value.status === 1) {
       FormData.CollaboratorStatus = false
     }
     FormData.collaboratorValue = {
@@ -458,7 +459,6 @@ const save = async () => {
         FileDeleteIds: FileDeleteIds == '' ? null : FileDeleteIds,
         Files: data.Files.filter((file) => file !== undefined)
       }
-      console.log('FORM_IMAGES(data)', data)
       await updateCommissionPayment({ ...payload, ...data })
         .then(() => {
           ElNotification({
@@ -771,8 +771,8 @@ const activeName = ref(collapse[0].title)
                 >
                   <el-dialog v-model="dialogVisible">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
+                      >+ {{ t('formDemo.addPhotosOrFiles') }}
+                    </div>
                   </el-dialog>
                 </el-upload>
               </div>
@@ -780,18 +780,20 @@ const activeName = ref(collapse[0].title)
           </div>
         </div>
 
-        <div v-if="type === 'edit'" class="flex justify-center">
+        <div v-if="type === 'edit'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelRequest') }} </ElButton>
+          <ElButton type="danger" class="min-w-42" @click="cancel()">
+            {{ t('formDemo.cancelRequest') }}
+          </ElButton>
         </div>
-        <div v-else-if="type === 'detail'" class="flex justify-center">
+        <div v-else-if="type === 'detail'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
-        <div v-else class="flex justify-center">
+        <div v-else class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.save') }}
           </ElButton>
@@ -852,9 +854,11 @@ const activeName = ref(collapse[0].title)
 .el-button--text {
   margin-right: 15px;
 }
+
 ::v-deep(.el-divider--horizontal) {
   margin: 40px 0 24px 0;
 }
+
 ::v-deep(.el-input) {
   width: auto;
 }
@@ -905,11 +909,17 @@ const activeName = ref(collapse[0].title)
 ::v-deep(.fix-full-width > .el-select .el-input) {
   width: 100% !important;
 }
+
 .header-icon {
   margin-right: 10px;
 }
+
 .after {
   display: flex;
   align-items: center;
+}
+
+.btn-type {
+  margin-left: 170px;
 }
 </style>

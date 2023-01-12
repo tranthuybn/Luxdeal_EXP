@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { apiType } from './Type'
 import { useRoute } from 'vue-router'
 
 // Add operation column for table
@@ -31,6 +30,7 @@ const getTotalRecord = ref(0)
 const getSelectedRecord = ref<Array<any>>([])
 function fnGetTotalRecord(val) {
   getTotalRecord.value = val ?? 0
+  console.log(getTotalRecord.value)
 }
 function fnGetSelectedRecord(val) {
   getSelectedRecord.value = val ?? []

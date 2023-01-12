@@ -105,7 +105,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, record.productImages[0].path)
+      setImageDisplayInDOm(record, column, record.productImages[0]?.path)
   },
   {
     field: 'businessManagement',
@@ -140,7 +140,7 @@ export const businessProductLibrary = [
 ]
 let brandSelect = reactive([])
 export const getBrandSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 100, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         brandSelect = res.data
@@ -158,7 +158,7 @@ export const getBrandSelectOptions = async () => {
 }
 let unitSelect = reactive([])
 export const getUnitSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 100, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         unitSelect = res.data
@@ -176,7 +176,7 @@ export const getUnitSelectOptions = async () => {
 }
 let originSelect = reactive([])
 export const getOriginSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 100, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         originSelect = res.data
@@ -369,6 +369,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     colProps: {
       span: 24
     },
+    value: 1,
     componentProps: {
       options: [
         {
@@ -394,10 +395,10 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     field: 'SellInventoryStatus',
     label: t('reuse.setInventoryForRent'),
     component: 'Radio',
-
     colProps: {
       span: 24
     },
+    value: 1,
     componentProps: {
       options: [
         {
@@ -423,7 +424,8 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     field: 'ProductStatus',
     colProps: {
       span: 24
-    }
+    },
+    value: 1
   }
 ])
 let callTagAPI = 0

@@ -17,15 +17,78 @@ export const formatDateTime = (dateTime, typeDefinition = [], targetType) => {
   }
   return ''
 }
-export const formatRankingCustomer = (val) => {
+export const formatProductStatus = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.notActive')
+    case 2:
+      return t('reuse.active') + t('reuse.finishPending')
+    default:
+      return ''
+  }
+}
+export const formatSettingPointStatus = (val) => {
+  if (val) {
+    return t('reuse.active')
+  } else {
+    return t('reuse.notActive')
+  }
+}
+export const formatCustomerPointStatus = (val) => {
   switch (val) {
     case 1:
-      return t('reuse.silver')
+      return t('reuse.using')
     case 2:
-      return t('reuse.gold')
+      return t('reuse.lockPoint')
+    default:
+      return ''
+  }
+}
+export const formatTransactionType = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.import')
+    case 2:
+      return t('reuse.export')
     case 3:
-      return t('reuse.platinum')
+      return t('reuse.transfer')
+    default:
+      return ''
+  }
+}
+export const formatOrderReturnReason = (val) => {
+  switch (val) {
+    case 2:
+      return 'Trả hàng trước hạn'
+    case 3:
+      return 'Trả hàng hết hạn'
     case 4:
+      return 'Chuộc hàng trước thời hạn'
+    case 5:
+      return 'Chuộc hàng trước hết hạn'
+    case 6:
+      return 'Đứt hàng'
+    case 7:
+      return 'Gia hạn cầm đồ'
+    case 8:
+      return 'Trả hàng Spa'
+    case 9:
+      return 'Gia hạn ký gửi'
+    default:
+      return ''
+  }
+}
+export const formatRankingCustomer = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.silver')
+    case 1:
+      return t('reuse.gold')
+    case 2:
+      return t('reuse.platinum')
+    case 3:
       return 'Titan'
     default:
       return ''
@@ -37,8 +100,6 @@ export const formatSubjectVoucher = (val) => {
       return t('reuse.allCustomer')
     case 2:
       return t('reuse.groupCustomer')
-    case 1:
-      return t('reuse.onlyCustomer')
     default:
       return ''
   }
@@ -77,14 +138,34 @@ export const productStatusPending = (val) => {
   return `${t('reuse.pending')}`
 }
 export const productStatusTransferToText = (val) => {
-  if (val) return `${t('reuse.active')}`
-  return `${t('reuse.inactive')}`
+  if (val.isActive) return `${t('reuse.active')}`
+  else return `${t('reuse.inactive')}`
 }
 export const collaboratorStatusTransferToText = (val) => {
   if (val == 0) return `${t('reuse.pending')}`
   else if (val == 1) return `${t('reuse.active')}`
   else if (val == 2) return `${t('reuse.inactive')}`
   return `${t('reuse.lock')}`
+}
+export const formatPointSettingType = (val) => {
+  switch (val) {
+    case 1:
+      return t('router.buyPointsPackage')
+    case 2:
+      return t('reuse.pointsForSellOrder')
+    case 3:
+      return t('reuse.pointsForRentOrder')
+    case 4:
+      return t('reuse.pointsForDepositOrder')
+    case 5:
+      return t('reuse.pointsForPawnOrder')
+    case 6:
+      return t('reuse.pointsForSpaOrder')
+    case 7:
+      return t('reuse.pointsForAffiliate')
+    default:
+      return ''
+  }
 }
 export const isFileTransferToText = (val) => {
   if (val == true) return `${t('common.ok')}`
@@ -159,7 +240,7 @@ export const orderType = (val) => {
     case 6:
       return t('reuse.internal')
     default:
-      return ''
+      return ' '
   }
 }
 
@@ -196,17 +277,54 @@ export const TargetType = (val) => {
 export const VoucherType = (val) => {
   switch (val) {
     case 1:
-      return t('formDemo.giftSpa')
-    case 2:
       return t('formDemo.giftDiscount')
+    case 2:
+      return t('formDemo.giftSpa')
     default:
       return ''
   }
 }
 
 export const dateTimeFormat = (val) => {
-  return moment(val).format('DD/MM/YYYY')
+  if (val) return moment(val).format('DD/MM/YYYY')
+  return ''
 }
+
+export const statusBranch = (val) => {
+  if (val == true) return `${t('reuse.active')}`
+  else if (val == false) return `${t('reuse.inactive')}`
+}
+
+export const postDateTime = (val) => {
+  return moment(val).format('YYYY-MM-DD')
+}
+export const formatTransactionStatus = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.waitingConfirm')
+    case 2:
+      return t('reuse.waitingTransfer')
+    case 3:
+      return t('reuse.cancelled')
+    case 4:
+      return t('reuse.confirmed')
+    default:
+      return ''
+  }
+}
+export const lotBusinessSetup = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.sell')
+    case 2:
+      return t('reuse.rent')
+    case 3:
+      return 'Spa'
+    default:
+      return ' '
+  }
+}
+
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'
 export const dateTimeDisable = false
@@ -264,6 +382,22 @@ export const moneyFormat = (money) => {
 export const moneyToNumber = (currency) => {
   return Number(currency.replace(/[^0-9.-]+/g, ''))
 }
+
+export const statusOrder = (val) => {
+  switch (val) {
+    case -1:
+      return t('reuse.deliveryFailed')
+    case 0:
+      return t('formDemo.waitingDelivery')
+    case 2:
+      return t('reuse.delivery')
+    case 3:
+      return t('reuse.successfulDelivery')
+    case 4:
+      return t('formDemo.receivedDelivery')
+  }
+}
+
 export default {
   formatPotentialCustomerStatusIdToText,
   onlineToText,
@@ -284,5 +418,6 @@ export default {
   VoucherType,
   valueDateFormat,
   dateFormType,
-  dateTimeDisable
+  dateTimeDisable,
+  statusOrder
 }

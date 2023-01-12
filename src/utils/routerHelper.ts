@@ -84,6 +84,7 @@ export const generateRoutesFn1 = (
       res.push(data as AppRouteRecordRaw)
     }
   }
+
   return res
 }
 

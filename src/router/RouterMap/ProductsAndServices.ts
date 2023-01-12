@@ -37,7 +37,9 @@ export default {
             import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
           name: `products-services.productLibrary.Products.${utility}`,
           meta: {
-            title: t('reuse.addNewCategory')
+            title: t('router.productLibraryProducts'),
+            canTo: true,
+            hidden: true
           }
         }
       ]
@@ -65,7 +67,7 @@ export default {
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
           name: `products-services.ServiceLibrary.SpaService.${utility}`,
           meta: {
-            title: t('reuse.addNewSpaService'),
+            title: t('router.ServiceLibrarySpaService'),
             noTagsView: true,
             noCache: true,
             canTo: true,
@@ -105,7 +107,7 @@ export default {
           }
         },
         {
-          path: 'attribute-category',
+          path: 'attribute-category/:tab?',
           component: () => import('@/views/Pages/ProductsAndServices/Category/Attribute.vue'),
           name: 'products-services.AttributeCategory',
           meta: {

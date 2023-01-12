@@ -17,7 +17,7 @@ import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '..
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStore } from '@/store/modules/app'
+// import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 //provide from main component
@@ -57,10 +57,7 @@ const props = defineProps({
     descriptions:
       'cột thao tác( 1: thêm, sửa, xóa| 2 :sửa, xóa| 3:không có cột thao tác| 4: xem| 5: xem, sửa (icon))'
   },
-  tabs: {
-    type: String,
-    default: ''
-  },
+  tabs: [String, Number],
   paginationType: {
     type: Boolean,
     default: true
@@ -82,7 +79,12 @@ const props = defineProps({
     type: String,
     default: 'Warning',
     description: 'Tiêu đề thông báo khi ấn nút xóa'
-  }
+  },
+  typeButton: {
+    type: String,
+    default: ''
+  },
+  currentT: [String, Number]
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
@@ -118,6 +120,7 @@ watch(
         })
       : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject?.tableList?.length ?? 0)
+    // console.log(tableObject?.tableList?.length)
   },
   {
     immediate: true
@@ -134,6 +137,7 @@ function operatorColumnToggle(param) {
     }
   ])
 }
+
 const { getSelections } = methods
 async function getTableSelected() {
   await getSelections()
@@ -155,6 +159,18 @@ const filterChange = (filterValue) => {
         filterValue[key] = Object.values(filterValue[key]).toString()
     }
   setSearchParams(filterValue)
+}
+const utility = 'Utility'
+
+const handleClickAdd = () => {
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.typeButton,
+      type: 'add'
+    }
+  })
 }
 const sortValue = ref()
 const sortObj = {}
@@ -197,15 +213,17 @@ const filterSelect = (value) => {
 }
 const { push } = useRouter()
 const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
     push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: props.tabs }
+      name: `${String(router.currentRoute.value.name)}.${utility}`,
+      params: {
+        id: row.id,
+        type: type,
+        tab: row.typeName ?? props.currentT
+      }
     })
   } else {
     if (buttonShow === true) {
@@ -218,7 +236,6 @@ const action = (row: TableData, type: string) => {
 
 const delData = async (row: TableData | null, _multiple: boolean) => {
   {
-    console.log('row', row)
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('reuse.delete'),
       cancelButtonText: t('reuse.exit'),
@@ -407,7 +424,13 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton v-if="!(props.titleButtons === '')" id="bt-add" :icon="plusIcon" class="mx-12">
+    <ElButton
+      v-if="!(props.titleButtons === '')"
+      @click="handleClickAdd"
+      id="bt-add"
+      :icon="plusIcon"
+      class="mx-12"
+    >
       {{ props.titleButtons }}</ElButton
     >
   </ContentWrap>

@@ -5,16 +5,15 @@ import { ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableBase, TableExtension } from './TableBase/index'
 import { Tab } from './Type'
-import {
-  dynamicApi,
-  dynamicColumns,
-  addOperatorColumn,
-  getTotalRecord,
-  getSelectedRecord
-} from './TablesReusabilityFunction'
-import { useRouter } from 'vue-router'
+import { dynamicApi, dynamicColumns, addOperatorColumn } from './TablesReusabilityFunction'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
+import moment from 'moment'
+import { ElNotification } from 'element-plus'
+import { excelParser } from './excel-parser'
+const { currentRoute } = useRouter()
+
 const { t } = useI18n()
 const props = defineProps({
   tabs: {
@@ -47,11 +46,25 @@ const getData = (data) => {
     unref(tableBase01)![0]!.getData(data)
   }
 }
+
+const getTotalRecords = ref(0)
+const getSelectedRecords = ref<Array<any>>([])
+function fnGetTotalRecord(val) {
+  getTotalRecords.value = val ?? 0
+}
+function fnGetSelectedRecord(val) {
+  getSelectedRecords.value = val ?? []
+}
+
 // tab logic
+const route = useRoute()
+
 const currentTab = ref<string>('')
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
+    const tab = String(route.params.tab)
+
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
     addOperatorColumn(dynamicColumns.value)
@@ -61,7 +74,8 @@ onBeforeMount(() => {
      * if current tab changes table will immediate reload
      * if api and column had been not assigned before then no content should be render
      */
-    currentTab.value = theFirstTab.name
+    if (tab != ':tab') currentTab.value = tab
+    if (tab == 'undefined' || tab == ':tab') currentTab.value = theFirstTab.name
   }
 })
 emit('tabChangeEvent', currentTab.value)
@@ -91,6 +105,33 @@ const pushAdd = () => {
 }
 const pushWarehouse = (type) => {
   push({ path: `/inventory-management/business-product-warehouse/warehouse-transaction-${type}` })
+}
+
+const ExportExcelEvent = () => {
+  const tableData = unref(tableBase01)![0]!.tableObject.tableList
+  if (tableData && tableData.length > 0) {
+    const exportData = tableData.map((el) => initMappingObject(el))
+    excelParser().exportDataFromJSON(
+      exportData,
+      'DDA.' + currentRoute.value.path + moment().format('yMMDDhmmss'),
+      null
+    )
+  } else
+    return ElNotification({
+      message: t('reuse.exportExcelFailed'),
+      type: 'error'
+    })
+}
+const initMappingObject = (el) => {
+  // map array element iteam to object key
+  if (dynamicColumns.value && dynamicColumns.value.length > 0) {
+    const dictionaryObject = dynamicColumns.value.reduce(function (map, obj) {
+      map[obj.label] = el[obj.field]
+      return map
+    }, {})
+    return dictionaryObject
+  }
+  return []
 }
 </script>
 <template>
@@ -131,8 +172,9 @@ const pushWarehouse = (type) => {
           </HeaderFiler>
           <TableExtension
             v-if="props.selection"
-            :totalRecord="getTotalRecord"
-            :selectedRecord="getSelectedRecord" />
+            :totalRecord="getTotalRecords"
+            :selectedRecord="getSelectedRecords"
+            @export-excel-event="ExportExcelEvent" />
           <TableBase
             ref="tableBase01"
             :selection="selection"
@@ -141,6 +183,8 @@ const pushWarehouse = (type) => {
             :customOperator="item.customOperator"
             :delApi="item.delApi"
             :tabs="item.name"
+            @selected-record="fnGetSelectedRecord"
+            @total-record="fnGetTotalRecord"
         /></div>
       </el-tab-pane>
     </el-tabs>

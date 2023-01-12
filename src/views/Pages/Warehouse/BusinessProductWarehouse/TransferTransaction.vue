@@ -4,9 +4,13 @@ import { Collapse } from '../../Components/Type'
 import { onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useRouter } from 'vue-router'
-import { ElCollapse, ElCollapseItem, ElButton, ElDivider } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElDivider, ElNotification } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
-import ProductWarehouse from './ProductWarehouse.vue'
+import TransferPW from './TransferPW.vue'
+import { cancelTicket, createTicketManually } from '@/api/Warehouse'
+import { getWareHouseTransactionList } from '@/api/Business'
+import moment from 'moment'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -19,12 +23,12 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'profileWareHouse',
-    title: t('reuse.detailImportTicket')
+    title: t('reuse.detailTransfer')
   },
   {
     icon: plusIcon,
     name: 'importedProductsWareHouse',
-    title: t('reuse.importProductWarehouse')
+    title: t('reuse.transferProductWarehouse')
   }
 ]
 const collapseChangeEvent = (val) => {
@@ -41,28 +45,148 @@ const collapseChangeEvent = (val) => {
 
 // get data from router
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
+const id = ref(Number(router.currentRoute.value.params.id))
+const type = ref('add')
 const transactionType = 3
 
-const cancel = async () => {
+const back = async () => {
   push({
-    name: 'business.collaborators.collaboratorsList',
-    params: { backRoute: 'business.collaborators.collaboratorsList' }
+    name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
   })
 }
 
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
-const getData = () => {
-  console.log('detailTicketRef', detailTicketRef.value)
-}
-const ticketData = ref()
-const productData = ref()
+const productWarehouseRef = ref<InstanceType<typeof TransferPW>>()
+const addTransaction = async () => {
+  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+    let uploadData: any = {}
+    uploadData.type = 3
+    uploadData.warehouseProductJson = [{}]
+    uploadData.warehouseProductJson = productWarehouseRef.value?.ListOfProductsForSale.map(
+      (row) => ({
+        productPropertyId: row.productPropertyId,
+        quantity: row.quantity,
+        price: row.price,
+        accessory: row.accessory,
+        productPropertyQuality: row.productPropertyQuality,
+        toLotId: row.toLotId,
+        fromLotId: row.toLotId,
+        warehouseId: row.fromWarehouse?.value,
+        locationId: row.fromLocation?.value
+      })
+    )
+    uploadData.staffId = detailTicketRef.value?.FormData.staffId
+    uploadData.customerId = detailTicketRef.value?.FormData.customerId
+    uploadData.description = detailTicketRef.value?.FormData.description
 
-onBeforeMount(() => {
-  console.log('id:', id)
+    await createTicketManually(JSON.stringify(uploadData))
+      .then((res) => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        })
+        id.value = res.data
+        type.value = 'detail'
+      })
+      .catch(() =>
+        ElNotification({
+          message: t('reuse.addFail'),
+          type: 'warning'
+        })
+      )
+  }
+}
+const ticketData = ref({
+  ticketCode: '',
+  createdAt: '',
+  staffId: '',
+  description: '',
+  customerId: '',
+  isActive: '',
+  status: '',
+  staffValue: '',
+  orderCode: '',
+  updatedAt: ''
 })
+type ExportLots = {
+  fromLotId: number
+  quantity: number
+}
+type Options = {
+  value: number
+  label: string
+}
+
+type ProductWarehouse = {
+  productPropertyId?: number
+  quantity?: number
+  price?: number
+  productPropertyQuality?: string
+  accessory?: string
+  fileId?: number
+  fromLotId?: number
+  toLotId?: number
+  exportLots?: Array<ExportLots>
+  productName?: string
+  finalPrice?: string
+  unitName?: string
+  warehouse?: Options
+  location?: Options
+  lot?: Options
+  imageUrl?: string
+}
+var curDate = 'CK' + moment().format('hhmms')
+
+const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
+const serviceType = ref(6)
+const testReactive = ref('test')
+const callApiForData = async () => {
+  if (id.value !== 0 && !isNaN(id.value)) {
+    type.value = 'detail'
+    const res = await getWareHouseTransactionList({ Id: id.value })
+    if (res) {
+      ticketData.value.ticketCode = res.data[0].transactionCode
+      ticketData.value.createdAt = res.data[0].createdAt
+      ticketData.value.staffId = res.data[0]?.staffId
+      ticketData.value.customerId = res.data[0]?.customerId
+      ticketData.value.description = res.data[0]?.description
+      ticketData.value.orderCode = res.data[0]?.orderCode
+      ticketData.value.updatedAt = res.data[0]?.updatedAt
+
+      serviceType.value = res.data[0]?.serviceType
+      productData.value = res.data[0].transactionDetails.map((item) => ({
+        productPropertyId: item.productPropertyId,
+        quantity: item.quantity,
+        price: item.price,
+        productPropertyQuality: item.productPropertyQuality,
+        accessory: item.accessory,
+        productName: item.productPropertyName,
+        unitName: item.unitName,
+        warehouse: { value: item?.toWarehouseId, label: item.toWarehouseName },
+        location: { value: item?.toLocationId, label: item.toLocationName },
+        lot: { value: item?.lotId, label: item.lotCode },
+        imageUrl: item?.imageUrl
+      }))
+      testReactive.value = 'success'
+    }
+  } else {
+    type.value = 'add'
+    ticketData.value.ticketCode = curDate
+    ticketData.value.updatedAt = moment().format()
+  }
+}
+const cancelTicketWarehouse = async () => {
+  await cancelTicket({ Id: id.value })
+    .then(() => back())
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.deleteFail'),
+        type: 'warning'
+      })
+    })
+}
+onBeforeMount(async () => await callApiForData())
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -74,19 +198,14 @@ onBeforeMount(() => {
               <el-button class="header-icon" :icon="collapse[0].icon" link />
               <span class="text-center text-xl">{{ collapse[0].title }}</span>
             </div>
-            <div @click="cancel()" class="after">
+            <div @click="back()" class="after">
               <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
               <el-button class="header-icon" :icon="escape" link />
             </div>
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket
-            ref="detailTicketRef"
-            :type="type"
-            :transactionType="transactionType"
-            :ticketData="ticketData"
-          />
+          <DetailTicket ref="detailTicketRef" :type="type" :ticketData="ticketData" />
         </div>
       </el-collapse-item>
 
@@ -95,24 +214,53 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <ProductWarehouse
+        <TransferPW
+          ref="productWarehouseRef"
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
+          :testReactive="testReactive"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[9%] text-right">{{ t('reuse.importTicketStatus') }}</label>
+          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
+          <div>
+            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(ticketData.updatedAt) }}
+            </p>
+          </div>
         </div>
         <div class="ml-[170px]">
-          <ElButton class="w-[150px]">{{ t('reuse.printImportTicket') }}</ElButton>
-          <ElButton class="w-[150px]" type="primary" @click="getData">{{
-            t('reuse.save')
+          <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
+            t('reuse.printImportTicket')
           }}</ElButton>
-          <ElButton class="w-[150px]" type="primary">{{ t('reuse.importWarehouseNow') }}</ElButton>
-          <ElButton class="w-[150px]" type="danger">{{ t('reuse.cancelImport') }}</ElButton></div
+          <ElButton class="w-[150px]" type="primary" :disabled="type == 'add' || type == 'edit'">{{
+            t('reuse.moveWarehouseNow')
+          }}</ElButton>
+          <ElButton
+            class="w-[150px]"
+            type="primary"
+            @click="addTransaction"
+            v-if="serviceType == 6 && (type == 'add' || type == 'edit')"
+            >{{ t('reuse.save') }}</ElButton
+          >
+          <ElButton
+            class="w-[150px]"
+            v-if="serviceType == 6 && type == 'detail'"
+            @click="type = 'edit'"
+            >{{ t('reuse.edit') }}</ElButton
+          >
+          <ElButton
+            class="w-[150px]"
+            type="danger"
+            v-if="serviceType == 6"
+            :disabled="type == 'add' || type == 'edit'"
+            @click="cancelTicketWarehouse"
+            >{{ t('reuse.cancelImport') }}</ElButton
+          ></div
         >
       </el-collapse-item>
     </el-collapse>
@@ -121,5 +269,39 @@ onBeforeMount(() => {
 <style scoped>
 ::deep(.el-select) {
   width: 100%;
+}
+
+:deep(.cell) {
+  word-break: break-word;
+}
+
+.day-updated {
+  position: relative;
+  padding-left: 20px;
+  width: fit-content;
+}
+
+.day-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+}
+
+.day-updated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
 }
 </style>

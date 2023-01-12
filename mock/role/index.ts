@@ -285,7 +285,7 @@ const adminList = [
         },
         children: [
           {
-            path: 'order-list',
+            path: 'order-list/:tab?',
             name: 'business.order-management.order-list',
             component: 'views/Pages/Business/OrderManagement/OrderList',
             meta: {
@@ -293,7 +293,7 @@ const adminList = [
             }
           },
           {
-            path: '${utility}/:id?/:type/:tab?',
+            path: '${utility}/:id?/:type/:tab?/:approvalId?',
             component: 'views/Pages/Business/OrderManagement/index',
             name: `business.order-management.order-list.${utility}`,
             meta: {
@@ -343,7 +343,7 @@ const adminList = [
             }
           },
           {
-            path: 'customerRatings',
+            path: 'customerRatings/:tab?',
             name: 'business.customer-management.customerRatings',
             component: 'views/Pages/Business/CustomerManagement/TabsCustomerRatings',
             meta: {
@@ -351,7 +351,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:type?/:id?`,
+                path: `${utility}/:type?/:tab?/:id?`,
                 component: 'views/Pages/Business/CustomerManagement/AddNewRanking',
                 name: `business.customer-management.customerRatings.${utility}`,
                 meta: {
@@ -373,7 +373,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:id?/:type?`,
+            path: `${utility}/:type?/:id?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
@@ -599,6 +599,16 @@ const adminList = [
             }
           },
           {
+            path: 'customer-points/:type?/:id?',
+            component: 'views/Pages/Business/AccumulatePoints/CustomerPointsUtility',
+            name: `business.accumulate-points.customer-points.${utility}`,
+            meta: {
+              title: 'router.customerPoints',
+              canTo: true,
+              hidden: true
+            }
+          },
+          {
             path: 'settings-points',
             name: 'business.accumulate-points.settings-points',
             component: 'views/Pages/Business/AccumulatePoints/SettingsPoints',
@@ -795,11 +805,11 @@ const adminList = [
             }
           },
           {
-            path: 'purchase-order-add',
+            path: 'purchase-order-add/:type?/:id?/:approvalId?',
             component: 'views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd',
-            name: 'purchase.business-purchases.purchase-order-add',
+            name: `purchase.business-purchases.purchase-order-add.${utility}`,
             meta: {
-              title: 'router.purchaseOrderAdd'
+              title: 'router.purchaseOrder'
             }
           }
         ]
@@ -831,10 +841,26 @@ const adminList = [
             name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
             meta: {
               title: 'router.inventoryTracking'
-            }
+            },
+            children: [
+              {
+                path: `${utility}/:type?/:id?`,
+                component:
+                  'views/Pages/Warehouse/BusinessProductWarehouse/FollowInventoryUtility.vue',
+                name: `Inventorymanagement.ListWarehouse.inventory-tracking.${utility}`,
+                meta: {
+                  title: 'reuse.addNewWarehouse',
+                  noTagsView: true,
+                  noCache: true,
+                  canTo: true,
+                  hidden: true,
+                  showMainRoute: true
+                }
+              }
+            ]
           },
           {
-            path: 'warehouse-transaction-1',
+            path: 'warehouse-transaction-1/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/ImportTransaction',
             name: 'Inventorymanagement.ListWarehouse.import',
             meta: {
@@ -842,7 +868,7 @@ const adminList = [
             }
           },
           {
-            path: 'warehouse-transaction-2',
+            path: 'warehouse-transaction-2/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/ExportTransaction',
             name: 'Inventorymanagement.ListWarehouse.export',
             meta: {
@@ -850,7 +876,7 @@ const adminList = [
             }
           },
           {
-            path: 'warehouse-transaction-3',
+            path: 'warehouse-transaction-3/:id?',
             component: 'views/Pages/Warehouse/BusinessProductWarehouse/TransferTransaction',
             name: 'Inventorymanagement.ListWarehouse.transfer',
             meta: {
@@ -883,6 +909,7 @@ const adminList = [
                   title: 'reuse.addNewWarehouse',
                   noTagsView: true,
                   noCache: true,
+                  canTo: true,
                   hidden: true,
                   showMainRoute: true
                 }
@@ -946,9 +973,9 @@ const adminList = [
             }
           },
           {
-            path: 'receipts-add',
+            path: 'receipts-expenditures-list/:type?/:id?',
             component: 'views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd',
-            name: 'accountant.receipts-expenditures.receipts-add',
+            name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
             meta: {
               title: 'router.receiptsAdd'
             }
@@ -1027,25 +1054,33 @@ const adminList = [
       {
         path: 'orders-approval',
         name: 'approve.orders-approval',
-        redirect: { name: 'approve.orders-approval.oders-new' },
+        redirect: { name: 'approve.orders-approval.orders-new' },
         meta: {
           title: 'router.approveOrders'
         },
         children: [
           {
-            path: 'oders-new',
+            path: 'orders-new',
             component: 'views/Pages/Approval/Orders/index',
-            name: 'approve.orders-approval.oders-new',
+            name: 'approve.orders-approval.orders-new',
             meta: {
-              title: 'router.odersNew'
+              title: 'router.ordersNew'
             }
           },
           {
-            path: 'oders-cancel',
+            path: 'orders-edit',
             component: 'views/Pages/Approval/Orders/index',
-            name: 'approve.orders-approval.oders-cancel',
+            name: 'approve.orders-approval.orders-edit',
             meta: {
-              title: 'router.odersCancel'
+              title: 'router.ordersEdit'
+            }
+          },
+          {
+            path: 'orders-cancel',
+            component: 'views/Pages/Approval/Orders/index',
+            name: 'approve.orders-approval.orders-cancel',
+            meta: {
+              title: 'router.ordersCancel'
             }
           }
         ]
@@ -1307,7 +1342,21 @@ const adminList = [
         component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/index',
         meta: {
           title: 'router.personnelAccounts'
-        }
+        },
+        children: [
+          {
+            path: `personnel-accounts-utility/:type?/:id?`,
+            component: 'views/Pages/HumanResourceManagement/PersonnelAccounts/AddPersonnelAccounts',
+            name: `human-resource-management.personnel-accounts.${utility}`,
+            meta: {
+              title: 'reuse.addNewBranch',
+              noCache: true,
+              hidden: true,
+              canTo: true,
+              showMainRoute: true
+            }
+          }
+        ]
       },
       {
         path: 'department-directory',
@@ -1318,14 +1367,14 @@ const adminList = [
         },
         children: [
           {
-            path: `${utility}/:type?/:id?`,
+            path: `department-directory-utility/:type?/:tab?/:id?`,
             component: 'views/Pages/HumanResourceManagement/DepartmentDirectoryUtility',
             name: `human-resource-management.department-directory.${utility}`,
             meta: {
               title: 'reuse.addNewBranch',
-              noTagsView: true,
               noCache: true,
               hidden: true,
+              canTo: true,
               showMainRoute: true
             }
           }
@@ -1349,7 +1398,7 @@ const testList: string[] = [
   '/products-services/product-property',
   '/products-services/product-property/product-category',
   `/products-services/product-property/product-category-utility/:type?/:id?`,
-  '/products-services/product-property/attribute-category',
+  '/products-services/product-property/attribute-category/:tab?',
   `/products-services/product-property/attribute-category-utility/:type?/:id?/:tab?`,
   '/products-services/product-property/unit-category',
   `/products-services/product-property/unit-category-utility/:type?/:id?`,
@@ -1364,14 +1413,14 @@ const testList: string[] = [
   '/business/potential-customer-care/manage-chat',
 
   '/business/order-management',
-  '/business/order-management/order-list',
-  '/business/order-management/order-list-add/:type?/:tab?/:id?',
+  '/business/order-management/order-list/:tab?',
+  '/business/order-management/order-list-add/:type?/:tab?/:id?/:approvalId?',
 
   '/business/customer-management',
   '/business/customer-management/customerList',
   '/business/customer-management/customer-add/:type?/:id?',
-  '/business/customer-management/customerRatings',
-  `/business/customer-management/customerRatings-utility/:type?/:id?`,
+  '/business/customer-management/customerRatings/:tab?',
+  `/business/customer-management/customerRatings-utility/:type?/:tab?/:id?`,
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
@@ -1396,8 +1445,10 @@ const testList: string[] = [
 
   '/business/accumulate-points',
   '/business/accumulate-points/customer-points',
+  '/business/accumulate-points/customer-points/:type?/:id?',
+
   '/business/accumulate-points/settings-points',
-  '/business/accumulate-points/settings-points-utility/:id?/type?',
+  '/business/accumulate-points/settings-points-utility/:type?/:id?',
 
   '/business/virtual-wallet',
   '/business/virtual-wallet/customer',
@@ -1418,14 +1469,16 @@ const testList: string[] = [
   '/purchase',
   '/purchase/business-purchases',
   '/purchase/business-purchases/purchase-order-list',
-  '/purchase/business-purchases/purchase-order-add',
+  '/purchase/business-purchases/purchase-order-add/:type?/:id?/:approvalId?',
 
   '/inventory-management',
   '/inventory-management/business-product-warehouse',
   '/inventory-management/business-product-warehouse/inventory-tracking',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-1',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-2',
-  '/inventory-management/business-product-warehouse/warehouse-transaction-3',
+
+  '/inventory-management/business-product-warehouse/inventory-tracking-utility/:type?/:id?',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-1/:id?',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-2/:id?',
+  '/inventory-management/business-product-warehouse/warehouse-transaction-3/:id?',
   '/inventory-management/create-repository-directory',
   '/inventory-management/create-repository-directory/product-storage',
   '/inventory-management/create-repository-directory/product-storage-utility/:type?/:id?',
@@ -1437,7 +1490,7 @@ const testList: string[] = [
 
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',
-  '/accountant/receipts-expenditures/receipts-add',
+  '/accountant/receipts-expenditures/receipts-expenditures-list/:type?/:id?',
   '/accountant/receipts-expenditures/payment-add',
   '/accountant/balanceSheet',
   `/accountant/balanceSheet-utility`,
@@ -1446,8 +1499,9 @@ const testList: string[] = [
   '/approve/products-approval/newly-initialized',
   '/approve/products-approval/edit',
   '/approve/orders-approval',
-  '/approve/orders-approval/oders-new',
-  '/approve/orders-approval/oders-cancel',
+  '/approve/orders-approval/orders-new',
+  '/approve/orders-approval/orders-edit',
+  '/approve/orders-approval/orders-cancel',
   '/approve/payment-approval',
   '/approve/payment-approval/proposal',
   '/approve/payment-approval/receipts-and-expenditures',
@@ -1479,8 +1533,11 @@ const testList: string[] = [
   '/new-and-advertisement/profile-admin/transaction-point',
   '/human-resource-management',
   '/human-resource-management/personnel-accounts',
+  '/human-resource-management/personnel-accounts-utility/:type?/:id?',
   '/human-resource-management/department-directory',
-  `/human-resource-management/department-directory-utility/:type?/:id?`
+  `/human-resource-management/department-directory-utility/:type?/:tab?/:id?`,
+  '/human-resource-management/set-role',
+  `/human-resource-management/set-role-utility/:type?/:id?`
 ]
 
 export default [

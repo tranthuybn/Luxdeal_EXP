@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getEmployeeList } from '@/api/Business'
+import { getEmployeeList } from '@/api/Accountant'
 import {
   filterGender,
   filterDepartment,
@@ -20,12 +20,12 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'employeeCode',
+    field: 'code',
     label: t('reuse.employeeCode'),
     minWidth: '250'
   },
   {
-    field: 'employeeName',
+    field: 'name',
     label: t('reuse.employeeName'),
     minWidth: '150'
   },
@@ -36,7 +36,7 @@ const columns = reactive<TableColumn[]>([
     filters: filterGender
   },
   {
-    field: 'dateOfBirth',
+    field: 'birthday',
     label: t('reuse.dateOfBirth'),
     minWidth: '100',
     sortable: true
@@ -47,43 +47,43 @@ const columns = reactive<TableColumn[]>([
     minWidth: '100'
   },
   {
-    field: 'branch',
+    field: 'branchName',
     label: t('reuse.branch'),
     minWidth: '200',
     filters: filterBranch
   },
   {
-    field: 'department',
+    field: 'departmentName',
     label: t('reuse.department'),
     minWidth: '200',
     filters: filterDepartment
   },
   {
-    field: 'rank',
+    field: 'positionName',
     label: t('reuse.rank'),
     minWidth: '200',
     filters: filterRankEmployee
   },
   {
-    field: 'type',
+    field: 'typeStaffName',
     label: t('reuse.type'),
     minWidth: '150',
     filters: filterTypeEmployee
   },
   {
-    field: 'createDate',
+    field: 'createAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     sortable: true
   },
   {
-    field: 'creator',
+    field: 'createBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
     filters: filterDepartment

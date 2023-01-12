@@ -8,7 +8,8 @@ import {
   updatePotentialCustomer,
   UpdatePotentialCustomerHistory,
   deletePotentialCustomer,
-  deletePotentialCustomerHistory
+  deletePotentialCustomerHistory,
+  getOrderList
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -35,13 +36,13 @@ import {
 import { dateTimeFormat } from '@/utils/format'
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const { required, ValidService } = useValidator()
+const { required, ValidService, requiredOption } = useValidator()
 const { t } = useI18n()
 const rules = reactive({
-  classify: [required()],
-  supplier: [required()],
-  companyName: [required()],
-  taxCode: [required()],
+  classify: [required(), requiredOption()],
+  supplier: [required(), requiredOption()],
+  companyName: [requiredOption()],
+  taxCode: [requiredOption()],
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
   email: [required(), ValidService.checkEmail],
@@ -110,8 +111,10 @@ const ExpandedRow = ref([])
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
+let type = String(router.currentRoute.value.params.type)
+if (type == ':type') {
+  type = 'add'
+}
 const postData = (data) => {
   const customerHistory = reactive<
     Array<{ id: Number; staffId: Number; content: String; percentageOfSales: Number }>
@@ -150,6 +153,18 @@ const postData = (data) => {
     potentialCustomerHistorys: customerHistory
   }
   addNewPotentialCustomer(payload)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    })
 }
 
 const collapseChangeEvent = (val) => {
@@ -561,20 +576,12 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.result'),
     component: 'Select',
     componentProps: {
+      onClick: () => getOrdersOptions(),
       allowCreate: true,
       filterable: true,
       placeholder: t('reuse.selectOrder'),
       style: 'width: 100%',
-      options: [
-        {
-          label: '1',
-          value: 1
-        },
-        {
-          label: '2',
-          value: 2
-        }
-      ]
+      options: []
     },
     colProps: {
       span: 20
@@ -583,7 +590,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Checkbox',
+    component: 'Radio',
     value: [],
     colProps: {
       span: 24
@@ -639,6 +646,31 @@ const getCustomerOptions = async () => {
     }
   }
 }
+
+//get orderlist
+let callOrderAPI = 0
+let OrdersSelect: ComponentOptions[] = reactive([])
+const getOrdersOptions = async () => {
+  if (callOrderAPI == 0) {
+    await getOrderList({})
+      .then((res) => {
+        if (res.data) {
+          OrdersSelect = res.data.map((tag) => ({
+            label: tag.key,
+            value: tag.key,
+            id: tag.id
+          }))
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callOrderAPI++)
+    columnProfileCustomer[19].componentProps!.options = OrdersSelect
+    columnProfileCustomer[19].componentProps!.loading = false
+  }
+}
+
 onBeforeMount(async () => {
   await getCustomerOptions()
 })

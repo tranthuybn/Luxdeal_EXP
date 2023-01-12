@@ -1,6 +1,7 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
-const utility = 'Utility'
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 export default {
   path: '/business',
@@ -58,7 +59,7 @@ export default {
       },
       children: [
         {
-          path: 'order-list',
+          path: 'order-list/:tab?',
           name: 'business.order-management.order-list',
           component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
           meta: {
@@ -66,11 +67,11 @@ export default {
           }
         },
         {
-          path: 'order-list-add/:type?/:tab?/:id?',
+          path: 'order-list-add/:type?/:tab?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: t('router.createANewOrder'),
+            title: t('reuse.order'),
             noCache: true,
             showMainRoute: true
           }
@@ -101,29 +102,27 @@ export default {
           meta: {
             title: t('router.customerAdd'),
             noCache: true,
-            hidden: true,
             canTo: true,
             showMainRoute: true
           }
         },
 
         {
-          path: 'customerRatings',
+          path: 'customerRatings/:tab?',
           name: 'business.customer-management.customerRatings',
           component: () =>
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
             title: t('router.customerRatings'),
-            breadcrumb: true,
-            noTagsView: true
+            breadcrumb: true
           }
         },
         {
-          path: 'customerRatings-utility/:type?/:id?',
+          path: 'customerRatings-utility/:type?/:tab?/:id?',
+          name: `business.customer-management.customerRatings.${utility}`,
           component: () => import('@/views/Pages/Business/CustomerManagement/AddNewRanking.vue'),
           meta: {
             title: t('customerList.addNewRanking'),
-            noTagsView: true,
             noCache: true,
             canTo: true,
             hidden: true,
@@ -251,6 +250,7 @@ export default {
           path: 'voucher',
           name: 'business.promotion-strategy.voucher',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Voucher.vue'),
+
           meta: {
             title: t('router.voucher')
           }
@@ -308,7 +308,8 @@ export default {
       component: () => import('@/views/Pages/Business/ServiceSurvey.vue'),
       name: 'business.service-survey',
       meta: {
-        title: t('router.serviceSurvey')
+        title: t('router.serviceSurvey'),
+        hidden: true
       }
     },
     {
@@ -328,6 +329,18 @@ export default {
           }
         },
         {
+          path: 'customer-points/:type?/:id?',
+          component: () =>
+            import('@/views/Pages/Business/AccumulatePoints/CustomerPointsUtility.vue'),
+          name: `business.accumulate-points.customer-points.${utility}`,
+          meta: {
+            title: t('router.customerPoints'),
+            canTo: true,
+            hidden: true,
+            activeMenu: '/business/accumulate-points/customer-points'
+          }
+        },
+        {
           path: 'settings-points',
           name: 'business.accumulate-points.settings-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
@@ -336,14 +349,14 @@ export default {
           }
         },
         {
-          path: 'settings-points-utility/:id?/type?',
+          path: 'settings-points-utility/:type?/:id?',
           name: `business.accumulate-points.settings-points.${utility}`,
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPointsAdd.vue'),
           meta: {
             title: t('router.installPoints'),
-            noCache: true,
             hidden: true,
-            canTo: true
+            canTo: true,
+            activeMenu: '/business/accumulate-points/settings-points'
           }
         }
       ]
@@ -353,7 +366,8 @@ export default {
       name: 'business.virtual-wallet',
       redirect: { name: 'business.virtual-wallet.customer' },
       meta: {
-        title: t('router.virtualWallet')
+        title: t('router.virtualWallet'),
+        hidden: true
       },
       children: [
         {
@@ -428,7 +442,8 @@ export default {
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
       meta: {
-        title: t('router.businessMan')
+        title: t('router.businessMan'),
+        hidden: true
       },
       children: [
         {
@@ -454,7 +469,8 @@ export default {
       name: 'business.business-report',
       redirect: { name: 'business.business-report.growth' },
       meta: {
-        title: t('router.businessReport')
+        title: t('router.businessReport'),
+        hidden: true
       },
       children: [
         {

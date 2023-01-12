@@ -8,7 +8,8 @@ const tabs: Array<Tab> = [
     name: 'followinventory',
     label: 'Theo dõi tồn kho',
     api: getWareHouseList,
-    column: wareHouse
+    column: wareHouse,
+    customOperator: 4
   },
   {
     name: 'wareHouse',
@@ -23,3 +24,11 @@ const typeTable = 'Warehouse'
 <template>
   <tableDatetimeFilterBasicVue title="orderList" :tabs="tabs" :customHeaderButton="typeTable" />
 </template>
+<style scoped>
+::v-deep(.custom-empty > .el-empty) {
+  padding: 5px 0;
+}
+::v-deep(.custom-empty .el-empty > .el-empty__description) {
+  margin-top: 5px;
+}
+</style>

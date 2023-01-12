@@ -258,7 +258,6 @@ const editData = async (data) => {
     DeletedImages: data.DeleteFileIds.toString(),
     NewPhotos: data.Images
   }
-  console.log('data', data)
   await updateSpa({ ...payload, ...customPostData(data) })
     .then(() => {
       ElNotification({

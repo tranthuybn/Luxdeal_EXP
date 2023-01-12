@@ -7,7 +7,9 @@ import {
   ACCOUNTANT_API,
   CAMPAIGN_API,
   LOGIN_API_URL,
-  WAREHOUSE_API
+  WAREHOUSE_API,
+  POINT_API,
+  STAFF_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -28,6 +30,17 @@ export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//get staff
+export const getStaffList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -182,6 +195,30 @@ export const addNewOrderList = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Chỉnh sửa trạng thái đơn hàng
+export const updateOrderStatus = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.UPDATE_ORDER_STATUS,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Đối soát và kết thúc đơn hàng
+export const finishOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.FINISH_ORDER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Lấy mã phiếu thu chi
 export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
   const res = await request.get(
@@ -204,12 +241,34 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
+// edit chi tiết phiếu thu chi
+export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 // Lấy mã phiếu đề nghị thanh toán
 export const getCodePaymentRequest = async (): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ORDER_API.GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy chi tiết đề nghị thanh toán
+export const GetPaymentRequestDetail = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_RECEIPT_PAYMENT_REQUEST_DETAIL}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -223,6 +282,15 @@ export const addTPV = async (params: any): Promise<IResponse> => {
       url: ORDER_API.ADD_NEW_RECEIPT_PAYMENTVOUCHER,
       data: params
     },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Sửa chi tiết bút toán
+export const updateOrderTransaction = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_ORDER_TRANSACTION}`, data },
     fixedBaseURL
   )
   return res.data && res.data.data
@@ -275,11 +343,68 @@ export const getDetailAccountingEntryById = async (params): Promise<IResponse> =
   return res && res.data
 }
 
+// Lấy danh sách kho theo mã sản phẩm và serviceType
+export const GetProductPropertyInventory = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_PRODUCT_PROPERTY_INVENTORY}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// Phiếu nhập, xuất, chuyển kho tự động
+export const postAutomaticWarehouse = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ORDER_API.POST_AUTOMATIC_WAREHOUSE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách kho
+export const getListWareHouse = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_WAREHOUSE_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // update lịch sử nhập xuất/đổi trả
 export const getReturnRequest = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ORDER_API.GET_RETURN_REQUEST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//lấy lịch sử nhập xuất đổi/trả theo id đổi trả
+export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_RETURN_REQUEST_FOR_ORDER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//tạo mã phiếu nhập/xuất kho cho đơn đổi trả
+export const createTicketFromReturnOrder = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: WAREHOUSE_API.CREATE_TICKET_FROM_RETURN_ORDER,
+      data: params
     },
     fixedBaseURL
   )
@@ -442,14 +567,63 @@ export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-export const getSellOrderList = async (params: any): Promise<IResponse> => {
+export const getOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
+
   return res && res.data
+}
+
+// update order info
+export const updateOrderInfo = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_ORDER_INFORMATION}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// update status order
+export const updateStatusOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.UPDATE_ORDER_STATUS}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+// finish order sell
+export const finishStatusOrder = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_STATUS_FINISH_ORDER}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+// cancel order
+export const cancelOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.CANCEL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+//hoàn thành yêu cầu đổi trả
+export const finishReturnOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.FINISH_RETURN_REQUEST}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+//hủy yêu cầu đổi trả
+export const cancelReturnOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.CANCEL_RETURN_REQUEST}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+// duyệt đơn hàng
+export const approvalOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.APPROVAL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
 }
 
 export const getRentalorderList = async (params: any): Promise<IResponse> => {
@@ -508,7 +682,7 @@ export const getCollaboratorsById = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  return res.data && res.data
+  return res && res.data
 }
 export const getGenCodeCollaborators = async (params: any): Promise<IResponse> => {
   const res = await request.get(
@@ -551,6 +725,7 @@ export const updateCustomerRatings = async (data): Promise<IResponse> => {
   )
   return res && res.data
 }
+
 export const deleteCustomerRating = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {
@@ -644,12 +819,9 @@ export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })
   return res && res.data
 }
+
 export const getAuctionList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/auction', params })
-  return res && res.data
-}
-export const getEmployeeList = async (params: any): Promise<IResponse> => {
-  const res = await request.get({ url: '/employee', params })
   return res && res.data
 }
 
@@ -706,10 +878,12 @@ export const getCommissionPaymentByIdList = async (params: any): Promise<IRespon
   )
   return res.data && res.data
 }
+
+// Danh sách phiếu thu chi
 export const getReceiptsExpendituresList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${ACCOUNTANT_API.PAYMENT_LIST}?${objectToQueryParams(params)}`
+      url: `${ACCOUNTANT_API.GET_RECEIPT_EXPENDITURES_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -723,11 +897,86 @@ export const getBalanceList = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  console.log('data: ', res.data)
   return res && res.data
 }
 
 export const getaddNewPotenialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/addNewPotenialCustomer/List', params })
+  return res && res.data
+}
+export const getPriceOfSpecificProduct = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_PRODUCT_PROPERTY_ORDER_PRICE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//Tich diem
+export const getCustomerPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_CUSTOMER_POINT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getDetailCustomerPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_DETAIL_CUSTOMER_POINT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const getSettingPoint = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${POINT_API.GET_SETTING_POINT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const cancelPointTransaction = async (params: any): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${POINT_API.CANCEL_POINT_TRANSACTION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const createPointExchange = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: POINT_API.CREATE_POINT_EXCHANGE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updatePointExchange = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: POINT_API.UPDATE_POINT_EXCHANGE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const deletePointExchange = async (params: any): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${POINT_API.CANCEL_POINT_EXCHANGE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
   return res && res.data
 }

@@ -72,12 +72,10 @@ const createNewLot = async () => {
     warehouseData.value.lot.value = res.data
     warehouseData.value.quantity = warehouseForm.value.quantity
   }
-  console.log('warehouse:', warehouseData.value, warehouseForm)
   emit('close-dialog-warehouse', warehouseData.value)
 }
 const saveOldLot = () => {
   radioSelected.value == -1
-  console.log('warehouse:', warehouseData.value, warehouseForm)
   warehouseData.value.quantity = warehouseForm.value.quantity
   warehouseData.value.lot.value = warehouseData.value.lot['id']
   emit('close-dialog-warehouse', warehouseData.value)
@@ -123,12 +121,9 @@ const changeWarehouseData = async (warehouseId) => {
         createdAt: item.createdAt
       }))
       lotData.value = lotData.value.filter((lot) => lot.orderType == 6)
-      console.log('radioSelected', radioSelected.value)
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))
   tempLotData.value = lotData.value
-
-  // warehouseData.value.warehouse = warehouseOptions.value.find((wh) => wh.value == warehouseId)
 }
 const filterLotData = (locationId) => {
   if (lotData.value !== undefined) {
@@ -137,7 +132,6 @@ const filterLotData = (locationId) => {
     calculateInventory()
   }
   warehouseData.value.location = locationOptions.value.find((wh) => wh.value == locationId)
-  console.log('location', warehouseData.value.location)
 }
 const checkLocationData = () => {
   if (locationOptions.value == undefined || locationOptions.value.length == 0) {
@@ -188,11 +182,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 watch(
   () => props.showDialog,
   async () => {
-    console.log('call api loc', props.warehouse?.value, warehouseForm.value)
-    console.log('open dialog orderId:', props.orderId)
     await getLocation(props.warehouse?.value)
     props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
-    // radioSelected.value = lotData.value.findIndex((lot) => lot.id == warehouseForm.value.lot.value)
   }
 )
 </script>

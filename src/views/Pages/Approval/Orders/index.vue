@@ -36,15 +36,26 @@ const getListOrder = async () => {
 const detailedBrowsing = (scope: any) => {
   const data = scope.row
   const typeServiceOrder = API_ORDER.find((e) => e.key == data.serviceType)
-  push({
-    name: `business.order-management.order-list.${utility}`,
-    params: {
-      type: 'approval-order',
-      tab: typeServiceOrder?.label,
-      id: data.targetId,
-      approvalId: data.id
-    }
-  })
+  if (typeServiceOrder?.key == 6) {
+    push({
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      params: {
+        type: 'approval-order',
+        id: data.targetId,
+        approvalId: data.id
+      }
+    })
+  } else {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        type: 'approval-order',
+        tab: typeServiceOrder?.label,
+        id: data.targetId,
+        approvalId: data.id
+      }
+    })
+  }
 }
 
 onBeforeMount(() => {
@@ -75,7 +86,9 @@ onBeforeMount(() => {
               ? 'Đơn ký gửi'
               : props.row.serviceType == 4
               ? 'Đơn cầm đồ'
-              : 'Đơn spa'
+              : props.row.serviceType == 5
+              ? 'Đơn spa'
+              : 'Đơn mua'
           }}
         </template>
       </el-table-column>

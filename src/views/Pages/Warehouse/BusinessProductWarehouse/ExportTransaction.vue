@@ -169,7 +169,6 @@ const callApiForData = async () => {
         label: res.data[0]?.fromWarehouseName
       }
       ticketData.value.orderId = res.data[0]?.orderId
-      console.log('ticketData', ticketData.value)
 
       serviceType.value = res.data[0]?.orderType
       productData.value = res.data[0].transactionDetails.map((item) => ({
@@ -189,7 +188,6 @@ const callApiForData = async () => {
       }))
 
       status.value = res.data[0]?.status
-      console.log('productData', productData.value)
     }
   } else {
     type.value = 'add'
@@ -270,7 +268,6 @@ const updateInventoryOrder = async () => {
 //tngo fixbug
 const updateTicket = (warehouse) => {
   ticketData.value.warehouse = warehouse
-  console.log('change warehouse', warehouse)
 }
 </script>
 <template>

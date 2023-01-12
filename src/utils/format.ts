@@ -312,6 +312,19 @@ export const formatTransactionStatus = (val) => {
       return ''
   }
 }
+export const lotBusinessSetup = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.sell')
+    case 2:
+      return t('reuse.rent')
+    case 3:
+      return 'Spa'
+    default:
+      return ' '
+  }
+}
+
 export const valueDateFormat = 'YYYY-MM-DD'
 export const dateFormType = 'date'
 export const dateTimeDisable = false

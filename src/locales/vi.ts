@@ -1801,6 +1801,7 @@ export default {
     // exchange order
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
+    totalPurchaseMoney: 'Thành tiền mua',
     totalSellMoney: 'Thành tiền bán',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',

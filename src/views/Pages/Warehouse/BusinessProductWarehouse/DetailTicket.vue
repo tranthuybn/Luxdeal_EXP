@@ -44,6 +44,7 @@ const typeTransaction = ref(props.transactionType)
 const rules = reactive<FormRules>({
   staffId: [required(), requiredOption()],
   toWarehouseId: [required()],
+  fromWarehouseId: [required()],
   description: [required()],
   customerId: [required(), requiredOption()]
 })
@@ -204,12 +205,10 @@ const callAPIWarehouse = async () => {
     pageSize: 1000,
     pageIndex: 1
   }).then((res) => {
-    warehouseOptions.value = res.data
-      .filter((warehouse) => warehouse.children.length > 0)
-      .map((item) => ({
-        value: item.id,
-        label: item.name
-      }))
+    warehouseOptions.value = res.data.map((item) => ({
+      value: item.id,
+      label: item.name
+    }))
   })
 }
 
@@ -217,9 +216,15 @@ const callAPIWarehouse = async () => {
 const emit = defineEmits(['update-ticket'])
 const chooseImportWarehouse = (warehouseId) => {
   const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
-  console.log('warehouseId', warehouseId, warehouseOptions.value, warehouse)
+  console.log('TowarehouseId', warehouseId, warehouseOptions.value, warehouse)
 
-  emit('update-ticket', warehouse)
+  emit('update-ticket', warehouse, 1)
+}
+const chooseExportWarehouse = (warehouseId) => {
+  const warehouse = warehouseOptions.value.find((ware) => ware.value == warehouseId)
+  console.log('FromwarehouseId', warehouseId, warehouseOptions.value, warehouse)
+
+  emit('update-ticket', warehouse, 2)
 }
 </script>
 <template>
@@ -257,10 +262,24 @@ const chooseImportWarehouse = (warehouseId) => {
       </ElFormItem>
       <ElFormItem
         :label="t('reuse.chooseImportWarehouse')"
-        v-if="typeTransaction == 1"
+        v-if="typeTransaction !== 2"
         prop="toWarehouseId"
       >
         <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
+          <el-option
+            v-for="item in warehouseOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </ElFormItem>
+      <ElFormItem
+        :label="t('reuse.chooseExportWarehouse')"
+        v-if="typeTransaction !== 1"
+        prop="fromWarehouseId"
+      >
+        <el-select v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse">
           <el-option
             v-for="item in warehouseOptions"
             :key="item.value"

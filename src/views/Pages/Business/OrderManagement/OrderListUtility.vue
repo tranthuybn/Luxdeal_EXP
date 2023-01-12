@@ -1267,7 +1267,6 @@ let formAccountingId = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
-  console.log('data: ', data)
   switch (data.typeOfAccountingEntry) {
     case 1:
       openAcountingEntryDialog(data.id, 1)
@@ -1316,7 +1315,6 @@ const openAcountingEntryDialog = async (index, num) => {
   } else if (num == 3) {
     const res = await getReturnRequest({ CustomerOrderId: id })
     const optionsReturnRequest = res.data
-    console.log('optionsReturnRequest: ', optionsReturnRequest)
     if (optionsReturnRequest[0]?.nhapDetails)
       tableReturnFullyIntegrated.value = optionsReturnRequest[0].nhapDetails
     if (optionsReturnRequest[0]?.xuatDetails)
@@ -1943,7 +1941,6 @@ const getDetailPayment = async (_index, scope) => {
   formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
   nameDialog.value = 'Phiếu thu'
   codeReceipts.value = formDetailPaymentReceipt.value.data?.code
   codeExpenditures.value = formDetailPaymentReceipt.value.data?.code

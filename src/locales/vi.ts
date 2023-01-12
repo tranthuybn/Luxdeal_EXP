@@ -273,7 +273,7 @@ export default {
     amount: 'Số lượng',
     amountBuy: 'Số lượng mua',
     code: 'Code',
-    exportWarehouse: 'Tồn kho',
+    exportWarehouse: 'Kho xuất',
     manipulation: 'Thao tác',
     debtTrackingSheet: 'Bảng theo dõi công nợ',
     dateOfPayment: 'Ngày thanh toán',
@@ -313,12 +313,12 @@ export default {
     month: 'Tháng',
     byMonth: 'Theo tháng',
     addNewSalesOrders: 'Thêm đơn hàng bán',
+    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewRentalOrders: 'Thêm mới đơn hàng cho thuê',
     addNewConsignmentOrders: 'Thêm mới đơn hàng ký gửi',
     addNewPawnOrders: 'Thêm mới đơn hàng cầm đồ',
     addNewSpaOrders: 'Thêm mới đơn hàng Spa',
     addNewFlashSale: 'Thêm mới Flash sale',
-    addNewPurchaseOrders: 'Thêm mới đơn mua hàng',
     addNewVoucher: 'Thêm mới Voucher',
     startDay: 'Ngày bắt đầu',
     endDay: 'Ngày kết thúc',
@@ -527,6 +527,7 @@ export default {
     examinationContentProduct: 'Nội dung thăm khám sản phẩm',
     sl: 'SL',
     amountSpent: 'Số tiền chi',
+    amountCollect: 'Số tiền thu',
     inventoryStatus: 'Trạng thái nhập kho',
     informationWarehouseReceipt: 'Thông tin phiếu nhập kho hoàn hàng đổi/trả',
     receiptCode: 'Mã phiếu nhập kho',
@@ -599,7 +600,8 @@ export default {
     returnRentalDeposit: 'Trả lại tiền cọc thuê',
     codePayment: 'Mã phiếu chi',
     infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
-    infoReturnExpired: 'Trả hàng hết hạn'
+    infoReturnExpired: 'Trả hàng hết hạn',
+    planningAccount: 'Tài khoản hoạch toán'
   },
   button: {
     add: 'Thêm nhanh',
@@ -609,7 +611,10 @@ export default {
     cancelVoucher: 'Hủy voucher',
     cancelResult: 'Hủy kết quả',
     cancelOrder: 'Hủy đơn hàng',
-    print: 'In phiếu'
+    print: 'In phiếu',
+    carrying: 'Ghi sổ',
+    plan: 'Hoạch toán',
+    cancelPlan: 'Hủy Hoạch Toán'
   },
   router: {
     notApproval: 'Không duyệt',
@@ -876,7 +881,9 @@ export default {
     showExpandedRows: 'Trình diễn',
     hiddenExpandedRows: 'Ẩn',
     changeTitle: 'Sửa đổi tiêu đề',
-    header: 'Phần đầu'
+    header: 'Phần đầu',
+    paid: 'Đã thanh toán',
+    notPaid: 'Chưa thanh toán'
   },
   userDemo: {
     title: 'Quản lý người dùng',
@@ -1790,7 +1797,6 @@ export default {
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
     totalSellMoney: 'Thành tiền bán',
-    totalPurchaseMoney: 'Thành tiền mua',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',
     informationRansomBeforeDueDate: 'Thông tin chuộc hàng trước hạn',
@@ -1855,6 +1861,16 @@ export default {
     exportExcelFailed: 'Dữ liệu trống không thể xuất file',
     //Kho
     waitingTransfer: 'Chờ vận chuyển',
-    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho'
+    warehouseDoesntHaveLocation: 'Chưa khởi tạo vị trí cho kho',
+    currentWarehouseLocation: 'Vị trí kho hiện tại',
+    allowToExport: 'Cho phép xuất hàng',
+    QRCodeProduct: 'Mã QR sản phẩm',
+    warehouseManagementInformation: 'Thông tin quản lý kho',
+    ticketCreatedDay: 'Ngày tạo phiếu',
+    stackInventory: 'Tồn kho cộng dồn',
+    importOrderPrice: 'Đơn giá nhập',
+    moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
+    pleaseChooseQuantity: 'Chọn số lượng',
+    pleaseChooseLotHasInventory: 'Lot không còn sản phẩm'
   }
 }

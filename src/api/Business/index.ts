@@ -241,6 +241,17 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
+// edit chi tiết phiếu thu chi
+export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 // Lấy mã phiếu đề nghị thanh toán
 export const getCodePaymentRequest = async (): Promise<IResponse> => {
@@ -377,10 +388,23 @@ export const getReturnRequest = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+//lấy lịch sử nhập xuất đổi/trả theo id đổi trả
 export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ORDER_API.GET_RETURN_REQUEST_FOR_ORDER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+//tạo mã phiếu nhập/xuất kho cho đơn đổi trả
+export const createTicketFromReturnOrder = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: WAREHOUSE_API.CREATE_TICKET_FROM_RETURN_ORDER,
+      data: params
     },
     fixedBaseURL
   )
@@ -543,15 +567,6 @@ export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy danh sách đơn hàng
-// export const getOrderList = async (params: any): Promise<IResponse> => {
-//   const res = await request.get(
-//     {
-//       url: `${ORDER_API.GET_ORDER_LIST}?${objectToQueryParams(params)}`
-//     },
-//     fixedBaseURL
-//   )
-//   return res && res.data
-// }
 export const getOrderList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -559,6 +574,7 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
+
   return res && res.data
 }
 
@@ -589,6 +605,18 @@ export const finishStatusOrder = async (data): Promise<IResponse> => {
 // cancel order
 export const cancelOrder = async (data): Promise<IResponse> => {
   const res = await request.put({ url: `${ORDER_API.CANCEL_ORDER}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+//hoàn thành yêu cầu đổi trả
+export const finishReturnOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.FINISH_RETURN_REQUEST}`, data }, fixedBaseURL)
+  return res.data && res.data.data
+}
+
+//hủy yêu cầu đổi trả
+export const cancelReturnOrder = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ORDER_API.CANCEL_RETURN_REQUEST}`, data }, fixedBaseURL)
   return res.data && res.data.data
 }
 

@@ -1707,6 +1707,16 @@ export default {
     exportExcelFailed: 'empty data can not be export',
     //Kho
     waitingTransfer: 'Waiting for transportation',
-    warehouseDoesntHaveLocation: "Haven't create location for warehouse"
+    warehouseDoesntHaveLocation: "Haven't create location for warehouse",
+    currentWarehouseLocation: 'currentWarehouseLocation',
+    allowToExport: 'Allow to export',
+    QRCodeProduct: 'QR code product',
+    warehouseManagementInformation: 'Warehouse management information',
+    ticketCreatedDay: 'Ticket created day',
+    stackInventory: 'Stack inventory',
+    importOrderPrice: 'Import order price',
+    moreOrLessQuantity: 'Choose more or less quantity',
+    pleaseChooseQuantity: 'Please choose quantity',
+    pleaseChooseLotHasInventory: 'Please choose lot has inventory'
   }
 }

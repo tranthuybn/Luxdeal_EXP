@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getEmployeeList } from '@/api/Business'
+import { getRoleList } from '@/api/HumanResourceManagement'
 import { filterStatusSettingPoint } from '@/utils/filters'
 
 const { t } = useI18n()
@@ -14,7 +14,7 @@ const columns = reactive<TableColumn[]>([
     align: 'center'
   },
   {
-    field: 'role',
+    field: 'name',
     label: t('reuse.setRole'),
     minWidth: '250'
   },
@@ -45,5 +45,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getEmployeeList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getRoleList" />
 </template>

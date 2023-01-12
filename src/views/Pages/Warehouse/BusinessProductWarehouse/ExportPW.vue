@@ -34,6 +34,18 @@ const prop = defineProps({
   productData: {
     type: Array<ProductWarehouse>,
     default: () => [{}]
+  },
+  orderId: {
+    type: Number,
+    default: 0
+  },
+  warehouse: {
+    type: Object,
+    default: () => {}
+  },
+  serviceType: {
+    type: Number,
+    default: 6
   }
 })
 
@@ -156,6 +168,7 @@ type ChooseWarehouse = {
   warehouseId: number | undefined
   locationId: number | undefined
   lotId: number | undefined
+  locationImportId: number | undefined
 }
 const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 const dialogWarehouse = ref(false)
@@ -166,10 +179,9 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
-    warehouseData.value.quantity = prop.productData[currentRow.value]?.quantity
-    warehouseData.value.warehouseId = prop.productData[currentRow.value].warehouse?.value
-    warehouseData.value.locationId = prop.productData[currentRow.value].location?.value
-    warehouseData.value.lotId = prop.productData[currentRow.value].lot?.value
+    warehouseData.value.quantity = props.row.quantity
+    warehouseData.value.locationImportId = undefined
+    console.log('warehouseData', warehouseData.value)
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -178,10 +190,11 @@ const openDialogWarehouse = (props) => {
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
+  console.log('warehouseData', warehouseData)
   if (warehouseData != null) {
     ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
     ListOfProductsForSale.value[currentRow.value].exportLots = warehouseData.exportLots
-    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.lot.unit
+    ListOfProductsForSale.value[currentRow.value].unitName = warehouseData.unit
     ListOfProductsForSale.value[currentRow.value].warehouse = warehouseData.warehouse
     ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
@@ -241,29 +254,29 @@ const warehouseFormat = (props) => {
   let lotName = ''
 
   if (
-    props.row.warehouse !== undefined &&
-    props.row.warehouse?.label !== null &&
-    props.row.warehouse?.label !== undefined
+    prop.warehouse !== undefined &&
+    prop.warehouse?.label !== null &&
+    prop.warehouse?.label !== undefined
   ) {
-    warehouseName = props.row.warehouse?.label
+    warehouseName = prop.warehouse?.label
   }
-  if (
-    props.row.location !== undefined &&
-    props.row.location?.label !== null &&
-    props.row.location?.label !== undefined
-  ) {
-    locationName = props.row.location?.label
+  if (props.row.location !== undefined && props.row.location !== null) {
+    locationName = props.row?.location
   }
-  if (
-    props.row.lot !== undefined &&
-    props.row.lot?.label !== null &&
-    props.row.lot?.label !== undefined
-  ) {
-    lotName = props.row.lot?.label
+  if (props.row.lot !== undefined && props.row.lot !== null) {
+    lotName = props.row?.lot
   }
   return `${warehouseName}/${locationName}/${lotName}`
 }
 const checkValueOfTable = () => {
+  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
+  if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
+    ElMessage({
+      message: t('reuse.pleaseChooseProduct'),
+      type: 'warning'
+    })
+    return false
+  }
   if (
     ListOfProductsForSale.value.length > 1 &&
     Object.keys(ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]).length === 0
@@ -272,26 +285,25 @@ const checkValueOfTable = () => {
     ListOfProductsForSale.value.splice(ListOfProductsForSale.value.length - 1, 1)
     forceRemove.value = true
   }
-  let valid = true
+  let result = true
   ListOfProductsForSale.value.forEach((row) => {
     if (row.productPropertyId == undefined || row.productPropertyId == null) {
       ElMessage({
         message: t('reuse.pleaseChooseProduct'),
         type: 'warning'
       })
-      valid = false
-      return
+      return (result = false)
     }
-    if (row.warehouse?.value == undefined) {
+    if (row.exportLots == undefined || row.exportLots.length == 0) {
       ElMessage({
-        message: t('reuse.pleaseChooseWarehouse'),
+        message: t('reuse.pleaseChooseLot'),
         type: 'warning'
       })
-      valid = false
-      return
+      return (result = false)
     }
   })
-  return valid
+
+  return result
 }
 const closeDialogExport = () => {
   dialogWarehouse.value = false
@@ -329,13 +341,16 @@ const searchProduct = async (keyword) => {
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseExportWarehouse
-    v-if="transactionType == 2"
+    v-if="dialogWarehouse"
     :showDialog="dialogWarehouse"
     @close-dialog-warehouse="closeDialogWarehouse"
     @close-dialog="closeDialogExport"
     :transactionType="transactionType"
     :productPropertyId="curPPID"
-    :warehouseData="warehouseData"
+    :warehouseFormData="warehouseData"
+    :orderId="orderId"
+    :warehouse="warehouse"
+    :serviceType="serviceType"
   />
   <el-table
     border

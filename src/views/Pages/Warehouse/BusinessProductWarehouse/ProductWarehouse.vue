@@ -178,7 +178,7 @@ const openDialogWarehouse = (props) => {
   console.log('before open warehouse', props.row, props.row.quantity == undefined)
   if (isNaN(props.row.quantity) || props.row.quantity == undefined) {
     ElMessage({
-      message: t('reuse.pleaseChooseProduct'),
+      message: t('reuse.pleaseChooseQuantity'),
       type: 'warning'
     })
     return
@@ -265,7 +265,6 @@ const handleChange = async (props, uploadFile) => {
 }
 
 const warehouseFormat = (props) => {
-  console.log('props', prop.warehouse, props.row)
   if (prop.warehouse !== undefined && prop?.warehouse?.label !== undefined) {
     if (props.row?.lot !== undefined) {
       if (props.row?.lot.lotCode == null) {
@@ -310,6 +309,13 @@ const checkValueOfTable = () => {
     if (row.price == undefined) {
       ElMessage({
         message: t('reuse.pleaseChoosePrice'),
+        type: 'warning'
+      })
+      return (result = false)
+    }
+    if (row.lot == undefined || row.lot?.value == null || row.lot.value == 0) {
+      ElMessage({
+        message: t('reuse.pleaseChooseLot'),
         type: 'warning'
       })
       return (result = false)

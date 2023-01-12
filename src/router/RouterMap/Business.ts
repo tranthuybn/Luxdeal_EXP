@@ -308,7 +308,8 @@ export default {
       component: () => import('@/views/Pages/Business/ServiceSurvey.vue'),
       name: 'business.service-survey',
       meta: {
-        title: t('router.serviceSurvey')
+        title: t('router.serviceSurvey'),
+        hidden: true
       }
     },
     {
@@ -365,7 +366,8 @@ export default {
       name: 'business.virtual-wallet',
       redirect: { name: 'business.virtual-wallet.customer' },
       meta: {
-        title: t('router.virtualWallet')
+        title: t('router.virtualWallet'),
+        hidden: true
       },
       children: [
         {
@@ -440,7 +442,8 @@ export default {
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
       meta: {
-        title: t('router.businessMan')
+        title: t('router.businessMan'),
+        hidden: true
       },
       children: [
         {
@@ -466,7 +469,8 @@ export default {
       name: 'business.business-report',
       redirect: { name: 'business.business-report.growth' },
       meta: {
-        title: t('router.businessReport')
+        title: t('router.businessReport'),
+        hidden: true
       },
       children: [
         {

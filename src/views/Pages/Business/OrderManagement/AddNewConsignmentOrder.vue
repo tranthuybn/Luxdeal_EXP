@@ -63,7 +63,9 @@ import {
   getListWareHouse,
   approvalOrder,
   updateOrderTransaction,
-  finishStatusOrder
+  finishStatusOrder,
+  GetPaymentRequestDetail,
+  getDetailReceiptPaymentVoucher
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -542,6 +544,42 @@ const handleChangePaymentRequest = () => {
 }
 const checkDisabled = ref(false)
 
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = async (_index, scope) => {
+  formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
+  nameDialog.value = 'Phiếu thu'
+  codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+  codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+  payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+  dialogInformationReceipts.value = true
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  const res = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
+  }
+}
 //thêm nahnh sp
 
 const quickProductCode = ref()
@@ -1263,14 +1301,15 @@ function printPage(id: string, { url, title, w, h }) {
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
-const alreadyPaidForTt = ref(false)
+const alreadyPaidForTt = ref(true)
 
 const tableAccountingEntry = ref([
   {
     content: 'Thu tiền phạt rút hàng trước 14 ngày',
-    collected: '',
-    spent: '',
-    intoMoney: ''
+    kindOfMoney: '',
+    collected: 0,
+    spent: 0,
+    intoMoney: 0
   }
 ])
 
@@ -1309,7 +1348,6 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
-const codeReturnRequest = ref()
 var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
@@ -1486,8 +1524,6 @@ const postOrderStransaction = async () => {
     quantity: parseInt(val.quantity)
   }))
 
-  childrenTable.value.pop()
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content: tableAccountingEntry.value[0].content,
@@ -1646,6 +1682,17 @@ const editData = async () => {
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
+}
+const valueMoneyAccoungtingEntry = ref(0)
+
+const autoChangeMoneyAccountingEntry = (_val, scope) => {
+  valueMoneyAccoungtingEntry.value = 0
+  const data = scope.row
+  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
+
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
 }
 
 const editOrderInfo = async () => {
@@ -3017,12 +3064,12 @@ onBeforeMount(async () => {
           <div class="flex gap-2 justify-around">
             <div class="flex-left">
               <div class="flex gap-4 pt-4 pb-4 items-center">
-                <label class="w-[35%] text-right">{{ t('formDemo.orderCode') }}</label>
-                <p class="w-[45%] font-bold text-xl">{{ ruleForm.orderCode }}</p>
+                <label class="text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="font-bold text-xl">{{ ruleForm.orderCode }}</p>
               </div>
               <div class="flex gap-4 pt-2 pb-4 items-center">
-                <label class="w-[35%] text-right">{{ t('reuse.depositPeriod') }}</label>
-                <p class="w-[45%]">11/11/2022 đến 22/12/2023</p>
+                <label class="text-right">{{ t('reuse.depositPeriod') }}</label>
+                <p class="">11/11/2022 đến 22/12/2023</p>
               </div>
             </div>
             <div class="flex-right">
@@ -3064,7 +3111,11 @@ onBeforeMount(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="260" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="240">
+              <template #default="props">
+                <el-input v-model="props.row.content" />
+              </template>
+            </el-table-column>
             <el-table-column :label="t('formDemo.kindOfMoney')" width="110">
               <el-select v-model="valueTypeMoney" class="m-2" placeholder="Select">
                 <el-option
@@ -3077,18 +3128,25 @@ onBeforeMount(async () => {
             </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
-                <div>{{ props.row.collected }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.collected"
+                />
               </template>
             </el-table-column>
-
             <el-table-column prop="spent" :label="t('formDemo.spent')">
               <template #default="props">
-                <div class="text-right">{{ props.row.spent }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.spent"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }} đ</div>
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3097,7 +3155,9 @@ onBeforeMount(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(valueMoneyAccoungtingEntry)
+              }}</p>
             </div>
           </div>
         </div>
@@ -4285,9 +4345,7 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
-          >+ Thêm bút toán</el-button
-        >
+        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -4313,36 +4371,68 @@ onBeforeMount(async () => {
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="40" />
-          <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" width="150">
+          <el-table-column
+            prop="createdAt"
+            :label="t('formDemo.initializationDate')"
+            min-width="150"
+            align="center"
+          >
             <template #default="data">
               {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="t('formDemo.certificateInformationAndServiceArising')"
-            width="240"
+            :label="t('formDemo.certificateInformation')"
+            min-width="240"
           />
           <el-table-column
-            prop="receiptOrPaymentVoucherId"
+            prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
-            width="150"
+            min-width="120"
+            align="left"
+          >
+            <template #default="data">
+              <div
+                @click="(index) => getDetailPayment(index, data)"
+                class="cursor-pointer text-blue-500"
+              >
+                {{ data.row.receiptOrPaymentVoucherCode }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="paymentRequestCode"
+            :label="t('formDemo.paymentOrder')"
+            align="left"
+            min-width="150"
           >
             <template #default="props">
-              <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="cursor-pointer text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
-          <el-table-column prop="paymentRequestId" :label="t('router.paymentProposal')">
-            <template #default="props">
-              <div class="text-blue-500">{{ props.row.paymentRequestId }}</div>
+
+          <el-table-column
+            prop="receiveMoney"
+            :label="t('formDemo.collected')"
+            align="left"
+            min-width="150"
+          >
+            <template #default="data">
+              <el-input
+                v-model="data.row.receiveMoney"
+                v-if="type != 'detail'"
+                style="width: 100%; border: none; outline: none"
+              />
+              <div v-else>{{ data.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
-            <template #default="props">
-              <div class="text-right">{{ props.row.receiveMoney }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
+
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.paidMoney"
@@ -4350,15 +4440,29 @@ onBeforeMount(async () => {
                 style="width: 100%; border: none; outline: none"
               />
               <div v-else>{{ data.row.paidMoney }}</div>
-            </template></el-table-column
-          >
-          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
-          <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
-            <div>Phải thu</div>
+            </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
+          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            min-width="100"
+          >
             <template #default="props">
-              <div>{{ props.row.payment }}</div>
+              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="paymentMethods"
+            :label="t('formDemo.choosePayment')"
+            min-width="160"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.paymentMethods == 0
+                  ? t('formDemo.cashPayment')
+                  : t('formDemo.cardPayment')
+              }}</div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90">
@@ -4557,6 +4661,23 @@ onBeforeMount(async () => {
 }
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .active {
   opacity: 1 !important;

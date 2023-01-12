@@ -733,9 +733,9 @@ const createQuickCustomer = async () => {
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
+    DistrictId: null,
+    WardId: null,
+    Address: null,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)

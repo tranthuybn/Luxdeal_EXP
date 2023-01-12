@@ -475,6 +475,7 @@ let dataEdit = ref()
 const editData = async () => {
   if (type == 'edit' || type == 'detail') {
     var su = await getDetailReceiptPaymentVoucher({ id: id })
+    console.log('su: ', su)
     if (su.data) dataDetail.value = Object.assign({}, su?.data)
     var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
     getValueOfCustomerSelected(dataDetail.value.customerId, cus)
@@ -501,17 +502,17 @@ const editData = async () => {
       ruleForm.delivery = orderObj.deliveryOption
 
       totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
-      if (orderObj.customer?.isOrganization) {
-        infoCompany.name = orderObj.customer?.name
-        infoCompany.taxCode = orderObj.customer?.taxCode
-        infoCompany.phone = orderObj.customer?.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer?.email
-      } else {
-        infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
-        infoCompany.taxCode = orderObj.customer?.taxCode
-        infoCompany.phone = orderObj.customer?.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer?.email
-      }
+      // if (orderObj.customer?.isOrganization) {
+      //   infoCompany.name = orderObj.customer?.name
+      //   infoCompany.taxCode = orderObj.customer?.taxCode
+      //   infoCompany.phone = orderObj.customer?.phonenumber
+      //   infoCompany.email = 'Email: ' + orderObj.customer?.email
+      // } else {
+      //   infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
+      //   infoCompany.taxCode = orderObj.customer?.taxCode
+      //   infoCompany.phone = orderObj.customer?.phonenumber
+      //   infoCompany.email = 'Email: ' + orderObj.customer?.email
+      // }
     }
   } else if (type == 'add' || !type) {
   }
@@ -573,7 +574,6 @@ const callApiCollaborators = async () => {
 }
 
 const updateStatus = async (status) => {
-  debugger
   EditReceiptAndPaymentVoucherData.value = { ...dataDetail }
   console.log(EditReceiptAndPaymentVoucherData.value)
   EditReceiptAndPaymentVoucherData.value.status = status

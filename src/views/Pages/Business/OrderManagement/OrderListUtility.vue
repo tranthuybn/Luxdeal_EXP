@@ -192,7 +192,11 @@ const rulesAddress = reactive<FormRules>({
 
 let checkValidateForm = ref(false)
 
-const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
+const submitForm = async (
+  formEl: FormInstance | undefined,
+  formEl2: FormInstance | undefined,
+  pushBack: boolean
+) => {
   if (!formEl || !formEl2) return
   await formEl.validate((valid, _fields) => {
     if (valid) {
@@ -203,7 +207,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
-      postData()
+      postData(pushBack)
       doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -598,6 +602,45 @@ const duplicateProduct = ref()
 
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
+
+const radioWarehouseId = ref()
+const indexRowWarehouse = ref()
+
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+  const getTotalPayload = {
+    ProductPropertyId: productPropertyId,
+    ServiceType: serviceType
+  }
+  const res = await GetProductPropertyInventory(getTotalPayload)
+  const total = res?.total
+  return total
+}
+
+const getTotalWarehouse = () => {
+  ListOfProductsForSale.value.forEach(async (el) => {
+    if (el.productPropertyId)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+  })
+}
+
+// Lấy danh sách kho theo mã sản phẩm và sericeType
+const callApiWarehouse = async (scope) => {
+  const data = scope.row
+  indexRowWarehouse.value = scope.$index
+
+  const res = await GetProductPropertyInventory({
+    ProductPropertyId: data.productPropertyId,
+    ServiceType: 1
+  })
+
+  data.warehouseTotal = res.data.total
+  totalWarehouse.value = res.data.total
+  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+    warehouseCheckbox: val.id,
+    name: val.name,
+    inventory: val.inventory
+  }))
 }
 
 const getValueOfSelected = async (_value, obj, scope) => {
@@ -1089,7 +1132,7 @@ let orderDetailsTable = reactive([{}])
 
 let idOrderPost = ref()
 // Tạo đơn hàng
-const postData = async () => {
+const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId:
       typeof val?.productPropertyId != 'number'
@@ -1137,34 +1180,38 @@ const postData = async () => {
     OrderDetail: productPayment,
     CampaignId: 2,
     VAT: 1,
-    Status: 2
+    Status: 2,
+    WarehouseId: ruleForm.warehouse
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  idOrderPost.value = await addNewOrderList(formDataPayLoad)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      automaticCouponWareHouse(2)
-
+  const res = await addNewOrderList(formDataPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    if (pushBack == false) {
       router.push({
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
+    }
+  } else {
+    reloadStatusOrder()
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
+  }
+
+  idOrderPost.value = res
+  automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value.data,
+    OrderId: idOrderPost.value,
     Type: index
   }
 
@@ -1222,6 +1269,8 @@ const editData = async () => {
       customerID.value = orderObj.customer.id
       ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
+      ruleForm.warehouse = orderObj.warehouseId
+
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
 
@@ -1775,11 +1824,19 @@ const postOrderStransaction = async (index: number) => {
         ? totalFinalOrder.value
         : index == 2
         ? inputDeposit.value
-        : index == 3
+        : index == 3 && checkPTC.value == 0
+        ? exchangePrice.value
+        : index == 3 && checkPTC.value == 1
         ? 0
         : tableAccountingEntry.value[0].receiveMoney,
     paidMoney:
-      index == 1 || index == 2 ? 0 : index == 3 ? 0 : tableAccountingEntry.value[0].paidMoney,
+      index == 1 || index == 2
+        ? 0
+        : index == 3 && checkPTC.value == 0
+        ? exchangePrice.value
+        : index == 3 && checkPTC.value == 1
+        ? 0
+        : tableAccountingEntry.value[0].paidMoney,
     deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
@@ -2083,47 +2140,6 @@ const handleChangePaymentOrder = async () => {
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
 const totalWarehouse = ref()
-
-const radioWarehouseId = ref()
-const indexRowWarehouse = ref()
-
-const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
-  const getTotalPayload = {
-    ProductPropertyId: productPropertyId,
-    ServiceType: serviceType
-  }
-  // lấy giá tiền của một sản phẩm
-  const res = await GetProductPropertyInventory(getTotalPayload)
-  const total = res?.total
-
-  return total
-}
-
-const getTotalWarehouse = () => {
-  ListOfProductsForSale.value.forEach(async (el) => {
-    if (el?.productPropertyId)
-      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el?.productPropertyId), 1)
-  })
-}
-
-// Lấy danh sách kho theo mã sản phẩm và sericeType
-const callApiWarehouse = async (scope) => {
-  const data = scope.row
-  indexRowWarehouse.value = scope.$index
-
-  const res = await GetProductPropertyInventory({
-    ProductPropertyId: data?.productPropertyId,
-    ServiceType: 1
-  })
-
-  data.warehouseTotal = res.data.total
-  totalWarehouse.value = res.data.total
-  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
-    warehouseCheckbox: val.id,
-    name: val.name,
-    inventory: val.inventory
-  }))
-}
 
 const showIdWarehouse = (scope) => {
   radioWarehouseId.value = scope.row.warehouseCheckbox
@@ -5155,14 +5171,14 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="submitForm(ruleFormRef, ruleFormRef2)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, false)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, true)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
@@ -5202,7 +5218,7 @@ onBeforeMount(async () => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="submitForm(ruleFormRef, ruleFormRef2)"
+              @click="submitForm(ruleFormRef, ruleFormRef2, false)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('button.saveAndWaitApproval') }}</el-button

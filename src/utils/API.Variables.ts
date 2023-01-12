@@ -186,6 +186,11 @@ export const API_ORDER = [
     value: 4,
     key: 5,
     label: 'orderSpa'
+  },
+  {
+    value: 5,
+    key: 6,
+    label: 'orderMua'
   }
 ]
 

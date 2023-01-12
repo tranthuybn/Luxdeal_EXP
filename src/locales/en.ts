@@ -1717,6 +1717,7 @@ export default {
     importOrderPrice: 'Import order price',
     moreOrLessQuantity: 'Choose more or less quantity',
     pleaseChooseQuantity: 'Please choose quantity',
-    pleaseChooseLotHasInventory: 'Please choose lot has inventory'
+    pleaseChooseLotHasInventory: 'Please choose lot has inventory',
+    pleaseChooseLot: 'Please choose lot'
   }
 }

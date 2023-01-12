@@ -11,7 +11,8 @@ import {
   cancelTicket,
   createTicketManually,
   UpdateInventory,
-  UpdateInventoryOrder
+  UpdateInventoryOrder,
+  updateTicketManually
 } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
@@ -84,24 +85,43 @@ const addTransaction = async () => {
     uploadData.fromWarehouseId = detailTicketRef.value?.FormData.fromWarehouseId
     uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    await createTicketManually(JSON.stringify(uploadData))
-      .then(() => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
+    if (type.value == 'add') {
+      await createTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
         })
-        // id.value = res.data
-        // type.value = 'detail'
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        )
+    }
+    if (type.value == 'edit') {
+      uploadData.ticketId = id.value
+      await updateTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
         })
-      })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
-        })
-      )
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
+    }
   }
 }
 const ticketData = ref({
@@ -169,7 +189,6 @@ const callApiForData = async () => {
         label: res.data[0]?.fromWarehouseName
       }
       ticketData.value.orderId = res.data[0]?.orderId
-
       serviceType.value = res.data[0]?.orderType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
@@ -347,7 +366,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="primary"
-              v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
               >{{ t('reuse.outStockNow') }}</ElButton
@@ -364,26 +383,26 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'add'"
+              v-if="Number(ticketData.orderId) == 0 && type == 'add'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="serviceType == 6 && Number(ticketData.orderId) == 0 && type == 'edit'"
+              v-if="Number(ticketData.orderId) == 0 && type == 'edit'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
-              v-if="serviceType == 6 && type == 'detail' && Number(ticketData.orderId) == 0"
+              v-if="type == 'detail' && Number(ticketData.orderId) == 0"
               @click="type = 'edit'"
               >{{ t('reuse.edit') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="danger"
-              v-if="serviceType == 6 && Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton

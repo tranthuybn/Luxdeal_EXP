@@ -130,6 +130,7 @@ const changeProduct = (value, obj, scope) => {
     scope.row.productName = obj.name
     scope.row.productPropertyId = obj.productPropertyId
     scope.row.unitName = obj.unit
+    scope.row.lot = undefined
   }
 }
 const scrollProductTop = ref(false)
@@ -181,7 +182,6 @@ const openDialogWarehouse = (props) => {
     currentRow.value = props.$index
     warehouseData.value.quantity = props.row.quantity
     warehouseData.value.locationImportId = undefined
-    console.log('warehouseData', warehouseData.value)
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -190,7 +190,6 @@ const openDialogWarehouse = (props) => {
   }
 }
 const closeDialogWarehouse = (warehouseData) => {
-  console.log('warehouseData', warehouseData)
   if (warehouseData != null) {
     ListOfProductsForSale.value[currentRow.value].quantity = warehouseData.quantity
     ListOfProductsForSale.value[currentRow.value].exportLots = warehouseData.exportLots
@@ -269,7 +268,6 @@ const warehouseFormat = (props) => {
   return `${warehouseName}/${locationName}/${lotName}`
 }
 const checkValueOfTable = () => {
-  console.log('ListOfProductsForSale', ListOfProductsForSale.value, prop.type)
   if (ListOfProductsForSale.value.length == 1 && forceRemove.value == false && prop.type == 'add') {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -294,7 +292,11 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
-    if (row.exportLots == undefined || row.exportLots.length == 0) {
+    if (
+      row.exportLots == undefined ||
+      row.exportLots.length == 0 ||
+      row?.exportLots[0]?.fromLotId == 0
+    ) {
       ElMessage({
         message: t('reuse.pleaseChooseLot'),
         type: 'warning'

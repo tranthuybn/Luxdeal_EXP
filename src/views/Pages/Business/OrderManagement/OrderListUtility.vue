@@ -388,7 +388,7 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 interface historyTableType {
   createdAt: string
-  productPropertyId: string
+  productPropertyId: string | any
   productCode?: string
   productPropertyName?: string
   productName?: string
@@ -545,8 +545,8 @@ const callApiProductList = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
-      value: product.productCode,
       productCode: product.code,
+      value: product.productCode,
       name: product.name ?? '',
       unit: product.unitName,
       price: product.price.toString(),
@@ -575,8 +575,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  value: product.productCode,
                   productCode: product.code,
+                  value: product.productCode,
                   name: product.name ?? '',
                   unit: product.unitName,
                   price: product.price.toString(),
@@ -604,19 +604,19 @@ const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = ListOfProductsForSale.value.find(
-    (val) => val.productPropertyId == _value
+    (val) => val?.productPropertyId == _value
   )
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     getTotalWarehouse()
     //TODO
-    data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
+    data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -644,7 +644,7 @@ const handleGetTotal = async (_index, props) => {
   const data = props.row
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
-  data.unitPrice = await getProductPropertyPrice(data.productPropertyId, 1, data.quantity)
+  data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
   data.totalPrice = data.unitPrice * data.quantity
   ListOfProductsForSale.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -668,12 +668,12 @@ const updatePrice = (_value, obj, scope) => {
   const data = scope.row
   duplicateProductChildren.value = undefined
   duplicateProductChildren.value = tableReturnFullyIntegrated.value?.find(
-    (val) => val.productPropertyId == _value
+    (val) => val?.productPropertyId == _value
   )
   if (duplicateProductChildren.value) {
     duplicateProductMessage()
   } else {
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.productCode
     data.productPropertyName = obj.productPropertyName
     data.unitPrice = Number(obj.unitPrice)
@@ -685,12 +685,12 @@ const updateExchangePrice = (_value, obj, scope) => {
   const data = scope.row
   duplicateProductChildren.value = undefined
   duplicateProductChildren.value = tableProductInformationExportChange.value?.find(
-    (val) => val.productPropertyId == _value
+    (val) => val?.productPropertyId == _value
   )
   if (duplicateProductChildren.value) {
     duplicateProductMessage()
   } else {
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.productCode
     data.productPropertyName = obj.productPropertyName
     data.unitPrice = Number(obj.unitPrice)
@@ -1055,7 +1055,7 @@ const postQuickProduct = async () => {
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProductsTable.value.find(
-    (product) => product.productPropertyId == data
+    (product) => product?.productPropertyId == data
   )
 
   // call API checkProduct
@@ -1092,9 +1092,9 @@ let idOrderPost = ref()
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId:
-      typeof val.productPropertyId != 'number'
-        ? parseInt(val.productPropertyId)
-        : val.productPropertyId,
+      typeof val?.productPropertyId != 'number'
+        ? parseInt(val?.productPropertyId)
+        : val?.productPropertyId,
     Accessory: val.accessory,
     Description: null,
     Quantity: parseInt(val.quantity),
@@ -1267,7 +1267,6 @@ let formAccountingId = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
-  console.log('data: ', data)
   switch (data.typeOfAccountingEntry) {
     case 1:
       openAcountingEntryDialog(data.id, 1)
@@ -1305,7 +1304,6 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
-  // inputReasonReturn.value =
 
   getReturnOrder()
   if (num == 1) {
@@ -1482,7 +1480,7 @@ const tableProductInformationExportChange = ref<Array<historyTableType>>([])
 const addRowReturnFullyIntegrated = () => {
   tableReturnFullyIntegrated.value.push({
     createdAt: '',
-    productPropertyId: '',
+    productPropertyId: undefined,
     productPropertyName: '',
     productCode: '',
     productName: '',
@@ -1501,7 +1499,7 @@ const addRowReturnFullyIntegrated = () => {
 const addProductInformationExportChange = () => {
   tableProductInformationExportChange.value.push({
     createdAt: '',
-    productPropertyId: '',
+    productPropertyId: undefined,
     productPropertyName: '',
     productCode: '',
     productName: '',
@@ -1517,15 +1515,15 @@ const addProductInformationExportChange = () => {
   })
 }
 
-if (tableReturnFullyIntegrated.value.length == 0) addRowReturnFullyIntegrated()
-if (tableProductInformationExportChange.value.length == 0) addProductInformationExportChange()
+if (tableReturnFullyIntegrated.value?.length == 0) addRowReturnFullyIntegrated()
+if (tableProductInformationExportChange.value?.length == 0) addProductInformationExportChange()
 
 watch(
   () => tableReturnFullyIntegrated.value,
   () => {
     if (
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
-        .productPropertyId &&
+        ?.productPropertyId &&
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].quantity &&
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].unitPrice &&
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].totalPrice
@@ -1543,7 +1541,7 @@ watch(
     if (
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
-      ].productPropertyId &&
+      ]?.productPropertyId &&
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
       ].quantity &&
@@ -1565,7 +1563,6 @@ watch(
 const getReturnRequestTable = async () => {
   const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
-
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest?.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
@@ -1753,6 +1750,9 @@ const postOrderStransaction = async (index: number) => {
     quantity: parseInt(val.quantity)
   }))
 
+  if (index == 3) {
+    exportPrice.value - refundPrice.value > 0 ? (checkPTC.value = 1) : (checkPTC.value = 0)
+  }
   if (index == 4) {
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
       ? (checkPTC.value = 1)
@@ -1784,7 +1784,7 @@ const postOrderStransaction = async (index: number) => {
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
     typeOfAccountingEntry: index,
@@ -1841,11 +1841,13 @@ const postReturnRequest = async () => {
     totalPrice: exchangePrice.value ?? 0,
     nhapDetails: tableImportPost.value ?? [],
     xuatDetails: tableExportPost.value ?? [],
+    giaHanDetails: [],
     isPaid: alreadyPaidForTt.value
   }
   idReturnRequest.value = await createReturnRequest(payload)
   postOrderStransaction(3)
   getReturnRequestTable()
+  reloadStatusOrder()
 }
 
 const getReceiptCode = async () => {
@@ -1939,7 +1941,6 @@ const getDetailPayment = async (_index, scope) => {
   formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
-  console.log('formDetailPaymentReceipt: ', formDetailPaymentReceipt.value)
   nameDialog.value = 'Phiếu thu'
   codeReceipts.value = formDetailPaymentReceipt.value.data?.code
   codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
@@ -2093,16 +2094,16 @@ const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => 
   }
   // lấy giá tiền của một sản phẩm
   const res = await GetProductPropertyInventory(getTotalPayload)
-  const total = res?.data?.total ?? 'Hết hàng'
+  const total = res?.total
 
   return total
 }
 
 const getTotalWarehouse = () => {
   ListOfProductsForSale.value.forEach(async (el) => {
-    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+    if (el?.productPropertyId)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el?.productPropertyId), 1)
   })
-  console.log('ListOfProductsForSale: ', ListOfProductsForSale.value)
 }
 
 // Lấy danh sách kho theo mã sản phẩm và sericeType
@@ -2111,7 +2112,7 @@ const callApiWarehouse = async (scope) => {
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId,
+    ProductPropertyId: data?.productPropertyId,
     ServiceType: 1
   })
 
@@ -2396,6 +2397,7 @@ const updateOrderInfomation = async () => {
     )
 }
 
+const { push } = useRouter()
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
   // 13 hoàn thành đơn hàng
@@ -2432,11 +2434,31 @@ const updateStatusOrders = async (typeState) => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
+}
+
+const utility = 'Utility'
+const editOrder = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+      }
+    })
+  } else {
+    buttonDuplicate.value = !buttonDuplicate.value
+  }
 }
 
 // disabled button type detail
 let statusButtonDetail = ref(false)
+let buttonDuplicate = ref(false)
 
 onBeforeMount(async () => {
   await editData()
@@ -2451,6 +2473,7 @@ onBeforeMount(async () => {
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
   }
+  if (type == 'detail') buttonDuplicate.value = true
 })
 </script>
 
@@ -5213,7 +5236,11 @@ onBeforeMount(async () => {
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[2].orderStatus && duplicateStatusButton"
+            v-else-if="
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus &&
+              duplicateStatusButton &&
+              buttonDuplicate
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
@@ -5230,25 +5257,25 @@ onBeforeMount(async () => {
               >{{ t('formDemo.completeOrder') }}</el-button
             >
             <el-button
-              @click="statusOrder = 120"
+              @click="editOrder"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  statusOrder = 9
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
-          <div v-if="statusOrder == 120" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-if="
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && type == 'edit' && !buttonDuplicate
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
               :disabled="statusButtonDetail"
               @click="updateOrderInfomation()"
@@ -5257,7 +5284,12 @@ onBeforeMount(async () => {
               >{{ t('reuse.save') }}</el-button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_SELL[2].orderStatus"
+              @click="
+                () => {
+                  statusOrder = STATUS_ORDER_SELL[2].orderStatus
+                  buttonDuplicate = true
+                }
+              "
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"

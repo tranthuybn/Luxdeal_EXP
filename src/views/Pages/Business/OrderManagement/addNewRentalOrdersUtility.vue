@@ -592,7 +592,7 @@ const callCustomersApi = async () => {
           : customer.name + ' | ' + customer.phonenumber,
         address: customer.address,
         name: customer.name,
-        value: customer.id.toString(),
+        value: customer.id,
         isOrganization: customer.isOrganization,
         taxCode: customer.taxCode,
         phone: customer.phonenumber,
@@ -800,8 +800,8 @@ const callApiProductList = async () => {
   })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
-      value: product.productCode,
       productCode: product.code,
+      value: product.productCode,
       name: product.name ?? '',
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -832,8 +832,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  value: product.productCode,
                   productCode: product.code,
+                  value: product.productCode,
                   name: product.name ?? '',
                   price: product.price.toString(),
                   productPropertyId: product.id,
@@ -926,7 +926,6 @@ const postData = async () => {
     PaymentPeriod: 1
   }
 
-  const tab = String(route.params.tab)
   const formDataPayLoad = FORM_IMAGES(payload)
   idOrderPost.value = await addNewOrderList(formDataPayLoad)
     .then(() => {
@@ -1325,7 +1324,7 @@ const getValueOfSelected = async (value, obj, scope) => {
       )
       data.hirePrice = objPrice.price
       data.depositePrice = objPrice.deposite * data.quantity
-      data.totalPrice = data.hirePrice * data.quantity * days
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
       tableData.value.map((val) => {
         if (val.totalPrice) totalPriceOrder.value += val.totalPrice
         if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -1680,7 +1679,6 @@ const autoChangeAddress = () => {
 const priceChangeOrders = ref(false)
 const changePriceRowTable = (props) => {
   const data = props.row
-  console.log('data: ', data)
   if (type == 'add') {
     priceChangeOrders.value = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
@@ -1694,7 +1692,6 @@ const changePriceRowTable = (props) => {
   statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
   data.totalPrice = data.hirePrice * data.quantity
   autoCalculateOrder()
-  console.log('data: ', data)
 }
 
 arrayStatusOrder.value.pop()
@@ -2339,6 +2336,21 @@ const changeDateRange = (data) => {
     el.fromDate = data[0]
     el.toDate = data[1]
   })
+  if (tableData.value?.length) {
+    if (tableData.value[0].productPropertyId) {
+      let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      tableData.value.map((val) => {
+        val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
+      })
+      autoCalculateOrder()
+    }
+  }
 }
 
 const scrolling = (e) => {
@@ -2459,12 +2471,16 @@ const updateStatusOrders = async (typeState) => {
 }
 
 const route = useRoute()
+const { push } = useRouter()
 const approvalId = String(route.params.approvalId)
+const tab = String(route.params.tab)
 
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 const totalWarehouse = ref()
@@ -2506,6 +2522,25 @@ const callApiWarehouse = async (scope) => {
   }))
 }
 
+const utility = 'Utility'
+const buttonDuplicate = ref(false)
+const statusButtonDetail = ref(false)
+const editOrder = () => {
+  if (type == 'detail') {
+    push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        tab: tab,
+        id: id
+      }
+    })
+  } else {
+    buttonDuplicate.value = !buttonDuplicate.value
+  }
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
@@ -2517,6 +2552,7 @@ onBeforeMount(() => {
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
   }
+  if (type == 'detail') buttonDuplicate.value = true
 })
 </script>
 
@@ -3944,6 +3980,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select
                   v-model="ruleForm.leaseTerm"
+                  :disabled="checkDisabled"
                   @change="recalculatePrice"
                   placeholder="Select"
                   clearable
@@ -3959,6 +3996,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.rentalPeriod')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
+                  :disabled="checkDisabled"
                   type="daterange"
                   unlink-panels
                   @change="changeDateRange"
@@ -3969,7 +4007,7 @@ onBeforeMount(() => {
               </el-form-item>
               <el-form-item :label="t('formDemo.rentalPaymentPeriod')" prop="rentalPaymentPeriod">
                 <div class="flex gap-2">
-                  <el-select v-model="ruleForm.rentalPaymentPeriod">
+                  <el-select v-model="ruleForm.rentalPaymentPeriod" :disabled="checkDisabled">
                     <el-option
                       v-for="item in optionsRentalPaymentPeriod"
                       :key="item.value"
@@ -3979,6 +4017,7 @@ onBeforeMount(() => {
                   </el-select>
                   <el-select
                     v-if="ruleForm.rentalPaymentPeriod == 4"
+                    :disabled="checkDisabled"
                     v-model="week"
                     :placeholder="t('formDemo.ChooseADayWeek')"
                   >
@@ -3991,6 +4030,7 @@ onBeforeMount(() => {
                   </el-select>
                   <el-select
                     v-if="ruleForm.rentalPaymentPeriod == 5"
+                    :disabled="checkDisabled"
                     v-model="month"
                     :placeholder="t('formDemo.selectRecurringDayMonth')"
                   >
@@ -4039,7 +4079,11 @@ onBeforeMount(() => {
                 </div>
               </div>
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input v-model="ruleForm.orderNotes" :placeholder="t('formDemo.addNotes')" />
+                <el-input
+                  v-model="ruleForm.orderNotes"
+                  :disabled="checkDisabled"
+                  :placeholder="t('formDemo.addNotes')"
+                />
               </el-form-item>
             </el-form>
           </div>
@@ -4055,6 +4099,7 @@ onBeforeMount(() => {
               <div class="pl-4">
                 <el-upload
                   action="#"
+                  :disabled="checkDisabled"
                   v-model:file-list="fileList"
                   :multiple="true"
                   list-type="picture-card"
@@ -4561,19 +4606,15 @@ onBeforeMount(() => {
           <el-table-column
             prop="productPropertyId"
             :label="t('formDemo.productManagementCode')"
-            width="150"
+            width="180"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 :disabled="disabledEdit"
                 :items="listProductsTable"
@@ -4964,14 +5005,14 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="submitForm(ruleFormRef, ruleFormRef2)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.saveCloseOrder') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
@@ -4979,7 +5020,7 @@ onBeforeMount(() => {
             >
             <el-button
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5007,7 +5048,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -5019,7 +5060,7 @@ onBeforeMount(() => {
             >
             <el-button
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5032,7 +5073,7 @@ onBeforeMount(() => {
           >
             <el-button
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -5040,7 +5081,11 @@ onBeforeMount(() => {
           </div>
           <!-- Không thay đổi giá -->
           <div
-            v-else-if="statusOrder == STATUS_ORDER_RENTAL[2].orderStatus && duplicateStatusButton"
+            v-else-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              duplicateStatusButton &&
+              buttonDuplicate
+            "
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
@@ -5056,43 +5101,50 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <el-button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="statusOrder = 111"
-              :disabled="checkDisabled"
+              @click="editOrder"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
           </div>
 
-          <div v-if="statusOrder == 111" class="w-[100%] flex ml-1 gap-4">
+          <div
+            v-if="
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              type == 'edit' &&
+              !buttonDuplicate
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
             <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  updateOrderInfomation()
-                  statusOrder = STATUS_ORDER_RENTAL[2].orderStatus
-                }
-              "
+              :disabled="statusButtonDetail"
+              @click="updateOrderInfomation()"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('reuse.save') }}</el-button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_RENTAL[2].orderStatus"
-              :disabled="checkDisabled"
+              @click="
+                () => {
+                  statusOrder = STATUS_ORDER_RENTAL[2].orderStatus
+                  buttonDuplicate = !buttonDuplicate
+                }
+              "
+              :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancel') }}</el-button
@@ -5116,7 +5168,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   dialogReturnAheadOfTime = true
@@ -5133,7 +5185,7 @@ onBeforeMount(() => {
           >
             <el-button
               @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
@@ -5143,7 +5195,7 @@ onBeforeMount(() => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   dialogReturnAheadOfTime = true
@@ -5156,7 +5208,7 @@ onBeforeMount(() => {
             >
             <el-button
               @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
             >
@@ -5175,7 +5227,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
@@ -5198,7 +5250,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.aheadTimeReturns') }}</button
@@ -5224,13 +5276,13 @@ onBeforeMount(() => {
               >{{ t('formDemo.depositSlip') }}</el-button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="
                 () => {
                   statusOrder = STATUS_ORDER_RENTAL[7].orderStatus
@@ -5244,14 +5296,14 @@ onBeforeMount(() => {
           </div>
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <button
-              :disabled="checkDisabled"
+              :disabled="statusButtonDetail"
               @click="approvalFunction"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >Duyệt</button
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >Không duyệt</el-button
             >

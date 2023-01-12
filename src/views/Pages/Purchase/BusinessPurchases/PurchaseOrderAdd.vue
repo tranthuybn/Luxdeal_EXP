@@ -72,7 +72,8 @@ import {
   getReturnRequestForOrder,
   createTicketFromReturnOrder,
   finishReturnOrder,
-  cancelReturnOrder
+  cancelReturnOrder,
+  approvalOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
@@ -94,6 +95,7 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
+const approvalId = String(route.params.approvalId)
 
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -1250,7 +1252,12 @@ const editData = async () => {
     editButton.value = true
     hiddenButton.value = false
   }
-  if (type == 'edit' || type == 'detail') {
+
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
+  if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     checkDisabledProduct.value = true
     const res = await getOrderList({ Id: id, ServiceType: 6 })
     const transaction = await getOrderTransaction({ id: id })
@@ -1264,6 +1271,9 @@ const editData = async () => {
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
+      else statusOrder.value = 200
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
     }
 
@@ -1490,29 +1500,11 @@ const dialogPaymentVoucher = ref(false)
 
 // Thông tin phiếu nhập kho hoàn hàng đổi/trả
 const informationWarehouseReceipt = ref(false)
-const tableFullyIntegrated = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '2',
-    unitPriceWarehouse: '5,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ'
-  }
-]
+const tableFullyIntegrated = ref()
 
 // Thông tin phiếu nhập hoàn
 const invoiceForGoodsEntering = ref(false)
-const tableInvoice = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '2',
-    unitPriceWarehouse: '5,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ'
-  }
-]
+const tableInvoice = ref()
 
 // Thông tin phiếu bán hàng
 const dialogSalesSlipInfomation = ref(false)
@@ -2036,7 +2028,7 @@ const postReturnRequest = async () => {
     if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = exchangePrice.value
     else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
     await postOrderStransaction(3)
-    createTicketFromReturnOrder({ orderId: id })
+    createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
   }
   getReturnRequestTable()
 }
@@ -2413,6 +2405,49 @@ const finishReturnRequest = async () => {
 //hủy yêu cầu đổi trả
 const cancelReturnRequest = async () => {
   await cancelReturnOrder({ OrderId: id })
+}
+
+//duyệt đơn mua hàng
+const approvalFunction = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  router.push({
+    name: `approve.orders-approval.orders-new`
+  })
+}
+
+//lấy chi tiết phiếu nhập đổi
+const getInvoiceForGoodsEntering = () => {
+  tableInvoice.value = historyTable?.value?.map((e) => ({
+    productPropertyName: e?.productPropertyName,
+    accessory: e?.accessory,
+    quantity: e?.quantity,
+    warehouseTicketCode: e?.warehouseTicketCode
+  }))
+}
+
+//lấy chi tiết phiếu xuất trả
+const getInformationWarehouseReceipt = () => {
+  tableFullyIntegrated.value = historyTable?.value?.map((e) => ({
+    productPropertyName: e?.productPropertyName,
+    accessory: e?.accessory,
+    quantity: e?.quantity,
+    warehouseTicketCode: e?.warehouseTicketCode
+  }))
+}
+
+const ticketCode = ref()
+
+const showWarehouseTicket = (scope) => {
+  const data = scope.row
+  ticketCode.value = data.warehouseTicketCode
+  if (data.returnDetailType == 1) {
+    invoiceForGoodsEntering.value = true
+    getInvoiceForGoodsEntering()
+  } else {
+    informationWarehouseReceipt.value = true
+    getInformationWarehouseReceipt()
+  }
 }
 
 const hiddenButton = ref(false)
@@ -3512,12 +3547,12 @@ onBeforeMount(async () => {
           </div>
           <div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right">{{ t('formDemo.receiptCode') }}</label>
-              <div class="w-[100%]">NK345654</div>
+              <label class="w-[30%] text-right">{{ t('formDemo.exportCode') }}</label>
+              <div class="w-[100%]">{{ ticketCode }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
-                >{{ t('formDemo.warehouser') }} <span class="text-red-500">*</span></label
+                >{{ t('formDemo.warehouserExport') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <div @scroll="scrollingRecharger" id="content">
@@ -3532,12 +3567,12 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <div class="w-[100%]">Hàng bị rách góc</div>
+              <div class="w-[100%]">{{ inputReasonReturn }}</div>
             </div>
           </div>
           <div class="flex items-center">
             <span class="w-[45%] text-base font-bold break-w">{{
-              t('formDemo.productInformationExportChange')
+              t('reuse.informationReturnExportProduct')
             }}</span>
             <span class="block h-1 w-[55%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -3552,25 +3587,7 @@ onBeforeMount(async () => {
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPriceWarehouse" :label="t('formDemo.unitPriceWarehouse')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.unitPriceWarehouse }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="intoMoneyWarehouse" :label="t('formDemo.intoMoneyWarehouse')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.intoMoneyWarehouse }}</div>
-              </template>
-            </el-table-column>
           </el-table>
-          <div class="flex justify-end pt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">Tổng tiền nhập kho</p>
-            </div>
-            <div class="w-[100px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">5,000,000 đ</p>
-            </div>
-          </div>
         </div>
         <div class="flex items-center">
           <span class="w-[25%] text-base font-bold">{{ t('formDemo.status') }}</span>
@@ -3593,7 +3610,7 @@ onBeforeMount(async () => {
         <template #footer>
           <div class="flex justify-between">
             <el-button @click="informationWarehouseReceipt = false">{{
-              t('button.print')
+              t('button.printExport')
             }}</el-button>
             <div>
               <span class="dialog-footer">
@@ -3609,7 +3626,7 @@ onBeforeMount(async () => {
       <!-- Thông tin phiếu nhập hoàn -->
       <el-dialog
         v-model="invoiceForGoodsEntering"
-        :title="t('formDemo.invoiceForGoodsEntering')"
+        :title="t('formDemo.infoCouponInvoice')"
         width="40%"
       >
         <div>
@@ -3620,7 +3637,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ sellOrderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.generalInformation') }}</span>
@@ -3629,7 +3646,7 @@ onBeforeMount(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptCode') }}</label>
-              <div class="w-[100%]">NK345654</div>
+              <div class="w-[100%]">{{ ticketCode }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
@@ -3648,7 +3665,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <div class="w-[100%]">Hàng bị rách góc</div>
+              <div class="w-[100%]">{{ inputReasonReturn }}</div>
             </div>
           </div>
           <div class="flex items-center">
@@ -3662,31 +3679,13 @@ onBeforeMount(async () => {
           <el-table ref="singleTableRef" :data="tableInvoice" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPriceWarehouse" :label="t('formDemo.unitPriceWarehouse')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.unitPriceWarehouse }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="intoMoneyWarehouse" :label="t('formDemo.intoMoneyWarehouse')">
-              <template #default="props">
-                <div class="text-right">{{ props.row.intoMoneyWarehouse }}</div>
-              </template>
-            </el-table-column>
           </el-table>
-          <div class="flex justify-end pt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">Tổng tiền nhập kho</p>
-            </div>
-            <div class="w-[100px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">5,000,000 đ</p>
-            </div>
-          </div>
         </div>
         <div class="flex items-center">
           <span class="w-[25%] text-base font-bold">{{ t('formDemo.status') }}</span>
@@ -3708,7 +3707,9 @@ onBeforeMount(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="invoiceForGoodsEntering = false">{{ t('button.print') }}</el-button>
+            <el-button @click="invoiceForGoodsEntering = false">{{
+              t('button.printImport')
+            }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button @click="invoiceForGoodsEntering = false">{{
@@ -4052,7 +4053,7 @@ onBeforeMount(async () => {
                   :auto-upload="false"
                   :on-change="handleChange"
                   class="relative"
-                  :disabled="type == 'detail' ? true : false"
+                  :disabled="type == 'detail' || type == 'approval-order' ? true : false"
                 >
                   <template #file="{ file }">
                     <div>
@@ -4407,8 +4408,8 @@ onBeforeMount(async () => {
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
-                      getExportPrice()
                       checkMaximunQuantity(props)
+                      getExportPrice()
                     }
                   "
                 />
@@ -4487,8 +4488,8 @@ onBeforeMount(async () => {
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
-                      getRefundPrice()
                       checkMaximunQuantity(props)
+                      getRefundPrice()
                     }
                   "
                 />
@@ -4615,7 +4616,7 @@ onBeforeMount(async () => {
                 ]"
                 v-else
                 filterable
-                :disabled="type == 'edit' ? true : false"
+                :disabled="type == 'edit' || type == 'approval-order' ? true : false"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="code"
@@ -4692,7 +4693,7 @@ onBeforeMount(async () => {
               </div>
               <el-input
                 v-else
-                :disabled="type == 'edit' ? true : false"
+                :disabled="type == 'edit' || type == 'approval-order' ? true : false"
                 type="number"
                 @change="
                   () => {
@@ -4715,7 +4716,7 @@ onBeforeMount(async () => {
             <template #default="props">
               <CurrencyInputComponent
                 v-model="props.row.unitPrice"
-                :disabled="type == 'edit' ? true : false"
+                :disabled="type == 'edit' || type == 'approval-order' ? true : false"
                 :isReadOnly="type == 'detail' || type == 'edit' ? true : false"
                 v-if="type != 'detail'"
                 @change="
@@ -4802,7 +4803,9 @@ onBeforeMount(async () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <el-button
-                :disabled="type == 'edit' || type == 'detail' ? true : false"
+                :disabled="
+                  type == 'edit' || type == 'detail' || type == 'approval-order' ? true : false
+                "
                 @click.prevent="removeListProductsSale(scope.$index)"
                 class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
                 >{{ t('reuse.delete') }}</el-button
@@ -4813,7 +4816,7 @@ onBeforeMount(async () => {
         <el-button
           class="ml-4 mt-4"
           v-if="type != 'detail'"
-          :disabled="type == 'edit' ? true : false"
+          :disabled="type == 'edit' || type == 'approval-order' ? true : false"
           @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
@@ -4822,7 +4825,9 @@ onBeforeMount(async () => {
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
             <div class="text-blue-500 cursor-pointer">
               <el-dropdown
-                :disabled="type == 'edit' || type == 'detail' ? true : false"
+                :disabled="
+                  type == 'edit' || type == 'detail' || type == 'approval-order' ? true : false
+                "
                 class="flex justify-end"
                 trigger="click"
               >
@@ -5001,7 +5006,7 @@ onBeforeMount(async () => {
 
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
-          <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
+          <div v-if="editButton && type != 'approval-order'" class="flex ml-1 gap-4">
             <el-button
               :disabled="checkDisabledEditButton"
               @click="
@@ -5026,7 +5031,7 @@ onBeforeMount(async () => {
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-          <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
+          <div class="flex ml-1 gap-4" v-if="type != 'approval-order' && !editButton">
             <el-button
               v-if="
                 hiddenEditButton &&
@@ -5146,9 +5151,10 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
-                statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus
+                type != 'approval-order' &&
+                (statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
+                  statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus)
               "
               @click="
                 () => {
@@ -5160,6 +5166,14 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
+          </div>
+          <div v-if="type == 'approval-order'" class="flex justify-start ml-1 gap-4">
+            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -5372,7 +5386,9 @@ onBeforeMount(async () => {
               width="200"
             >
               <template #default="props">
-                <div class="text-blue-500"> {{ props.row.warehouseTicketCode }} </div>
+                <div @click="showWarehouseTicket(props)" class="text-blue-500">
+                  {{ props.row.warehouseTicketCode }}
+                </div>
               </template>
             </el-table-column>
             <el-table-column

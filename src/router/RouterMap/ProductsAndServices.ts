@@ -62,7 +62,7 @@ export default {
           }
         },
         {
-          path: `spa-service-utility/:type?/:id?`,
+          path: `spa-service-utility/:type?/:id?/:approvalId?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
           name: `products-services.ServiceLibrary.SpaService.${utility}`,

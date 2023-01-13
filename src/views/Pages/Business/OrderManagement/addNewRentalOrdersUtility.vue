@@ -2522,9 +2522,9 @@ const callApiWarehouse = async (scope) => {
     ServiceType: 1
   })
 
-  data.warehouseTotal = res.data.total
-  totalWarehouse.value = res.data.total
-  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
+  tableWarehouse.value = res.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory

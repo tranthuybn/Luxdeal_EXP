@@ -70,7 +70,8 @@ import {
   finishStatusOrder,
   updateStatusOrder,
   approvalOrder,
-  cancelOrder
+  cancelOrder,
+  createTicketFromReturnOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -634,9 +635,9 @@ const callApiWarehouse = async (scope) => {
     ServiceType: 1
   })
 
-  data.warehouseTotal = res.data.total
-  totalWarehouse.value = res.data.total
-  tableWarehouse.value = res.data.inventoryDetails.map((val) => ({
+  data.warehouseTotal = res.total
+  totalWarehouse.value = res.total
+  tableWarehouse.value = res.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
     name: val.name,
     inventory: val.inventory
@@ -1627,6 +1628,16 @@ const getReturnRequestTable = async () => {
   }
 }
 
+// Tạo phiếu cho đơn đổi trả
+const createTicketFromReturnOrders = async () => {
+  const payload = {
+    orderId: id,
+    returnRequestId: idReturnRequest.value
+  }
+
+  await createTicketFromReturnOrder(payload)
+}
+
 const alreadyPaidForTt = ref(false)
 
 // Bút toán bổ sung
@@ -1903,6 +1914,7 @@ const postReturnRequest = async () => {
   }
   idReturnRequest.value = await createReturnRequest(payload)
   postOrderStransaction(3)
+  createTicketFromReturnOrders()
   getReturnRequestTable()
   reloadStatusOrder()
 }

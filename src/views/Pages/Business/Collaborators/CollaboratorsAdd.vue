@@ -110,7 +110,6 @@ const getGenCodeCollaborator = async () => {
     .catch((err) => {
       console.error(err)
     })
-  CollaboratorId
 }
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -217,7 +216,7 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
-  if (!isNaN(id)) {
+  if (!isNaN(id) && type != 'add') {
     const res = await getCollaboratorsById({ id: id })
     if (res && res.data) {
       formValue.value = res.data
@@ -231,10 +230,6 @@ const getTableValue = async () => {
   }
 }
 
-// const customizeData = async () => {
-// formDataCustomize.value.collaboratorFiles = `${API_URL}${formValue.value.collaboratorFiles}`
-// FormData.Discount = formValue.value.code
-// }
 let checkValidate = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined) => {

@@ -172,6 +172,17 @@ export const addNewCustomer = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+export const updatedCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: CUSTOMER_API.UPDATED_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const addNewAuthRegister = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {

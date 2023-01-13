@@ -37,7 +37,8 @@ import {
   getCustomerById,
   addNewCustomer,
   getGenCodeCustomers,
-  addNewAuthRegister
+  addNewAuthRegister,
+  updatedCustomer
 } from '@/api/Business'
 import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
@@ -132,7 +133,16 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     ValidService.checkCCCD
-  ]
+  ],
+  cccdCreateAt: [
+    {
+      type: 'date',
+      required: false,
+      message: 'Vui lòng chọn ngày cấp',
+      trigger: 'change'
+    }
+  ],
+  cccdPlaceOfGrant: [{ required: false }]
 })
 
 // let customerCode = ref()
@@ -350,6 +360,52 @@ const collapse: Array<Collapse> = [
     customOperator: 3
   }
 ]
+
+const updateCustomer = async () => {
+  const payload = {
+    Id: id,
+    UserName: ruleForm.userName,
+    Code: ruleForm.customerCode,
+    ReferralCode: ruleForm.referralCode,
+    Name: ruleForm.name,
+    TaxCode: ruleForm.taxCode,
+    IsOrganization: ruleForm.businessClassification,
+    Representative: ruleForm.representative,
+    Phonenumber: ruleForm.phonenumber,
+    Email: ruleForm.email,
+    DoB: ruleForm.doB,
+    ProvinceId: ruleForm.ProvinceId,
+    DistrictId: ruleForm.DistrictId,
+    WardId: ruleForm.WardId,
+    Address: ruleForm.Address,
+    CCCD: ruleForm.cccd,
+    CCCDCreateAt: ruleForm.cccdCreateAt,
+    CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,
+    Sex: ruleForm.sex,
+    Link: ruleForm.link,
+    ImageId: 1,
+    isActive: true,
+    CustomerType: 1,
+    AccountName: ruleForm.accountName,
+    AccountNumber: ruleForm.accountNumber,
+    BankId: ruleForm.bankName,
+    Files: ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await updatedCustomer(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      })
+    })
+    .catch((error) => {
+      ElNotification({
+        message: error,
+        type: 'warning'
+      })
+    })
+}
 
 const getGenCodeCustomer = async () => {
   await getGenCodeCustomers({})
@@ -583,8 +639,8 @@ onBeforeMount(() => {
               ref="ruleFormRef"
               :model="ruleForm"
               :rules="rules"
-              hide-required-asterisk
               label-width="170px"
+              require-asterisk-position="right"
               @register="register"
               status-icon
               :disabled="disableData"
@@ -631,11 +687,8 @@ onBeforeMount(() => {
               <el-divider content-position="left">{{
                 t('formDemo.generalInformation')
               }}</el-divider>
-              <ElFormItem label-width="0" class="flex items-center w-[100%]">
+              <ElFormItem :label="t('formDemo.classify')" class="flex items-center w-[100%]">
                 <div class="flex">
-                  <label class="min-w-[170px] pr-2 text-right"
-                    >{{ t('formDemo.classify') }} <span class="text-red-600">*</span></label
-                  >
                   <div class="flex w-[84%]">
                     <div class="flex gap-2 pl-2 w-[100%]">
                       <div class="w-[50%] items-center outline-none">
@@ -674,90 +727,88 @@ onBeforeMount(() => {
               </ElFormItem>
 
               <div v-if="ruleForm.businessClassification === false">
-                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="name">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('formDemo.customerName') }} <span class="text-red-600">*</span></label
-                    >
-                    <div class="w-[84%]">
-                      <el-input
-                        v-model="ruleForm.name"
-                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
-                        :placeholder="t('formDemo.enterCustomerName')"
-                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      />
-                    </div>
-                  </div>
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  :label="t('formDemo.customerName')"
+                  prop="name"
+                >
+                  <el-input
+                    v-model="ruleForm.name"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterCustomerName')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
                 <ElFormItem
                   class="flex items-center w-[100%] mt-5"
-                  label-width="0"
+                  :label="t('reuse.phoneNumber')"
                   prop="phonenumber"
                 >
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
-                    >
-                    <el-input
-                      v-model="ruleForm.phonenumber"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('reuse.enterPhoneNumber')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                  <el-input
+                    v-model="ruleForm.phonenumber"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('reuse.enterPhoneNumber')"
+                  />
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%] mt-5" label-width="0" prop="email">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.email') }}</label>
-                    <el-input
-                      v-model="ruleForm.email"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterEmail')"
-                      :formatter="(value) => removeVietnameseTones(value)"
-                    />
-                  </div>
-                </ElFormItem>
-
-                <ElFormItem
-                  class="flex items-center w-[100%] mt-5 fix-err"
-                  :label="t('reuse.cmnd')"
-                  prop="cccd"
+                <el-form-item
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.email')"
+                  prop="email"
                 >
-                  <div class="flex gap-2 w-[100%] cccd">
-                    <el-input
-                      v-model="ruleForm.cccd"
-                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterCCCD')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                    <el-date-picker
-                      prop="cccdCreateAt"
-                      v-model="ruleForm.cccdCreateAt"
-                      type="date"
-                      :placeholder="t('formDemo.supplyDate')"
-                      :disabled-date="disabledDate"
-                      :size="size"
-                      :editable="false"
-                      format="DD/MM/YYYY"
-                      value-format="YYYY-MM-DD"
-                      class="w-[25%] min-w-[203px] cccd-createAt outline-none pl-2 dark:bg-transparent"
-                    />
-                    <el-input
-                      prop="cccdPlaceOfGrant"
-                      v-model="ruleForm.cccdPlaceOfGrant"
-                      class="w-[25%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.supplyAddress')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
+                  <el-input
+                    v-model="ruleForm.email"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterEmail')"
+                    :formatter="(value) => removeVietnameseTones(value)"
+                  />
+                </el-form-item>
+
+                <el-form-item :label="t('reuse.cmnd')">
+                  <div class="flex gap-2 pl-2 w-[100%] cccd-format">
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccd">
+                        <el-input
+                          v-model="ruleForm.cccd"
+                          class="w-[25%] outline-none dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.enterCCCD')"
+                        />
+                      </el-form-item>
+                    </div>
+
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccdCreateAt">
+                        <el-date-picker
+                          v-model="ruleForm.cccdCreateAt"
+                          type="date"
+                          :placeholder="t('formDemo.supplyDate')"
+                          :disabled-date="disabledDate"
+                          :size="size"
+                          :editable="false"
+                          format="DD/MM/YYYY"
+                          value-format="YYYY-MM-DD"
+                          class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
+                        />
+                      </el-form-item>
+                    </div>
+
+                    <div class="flex-1 fix-width">
+                      <el-form-item prop="cccdPlaceOfGrant">
+                        <el-input
+                          v-model="ruleForm.cccdPlaceOfGrant"
+                          class="w-[25%] outline-none dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.supplyAddress')"
+                        />
+                      </el-form-item>
+                    </div>
                   </div>
-                </ElFormItem>
+                </el-form-item>
 
                 <ElFormItem
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
@@ -791,54 +842,49 @@ onBeforeMount(() => {
                   </div>
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%] mt-5" label-width="0" prop="link">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.link') }}</label>
-                    <el-input
-                      prop="link"
-                      v-model="ruleForm.link"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('reuse.enterFacebookZaloLink')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                <ElFormItem
+                  class="flex items-center w-[100%] mt-5"
+                  :label="t('reuse.link')"
+                  prop="link"
+                >
+                  <el-input
+                    prop="link"
+                    v-model="ruleForm.link"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('reuse.enterFacebookZaloLink')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
               </div>
 
               <div v-if="ruleForm.businessClassification === true">
-                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="name">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('reuse.companyName') }} <span class="text-red-600">*</span></label
-                    >
-                    <div class="w-[84%]">
-                      <el-input
-                        v-model="ruleForm.name"
-                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
-                        :placeholder="t('formDemo.enterCompanyName')"
-                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      />
-                    </div>
-                  </div>
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  :label="t('reuse.companyName')"
+                  prop="name"
+                >
+                  <el-input
+                    v-model="ruleForm.name"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterCompanyName')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="taxCode">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('reuse.taxCode') }} <span class="text-red-600">*</span></label
-                    >
-                    <div class="w-[84%]">
-                      <el-input
-                        v-model="ruleForm.taxCode"
-                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
-                        :placeholder="t('formDemo.enterTaxCode')"
-                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      />
-                    </div>
-                  </div>
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  :label="t('reuse.taxCode')"
+                  prop="taxCode"
+                >
+                  <el-input
+                    v-model="ruleForm.taxCode"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterTaxCode')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
                 <ElFormItem
@@ -857,38 +903,30 @@ onBeforeMount(() => {
 
                 <ElFormItem
                   class="flex items-center w-[100%] mt-5"
-                  label-width="0"
+                  :label="t('reuse.phoneNumber')"
                   prop="phonenumber"
                 >
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('reuse.phoneNumber') }} <span class="text-red-600">*</span></label
-                    >
-                    <el-input
-                      v-model="ruleForm.phonenumber"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('reuse.enterPhoneNumber')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                  <el-input
+                    v-model="ruleForm.phonenumber"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('reuse.enterPhoneNumber')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
-                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="email">
-                  <div class="flex">
-                    <label class="min-w-[170px] pr-2 text-right"
-                      >{{ t('reuse.email') }} <span class="text-red-600">*</span></label
-                    >
-                    <div class="w-[84%]">
-                      <el-input
-                        v-model="ruleForm.email"
-                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
-                        :placeholder="t('formDemo.enterEmail')"
-                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      />
-                    </div>
-                  </div>
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  :label="t('reuse.email')"
+                  prop="email"
+                >
+                  <el-input
+                    v-model="ruleForm.email"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterEmail')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
                 <ElFormItem class="flex items-center w-[100%] mt-5" :label="t('reuse.link')">
@@ -905,29 +943,32 @@ onBeforeMount(() => {
 
               <el-divider content-position="left">{{ t('formDemo.accountAndStatus') }}</el-divider>
               <div>
-                <ElFormItem class="flex items-center w-[100%]" label-width="0" prop="userName">
-                  <div class="flex items-center">
-                    <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                      {{ t('formDemo.userName') }} <span class="text-red-600">*</span>
-                      <p style="color: orange" class="text-xs">{{ t('reuse.loginAppWebUser') }}</p>
-                    </label>
-                    <el-input
-                      v-model="ruleForm.userName"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterUserName')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                <ElFormItem class="flex items-center w-[100%]" prop="userName">
+                  <template #label>
+                    <div>
+                      <div class="text-right">{{ t('formDemo.userName') }}</div>
+                      <div style="color: orange" class="text-xs">{{
+                        t('reuse.loginAppWebUser')
+                      }}</div>
+                    </div>
+                  </template>
+                  <el-input
+                    v-model="ruleForm.userName"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterUserName')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
               </div>
 
               <div v-if="type == 'detail' || type == 'edit'">
-                <ElFormItem class="flex items-center w-[100%]" label-width="0">
+                <ElFormItem
+                  class="flex items-center w-[100%]"
+                  prop="password"
+                  :label="t('login.password')"
+                >
                   <div class="flex">
-                    <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                      {{ t('login.password') }} <span class="text-red-600">*</span>
-                    </label>
                     <el-input
                       v-model="ruleForm.password"
                       class="w-[50%] outline-none pl-2 dark:bg-transparent"
@@ -941,101 +982,84 @@ onBeforeMount(() => {
                       class="w-[50%] outline-none min-h-9 pl-2 ml-3 dark:bg-transparent"
                       >{{ t('reuse.changePassword') }}
                     </el-button>
-                    <el-dialog
-                      v-model="centerDialogVisible"
-                      :title="t('reuse.changePassword')"
-                      width="30%"
-                      align-center
-                      class="font-semibold"
-                    >
-                      <ElFormItem
-                        class="flex items-center w-[100%] mb-3 font-normal"
-                        label-width="0"
-                        prop="password"
-                      >
-                        <div class="flex">
-                          <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                            {{ t('reuse.newPassword') }} <span class="text-red-600">*</span>
-                          </label>
-                          <el-input
-                            v-model="ruleForm.password"
-                            class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                            type="text"
-                            :placeholder="t('reuse.enterNewPassword')"
-                            :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                          />
-                        </div>
-                      </ElFormItem>
-
-                      <ElFormItem
-                        class="flex items-center w-[100%] font-normal mt-5"
-                        label-width="0"
-                        prop="confirmPassword"
-                      >
-                        <div class="flex">
-                          <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                            {{ t('reuse.confirmPassword') }} <span class="text-red-600">*</span>
-                          </label>
-                          <el-input
-                            class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                            type="text"
-                            :placeholder="t('reuse.confirmPassword')"
-                            :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                          />
-                        </div>
-                      </ElFormItem>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            type="primary"
-                            @click="centerDialogVisible = false"
-                            class="min-w-36 min-h-10"
-                            >{{ t('reuse.save') }}</el-button
-                          >
-                          <el-button
-                            @click="centerDialogVisible = false"
-                            class="min-w-36 min-h-10"
-                            >{{ t('reuse.exit') }}</el-button
-                          >
-                        </span>
-                      </template>
-                    </el-dialog>
                   </div>
+                  <el-dialog
+                    v-model="centerDialogVisible"
+                    :title="t('reuse.changePassword')"
+                    width="30%"
+                    align-center
+                    class="font-semibold"
+                  >
+                    <ElFormItem
+                      class="flex items-center w-[100%] mb-3 font-normal"
+                      :label="t('reuse.newPassword')"
+                      prop="password"
+                    >
+                      <el-input
+                        v-model="ruleForm.password"
+                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                        type="text"
+                        :placeholder="t('reuse.enterNewPassword')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      />
+                    </ElFormItem>
+
+                    <ElFormItem
+                      class="flex items-center w-[100%] font-normal mt-5"
+                      :label="t('reuse.confirmPassword')"
+                      prop="confirmPassword"
+                    >
+                      <el-input
+                        v-model="ruleForm.confirmPassword"
+                        class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                        type="text"
+                        :placeholder="t('reuse.confirmPassword')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      />
+                    </ElFormItem>
+                    <template #footer>
+                      <span class="dialog-footer">
+                        <el-button
+                          type="primary"
+                          @click="centerDialogVisible = false"
+                          class="min-w-36 min-h-10"
+                          >{{ t('reuse.save') }}</el-button
+                        >
+                        <el-button @click="centerDialogVisible = false" class="min-w-36 min-h-10">{{
+                          t('reuse.exit')
+                        }}</el-button>
+                      </span>
+                    </template>
+                  </el-dialog>
                 </ElFormItem>
               </div>
               <div class="w-[100%]" v-else>
-                <ElFormItem prop="password" class="flex items-center w-[100%]" label-width="0">
-                  <div class="flex">
-                    <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                      {{ t('login.password') }} <span class="text-red-600">*</span>
-                    </label>
-                    <el-input
-                      v-model="ruleForm.password"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterPassword')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                <ElFormItem
+                  prop="password"
+                  class="flex items-center w-[100%]"
+                  :label="t('login.password')"
+                >
+                  <el-input
+                    v-model="ruleForm.password"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('formDemo.enterPassword')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
 
                 <ElFormItem
                   class="flex items-center w-[100%]"
-                  label-width="0"
+                  :label="t('reuse.confirmPassword')"
                   prop="confirmPassword"
                 >
-                  <div class="flex">
-                    <label class="w-[20%] min-w-[170px] text-right leading-5 pr-3">
-                      {{ t('reuse.confirmPassword') }} <span class="text-red-600">*</span>
-                    </label>
-                    <el-input
-                      v-model="ruleForm.confirmPassword"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('reuse.confirmPassword')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-                  </div>
+                  <el-input
+                    v-model="ruleForm.confirmPassword"
+                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                    type="text"
+                    :placeholder="t('reuse.confirmPassword')"
+                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                  />
                 </ElFormItem>
               </div>
               <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
@@ -1060,7 +1084,7 @@ onBeforeMount(() => {
               </ElFormItem>
             </ElForm>
             <div class="option-page mt-5">
-              <div v-if="type === 'detail'" class="flex justify-center">
+              <div v-if="type === 'detail'" class="flex" style="margin-left: 11rem">
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.fix')
                 }}</el-button>
@@ -1097,8 +1121,8 @@ onBeforeMount(() => {
                   </template>
                 </el-dialog>
               </div>
-              <div v-else-if="type === 'edit'" class="flex justify-center">
-                <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
+              <div v-else-if="type === 'edit'" class="flex" style="margin-left: 11rem">
+                <el-button @click="updateCustomer" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
                 <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
@@ -1410,10 +1434,6 @@ onBeforeMount(() => {
   margin-right: 10px;
 }
 
-::v-deep(.el-form-item--default .el-form-item__error) {
-  padding-left: 179px;
-}
-
 ::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
   padding-left: 8px !important;
 }
@@ -1437,6 +1457,10 @@ onBeforeMount(() => {
   .cccd-createAt {
     width: 100% !important;
   }
+}
+
+::v-deep(.cccd-format .fix-width .el-form-item__content > .el-input) {
+  width: 100% !important;
 }
 
 .day-updated {

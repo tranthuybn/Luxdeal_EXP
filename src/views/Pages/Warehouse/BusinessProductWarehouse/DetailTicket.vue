@@ -257,34 +257,36 @@ const chooseExportWarehouse = (warehouseId) => {
           FormData.createdAt ? dateTimeFormat(FormData.createdAt) : formattedToday
         }}</div>
       </ElFormItem>
-      <ElFormItem
-        :label="t('reuse.chooseImportWarehouse')"
-        v-if="typeTransaction !== 2"
-        prop="toWarehouseId"
-      >
-        <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
-          <el-option
-            v-for="item in warehouseOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </ElFormItem>
-      <ElFormItem
-        :label="t('reuse.chooseExportWarehouse')"
-        v-if="typeTransaction !== 1"
-        prop="fromWarehouseId"
-      >
-        <el-select v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse">
-          <el-option
-            v-for="item in warehouseOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </ElFormItem>
+      <div class="flex">
+        <ElFormItem
+          :label="t('reuse.chooseExportWarehouse')"
+          v-if="typeTransaction !== 1"
+          prop="fromWarehouseId"
+        >
+          <el-select v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse">
+            <el-option
+              v-for="item in warehouseOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </ElFormItem>
+        <ElFormItem
+          :label="t('reuse.chooseImportWarehouse')"
+          v-if="typeTransaction !== 2"
+          prop="toWarehouseId"
+        >
+          <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
+            <el-option
+              v-for="item in warehouseOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </ElFormItem>
+      </div>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
           :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"

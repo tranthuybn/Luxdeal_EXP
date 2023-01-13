@@ -60,6 +60,12 @@ const getSelection = () => {
   if (rowSelected.length == 0) {
     return
   }
+  if (props.transactionType == 3 && rowSelected.length != 1) {
+    ElMessage({
+      message: t('reuse.moreOrLessQuantity'),
+      type: 'warning'
+    })
+  }
   if (warehouseForm.value.quantity == totalExport.value) {
     warehouseData.value.exportLots = rowSelected.map((item) => ({
       value: item.id,

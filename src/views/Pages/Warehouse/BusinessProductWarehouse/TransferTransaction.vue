@@ -7,7 +7,13 @@ import { useRouter } from 'vue-router'
 import { ElCollapse, ElCollapseItem, ElButton, ElDivider, ElNotification } from 'element-plus'
 import DetailTicket from './DetailTicket.vue'
 import TransferPW from './TransferPW.vue'
-import { cancelTicket, createTicketManually } from '@/api/Warehouse'
+import {
+  cancelTicket,
+  createTicketManually,
+  UpdateInventory,
+  UpdateInventoryOrder,
+  updateTicketManually
+} from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
@@ -70,31 +76,54 @@ const addTransaction = async () => {
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
-        toLotId: row.toLotId,
-        fromLotId: row.toLotId,
-        warehouseId: row.fromWarehouse?.value,
-        locationId: row.fromLocation?.value
+        toLotId: row.toLot?.value,
+        fromLotId: row.fromLot?.value
       })
     )
     uploadData.staffId = detailTicketRef.value?.FormData.staffId
     uploadData.customerId = detailTicketRef.value?.FormData.customerId
     uploadData.description = detailTicketRef.value?.FormData.description
+    uploadData.toWarehouseId = detailTicketRef.value?.FormData.toWarehouseId
+    uploadData.fromWarehouseId = detailTicketRef.value?.FormData.fromWarehouseId
+    uploadData.code = detailTicketRef.value?.FormData.ticketCode
 
-    await createTicketManually(JSON.stringify(uploadData))
-      .then((res) => {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
+    if (type.value == 'add') {
+      await createTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
         })
-        id.value = res.data
-        type.value = 'detail'
-      })
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.addFail'),
-          type: 'warning'
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'warning'
+          })
+        )
+    }
+    if (type.value == 'edit') {
+      uploadData.ticketId = id.value
+      await updateTicketManually(JSON.stringify(uploadData))
+        .then(() => {
+          ElNotification({
+            message: t('reuse.updateSuccess'),
+            type: 'success'
+          }),
+            push({
+              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+            })
         })
-      )
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
+    }
   }
 }
 const ticketData = ref({
@@ -107,7 +136,13 @@ const ticketData = ref({
   status: '',
   staffValue: '',
   orderCode: '',
-  updatedAt: ''
+  updatedAt: '',
+  toWarehouse: {},
+  fromWarehouse: {},
+  toWarehouseId: '',
+  fromWarehouseId: '',
+  orderId: 0,
+  returnRequestId: 0
 })
 type ExportLots = {
   fromLotId: number
@@ -120,8 +155,8 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
-  quantity?: number
-  price?: number
+  quantity: number
+  price: number
   productPropertyQuality?: string
   accessory?: string
   fileId?: number
@@ -136,11 +171,9 @@ type ProductWarehouse = {
   lot?: Options
   imageUrl?: string
 }
-var curDate = 'CK' + moment().format('hhmms')
-
+const status = ref(0)
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
-const testReactive = ref('test')
 const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
@@ -153,26 +186,41 @@ const callApiForData = async () => {
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0]?.updatedAt
+      ticketData.value.fromWarehouseId = res.data[0]?.fromWarehouseId
+      ticketData.value.toWarehouseId = res.data[0]?.toWarehouseId
+      ticketData.value.fromWarehouse = {
+        label: res.data[0]?.fromWarehouseName,
+        value: res.data[0]?.fromWarehouseId
+      }
+      ticketData.value.toWarehouse = {
+        label: res.data[0]?.toWarehouseName,
+        value: res.data[0]?.toWarehouseId
+      }
 
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
         quantity: item.quantity,
-        price: item.price,
+        price: item.importPrice,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
         productName: item.productPropertyName,
         unitName: item.unitName,
-        warehouse: { value: item?.toWarehouseId, label: item.toWarehouseName },
-        location: { value: item?.toLocationId, label: item.toLocationName },
-        lot: { value: item?.lotId, label: item.lotCode },
+        toLocation: { value: item.detail[0]?.toLocationId, label: item.detail[0].toLocationName },
+        fromLocation: {
+          value: item.detail[0]?.fromLocationId,
+          label: item.detail[0].fromLocationName
+        },
+        fromLot: { value: item.detail[0]?.fromLotId, label: item.detail[0]?.fromLotCode },
+        toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },
         imageUrl: item?.imageUrl
       }))
-      testReactive.value = 'success'
+      console.log('ticketData', ticketData.value)
+      console.log('productData', productData.value)
     }
   } else {
     type.value = 'add'
-    ticketData.value.ticketCode = curDate
+    ticketData.value.ticketCode = 'CK' + moment().format('hhmmss')
     ticketData.value.updatedAt = moment().format()
   }
 }
@@ -187,6 +235,75 @@ const cancelTicketWarehouse = async () => {
     })
 }
 onBeforeMount(async () => await callApiForData())
+
+//fixbug
+const updateInventory = async () => {
+  const payload = {
+    ticketId: id.value,
+    type: 1
+  }
+  //const id =
+  //trả về id dùng tiếp ko cần đẩy ra ngoài
+  await UpdateInventory(JSON.stringify(payload))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      }),
+        push({
+          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+}
+const updateInventoryOrder = async () => {
+  if (!productWarehouseRef.value?.checkValueOfTable()) {
+    return
+  }
+  const payload = {
+    ticketId: id.value,
+    type: 1,
+    warehouseProductJson: productWarehouseRef.value?.ListOfProductsForSale.map((row) => ({
+      productPropertyId: row.productPropertyId,
+      quantity: row.quantity,
+      price: row.price,
+      accessory: row.accessory,
+      productPropertyQuality: row.productPropertyQuality,
+      toLotId: row.toLot?.value,
+      fromLotId: row.fromLot?.value
+    }))
+  }
+  await UpdateInventoryOrder(JSON.stringify(payload))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      }),
+        push({
+          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+}
+
+const updateTicket = (warehouse, type) => {
+  if (type == 1) {
+    ticketData.value.toWarehouse = warehouse
+  }
+  if (type == 2) {
+    ticketData.value.fromWarehouse = warehouse
+  }
+}
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -205,7 +322,12 @@ onBeforeMount(async () => await callApiForData())
           </div>
         </template>
         <div class="flex w-[100%]">
-          <DetailTicket ref="detailTicketRef" :type="type" :ticketData="ticketData" />
+          <DetailTicket
+            ref="detailTicketRef"
+            :type="type"
+            :ticketData="ticketData"
+            @update-ticket="updateTicket"
+          />
         </div>
       </el-collapse-item>
 
@@ -219,7 +341,7 @@ onBeforeMount(async () => await callApiForData())
           :type="type"
           :transactionType="transactionType"
           :productData="productData"
-          :testReactive="testReactive"
+          :ticketData="ticketData"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -229,39 +351,77 @@ onBeforeMount(async () => await callApiForData())
           <div>
             <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
             <p class="date text-gray-300">
+              {{
+                ticketData.createdAt
+                  ? dateTimeFormat(ticketData.createdAt)
+                  : dateTimeFormat(moment())
+              }}
+            </p>
+          </div>
+          <div v-if="status == 3">
+            <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelImport') }}</p>
+            <p class="date text-gray-300">
+              {{ dateTimeFormat(ticketData.updatedAt) }}
+            </p>
+          </div>
+          <div v-if="status == 4">
+            <p class="status bg-gray-300 day-updated text-blue-500">{{ t('reuse.import') }}</p>
+            <p class="date text-gray-300">
               {{ dateTimeFormat(ticketData.updatedAt) }}
             </p>
           </div>
         </div>
-        <div class="ml-[170px]">
+        <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printImportTicket')
           }}</ElButton>
-          <ElButton class="w-[150px]" type="primary" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.moveWarehouseNow')
-          }}</ElButton>
-          <ElButton
-            class="w-[150px]"
-            type="primary"
-            @click="addTransaction"
-            v-if="serviceType == 6 && (type == 'add' || type == 'edit')"
-            >{{ t('reuse.save') }}</ElButton
-          >
-          <ElButton
-            class="w-[150px]"
-            v-if="serviceType == 6 && type == 'detail'"
-            @click="type = 'edit'"
-            >{{ t('reuse.edit') }}</ElButton
-          >
-          <ElButton
-            class="w-[150px]"
-            type="danger"
-            v-if="serviceType == 6"
-            :disabled="type == 'add' || type == 'edit'"
-            @click="cancelTicketWarehouse"
-            >{{ t('reuse.cancelImport') }}</ElButton
-          ></div
-        >
+          <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
+            <ElButton
+              class="w-[150px]"
+              type="primary"
+              v-if="Number(ticketData.orderId) !== 0"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventoryOrder"
+              >{{ t('reuse.importWarehouseNow') }}</ElButton
+            >
+            <ElButton
+              v-else
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventory"
+              >{{ t('reuse.importWarehouseNow') }}</ElButton
+            >
+            <ElButton
+              class="w-[150px]"
+              type="primary"
+              @click="addTransaction"
+              v-if="Number(ticketData.orderId) == 0 && type == 'add'"
+              >{{ t('reuse.save') }}</ElButton
+            >
+            <ElButton
+              class="w-[150px]"
+              type="primary"
+              @click="addTransaction"
+              v-if="Number(ticketData.orderId) == 0 && type == 'edit'"
+              >{{ t('reuse.save') }}</ElButton
+            >
+            <ElButton
+              class="w-[150px]"
+              v-if="type == 'detail' && Number(ticketData.orderId) == 0"
+              @click="type = 'edit'"
+              >{{ t('reuse.edit') }}</ElButton
+            >
+            <ElButton
+              class="w-[150px]"
+              type="danger"
+              v-if="Number(ticketData.orderId) !== 0"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="cancelTicketWarehouse"
+              >{{ t('reuse.cancelImport') }}</ElButton
+            >
+          </div>
+        </div>
       </el-collapse-item>
     </el-collapse>
   </div>

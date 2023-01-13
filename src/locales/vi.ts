@@ -1878,6 +1878,9 @@ export default {
     moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
     pleaseChooseQuantity: 'Chọn số lượng',
     pleaseChooseLotHasInventory: 'Lot không còn sản phẩm',
-    pleaseChooseLot: 'Vui lòng chọn lot'
+    pleaseChooseLot: 'Vui lòng chọn lot(chọn kho)',
+    detailExportWarehouse: 'Chi tiết kho xuất',
+    detailImportWarehouse: 'Chi tiết kho nhập',
+    totalMoneyTransferWarehouse: 'Tổng tiền chuyển kho'
   }
 }

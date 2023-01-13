@@ -1718,6 +1718,9 @@ export default {
     moreOrLessQuantity: 'Choose more or less quantity',
     pleaseChooseQuantity: 'Please choose quantity',
     pleaseChooseLotHasInventory: 'Please choose lot has inventory',
-    pleaseChooseLot: 'Please choose lot'
+    pleaseChooseLot: 'Please choose lot',
+    detailExportWarehouse: 'Detail export warehouse',
+    detailImportWarehouse: 'Detail import warehouse',
+    totalMoneyTransferWarehouse: 'Total money transfer warehouse'
   }
 }

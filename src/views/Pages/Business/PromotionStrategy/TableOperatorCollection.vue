@@ -323,7 +323,9 @@ const save = async (type) => {
       data.spaVoucher = dataTable.spaVoucherData
 
       //callback cho hàm emit
+      console.log('run 1')
       if (type == 'add') {
+        console.log('run 2')
         emit('post-data', data)
         loading.value = false
       }

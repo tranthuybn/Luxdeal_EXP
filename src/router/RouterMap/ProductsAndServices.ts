@@ -32,7 +32,7 @@ export default {
           }
         },
         {
-          path: `products-utility/:type?/:id?`,
+          path: `products-utility/:type?/:id?/:approvalId?`,
           component: () =>
             import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
           name: `products-services.productLibrary.Products.${utility}`,

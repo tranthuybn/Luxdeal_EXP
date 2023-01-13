@@ -324,6 +324,7 @@ const customPostDataVoucher = (data) => {
 }
 const { push } = useRouter()
 const postData = async (data) => {
+  console.log('run here')
   data = customPostDataVoucher(data)
 
   await addNewCampaign(FORM_IMAGES(data))

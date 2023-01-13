@@ -24,6 +24,8 @@ import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Type'
 import { useRoute, useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
+import { approvalProducts } from '@/api/Approval'
+import { FORM_IMAGES } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -206,7 +208,7 @@ watch(
         }
       ])
     }
-    if (props.type === 'detail' || props.type === 'edit') {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
       getTableValue()
     }
   },
@@ -456,6 +458,27 @@ const listType = ref<ListImages>('text')
 onBeforeMount(() => {
   tabs.value = String(route.params.tab)
 })
+
+const approvalId = String(route.params.approvalId)
+const approvalProduct = async () => {
+  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  await approvalProducts(FORM_IMAGES(payload))
+    .then(() => {
+      ElNotification({
+        message: 'Duyệt thành công',
+        type: 'success'
+      })
+      push({
+        name: `approve.products-approval.newly-initialized`
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Duyệt thất bại',
+        type: 'warning'
+      })
+    )
+}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -562,6 +585,10 @@ onBeforeMount(() => {
             {{ t('reuse.delete') }}
           </ElButton>
         </div>
+      </div>
+      <div class="pl-57" v-if="props.type === 'approval-product'">
+        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">Duyệt</el-button>
+        <el-button class="min-w-[120px]">Không duyệt</el-button>
       </div>
     </template>
   </ContentWrap>

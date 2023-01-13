@@ -65,7 +65,10 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof TransferPW>>()
 const addTransaction = async () => {
-  if (detailTicketRef.value?.submitFormTicket() && productWarehouseRef.value?.checkValueOfTable()) {
+  if (
+    (await detailTicketRef.value?.submitFormTicket()) &&
+    productWarehouseRef.value?.checkValueOfTable()
+  ) {
     let uploadData: any = {}
     uploadData.type = 3
     uploadData.warehouseProductJson = [{}]
@@ -200,7 +203,7 @@ const callApiForData = async () => {
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
-        quantity: item.quantity,
+        quantity: item.detail[0]?.quantity,
         price: item.importPrice,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
@@ -209,7 +212,7 @@ const callApiForData = async () => {
         toLocation: { value: item.detail[0]?.toLocationId, label: item.detail[0].toLocationName },
         fromLocation: {
           value: item.detail[0]?.fromLocationId,
-          label: item.detail[0].fromLocationName
+          label: item.detail[0]?.fromLocationName
         },
         fromLot: { value: item.detail[0]?.fromLotId, label: item.detail[0]?.fromLotCode },
         toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },

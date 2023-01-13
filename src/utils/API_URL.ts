@@ -144,10 +144,12 @@ export const WAREHOUSE_API = {
   UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
   UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
-  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory'
+  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
+  DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'
 }
 export const STAFF_API = {
-  GET_STAFF: '/api/v1/Staff/GetStaff'
+  GET_STAFF: '/api/v1/Staff/GetStaff',
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',

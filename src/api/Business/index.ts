@@ -399,12 +399,34 @@ export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-//tạo mã phiếu nhập/xuất kho cho đơn đổi trả
+// Tạo mã phiếu nhập/xuất kho cho đơn đổi trả
 export const createTicketFromReturnOrder = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
       url: WAREHOUSE_API.CREATE_TICKET_FROM_RETURN_ORDER,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy chi tiết phiếu xuất đổi
+export const GetWarehouseTransaction = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.DETAIL_WAREHOUSE_TRANSACTION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách nhân viên
+export const getAllStaffList = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

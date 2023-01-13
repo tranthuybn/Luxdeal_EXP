@@ -652,11 +652,11 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
-    totalPriceOrder.value = 0
-    totalFinalOrder.value = 0
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    totalPriceOrder.value = 0
+    totalFinalOrder.value = 0
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
@@ -1299,7 +1299,7 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      fileList.value.push({
+      fileList.value?.push({
         url: `${API_URL}${element?.path}`,
         name: element?.fileId
       })

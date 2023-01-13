@@ -193,7 +193,7 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  productPropertyId: string
+  productPropertyId: string | number | any
   spaServices: Options[]
   amountSpa: number
   quantity: number
@@ -225,7 +225,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   spaServices: [{ value: 0, label: '' }],
   amountSpa: 2,
-  productPropertyId: '',
+  productPropertyId: undefined,
   quantity: 1,
   accessory: '',
   unitName: '',
@@ -354,29 +354,25 @@ const changePriceVAT = () => {
 let customerAddress = ref('')
 
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
-        code: customer.code,
-        label: customer.isOrganization
-          ? customer.name + ' | MST ' + customer.taxCode
-          : customer.name + ' | ' + customer.phonenumber,
-        address: customer.address,
-        name: customer.name,
-        value: customer.id.toString(),
-        isOrganization: customer.isOrganization,
-        taxCode: customer.taxCode,
-        phone: customer.phonenumber,
-        email: customer.email,
-        id: customer.id.toString()
-      }))
-    }
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const getCustomerResult = res.data
+  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
   }
-  optionCallCustomerAPi++
 }
 
 let infoCompany = reactive({
@@ -426,7 +422,7 @@ const callAPIProduct = async () => {
       name: product.name ?? '',
       unit: product.unitName,
       price: product.price.toString(),
-      productPropertyId: product.id.toString(),
+      productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
@@ -455,7 +451,7 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   name: product.name ?? '',
                   price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
+                  productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
                 })
               )
@@ -535,9 +531,7 @@ let promoCash = ref(0)
 const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
 
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
-  data.productPropertyId = obj.productPropertyId
+  data.productPropertyId = obj?.productPropertyId
   data.productCode = obj.value
   data.productName = obj.name
   data.unitName = obj.unit
@@ -546,7 +540,8 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.totalPrice = 0
   data.accessory = ''
   data.examinationContent = ''
-
+  totalPriceOrder.value = 0
+  totalFinalOrder.value = 0
   ListOfProductsForSale.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
   })
@@ -3414,16 +3409,12 @@ const postReturnRequest = async (reason) => {
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 width="650px"
                 :items="listProducts"

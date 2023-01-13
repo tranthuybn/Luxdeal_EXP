@@ -132,7 +132,7 @@ const ScrollCollaboratorBottom = () => {
           res.data.length == 0
             ? (noMoreCollaboratorData.value = true)
             : res.data.map((el) =>
-                optionsCollaborators.value.push({
+                optionsCollaborators.value?.push({
                   label: el.code + ' | ' + el.accountName,
                   value: el.id,
                   collaboratorCommission: el.discount,
@@ -165,40 +165,25 @@ const autoCollaboratorCommission = (index) => {
 
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map(
-        (customer: {
-          code: any
-          isOrganization: any
-          name: string
-          taxCode: string
-          phonenumber: string
-          address: any
-          id: { toString: () => any }
-          email: any
-        }) => ({
-          code: customer.code,
-          label: customer.isOrganization
-            ? customer.name + ' | MST ' + customer.taxCode
-            : customer.name + ' | ' + customer.phonenumber,
-          address: customer.address,
-          name: customer.name,
-          value: customer.id.toString(),
-          isOrganization: customer.isOrganization,
-          taxCode: customer.taxCode,
-          phone: customer.phonenumber,
-          email: customer.email,
-          id: customer.id.toString()
-        })
-      )
-    }
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const getCustomerResult = res.data
+  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
   }
-  optionCallCustomerAPi++
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -386,7 +371,7 @@ const callApiWarehouseList = async () => {
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children) {
-        chooseWarehouse.push({
+        chooseWarehouse?.push({
           value: el.id,
           label: el.name
         })
@@ -477,7 +462,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 const addLastIndexSellTable = () => {
-  ListOfProductsForSale.value.push({ ...productForSale })
+  ListOfProductsForSale.value?.push({ ...productForSale })
 }
 const forceRemove = ref(false)
 // Thông tin phiếu thanh toán tiền cọc thuê
@@ -659,7 +644,7 @@ const ScrollProductBottom = () => {
                   id: { toString: () => any }
                   productPropertyCode: any
                 }) =>
-                  listProducts.value.push({
+                  listProducts.value?.push({
                     productCode: product.code,
                     value: product.productCode,
                     name: product.name ?? '',
@@ -869,7 +854,7 @@ const approvalFunction = async () => {
 
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
+  arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
@@ -1084,7 +1069,7 @@ const detailedListExpenses = ref([
 ])
 
 const addRowDetailedListExpoenses = () => {
-  detailedListExpenses.value.push({
+  detailedListExpenses.value?.push({
     numberVouchers: '',
     dayVouchers: '',
     spentFor: '',
@@ -1548,7 +1533,7 @@ const postOrderStransaction = async () => {
 const inputReasonReturn = ref('')
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 if (tableReturnFullyIntegrated.value.length == 0)
-  tableReturnFullyIntegrated.value.push({
+  tableReturnFullyIntegrated.value?.push({
     createdAt: '',
     productPropertyId: '',
     productPropertyName: '',
@@ -1607,14 +1592,14 @@ const editData = async () => {
     disabledEdit.value = true
     disableCreateOrder.value = true
 
-    const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
+    const res = await getOrderList({ Id: id, ServiceType: 2 })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-
+    console.log('orderObj: ', orderObj)
     arrayStatusOrder.value = orderObj?.statusHistory
 
     if (arrayStatusOrder.value?.length) {
@@ -1636,16 +1621,14 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaborator.id
-      // @ts-ignore
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
+
+      // @ts-ignore
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -1671,7 +1654,7 @@ const editData = async () => {
     orderObj.orderFiles.map(
       (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
         if (element !== null) {
-          ListFileUpload.value.push({
+          ListFileUpload.value?.push({
             url: `${element?.domainUrl}${element?.path}`,
             name: element?.fileId,
             uid: element?.id
@@ -1680,7 +1663,7 @@ const editData = async () => {
       }
     )
   } else if (type == 'add' || !type) {
-    ListOfProductsForSale.value.push({ ...productForSale })
+    ListOfProductsForSale.value?.push({ ...productForSale })
   }
 }
 const valueMoneyAccoungtingEntry = ref(0)
@@ -1818,7 +1801,7 @@ const postReturnRequest = async (reason) => {
 }
 
 if (type == 'add') {
-  arrayStatusOrder.value.push({
+  arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
     isActive: true
@@ -1897,7 +1880,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 const fileList = ref<UploadUserFile[]>([])
 
 const addRow = () => {
-  rentReturnOrder.value.tableData.push({ ...productForSale })
+  rentReturnOrder.value.tableData?.push({ ...productForSale })
 }
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
@@ -3789,16 +3772,12 @@ onBeforeMount(async () => {
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 width="650px"
                 :items="listProducts"

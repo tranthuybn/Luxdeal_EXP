@@ -5,7 +5,6 @@ import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
 import { getSpaById, deleteSpa, postSpa, updateSpa } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
-import { formatPrice, formatNumber } from '@/hooks/web/useFomat'
 import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -92,7 +91,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
-      formatter: formatPrice,
       suffixIcon: h('div', 'đ')
     }
   },
@@ -105,7 +103,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterPrice'),
-      formatter: formatPrice,
       suffixIcon: h('div', 'đ')
     }
   },
@@ -118,7 +115,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberMinute'),
-      formatter: formatNumber,
       suffixIcon: h('div', 'phút')
     }
   },
@@ -131,7 +127,6 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberDays'),
-      formatter: formatNumber,
       suffixIcon: h('div', 'ngày')
     }
   },
@@ -170,18 +165,9 @@ const rules = reactive({
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkDescriptionLength.validator }
   ],
-  cost: [required()],
+  cost: [required(), { validator: ValidService.checkPositiveNumber.validator }],
   time: [required()],
-  promotePrice: [
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-        callback()
-      },
-      required: false,
-      trigger: 'blur'
-    }
-  ],
+  promotePrice: [required(), { validator: ValidService.checkPositiveNumber.validator }],
   warranty: [
     {
       validator: (_rule: any, value: any, callback: any) => {
@@ -197,8 +183,8 @@ const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
   formDataCustomize.value.Images = formData.photos
-  formDataCustomize.value.cost = formatPrice(formData.cost)
-  formDataCustomize.value.promotePrice = formatPrice(formData.promotePrice)
+  formDataCustomize.value.cost = formData.cost
+  formDataCustomize.value.promotePrice = formData.promotePrice
   formDataCustomize.value['status'] = []
   if (formData.isActive == true) {
     formDataCustomize.value['status'].push('active')
@@ -229,16 +215,16 @@ const customPostData = (data) => {
   var curDate = moment().format()
   customData.Id = id
   customData.Photo = data.Images
-  customData.Cost = data.cost ? data.cost.replace(/\./g, '') : 0
-  customData.PromotePrice = data.promotePrice ? data.promotePrice.replace(/\./g, '') : 0
+  customData.Cost = data.cost
+  customData.PromotePrice = data.promotePrice
   customData.Time = data.time
   customData.Warranty = data.warranty
   customData.Description = data.description
   customData.ShortDescription = data.shortDescription
   customData.Name = data.name
   customData.Code = data.code
-  customData.UpdatedBy = 'anle'
-  customData.CreatedBy = 'anle'
+  customData.UpdatedBy = 'katsuke'
+  customData.CreatedBy = 'katnguyen'
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
   if (type === 'add') {

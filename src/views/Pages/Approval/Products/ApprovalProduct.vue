@@ -95,10 +95,19 @@ const columnsApprovalProduct = [
 
 const { push } = useRouter()
 const action = (row: any, _type: string) => {
-  push({
-    name: `products-services.productLibrary.Products.${utility}`,
-    params: { id: row.targetId, type: 'detail' }
-  })
+  console.log('row', row)
+
+  if (row.approveItemType == 1) {
+    push({
+      name: `products-services.productLibrary.Products.${utility}`,
+      params: { id: row.targetId, type: 'detail' }
+    })
+  } else {
+    push({
+      name: `products-services.ServiceLibrary.SpaService.${utility}`,
+      params: { id: row.targetId, type: 'detail' }
+    })
+  }
 }
 const utility = 'Utility'
 </script>

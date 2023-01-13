@@ -62,7 +62,7 @@ const getSelection = () => {
   }
   if (props.transactionType == 3 && rowSelected.length != 1) {
     ElMessage({
-      message: t('reuse.moreOrLessQuantity'),
+      message: t('reuse.transferCanOnlyChoose1Lot'),
       type: 'warning'
     })
   }

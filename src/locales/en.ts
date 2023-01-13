@@ -1722,6 +1722,9 @@ export default {
     detailExportWarehouse: 'Detail export warehouse',
     detailImportWarehouse: 'Detail import warehouse',
     totalMoneyTransferWarehouse: 'Total money transfer warehouse',
-    transferCanOnlyChoose1Lot: 'Transfer can only choose 1 lot'
+    transferCanOnlyChoose1Lot: 'Transfer can only choose 1 lot',
+    //Collaborator
+    orderCodepaymentCode: 'Order code/withdrawal code',
+    percentDiscount: '% discount'
   }
 }

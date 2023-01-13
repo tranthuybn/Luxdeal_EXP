@@ -328,12 +328,7 @@ onBeforeMount(async () => {
           {{ calculateQuantity(scope) }}
         </template>
       </el-table-column>
-      <el-table-column
-        v-else-if="transactionType == 2"
-        prop="quantity"
-        :label="t('reuse.exportQuantity')"
-        width="180"
-      >
+      <el-table-column prop="quantity" :label="t('reuse.exportQuantity')" width="180">
         <template #default="scope">
           {{ calculateQuantity(scope) }}
         </template>

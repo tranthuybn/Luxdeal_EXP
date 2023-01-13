@@ -151,6 +151,16 @@ const schema = reactive<FormSchema[]>([
         }
       ]
     }
+  },
+  {
+    field: 'approval',
+    label: 'Đang chờ duyệt',
+    colProps: {
+      span: 12
+    },
+    formItemProps: {
+      labelWidth: '250px'
+    }
   }
 ])
 const rules = reactive({

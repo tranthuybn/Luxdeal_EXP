@@ -959,7 +959,7 @@ const postData = async (pushBack: boolean) => {
 // Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value.data,
+    OrderId: idOrderPost.value,
     Type: index
   }
 

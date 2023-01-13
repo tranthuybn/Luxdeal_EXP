@@ -5371,7 +5371,6 @@ onBeforeMount(async () => {
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  changeReturnGoods = true
                   statusOrder = 150
                   getReturnRequestTable()
                 }

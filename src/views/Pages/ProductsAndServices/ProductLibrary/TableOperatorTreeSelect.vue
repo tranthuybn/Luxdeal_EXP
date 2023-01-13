@@ -25,7 +25,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { TableResponse } from '../../Components/Type'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSetting'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { getCodeAndNameProductLibrary } from '@/api/LibraryAndSetting'
@@ -36,8 +36,9 @@ import {
   getOriginSelectOptions,
   getUnitSelectOptions
 } from './ProductLibraryManagement'
+import { approvalProducts } from '@/api/Approval'
 import { isEqual } from 'lodash-es'
-import { formatProductStatus } from '@/utils/format'
+import { formatProductStatus, FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -186,7 +187,7 @@ watch(
     if (props.type === 'detail') {
       disabledEverything()
     }
-    if (props.type === 'detail' || props.type === 'edit') {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
       getTableValue()
     }
   },
@@ -695,6 +696,28 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
     )}${files.length + uploadFiles.length}`
   )
 }
+
+const route = useRoute()
+const approvalId = String(route.params.approvalId)
+const approvalProduct = async () => {
+  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  await approvalProducts(FORM_IMAGES(payload))
+    .then(() => {
+      ElNotification({
+        message: 'Duyệt thành công',
+        type: 'success'
+      })
+      push({
+        name: `approve.products-approval.newly-initialized`
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Duyệt thất bại',
+        type: 'warning'
+      })
+    )
+}
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -918,6 +941,10 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
                 <ElButton type="danger"  @click="delAction">
                   {{ t('reuse.delete') }}
                 </ElButton> -->
+      </div>
+      <div class="pl-57" v-if="props.type === 'approval-product'">
+        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">Duyệt</el-button>
+        <el-button class="min-w-[120px]">Không duyệt</el-button>
       </div>
     </template>
   </ContentWrap>

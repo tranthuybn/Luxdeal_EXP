@@ -66,7 +66,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:type?/:id?`,
+                path: `${utility}/:type?/:id?/:approvalId?`,
                 component: 'views/Pages/ProductsAndServices/ProductLibrary/ProductUtility',
                 name: `products-services.productLibrary.Products.${utility}`,
                 meta: {
@@ -97,7 +97,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:type?/:id?`,
+            path: `${utility}/:type?/:id?/:approvalId?`,
             component: 'views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility',
             name: `products-services.ServiceLibrary.SpaService.${utility}`,
             meta: {
@@ -1391,10 +1391,10 @@ const testList: string[] = [
   '/products-services',
   '/products-services/product-library',
   '/products-services/product-library/products',
-  `/products-services/product-library/products-utility/:type?/:id?`,
+  `/products-services/product-library/products-utility/:type?/:id?/:approvalId?`,
   '/products-services/service-library',
   '/products-services/service-library/spa-service',
-  `/products-services/service-library/spa-service-utility/:type?/:id?`,
+  `/products-services/service-library/spa-service-utility/:type?/:id?/:approvalId?`,
   '/products-services/product-property',
   '/products-services/product-property/product-category',
   `/products-services/product-property/product-category-utility/:type?/:id?`,

@@ -472,16 +472,6 @@ const postCustomer = async (typebtn) => {
 const postData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    // const payloadAcc = {
-    //   FullName: ruleForm.name,
-    //   Email: ruleForm.email,
-    //   Password: ruleForm.password,
-    //   ConfirmPassword: ruleForm.password,
-    //   UserName: ruleForm.userName,
-    //   PhoneNumber: ruleForm.phonenumber
-    // }
-
-    // const formDataPayload = FORM_IMAGES(payloadAcc)
     await addNewAuthRegister({
       FullName: ruleForm.name,
       Email: ruleForm.email,

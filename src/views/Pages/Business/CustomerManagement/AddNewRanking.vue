@@ -145,6 +145,7 @@ const customPostData = (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
+  console.log('data: ', data)
   await addCustomerRatings(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
@@ -153,7 +154,7 @@ const postData = async (data) => {
       })
       push({
         name: 'business.customer-management.customerRatings',
-        params: { backRoute: 'business.customer-management.customerRatings', tab: data.TypeName }
+        params: { backRoute: 'business.customer-management.customerRatings', tab: 'second' }
       })
     })
     .catch(() =>
@@ -203,7 +204,7 @@ const editData = async (data) => {
       }),
         push({
           name: 'business.customer-management.customerRatings',
-          params: { backRoute: 'business.customer-management.customerRatings' }
+          params: { backRoute: 'business.customer-management.customerRatings', tab: 'second' }
         })
     })
     .catch(() =>

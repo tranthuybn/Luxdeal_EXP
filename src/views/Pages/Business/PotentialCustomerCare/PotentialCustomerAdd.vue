@@ -284,6 +284,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'classify',
     label: t('reuse.classify'),
     component: 'Select',
+    value: true,
     componentProps: {
       allowCreate: true,
       filterable: true,

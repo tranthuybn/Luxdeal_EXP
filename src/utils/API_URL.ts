@@ -61,6 +61,7 @@ export const CUSTOMER_API = {
   GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  UPDATED_CUSTOMER: '/api/v1/Customer/updateCustomer',
   GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
   POST_AUTH_REGISTER: '/api/auth/register'
 }

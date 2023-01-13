@@ -57,6 +57,7 @@ const props = defineProps({
     default: 0
   }
 })
+
 const emit = defineEmits([
   'update:modelValue',
   'add-row',
@@ -88,6 +89,7 @@ const close = () => {
 }
 const postReturnRequest = async (orderStatusType) => {
   console.log('data', props.orderId, props.orderData)
+  console.log('orderStatusType', orderStatusType)
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
 }
@@ -100,6 +102,7 @@ const removeRow = (scope) => {
   }
   emit('remove-row', scope.$index)
 }
+console.log('listProductsTable', props.listProductsTable)
 </script>
 <template>
   <!-- 2:Trả hàng trước hạn -->
@@ -261,7 +264,7 @@ const removeRow = (scope) => {
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest">{{
+          <el-button type="primary" @click="postReturnRequest(1)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button @click="close">{{ t('reuse.exit') }}</el-button>

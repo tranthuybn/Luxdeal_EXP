@@ -1290,8 +1290,10 @@ const alreadyPaidForTt = ref(true)
 
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền phạt rút hàng trước 14 ngày',
+    content: 'Thu tiền ',
     kindOfMoney: '',
+    receiveMoney: 0,
+    paidMoney: 0,
     collected: 0,
     spent: 0,
     intoMoney: 0
@@ -1468,7 +1470,6 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
-const valueTypeMoney = ref(2)
 const optionsTypeMoney = [
   {
     value: 1,
@@ -1483,6 +1484,7 @@ const optionsTypeMoney = [
     label: 'Tiền khác'
   }
 ]
+const valueTypeMoney = ref(optionsTypeMoney[1])
 
 const changeEditInDetail = () => {
   if (type == 'detail') {
@@ -1498,6 +1500,7 @@ const changeEditInDetail = () => {
     })
   }
 }
+const checkPTC = ref(0)
 
 let childrenTable = ref()
 let objOrderStransaction = ref()
@@ -1514,15 +1517,17 @@ const postOrderStransaction = async () => {
     content: tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: 0,
-    paidMoney: 0,
+    receiveMoney: tableAccountingEntry.value[0].receiveMoney,
+    paidMoney: tableAccountingEntry.value[0].paidMoney,
     deibt: 0,
-    typeOfPayment: 0,
+    typeOfPayment: checkPTC.value ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
-    merchadiseTobePayfor: childrenTable.value
+    merchadiseTobePayfor: childrenTable.value,
+    typeOfAccountingEntry: 1
+    // returnRequestId: idReturnRequest.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1671,7 +1676,7 @@ const valueMoneyAccoungtingEntry = ref(0)
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
   const data = scope.row
-  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
+  data.intoMoney = Math.abs(parseInt(data.paidMoney) - parseInt(data.receiveMoney))
 
   tableAccountingEntry.value.map((val) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
@@ -3113,21 +3118,21 @@ onBeforeMount(async () => {
                 />
               </el-select>
             </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
+            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
                   class="handle-fix"
-                  v-model="props.row.collected"
+                  v-model="props.row.receiveMoney"
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="spent" :label="t('formDemo.spent')">
+            <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
                   class="handle-fix"
-                  v-model="props.row.spent"
+                  v-model="props.row.paidMoney"
                 />
               </template>
             </el-table-column>
@@ -4154,7 +4159,7 @@ onBeforeMount(async () => {
                 () => {
                   changeReturnGoods = !changeReturnGoods
                   truocHan = true
-                  addStatusOrder(5)
+                  // addStatusOrder(5)
                   setDataForReturnOrder()
                 }
               "
@@ -4167,7 +4172,8 @@ onBeforeMount(async () => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
               @click="
                 () => {
-                  hetHan = true
+                  // hetHan = true
+                  addStatusOrder(1)
                   // setDataForReturnOrder()
                 }
               "
@@ -4425,14 +4431,21 @@ onBeforeMount(async () => {
               <div v-else>{{ data.row.paidMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
+
+          <el-table-column prop="deibt" :label="`${t('reuse.outstandingDebt')}`" min-width="150">
+            <template #default="data">
+              {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
+            </template>
+          </el-table-column>
+
           <el-table-column
             prop="typeOfPayment"
             :label="t('formDemo.receivableOrPayable')"
-            min-width="100"
+            min-width="120"
           >
             <template #default="props">
-              <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
             </template>
           </el-table-column>
           <el-table-column

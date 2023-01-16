@@ -1882,6 +1882,10 @@ export default {
     pleaseChooseLot: 'Vui lòng chọn lot(chọn kho)',
     detailExportWarehouse: 'Chi tiết kho xuất',
     detailImportWarehouse: 'Chi tiết kho nhập',
-    totalMoneyTransferWarehouse: 'Tổng tiền chuyển kho'
+    totalMoneyTransferWarehouse: 'Tổng tiền chuyển kho',
+    transferCanOnlyChoose1Lot: 'Chuyển kho chỉ có thể chọn 1 lot',
+    //Collaborator
+    orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
+    percentDiscount: '% chiết khấu'
   }
 }

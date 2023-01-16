@@ -5,7 +5,6 @@ import { dateTimeFormat } from '@/utils/format'
 
 import { h, onBeforeMount, provide, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
-import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
@@ -33,7 +32,9 @@ import {
   UploadUserFile,
   ElForm,
   ElFormItem,
-  ElMessage
+  ElMessage,
+  ElTable,
+  ElTableColumn
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -57,47 +58,6 @@ const collapse: Array<Collapse> = [
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
-const tableColumn = reactive<TableColumn[]>([
-  {
-    field: 'date',
-    label: t('reuse.date'),
-    minWidth: '150'
-  },
-  {
-    field: 'code',
-    label: t('reuse.orderCode') + '/' + t('formDemo.withdrawalRequestCode'),
-    minWidth: '350'
-  },
-  {
-    field: 'discount',
-    label: '%' + t('formDemo.discount'),
-    minWidth: '150'
-  },
-  {
-    field: 'orderSales',
-    label: t('reuse.orderSales'),
-    minWidth: '150',
-    align: 'right'
-  },
-  {
-    field: 'intoDiscountComMoney',
-    label: t('formDemo.intoDiscountComMoney'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'spent',
-    label: t('formDemo.spent'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'cumulativeCom',
-    label: t('formDemo.cumulativeCom'),
-    minWidth: '150',
-    align: 'center'
-  }
-])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -110,7 +70,6 @@ const getGenCodeCollaborator = async () => {
     .catch((err) => {
       console.error(err)
     })
-  CollaboratorId
 }
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -217,7 +176,7 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
-  if (!isNaN(id)) {
+  if (!isNaN(id) && type != 'add') {
     const res = await getCollaboratorsById({ id: id })
     if (res && res.data) {
       formValue.value = res.data
@@ -231,10 +190,6 @@ const getTableValue = async () => {
   }
 }
 
-// const customizeData = async () => {
-// formDataCustomize.value.collaboratorFiles = `${API_URL}${formValue.value.collaboratorFiles}`
-// FormData.Discount = formValue.value.code
-// }
 let checkValidate = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -270,7 +225,7 @@ defineExpose({
 
 type FormDataInput = {
   CollaboratorStatus: boolean
-  Discount: string
+  Discount: number
   customersValue: any
   isActive?: boolean
   status?: string
@@ -319,8 +274,8 @@ const setFormValue = async () => {
       if (element.file !== null) {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName,
-          id: element?.file?.id
+          name: element?.file?.fileName
+          // id: element?.file?.id
         })
       }
     })
@@ -366,7 +321,7 @@ onBeforeMount(() => {
   callCustomersApi()
 })
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -506,6 +461,8 @@ const params = { id: id }
 provide('parameters', {
   params
 })
+
+const tableData = ref([])
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -550,7 +507,7 @@ provide('parameters', {
                     size="default"
                     :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                     :suffixIcon="h('div', '%')"
-                    :formatter="(value) => value.replace(/^[^0-9,]*$/gm, '')"
+                    @change="(data) => (FormData.Discount = Number(data))"
                   />
                 </div>
               </ElFormItem>
@@ -725,7 +682,7 @@ provide('parameters', {
                   action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                   :limit="10"
                   :on-change="handleChange"
-                  :before-remove="beforeRemove"
+                  @before-remove="beforeRemove"
                   :auto-upload="false"
                   :multiple="true"
                   v-model:fileList="ListFileUpload"
@@ -763,17 +720,15 @@ provide('parameters', {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <TableBase
-          :removeDrawer="false"
-          :expand="false"
-          :customOperator="1"
-          :paginationType="false"
-          ref="tableBase01"
-          :api="getCollaboratorsById"
-          :maxHeight="'69vh'"
-          :fullColumns="tableColumn"
-          :selection="false"
-        />
+        <el-table :data="tableData" border style="width: 100%">
+          <el-table-column prop="date" :label="t('reuse.date')" width="180" />
+          <el-table-column prop="name" :label="t('reuse.orderCodepaymentCode')" width="300" />
+          <el-table-column prop="1" :label="t('reuse.percentDiscount')" />
+          <el-table-column prop="2" :label="t('reuse.orderSales')" />
+          <el-table-column prop="3" :label="t('formDemo.intoDiscountComMoney')" />
+          <el-table-column prop="4" :label="t('formDemo.spent')" />
+          <el-table-column prop="5" :label="t('formDemo.cumulativeCom')" />
+        </el-table>
       </el-collapse-item>
     </el-collapse>
   </div>

@@ -332,10 +332,13 @@ const disabled = computed(() => {
 })
 const totalMoney = () => {
   if (ListOfProductsForSale.value !== undefined) {
-    return ListOfProductsForSale.value.reduce(function (accumulator, curValue) {
-      return accumulator + curValue?.price * curValue?.quantity
-    }, 0)
+    let money = 0
+    ListOfProductsForSale.value.forEach((row) => {
+      if (row.quantity && row.price) money += Number(row.quantity * row.price)
+    })
+    return money
   }
+  return 0
 }
 </script>
 <template>

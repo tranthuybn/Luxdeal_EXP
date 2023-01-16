@@ -1721,6 +1721,10 @@ export default {
     pleaseChooseLot: 'Please choose lot',
     detailExportWarehouse: 'Detail export warehouse',
     detailImportWarehouse: 'Detail import warehouse',
-    totalMoneyTransferWarehouse: 'Total money transfer warehouse'
+    totalMoneyTransferWarehouse: 'Total money transfer warehouse',
+    transferCanOnlyChoose1Lot: 'Transfer can only choose 1 lot',
+    //Collaborator
+    orderCodepaymentCode: 'Order code/withdrawal code',
+    percentDiscount: '% discount'
   }
 }

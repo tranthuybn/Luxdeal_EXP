@@ -158,6 +158,9 @@ const postData = (data) => {
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
+      })
     })
     .catch(() => {
       ElNotification({
@@ -284,6 +287,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'classify',
     label: t('reuse.classify'),
     component: 'Select',
+    value: true,
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -309,12 +313,26 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'supplier',
     label: '',
     component: 'Select',
+    value: 'Khách hàng',
     componentProps: {
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
       placeholder: t('reuse.supplier'),
-      options: []
+      options: [
+        {
+          value: 'Khách hàng',
+          label: 'Khách hàng'
+        },
+        {
+          value: 'Nhà cung cấp',
+          label: 'Nhà cung cấp'
+        },
+        {
+          value: 'Chung',
+          label: 'Chung'
+        }
+      ]
     },
     formItemProps: {
       labelWidth: '0'
@@ -332,7 +350,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       allowCreate: true,
       filterable: true,
-      placeholder: t('reuse.enterSelectCompanyName')
+      placeholder: t('reuse.enterSelectCompanyName'),
+      options: [],
+      onChange: (data) => {
+        fillTaxCode(data)
+      }
     },
     colProps: {
       span: 20
@@ -342,11 +364,13 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'taxCode',
     label: t('reuse.taxCode'),
-    component: 'Select',
+    component: 'Input',
+    value: '',
+    hidden: false,
     componentProps: {
       style: 'width: 100%',
-      allowCreate: true,
-      filterable: true,
+      // allowCreate: true,
+      // filterable: true,
       placeholder: t('reuse.enterSelectTaxCode')
     },
     colProps: {
@@ -591,7 +615,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Radio',
-    value: [],
+    value: 1,
     colProps: {
       span: 24
     },
@@ -628,23 +652,38 @@ const collapse: Array<Collapse> = [
     type: type
   }
 ]
-// get Customer
+// get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
 const getCustomerOptions = async () => {
   if (cutomerOptions.value.length === 0) {
-    const res = await getCustomer({ PageIndex: 1, PageSize: 20 })
+    const res = await getCustomer({ PageIndex: 1, PageSize: 2000, isOrganization: true })
     if (res && res.data.length > 0) {
       cutomerOptions.value = res.data.map((data) => ({
         label: data.name,
-        value: data.id
+        value: data.id,
+        tax: data?.taxCode,
+        phonenumber: data?.phonenumber,
+        email: data?.email
       }))
     }
   }
   if (cutomerOptions.value!.length > 0) {
-    if (columnProfileCustomer[2].componentProps?.options !== undefined) {
-      columnProfileCustomer[2].componentProps.options = cutomerOptions.value
+    if (columnProfileCustomer[3].componentProps?.options !== undefined) {
+      columnProfileCustomer[3].componentProps.options = cutomerOptions.value
     }
   }
+}
+const formRef = ref<InstanceType<typeof TableOperator>>()
+
+const fillTaxCode = (data) => {
+  const list = cutomerOptions.value.find((el) => el.value == data)
+  formRef.value?.setValues({
+    taxCode: list!['tax'],
+    name: list!['label'],
+    phonenumber: list!['phonenumber'],
+    email: list!['email'],
+    link: list!['link']
+  })
 }
 
 //get orderlist

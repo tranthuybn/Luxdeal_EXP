@@ -1708,7 +1708,7 @@ function openPaymentRequestDialog() {
   newCodePaymentRequest()
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
-      moneyDeibt.value += e.deibt
+      moneyDeibt.value += e.paidMoney
     })
   }
   inputDeposit.value = 0

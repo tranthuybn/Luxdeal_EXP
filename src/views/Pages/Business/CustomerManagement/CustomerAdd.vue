@@ -617,6 +617,9 @@ onBeforeMount(() => {
   change()
   callApiCity()
   getGenCodeCustomer()
+  if (type === 'detail' || type === 'edit') {
+    getTableValue()
+  }
 })
 </script>
 

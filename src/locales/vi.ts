@@ -1016,6 +1016,7 @@ export default {
     amountImportLot: 'Số lượng lot nhập',
     inventory: 'Tồn các kho',
     quantityInventory: 'Số lượng tồn kho',
+    quantityReturn: 'Số lượng trả',
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',

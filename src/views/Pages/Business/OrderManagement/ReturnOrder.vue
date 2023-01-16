@@ -55,8 +55,23 @@ const props = defineProps({
     9.Gia hạn ký gửi
     */
     default: 0
+  },
+  statusActive: {
+    type: Number,
+    default: 0
   }
 })
+
+const optionsTinhTrang = [
+  {
+    value: 'Option1',
+    label: 'Option1'
+  },
+  {
+    value: 'Option2',
+    label: 'Option2'
+  }
+]
 
 const emit = defineEmits([
   'update:modelValue',
@@ -89,7 +104,6 @@ const close = () => {
 }
 const postReturnRequest = async (orderStatusType) => {
   console.log('data', props.orderId, props.orderData)
-  console.log('orderStatusType', orderStatusType)
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
 }
@@ -113,7 +127,7 @@ console.log('listProductsTable', props.listProductsTable)
     @close="close"
     class="font-bold"
     :title="t('formDemo.infoReturnAheadOfTime')"
-    width="40%"
+    width="45%"
     align-center
   >
     <div>
@@ -264,7 +278,7 @@ console.log('listProductsTable', props.listProductsTable)
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest(1)">{{
+          <el-button type="primary" @click="postReturnRequest(2)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button @click="close">{{ t('reuse.exit') }}</el-button>
@@ -278,7 +292,6 @@ console.log('listProductsTable', props.listProductsTable)
     v-if="orderStatusType == 3"
     @open="open"
     @close="close"
-    class="font-bold"
     :title="t('reuse.informationReturnAfterDueDate')"
     width="40%"
     align-center
@@ -289,7 +302,7 @@ console.log('listProductsTable', props.listProductsTable)
         <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
         <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
-      <div class="flex pt-2 pb-2 items-center">
+      <div class="flex pt-2 pb-2 gap-3">
         <div class="flex-1">
           <div class="flex gap-4">
             <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
@@ -323,7 +336,13 @@ console.log('listProductsTable', props.listProductsTable)
           </div>
         </div>
 
-        <div class="flex-1"> QRCode </div>
+        <div class="flex-1 flex items-start gap-4">
+          <span>
+            <div>Mã QR đơn hàng</div>
+          </span>
+
+          <span class="border"><Qrcode :width="100" :text="orderData?.orderCode" /></span>
+        </div>
       </div>
       <div class="flex items-center">
         <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -352,7 +371,7 @@ console.log('listProductsTable', props.listProductsTable)
           t('formDemo.fullyIntegrated')
         }}</span>
         <span class="w-[30%] text-base font-bold break-w" v-if="type == 3">{{
-          t('formDemo.productInformationExportChange')
+          t('reuse.informationReturnExportProduct')
         }}</span>
 
         <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -361,7 +380,11 @@ console.log('listProductsTable', props.listProductsTable)
     <div class="pt-2 pb-2">
       <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" />
+        <el-table-column
+          prop="productPropertyName"
+          :label="t('formDemo.commodityName')"
+          width="260"
+        />
         <el-table-column prop="accessory" :label="t('reuse.accessory')" />
         <el-table-column prop="quantity" :label="t('reuse.quantity')" />
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
@@ -391,10 +414,10 @@ console.log('listProductsTable', props.listProductsTable)
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest">{{
-            t('formDemo.saveAndPending')
-          }}</el-button>
-          <el-button @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button type="primary" @click="postReturnRequest" class="min-w-42 min-h-11"
+            >Lưu & ghi phiếu xuất trả</el-button
+          >
+          <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>
@@ -924,14 +947,13 @@ console.log('listProductsTable', props.listProductsTable)
       </div>
     </template>
   </el-dialog>
-  <!--  9.Gia hạn cầm đồ -->
+  <!--  9.Gia hạn ký gửi-->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 7"
+    v-if="orderStatusType == 9"
     @open="open"
     @close="close"
-    class="font-bold"
-    title="Thông tin chuộc hàng trước hạn"
+    title="Thông tin gia hạn ký gửi"
     width="40%"
     align-center
   >
@@ -941,9 +963,9 @@ console.log('listProductsTable', props.listProductsTable)
         <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
         <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
-      <div class="flex pt-2 pb-2 items-center">
+      <div class="flex gap-3 pt-2 pb-2 items-center">
         <div class="flex-1">
-          <div class="flex gap-4 pt-2 pb-2">
+          <div class="flex gap-4 pt-2">
             <label class="w-[40%] text-right">{{ t('formDemo.orderCode') }}</label>
             <div class="w-[60%] text-xl text-black font-bold dark:text-light-50">{{
               orderData?.orderCode
@@ -957,21 +979,27 @@ console.log('listProductsTable', props.listProductsTable)
             >
           </div>
           <div class="flex gap-4 pt-2 pb-2">
-            <label class="w-[40%] text-right">{{ t('reuse.extendPawn') }}</label>
+            <label class="w-[40%] text-right">Gia hạn ký gửi đến</label>
             <div class="w-[60%] text-black dark:text-light-50">
               <ElDatePicker modelValue="extendDate" @change="extendDate" />
             </div>
           </div>
         </div>
 
-        <div class="flex-1 pl-8"> QRCode </div>
+        <div class="flex-1 flex items-start gap-4">
+          <span>
+            <div>Mã QR đơn hàng</div>
+          </span>
+
+          <span class="border"><Qrcode :width="100" :text="orderData?.orderCode" /></span>
+        </div>
       </div>
       <div class="flex items-center">
         <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
         <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
       <div>
-        <div class="flex gap-4 pt-2 pb-2 items-center">
+        <div class="flex gap-4 mt-2 pt-2 pb-2 items-center">
           <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
           <div class="w-[100%] text-black dark:text-light-50">{{ orderData?.name }}</div>
         </div>
@@ -983,20 +1011,49 @@ console.log('listProductsTable', props.listProductsTable)
           <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
           <div class="w-[100%] text-black dark:text-light-50">{{ orderData?.phone }}</div>
         </div>
-        <div class="flex gap-4 pt-2 pb-2 items-center">
-          <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-          <div class="w-[100%] text-black dark:text-light-50">Trả hàng trước hạn</div>
-        </div>
       </div>
-      <div class="flex items-center">
-        <span class="w-[30%] text-base font-bold break-w">Thông tin sản phẩm xuất trả</span>
-        <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
-      </div>
+    </div>
+    <!-- sản phẩm gia hạn -->
+    <div class="flex items-center">
+      <span class="w-[31%] text-base font-bold break-w">Thông tin sản phẩm gia hạn</span>
+      <span class="block h-1 w-[69%] border-t-1 dark:border-[#4c4d4f]"></span>
     </div>
     <div class="pt-2 pb-2">
       <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')">
+        <el-table-column
+          prop="productPropertyName"
+          :label="t('formDemo.commodityName')"
+          width="400"
+        >
+          <template #default="scope">
+            {{ scope.row.productPropertyName }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="accessory" :label="t('reuse.accessory')" width="130">
+          <template #default="scope">
+            {{ scope.row.accessory }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="quantity" :label="t('reuse.quantity')">
+          <template #default="scope">
+            {{ scope.row.quantity }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="flex items-center">
+      <span class="w-[30%] text-base font-bold break-w">Thông tin sản phẩm xuất trả</span>
+      <span class="block h-1 w-[70%] border-t-1 dark:border-[#4c4d4f]"></span>
+    </div>
+    <div class="pt-2 pb-2">
+      <el-table :data="orderData?.tableData" border style="width: 100%" fit>
+        <el-table-column label="STT" type="index" width="60" align="center" />
+        <el-table-column
+          prop="productPropertyName"
+          width="250"
+          :label="t('formDemo.commodityName')"
+        >
           <template #default="scope">
             <MultipleOptionsBox
               :defaultValue="scope.row.productPropertyId"
@@ -1053,23 +1110,23 @@ console.log('listProductsTable', props.listProductsTable)
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest">{{
-            t('formDemo.saveAndPending')
-          }}</el-button>
-          <el-button @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(9)"
+            >Gia hạn thuê & ghi phiếu xuất trả</el-button
+          >
+          <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>
   </el-dialog>
   <!-- Chưa có người xử lí dữ liệu trên bảng Spa... Ko có dữ liệu để tuyền ... Ko làm được -->
-  <!-- <el-dialog
+  <el-dialog
     width="40%"
     align-center
     :model-Value="modelValue"
     v-if="orderStatusType == 8"
     @open="open"
     @close="close"
-    title="Thông tin chuộc hàng trước hạn"
+    title="Thông tin phiếu trả hàng Spa"
   >
     <div>
       <el-divider />
@@ -1105,6 +1162,7 @@ console.log('listProductsTable', props.listProductsTable)
       <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
     </div>
     <div class="pt-2 pb-2">
+      {{ orderData?.tableData }}
       <el-table ref="singleTableRef" :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" width="280">
@@ -1132,14 +1190,32 @@ console.log('listProductsTable', props.listProductsTable)
             <el-input v-model="scope.row.accessory" class="text-right" />
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+        <el-table-column prop="accessory" :label="t('router.ServiceLibrarySpaService')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number"/>
+            <el-input v-model="scope.row.accessory" class="text-right" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="accessory" :label="t('reuse.type')">
+          <template #default="scope">
+            <el-input v-model="scope.row.accessory" class="text-right" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
+          <template #default="scope">
+            <el-input v-model="scope.row.quantity" type="number" />
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('formDemo.conditionProducts')">
           <template #default="scope">
-            <el-input v-model="scope.row.conditionProducts" />
+            <!-- <el-input v-model="scope.row.conditionProducts" /> -->
+            <el-select v-model="scope.row.conditionProducts">
+              <el-option
+                v-for="item in optionsTinhTrang"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </template>
         </el-table-column>
       </el-table>
@@ -1160,5 +1236,34 @@ console.log('listProductsTable', props.listProductsTable)
         </span>
       </div>
     </div>
-  </el-dialog> -->
+  </el-dialog>
 </template>
+
+<style scope>
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+</style>

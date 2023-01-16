@@ -2456,6 +2456,8 @@ const priceBillPayment = () => {
   remainingMoney.value = totalPriceOrder.value - inputPaymentBill.value
 }
 
+// trả hàng spa
+
 //TruongNgo
 const rentReturnOrder = ref({} as any)
 let productArray: any = []
@@ -4001,7 +4003,7 @@ const postReturnRequest = async (reason) => {
                   () => {
                     changeReturnGoods = true
                     setDataForReturnOrder()
-                    addStatusOrder(6)
+                    // addStatusOrder(6)
                   }
                 "
                 class="min-w-42 min-h-11"
@@ -4022,6 +4024,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus"
                 type="primary"
                 class="min-w-42 min-h-11"
+                @click="addStatusOrder(5)"
               >
                 Hoàn thành trả hàng
               </el-button>
@@ -5052,7 +5055,7 @@ const postReturnRequest = async (reason) => {
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="4"
+        :orderStatusType="8"
         :type="4"
       />
 

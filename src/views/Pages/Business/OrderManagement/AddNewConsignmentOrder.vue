@@ -1783,6 +1783,7 @@ const setDataForReturnOrder = () => {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
+  console.log('reason', reason)
   let tableReturnPost = [{}]
   if (rentReturnOrder.value.tableData.length < 2) {
     return
@@ -1803,6 +1804,32 @@ const postReturnRequest = async (reason) => {
     details: tableReturnPost
   }
   await createReturnRequest(payload)
+}
+
+// Trả hàng trước thời hạn
+const returnGoodsAheadOfTime = async (status) => {
+  let tableReturnPost = [{}]
+
+  // if (rentReturnOrder.value.tableData.length < 2) {
+  //   return
+  // }
+  // rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory
+  }))
+
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: 'Tra hang truoc han',
+    description: formatOrderReturnReason(status),
+    returnRequestType: 3,
+    details: tableReturnPost
+  }
+  await createReturnRequest(payload)
+  addStatusOrder(5)
 }
 
 if (type == 'add') {
@@ -3472,9 +3499,10 @@ onBeforeMount(async () => {
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @remove-row="removeRow"
-        @post-return-request="postReturnRequest"
+        @post-return-request="returnGoodsAheadOfTime"
         :orderStatusType="2"
         :type="3"
+        :statusActive="2"
       />
       <ReturnOrder
         v-model="hetHan"
@@ -3494,7 +3522,7 @@ onBeforeMount(async () => {
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="8"
+        :orderStatusType="9"
         :type="3"
       />
 
@@ -4172,7 +4200,6 @@ onBeforeMount(async () => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
               @click="
                 () => {
-                  // hetHan = true
                   addStatusOrder(1)
                   // setDataForReturnOrder()
                 }
@@ -4202,7 +4229,6 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   addStatusOrder(5)
-                  hetHan = true
                   // setDataForReturnOrder()
                 }
               "
@@ -4217,7 +4243,6 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  hetHan = true
                   addStatusOrder(-1)
                   // setDataForReturnOrder()
                 }
@@ -4226,7 +4251,6 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
-
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||

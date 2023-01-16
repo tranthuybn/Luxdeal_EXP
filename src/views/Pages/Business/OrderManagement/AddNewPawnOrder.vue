@@ -1609,9 +1609,9 @@ const editData = async () => {
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
       priceintoMoneyByday.value = orderObj.interestMoney
-      ruleForm.collaborators = orderObj.collaboratorCode
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
+      ruleForm.customerName = orderObj.customer.id
         ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
         : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
@@ -1827,6 +1827,7 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
+  reloadStatusOrder()
 }
 
 // Cập nhật trạng thái đơn hàng
@@ -1845,20 +1846,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: 0,
-        ServiceType: 4,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 

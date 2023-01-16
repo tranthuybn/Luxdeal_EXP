@@ -1968,6 +1968,7 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
+  reloadStatusOrder()
 }
 
 // Cập nhật trạng thái đơn hàng
@@ -1986,20 +1987,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: 0,
-        ServiceType: 5,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 5, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 5, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 
@@ -3013,7 +3003,7 @@ const postReturnRequest = async (reason) => {
                 <div class="custom-date">
                   <el-date-picker
                     v-model="ruleForm.dateOfReturn"
-                    :disabled="checkDisabled"
+                    :disabled="disabledEdit"
                     type="date"
                     :disabled-date="disabledDate"
                     format="DD/MM/YYYY"
@@ -3774,9 +3764,10 @@ const postReturnRequest = async (reason) => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -3797,9 +3788,10 @@ const postReturnRequest = async (reason) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[2].orderStatus">
                   <span
@@ -3812,9 +3804,10 @@ const postReturnRequest = async (reason) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_SPA[0].orderStatus">
                   <span
@@ -3827,9 +3820,10 @@ const postReturnRequest = async (reason) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -4003,7 +3997,7 @@ const postReturnRequest = async (reason) => {
                   () => {
                     changeReturnGoods = true
                     setDataForReturnOrder()
-                    // addStatusOrder(6)
+                    // addStatusOrder(1)
                   }
                 "
                 class="min-w-42 min-h-11"

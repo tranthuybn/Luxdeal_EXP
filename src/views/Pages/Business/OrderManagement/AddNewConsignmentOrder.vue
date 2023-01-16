@@ -858,6 +858,7 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
+  reloadStatusOrder()
 }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
@@ -875,20 +876,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: 0,
-        ServiceType: 2,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 
@@ -1817,19 +1807,40 @@ const returnGoodsAheadOfTime = async (status) => {
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: Number(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    returnDetailType: 3,
+    unitPrice: 0,
+    totalPrice: 0,
+    isSpa: true
   }))
-
+  console.log('tableReturnPost', tableReturnPost)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
-    name: 'Tra hang truoc han',
+    name: formatOrderReturnReason(status),
     description: formatOrderReturnReason(status),
     returnRequestType: 3,
-    details: tableReturnPost
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: [],
+    nhapDetails: [],
+    xuatDetails: tableReturnPost,
+    isPaid: true
   }
-  await createReturnRequest(payload)
-  addStatusOrder(5)
+  const res = await createReturnRequest(payload)
+  if (res) {
+    ElNotification({
+      message: 'Đã gửi yêu cầu thành công!',
+      type: 'success'
+    })
+    reloadStatusOrder()
+  } else {
+    ElNotification({
+      message: 'Yêu cầu trả hàng thất bại!',
+      type: 'warning'
+    })
+  }
 }
 
 if (type == 'add') {
@@ -1917,6 +1928,8 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+const completeThePayment = ref(false)
 const billLiquidationDis = ref(false)
 onBeforeMount(async () => {
   await editData()
@@ -3991,7 +4004,7 @@ onBeforeMount(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center flex-wrap w-[100%]">
               <div
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
@@ -4002,6 +4015,7 @@ onBeforeMount(async () => {
                     item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
                 >
@@ -4016,14 +4030,14 @@ onBeforeMount(async () => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
                   "
                 >
@@ -4037,11 +4051,12 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -4052,9 +4067,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -4072,9 +4088,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -4114,7 +4131,9 @@ onBeforeMount(async () => {
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
+                  completeThePayment &&
+                  !duplicateStatusButton) ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
@@ -4187,7 +4206,7 @@ onBeforeMount(async () => {
                 () => {
                   changeReturnGoods = !changeReturnGoods
                   truocHan = true
-                  // addStatusOrder(5)
+                  // addStatusOrder(2)
                   setDataForReturnOrder()
                 }
               "
@@ -4197,11 +4216,10 @@ onBeforeMount(async () => {
             >
 
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && !duplicateStatusButton"
               @click="
                 () => {
-                  addStatusOrder(1)
-                  // setDataForReturnOrder()
+                  addStatusOrder(4)
                 }
               "
               type="warning"
@@ -4225,10 +4243,11 @@ onBeforeMount(async () => {
               >Trả hàng hết hạn</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
               @click="
                 () => {
-                  addStatusOrder(5)
+                  // addStatusOrder(5)
+                  completeThePayment = true
                   // setDataForReturnOrder()
                 }
               "
@@ -4237,17 +4256,33 @@ onBeforeMount(async () => {
               >Hoàn thành trả hàng</el-button
             >
             <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus
-              "
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
               @click="
                 () => {
-                  addStatusOrder(-1)
-                  // setDataForReturnOrder()
+                  addStatusOrder(4)
                 }
               "
               type="warning"
+              class="min-w-42 min-h-11"
+              >Hủy trả hàng</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
+                  completeThePayment &&
+                  !duplicateStatusButton)
+              "
+              @click="
+                () => {
+                  addStatusOrder(0)
+                  // addStatusOrder(1)
+
+                  // setDataForReturnOrder()
+                }
+              "
+              type="info"
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >

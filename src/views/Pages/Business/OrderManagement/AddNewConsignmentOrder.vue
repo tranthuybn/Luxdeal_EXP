@@ -65,7 +65,8 @@ import {
   updateOrderTransaction,
   finishStatusOrder,
   GetPaymentRequestDetail,
-  getDetailReceiptPaymentVoucher
+  getDetailReceiptPaymentVoucher,
+  finishReturnOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -858,7 +859,6 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
-  reloadStatusOrder()
 }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
@@ -1578,7 +1578,7 @@ const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
 const disableCreateOrder = ref(false)
-
+const checkGiahan = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
@@ -1624,12 +1624,16 @@ const editData = async () => {
 
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
-
+      console.log('orderObj.toDate format', moment(orderObj.toDate).format('DD/MM/YYYY'))
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
       getTotalWarehouse()
+
+      moment(orderObj.toDate).format('DD/MM/YYYY') == moment().format('L')
+        ? (checkGiahan.value = true)
+        : (checkGiahan.value = false)
 
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
@@ -1749,6 +1753,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   )
 }
 
+const completePayment = ref(false)
 //TruongNgo
 const truocHan = ref(false)
 const hetHan = ref(false)
@@ -1842,6 +1847,7 @@ const returnGoodsAheadOfTime = async (status) => {
     })
   }
 }
+// hoàn thành trả hàng
 
 if (type == 'add') {
   arrayStatusOrder.value?.push({
@@ -1930,10 +1936,21 @@ const removeRow = (index) => {
 }
 
 const completeThePayment = ref(false)
+
+const doneReturnGoods = async () => {
+  const payload = {
+    OrderId: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await finishReturnOrder(formDataPayLoad)
+  completeThePayment.value = true
+}
+const disabledDate = (time: Date) => {
+  return time.getTime() <= Date.now()
+}
 const billLiquidationDis = ref(false)
 onBeforeMount(async () => {
   await editData()
-
   callCustomersApi()
   callApiCollaborators()
   await callAPIProduct()
@@ -1941,7 +1958,6 @@ onBeforeMount(async () => {
 
   if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
-
     ruleForm.orderCode = curDate
     billLiquidationDis.value = true
     disableEditData.value = false
@@ -3518,6 +3534,18 @@ onBeforeMount(async () => {
         :statusActive="2"
       />
       <ReturnOrder
+        v-model="completePayment"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="doneReturnGoods"
+        :orderStatusType="2"
+        :type="3"
+        :statusActive="3"
+      />
+      <ReturnOrder
         v-model="hetHan"
         :orderId="id"
         :orderData="rentReturnOrder"
@@ -3569,6 +3597,7 @@ onBeforeMount(async () => {
                   v-model="ruleForm.rentalPeriod"
                   :disabled="disableEditData"
                   unlink-panels
+                  :disabled-date="disabledDate"
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
@@ -4222,7 +4251,7 @@ onBeforeMount(async () => {
                   addStatusOrder(4)
                 }
               "
-              type="warning"
+              type="info"
               class="min-w-42 min-h-11"
               >Hủy trả hàng</el-button
             >
@@ -4242,33 +4271,51 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11"
               >Trả hàng hết hạn</el-button
             >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
-              @click="
-                () => {
-                  // addStatusOrder(5)
-                  completeThePayment = true
-                  // setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Hoàn thành trả hàng</el-button
-            >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
-              @click="
-                () => {
-                  addStatusOrder(4)
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Hủy trả hàng</el-button
-            >
+            <div v-if="!completeThePayment">
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
+                @click="
+                  () => {
+                    // addStatusOrder(5)
+                    completePayment = true
+                    setDataForReturnOrder()
+                  }
+                "
+                type="warning"
+                class="min-w-42 min-h-11"
+                >Hoàn thành trả hàng</el-button
+              >
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
+                @click="
+                  () => {
+                    addStatusOrder(4)
+                  }
+                "
+                class="min-w-42 min-h-11"
+                >Hủy trả hàng</el-button
+              >
+            </div>
+            <div v-if="completeThePayment">
+              <el-button
+                class="min-w-42 min-h-11"
+                :disabled="billLiquidationDis"
+                @click="dialogBillLiquidation = true"
+                >{{ t('formDemo.printLiquidationContract') }}</el-button
+              >
+              <el-button
+                @click="
+                  () => {
+                    updateStatusOrders(STATUS_ORDER_DEPOSIT[2].orderStatus)
+                  }
+                "
+                type="info"
+                class="min-w-42 min-h-11"
+                >Đối soát & kết thúc</el-button
+              >
+            </div>
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
                   completeThePayment &&
@@ -4276,10 +4323,7 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  addStatusOrder(0)
-                  // addStatusOrder(1)
-
-                  // setDataForReturnOrder()
+                  updateStatusOrders(STATUS_ORDER_DEPOSIT[2].orderStatus)
                 }
               "
               type="info"
@@ -4288,8 +4332,8 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
+                (checkGiahan && statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus) ||
+                (checkGiahan && statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus)
               "
               @click="
                 () => {

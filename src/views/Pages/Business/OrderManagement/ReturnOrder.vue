@@ -12,6 +12,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { ref } from 'vue'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -107,6 +108,15 @@ const postReturnRequest = async (orderStatusType) => {
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
 }
+
+const donePaymentRequest = async (orderStatusType) => {
+  console.log('data', props.orderId, props.orderData)
+  emit('post-return-request', orderStatusType)
+  emit('update:modelValue', false)
+}
+
+const disableCheck = ref(false)
+
 const extendDate = (data) => {
   emit('extend-date', data)
 }
@@ -216,7 +226,11 @@ console.log('listProductsTable', props.listProductsTable)
     <div class="pt-2 pb-2">
       <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')">
+        <el-table-column
+          prop="productPropertyName"
+          :label="t('formDemo.commodityName')"
+          width="350"
+        >
           <template #default="scope">
             <MultipleOptionsBox
               :defaultValue="scope.row.productPropertyId"
@@ -227,6 +241,7 @@ console.log('listProductsTable', props.listProductsTable)
               ]"
               filterable
               :items="listProductsTable"
+              :disable="disableCheck"
               valueKey="productPropertyId"
               labelKey="name"
               :hiddenKey="['id']"
@@ -238,17 +253,25 @@ console.log('listProductsTable', props.listProductsTable)
         </el-table-column>
         <el-table-column prop="accessory" :label="t('reuse.accessory')">
           <template #default="scope">
-            <el-input v-model="scope.row.accessory" />
+            <el-input v-if="statusActive == 2" v-model="scope.row.accessory" />
+            <p v-else>{{ scope.row.accessory }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input
+              v-if="statusActive == 2"
+              v-model="scope.row.quantity"
+              type="number"
+              :max="scope.row.quantity"
+            />
+            <p v-else>{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <el-input v-model="scope.row.hirePrice" />
+            <el-input v-if="statusActive == 2" v-model="scope.row.hirePrice" />
+            <p v-else>{{ scope.row.hirePrice }}</p>
           </template>
         </el-table-column>
         <!-- <el-table-column prop="operator" :label="t('reuse.operator')">
@@ -267,21 +290,40 @@ console.log('listProductsTable', props.listProductsTable)
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span v-if="statusActive == 2" class="box dark:text-black">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
+          <div v-if="statusActive == 3" class="flex items-center gap-2 flex-wrap w-[100%]">
+            <span class="box dark:text-black">
+              {{ t('reuse.initializeAndWrite') }}
+              <span class="triangle-right"> </span>
+            </span>
+            <span
+              class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+            ></span>
+            <span class="box ml-2 text-yellow-500">
+              Duyệt trả hàng trước hạn
+              <span class="triangle-right"> </span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
     <template #footer>
       <div class="flex justify-end">
-        <div>
-          <el-button type="primary" @click="postReturnRequest(2)">{{
+        <div v-if="statusActive == 2">
+          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(2)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
-          <el-button @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div v-if="statusActive == 3">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(2)"
+            >Hoàn thành trả hàng</el-button
+          >
+          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>

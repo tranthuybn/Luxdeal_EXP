@@ -1676,7 +1676,7 @@ let objOrderStransaction = ref()
 let idStransaction = ref()
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền DFDSF',
+    content: '',
     kindOfMoney: '',
     collected: 0,
     spent: 0,
@@ -1723,11 +1723,7 @@ const postOrderStransaction = async (num: number) => {
   const payload = {
     orderId: id,
     content:
-      num == 1
-        ? t('formDemo.collectionOfSpaServiceFees')
-        : num == 2
-        ? 'Thu tiền DFDSF'
-        : tableAccountingEntry.value[0].content,
+      num == 1 ? t('formDemo.collectionOfSpaServiceFees') : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney:
@@ -1809,7 +1805,7 @@ const postPT = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1934,7 +1930,7 @@ const postPC = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: 2,
+    PeopleId: inputRecharger.value,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -4437,7 +4433,7 @@ const postReturnRequest = async (reason) => {
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -5058,7 +5054,15 @@ const postReturnRequest = async (reason) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled2" text @click="dialogAccountingEntryAdditional = true"
+        <el-button
+          :disabled="checkDisabled2"
+          text
+          @click="
+            () => {
+              dialogAccountingEntryAdditional = true
+              alreadyPaidForTt = false
+            }
+          "
           >+ Thêm bút toán</el-button
         >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog()" text
@@ -5089,18 +5093,11 @@ const postReturnRequest = async (reason) => {
           <el-table-column
             prop="createdAt"
             :label="t('formDemo.initializationDate')"
-            width="150"
+            min-width="150"
             align="center"
           >
             <template #default="data">
-              <el-date-picker
-                v-model="data.row.createdAt"
-                v-if="type != 'detail'"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-              <div v-else>{{ data.row.createdAt }}</div>
+              {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column

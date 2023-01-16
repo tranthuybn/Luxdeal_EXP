@@ -509,11 +509,40 @@ interface tableDataType {
   statusAccountingEntry: string
 }
 
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
+  countExisted.value = 0
+  countExistedDNTT.value = 0
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+    } else {
+      if (countExisted.value == 0) {
+        disabledPTAccountingEntry.value = false
+        disabledPCAccountingEntry.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      disabledDNTTAccountingEntry.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        disabledDNTTAccountingEntry.value = false
+      }
+    }
+  })
+  moneyReceipts.value = val.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
 }
 
 // Thêm mã phiếu đề nghị thanh toán vào debtTable
@@ -1084,8 +1113,6 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-const consignOrderCode = ref()
-
 let customerID = ref()
 
 const getValueOfCustomerSelected = (value, obj) => {
@@ -1280,7 +1307,7 @@ const alreadyPaidForTt = ref(true)
 
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền ',
+    content: '',
     kindOfMoney: '',
     receiveMoney: 0,
     paidMoney: 0,
@@ -1574,6 +1601,7 @@ const getReturnRequestTable = async () => {
     }))
   }
 }
+const consignOrderCode = ref()
 const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
@@ -1621,6 +1649,7 @@ const editData = async () => {
       ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
+      consignOrderCode.value = ruleForm.orderCode
 
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
@@ -1737,7 +1766,7 @@ const handleSelectionbusinessManagement = (val: tableDataType[]) => {
 const ckeckChooseProduct = (scope) => {
   if (!scope.row.productPropertyId) {
     ElNotification({
-      message: 'Ban phai chon san pham truoc',
+      message: 'Bạn phải chọn sản phẩm trước',
       type: 'info'
     })
   } else {
@@ -3099,7 +3128,7 @@ onBeforeMount(async () => {
       <el-dialog
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
-        width="40%"
+        width="45%"
         align-center
       >
         <div>
@@ -3113,11 +3142,14 @@ onBeforeMount(async () => {
             <div class="flex-left">
               <div class="flex gap-4 pt-4 pb-4 items-center">
                 <label class="text-right">{{ t('formDemo.orderCode') }}</label>
-                <p class="font-bold text-xl">{{ ruleForm.orderCode }}</p>
+                <p class="font-bold text-xl">{{ consignOrderCode }}</p>
               </div>
               <div class="flex gap-4 pt-2 pb-4 items-center">
                 <label class="text-right">{{ t('reuse.depositPeriod') }}</label>
-                <p class="">11/11/2022 đến 22/12/2023</p>
+                <p class=""
+                  >{{ dateTimeFormat(ruleForm.rentalPeriod[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.rentalPeriod[1]) }}</p
+                >
               </div>
             </div>
             <div class="flex-right">
@@ -4259,6 +4291,7 @@ onBeforeMount(async () => {
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
               "
               @click="
@@ -4437,7 +4470,17 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
+
+        <el-button
+          text
+          @click="
+            () => {
+              alreadyPaidForTt = false
+              dialogAccountingEntryAdditional = true
+            }
+          "
+          >+ Thêm bút toán</el-button
+        >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >

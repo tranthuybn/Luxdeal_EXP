@@ -1682,6 +1682,7 @@ function openBillDialog() {
 function openReceiptDialog() {
   moneyReceipts.value = 0
   getReceiptCode()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1694,6 +1695,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   moneyPaid.value = 0
   getcodeExpenditures()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyPaid.value += e.paidMoney
@@ -1711,6 +1713,7 @@ function openPaymentRequestDialog() {
       moneyDeibt.value += e.paidMoney
     })
   }
+  inputRecharger.value = ''
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
   dialogIPRForm.value = !dialogIPRForm.value

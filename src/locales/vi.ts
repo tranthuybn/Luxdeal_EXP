@@ -1016,6 +1016,7 @@ export default {
     amountImportLot: 'Số lượng lot nhập',
     inventory: 'Tồn các kho',
     quantityInventory: 'Số lượng tồn kho',
+    quantityReturn: 'Số lượng trả',
     priceImport: 'Giá nhập',
     CashIntoInventory: 'Thành tiền tồn kho',
     businessManagement: 'QL kinh doanh',
@@ -1668,6 +1669,9 @@ export default {
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
+    checkReceipts: 'Duyệt Phiếu thu',
+    collectedMoney: 'Đã thu tiền',
+    planned: 'Đã hoạch toán',
     receiptAndPayment: 'Thu/chi',
     choosePaymentProposal: 'Chọn đề nghị thanh toán',
     addNewVirtualWalletRequest: 'Yêu cầu rút tiền ví ảo',
@@ -1801,6 +1805,7 @@ export default {
     // exchange order
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',
+    totalPurchaseMoney: 'Thành tiền mua',
     totalSellMoney: 'Thành tiền bán',
     totalDiffMoney: 'Thành tiền chênh lệch',
     depositPeriod: 'Thời gian ký gửi',
@@ -1877,6 +1882,13 @@ export default {
     moreOrLessQuantity: 'Chọn thừa hoặc thiếu số lượng',
     pleaseChooseQuantity: 'Chọn số lượng',
     pleaseChooseLotHasInventory: 'Lot không còn sản phẩm',
-    pleaseChooseLot: 'Vui lòng chọn lot'
+    pleaseChooseLot: 'Vui lòng chọn lot(chọn kho)',
+    detailExportWarehouse: 'Chi tiết kho xuất',
+    detailImportWarehouse: 'Chi tiết kho nhập',
+    totalMoneyTransferWarehouse: 'Tổng tiền chuyển kho',
+    transferCanOnlyChoose1Lot: 'Chuyển kho chỉ có thể chọn 1 lot',
+    //Collaborator
+    orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
+    percentDiscount: '% chiết khấu'
   }
 }

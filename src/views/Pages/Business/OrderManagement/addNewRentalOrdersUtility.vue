@@ -771,6 +771,8 @@ const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   totalDeposit.value = 0
+  totalPriceOrder.value = 0
+  console.log('run change quantity')
   tableData.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
     if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -2081,13 +2083,16 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? totalFinalOrder.value
         : index == 2
-        ? inputDeposit.value
+        ? totalDeposit.value
         : index == 3
         ? tableAccountingEntry.value[0].receiveMoney
         : 0,
-    paidMoney: tableAccountingEntry.value[0].paidMoney
-      ? tableAccountingEntry.value[0].paidMoney
-      : 0,
+    paidMoney:
+      index == 1
+        ? 0
+        : tableAccountingEntry.value[0].paidMoney
+        ? tableAccountingEntry.value[0].paidMoney
+        : 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,

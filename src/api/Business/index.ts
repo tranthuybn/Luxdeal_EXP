@@ -172,11 +172,21 @@ export const addNewCustomer = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+export const updatedCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: CUSTOMER_API.UPDATED_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const addNewAuthRegister = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
-      url: CUSTOMER_API.POST_AUTH_REGISTER,
-      data: params
+      url: `${CUSTOMER_API.POST_AUTH_REGISTER}?${objectToQueryParams(params)}`
     },
     LOGIN_API_URL
   )
@@ -241,11 +251,11 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
-// edit chi tiết phiếu thu chi
-export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+// edit trạng thái chi tiết phiếu thu chi
+export const editStatusReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
-      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      url: `${ORDER_API.EDIT_STATUS_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
       data: params
     },
     fixedBaseURL

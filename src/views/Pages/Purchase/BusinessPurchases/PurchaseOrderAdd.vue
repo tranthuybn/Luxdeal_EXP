@@ -73,7 +73,8 @@ import {
   createTicketFromReturnOrder,
   finishReturnOrder,
   cancelReturnOrder,
-  approvalOrder
+  approvalOrder,
+  getWareHouseTransactionList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
@@ -1681,6 +1682,7 @@ function openBillDialog() {
 function openReceiptDialog() {
   moneyReceipts.value = 0
   getReceiptCode()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1693,6 +1695,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   moneyPaid.value = 0
   getcodeExpenditures()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyPaid.value += e.paidMoney
@@ -1707,9 +1710,10 @@ function openPaymentRequestDialog() {
   newCodePaymentRequest()
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
-      moneyDeibt.value += e.deibt
+      moneyDeibt.value += e.paidMoney
     })
   }
+  inputRecharger.value = ''
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
   dialogIPRForm.value = !dialogIPRForm.value
@@ -1990,6 +1994,7 @@ const checkMaximunQuantity = (scope) => {
 const returnRequestId = ref()
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
+  changeReturnGoods.value = false
   if (
     !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
   ) {
@@ -2009,6 +2014,7 @@ const postReturnRequest = async () => {
     name: 'Đổi trả đơn hàng',
     description: inputReasonReturn.value,
     returnRequestType: 1,
+    giaHanDetails: [],
     nhapDetails:
       tableReturnFullyIntegrated?.value[0]?.productPropertyId !== ''
         ? tableReturnFullyIntegrated.value
@@ -2438,9 +2444,12 @@ const getInformationWarehouseReceipt = () => {
 
 const ticketCode = ref()
 
-const showWarehouseTicket = (scope) => {
+const showWarehouseTicket = async (scope) => {
   const data = scope.row
+  const res_return = await getWareHouseTransactionList({ Id: data.warehouseTicketId })
   ticketCode.value = data.warehouseTicketCode
+  inputRecharger.value = res_return?.data[0].staffName
+  inputReasonReturn.value = res_return?.data[0].description
   if (data.returnDetailType == 1) {
     invoiceForGoodsEntering.value = true
     getInvoiceForGoodsEntering()
@@ -3579,14 +3588,14 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column label="STT" type="index" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3608,11 +3617,11 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="informationWarehouseReceipt = false">{{
+          <div class="flex justify-end">
+            <el-button type="primary" @click="informationWarehouseReceipt = false">{{
               t('button.printExport')
             }}</el-button>
-            <div>
+            <div class="pl-2">
               <span class="dialog-footer">
                 <el-button @click="informationWarehouseReceipt = false">{{
                   t('reuse.exit')
@@ -3677,14 +3686,14 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableInvoice" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column label="STT" type="index" align="center" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3706,11 +3715,11 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="invoiceForGoodsEntering = false">{{
+          <div class="flex justify-end">
+            <el-button type="primary" @click="invoiceForGoodsEntering = false">{{
               t('button.printImport')
             }}</el-button>
-            <div>
+            <div class="pl-2">
               <span class="dialog-footer">
                 <el-button @click="invoiceForGoodsEntering = false">{{
                   t('reuse.exit')
@@ -4575,7 +4584,6 @@ onBeforeMount(async () => {
                   @click="
                     () => {
                       postReturnRequest()
-                      changeReturnGoods = false
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button

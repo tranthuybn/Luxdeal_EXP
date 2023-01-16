@@ -63,7 +63,9 @@ import {
   getListWareHouse,
   approvalOrder,
   updateOrderTransaction,
-  finishStatusOrder
+  finishStatusOrder,
+  GetPaymentRequestDetail,
+  getDetailReceiptPaymentVoucher
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -130,7 +132,7 @@ const ScrollCollaboratorBottom = () => {
           res.data.length == 0
             ? (noMoreCollaboratorData.value = true)
             : res.data.map((el) =>
-                optionsCollaborators.value.push({
+                optionsCollaborators.value?.push({
                   label: el.code + ' | ' + el.accountName,
                   value: el.id,
                   collaboratorCommission: el.discount,
@@ -163,40 +165,25 @@ const autoCollaboratorCommission = (index) => {
 
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map(
-        (customer: {
-          code: any
-          isOrganization: any
-          name: string
-          taxCode: string
-          phonenumber: string
-          address: any
-          id: { toString: () => any }
-          email: any
-        }) => ({
-          code: customer.code,
-          label: customer.isOrganization
-            ? customer.name + ' | MST ' + customer.taxCode
-            : customer.name + ' | ' + customer.phonenumber,
-          address: customer.address,
-          name: customer.name,
-          value: customer.id.toString(),
-          isOrganization: customer.isOrganization,
-          taxCode: customer.taxCode,
-          phone: customer.phonenumber,
-          email: customer.email,
-          id: customer.id.toString()
-        })
-      )
-    }
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const getCustomerResult = res.data
+  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
   }
-  optionCallCustomerAPi++
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -384,7 +371,7 @@ const callApiWarehouseList = async () => {
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children) {
-        chooseWarehouse.push({
+        chooseWarehouse?.push({
           value: el.id,
           label: el.name
         })
@@ -475,7 +462,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 const addLastIndexSellTable = () => {
-  ListOfProductsForSale.value.push({ ...productForSale })
+  ListOfProductsForSale.value?.push({ ...productForSale })
 }
 const forceRemove = ref(false)
 // Thông tin phiếu thanh toán tiền cọc thuê
@@ -542,6 +529,42 @@ const handleChangePaymentRequest = () => {
 }
 const checkDisabled = ref(false)
 
+// Lấy chi tiết phiếu thu chi
+let formDetailPaymentReceipt = ref()
+const getDetailPayment = async (_index, scope) => {
+  formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
+    id: scope.row.receiptOrPaymentVoucherId
+  })
+  nameDialog.value = 'Phiếu thu'
+  codeReceipts.value = formDetailPaymentReceipt.value.data?.code
+  codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
+  payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+  dialogInformationReceipts.value = true
+}
+
+// Lấy chi tiết phiếu đề nghị thanh toán
+const getDetailPaymentRequest = async (_index, scope) => {
+  const res = await GetPaymentRequestDetail({
+    id: scope.row.paymentRequestId
+  })
+  if (res.data) {
+    formDetailPaymentReceipt.value = res.data
+
+    totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
+    moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
+    depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
+    debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
+    enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
+
+    detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
+    dialogIPRForm.value = true
+  }
+}
 //thêm nahnh sp
 
 const quickProductCode = ref()
@@ -621,7 +644,7 @@ const ScrollProductBottom = () => {
                   id: { toString: () => any }
                   productPropertyCode: any
                 }) =>
-                  listProducts.value.push({
+                  listProducts.value?.push({
                     productCode: product.code,
                     value: product.productCode,
                     name: product.name ?? '',
@@ -831,10 +854,11 @@ const approvalFunction = async () => {
 
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_DEPOSIT[index])
+  arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
+  reloadStatusOrder()
 }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
@@ -852,20 +876,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: 0,
-        ServiceType: 2,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 
@@ -1046,7 +1059,7 @@ const detailedListExpenses = ref([
 ])
 
 const addRowDetailedListExpoenses = () => {
-  detailedListExpenses.value.push({
+  detailedListExpenses.value?.push({
     numberVouchers: '',
     dayVouchers: '',
     spentFor: '',
@@ -1263,14 +1276,17 @@ function printPage(id: string, { url, title, w, h }) {
 
 // Bút toán bổ sung
 const dialogAccountingEntryAdditional = ref(false)
-const alreadyPaidForTt = ref(false)
+const alreadyPaidForTt = ref(true)
 
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền phạt rút hàng trước 14 ngày',
-    collected: '',
-    spent: '',
-    intoMoney: ''
+    content: 'Thu tiền ',
+    kindOfMoney: '',
+    receiveMoney: 0,
+    paidMoney: 0,
+    collected: 0,
+    spent: 0,
+    intoMoney: 0
   }
 ])
 
@@ -1309,7 +1325,6 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
-const codeReturnRequest = ref()
 var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
@@ -1445,7 +1460,6 @@ const postPaymentRequest = async () => {
   idPayment.value = objIdPayment.value.paymentRequestId
 }
 
-const valueTypeMoney = ref(2)
 const optionsTypeMoney = [
   {
     value: 1,
@@ -1460,6 +1474,7 @@ const optionsTypeMoney = [
     label: 'Tiền khác'
   }
 ]
+const valueTypeMoney = ref(optionsTypeMoney[1])
 
 const changeEditInDetail = () => {
   if (type == 'detail') {
@@ -1475,6 +1490,7 @@ const changeEditInDetail = () => {
     })
   }
 }
+const checkPTC = ref(0)
 
 let childrenTable = ref()
 let objOrderStransaction = ref()
@@ -1486,22 +1502,22 @@ const postOrderStransaction = async () => {
     quantity: parseInt(val.quantity)
   }))
 
-  childrenTable.value.pop()
-  codeReturnRequest.value = autoCodeReturnRequest
   const payload = {
     orderId: id,
     content: tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: 0,
-    paidMoney: 0,
+    receiveMoney: tableAccountingEntry.value[0].receiveMoney,
+    paidMoney: tableAccountingEntry.value[0].paidMoney,
     deibt: 0,
-    typeOfPayment: 0,
+    typeOfPayment: checkPTC.value ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: 0,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
-    merchadiseTobePayfor: childrenTable.value
+    merchadiseTobePayfor: childrenTable.value,
+    typeOfAccountingEntry: 1
+    // returnRequestId: idReturnRequest.value
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1512,7 +1528,7 @@ const postOrderStransaction = async () => {
 const inputReasonReturn = ref('')
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 if (tableReturnFullyIntegrated.value.length == 0)
-  tableReturnFullyIntegrated.value.push({
+  tableReturnFullyIntegrated.value?.push({
     createdAt: '',
     productPropertyId: '',
     productPropertyName: '',
@@ -1571,14 +1587,14 @@ const editData = async () => {
     disabledEdit.value = true
     disableCreateOrder.value = true
 
-    const res = await getOrderList({ Id: id, ServiceType: 2 })
     const transaction = await getOrderTransaction({ id: id })
+    const res = await getOrderList({ Id: id, ServiceType: 2 })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-
+    console.log('orderObj: ', orderObj)
     arrayStatusOrder.value = orderObj?.statusHistory
 
     if (arrayStatusOrder.value?.length) {
@@ -1600,16 +1616,14 @@ const editData = async () => {
     dataEdit.value = orderObj
     if (res.data) {
       ruleForm.orderCode = orderObj.code
-      ruleForm.collaborators = orderObj.collaborator.id
-      // @ts-ignore
-      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
+
+      // @ts-ignore
+      ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
 
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -1635,7 +1649,7 @@ const editData = async () => {
     orderObj.orderFiles.map(
       (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
         if (element !== null) {
-          ListFileUpload.value.push({
+          ListFileUpload.value?.push({
             url: `${element?.domainUrl}${element?.path}`,
             name: element?.fileId,
             uid: element?.id
@@ -1644,8 +1658,19 @@ const editData = async () => {
       }
     )
   } else if (type == 'add' || !type) {
-    ListOfProductsForSale.value.push({ ...productForSale })
+    ListOfProductsForSale.value?.push({ ...productForSale })
   }
+}
+const valueMoneyAccoungtingEntry = ref(0)
+
+const autoChangeMoneyAccountingEntry = (_val, scope) => {
+  valueMoneyAccoungtingEntry.value = 0
+  const data = scope.row
+  data.intoMoney = Math.abs(parseInt(data.paidMoney) - parseInt(data.receiveMoney))
+
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
 }
 
 const editOrderInfo = async () => {
@@ -1748,6 +1773,7 @@ const setDataForReturnOrder = () => {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
+  console.log('reason', reason)
   let tableReturnPost = [{}]
   if (rentReturnOrder.value.tableData.length < 2) {
     return
@@ -1770,8 +1796,55 @@ const postReturnRequest = async (reason) => {
   await createReturnRequest(payload)
 }
 
+// Trả hàng trước thời hạn
+const returnGoodsAheadOfTime = async (status) => {
+  let tableReturnPost = [{}]
+
+  // if (rentReturnOrder.value.tableData.length < 2) {
+  //   return
+  // }
+  // rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: e.quantity,
+    accessory: e.accessory,
+    returnDetailType: 3,
+    unitPrice: 0,
+    totalPrice: 0,
+    isSpa: true
+  }))
+  console.log('tableReturnPost', tableReturnPost)
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: formatOrderReturnReason(status),
+    description: formatOrderReturnReason(status),
+    returnRequestType: 3,
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: [],
+    nhapDetails: [],
+    xuatDetails: tableReturnPost,
+    isPaid: true
+  }
+  const res = await createReturnRequest(payload)
+  if (res) {
+    ElNotification({
+      message: 'Đã gửi yêu cầu thành công!',
+      type: 'success'
+    })
+    reloadStatusOrder()
+  } else {
+    ElNotification({
+      message: 'Yêu cầu trả hàng thất bại!',
+      type: 'warning'
+    })
+  }
+}
+
 if (type == 'add') {
-  arrayStatusOrder.value.push({
+  arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
     isActive: true
@@ -1850,11 +1923,13 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 const fileList = ref<UploadUserFile[]>([])
 
 const addRow = () => {
-  rentReturnOrder.value.tableData.push({ ...productForSale })
+  rentReturnOrder.value.tableData?.push({ ...productForSale })
 }
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+const completeThePayment = ref(false)
 const billLiquidationDis = ref(false)
 onBeforeMount(async () => {
   await editData()
@@ -2585,7 +2660,11 @@ onBeforeMount(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input
+              v-model="enterMoney"
+              style="width: 100%"
+              :placeholder="t('formDemo.writtenWords')"
+            />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -3017,12 +3096,12 @@ onBeforeMount(async () => {
           <div class="flex gap-2 justify-around">
             <div class="flex-left">
               <div class="flex gap-4 pt-4 pb-4 items-center">
-                <label class="w-[35%] text-right">{{ t('formDemo.orderCode') }}</label>
-                <p class="w-[45%] font-bold text-xl">{{ ruleForm.orderCode }}</p>
+                <label class="text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="font-bold text-xl">{{ ruleForm.orderCode }}</p>
               </div>
               <div class="flex gap-4 pt-2 pb-4 items-center">
-                <label class="w-[35%] text-right">{{ t('reuse.depositPeriod') }}</label>
-                <p class="w-[45%]">11/11/2022 đến 22/12/2023</p>
+                <label class="text-right">{{ t('reuse.depositPeriod') }}</label>
+                <p class="">11/11/2022 đến 22/12/2023</p>
               </div>
             </div>
             <div class="flex-right">
@@ -3064,7 +3143,11 @@ onBeforeMount(async () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="260" />
+            <el-table-column prop="content" :label="t('reuse.content')" width="240">
+              <template #default="props">
+                <el-input v-model="props.row.content" />
+              </template>
+            </el-table-column>
             <el-table-column :label="t('formDemo.kindOfMoney')" width="110">
               <el-select v-model="valueTypeMoney" class="m-2" placeholder="Select">
                 <el-option
@@ -3075,20 +3158,27 @@ onBeforeMount(async () => {
                 />
               </el-select>
             </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
+            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
-                <div>{{ props.row.collected }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.receiveMoney"
+                />
               </template>
             </el-table-column>
-
-            <el-table-column prop="spent" :label="t('formDemo.spent')">
+            <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
               <template #default="props">
-                <div class="text-right">{{ props.row.spent }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.paidMoney"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoney }} đ</div>
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3097,7 +3187,9 @@ onBeforeMount(async () => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(valueMoneyAccoungtingEntry)
+              }}</p>
             </div>
           </div>
         </div>
@@ -3420,9 +3512,10 @@ onBeforeMount(async () => {
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @remove-row="removeRow"
-        @post-return-request="postReturnRequest"
+        @post-return-request="returnGoodsAheadOfTime"
         :orderStatusType="2"
         :type="3"
+        :statusActive="2"
       />
       <ReturnOrder
         v-model="hetHan"
@@ -3442,7 +3535,7 @@ onBeforeMount(async () => {
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="8"
+        :orderStatusType="9"
         :type="3"
       />
 
@@ -3725,16 +3818,12 @@ onBeforeMount(async () => {
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 width="650px"
                 :items="listProducts"
@@ -3915,7 +4004,7 @@ onBeforeMount(async () => {
         <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center flex-wrap w-[100%]">
               <div
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
@@ -3926,6 +4015,7 @@ onBeforeMount(async () => {
                     item.orderStatus == STATUS_ORDER_DEPOSIT[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
                   "
                 >
@@ -3940,14 +4030,14 @@ onBeforeMount(async () => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_DEPOSIT[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[4].orderStatus
                   "
                 >
@@ -3961,11 +4051,12 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus">
+                <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus">
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
@@ -3976,9 +4067,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -3996,9 +4088,10 @@ onBeforeMount(async () => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
+                  <i v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -4038,7 +4131,9 @@ onBeforeMount(async () => {
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
+                  completeThePayment &&
+                  !duplicateStatusButton) ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
@@ -4111,7 +4206,7 @@ onBeforeMount(async () => {
                 () => {
                   changeReturnGoods = !changeReturnGoods
                   truocHan = true
-                  addStatusOrder(5)
+                  // addStatusOrder(2)
                   setDataForReturnOrder()
                 }
               "
@@ -4121,11 +4216,10 @@ onBeforeMount(async () => {
             >
 
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && !duplicateStatusButton"
               @click="
                 () => {
-                  hetHan = true
-                  // setDataForReturnOrder()
+                  addStatusOrder(4)
                 }
               "
               type="warning"
@@ -4149,11 +4243,11 @@ onBeforeMount(async () => {
               >Trả hàng hết hạn</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
               @click="
                 () => {
-                  addStatusOrder(5)
-                  hetHan = true
+                  // addStatusOrder(5)
+                  completeThePayment = true
                   // setDataForReturnOrder()
                 }
               "
@@ -4162,22 +4256,36 @@ onBeforeMount(async () => {
               >Hoàn thành trả hàng</el-button
             >
             <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus
-              "
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
               @click="
                 () => {
-                  hetHan = true
-                  addStatusOrder(-1)
-                  // setDataForReturnOrder()
+                  addStatusOrder(4)
                 }
               "
               type="warning"
               class="min-w-42 min-h-11"
+              >Hủy trả hàng</el-button
+            >
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[2].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
+                  completeThePayment &&
+                  !duplicateStatusButton)
+              "
+              @click="
+                () => {
+                  addStatusOrder(0)
+                  // addStatusOrder(1)
+
+                  // setDataForReturnOrder()
+                }
+              "
+              type="info"
+              class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
-
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
@@ -4285,9 +4393,7 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button :disabled="checkDisabled" text @click="dialogAccountingEntryAdditional = true"
-          >+ Thêm bút toán</el-button
-        >
+        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -4313,36 +4419,68 @@ onBeforeMount(async () => {
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="40" />
-          <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" width="150">
+          <el-table-column
+            prop="createdAt"
+            :label="t('formDemo.initializationDate')"
+            min-width="150"
+            align="center"
+          >
             <template #default="data">
               {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
           <el-table-column
             prop="content"
-            :label="t('formDemo.certificateInformationAndServiceArising')"
-            width="240"
+            :label="t('formDemo.certificateInformation')"
+            min-width="240"
           />
           <el-table-column
-            prop="receiptOrPaymentVoucherId"
+            prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"
-            width="150"
+            min-width="120"
+            align="left"
+          >
+            <template #default="data">
+              <div
+                @click="(index) => getDetailPayment(index, data)"
+                class="cursor-pointer text-blue-500"
+              >
+                {{ data.row.receiptOrPaymentVoucherCode }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="paymentRequestCode"
+            :label="t('formDemo.paymentOrder')"
+            align="left"
+            min-width="150"
           >
             <template #default="props">
-              <div class="text-blue-500">{{ props.row.receiptOrPaymentVoucherId }}</div>
+              <div
+                @click="(index) => getDetailPaymentRequest(index, props)"
+                class="cursor-pointer text-blue-500"
+                >{{ props.row.paymentRequestCode }}</div
+              >
             </template>
           </el-table-column>
-          <el-table-column prop="paymentRequestId" :label="t('router.paymentProposal')">
-            <template #default="props">
-              <div class="text-blue-500">{{ props.row.paymentRequestId }}</div>
+
+          <el-table-column
+            prop="receiveMoney"
+            :label="t('formDemo.collected')"
+            align="left"
+            min-width="150"
+          >
+            <template #default="data">
+              <el-input
+                v-model="data.row.receiveMoney"
+                v-if="type != 'detail'"
+                style="width: 100%; border: none; outline: none"
+              />
+              <div v-else>{{ data.row.receiveMoney }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
-            <template #default="props">
-              <div class="text-right">{{ props.row.receiveMoney }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
+
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
               <el-input
                 v-model="data.row.paidMoney"
@@ -4350,15 +4488,36 @@ onBeforeMount(async () => {
                 style="width: 100%; border: none; outline: none"
               />
               <div v-else>{{ data.row.paidMoney }}</div>
-            </template></el-table-column
-          >
-          <el-table-column prop="rentalFeeDebt" :label="`${t('reuse.outstandingDebt')}`" />
-          <el-table-column :label="t('formDemo.receivableOrPayable')" width="120">
-            <div>Phải thu</div>
+            </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.choosePayment')" prop="payment" width="180">
+
+          <el-table-column prop="deibt" :label="`${t('reuse.outstandingDebt')}`" min-width="150">
+            <template #default="data">
+              {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="typeOfPayment"
+            :label="t('formDemo.receivableOrPayable')"
+            min-width="120"
+          >
             <template #default="props">
-              <div>{{ props.row.payment }}</div>
+              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
+              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="paymentMethods"
+            :label="t('formDemo.choosePayment')"
+            min-width="160"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.paymentMethods == 0
+                  ? t('formDemo.cashPayment')
+                  : t('formDemo.cardPayment')
+              }}</div>
             </template>
           </el-table-column>
           <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90">
@@ -4557,6 +4716,23 @@ onBeforeMount(async () => {
 }
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
+}
+
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .active {
   opacity: 1 !important;

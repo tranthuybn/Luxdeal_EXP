@@ -60,6 +60,12 @@ const getSelection = () => {
   if (rowSelected.length == 0) {
     return
   }
+  if (props.transactionType == 3 && rowSelected.length != 1) {
+    ElMessage({
+      message: t('reuse.transferCanOnlyChoose1Lot'),
+      type: 'warning'
+    })
+  }
   if (warehouseForm.value.quantity == totalExport.value) {
     warehouseData.value.exportLots = rowSelected.map((item) => ({
       value: item.id,
@@ -322,12 +328,7 @@ onBeforeMount(async () => {
           {{ calculateQuantity(scope) }}
         </template>
       </el-table-column>
-      <el-table-column
-        v-else-if="transactionType == 2"
-        prop="quantity"
-        :label="t('reuse.exportQuantity')"
-        width="180"
-      >
+      <el-table-column prop="quantity" :label="t('reuse.exportQuantity')" width="180">
         <template #default="scope">
           {{ calculateQuantity(scope) }}
         </template>

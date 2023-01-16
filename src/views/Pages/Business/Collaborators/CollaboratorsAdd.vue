@@ -34,7 +34,8 @@ import {
   ElFormItem,
   ElMessage,
   ElTable,
-  ElTableColumn
+  ElTableColumn,
+  ElDialog
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -208,6 +209,8 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 const disabledForm = ref(false)
+
+const centerDialogCancelAccount = ref(false)
 
 watch(
   () => checkValidate.value,
@@ -701,7 +704,33 @@ const tableData = ref([])
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelAccount') }} </ElButton>
+          <ElButton @click="centerDialogCancelAccount = true" type="danger" class="min-w-42">
+            {{ t('formDemo.cancelAccount') }}
+          </ElButton>
+          <el-dialog
+            v-model="centerDialogCancelAccount"
+            :title="t('formDemo.cancelAccount')"
+            width="30%"
+            align-center
+            class="font-semibold"
+          >
+            <div class="text-red-600">
+              {{ t('reuse.cancelAccountCheck') }}
+            </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button
+                  type="danger"
+                  @click="centerDialogCancelAccount = false"
+                  class="min-w-36 min-h-10"
+                  >{{ t('formDemo.cancelAccount') }}</el-button
+                >
+                <el-button @click="centerDialogCancelAccount = false" class="min-w-36 min-h-10">{{
+                  t('reuse.exit')
+                }}</el-button>
+              </span>
+            </template>
+          </el-dialog>
         </div>
         <div v-else-if="type === 'detail'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
@@ -795,14 +824,6 @@ const tableData = ref([])
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
@@ -842,6 +863,11 @@ const tableData = ref([])
 }
 ::v-deep(.el-form-item__error) {
   margin-left: 20px;
+}
+
+::v-deep(.el-dialog__header) {
+  border-bottom: 1px solid rgb(214, 209, 209);
+  margin-right: 0;
 }
 
 .header-icon {

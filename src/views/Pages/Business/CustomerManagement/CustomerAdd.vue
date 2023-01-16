@@ -617,6 +617,9 @@ onBeforeMount(() => {
   change()
   callApiCity()
   getGenCodeCustomer()
+  if (type === 'detail') {
+    disabledForm.value = true
+  }
   if (type === 'detail' || type === 'edit') {
     getTableValue()
   }

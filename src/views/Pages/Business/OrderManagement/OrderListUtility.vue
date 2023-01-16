@@ -71,7 +71,9 @@ import {
   updateStatusOrder,
   approvalOrder,
   cancelOrder,
-  createTicketFromReturnOrder
+  createTicketFromReturnOrder,
+  GetWarehouseTransaction,
+  getAllStaffList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -476,10 +478,6 @@ const handleSelectionChange = (val: tableDataType[]) => {
       }
     }
   })
-  moneyReceipts.value = val.reduce((total, value) => {
-    total += parseInt(value.receiveMoney)
-    return total
-  }, 0)
 }
 
 // Dialog change address
@@ -1503,6 +1501,18 @@ const tableFullyIntegrated = [
   }
 ]
 
+const warehouseTicketCode = ref()
+const staffId = ref()
+const openDetailFullyIntegrated = async (props) => {
+  console.log('props: ', props)
+  const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
+  warehouseTicketCode.value = res.data[0].transactionCode
+  console.log('res: ', res)
+  staffId.value = res.data[0].staffId
+
+  informationWarehouseReceipt.value = true
+}
+
 // Thông tin phiếu nhập hoàn
 const invoiceForGoodsEntering = ref(false)
 const tableInvoice = [
@@ -1623,7 +1633,10 @@ const getReturnRequestTable = async () => {
       unitName: e?.unitName,
       returnDetailType: e?.returnDetailType,
       returnDetailTypeName: e?.returnDetailTypeName,
-      returnDetailStatusName: e?.returnDetailStatusName
+      returnDetailStatusName: e?.returnDetailStatusName,
+      value: e?.productPropertyId,
+      warehouseTicketCode: e.warehouseTicketCode,
+      warehouseTicketId: e.warehouseTicketId
     }))
   }
 }
@@ -1664,19 +1677,16 @@ const choosePayment = [
     label: t('formDemo.cardPayment')
   }
 ]
-const value = ref('')
 let payment = ref(choosePayment[1].value)
 
-const options = [
-  {
-    value: 'Option1',
-    label: 'Option1'
-  },
-  {
-    value: 'Option2',
-    label: 'Option2'
-  }
-]
+const getStaffList = ref()
+const callApiStaffList = async () => {
+  const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
+  getStaffList.value = res.data.map((el) => ({
+    value: el.id,
+    label: el.name + ' | ' + el.contact
+  }))
+}
 
 let statusOrder = ref(2)
 
@@ -1715,22 +1725,6 @@ if (type == 'add' && priceChangeOrders.value == false)
     isActive: true
   })
 
-// options loại tiền bút toán bổ sung
-// const optionsKindOfMoney = [
-//   {
-//     value: 1,
-//     label: 'Tiền cọc(Không tính vào Công nợ phí thuê)'
-//   },
-//   {
-//     value: 2,
-//     label: 'Tiền phí(Tính vào Công nợ phí thuê)'
-//   },
-//   {
-//     value: 3,
-//     label: 'Tiền khác(Không tính vào Công nợ phí thuê)'
-//   }
-// ]
-
 // dialog print
 const nameDialog = ref('')
 // const testDialog = ref(false)
@@ -1752,6 +1746,10 @@ function openDepositDialog() {
 function openReceiptDialog() {
   getReceiptCode()
   clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
 }
@@ -1759,8 +1757,22 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   getcodeExpenditures()
   clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.paidMoney)
+    return total
+  }, 0)
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
+}
+
+const openPaymentRequest = () => {
+  newCodePaymentRequest()
+  clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.paidMoney)
+    return total
+  }, 0)
+  dialogIPRForm.value = true
 }
 
 function printPage(id: string) {
@@ -1851,7 +1863,7 @@ const postOrderStransaction = async (index: number) => {
     deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
-    status: 0,
+    status: 1,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
@@ -2493,6 +2505,7 @@ onBeforeMount(async () => {
   await callApiWarehouseList()
   callCustomersApi()
   callApiCollaborators()
+  callApiStaffList()
   await callApiProductList()
   callApiCity()
 
@@ -3670,7 +3683,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl">BH24354</div>
+            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.generalInformation') }}</span>
@@ -3679,15 +3692,15 @@ onBeforeMount(async () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.receiptCode') }}</label>
-              <div class="w-[100%]">NK345654</div>
+              <div class="w-[100%]">{{ warehouseTicketCode }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.warehouser') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Trần Hữu Dương | 0998844533">
+              <el-select v-model="staffId" placeholder="Trần Hữu Dương | 0998844533">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in getStaffList"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -3800,9 +3813,9 @@ onBeforeMount(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.warehouser') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="value" placeholder="Trần Hữu Dương | 0998844533">
+              <el-select v-model="staffId" placeholder="Trần Hữu Dương | 0998844533">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in getStaffList"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -5401,19 +5414,12 @@ onBeforeMount(async () => {
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
-            <el-button
-              @click="openDepositDialog"
-              :disabled="checkDisabled"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.depositSlipAdvance') }}</el-button
-            >
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+              t('formDemo.depositSlipAdvance')
+            }}</el-button>
             <button
-              :disabled="statusButtonDetail"
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
-                }
-              "
+              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
+              :disabled="checkDisabled"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
@@ -5441,16 +5447,7 @@ onBeforeMount(async () => {
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
-        <el-button
-          :disabled="disabledDNTTAccountingEntry"
-          @click="
-            () => {
-              newCodePaymentRequest()
-              clearData()
-              dialogIPRForm = true
-            }
-          "
-          text
+        <el-button :disabled="disabledDNTTAccountingEntry" @click="openPaymentRequest" text
           >+ Thêm đề nghị thanh toán</el-button
         >
         <el-table
@@ -5639,21 +5636,14 @@ onBeforeMount(async () => {
             <el-table-column prop="unitName" :label="t('reuse.dram')" align="center" width="120" />
 
             <el-table-column
-              prop="invoiceGoodsEnteringWarehouse"
+              prop="warehouseTicketCode"
               :label="t('formDemo.importExportWarehouse')"
               align="left"
               width="200"
             >
               <template #default="props">
-                <div
-                  v-if="props.row.invoiceGoodsEnteringWarehouse == 0"
-                  @click="informationWarehouseReceipt = true"
-                  class="text-blue-500"
-                >
-                  NK3424
-                </div>
-                <div v-else @click="invoiceForGoodsEntering = true" class="text-blue-500">
-                  NK3424
+                <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500">
+                  {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>

@@ -2495,7 +2495,7 @@ const approvalFunction = async () => {
 const totalWarehouse = ref()
 const tableWarehouse = ref()
 
-const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 3) => {
   const getTotalPayload = {
     ProductPropertyId: productPropertyId,
     ServiceType: serviceType
@@ -2508,7 +2508,7 @@ const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => 
 const getTotalWarehouse = () => {
   tableData.value.forEach(async (el) => {
     if (el.productPropertyId)
-      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 3)
   })
 }
 
@@ -2519,7 +2519,7 @@ const callApiWarehouse = async (scope) => {
 
   const res = await GetProductPropertyInventory({
     ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ServiceType: 3
   })
 
   data.warehouseTotal = res.total
@@ -3770,7 +3770,7 @@ onBeforeMount(() => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableWarehouse" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tableChooseWarehouse" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
               prop="commodityName"
@@ -4400,7 +4400,7 @@ onBeforeMount(() => {
         class="z-50"
       >
         <el-divider />
-        <el-table :data="tableChooseWarehouse" border>
+        <el-table :data="tableWarehouse" border>
           <el-table-column prop="warehouseCheckbox" width="90" align="center">
             <template #default="props">
               <el-radio

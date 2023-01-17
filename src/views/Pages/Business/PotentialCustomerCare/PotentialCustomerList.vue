@@ -125,7 +125,7 @@ const columns = reactive<TableColumn[]>([
       return h('ul', [
         h('li', [
           h('span', [t('reuse.date'), ':']),
-          h('span', { style: { paddingLeft: '3px' } }, dateTimeFormat(Recordable['feedbackDate']))
+          h('span', { style: { paddingLeft: '3px' } }, Recordable['feedbackDate'])
         ]),
         h('li', [
           h('span', [t('reuse.rating'), ':']),

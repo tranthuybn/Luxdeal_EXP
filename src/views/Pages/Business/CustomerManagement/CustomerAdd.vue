@@ -38,7 +38,8 @@ import {
   addNewCustomer,
   getGenCodeCustomers,
   addNewAuthRegister,
-  updatedCustomer
+  updatedCustomer,
+  cancelCustomerAccount
 } from '@/api/Business'
 import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
@@ -557,6 +558,27 @@ const postData = async (typebtn) => {
 }
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
+
+//hủy tài khoản khách hàng
+const cancelAccountCustomer = async () => {
+  await cancelCustomerAccount({ Id: id })
+    .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công',
+        type: 'success'
+      }),
+        push({
+          name: 'business.customer-management.customerList',
+          params: { backRoute: 'business.customer-management.customerList' }
+        })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
+}
 
 let disableData = ref(false)
 watch(
@@ -1118,7 +1140,12 @@ onBeforeMount(() => {
                     <span class="dialog-footer">
                       <el-button
                         type="danger"
-                        @click="centerDialogCancelAccount = false"
+                        @click="
+                          () => {
+                            cancelAccountCustomer()
+                            centerDialogCancelAccount = false
+                          }
+                        "
                         class="min-w-36 min-h-10"
                         >{{ t('formDemo.cancelAccount') }}</el-button
                       >

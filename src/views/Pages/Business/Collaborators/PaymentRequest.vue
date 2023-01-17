@@ -111,7 +111,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130'
   },
   {
-    field: 'CommissionPaymentStatus',
+    field: 'status',
     label: t('reuse.status'),
     minWidth: '200',
     align: 'center',

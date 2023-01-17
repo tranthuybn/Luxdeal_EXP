@@ -10,7 +10,10 @@ import {
   getCollaboratorsById,
   getGenCodeCollaborators,
   addNewCollaborators,
-  updateCollaborators
+  updateCollaborators,
+  cancelCustomerCollabolator,
+  GetOrderByCollabolatorId,
+  getCommissionPaymentByCollaboratorId
 } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
@@ -212,6 +215,27 @@ const disabledForm = ref(false)
 
 const centerDialogCancelAccount = ref(false)
 
+//hủy tài khoản cộng tác viên
+const cancelAccountCollabolator = async () => {
+  await cancelCustomerCollabolator({ Id: id })
+    .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công',
+        type: 'success'
+      }),
+        push({
+          name: 'business.collaborators.collaboratorsList',
+          params: { backRoute: 'business.collaborators.collaboratorsList' }
+        })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
+}
+
 watch(
   () => checkValidate.value,
   () => {
@@ -265,9 +289,7 @@ const cancel = async () => {
     params: { backRoute: 'business.collaborators.collaboratorsList' }
   })
 }
-// const cancel = () => {
-//   go(-1)
-// }
+
 const ListFileUpload = ref<UploadUserFile[]>([])
 
 const setFormValue = async () => {
@@ -278,7 +300,6 @@ const setFormValue = async () => {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
           name: element?.file?.fileName
-          // id: element?.file?.id
         })
       }
     })
@@ -322,6 +343,10 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 onBeforeMount(() => {
   callCustomersApi()
+  if (type == 'edit' || type == 'detail') {
+    getOrderByCollaborator()
+    getCommissionPaymentByCollaborator()
+  }
 })
 let FileDeleteIds: any = []
 const beforeRemove = (uploadFile) => {
@@ -384,7 +409,6 @@ watch(
       disabledTable.value = true
     }
     if (type === 'detail' || type === 'edit') {
-      // getTableValue()
       disabledTable.value = true
       getTableValue()
     }
@@ -460,12 +484,23 @@ const fix = async () => {
 }
 const activeName = ref(collapse[0].name)
 
+const tableData = ref<Array<any>>([])
+
+const getOrderByCollaborator = async () => {
+  const res = await GetOrderByCollabolatorId({ Id: id })
+  const obj = res?.data.data
+}
+
+const getCommissionPaymentByCollaborator = async () => {
+  await getCommissionPaymentByCollaboratorId({ Id: id }).then((res) => {
+    console.log('res payment: ', res)
+  })
+}
+
 const params = { id: id }
 provide('parameters', {
   params
 })
-
-const tableData = ref([])
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -721,7 +756,12 @@ const tableData = ref([])
               <span class="dialog-footer">
                 <el-button
                   type="danger"
-                  @click="centerDialogCancelAccount = false"
+                  @click="
+                    () => {
+                      cancelAccountCollabolator()
+                      centerDialogCancelAccount = false
+                    }
+                  "
                   class="min-w-36 min-h-10"
                   >{{ t('formDemo.cancelAccount') }}</el-button
                 >
@@ -751,12 +791,12 @@ const tableData = ref([])
         </template>
         <el-table :data="tableData" border style="width: 100%">
           <el-table-column prop="date" :label="t('reuse.date')" width="180" />
-          <el-table-column prop="name" :label="t('reuse.orderCodepaymentCode')" width="300" />
-          <el-table-column prop="1" :label="t('reuse.percentDiscount')" />
-          <el-table-column prop="2" :label="t('reuse.orderSales')" />
-          <el-table-column prop="3" :label="t('formDemo.intoDiscountComMoney')" />
-          <el-table-column prop="4" :label="t('formDemo.spent')" />
-          <el-table-column prop="5" :label="t('formDemo.cumulativeCom')" />
+          <el-table-column prop="code" :label="t('reuse.orderCodepaymentCode')" width="300" />
+          <el-table-column prop="commission" :label="t('reuse.percentDiscount')" />
+          <el-table-column prop="totalPrice" :label="t('reuse.orderSales')" />
+          <el-table-column prop="priceCommission" :label="t('formDemo.intoDiscountComMoney')" />
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" />
+          <el-table-column prop="cumulativeCom" :label="t('formDemo.cumulativeCom')" />
         </el-table>
       </el-collapse-item>
     </el-collapse>

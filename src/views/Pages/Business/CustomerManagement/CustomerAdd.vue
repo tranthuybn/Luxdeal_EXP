@@ -41,6 +41,7 @@ import {
   updatedCustomer,
   cancelCustomerAccount
 } from '@/api/Business'
+import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -635,6 +636,28 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
+const updatePassword = async () => {
+  centerDialogVisible.value = false
+  const payload = {
+    userName: formValue.value?.userName,
+    newPassword: ruleForm.password,
+    confirmPassword: ruleForm.confirmPassword
+  }
+  await updatePasswordApi(payload)
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Đổi mật khẩu thành công'
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Đổi mật khẩu thất bại'
+      })
+    })
+}
+
 onBeforeMount(() => {
   change()
   callApiCity()
@@ -1030,7 +1053,7 @@ onBeforeMount(() => {
                       <el-input
                         v-model="ruleForm.password"
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
+                        type="password"
                         :placeholder="t('reuse.enterNewPassword')"
                         :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
@@ -1044,7 +1067,7 @@ onBeforeMount(() => {
                       <el-input
                         v-model="ruleForm.confirmPassword"
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
+                        type="password"
                         :placeholder="t('reuse.confirmPassword')"
                         :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
@@ -1053,7 +1076,7 @@ onBeforeMount(() => {
                       <span class="dialog-footer">
                         <el-button
                           type="primary"
-                          @click="centerDialogVisible = false"
+                          @click="updatePassword"
                           class="min-w-36 min-h-10"
                           >{{ t('reuse.save') }}</el-button
                         >

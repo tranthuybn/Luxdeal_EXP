@@ -66,7 +66,9 @@ import {
   finishStatusOrder,
   GetPaymentRequestDetail,
   getDetailReceiptPaymentVoucher,
-  finishReturnOrder
+  finishReturnOrder,
+  GetWarehouseTransaction,
+  getReturnRequestForOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -76,6 +78,7 @@ import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+import { API_URL } from '@/utils/API_URL'
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -423,6 +426,7 @@ interface ListOfProductsForSaleType {
   amountSpa: number
   quantity: string
   accessory: string | undefined
+  code: string | undefined
   unitName: string
   warehouseTotal?: number | any
   price: string | number | undefined
@@ -447,6 +451,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: '',
   accessory: '',
+  code: '',
   businessManagement: {},
 
   unitName: 'Cái',
@@ -494,6 +499,7 @@ const removeListProductsSale = (index) => {
 
 interface tableDataType {
   [x: string]: any
+  typeEntry: number
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -507,6 +513,64 @@ interface tableDataType {
   alreadyPaidForTt: boolean
   idPTC?: number
   statusAccountingEntry: string
+}
+
+const arrFakeDebt1 = reactive<tableDataType>({
+  id: 1,
+  typeEntry: 1,
+  createdAt: '2023-02-17T17:03:25.083',
+  content: 'Sản phẩm 1, đơn: Bán hàng',
+  receiptOrPaymentVoucherId: 0,
+  paymentRequestId: '',
+  moneyType: 1,
+  receiveMoney: '350000',
+  paidMoney: '250000',
+  debt: '100000',
+  typeOfPayment: '2',
+  paymentMethods: 2,
+  status: 1,
+  alreadyPaidForTt: false,
+  statusAccountingEntry: '0'
+})
+
+const arrFakeDebt2 = reactive<tableDataType>({
+  id: 2,
+  typeEntry: 2,
+  createdAt: '2022-06-19T17:03:25.083',
+  content: 'Sản phẩm 2, đơn: Cho thuê',
+  receiptOrPaymentVoucherId: 0,
+  paymentRequestId: '',
+  moneyType: 1,
+  receiveMoney: '8000000',
+  paidMoney: '210000',
+  debt: '100000',
+  typeOfPayment: '2',
+  paymentMethods: 2,
+  status: 1,
+  alreadyPaidForTt: false,
+  statusAccountingEntry: '0'
+})
+
+const arrFakeDebt3 = reactive<tableDataType>({
+  id: 3,
+  typeEntry: 3,
+  createdAt: '2023-01-17T17:03:25.083',
+  content: 'Sản phẩm 3, đơn: Spa',
+  receiptOrPaymentVoucherId: 0,
+  paymentRequestId: '',
+  moneyType: 1,
+  receiveMoney: '350000',
+  paidMoney: '250000',
+  debt: '0',
+  typeOfPayment: '2',
+  paymentMethods: 2,
+  status: 1,
+  alreadyPaidForTt: false,
+  statusAccountingEntry: '0'
+})
+
+const addLastIndexSellTableDetb = () => {
+  debtTable.value.push(arrFakeDebt1, arrFakeDebt2, arrFakeDebt3)
 }
 
 let countExisted = ref(0)
@@ -858,6 +922,7 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateStatusOrder(formDataPayLoad)
   statusOrder.value = status
+  reloadStatusOrder()
 }
 
 const duplicateStatusButton = ref(false)
@@ -879,7 +944,9 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 const addStatusOrder = (index) => {
@@ -1130,7 +1197,6 @@ const input = ref('')
 const valueProvince = ref('')
 const valueDistrict = ref('')
 const valueCommune = ref('')
-const historyTable = ref<Array<any>>([])
 
 const collapseChangeEvent = (val: string | string[]) => {
   if (val) {
@@ -1557,47 +1623,61 @@ const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
 if (tableReturnFullyIntegrated.value.length == 0)
   tableReturnFullyIntegrated.value?.push({
     createdAt: '',
-    productPropertyId: '',
+    productPropertyId: undefined,
     productPropertyName: '',
-    accessory: '0',
+    productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    accessory: '',
     conditionProducts: '',
-    quantity: '1',
+    quantity: 1,
     unit: '',
-    refundUnitPrice: 0,
-    intoUnitPrice: 0,
+    unitPrice: 0,
+    totalPrice: 0,
     invoiceGoodsEnteringWarehouse: 0,
     inventoryStatus: ''
   })
 
 interface historyTableType {
   createdAt: string
-  productPropertyId: string
-  productPropertyName: string | undefined
+  productPropertyId: string | any
+  productCode?: string
+  productPropertyName?: string
+  productName?: string
+  productPropertyCode?: string
   accessory?: string
   conditionProducts?: string
-  quantity: string
+  quantity: number
   unit?: string
   refundUnitPrice?: number
   intoUnitPrice?: number
   invoiceGoodsEnteringWarehouse?: number
   inventoryStatus?: string
+  unitPrice?: number
+  totalPrice?: number
 }
+
+const historyTable = ref<Array<any>>([])
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  // const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
-      productPropertyName: e.productPropertyName,
-      accessory: e.accessory,
-      quantity: e.quantity,
-      unitName: e.unitName,
-      returnDetailType: e.returnDetailType,
-      returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      productPropertyId: e?.productPropertyId,
+      productPropertyName: e?.productPropertyName,
+      accessory: e?.accessory,
+      quantity: e?.quantity,
+      unitName: e?.unitName,
+      returnDetailType: e?.returnDetailType,
+      returnDetailTypeName: e?.returnDetailTypeName,
+      returnDetailStatusName: e?.returnDetailStatusName,
+      value: e?.productPropertyId,
+      warehouseTicketCode: e.warehouseTicketCode,
+      warehouseTicketId: e.warehouseTicketId
     }))
   }
 }
@@ -1634,6 +1714,7 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
+
     Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -1690,6 +1771,12 @@ const editData = async () => {
         }
       }
     )
+    orderObj.orderFiles.map((element) => {
+      fileList.value.push({
+        url: `${API_URL}${element?.path}`,
+        name: element?.fileId
+      })
+    })
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value?.push({ ...productForSale })
   }
@@ -1740,20 +1827,95 @@ const changeReturnGoods = ref(false)
 //   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
 // }
 
-// Thông tin phiếu thanh toán phí ký gửi spa
+// Thông tin phiếu để nghị thanh toán spa
 const dialogDepositFeeInformation = ref(false)
-// Call api chi tiết bút toán theo id
+
+// Chi tiết bút toán
+const openDialogAcountingEntry = (scope) => {
+  const data = scope.row
+  switch (data.typeOfAccountingEntry) {
+    case 1:
+      openAcountingEntryDialog(data.id, 1)
+      break
+    case 2:
+      openAcountingEntryDialog(data.id, 2)
+      break
+    default:
+      console.log(`Sorry, we are out of ${data.typeOfAccountingEntry}.`)
+  }
+}
+const tableProductInformationExportChange = ref<Array<historyTableType>>([])
 let formAccountingId = ref()
 let tableSalesSlip = ref()
-const getAccountingEntry = async (index, num) => {
+const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tableSalesSlip.value = formAccountingId.value.paidMerchandises
-  tableAccountingEntry.value = formAccountingId.value.accountingEntry
-  if (num == 1) dialogAccountingEntryAdditional.value = true
-  else if (num == 2) dialogDepositSlip.value = true
-  else dialogDepositFeeInformation.value = true
+  tableSalesSlip.value = formAccountingId.value?.paidMerchandises
+  tableSalesSlip.value.forEach((e) => {
+    e.totalPrice = e.unitPrice * e.quantity
+  })
+  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
+  // paidMoney.value = formAccountingId.value?.paidMoney
+  tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
+  tableAccountingEntry.value.forEach((el) => {
+    el.intoMoney = Math.abs(el.paidMoney - el.receiveMoney)
+  })
+  valueMoneyAccoungtingEntry.value = 0
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
+  alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
+
+  getReturnOrder()
+  if (num == 1) {
+    dialogAccountingEntryAdditional.value = true
+  } else if (num == 2) {
+    dialogDepositSlip.value = true
+  } else {
+    const res = await getReturnRequest({ CustomerOrderId: id })
+    const optionsReturnRequest = res.data
+    if (optionsReturnRequest[0]?.nhapDetails)
+      tableReturnFullyIntegrated.value = optionsReturnRequest[0].nhapDetails
+    if (optionsReturnRequest[0]?.xuatDetails)
+      tableProductInformationExportChange.value = optionsReturnRequest[0].xuatDetails
+    inputReasonReturn.value = optionsReturnRequest[0].description
+    changeReturnGoods.value = true
+  }
 }
+
+const addProductInformationExportChange = () => {
+  tableProductInformationExportChange.value.push({
+    createdAt: '',
+    productPropertyId: undefined,
+    productPropertyName: '',
+    productCode: '',
+    productName: '',
+    productPropertyCode: '',
+    accessory: '',
+    conditionProducts: '',
+    quantity: 1,
+    unit: '',
+    unitPrice: 0,
+    totalPrice: 0,
+    invoiceGoodsEnteringWarehouse: 0,
+    inventoryStatus: ''
+  })
+}
+
+const getReturnOrder = () => {
+  listOfOrderProduct.value = ListOfProductsForSale.value?.map((el) => ({
+    productCode: el?.productCode,
+    productPropertyCode: el?.productPropertyCode,
+    productPropertyName: el?.productPropertyName,
+    productPropertyId: el?.productPropertyId,
+    // unitPrice: el?.unitPrice,
+    // totalPrice: el?.totalPrice,
+    maximumQuantity: el?.quantity
+  }))
+}
+
+if (tableProductInformationExportChange.value?.length == 0) addProductInformationExportChange()
+
 const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
@@ -1796,7 +1958,7 @@ const setDataForReturnOrder = () => {
   listOfOrderProduct.value = listProducts.value.filter((item) => {
     return productArray.includes(item.productPropertyId)
   })
-  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.period = ruleForm.rentalPeriod
   rentReturnOrder.value.extendDate = ''
   rentReturnOrder.value.name = infoCompany.name
@@ -1815,19 +1977,77 @@ const postReturnRequest = async (reason) => {
   rentReturnOrder.value.tableData.pop()
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: Number(e.productPropertyId),
-    quantity: e.quantity,
-    accessory: e.accessory
+    quantity: parseInt(e.quantity),
+    accessory: e.accessory,
+    returnDetailType: 4,
+    unitPrice: 0,
+    totalPrice: 0,
+    isSpa: true
   }))
 
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
-    name: 'Đổi trả đơn hàng',
+    name: formatOrderReturnReason(reason),
     description: formatOrderReturnReason(reason),
-    returnRequestType: 1,
-    details: tableReturnPost
+    returnRequestType: 4,
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: tableReturnPost,
+    nhapDetails: [],
+    xuatDetails: [],
+    isPaid: true
   }
   await createReturnRequest(payload)
+}
+
+// trả hàng hết hạn
+const paymentExpired = async (status) => {
+  console.log('status', status)
+  let tableReturnPost = [{}]
+
+  // if (rentReturnOrder.value.tableData.length < 2) {
+  //   return
+  // }
+  // rentReturnOrder.value.tableData.pop()
+  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+    productPropertyId: Number(e.productPropertyId),
+    quantity: parseInt(e.quantity),
+    accessory: e.accessory,
+    returnDetailType: 4,
+    unitPrice: 0,
+    totalPrice: 0,
+    isSpa: true
+  }))
+  console.log('tableReturnPost', tableReturnPost)
+  const payload = {
+    customerOrderId: id,
+    code: autoCodeReturnRequest,
+    name: formatOrderReturnReason(status),
+    description: formatOrderReturnReason(status),
+    returnRequestType: 4,
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: [],
+    nhapDetails: [],
+    xuatDetails: tableReturnPost,
+    isPaid: true
+  }
+  const res = await createReturnRequest(payload)
+  if (res) {
+    ElNotification({
+      message: 'Đã trả hàng hết hạn thành công!',
+      type: 'success'
+    })
+    reloadStatusOrder()
+  } else {
+    ElNotification({
+      message: 'Trả hàng thất bại!',
+      type: 'warning'
+    })
+  }
 }
 
 // Trả hàng trước thời hạn
@@ -1840,14 +2060,13 @@ const returnGoodsAheadOfTime = async (status) => {
   // rentReturnOrder.value.tableData.pop()
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: Number(e.productPropertyId),
-    quantity: e.quantity,
+    quantity: parseInt(e.quantity),
     accessory: e.accessory,
     returnDetailType: 3,
     unitPrice: 0,
     totalPrice: 0,
     isSpa: true
   }))
-  console.log('tableReturnPost', tableReturnPost)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
@@ -1944,14 +2163,14 @@ const beforeAvatarUpload = (rawFile, type: string) => {
   //   }
   // }
 }
-const handleRemove = (file: UploadFile) => {
-  return file
+const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles)
 }
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
   uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
+    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file, uploadFiles) : ''
   })
   Files = ListFileUpload.value.map((el) => el?.raw)
 }
@@ -1962,6 +2181,16 @@ const addRow = () => {
 }
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
+}
+const warehouseTicketCode = ref()
+const staffId = ref()
+const openDetailFullyIntegrated = async (props) => {
+  const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
+  warehouseTicketCode.value = res.data[0].transactionCode
+  console.log('res: ', res)
+  staffId.value = res.data[0].staffId
+
+  // informationWarehouseReceipt.value = true
 }
 
 const completeThePayment = ref(false)
@@ -2578,7 +2807,7 @@ onBeforeMount(async () => {
         <div>
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Số tiền thu</label>
-            <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -3583,7 +3812,7 @@ onBeforeMount(async () => {
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
-        @post-return-request="postReturnRequest"
+        @post-return-request="paymentExpired"
         :orderStatusType="3"
         :type="3"
       />
@@ -3698,10 +3927,12 @@ onBeforeMount(async () => {
                   v-model:file-list="fileList"
                   :limit="10"
                   :multiple="true"
+                  :disabled="disabledEdit"
                   :on-exceed="handleExceed"
                   :on-change="handleChange"
                   :auto-upload="false"
                   class="relative"
+                  :on-remove="handleRemove"
                 >
                   <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
                   <template #file="{ file }">
@@ -3937,6 +4168,21 @@ onBeforeMount(async () => {
               />
             </template>
           </el-table-column>
+
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.code }}
+              </div>
+              <el-input
+                v-else
+                :disabled="disabledEdit"
+                v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`"
+              />
+            </template>
+          </el-table-column>
+
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
@@ -4046,7 +4292,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="w-[100%]">
@@ -4291,7 +4537,6 @@ onBeforeMount(async () => {
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
               "
               @click="
@@ -4329,7 +4574,7 @@ onBeforeMount(async () => {
                 >Hủy trả hàng</el-button
               >
             </div>
-            <div v-if="completeThePayment">
+            <div v-if="completeThePayment && statusOrder != STATUS_ORDER_DEPOSIT[2].orderStatus">
               <el-button
                 class="min-w-42 min-h-11"
                 :disabled="billLiquidationDis"
@@ -4607,32 +4852,46 @@ onBeforeMount(async () => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="t('formDemo.alreadyPaidForTt')" width="90">
-            <template #default="props">
-              <el-checkbox v-model="props.row.alreadyPaidForTt" />
+          <el-table-column
+            prop="isReceiptedMoney"
+            :label="t('formDemo.alreadyPaidForTt')"
+            align="center"
+            min-width="70"
+          >
+            <template #default="scope">
+              <el-checkbox :disabled="true" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
-            prop="statusAccountingEntry"
-            min-width="100"
-          />
-          <el-table-column :label="t('formDemo.manipulation')" align="center">
+            prop="status"
+            align="center"
+            min-width="120"
+          >
+            <template #default="props">
+              <div>{{
+                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+              }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column :label="t('formDemo.manipulation')" min-width="120" align="center">
             <template #default="data">
-              <button
-                @click="
-                  data.row.content.includes('Thu tiền phạt rút hàng trước 14 ngày')
-                    ? getAccountingEntry(data.row.id, 1)
-                    : getAccountingEntry(data.row.id, 2)
-                "
-                v-if="type != 'detail'"
-                class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
-              >
-                {{ t('reuse.detail') }}
-              </button>
+              <div class="flex">
+                <button
+                  @click="() => openDialogAcountingEntry(data)"
+                  v-if="type != 'detail'"
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
+                >
+                  {{ t('reuse.detail') }}
+                </button>
+                <div v-else>{{ t('reuse.detail') }}</div>
+              </div>
             </template>
           </el-table-column>
         </el-table>
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTableDetb"
+          >+ {{ t('formDemo.add') }}</el-button
+        >
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[3].name">
@@ -4675,21 +4934,15 @@ onBeforeMount(async () => {
 
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
             <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
-
             <el-table-column
-              prop="invoiceGoodsEnteringWarehouse"
+              prop="warehouseTicketCode"
               :label="t('reuse.billExport')"
               align="left"
               width="200"
             >
               <template #default="props">
-                <div v-if="props.row.invoiceGoodsEnteringWarehouse == 0" class="text-blue-500">
-                  <!-- @click="informationWarehouseReceipt = true" -->
-                  NK3424
-                </div>
-                <div v-else class="text-blue-500">
-                  <!-- @click="invoiceForGoodsEntering = true" -->
-                  NK3424
+                <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500">
+                  {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>

@@ -53,7 +53,7 @@ const { t } = useI18n()
         <p class="trading-code">Mã Giao Dịch: NHSG440</p>
       </div>
       <div class="liquidation-contract-name">
-        <h2>HỢP ĐỒNG THANH LÝ HÀNG HÓA</h2>
+        <h2>HỢP ĐỒNG KÝ GỬI HÀNG HÓA</h2>
       </div>
     </div>
     <div class="number-location">

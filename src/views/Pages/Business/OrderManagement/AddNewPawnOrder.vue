@@ -209,13 +209,14 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  productPropertyId: string
+  productPropertyId: string | number | any
   spaServices: string
   warehouseTotal?: number | any
   amountSpa: number
   quantity: string
   businessManagement: {}
   accessory: string | undefined
+  code: string | undefined
   warehouseInfo: {}
   unitName: string
   TotalPrice: number
@@ -236,9 +237,10 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   spaServices: '',
   amountSpa: 2,
-  productPropertyId: '',
+  productPropertyId: undefined,
   quantity: '1',
   accessory: '',
+  code: '',
   businessManagement: {},
   warehouseInfo: {},
   unitName: 'Cái',
@@ -263,6 +265,7 @@ let tablePawnSlip = ref<any[]>([{}])
 // debtTable
 interface tableDataType {
   [x: string]: any
+  id: number
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -642,7 +645,7 @@ const callAPIProduct = async () => {
       value: product.productCode,
       name: product.name ?? '',
       unit: product.unitName,
-      price: product.price,
+      price: product.price.toString(),
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -697,7 +700,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     data.unitName = obj.unit
@@ -934,7 +937,9 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 // Danh mục brand unit origin api
@@ -1565,7 +1570,9 @@ const handle = () => {
   }
 }
 const disableCreateOrder = ref(false)
-
+const disabledDate = (time: Date) => {
+  return time.getTime() <= Date.now()
+}
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
@@ -1609,11 +1616,10 @@ const editData = async () => {
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
       priceintoMoneyByday.value = orderObj.interestMoney
+      customerID.value = orderObj.customer.id
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.id
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
 
@@ -2122,6 +2128,7 @@ const removeRow = (index) => {
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
+                  :disabled-date="disabledDate"
                   format="DD/MM/YYYY"
                 />
               </el-form-item>
@@ -2593,6 +2600,19 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.code }}
+              </div>
+              <el-input
+                v-else
+                :disabled="disabledEdit"
+                v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`"
+              />
+            </template>
+          </el-table-column>
           <el-table-column
             :disabled="disabledEdit"
             prop="quantity"
@@ -2677,7 +2697,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit"
           >+ {{ t('formDemo.add') }}</el-button
         >
 

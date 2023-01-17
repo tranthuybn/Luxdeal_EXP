@@ -50,3 +50,12 @@ export const getOrderPayments = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+// duyệt sản phẩm
+export const approvalProducts = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${PRODUCTS_AND_SERVICES_API.APPROVAL_PRODUCTS}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}

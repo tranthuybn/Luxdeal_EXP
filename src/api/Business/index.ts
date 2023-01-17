@@ -251,11 +251,11 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
-// edit chi tiết phiếu thu chi
-export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+// edit trạng thái chi tiết phiếu thu chi
+export const editStatusReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
-      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      url: `${ORDER_API.EDIT_STATUS_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
       data: params
     },
     fixedBaseURL
@@ -409,12 +409,34 @@ export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-//tạo mã phiếu nhập/xuất kho cho đơn đổi trả
+// Tạo mã phiếu nhập/xuất kho cho đơn đổi trả
 export const createTicketFromReturnOrder = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
       url: WAREHOUSE_API.CREATE_TICKET_FROM_RETURN_ORDER,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy chi tiết phiếu xuất đổi
+export const GetWarehouseTransaction = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.DETAIL_WAREHOUSE_TRANSACTION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách nhân viên
+export const getAllStaffList = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

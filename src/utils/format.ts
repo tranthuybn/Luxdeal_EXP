@@ -227,9 +227,9 @@ export const businessIventoryStatusTransferToText = (val) => {
 }
 
 export const businessStatusTransferToText = (val) => {
-  if (val == 0) return `${t('reuse.active')}`
-  else if (val == 1) return `${t('reuse.pending')}`
-  else if (val == 2) return `${t('reuse.finishPending')}`
+  if (val == 2) return `${t('reuse.active')}`
+  else if (val == 0) return `${t('reuse.pending')}`
+  else if (val == 1) return `${t('reuse.finishPending')}`
   return `${t('reuse.inactive')}`
 }
 

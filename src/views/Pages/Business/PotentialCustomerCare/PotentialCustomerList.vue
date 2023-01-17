@@ -121,10 +121,11 @@ const columns = reactive<TableColumn[]>([
     minWidth: '180',
     filters: filterStatus,
     formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
+      console.log('Recordable: ', Recordable)
       return h('ul', [
         h('li', [
           h('span', [t('reuse.date'), ':']),
-          h('span', { style: { paddingLeft: '3px' } }, Recordable['feedbackDate'])
+          h('span', { style: { paddingLeft: '3px' } }, dateTimeFormat(Recordable['feedbackDate']))
         ]),
         h('li', [
           h('span', [t('reuse.rating'), ':']),

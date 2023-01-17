@@ -32,7 +32,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
-  POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
+  POST_SPA_ORDER: '/api/v1/Order/CreateOrder',
+  APPROVAL_PRODUCTS: '/api/v1/Approve/ApproveItem'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
@@ -91,7 +92,7 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
-  EDIT_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
+  EDIT_STATUS_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditStatusAReceiptOrPaymentVoucher',
   UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
@@ -144,10 +145,12 @@ export const WAREHOUSE_API = {
   UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
   UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
-  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory'
+  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
+  DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'
 }
 export const STAFF_API = {
-  GET_STAFF: '/api/v1/Staff/GetStaff'
+  GET_STAFF: '/api/v1/Staff/GetStaff',
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',

@@ -398,6 +398,10 @@ const updateCustomer = async () => {
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
+      push({
+        name: 'business.customer-management.customerList',
+        params: { backRoute: 'business.customer-management.customerList' }
+      })
     })
     .catch((error) => {
       ElNotification({
@@ -516,12 +520,12 @@ const postCustomer = async (typebtn) => {
         })
       }
     })
-    .catch((error) =>
-      ElNotification({
-        message: error,
-        type: 'warning'
+    .catch((error) => {
+      ElMessage({
+        message: error?.response?.data?.message,
+        type: 'error'
       })
-    )
+    })
   clear()
 }
 
@@ -544,9 +548,9 @@ const postData = async (typebtn) => {
         }
       })
       .catch((res) =>
-        ElNotification({
+        ElMessage({
           message: res.response.data.message,
-          type: 'success'
+          type: 'error'
         })
       )
   }
@@ -613,6 +617,9 @@ onBeforeMount(() => {
   change()
   callApiCity()
   getGenCodeCustomer()
+  if (type === 'detail' || type === 'edit') {
+    getTableValue()
+  }
 })
 </script>
 
@@ -689,7 +696,7 @@ onBeforeMount(() => {
               }}</el-divider>
               <ElFormItem :label="t('formDemo.classify')" class="flex items-center w-[100%]">
                 <div class="flex">
-                  <div class="flex w-[84%]">
+                  <div class="flex w-[100%]">
                     <div class="flex gap-2 pl-2 w-[100%]">
                       <div class="w-[50%] items-center outline-none">
                         <el-select

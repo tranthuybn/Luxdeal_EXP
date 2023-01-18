@@ -121,7 +121,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '180',
     filters: filterStatus,
     formatter: (Recordable: Recordable, _: TableColumn, __: boolean) => {
-      console.log('Recordable: ', Recordable)
       return h('ul', [
         h('li', [
           h('span', [t('reuse.date'), ':']),

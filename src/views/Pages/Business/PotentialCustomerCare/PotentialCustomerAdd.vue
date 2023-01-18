@@ -825,12 +825,15 @@ const customPostDataHistory = (data) => {
 const editData = async (data) => {
   data = customPostData(data)
   await updatePotentialCustomer(JSON.stringify(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
-    )
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
+      })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),

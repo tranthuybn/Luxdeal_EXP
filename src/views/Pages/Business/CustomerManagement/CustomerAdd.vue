@@ -562,7 +562,11 @@ const centerDialogCancelAccount = ref(false)
 
 //hủy tài khoản khách hàng
 const cancelAccountCustomer = async () => {
-  await cancelCustomerAccount({ Id: id })
+  const payload = {
+    Id: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await cancelCustomerAccount(formDataPayLoad)
     .then(() => {
       ElNotification({
         message: 'Hủy tài khoản thành công',
@@ -639,7 +643,8 @@ const beforeRemove = (uploadFile) => {
 const updatePassword = async () => {
   centerDialogVisible.value = false
   const payload = {
-    userName: formValue.value?.userName,
+    userName: formValue.value?.userName !== null ? formValue.value?.userName : null,
+    email: formValue.value?.userName == null ? formValue.value?.email : null,
     newPassword: ruleForm.password,
     confirmPassword: ruleForm.confirmPassword
   }

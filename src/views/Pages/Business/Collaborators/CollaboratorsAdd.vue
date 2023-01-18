@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 
 import { h, onBeforeMount, provide, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
@@ -217,7 +217,11 @@ const centerDialogCancelAccount = ref(false)
 
 //hủy tài khoản cộng tác viên
 const cancelAccountCollabolator = async () => {
-  await cancelCustomerCollabolator({ Id: id })
+  const payload = {
+    Id: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await cancelCustomerCollabolator(formDataPayLoad)
     .then(() => {
       ElNotification({
         message: 'Hủy tài khoản thành công',
@@ -341,13 +345,7 @@ const setFormValue = async () => {
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
-onBeforeMount(() => {
-  callCustomersApi()
-  if (type == 'edit' || type == 'detail') {
-    getOrderByCollaborator()
-    getCommissionPaymentByCollaborator()
-  }
-})
+
 let FileDeleteIds: any = []
 const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
@@ -485,17 +483,68 @@ const fix = async () => {
 const activeName = ref(collapse[0].name)
 
 const tableData = ref<Array<any>>([])
+const orderList = ref<Array<any>>([])
+const commissionPaymentList = ref<Array<any>>([])
+const totalFinalPrice = ref(0)
+const totalPriceCumulativeCom = ref(0)
+const totalReceivePrice = ref(0)
+const totalCumulativeCom = ref(0)
 
 const getOrderByCollaborator = async () => {
   const res = await GetOrderByCollabolatorId({ Id: id })
-  const obj = res?.data.data
+  const obj = [...res?.data.data]
+  if (obj) {
+    orderList.value = [
+      ...obj.map((val) => ({
+        date: val.createdAt,
+        code: val.code,
+        commission: val.collaboratorCommission,
+        totalPrice: val.totalPrice,
+        paidMoney: val.paidMoney,
+        cumulativeCom: 0
+      }))
+    ]
+    getCommissionPaymentByCollaborator()
+  }
 }
 
 const getCommissionPaymentByCollaborator = async () => {
-  await getCommissionPaymentByCollaboratorId({ Id: id }).then((res) => {
-    console.log('res payment: ', res)
-  })
+  const res = await getCommissionPaymentByCollaboratorId({ Id: id })
+  const obj = [...res?.data]
+  if (obj) {
+    commissionPaymentList.value = [
+      ...obj.map((val) => ({
+        date: val.createdAt,
+        code: val.code,
+        commission: formValue.value.discount,
+        totalPrice: val.price,
+        paidMoney: 0,
+        cumulativeCom: 0
+      }))
+    ]
+    tableData.value = orderList.value.concat(commissionPaymentList.value)
+    tableData.value.sort(function (a, b) {
+      var c: any = new Date(a.date)
+      var d: any = new Date(b.date)
+      return c - d
+    })
+
+    tableData.value.map((val) => {
+      if (val.totalPrice) {
+        totalFinalPrice.value += val.totalPrice
+        totalPriceCumulativeCom.value += (val.commission * val.totalPrice) / 100
+        totalReceivePrice.value += val.paidMoney
+      }
+    })
+  }
 }
+
+onBeforeMount(() => {
+  callCustomersApi()
+  if (type == 'edit' || type == 'detail') {
+    getOrderByCollaborator()
+  }
+})
 
 const params = { id: id }
 provide('parameters', {
@@ -790,14 +839,54 @@ provide('parameters', {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-table :data="tableData" border style="width: 100%">
-          <el-table-column prop="date" :label="t('reuse.date')" width="180" />
+          <el-table-column prop="date" :label="t('reuse.date')" width="180">
+            <template #default="data">
+              {{ dateTimeFormat(data.row.date) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="code" :label="t('reuse.orderCodepaymentCode')" width="300" />
-          <el-table-column prop="commission" :label="t('reuse.percentDiscount')" />
-          <el-table-column prop="totalPrice" :label="t('reuse.orderSales')" />
-          <el-table-column prop="priceCommission" :label="t('formDemo.intoDiscountComMoney')" />
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" />
-          <el-table-column prop="cumulativeCom" :label="t('formDemo.cumulativeCom')" />
+          <el-table-column prop="commission" :label="t('reuse.percentDiscount')">
+            <template #default="data">
+              {{ data.row.commission + ' %' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="totalPrice" :label="t('reuse.orderSales')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.totalPrice) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="priceCommission"
+            :label="t('formDemo.intoDiscountComMoney')"
+            align="right"
+          >
+            <template #default="data">
+              {{ moneyFormat((data.row.totalPrice * data.row.commission) / 100) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.paidMoney) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="cumulativeCom" :label="t('formDemo.cumulativeCom')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.cumulativeCom) }}
+            </template>
+          </el-table-column>
         </el-table>
+        <div class="flex justify-end">
+          <div v-if="totalFinalPrice > 0" class="font-bold">{{ moneyFormat(totalFinalPrice) }}</div>
+          <div v-if="totalPriceCumulativeCom > 0" class="font-bold pl-3">{{
+            moneyFormat(totalPriceCumulativeCom)
+          }}</div>
+          <div v-if="totalReceivePrice > 0" class="font-bold pl-3">{{
+            moneyFormat(totalReceivePrice)
+          }}</div>
+          <div v-if="totalCumulativeCom > 0" class="font-bold pl-3">{{
+            moneyFormat(totalCumulativeCom)
+          }}</div>
+        </div>
       </el-collapse-item>
     </el-collapse>
   </div>

@@ -9,29 +9,51 @@ import {
   ElInput,
   FormInstance,
   ElDivider,
-  ElTree,
-  FormRules
+  ElTree
 } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { appModules } from '@/config/app'
-
+import { useValidator } from '@/hooks/web/useValidator'
+import { asyncRouterMap } from '@/router'
+import { cloneDeep,cloneDeepWith } from 'lodash-es'
 const { utility } = appModules
-let ElTreeData = reactive<any[]>([])
-const router = useRouter()
-onMounted(() => {
-  console.log(router.getRoutes)
-  const decentralizedRoute = router.getRoutes().map((route) => {
-    const { path, meta } = route
-    if (path && !path.includes(utility) && meta.title) {
-      return {
-        id: path,
-        label: meta.title
-      }
-    }
-  })
-  if (decentralizedRoute.length > 0) ElTreeData = decentralizedRoute
+const { required, notSpecialCharacters } = useValidator()
+interface Tree {
+  label: string
+  children?: Tree[]
+}
+let ElTreeData = ref<Tree[]>([])
+const routerMap = cloneDeep(asyncRouterMap)
+
+
+onBeforeMount( async () => {
+  ElTreeData.value = await mappingRouterTree(routerMap)      
 })
+
+
+function mappingRouterTree(tree) {
+if(Array.isArray(tree) && tree.length > 0)
+  return cloneDeepWith(tree, node => {
+    if (node.path && !node.path.includes(utility)) {
+      /**
+       * Be careful not to mutate `node` unless you want also
+       * want the original tree to be affected.
+       */
+      if(node.children)
+      return {   
+        id:node.path,      
+        label: t(`${node.meta.title}`),
+        children:mappingRouterTree(node.children)
+      };
+      else 
+        return {   
+        id:node.path,               
+        label: t(`${node.meta.title}`),        
+      };
+    }
+  });
+  return []
+}
 
 const { t } = useI18n()
 
@@ -40,16 +62,13 @@ const RouterListRef = ref<FormInstance>()
 const decentralizationModule = reactive({
   roleName: ''
 })
-const decentralizationRule = reactive<FormRules>({
-  roleName: [
-    { required: true, message: 'Please input Activity name', trigger: 'blur' },
-    { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
-  ]
-})
-const defaultProps = {
-  children: 'children',
-  label: 'label'
+const decentralizationRule = {
+  username: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
+  password: [required(), { validator: notSpecialCharacters, trigger: 'blur' }]
 }
+
+
+
 </script>
 <template>
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">
@@ -73,19 +92,19 @@ const defaultProps = {
         <ElDivider content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
         <ElForm ref="RouterListRef" status-icon>
           <ElFormItem>
-            <ElTree
+            <ElTree                
               :data="ElTreeData"
               show-checkbox
               node-key="id"
-              default-expand-all
-              :props="defaultProps"
+              default-expand-all                       
             >
               <template #default="{ node }">
                 <span class="custom-tree-node">
                   <span>{{ t(node.label) }}</span>
                   <span>
-                    <a> Append </a>
-                    <a style="margin-left: 8px"> Delete </a>
+                    <a> Thêm </a>
+                    <a> Sửa </a>
+                    <a> Xóa </a>
                   </span>
                 </span>
               </template>
@@ -96,3 +115,19 @@ const defaultProps = {
     </ElRow>
   </ContentWrap>
 </template>
+<style lang="scss" scoped>
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+  span
+  {
+    a{
+      margin-left: 8px    
+    }
+  }
+}
+</style>

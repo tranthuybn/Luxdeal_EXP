@@ -3876,6 +3876,16 @@ onBeforeMount(async () => {
               />
             </template>
           </el-table-column>
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.code }}
+              </div>
+              <el-input
+v-else :disabled="disabledEdit" v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`" />
+            </template>
+          </el-table-column>
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>

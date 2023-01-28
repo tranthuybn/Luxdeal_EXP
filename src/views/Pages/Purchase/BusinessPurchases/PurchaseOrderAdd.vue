@@ -2481,6 +2481,12 @@ onBeforeMount(async () => {
     arrayStatusOrder.value[0].createdAt = ''
     arrayStatusOrder.value[0].isActive = true
   }
+
+  if (type === 'approval-order') {
+    checkAccountEntry.value = true
+    checkReceiptOrPayment.value = true
+    checkPaymentRequest.value = true
+  }
 })
 </script>
 

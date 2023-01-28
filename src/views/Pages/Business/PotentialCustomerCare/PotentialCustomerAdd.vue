@@ -104,7 +104,6 @@ interface potentialCustomerHistoryInfo {
   percentageOfSales: Number
 }
 
-const parentBorder = ref(false)
 let tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
 
@@ -887,7 +886,7 @@ watch(
             <div>
               <el-table
                 :data="tableData"
-                :border="parentBorder"
+                :border="true"
                 :expand-row-keys="ExpandedRow"
                 row-key="id"
               >

@@ -4175,7 +4175,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="description" :label="t('formDemo.code')" width="180">
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.description }}

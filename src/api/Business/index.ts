@@ -26,6 +26,18 @@ export const addCustomerRatings = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const cancelCustomerAccount = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${CUSTOMER_API.CANCEL_CUSTOMER_ACCOUNT}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -610,6 +622,18 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách đơn hàng theo mã cộng tác viên
+export const GetOrderByCollabolatorId = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_BY_COLLABOLATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+
+  return res && res.data
+}
+
 // update order info
 export const updateOrderInfo = async (data): Promise<IResponse> => {
   const res = await request.put(
@@ -725,9 +749,25 @@ export const getGenCodeCollaborators = async (params: any): Promise<IResponse> =
   )
   return res.data && res.data
 }
+export const getCommissionPaymentByCollaboratorId = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COMMISSION_PAYMENT_BY_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const addNewCollaborators = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const cancelCustomerCollabolator = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${CUSTOMER_API.CANCEL_COLLABOLATOR_ACCOUNT}`, data },
     fixedBaseURL
   )
   return res && res.data

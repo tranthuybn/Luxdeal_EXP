@@ -7,4 +7,6 @@
 /src/types/env.d.ts
 /docs/**/*
 /plop/**/*
+*.vue
+*.ts
 CHANGELOG

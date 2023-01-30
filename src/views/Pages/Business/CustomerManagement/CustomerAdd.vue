@@ -38,8 +38,10 @@ import {
   addNewCustomer,
   getGenCodeCustomers,
   addNewAuthRegister,
-  updatedCustomer
+  updatedCustomer,
+  cancelCustomerAccount
 } from '@/api/Business'
+import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -558,6 +560,31 @@ const postData = async (typebtn) => {
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
 
+//hủy tài khoản khách hàng
+const cancelAccountCustomer = async () => {
+  const payload = {
+    Id: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await cancelCustomerAccount(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công',
+        type: 'success'
+      }),
+        push({
+          name: 'business.customer-management.customerList',
+          params: { backRoute: 'business.customer-management.customerList' }
+        })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
+}
+
 let disableData = ref(false)
 watch(
   () => type,
@@ -613,10 +640,36 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
+const updatePassword = async () => {
+  centerDialogVisible.value = false
+  const payload = {
+    userName: formValue.value?.userName !== null ? formValue.value?.userName : null,
+    email: formValue.value?.userName == null ? formValue.value?.email : null,
+    newPassword: ruleForm.password,
+    confirmPassword: ruleForm.confirmPassword
+  }
+  await updatePasswordApi(payload)
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Đổi mật khẩu thành công'
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Đổi mật khẩu thất bại'
+      })
+    })
+}
+
 onBeforeMount(() => {
   change()
   callApiCity()
   getGenCodeCustomer()
+  if (type === 'detail') {
+    disabledForm.value = true
+  }
   if (type === 'detail' || type === 'edit') {
     getTableValue()
   }
@@ -1005,7 +1058,7 @@ onBeforeMount(() => {
                       <el-input
                         v-model="ruleForm.password"
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
+                        type="password"
                         :placeholder="t('reuse.enterNewPassword')"
                         :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
@@ -1019,7 +1072,7 @@ onBeforeMount(() => {
                       <el-input
                         v-model="ruleForm.confirmPassword"
                         class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                        type="text"
+                        type="password"
                         :placeholder="t('reuse.confirmPassword')"
                         :formatter="(value) => value.replace(/^\s+$/gm, '')"
                       />
@@ -1028,7 +1081,7 @@ onBeforeMount(() => {
                       <span class="dialog-footer">
                         <el-button
                           type="primary"
-                          @click="centerDialogVisible = false"
+                          @click="updatePassword"
                           class="min-w-36 min-h-10"
                           >{{ t('reuse.save') }}</el-button
                         >
@@ -1115,7 +1168,12 @@ onBeforeMount(() => {
                     <span class="dialog-footer">
                       <el-button
                         type="danger"
-                        @click="centerDialogCancelAccount = false"
+                        @click="
+                          () => {
+                            cancelAccountCustomer()
+                            centerDialogCancelAccount = false
+                          }
+                        "
                         class="min-w-36 min-h-10"
                         >{{ t('formDemo.cancelAccount') }}</el-button
                       >

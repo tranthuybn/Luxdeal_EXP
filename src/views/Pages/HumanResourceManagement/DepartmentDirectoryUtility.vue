@@ -16,7 +16,8 @@ import {
   deleteTypeOfStaff,
   updatePosition,
   updateTypeOfStaff,
-  addNewTypeOfStaff
+  addNewTypeOfStaff,
+  getBranchByID
 } from '@/api/HumanResourceManagement'
 // import moment from 'moment'
 import { ElNotification } from 'element-plus'
@@ -581,7 +582,7 @@ const editDataStaff = async (data) => {
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
-    :apiId="getDepartmentByID"
+    :apiId="getBranchByID"
     :id="id"
     :tab="tab"
     :type="type"

@@ -5,7 +5,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
-// import { getRoutesAsRolesApi } from '@/api/login'
+import { getRoutesAsRolesApi } from '@/api/login'
 import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
@@ -129,17 +129,19 @@ const signIn = () => {
         const res = await loginApi(formData)
         if (res) {
           const now = new Date()
+          if (wsCache['storage']?.length > 0) wsCache.clear()
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
           if (accountId) {
-            await getUserInfoByAccountId(accountId)
-            await setPermissionForUser(res.data)
+            getUserInfoByAccountId(accountId)
+            setPermissionForUser(res.data)
             getRole(accountId)
           } else
             ElNotification({
               message: t('reuse.accountInfo'),
               type: 'error'
             })
+          wsCache.clear()
         }
       } finally {
         loading.value = false
@@ -153,17 +155,18 @@ const getRole = async (accountId) => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
-    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+    var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
-      // console.log(urlList)
-      generateRouter(urlList)
+      console.log(urlList)
+
+      generateRouter(tempUrl.data)
     } else {
       ElNotification({
         message: t('reuse.accountInfo'),
         type: 'error'
       })
-      wsCache.clear()
     }
   } catch {
     ElNotification({

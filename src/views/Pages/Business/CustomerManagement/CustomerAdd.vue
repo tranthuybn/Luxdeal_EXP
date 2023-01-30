@@ -495,9 +495,14 @@ const postData = async (typebtn) => {
         })
       )
   }
+  clearData()
 }
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
+
+const clearData = () => {
+  ruleForm.referralCode = ''
+}
 
 let disableData = ref(false)
 watch(

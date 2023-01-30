@@ -82,6 +82,17 @@ export const getDepartmentByID = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getBranchByID = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.BRANCH_BY_ID}`,
+      params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const addNewDepartment = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.post(

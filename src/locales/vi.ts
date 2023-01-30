@@ -763,7 +763,7 @@ export default {
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
-    purchaseOrderAdd: 'đơn mua hàng',
+    purchaseOrderAdd: 'Đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
     potentialCustomerAdd: 'Thêm mới KH tiềm năng',
     potentialCustomerList: 'Danh sách KH tiềm năng',

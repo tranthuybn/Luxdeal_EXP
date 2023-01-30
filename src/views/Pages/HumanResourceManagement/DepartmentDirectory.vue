@@ -2,6 +2,7 @@
 import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
+  deleteBranch,
   deleteDepartment,
   getBranchList,
   getDepartmentList,
@@ -74,9 +75,9 @@ const columnsBranch = reactive<TableColumn[]>([
     minWidth: '200',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => actionDepartment(row, 'detail') }),
-        h(ElButton, { icon: editIcon, onClick: () => actionDepartment(row, 'edit') }),
-        h(ElButton, { icon: deleteIcon, onClick: () => deleteDepart(row) })
+        h(ElButton, { icon: eyeIcon, onClick: () => actionBranch(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => actionBranch(row, 'edit') }),
+        h(ElButton, { icon: deleteIcon, onClick: () => deleteBranch2(row) })
       ])
     }
   }
@@ -329,6 +330,49 @@ const deleteDepart = (row: any) => {
     })
       .then(async () => {
         const res = await deleteDepartment({ Id: row.id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          })
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
+}
+
+// BRANCH
+const actionBranch = (row: any, type: string) => {
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: 'department',
+      id: row.id,
+      type: type
+    }
+  })
+}
+const deleteBranch2 = (row: any) => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'xoa', {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'ElButton--danger'
+    })
+      .then(async () => {
+        const res = await deleteBranch({ Id: row.id })
         if (res) {
           ElNotification({
             message: t('reuse.deleteSuccess'),

@@ -508,6 +508,7 @@ const postDataPositon = async (data) => {
     )
 }
 const customEditPosition = (data) => {
+  console.log('data', data)
   const getData = {} as FormDataEdit
   getData.Id = id
   if (data.status == 1) {
@@ -515,9 +516,10 @@ const customEditPosition = (data) => {
   } else if (data.status == 2) {
     getData.IsActive = false
     getData.isDelete = false
-  }getData.IsActive = data.status
+  }
   getData.Code = data.code
   getData.Name = data.name
+  console.log('data2', getData)
   return getData
 }
 const editDataPosition = async (data) => {

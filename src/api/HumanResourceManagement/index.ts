@@ -36,12 +36,11 @@ export const addNewBranch = async (data): Promise<IResponse> => {
 }
 
 export const updateBranch = async (data): Promise<IResponse> => {
-  data = FORM_DATA(data)
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}?${objectToQueryParams(data)}`
     },
+    
     fixedBaseURL
   )
   return res && res.data
@@ -173,8 +172,7 @@ export const updatePosition = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_POSITION}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_POSITION}`,data
     },
     fixedBaseURL
   )

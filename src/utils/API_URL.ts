@@ -62,8 +62,11 @@ export const CUSTOMER_API = {
   GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  CANCEL_CUSTOMER_ACCOUNT: '/api/v1/Customer/CancelCustomerAccount',
+  CANCEL_COLLABOLATOR_ACCOUNT: '/api/v1/Customer/CancelCollaboratorAccount',
   UPDATED_CUSTOMER: '/api/v1/Customer/updateCustomer',
   GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  GET_COMMISSION_PAYMENT_BY_COLLABORATOR: '/api/v1/Customer/getCommissionPaymentByCollabolatorId',
   POST_AUTH_REGISTER: '/api/auth/register'
 }
 
@@ -112,7 +115,8 @@ export const ORDER_API = {
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
   ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
   APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
-  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove'
+  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove',
+  GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

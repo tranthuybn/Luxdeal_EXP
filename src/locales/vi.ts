@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    informationProductExtend: 'Thông tin sản phẩm gia hạn',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',
     pleaseSelectWarehouse: 'Vui lòng chọn kho',
@@ -593,6 +594,7 @@ export default {
     cancelReturns: 'Hủy trả hàng',
     completePayment: 'Hoàn thành trả hàng',
     leaseExtension: 'Gia hạn thuê',
+    leaseExtensionTo: 'Gia hạn thuê đến',
     returnsExpired: 'Trả hàng hết hạn',
     aheadTimeReturns: 'Trả hàng trước hạn',
     recorded: 'Đã ghi sổ',
@@ -765,8 +767,8 @@ export default {
     purchaseOrderList: 'Danh sách đơn mua hàng',
     purchaseOrderAdd: 'đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
-    potentialCustomerAdd: 'Thêm mới KH tiềm năng',
-    potentialCustomerList: 'Danh sách KH tiềm năng',
+    potentialCustomerAdd: 'Thêm mới khách hàng tiềm năng',
+    potentialCustomerList: 'Danh sách khách hàng tiềm năng',
     manageChat: 'Quản lý chat',
     notify: 'Thông báo',
     forum: 'Forum(New feed)',

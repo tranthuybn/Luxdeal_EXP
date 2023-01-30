@@ -2,7 +2,6 @@
 import { getTypePersonnelList } from '@/api/HumanResourceManagement'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import {
-  getInventoryTrading,
   postProductLibrary,
   getBusinessProductLibrary,
   updateProductLibrary,
@@ -52,6 +51,7 @@ import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { getLotHistory } from '@/api/Warehouse'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -169,7 +169,7 @@ const collapse: Array<Collapse> = reactive([
   {
     icon: plusIcon,
     name: 'inventoryTrading',
-    api: getInventoryTrading,
+    api: getLotHistory,
     tableList: [],
     loading: true
   },
@@ -759,14 +759,99 @@ const openSpaTable = async (scope) => {
   collapse[5].loading = false
   forceRemove.value == false
 }
-//chua co api sau nay se lam
+const stack = ref<any[]>([])
+const total = ref({
+  internal: 0,
+  deposit: 0,
+  pawn: 0,
+  spa: 0
+})
+const formatQuantity = (prop) => {
+  if (prop.row?.nhapXuat == 1) {
+    return `+${prop.row.quantity}`
+  } else {
+    return `-${prop.row.quantity}`
+  }
+}
+const formatStack = (prop) => {
+  return stack.value[prop.$index]
+}
 let warehouseDialogTitle = ref('')
 const openWarehouseTable = async (scope) => {
   warehouseDialogTitle.value = categoriesToString(scope.row.categories)
   warehouseTableVisible.value = true
-  const res = collapse[6].api ? await collapse[6].api({ pageSize: 10, pageIndex: 1 }) : ''
+  const res = await collapse[6].api({ ProductPropertyId: scope.row.id })
   collapse[6].tableList = res.data
   collapse[6].loading = false
+
+  stack.value = []
+  total.value = {
+    internal: 0,
+    deposit: 0,
+    pawn: 0,
+    spa: 0
+  }
+
+  for (let i = 0; i < collapse[6].tableList.length; i++) {
+    if (i == 0) {
+      stack.value[0] = collapse[6].tableList[0]?.quantity
+      switch (collapse[6].tableList[0].serviceType) {
+        case 6:
+          total.value.internal += collapse[6].tableList[0].quantity
+          break
+        case 2:
+          total.value.deposit += collapse[6].tableList[0].quantity
+          break
+        case 4:
+          total.value.pawn += collapse[6].tableList[0].quantity
+          break
+        case 5:
+          total.value.spa += collapse[6].tableList[0].quantity
+          break
+        default:
+          break
+      }
+      continue
+    }
+    if (collapse[6].tableList[i].nhapXuat == 1) {
+      switch (collapse[6].tableList[i].serviceType) {
+        case 6:
+          total.value.internal += collapse[6].tableList[i].quantity
+          break
+        case 2:
+          total.value.deposit += collapse[6].tableList[i].quantity
+          break
+        case 4:
+          total.value.pawn += collapse[6].tableList[i].quantity
+          break
+        case 5:
+          total.value.spa += collapse[6].tableList[i].quantity
+          break
+        default:
+          break
+      }
+      stack.value[i] = stack.value[i - 1] + collapse[6].tableList[i].quantity
+    } else {
+      switch (collapse[6].tableList[i].serviceType) {
+        case 6:
+          total.value.internal -= collapse[6].tableList[i].quantity
+          break
+        case 2:
+          total.value.deposit -= collapse[6].tableList[i].quantity
+          break
+        case 4:
+          total.value.pawn -= collapse[6].tableList[i].quantity
+          break
+        case 5:
+          total.value.spa -= collapse[6].tableList[i].quantity
+          break
+        default:
+          break
+      }
+      stack.value[i] = stack.value[i - 1] - collapse[6].tableList[i].quantity
+    }
+  }
+  console.log('stack', stack.value)
 }
 //same logic
 let pawnDialogTitle = ref('')
@@ -2128,19 +2213,24 @@ const categoriesToString = (categories) => {
       :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
       width="70%"
     >
-      <ElTable
-        :data="collapse[6].tableList"
-        :border="true"
-        v-loading="collapse[6].loading"
-        show-summary
-      >
+      <ElTable :data="collapse[6].tableList" :border="true" v-loading="collapse[6].loading">
+        <template #append>
+          <span class="pl-10/15 font-bold">{{ total.internal }}</span>
+          <span class="pl-1/15 font-bold">{{ total.deposit }}</span>
+          <span class="pl-1/15 font-bold">{{ total.pawn }}</span>
+          <span class="pl-1/15 font-bold">{{ total.spa }}</span>
+          <span class="pl-1/15 font-bold">{{ stack[stack.length - 1] }}</span>
+        </template>
         <ElTableColumn
           header-align="center"
           align="center"
           min-width="130"
-          prop="date"
           :label="t('reuse.date')"
-        />
+        >
+          <template #default="scope">
+            {{ dateTimeFormat(scope.row.createdAt) }}
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           header-align="center"
           align="center"
@@ -2152,45 +2242,76 @@ const categoriesToString = (categories) => {
           header-align="center"
           align="center"
           min-width="130"
-          prop="importExportBillCode"
+          prop="ticketCode"
           :label="t('reuse.importExportBillCode')"
         />
         <ElTableColumn
           header-align="center"
           align="center"
-          min-width="130"
-          prop="warehouseInformation"
+          min-width="200"
           :label="t('reuse.warehouseInformation')"
-        />
+        >
+          <template #default="scope">
+            {{ `${scope.row.warehouseName}/${scope.row.locationName}` }}
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           header-align="center"
           align="right"
-          min-width="130"
+          min-width="70"
           prop="internal"
           :label="t('reuse.internal')"
-        />
+        >
+          <template #default="scope">
+            <span v-if="scope.row.serviceType == 6">
+              {{ formatQuantity(scope) }}
+            </span>
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           header-align="center"
           align="right"
-          min-width="130"
+          min-width="70"
           prop="deposit"
           :label="t('reuse.deposit')"
-        />
+        >
+          <template #default="scope">
+            <span v-if="scope.row.serviceType == 2">
+              {{ formatQuantity(scope) }}
+            </span>
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           header-align="center"
           align="right"
-          min-width="130"
+          min-width="70"
           prop="pawn"
           :label="t('reuse.pawn')"
-        />
-        <ElTableColumn header-align="center" align="right" min-width="130" prop="spa" label="Spa" />
+        >
+          <template #default="scope">
+            <span v-if="scope.row.serviceType == 4">
+              {{ formatQuantity(scope) }}
+            </span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn header-align="center" align="right" min-width="70" label="Spa">
+          <template #default="scope">
+            <span v-if="scope.row.serviceType == 5">
+              {{ formatQuantity(scope) }}
+            </span>
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           header-align="center"
           align="right"
-          min-width="130"
+          min-width="70"
           prop="totalInventory"
           :label="t('reuse.totalInventory')"
-        />
+        >
+          <template #default="scope">
+            {{ formatStack(scope) }}
+          </template>
+        </ElTableColumn>
       </ElTable>
       <div class="mt-4 flex flex-row-reverse gap-4">
         <el-button size="large" class="w-150px" @click="warehouseTableVisible = false">{{

@@ -32,12 +32,12 @@ import { createApp } from 'vue'
 
 import App from './App.vue'
 
-import  VueBeatifulChat  from './chats'
+import VueBeatifulChat from './chats'
 
 import './permission'
 //event bus
-import mitt from 'mitt';                  // Import mitt
-const emitter = mitt();                   // Initialize mitt
+import mitt from 'mitt' // Import mitt
+const emitter = mitt() // Initialize mitt
 
 // Create instance
 const setupAll = async () => {
@@ -57,7 +57,7 @@ const setupAll = async () => {
 
   app.mount('#app')
 
-  app.provide('emitter', emitter);
+  app.provide('emitter', emitter)
 }
 
 setupAll()

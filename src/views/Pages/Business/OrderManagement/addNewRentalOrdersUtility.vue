@@ -79,6 +79,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+import LeaseExtension from './LeaseExtension.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 
@@ -772,7 +773,6 @@ const autoCalculateOrder = () => {
   totalFinalOrder.value = 0
   totalDeposit.value = 0
   totalPriceOrder.value = 0
-  console.log('run change quantity')
   tableData.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
     if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -805,16 +805,16 @@ const callApiProductList = async () => {
     PageSize: 20
   })
   if (res.data && res.data?.length > 0) {
-    listProductsTable.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
-      name: product.name ?? '',
-      price: product.price.toString(),
-      productPropertyId: product.id,
-      productPropertyCode: product.productPropertyCode,
-      hirePrice: product.hirePrice,
-      finalPrice: product.finalPrice,
-      depositePrice: product.depositePrice
+    listProductsTable.value = res.data?.map((product) => ({
+      productCode: product?.code,
+      value: product?.productCode,
+      name: product?.name ?? '',
+      price: product?.price.toString(),
+      productPropertyId: product?.id,
+      productPropertyCode: product?.productPropertyCode,
+      hirePrice: product?.hirePrice,
+      finalPrice: product?.finalPrice,
+      depositePrice: product?.depositePrice
     }))
   }
 }
@@ -837,13 +837,13 @@ const ScrollProductBottom = () => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
-                listProductsTable.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
-                  name: product.name ?? '',
-                  price: product.price.toString(),
-                  productPropertyId: product.id,
-                  productPropertyCode: product.productPropertyCode
+                listProductsTable.value?.push({
+                  productCode: product?.code,
+                  value: product?.productCode,
+                  name: product?.name ?? '',
+                  price: product?.price.toString(),
+                  productPropertyId: product?.id,
+                  productPropertyCode: product?.productPropertyCode
                 })
               )
         })
@@ -1538,8 +1538,8 @@ const postQuickCustomer = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data) => {
-  const dataSelectedObj = listProductsTable.value.find(
-    (product) => product.productPropertyId == data
+  const dataSelectedObj = listProductsTable.value?.find(
+    (product) => product?.productPropertyId == data
   )
 
   // call API checkProduct
@@ -2192,44 +2192,77 @@ const dialogReturnAheadOfTime = ref(false)
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
+// Trả hàng trước hạn
+const updateStatusReturnAheadOfTime = () => {
+  console.log('updateStatusOrders')
+}
+
+const openDialogReturnAheadOfTime = () => {
+  setDataForReturnOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Gia hạn thuê
+const openDialogLeaseExtension = () => {
+  setDataForReturnOrder()
+  dialogLeaseExtension.value = true
+}
+
 //TruongNgo
 const rentReturnOrder = ref({} as any)
 let productArray: any = []
 const setDataForReturnOrder = () => {
-  productArray = tableData.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
+  productArray = tableData.value?.map((row) => row?.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value?.filter((item) => {
+    return productArray.includes(item?.productPropertyId)
   })
   rentReturnOrder.value.orderCode = curDate
-  rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
-  rentReturnOrder.value.period = ruleForm.rentalPeriod
-  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
+  rentReturnOrder.value.period = ruleForm?.rentalPeriod
+  rentReturnOrder.value.name = infoCompany?.name
   rentReturnOrder.value.customerAddress = customerAddress
-  rentReturnOrder.value.phone = infoCompany.phone
-  rentReturnOrder.value.tableData = tableData.value
+  rentReturnOrder.value.phone = infoCompany?.phone
+  rentReturnOrder.value.tableData = tableData?.value
 }
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async (reason) => {
+const postReturnRequest = async (reason, scope) => {
   let tableReturnPost = [{}]
-  if (rentReturnOrder.value.tableData.length < 2) {
-    return
-  }
-  rentReturnOrder.value.tableData.pop()
-  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+  if (reason == 2) {
+    scope?.pop()
+    tableReturnPost = scope?.map((e) => ({
+    productPropertyId: parseInt(e?.productPropertyId),
+    quantity: e?.quantity,
+    accessory: e?.accessory
+  }))
+  }  
+
+  if (reason == 3) {
+    console.log('rentReturnOrder: ', rentReturnOrder.value.tableData)
+    tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
     accessory: e.accessory
   }))
+  }
 
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
     name: 'Đổi trả đơn hàng',
     description: formatOrderReturnReason(reason),
-    returnRequestType: 1,
-    details: tableReturnPost
+    returnRequestType: reason == 2 ? 3 : 4,
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: [],
+    nhapDetails: tableReturnPost,
+    xuatDetails: [],
+    isPaid: true
   }
-  await createReturnRequest(payload)
+  const res = await createReturnRequest(payload)
+  if (res) {
+    reloadStatusOrder()
+  }
 }
 
 const radioWarehouseId = ref()
@@ -2554,6 +2587,9 @@ const editOrder = () => {
     buttonDuplicate.value = !buttonDuplicate.value
   }
 }
+
+// Gia hạn thuê
+const dialogLeaseExtension = ref(false)
 
 onBeforeMount(() => {
   callApiCollaborators()
@@ -3859,12 +3895,14 @@ onBeforeMount(() => {
       <!-- Thông tin trả hàng trước hạn -->
       <ReturnOrder
         v-model="dialogReturnAheadOfTime"
+        v-if="listOfOrderProduct"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
+        @update-status="updateStatusReturnAheadOfTime"
         :orderStatusType="2"
         :type="2"
       />
@@ -3878,6 +3916,21 @@ onBeforeMount(() => {
         @add-row="addRow"
         @post-return-request="postReturnRequest"
         :orderStatusType="3"
+        :type="2"
+      />
+
+      <!-- Gia hạn thuê -->
+      <LeaseExtension
+        v-model="dialogLeaseExtension"
+        v-if="listOfOrderProduct"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct"
+        @add-row="addRow"
+        @remove-row="removeRow"
+        @post-return-request="postReturnRequest"
+        @update-status="updateStatusReturnAheadOfTime"
+        :orderStatusType="2"
         :type="2"
       />
 
@@ -5183,12 +5236,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="
-                () => {
-                  dialogReturnAheadOfTime = true
-                  updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)
-                }
-              "
+              @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.durationPrepayment') }}</button
             >
@@ -5291,7 +5339,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
+              @click="openDialogLeaseExtension"
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
@@ -5299,7 +5347,6 @@ onBeforeMount(() => {
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  statusOrder = STATUS_ORDER_RENTAL[7].orderStatus
                   setDataForReturnOrder()
                   dialogReturnExpired = !dialogReturnExpired
                 }

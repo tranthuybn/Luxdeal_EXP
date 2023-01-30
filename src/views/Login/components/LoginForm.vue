@@ -129,17 +129,20 @@ const signIn = () => {
         const res = await loginApi(formData)
         if (res) {
           const now = new Date()
+          if(wsCache['storage']?.length > 0)
+            wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
           if (accountId) {
-            await getUserInfoByAccountId(accountId)
-            await setPermissionForUser(res.data)
+            getUserInfoByAccountId(accountId)
+            setPermissionForUser(res.data)
             getRole(accountId)
           } else
             ElNotification({
               message: t('reuse.accountInfo'),
               type: 'error'
             })
+            wsCache.clear()            
         }
       } finally {
         loading.value = false
@@ -165,7 +168,6 @@ const getRole = async (accountId) => {
         message: t('reuse.accountInfo'),
         type: 'error'
       })
-      wsCache.clear()
     }
   } catch {
     ElNotification({

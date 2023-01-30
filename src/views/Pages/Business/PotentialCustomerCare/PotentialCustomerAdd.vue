@@ -104,7 +104,6 @@ interface potentialCustomerHistoryInfo {
   percentageOfSales: Number
 }
 
-const parentBorder = ref(false)
 let tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
 
@@ -825,12 +824,15 @@ const customPostDataHistory = (data) => {
 const editData = async (data) => {
   data = customPostData(data)
   await updatePotentialCustomer(JSON.stringify(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
-    )
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
+      })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -884,7 +886,7 @@ watch(
             <div>
               <el-table
                 :data="tableData"
-                :border="parentBorder"
+                :border="true"
                 :expand-row-keys="ExpandedRow"
                 row-key="id"
               >

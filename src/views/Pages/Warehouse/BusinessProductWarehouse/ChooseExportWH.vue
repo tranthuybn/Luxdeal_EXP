@@ -69,7 +69,8 @@ const getSelection = () => {
   if (warehouseForm.value.quantity == totalExport.value) {
     warehouseData.value.exportLots = rowSelected.map((item) => ({
       value: item.id,
-      quantity: item.exportQuantity
+      quantity: item.exportQuantity,
+      serviceType: item.orderType
     }))
     warehouseData.value.location = rowSelected.map((item) => item.location).toString()
     warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()

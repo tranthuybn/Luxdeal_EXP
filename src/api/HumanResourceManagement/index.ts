@@ -129,8 +129,7 @@ export const updateDepartment = async (data): Promise<IResponse> => {
 
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}?${objectToQueryParams(data)}`
     },
     fixedBaseURL
   )

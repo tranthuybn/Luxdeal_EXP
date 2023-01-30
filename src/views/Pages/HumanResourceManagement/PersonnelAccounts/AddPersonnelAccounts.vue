@@ -642,7 +642,9 @@ onBeforeMount(() => {
         <div class="contai-full-w">
           <div class="flex gap-8">
             <div class="w-[50%]">
-              <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
+              <el-divider content-position="left">{{
+                t('formDemo.generalInformation')
+              }}</el-divider>
               <el-form
                 ref="ruleFormRef"
                 :model="ruleForm"

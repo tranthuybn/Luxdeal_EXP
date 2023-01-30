@@ -162,6 +162,7 @@ watch(
 )
 
 const rentExtensionValue = ref()
+// total price
 
 onBeforeMount(()=>{
   addRowTable()

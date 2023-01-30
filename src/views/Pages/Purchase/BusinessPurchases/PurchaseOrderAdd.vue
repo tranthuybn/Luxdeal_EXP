@@ -382,6 +382,7 @@ interface ListOfProductsForSaleType {
   businessManagement: string
   accessory: string | undefined
   code: string | undefined
+  description: string | undefined
   unitName: string
   unitPrice: string | number | undefined
   totalPrice: string
@@ -402,7 +403,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: 0,
   businessSetup: '',
   businessManagement: '',
-  code: undefined,
+  code: '',
+  description: '',
   accessory: '',
   unitName: '',
   unitPrice: 0,
@@ -1132,7 +1134,9 @@ const postData = async () => {
     InterestMoney: 0,
     WarehouseId: 1,
     IsPaid: true,
-    Accessory: val.accessory
+    Accessory: val.accessory,
+    Code: val.code,
+    Description: val.description
   }))
   orderDetailsTable.pop()
   if (orderDetailsTable?.length > 0) {
@@ -4692,6 +4696,19 @@ onBeforeMount(async () => {
                 v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`"
               />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="checkDisabledProduct" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
             </template>
           </el-table-column>
 

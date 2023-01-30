@@ -217,6 +217,7 @@ interface ListOfProductsForSaleType {
   businessManagement: {}
   accessory: string | undefined
   code: string | undefined
+  description: string | undefined
   warehouseInfo: {}
   unitName: string
   TotalPrice: number
@@ -241,6 +242,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: '1',
   accessory: '',
   code: '',
+  description: '',
   businessManagement: {},
   warehouseInfo: {},
   unitName: 'Cái',
@@ -855,9 +857,12 @@ const postData = async () => {
     TotalPrice: 0,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    Accessory: val.accessory
+    Accessory: val.accessory,
+    Code: val.code,
+    Description: val.description
   }))
   orderDetailsTable.pop()
+  console.log('orderDetailsTable', orderDetailsTable)
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -2600,24 +2605,44 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
+
           <el-table-column prop="code" :label="t('formDemo.code')" width="180">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.code }}
               </div>
               <el-input
-v-else :disabled="disabledEdit" v-model="data.row.code"
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`" />
             </template>
           </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
+            </template>
+          </el-table-column>
+
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
-v-else v-model="data.row.quantity" :disabled="disabledEdit" @change="handleTotal(data)"
+                v-else 
+                v-model="data.row.quantity" 
+                :disabled="disabledEdit" @change="handleTotal(data)"
                 style="width: 100%" />
             </template>
           </el-table-column>
+
           <el-table-column
             :disabled="disabledEdit"
             prop="quantity"

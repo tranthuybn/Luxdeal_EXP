@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, unref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -427,6 +427,7 @@ interface ListOfProductsForSaleType {
   quantity: string
   accessory: string | undefined
   code: string | undefined
+  description: string | undefined
   unitName: string
   warehouseTotal?: number | any
   price: string | number | undefined
@@ -452,6 +453,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: '',
   accessory: '',
   code: '',
+  description: '',
   businessManagement: {},
 
   unitName: 'Cái',
@@ -470,23 +472,9 @@ let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value?.push({ ...productForSale })
 }
-const forceRemove = ref(false)
 // Thông tin phiếu thanh toán tiền cọc thuê
 const dialogDepositSlip = ref(false)
-//add row to the end of table if fill all table
-watch(
-  () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1],
-  () => {
-    if (
-      ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1].productPropertyId &&
-      forceRemove.value == false &&
-      type !== 'detail'
-    ) {
-      addLastIndexSellTable()
-    }
-  },
-  { deep: true }
-)
+
 // total order
 let totalOrder = ref(0)
 let dataEdit = ref()
@@ -775,6 +763,11 @@ const getValueOfSelected = (_value, obj, scope) => {
     data.unitName = obj.unit
     callApiWarehouse(scope)
   }
+
+  // add new row
+    if (scope.$index == ListOfProductsForSale.value.length - 1) {
+      ListOfProductsForSale.value.push({ ...productForSale })
+    }
 }
 
 // Danh mục brand unit origin api
@@ -1251,7 +1244,9 @@ const postData = async () => {
       SpaServiceIds: null,
       Accessory: val.accessory,
       WarehouseId: null,
-      PriceChange: false
+      PriceChange: false,
+      Code: val.code,
+      Description: val.description
     }))
     orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
@@ -1589,7 +1584,7 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 // Thêm bút toán cho đơn hàng
-const postOrderStransaction = async () => {
+const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
     quantity: parseInt(val.quantity)
@@ -1606,11 +1601,11 @@ const postOrderStransaction = async () => {
     typeOfPayment: checkPTC.value ? checkPTC.value : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
+    isReceiptedMoney: alreadyPaidForTt.value !== true ? 0 : 1,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
-    typeOfAccountingEntry: 1
-    // returnRequestId: idReturnRequest.value
+    TypeOfAccountingEntry: index == 1 ? 1 : index == 2 ? 2 : index == 3 ? 3 : 4,
+    ReturnRequestId: null
   }
 
   objOrderStransaction.value = await addOrderStransaction(payload)
@@ -1702,7 +1697,6 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-    console.log('orderObj: ', orderObj)
     arrayStatusOrder.value = orderObj?.statusHistory
 
     if (arrayStatusOrder.value?.length) {
@@ -1834,8 +1828,8 @@ const dialogDepositFeeInformation = ref(false)
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
-    case 1:
-      openAcountingEntryDialog(data.id, 1)
+    case 4:
+      openAcountingEntryDialog(data.id, 4)
       break
     case 2:
       openAcountingEntryDialog(data.id, 2)
@@ -1867,7 +1861,7 @@ const openAcountingEntryDialog = async (index, num) => {
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
 
   getReturnOrder()
-  if (num == 1) {
+  if (num == 4) {
     dialogAccountingEntryAdditional.value = true
   } else if (num == 2) {
     dialogDepositSlip.value = true
@@ -3425,7 +3419,7 @@ onBeforeMount(async () => {
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <el-table-column :label="t('formDemo.kindOfMoney')" width="110">
+            <el-table-column :label="t('formDemo.kindOfMoney')" width="200">
               <el-select v-model="valueTypeMoney" class="m-2" placeholder="Select">
                 <el-option
                   v-for="item in optionsTypeMoney"
@@ -3435,7 +3429,7 @@ onBeforeMount(async () => {
                 />
               </el-select>
             </el-table-column>
-            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
+            <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" width="200">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
@@ -3444,7 +3438,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
+            <el-table-column prop="paidMoney" :label="t('formDemo.spent')" width="200">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
@@ -3453,7 +3447,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')" width="200">
               <template #default="props">
                 <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }}</div>
               </template>
@@ -3515,7 +3509,7 @@ onBeforeMount(async () => {
               type="primary"
               @click="
                 () => {
-                  postOrderStransaction()
+                  postOrderStransaction(4)
                   dialogAccountingEntryAdditional = false
                 }
               "
@@ -4174,10 +4168,26 @@ onBeforeMount(async () => {
                 {{ data.row.code }}
               </div>
               <el-input
-v-else :disabled="disabledEdit" v-model="data.row.code"
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`" />
             </template>
           </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
+            </template>
+          </el-table-column>
+
           <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
@@ -4745,7 +4755,7 @@ v-else :disabled="disabledEdit" v-model="data.row.code"
           border
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="40" />
+          <el-table-column type="selection" align="center" width="60" />
           <el-table-column
             prop="createdAt"
             :label="t('formDemo.initializationDate')"
@@ -4792,6 +4802,19 @@ v-else :disabled="disabledEdit" v-model="data.row.code"
           </el-table-column>
 
           <el-table-column
+            prop="typeOfMoney"
+            :label="t('reuse.typeMoney')"
+            align="left"
+            min-width="150"
+          >
+            <template #default="props">
+              <div
+                >{{ props.row.typeOfMoney }}</div
+              >
+            </template>
+          </el-table-column>
+
+          <el-table-column
             prop="receiveMoney"
             :label="t('formDemo.collected')"
             align="left"
@@ -4830,14 +4853,14 @@ v-else :disabled="disabledEdit" v-model="data.row.code"
             min-width="120"
           >
             <template #default="props">
-              <div v-if="props.row.typeOfPayment == 1" class="text-blue-500"> Phải thu </div>
-              <div v-else-if="props.row.typeOfPayment == 0" class="text-red-500"> Phải chi </div>
+              <div v-if="props.row.receiveMoney > props.row.paidMoney" class="text-blue-500"> Phải thu </div>
+              <div v-else class="text-red-500"> Phải chi </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="paymentMethods"
             :label="t('formDemo.choosePayment')"
-            min-width="160"
+            min-width="200"
           >
             <template #default="props">
               <div>{{
@@ -4874,12 +4897,10 @@ v-else :disabled="disabledEdit" v-model="data.row.code"
               <div class="flex">
                 <button
                   @click="() => openDialogAcountingEntry(data)"
-                  v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
                 </button>
-                <div v-else>{{ t('reuse.detail') }}</div>
               </div>
             </template>
           </el-table-column>

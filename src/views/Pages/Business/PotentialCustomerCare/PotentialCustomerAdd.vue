@@ -835,8 +835,8 @@ const customPostData = (data) => {
   customData.email = data.email
   customData.link = data.link
   customData.taxCode = data.taxCode
-  customData.isOrganization = true
-  customData.historyTransaction = data.transactionHistory
+  // customData.isOrganization = true
+  // customData.historyTransaction = data.transactionHistory
   customData.isOnline = data.isOnline
   customData.accessChannel = data.customerContactChannel
   customData.source = data.newCustomerSource

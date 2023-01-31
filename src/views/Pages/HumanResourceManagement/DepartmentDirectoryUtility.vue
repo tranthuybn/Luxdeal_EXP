@@ -21,7 +21,6 @@ import {
 // import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import moment from 'moment'
-import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
@@ -324,8 +323,6 @@ const formDataCustomize = ref()
 
 const customizeData = async (data) => { 
   formDataCustomize.value = data
-  formDataCustomize.value.Image = data.path
-  formDataCustomize.value.imageurl = `${API_URL}${data.path}`
 
   if (data.isActive == true) {
     formDataCustomize.value['status'] = 1

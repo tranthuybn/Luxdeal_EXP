@@ -369,6 +369,9 @@ const input = ref('')
 interface tableRentalProduct {
   productPropertyId: string
   productName: string
+  productPropertyName?: string
+  productPropertyCode?: string
+  productCode?: string
   accessory: string
   dateRange: any
   fromDate: any
@@ -2166,26 +2169,6 @@ const openAcountingEntryDialog = async (index, num) => {
 }
 
 const listOfOrderProduct = ref()
-// const getReturnOrder = () => {
-//   listOfOrderProduct.value = ListOfProductsForSale.value.map((el) => ({
-//     productCode: el.productCode,
-//     productPropertyCode: el.productPropertyCode,
-//     productPropertyName: el.productPropertyName,
-//     productPropertyId: el.productPropertyId,
-//     unitPrice: el.unitPrice,
-//     totalPrice: el.totalPrice,
-//     maximumQuantity: el.quantity
-//   }))
-// }
-// const openAcountingEntryDialog = async (index, num) => {
-//   const res = await getDetailAccountingEntryById({ id: index })
-//   formAccountingId.value = { ...res.data }
-//   tableSalesSlip.value = formAccountingId.value.paidMerchandises
-//   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-//   if (num == 1) dialogRentalPaymentInformation.value = true
-//   else if (num == 2) dialogDepositSlip.value = true
-//   else if (num == 3) dialogAccountingEntryAdditional.value = true
-// }
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
@@ -2210,12 +2193,25 @@ const openDialogLeaseExtension = () => {
 
 //TruongNgo
 const rentReturnOrder = ref({} as any)
+const getListProduct = ref()
 let productArray: any = []
 const setDataForReturnOrder = () => {
   productArray = tableData.value?.map((row) => row?.productPropertyId)
   listOfOrderProduct.value = listProductsTable.value?.filter((item) => {
     return productArray.includes(item?.productPropertyId)
   })
+  getListProduct.value = tableData.value.map((el) => ({
+    productCode: el.productCode,
+    productPropertyCode: el.productPropertyCode,
+    name: el.productName + ' ' + el.productPropertyName,
+    productPropertyId: el.productPropertyId,
+    depositePrice: el.depositePrice,
+    finalPrice: el.totalPrice,
+    hirePrice: el.hirePrice,
+    price: el.hirePrice,    
+    maximumQuantity: el.quantity,
+    value: el?.productCode
+  }))
   rentReturnOrder.value.orderCode = curDate
   rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
   rentReturnOrder.value.period = ruleForm?.rentalPeriod
@@ -2225,9 +2221,10 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.tableData = tableData?.value
 }
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async (reason, scope) => {
+const postTableExpand = ref()
+const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
   let tableReturnPost = [{}]
-  if (reason == 2) {
+  if (reason == 3 || reason == 5) {
     scope?.pop()
     tableReturnPost = scope?.map((e) => ({
     productPropertyId: parseInt(e?.productPropertyId),
@@ -2236,25 +2233,35 @@ const postReturnRequest = async (reason, scope) => {
   }))
   }  
 
-  if (reason == 3) {
-    console.log('rentReturnOrder: ', rentReturnOrder.value.tableData)
+  if (reason == 4) {
     tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
     accessory: e.accessory
   }))
   }
-
+  
+  if (reason == 5) {
+    postTableExpand.value = tableExpand.map((val) => ({
+      productPropertyId: val.productPropertyId,
+      quantity: val.quantity,
+      accessory: val.accessory,
+      unitPrice: val.hirePrice,
+      totalPrice: val.totalPrice,
+    }))
+  }
+  console.log('tableExpand: ', tableExpand)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
     name: 'Đổi trả đơn hàng',
     description: formatOrderReturnReason(reason),
-    returnRequestType: reason == 2 ? 3 : 4,
+    returnRequestType: reason,
+    targetDate: dateTime,
     tienBan: 0,
     tienHoan: 0,
     totalPrice: 0,
-    giaHanDetails: [],
+    giaHanDetails: reason == 5 ? postTableExpand.value : [],
     nhapDetails: tableReturnPost,
     xuatDetails: [],
     isPaid: true
@@ -3925,11 +3932,8 @@ onBeforeMount(() => {
         v-if="listOfOrderProduct"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
-        @add-row="addRow"
-        @remove-row="removeRow"
+        :listProductsTable="getListProduct"
         @post-return-request="postReturnRequest"
-        @update-status="updateStatusReturnAheadOfTime"
         :orderStatusType="2"
         :type="2"
       />

@@ -6,9 +6,11 @@ import {
   ElTableColumn,
   ElButton,
   ElInput,
+  ElInputNumber,
   ElDatePicker,
-  ElOption,
-  ElSelect
+  ElMessage
+//   ElOption,
+//   ElSelect
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
@@ -73,11 +75,8 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:modelValue',
-  'add-row',
   'post-return-request',
-  'extend-date',
-  'remove-row',
-  'update-status'
+  'extend-date'
 ])
 type Product = {
   productCode: string
@@ -88,36 +87,35 @@ type Product = {
   productPropertyCode: string
   hirePrice: Number
 }
-const updateValue = (value, _obj, scope) => {
-  scope.row.productPropertyId = value
-  addRow()
-}
-const addRow = () => {
-  emit('add-row')
-}
+
+// Bật dialog
 const open = () => {
   emit('update:modelValue', true)
 }
+
+// Tắt dialog và reset value
 const close = () => {
   emit('update:modelValue', false)
+  tableAheadOfTime.value?.splice(0, tableAheadOfTime.value.length)
+  tableExpend.value.forEach((val) => {
+    val.quantity = val.maximumQuantity
+  })
+  autoUpdatePrice()
+  addRowTable()
 }
+
+// Hàm emit để xử lý trên component cha
 const postReturnRequest = async (orderStatusType) => {
-  emit('post-return-request', orderStatusType, tableAheadOfTime.value)
+  emit('post-return-request', orderStatusType, tableAheadOfTime.value, rentExtensionValue.value, tableExpend.value)
   emit('update:modelValue', false)
-  emit('update-status')
 }
-const extendDate = (data) => {
-  emit('extend-date', data)
-}
-const removeRow = (scope) => {
-  if (props.orderData.tableData?.length < 2) {
-    return
-  }
-  emit('remove-row', scope.$index)
-}
-const tableListReturnAheadOfTime = ref(props.listProductsTable)
+
+// Tạo 1 bảng mới để xử lý tránh thay đổi dữ liệu gốc
 const tableExpend = ref(props.orderData.tableData)
-console.log('tableListReturnAheadOfTime: ', tableListReturnAheadOfTime.value)
+// Thêm 1 biến giới hạn số lượng sản phẩm cho bảng
+tableExpend.value.forEach((val) => {
+    val.maximumQuantity = val.quantity
+})
 
 interface tableReturnType {
   productPropertyId: number | undefined
@@ -125,25 +123,64 @@ interface tableReturnType {
   accessory: string
   quantity: number
   conditionProducts: string
+  selected: boolean
 }
 const tableAheadOfTime = ref<Array<tableReturnType>>([])
-  const productForSale = reactive<tableReturnType>({
+const productForSale = reactive<tableReturnType>({
     productPropertyId: undefined,
     productPropertyName: '',
     accessory: '',
     quantity: 1,
-    conditionProducts: ''
+    conditionProducts: '',
+    selected: false
 })
 
+// Hàm thêm row table
 const addRowTable = () => {
   tableAheadOfTime.value.push({ ...productForSale })
 }
 
+const duplicateProduct = ref()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
 // update value table
 const updateValueTable = (_value, obj, scope) => {
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productPropertyName = obj.name
+  console.log('obj:', obj)
+  duplicateProduct.value = undefined
+  duplicateProduct.value = tableAheadOfTime.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else if (data.selected) {
+    ElMessage.error('Không được thay đổi sản phẩm đã chọn, muốn thay đổi vui lòng tắt và bật lại dialog')
+  } else if(!data.selected) {
+      data.productPropertyId = obj?.productPropertyId
+      data.productPropertyName = obj?.name
+      data.maximumQuantity = obj?.maximumQuantity
+      data.selected = true
+      updateQuantityTableExpand(_value, 1)
+  }
+}
+
+// Thay đổi số lượng ở bảng nhập hoàn tự động cập nhật lại số lượng ở bảng sản phẩm gia giạn
+const updateQuantityTableExpand = (index, quantity) => {
+    tableExpend.value.forEach((val) => {
+        if (val.productPropertyId == index) {
+            val.quantity = val?.maximumQuantity - quantity
+            autoUpdatePrice()
+        }
+    })
+}
+
+// Tính lại tiền sau khi thay đổi số lượng
+const autoUpdatePrice = () => {
+    totalRentFee.value = tableExpend.value.reduce((total, cur) => {
+        cur.totalPrice = cur?.hirePrice * cur?.quantity
+        return total += cur?.totalPrice
+    },0)
 }
 
 // Trả hàng trước hạn
@@ -151,8 +188,8 @@ watch(
   () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
   () => {
     if (
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].productPropertyName &&
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].quantity 
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.productPropertyName &&
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.quantity 
     )
     addRowTable()
   },
@@ -163,9 +200,17 @@ watch(
 
 const rentExtensionValue = ref()
 // total price
+const totalRentFee = ref(0)
+
+const calculateMoney = () => {
+    totalRentFee.value = tableExpend.value.reduce((total, cur) => {
+        return total += cur.totalPrice
+    },0)
+}
 
 onBeforeMount(()=>{
   addRowTable()
+  calculateMoney()
 })
 
 </script>
@@ -218,7 +263,7 @@ onBeforeMount(()=>{
                 <el-date-picker
                     v-model="rentExtensionValue"
                     type="date"
-                    value-format="DD/MM/YYYY"
+                    format="DD/MM/YYYY"
                     placeholder="Chọn ngày"
                 />
             </div>
@@ -289,7 +334,7 @@ onBeforeMount(()=>{
       </el-table>
     </div>
 
-    <div class="text-right">Thành tiền phí thuê: </div>
+    <div class="text-right font-bold">Thành tiền phí thuê: {{ changeMoney.format(totalRentFee) }}</div>
     <div class="flex items-center">
         <span class="w-[30%] text-base font-bold break-w" >{{
           t('formDemo.fullyIntegrated')
@@ -327,7 +372,13 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input-number
+                @change="updateQuantityTableExpand(scope.row.productPropertyId, scope.row.quantity)" 
+                v-model="scope.row.quantity" 
+                type="number" 
+                controls-position="right"
+                :max="scope.row.maximumQuantity" 
+            />
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
@@ -337,8 +388,8 @@ onBeforeMount(()=>{
         </el-table-column>
       </el-table>
       <div class="flex items-center pt-4">
-        <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>
-        <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        <span class="w-[10%] text-base font-bold">{{ t('reuse.status') }}</span>
+        <span class="block h-1 w-[90%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
@@ -346,7 +397,7 @@ onBeforeMount(()=>{
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span class="box dark:text-black active">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
@@ -357,9 +408,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest(2)">{{
-            t('formDemo.saveAndPending')
-          }}</el-button>
+          <el-button type="primary" @click="postReturnRequest(5)">Gia hạn thuê & ghi phiếu nhập hoàn</el-button>
           <el-button @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
@@ -394,5 +443,8 @@ onBeforeMount(()=>{
   border-top: 13px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
+}
+.active {
+  opacity: 1 !important;
 }
 </style>

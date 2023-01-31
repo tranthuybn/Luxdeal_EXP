@@ -330,7 +330,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest(2)">{{
+          <el-button type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button @click="close">{{ t('reuse.exit') }}</el-button>
@@ -466,7 +466,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest(3)" class="min-w-42 min-h-11"
+          <el-button type="primary" @click="postReturnRequest(4)" class="min-w-42 min-h-11"
             >Lưu & ghi phiếu xuất trả</el-button
           >
           <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>

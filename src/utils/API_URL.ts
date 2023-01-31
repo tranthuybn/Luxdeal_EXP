@@ -169,6 +169,7 @@ export const POINT_API = {
 export const DEPARTMENT_DIRECTORY = {
   //Branch
   BRANCH_LIST: '/api/v1/Branch/GetBranch',
+  BRANCH_BY_ID:'/api/v1/Branch/GetId',
   ADD_BRANCH: '/api/v1/Branch/CreatBranch',
   UPDATE_BRANCH: '/api/v1/Branch/UpdateBranch',
   DELETE_BRANCH: '/api/v1/Branch/DeleteBranch',
@@ -180,12 +181,14 @@ export const DEPARTMENT_DIRECTORY = {
   DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
   //POSITION
   GET_LIST_POSITION: '/api/v1/Position/GetPosition',
+  POSITION_BY_ID:'/api/v1/Position/GetId',
   ADD_POSITION: '/api/v1/Position/GetPosition',
   UPDATE_POSITION: '/api/v1/Position/UpdatePosition',
   DELETE_POSITION: '/api/v1/Position/DeletePosition',
   //TY OF STAFF
   GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff',
-  ADD_STAFF: '/api/v1/TypeOfStaff/CreateAccount',
+  ADD_STAFF: '/api/v1/TypeOfStaff/CreateTypeStaff',
+  TYPEOFSTAFF_BY_ID:'/api/v1/TypeOfStaff/GetId',
   UPDATE_STAFF: '/api/v1/TypeOfStaff/Update',
   DELETE_STAFF: '/api/v1/TypeOfStaff/Delete',
   //nhan su

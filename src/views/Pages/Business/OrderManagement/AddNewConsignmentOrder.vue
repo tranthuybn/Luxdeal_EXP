@@ -38,6 +38,7 @@ import liquidationContractPrint from '../../Components/formPrint/src/liquidation
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import {
   getProductsList,
+  getCustomerById,
   getCollaboratorsInOrderList,
   getAllCustomer,
   addNewSpaOrders,
@@ -1437,7 +1438,7 @@ const getOrderStransactionList = async () => {
 const radioTracking = ref('2')
 
 const inputRecharger = ref()
-const moneyReceipts = ref(105000000)
+const moneyReceipts = ref(0)
 const formReceipts = ref()
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
@@ -1718,6 +1719,9 @@ const editData = async () => {
 
     dataEdit.value = orderObj
     if (res.data) {
+      customerData.customerId = orderObj.customerId
+      await getCustomerInfo(customerData.customerId)
+
       ruleForm.orderCode = orderObj.code
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
@@ -1902,8 +1906,6 @@ const getReturnOrder = () => {
     productPropertyCode: el?.productPropertyCode,
     productPropertyName: el?.productPropertyName,
     productPropertyId: el?.productPropertyId,
-    // unitPrice: el?.unitPrice,
-    // totalPrice: el?.totalPrice,
     maximumQuantity: el?.quantity
   }))
 }
@@ -2001,10 +2003,6 @@ const paymentExpired = async (status) => {
   console.log('status', status)
   let tableReturnPost = [{}]
 
-  // if (rentReturnOrder.value.tableData.length < 2) {
-  //   return
-  // }
-  // rentReturnOrder.value.tableData.pop()
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: Number(e.productPropertyId),
     quantity: parseInt(e.quantity),
@@ -2215,6 +2213,26 @@ onBeforeMount(async () => {
     disableEditData.value = false
   }
 })
+
+const customerData = reactive({
+  customerId: '',
+  userName: '',
+  code: '',
+  address: '',
+  cccd: '',
+  phoneNumber: '',
+  bank: ''
+})
+const getCustomerInfo = async (id: string) => {
+  const res = await getCustomerById({ Id: id })
+  const orderObj = { ...res?.data }
+  customerData.userName = orderObj.name
+  customerData.code = orderObj.code
+  customerData.cccd = orderObj.cccd
+  customerData.phoneNumber = orderObj.phonenumber
+  customerData.bank = orderObj.bank
+  customerData.address = orderObj.address
+}
 </script>
 
 <template>
@@ -2544,7 +2562,7 @@ onBeforeMount(async () => {
       <!-- phieu in -->
       <div id="billLiquidationContract">
         <slot>
-          <liquidationContractPrint />
+          <liquidationContractPrint :data-customer="customerData" />
         </slot>
       </div>
 
@@ -2757,7 +2775,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
-            <div class="w-[100%] text-xl font-bold">BH24354</div>
+            <div class="w-[100%] text-xl font-bold">{{ ruleForm.orderCode }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.generalInformation') }}</span>
@@ -3176,13 +3194,13 @@ onBeforeMount(async () => {
               >{{ t('button.print') }}</el-button
             >
 
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
+            <el-button class="btn" dialogBillLiquidation@click="dialogBillLiquidation = false">{{
               t('reuse.exit')
             }}</el-button>
           </div>
           <div class="dialog-content">
             <slot>
-              <liquidationContractPrint />
+              <liquidationContractPrint :data-customer="customerData" />
             </slot>
           </div>
         </div>
@@ -4175,7 +4193,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="description" :label="t('formDemo.code')" width="180">
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.description }}
@@ -4454,7 +4472,7 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
               @click="dialogBillLiquidation = true"
-              >{{ t('formDemo.printLiquidationContract') }}</el-button
+              >{{ t('formDemo.printConsignmentContract') }}</el-button
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"

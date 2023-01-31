@@ -1,25 +1,34 @@
 <script setup lang="ts">
 import { ElDivider } from 'element-plus'
-// import { useIcon } from '@/hooks/web/useIcon'
 
 import { useI18n } from '@/hooks/web/useI18n'
 
+import { onBeforeMount } from 'vue'
+
 const { t } = useI18n()
 
-// const locateIcon = useIcon({ icon: 'entypo:location' })
+const props = defineProps({
+  dataCustomer: {
+    type: Object,
+    default: () => { }
+  },
+  dataEdit: {
+    type: Object,
+    default: () => { }
+  }
+})
 
-// const tableData = [
-//   {, ElTable, ElTableColumn
-//     stt: 'da',
-//     codeProduct: 'da',
-//     name: 'da',
-//     code: 'da',
-//     assetsory: 'da',
-//     price: 'da',
-//     loai: 'da',
-//     note: 'da'
-//   }
-// ]
+onBeforeMount(() => {
+  console.log('customer: ', props.dataCustomer)
+})
+
+function getArraySum(arr) {
+  var total = 0
+  for (var i in arr) {
+    if (arr[i].totalPrice !== 0) total = arr[i].totalPrice
+  }
+  return total
+}
 </script>
 
 <template>
@@ -78,12 +87,12 @@ const { t } = useI18n()
               <P>TÀI KHOẢN SỐ:</P>
             </div>
             <div class="info">
-              <p>MR. LÝ SIN</p>
-              <p>03221</p>
-              <p>05, ĐƯỜNG THÀNH, HOÀN KIẾM, HÀ NỘI, VIỆT NAM</p>
-              <p>0123420442104</p>
-              <p>0123420442104</p>
-              <p>TECHCOMBANK <strong>0123420442104</strong>, CHỦ TK: LÝ SIN</p>
+              <p>{{ dataCustomer?.userName }}</p>
+              <p>{{ dataCustomer?.code }}</p>
+              <p>{{ dataCustomer?.address }}</p>
+              <p>{{ dataCustomer?.cccd }}</p>
+              <p>{{ dataCustomer?.phoneNumber }}</p>
+              <p></p>
             </div>
           </div>
         </div>
@@ -122,52 +131,19 @@ const { t } = useI18n()
         BÀNG MUC DUOI DÂY:
       </p>
 
-      <!-- <el-table :data="tableData" width="10" border>
-        <el-table-column prop="stt" min-width="80" label="STT" align="center" />
-        <el-table-column prop="codeProduct" label="MÃ HÀNG" align="center" />
-        <el-table-column prop="name" label="TÊN HÀNG" align="center" />
-        <el-table-column prop="code" label="CODE" align="center" />
-        <el-table-column prop="assetsory" label="PHỤ KIỆN ĐI KÈM" align="center" />
-        <el-table-column prop="price" label="GIÁ NHẬP" align="center" />
-        <el-table-column prop="loai" label="LOẠI HÀNG" align="center" />
-        <el-table-column prop="note" label="GHI CHÚ" align="center" />
-      </el-table> -->
-
-      <table>
-        <tr>
-          <th>STT</th>
-          <th>MÃ HÀNG</th>
-          <th>TÊN HÀNG</th>
-          <th>CODE</th>
-          <th>PHỤ KIỆN ĐI KÈM</th>
-          <th>GIÁ NHẬP</th>
-          <th>LOẠI HÀNG</th>
-          <th>GHI CHÚ</th>
-        </tr>
-        <tr>
-          <td>Alfreds Futterkiste</td>
-          <td>Alfreds Futterkiste</td>
-          <td>Alfreds Futterkiste</td>
-          <td>Alfreds Futterkiste</td>
-          <td>Maria Anders</td>
-          <td>Maria Anders</td>
-          <td>Germany</td>
-          <td>Germany</td>
-        </tr>
-        <tr>
-          <td>Centro comercial Moctezuma</td>
-          <td>Francisco Chang</td>
-          <td>Mexico</td>
-          <td>Francisco Chang</td>
-          <td>Alfreds Futterkiste</td>
-          <td>Alfreds Futterkiste</td>
-          <td>Mexico</td>
-          <td>Mexico</td>
-        </tr>
-      </table>
-
-      <div class="total-money text-end pr-[115px]">
-        <p class="total"> TỔNG TIỀN | 400.000 VNĐ</p>
+      <el-table :data="dataEdit ? dataEdit.orderDetails : []" border class="mt-2">
+        <el-table-column prop="stt" type="index" min-width="80" label="Stt" align="center" />
+        <el-table-column prop="productCode" label="Mã hàng" align="center" />
+        <el-table-column prop="productName" min-width="150" label="Tên hàng" align="center" />
+        <el-table-column prop="code" label="Code" align="center" />
+        <el-table-column prop="accessory" label="Phụ kiện đi kèm" align="center" />
+        <el-table-column prop="unitPrice" label="Giá nhập" align="center" />
+        <el-table-column prop="businessSetup" label="Loại hàng" align="center" />
+        <el-table-column prop="note" label="Ghi chú" align="center" />
+      </el-table>
+      
+      <div class="total-money text-end pr-[115px]" v-if="dataEdit">
+        <p>Tổng tiền | {{ getArraySum(dataEdit.orderDetails) }}</p>
       </div>
     </div>
     <el-divider />

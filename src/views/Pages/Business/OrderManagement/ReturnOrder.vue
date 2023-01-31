@@ -6,9 +6,11 @@ import {
   ElTableColumn,
   ElButton,
   ElInput,
+  ElInputNumber,
   ElDatePicker,
   ElSelect,
-  ElOption
+  ElOption,
+  ElMessage
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
@@ -153,11 +155,24 @@ const addRowTable = () => {
   tableAheadOfTime.value.push({ ...productForSale })
 }
 
+const duplicateProduct = ref()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
 // update value table
 const updateValueTable = (_value, obj, scope) => {
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productPropertyName = obj.name
+  duplicateProduct.value = undefined
+  duplicateProduct.value = tableAheadOfTime.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else if(!data.selected) {
+      data.productPropertyId = obj?.productPropertyId
+      data.productPropertyName = obj?.name
+      data.maximumQuantity = obj?.maximumQuantity
+  }
 }
 
 // Trả hàng trước hạn
@@ -175,6 +190,10 @@ watch(
   }
 )
 
+// trạng thái trả hàng trước hạn
+const createAtStatus = ref(new Date())
+const approvalAtStatus = ref()
+
 onBeforeMount(()=>{
   addRowTable()
 })
@@ -184,7 +203,7 @@ onBeforeMount(()=>{
   <!-- 2:Trả hàng trước hạn -->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 2"
+    v-if="orderStatusType == 3"
     @open="open"
     @close="close"
     class="font-bold"
@@ -318,12 +337,10 @@ onBeforeMount(()=>{
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
             <el-input
-              v-if="statusActive == 2"
               v-model="scope.row.quantity"
               type="number"
-              :max="scope.row.quantity"
+              :max="scope.row.maximumQuantity"
             />
-            <p v-else>{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
@@ -339,21 +356,36 @@ onBeforeMount(()=>{
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
         <div class="flex items-center w-[100%]">
-          <div v-if="statusActive == 2" class="flex items-center gap-2 flex-wrap w-[100%]">
-            <span class="box dark:text-black">
+          <div class="flex items-center gap-2 flex-wrap w-[100%]">
+            <div class="flex gap-4">  
+              <span class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+              <span class="box dark:text-black">
+                {{ t('reuse.initializeAndWrite') }}
+                <span class="triangle-right"> </span>
+              </span>     
+
+              <span
+                class="triangle-left ml-[155px] border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+              ></span>
+              <span
+                class="box box_1 text-yellow-500 dark:text-black active"
+              >
               {{ t('reuse.initializeAndWrite') }}
-              <span class="triangle-right"> </span>
-            </span>
-            <span
-              class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-            ></span>
-            <span class="box ml-2 text-yellow-500">
-              Duyệt trả hàng trước hạn
-              <span class="triangle-right"> </span>
-            </span>
-          </div>
+                <span class="triangle-right right_1"> </span>
+              </span>
+            </div>
+          </div>          
         </div>
       </div>
+      <div class="flex gap-4">
+          <label class="w-[30%]"></label>
+          <div class="w-[100%] flex gap-22">
+            <div class="">{{ dateTimeFormat(createAtStatus) }}</div>
+            <div>{{ dateTimeFormat(approvalAtStatus) }}</div>
+          </div>
+      <!-- <p class="text-transparent">s</p> -->
+      </div>
+      
     </div>
 
     <template #footer>
@@ -373,10 +405,11 @@ onBeforeMount(()=>{
       </div>
     </template>
   </el-dialog>
+
   <!-- 3.Trả hàng hết hạn -->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 3"
+    v-if="orderStatusType == 4"
     @open="open"
     @close="close"
     :title="t('reuse.informationReturnAfterDueDate')"
@@ -481,8 +514,8 @@ onBeforeMount(()=>{
         </el-table-column>
       </el-table>
       <div class="flex items-center">
-        <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>
-        <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        <span class="w-[15%] text-base font-bold">{{ t('reuse.status') }}</span>
+        <span class="block h-1 w-[85%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
@@ -490,10 +523,16 @@ onBeforeMount(()=>{
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span class="box dark:text-black active">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
+        </div>
+      </div>
+      <div class="flex gap-4 pb-2 items-center">
+        <label class="w-[30%] text-right !text-transparent">sss</label>
+        <div class="flex items-center w-[100%]">
+          <div >{{ dateTimeFormat(new Date()) }}</div>          
         </div>
       </div>
     </div>
@@ -621,7 +660,7 @@ onBeforeMount(()=>{
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span class="box dark:text-black active">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
@@ -996,7 +1035,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input-number v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1341,6 +1380,19 @@ onBeforeMount(()=>{
 </template>
 
 <style scope>
+.limit-text {
+  display: -webkit-box;
+  max-height: 3.2rem;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  -webkit-line-clamp: 2;
+  line-height: 1.6rem;
+}
+.active {
+  opacity: 1 !important;
+}
 .box {
   padding: 0 10px 0 20px;
   position: relative;
@@ -1350,6 +1402,40 @@ onBeforeMount(()=>{
   border: 1px solid #ccc;
   background-color: #ccc;
   opacity: 0.6;
+}
+.box_1 {
+  border: 1px solid #fff0d9!important;
+  background-color: #fff0d9!important;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
 }
 
 .triangle-left {
@@ -1366,15 +1452,5 @@ onBeforeMount(()=>{
   border-top: 13px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
-}
-.limit-text {
-  display: -webkit-box;
-  max-height: 3.2rem;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  -webkit-line-clamp: 2;
-  line-height: 1.6rem;
 }
 </style>

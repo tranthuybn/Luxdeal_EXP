@@ -147,7 +147,6 @@ const duplicateProductMessage = () => {
 // update value table
 const updateValueTable = (_value, obj, scope) => {
   const data = scope.row
-  console.log('obj:', obj)
   duplicateProduct.value = undefined
   duplicateProduct.value = tableAheadOfTime.value?.find(
     (val) => val?.productPropertyId == _value

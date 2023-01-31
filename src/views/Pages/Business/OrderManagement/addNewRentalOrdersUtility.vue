@@ -2229,7 +2229,9 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     tableReturnPost = scope?.map((e) => ({
     productPropertyId: parseInt(e?.productPropertyId),
     quantity: e?.quantity,
-    accessory: e?.accessory
+    accessory: e?.accessory,
+    returnDetailType: reason,
+    description: e.conditionProducts
   }))
   }  
 
@@ -2237,7 +2239,9 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    returnDetailType: reason,
+    description: e.description
   }))
   }
   
@@ -2248,9 +2252,9 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
       accessory: val.accessory,
       unitPrice: val.hirePrice,
       totalPrice: val.totalPrice,
+      returnDetailType: reason
     }))
   }
-  console.log('tableExpand: ', tableExpand)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
@@ -3902,15 +3906,14 @@ onBeforeMount(() => {
       <!-- Thông tin trả hàng trước hạn -->
       <ReturnOrder
         v-model="dialogReturnAheadOfTime"
-        v-if="listOfOrderProduct"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
+        :listProductsTable="getListProduct"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
         @update-status="updateStatusReturnAheadOfTime"
-        :orderStatusType="2"
+        :orderStatusType="3"
         :type="2"
       />
 
@@ -3922,7 +3925,7 @@ onBeforeMount(() => {
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="3"
+        :orderStatusType="4"
         :type="2"
       />
 
@@ -5317,7 +5320,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)"
+              @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.aheadTimeReturns') }}</button
             >

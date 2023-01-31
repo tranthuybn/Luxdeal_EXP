@@ -383,7 +383,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: undefined,
   quantity: '1',
   accessory: '',
-  unitName: 'Cái',
+  unitName: '',
   unitPrice: 0,
   totalPrice: '',
   paymentType: '',
@@ -660,6 +660,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.unitName = obj.unit
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
@@ -1189,6 +1190,9 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
+    id = res
+    updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+    // reloadStatusOrder()
     ElNotification({
       message: t('reuse.addSuccess'),
       type: 'success'
@@ -1200,7 +1204,6 @@ const postData = async (pushBack: boolean) => {
       })
     }
   } else {
-    reloadStatusOrder()
     ElNotification({
       message: t('reuse.addFail'),
       type: 'warning'
@@ -1226,7 +1229,7 @@ let totalOrder = ref(0)
 
 //lay du lieu tu router
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
+let id: any = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(route.params.tab)
 const type = String(route.params.type)
@@ -1494,25 +1497,25 @@ const dialogPaymentVoucher = ref(false)
 
 // Thông tin phiếu nhập kho hoàn hàng đổi/trả
 const informationWarehouseReceipt = ref(false)
-const tableFullyIntegrated = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '2',
-    unitPriceWarehouse: '5,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ'
-  }
-]
+const tableFullyIntegrated = ref()
+const totalPriceWarehouse = ref(0)
 
 const warehouseTicketCode = ref()
 const staffId = ref()
 const openDetailFullyIntegrated = async (props) => {
   console.log('props: ', props)
+  totalPriceWarehouse.value = 0
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
   console.log('res: ', res)
   staffId.value = res.data[0].staffId
+  tableFullyIntegrated.value = res.data[0].transactionDetails
+  tableFullyIntegrated.value.forEach((el) => {
+    if (el.importPrice) {
+      el.intoMoneyWarehouse = el.importPrice * el.quantity
+      totalPriceWarehouse.value += el.intoMoneyWarehouse
+    }
+  })
 
   informationWarehouseReceipt.value = true
 }
@@ -1632,6 +1635,7 @@ const getReturnRequestTable = async () => {
     historyTable.value = optionsReturnRequest?.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
       productPropertyId: e?.productPropertyId,
+      productPropertyCode: e?.productPropertyCode,
       productPropertyName: e?.productPropertyName,
       accessory: e?.accessory,
       quantity: e?.quantity,
@@ -1729,22 +1733,6 @@ if (type == 'add' && priceChangeOrders.value == false)
     orderStatus: 2,
     isActive: true
   })
-
-// options loại tiền bút toán bổ sung
-// const optionsKindOfMoney = [
-//   {
-//     value: 1,
-//     label: 'Tiền cọc(Không tính vào Công nợ phí thuê)'
-//   },
-//   {
-//     value: 2,
-//     label: 'Tiền phí(Tính vào Công nợ phí thuê)'
-//   },
-//   {
-//     value: 3,
-//     label: 'Tiền khác(Không tính vào Công nợ phí thuê)'
-//   }
-// ]
 
 // dialog print
 const nameDialog = ref('')
@@ -2443,7 +2431,6 @@ const updateOrderInfomation = async () => {
 const { push } = useRouter()
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
   if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
     let payload = {
       OrderId: id
@@ -2457,20 +2444,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: idOrderPost.value,
-        ServiceType: 1,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 
@@ -3675,7 +3651,7 @@ onBeforeMount(async () => {
       <el-dialog
         v-model="informationWarehouseReceipt"
         :title="t('formDemo.infoCouponExportExchange')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -3726,20 +3702,20 @@ onBeforeMount(async () => {
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPriceWarehouse" :label="t('formDemo.unitPriceWarehouse')">
+            <el-table-column prop="importPrice" :label="t('formDemo.unitPriceWarehouse')">
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPriceWarehouse }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.importPrice) }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="intoMoneyWarehouse" :label="t('formDemo.intoMoneyWarehouse')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoneyWarehouse }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoneyWarehouse) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3748,7 +3724,9 @@ onBeforeMount(async () => {
               <p class="text-black font-bold dark:text-white">Tổng tiền nhập kho</p>
             </div>
             <div class="w-[100px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">5,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(totalPriceWarehouse)
+              }}</p>
             </div>
           </div>
         </div>
@@ -5624,7 +5602,7 @@ onBeforeMount(async () => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="productPropertyId"
+              prop="productPropertyCode"
               :label="t('formDemo.productManagementCode')"
               width="150"
             />

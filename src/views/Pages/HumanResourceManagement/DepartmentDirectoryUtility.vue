@@ -15,7 +15,7 @@ import {
   addNewPosition,
   deleteTypeOfStaff,
   updatePosition,
-  updateTypeOfStaff,
+  updateTypeOfStaff,getBranchByID,getPositionByID,getTypeOfStaffByID,
   addNewTypeOfStaff
 } from '@/api/HumanResourceManagement'
 // import moment from 'moment'
@@ -297,7 +297,7 @@ const { push } = useRouter()
 type FormDataPost = {
   Name: string
   Code: string
-  isActive?: boolean
+  IsActive?: boolean
   isDelete: boolean
   CreateAt?: any
   CreateBy?: string
@@ -309,17 +309,33 @@ type FormDataEdit = {
   Code?: string
   Name: string
   UpdateAt: any
+  IsActive?: boolean
   isDelete: boolean
   UpdateBy: string
 }
 
 //Derpartment
+const formDataCustomize = ref()
+
+const customizeData = async (data) => { 
+  formDataCustomize.value = data
+  if (data.isActive == true) {
+    formDataCustomize.value['status'] = 1
+  }else{
+    formDataCustomize.value['status'] = 2
+  }
+}
 const customPostDataDerpartment = (data) => {
   const customData = {} as FormDataPost
 
   customData.Code = data.code
   customData.Name = data.name
-  customData.isActive = data.status
+  if (data.status == 1) {
+    customData.IsActive = true
+  } else if (data.status == 2) {
+    customData.IsActive = false
+    customData.isDelete = false
+  }
   customData.isDelete = false
   customData.CreateAt = moment().format('YYYY / MM / DD')
 
@@ -331,6 +347,12 @@ const customEditDataDepartment = (data) => {
   getData.Id = id
   getData.Code = data.code
   getData.Name = data.name
+  if (data.status == 1) {
+    getData.IsActive = true
+  } else if (data.status == 2) {
+    getData.IsActive = false
+    getData.isDelete = false
+  }
   return getData
 }
 
@@ -383,9 +405,9 @@ const customPostDataBranch = (data) => {
   customData.Code = data.code
   customData.Name = data.name
   if (data.status == 1) {
-    customData.isActive = true
+    customData.IsActive = true
   } else if (data.status == 2) {
-    customData.isActive = false
+    customData.IsActive = false
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
@@ -417,6 +439,12 @@ const customEditBranch = (data) => {
   const getData = {} as FormDataEdit
   getData.Id = id
   getData.Code = data.code
+  if (data.status == 1) {
+    getData.IsActive = true
+  } else if (data.status == 2) {
+    getData.IsActive = false
+    getData.isDelete = false
+  }
   getData.Name = data.name
   return getData
 }
@@ -449,9 +477,9 @@ const customPostDataPosition = (data) => {
   customData.Code = data.code
   customData.Name = data.name
   if (data.status == 1) {
-    customData.isActive = true
+    customData.IsActive = true
   } else if (data.status == 2) {
-    customData.isActive = false
+    customData.IsActive = false
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
@@ -480,10 +508,18 @@ const postDataPositon = async (data) => {
     )
 }
 const customEditPosition = (data) => {
+  console.log('data', data)
   const getData = {} as FormDataEdit
   getData.Id = id
+  if (data.status == 1) {
+    getData.IsActive = true
+  } else if (data.status == 2) {
+    getData.IsActive = false
+    getData.isDelete = false
+  }
   getData.Code = data.code
   getData.Name = data.name
+  console.log('data2', getData)
   return getData
 }
 const editDataPosition = async (data) => {
@@ -515,9 +551,9 @@ const customPostDataStaff = (data) => {
   customData.Code = data.code
   customData.Name = data.name
   if (data.status == 1) {
-    customData.isActive = true
+    customData.IsActive = true
   } else if (data.status == 2) {
-    customData.isActive = false
+    customData.IsActive = false
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
@@ -549,6 +585,12 @@ const customEditStaff = (data) => {
   const getData = {} as FormDataEdit
   getData.Id = id
   getData.Code = data.code
+  if (data.status == 1) {
+    getData.IsActive = true
+  } else if (data.status == 2) {
+    getData.IsActive = false
+    getData.isDelete = false
+  }
   getData.Name = data.name
   return getData
 }
@@ -581,10 +623,11 @@ const editDataStaff = async (data) => {
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
-    :apiId="getDepartmentByID"
+    :apiId="getBranchByID"
     :id="id"
     :tab="tab"
     :type="type"
+    @customize-form-data="customizeData"
     :multipleImages="false"
     @post-data="postDataBranch"
     @edit-data="editDataBranch"
@@ -600,6 +643,7 @@ const editDataStaff = async (data) => {
     :title="t('reuse.addNewDepartment')"
     @post-data="postDataDepartment"
     @edit-data="editDataDepartment"
+    @customize-form-data="customizeData"
     :multipleImages="false"
     :apiId="getDepartmentByID"
     :delApi="deleteDepartment"
@@ -614,6 +658,8 @@ const editDataStaff = async (data) => {
     :title="t('reuse.addNewRank')"
     @post-data="postDataPositon"
     @edit-data="editDataPosition"
+    @customize-form-data="customizeData"
+    :apiId="getPositionByID"
     :multipleImages="false"
     :delApi="deletePosition"
   />
@@ -621,11 +667,15 @@ const editDataStaff = async (data) => {
     v-if="tab == 'tyOfPersonel'"
     :schema="schema4"
     :type="type"
+    :id="id"
+    :tab="tab"
     :nameBack="currentRoute"
     :title="t('reuse.addNewTypePersonnel')"
     @post-data="postDataStaff"
     @edit-data="editDataStaff"
+    @customize-form-data="customizeData"
     :multipleImages="false"
+    :apiId="getTypeOfStaffByID"
     :delApi="deleteTypeOfStaff"
   />
 </template>

@@ -27,6 +27,7 @@ interface Collapse {
   title?: string
   columns?: TableColumn[]
   api?: any
+  delApi?: (option: any) => Promise<IResponse<TableResponse<TableData>>>
   buttonAdd?: string
   typeForm?: string
   typeButton?: string

@@ -181,7 +181,7 @@ export const DEPARTMENT_DIRECTORY = {
   //POSITION
   GET_LIST_POSITION: '/api/v1/Position/GetPosition',
   POSITION_BY_ID:'/api/v1/Position/GetId',
-  ADD_POSITION: '/api/v1/Position/GetPosition',
+  ADD_POSITION: '/api/v1/Position/CreatePostion',
   UPDATE_POSITION: '/api/v1/Position/UpdatePosition',
   DELETE_POSITION: '/api/v1/Position/DeletePosition',
   //TY OF STAFF

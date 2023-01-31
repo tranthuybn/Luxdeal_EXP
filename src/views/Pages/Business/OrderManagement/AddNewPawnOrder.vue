@@ -3485,6 +3485,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />
@@ -3658,6 +3659,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />

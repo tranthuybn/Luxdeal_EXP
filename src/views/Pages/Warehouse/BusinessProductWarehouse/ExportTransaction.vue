@@ -254,7 +254,6 @@ const updateInventory = async () => {
 
 let childrenTable: any[] = []
 const callButToan = async (data) => {
-  console.log('data', data)
   data.forEach((product) => {
     product.exportLots.forEach(async lot => {
       if (lot.serviceType == 2 || lot.serviceType == 4) {
@@ -262,9 +261,8 @@ const callButToan = async (data) => {
           merchadiseTobePayforId: product.productPropertyId,
           quantity: lot.quantity
         }
-
         const payload = {
-          orderId: ticketData.value.orderId,
+          orderId: lot.consignmentOrderId,
           content: product.productName,
           paymentRequestId: null,
           receiptOrPaymentVoucherId: null,
@@ -302,10 +300,12 @@ const updateInventoryOrder = async () => {
       exportLots: row.exportLots?.map((val) => ({
         fromLotId: val.value,
         quantity: val.quantity,
-        serviceType: val.serviceType
+        serviceType: val.serviceType,
+        consignmentOrderId: val.consignmentOrderId
       }))
     }))
   }
+  console.log('consig', payload.warehouseProductJson)
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({

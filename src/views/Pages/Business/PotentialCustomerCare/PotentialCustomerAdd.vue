@@ -291,6 +291,9 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
+      onChange: (data) => {
+        changeValueClassify(data)
+      },
       placeholder: t('reuse.personal'),
       options: [
         {
@@ -307,7 +310,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       span: 10
     }
   },
-
   {
     field: 'supplier',
     label: '',
@@ -340,7 +342,21 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       span: 10
     }
   },
-
+  {
+    field: 'customerName',
+    label: t('reuse.customerName'),
+    component: 'Input',
+    componentProps: {
+      style: 'width: 100%',
+      allowCreate: true,
+      filterable: true,
+      placeholder: t('formDemo.enterCustomerName'),
+      options: []
+    },
+    colProps: {
+      span: 20
+    },
+  },
   {
     field: 'companyName',
     label: t('reuse.companyName'),
@@ -357,7 +373,8 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     },
     colProps: {
       span: 20
-    }
+    },
+    // hidden: true
   },
 
   {
@@ -365,7 +382,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.taxCode'),
     component: 'Input',
     value: '',
-    hidden: false,
+    hidden: true,
     componentProps: {
       style: 'width: 100%',
       // allowCreate: true,
@@ -380,6 +397,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'name',
     label: t('reuse.representative'),
+    hidden: true,
     component: 'Input',
     componentProps: {
       placeholder: t('reuse.enterRepresentativeName')
@@ -651,6 +669,24 @@ const collapse: Array<Collapse> = [
     type: type
   }
 ]
+
+const changeValueClassify = (data) => {
+  console.log('value Select:', data);
+    if(data == true){
+      columnProfileCustomer[3].hidden = false
+      columnProfileCustomer[4].hidden = true
+      columnProfileCustomer[5].hidden = true
+    }else{ 
+      getCustomerOptions()
+      columnProfileCustomer[3].hidden = true
+      columnProfileCustomer[4].hidden = false
+      columnProfileCustomer[5].hidden = false
+      columnProfileCustomer[5].hidden = false
+    }
+  
+  
+}
+
 // get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
 const getCustomerOptions = async () => {
@@ -667,8 +703,9 @@ const getCustomerOptions = async () => {
     }
   }
   if (cutomerOptions.value!.length > 0) {
-    if (columnProfileCustomer[3].componentProps?.options !== undefined) {
-      columnProfileCustomer[3].componentProps.options = cutomerOptions.value
+    console.log("run here");
+    if (columnProfileCustomer[4].componentProps?.options !== undefined) {
+      columnProfileCustomer[4].componentProps.options = cutomerOptions.value
     }
   }
 }
@@ -704,8 +741,8 @@ const getOrdersOptions = async () => {
         console.error(err)
       })
       .finally(() => callOrderAPI++)
-    columnProfileCustomer[19].componentProps!.options = OrdersSelect
-    columnProfileCustomer[19].componentProps!.loading = false
+    columnProfileCustomer[20].componentProps!.options = OrdersSelect
+    columnProfileCustomer[20].componentProps!.loading = false
   }
 }
 
@@ -798,8 +835,8 @@ const customPostData = (data) => {
   customData.email = data.email
   customData.link = data.link
   customData.taxCode = data.taxCode
-  customData.isOrganization = true
-  customData.historyTransaction = data.transactionHistory
+  // customData.isOrganization = true
+  // customData.historyTransaction = data.transactionHistory
   customData.isOnline = data.isOnline
   customData.accessChannel = data.customerContactChannel
   customData.source = data.newCustomerSource

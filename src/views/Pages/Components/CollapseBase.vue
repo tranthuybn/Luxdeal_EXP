@@ -90,6 +90,7 @@ const postData = (data) => {
           :titleButtons="item.buttonAdd"
           :columns="item.columns"
           :api="item.api"
+          :del-api="item.delApi"
           :key="index"
           :apiTableChild="item.apiTableChild"
           :columnsTableChild="item.columnsTableChild"

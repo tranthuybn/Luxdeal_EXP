@@ -209,13 +209,15 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  productPropertyId: string
+  productPropertyId: string | number | any
   spaServices: string
   warehouseTotal?: number | any
   amountSpa: number
   quantity: string
   businessManagement: {}
   accessory: string | undefined
+  code: string | undefined
+  description: string | undefined
   warehouseInfo: {}
   unitName: string
   TotalPrice: number
@@ -236,9 +238,11 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   spaServices: '',
   amountSpa: 2,
-  productPropertyId: '',
+  productPropertyId: undefined,
   quantity: '1',
   accessory: '',
+  code: '',
+  description: '',
   businessManagement: {},
   warehouseInfo: {},
   unitName: 'Cái',
@@ -263,6 +267,7 @@ let tablePawnSlip = ref<any[]>([{}])
 // debtTable
 interface tableDataType {
   [x: string]: any
+  id: number
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -642,7 +647,7 @@ const callAPIProduct = async () => {
       value: product.productCode,
       name: product.name ?? '',
       unit: product.unitName,
-      price: product.price,
+      price: product.price.toString(),
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -697,7 +702,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     data.unitName = obj.unit
@@ -852,9 +857,12 @@ const postData = async () => {
     TotalPrice: 0,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    Accessory: val.accessory
+    Accessory: val.accessory,
+    Code: val.code,
+    Description: val.description
   }))
   orderDetailsTable.pop()
+  console.log('orderDetailsTable', orderDetailsTable)
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -934,7 +942,9 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 // Danh mục brand unit origin api
@@ -1565,7 +1575,9 @@ const handle = () => {
   }
 }
 const disableCreateOrder = ref(false)
-
+const disabledDate = (time: Date) => {
+  return time.getTime() <= Date.now()
+}
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
@@ -1609,11 +1621,10 @@ const editData = async () => {
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
       priceintoMoneyByday.value = orderObj.interestMoney
+      customerID.value = orderObj.customer.id
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
       ruleForm.customerName = orderObj.customer.id
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
 
@@ -2122,6 +2133,7 @@ const removeRow = (index) => {
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
+                  :disabled-date="disabledDate"
                   format="DD/MM/YYYY"
                 />
               </el-form-item>
@@ -2593,6 +2605,44 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
+
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.code }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`" />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
+            <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
+              <el-input
+                v-else 
+                v-model="data.row.quantity" 
+                :disabled="disabledEdit" @change="handleTotal(data)"
+                style="width: 100%" />
+            </template>
+          </el-table-column>
+
           <el-table-column
             :disabled="disabledEdit"
             prop="quantity"
@@ -2677,7 +2727,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit"
           >+ {{ t('formDemo.add') }}</el-button
         >
 
@@ -3435,6 +3485,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />
@@ -3608,6 +3659,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />

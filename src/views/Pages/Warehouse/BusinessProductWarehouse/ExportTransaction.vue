@@ -14,7 +14,7 @@ import {
   UpdateInventoryOrder,
   updateTicketManually
 } from '@/api/Warehouse'
-import { getWareHouseTransactionList } from '@/api/Business'
+import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
 
@@ -251,6 +251,42 @@ const updateInventory = async () => {
       })
     )
 }
+
+let childrenTable: any[] = []
+const callButToan = async (data) => {
+  data.forEach((product) => {
+    product.exportLots.forEach(async lot => {
+      if (lot.serviceType == 2 || lot.serviceType == 4) {
+        childrenTable[0] = {
+          merchadiseTobePayforId: product.productPropertyId,
+          quantity: lot.quantity
+        }
+        const payload = {
+          orderId: lot.consignmentOrderId,
+          content: product.productName,
+          paymentRequestId: null,
+          receiptOrPaymentVoucherId: null,
+          receiveMoney: 0,
+          paidMoney: 0,
+          deibt: 0,
+          typeOfPayment: 1,
+          paymentMethods: 1,
+          status: 0,
+          isReceiptedMoney: 1,
+          typeOfMoney: 1,
+          merchadiseTobePayfor: childrenTable,
+          ReturnRequestId: null,
+          TypeOfAccountingEntry: 5,
+          OrderIdBTSpa: ticketData.value.orderId,
+          OrderCodeBTSpa: ticketData.value.orderCode,
+          orderTypeBTSpa: serviceType.value
+        }
+        await addOrderStransaction(payload)
+      }
+    })
+  })
+}
+
 const updateInventoryOrder = async () => {
   if (!ExportPWRef.value?.checkValueOfTable()) {
     return
@@ -260,15 +296,19 @@ const updateInventoryOrder = async () => {
     type: 2,
     warehouseProductJson: ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
+      productName: row.productName,
       quantity: row.quantity,
       accessory: row.accessory,
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
         fromLotId: val.value,
-        quantity: val.quantity
+        quantity: val.quantity,
+        serviceType: val.serviceType,
+        consignmentOrderId: val.consignmentOrderId
       }))
     }))
   }
+  console.log('consig', payload.warehouseProductJson)
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({
@@ -277,7 +317,9 @@ const updateInventoryOrder = async () => {
       }),
         push({
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        })
+        }),
+
+        callButToan(payload.warehouseProductJson);
     })
     .catch(() =>
       ElNotification({

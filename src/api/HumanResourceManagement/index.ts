@@ -39,9 +39,9 @@ export const updateBranch = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}`, data
     },
+    
     fixedBaseURL
   )
   return res && res.data
@@ -82,10 +82,43 @@ export const getDepartmentByID = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getBranchByID = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.BRANCH_BY_ID}`,
+      params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getPositionByID = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.POSITION_BY_ID}`,
+      params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getTypeOfStaffByID = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.TYPEOFSTAFF_BY_ID}`,
+      params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const addNewDepartment = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.post(
-    { url: `${DEPARTMENT_DIRECTORY.POST_NEW_DEPARTMENT}`, data },
+    { url: `${DEPARTMENT_DIRECTORY.POST_NEW_DEPARTMENT}`,data },
     fixedBaseURL
   )
   return res.data && res.data
@@ -96,8 +129,7 @@ export const updateDepartment = async (data): Promise<IResponse> => {
 
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}`,data
     },
     fixedBaseURL
   )
@@ -141,8 +173,7 @@ export const updatePosition = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_POSITION}`,
-      data
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_POSITION}`,data
     },
     fixedBaseURL
   )

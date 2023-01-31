@@ -113,7 +113,6 @@ const postReturnRequest = async (orderStatusType) => {
 }
 
 const donePaymentRequest = async (orderStatusType) => {
-  console.log('data', props.orderId, props.orderData)
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
   emit('update-status')

@@ -35,6 +35,7 @@ import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
+import { appModules } from '@/config/app'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import type { UploadFile } from 'element-plus'
@@ -88,6 +89,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
+const { utility } = appModules
 
 const { t } = useI18n()
 
@@ -1128,7 +1130,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    BusinessSetup: val.businessSetup,
+    BusinessSetup: val.businessManagement,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1209,6 +1211,19 @@ const postData = async () => {
     ElNotification({
       message: 'Hãy chọn sản phẩm mua',
       type: 'warning'
+    })
+  }
+}
+
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    router.push({
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        id: id
+      }
     })
   }
 }
@@ -2129,10 +2144,10 @@ const getTotalWarehouse = () => {
 }
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  const x = val.map((e) => e.id)
-  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(',')
+  // const x = val.map((e) => e.id)
+  // ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(',')
   const label = val.map((e) => e.applyExport)
-  ListOfProductsForSale.value[indexRow.value].businessManagement = label.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -4624,7 +4639,7 @@ onBeforeMount(async () => {
           >
             <template #default="props">
               <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
+                {{ props.row.productPropertyCode }}
               </div>
               <MultipleOptionsBox
                 :fields="[
@@ -4783,7 +4798,7 @@ onBeforeMount(async () => {
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span>{{ data.row.businessManagement }}</span>
+                  <span>{{ data.row.businessSetup }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -5092,7 +5107,10 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus"
-              @click="editButton = true"
+              @click="() => {
+                changeEditInDetail()
+                editButton = true
+              }"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >

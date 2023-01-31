@@ -1852,13 +1852,9 @@ const openAccountingEntry = async (id, type) => {
   typeDialog.value = type
   const res = await getOrderList({ Id: id, ServiceType: type})
   const data = { ...res?.data[0] }
-  console.log('res: ', data)
-  var generalData = data.orderDetails.map((val) => {
-    unitPrice: val.unitPrice
-  })
   
   if(type == 1) {
-    tablePaymentSlip.value = generalData
+    // tablePaymentSlip.value = generalData
   } else if (type == 3) {
 
   } else if (type == 5) {
@@ -2065,22 +2061,24 @@ const paymentExpired = async (status) => {
 }
 
 // Trả hàng trước thời hạn
-const returnGoodsAheadOfTime = async (status) => {
+const returnGoodsAheadOfTime = async (status, data) => {
   let tableReturnPost = [{}]
+  console.log('data', data)
 
-  // if (rentReturnOrder.value.tableData.length < 2) {
-  //   return
-  // }
-  // rentReturnOrder.value.tableData.pop()
-  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
-    productPropertyId: Number(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
-    returnDetailType: 3,
-    unitPrice: 0,
-    totalPrice: 0,
-    isSpa: true
+  data?.pop()
+  tableReturnPost = data.map((e) => ({
+    // productPropertyId: Number(e.productPropertyId),
+    // quantity: parseInt(data.quantity),
+    // accessory: e.accessory,
+    // returnDetailType: 3,
+    // unitPrice: 0,
+    // totalPrice: 0,
+    // isSpa: true
+    productPropertyId: parseInt(e?.productPropertyId),
+    quantity: parseInt(e?.quantity),
+    accessory: e?.accessory
   }))
+  console.log('tableReturnPost', tableReturnPost)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
@@ -3632,7 +3630,7 @@ const openDetailOrder = (id, type) => {
             <span v-if="typeDialog == 1" class="w-[35%] text-base font-bold break-w">{{
               t('formDemo.productInformationSaleConsign')
             }}</span>
-            <span v-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
+            <span v-else-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
               t('formDemo.productInformationSaleRental')
             }}</span>
             <span v-else class="w-[35%] text-base font-bold break-w">{{
@@ -3644,8 +3642,8 @@ const openDetailOrder = (id, type) => {
         <div class="pt-2 pb-2">
           <el-table v-if="typeDialog == 1" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
               <template #default="data">
@@ -3662,10 +3660,10 @@ const openDetailOrder = (id, type) => {
             <el-table-column prop="totalPrice" :label="t('formDemo.payment')" min-width="150"/>
           </el-table>
 
-          <el-table v-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+          <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
               <template #default="data">
@@ -3684,8 +3682,8 @@ const openDetailOrder = (id, type) => {
 
           <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
               <template #default="data">
@@ -5068,7 +5066,7 @@ const openDetailOrder = (id, type) => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="inventoryStatus"
+              prop="returnDetailStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

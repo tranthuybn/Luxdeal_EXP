@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 
 import { h, onBeforeMount, provide, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
-import { TableBase } from '../../Components/TableBase/index'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
   getGenCodeCollaborators,
   addNewCollaborators,
-  updateCollaborators
+  updateCollaborators,
+  cancelCustomerCollabolator,
+  GetOrderByCollabolatorId,
+  getCommissionPaymentByCollaboratorId
 } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
@@ -33,7 +35,10 @@ import {
   UploadUserFile,
   ElForm,
   ElFormItem,
-  ElMessage
+  ElMessage,
+  ElTable,
+  ElTableColumn,
+  ElDialog
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -57,47 +62,6 @@ const collapse: Array<Collapse> = [
     title: t('reuse.ManageSalesHistoryAndCommissionPayments')
   }
 ]
-const tableColumn = reactive<TableColumn[]>([
-  {
-    field: 'date',
-    label: t('reuse.date'),
-    minWidth: '150'
-  },
-  {
-    field: 'code',
-    label: t('reuse.orderCode') + '/' + t('formDemo.withdrawalRequestCode'),
-    minWidth: '350'
-  },
-  {
-    field: 'discount',
-    label: '%' + t('formDemo.discount'),
-    minWidth: '150'
-  },
-  {
-    field: 'orderSales',
-    label: t('reuse.orderSales'),
-    minWidth: '150',
-    align: 'right'
-  },
-  {
-    field: 'intoDiscountComMoney',
-    label: t('formDemo.intoDiscountComMoney'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'spent',
-    label: t('formDemo.spent'),
-    minWidth: '150',
-    align: 'center'
-  },
-  {
-    field: 'cumulativeCom',
-    label: t('formDemo.cumulativeCom'),
-    minWidth: '150',
-    align: 'center'
-  }
-])
 // const disabled = ref(false)
 const disabledTable = ref(false)
 
@@ -110,7 +74,6 @@ const getGenCodeCollaborator = async () => {
     .catch((err) => {
       console.error(err)
     })
-  CollaboratorId
 }
 const collapseChangeEvent = (val) => {
   if (val) {
@@ -217,7 +180,7 @@ const { register, methods, elFormRef } = useForm({
 })
 let formValue = ref()
 const getTableValue = async () => {
-  if (!isNaN(id)) {
+  if (!isNaN(id) && type != 'add') {
     const res = await getCollaboratorsById({ id: id })
     if (res && res.data) {
       formValue.value = res.data
@@ -231,10 +194,6 @@ const getTableValue = async () => {
   }
 }
 
-// const customizeData = async () => {
-// formDataCustomize.value.collaboratorFiles = `${API_URL}${formValue.value.collaboratorFiles}`
-// FormData.Discount = formValue.value.code
-// }
 let checkValidate = ref(false)
 
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -254,6 +213,33 @@ const type = String(router.currentRoute.value.params.type)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 const disabledForm = ref(false)
 
+const centerDialogCancelAccount = ref(false)
+
+//hủy tài khoản cộng tác viên
+const cancelAccountCollabolator = async () => {
+  const payload = {
+    Id: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await cancelCustomerCollabolator(formDataPayLoad)
+    .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công',
+        type: 'success'
+      }),
+        push({
+          name: 'business.collaborators.collaboratorsList',
+          params: { backRoute: 'business.collaborators.collaboratorsList' }
+        })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
+}
+
 watch(
   () => checkValidate.value,
   () => {
@@ -270,7 +256,7 @@ defineExpose({
 
 type FormDataInput = {
   CollaboratorStatus: boolean
-  Discount: string
+  Discount: number
   customersValue: any
   isActive?: boolean
   status?: string
@@ -307,9 +293,7 @@ const cancel = async () => {
     params: { backRoute: 'business.collaborators.collaboratorsList' }
   })
 }
-// const cancel = () => {
-//   go(-1)
-// }
+
 const ListFileUpload = ref<UploadUserFile[]>([])
 
 const setFormValue = async () => {
@@ -319,8 +303,7 @@ const setFormValue = async () => {
       if (element.file !== null) {
         ListFileUpload.value.push({
           url: `${API_URL}${element?.file?.path}`,
-          name: element?.file?.fileName,
-          id: element?.file?.id
+          name: element?.file?.fileName
         })
       }
     })
@@ -362,11 +345,9 @@ const setFormValue = async () => {
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
-onBeforeMount(() => {
-  callCustomersApi()
-})
+
 let FileDeleteIds: any = []
-const beforeRemove: UploadProps['beforeRemove'] = (uploadFile) => {
+const beforeRemove = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -426,7 +407,6 @@ watch(
       disabledTable.value = true
     }
     if (type === 'detail' || type === 'edit') {
-      // getTableValue()
       disabledTable.value = true
       getTableValue()
     }
@@ -502,6 +482,70 @@ const fix = async () => {
 }
 const activeName = ref(collapse[0].name)
 
+const tableData = ref<Array<any>>([])
+const orderList = ref<Array<any>>([])
+const commissionPaymentList = ref<Array<any>>([])
+const totalFinalPrice = ref(0)
+const totalPriceCumulativeCom = ref(0)
+const totalReceivePrice = ref(0)
+const totalCumulativeCom = ref(0)
+
+const getOrderByCollaborator = async () => {
+  const res = await GetOrderByCollabolatorId({ Id: id })
+  const obj = [...res?.data.data]
+  if (obj) {
+    orderList.value = [
+      ...obj.map((val) => ({
+        date: val.createdAt,
+        code: val.code,
+        commission: val.collaboratorCommission,
+        totalPrice: val.totalPrice,
+        paidMoney: val.paidMoney,
+        cumulativeCom: 0
+      }))
+    ]
+    getCommissionPaymentByCollaborator()
+  }
+}
+
+const getCommissionPaymentByCollaborator = async () => {
+  const res = await getCommissionPaymentByCollaboratorId({ Id: id })
+  const obj = [...res?.data]
+  if (obj) {
+    commissionPaymentList.value = [
+      ...obj.map((val) => ({
+        date: val.createdAt,
+        code: val.code,
+        commission: formValue.value.discount,
+        totalPrice: val.price,
+        paidMoney: 0,
+        cumulativeCom: 0
+      }))
+    ]
+    tableData.value = orderList.value.concat(commissionPaymentList.value)
+    tableData.value.sort(function (a, b) {
+      var c: any = new Date(a.date)
+      var d: any = new Date(b.date)
+      return c - d
+    })
+
+    tableData.value.map((val) => {
+      if (val.totalPrice) {
+        totalFinalPrice.value += val.totalPrice
+        totalPriceCumulativeCom.value += (val.commission * val.totalPrice) / 100
+        totalReceivePrice.value += val.paidMoney
+      }
+    })
+  }
+}
+
+onBeforeMount(() => {
+  callCustomersApi()
+  if (type == 'edit' || type == 'detail') {
+    getOrderByCollaborator()
+  }
+})
+
 const params = { id: id }
 provide('parameters', {
   params
@@ -550,7 +594,7 @@ provide('parameters', {
                     size="default"
                     :placeholder="t('formDemo.enterCommissionCalculatedOnOrderSales')"
                     :suffixIcon="h('div', '%')"
-                    :formatter="(value) => value.replace(/^[^0-9,]*$/gm, '')"
+                    @change="(data) => (FormData.Discount = Number(data))"
                   />
                 </div>
               </ElFormItem>
@@ -725,7 +769,7 @@ provide('parameters', {
                   action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                   :limit="10"
                   :on-change="handleChange"
-                  :before-remove="beforeRemove"
+                  @before-remove="beforeRemove"
                   :auto-upload="false"
                   :multiple="true"
                   v-model:fileList="ListFileUpload"
@@ -744,7 +788,38 @@ provide('parameters', {
           <ElButton class="min-w-42" type="primary" plain @click="save()">
             {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton type="danger" class="min-w-42"> {{ t('formDemo.cancelAccount') }} </ElButton>
+          <ElButton @click="centerDialogCancelAccount = true" type="danger" class="min-w-42">
+            {{ t('formDemo.cancelAccount') }}
+          </ElButton>
+          <el-dialog
+            v-model="centerDialogCancelAccount"
+            :title="t('formDemo.cancelAccount')"
+            width="30%"
+            align-center
+            class="font-semibold"
+          >
+            <div class="text-red-600">
+              {{ t('reuse.cancelAccountCheck') }}
+            </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button
+                  type="danger"
+                  @click="
+                    () => {
+                      cancelAccountCollabolator()
+                      centerDialogCancelAccount = false
+                    }
+                  "
+                  class="min-w-36 min-h-10"
+                  >{{ t('formDemo.cancelAccount') }}</el-button
+                >
+                <el-button @click="centerDialogCancelAccount = false" class="min-w-36 min-h-10">{{
+                  t('reuse.exit')
+                }}</el-button>
+              </span>
+            </template>
+          </el-dialog>
         </div>
         <div v-else-if="type === 'detail'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" plain @click="fix()">
@@ -763,17 +838,55 @@ provide('parameters', {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <TableBase
-          :removeDrawer="false"
-          :expand="false"
-          :customOperator="1"
-          :paginationType="false"
-          ref="tableBase01"
-          :api="getCollaboratorsById"
-          :maxHeight="'69vh'"
-          :fullColumns="tableColumn"
-          :selection="false"
-        />
+        <el-table :data="tableData" border style="width: 100%">
+          <el-table-column prop="date" :label="t('reuse.date')" width="180">
+            <template #default="data">
+              {{ dateTimeFormat(data.row.date) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="code" :label="t('reuse.orderCodepaymentCode')" width="300" />
+          <el-table-column prop="commission" :label="t('reuse.percentDiscount')">
+            <template #default="data">
+              {{ data.row.commission + ' %' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="totalPrice" :label="t('reuse.orderSales')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.totalPrice) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="priceCommission"
+            :label="t('formDemo.intoDiscountComMoney')"
+            align="right"
+          >
+            <template #default="data">
+              {{ moneyFormat((data.row.totalPrice * data.row.commission) / 100) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.paidMoney) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="cumulativeCom" :label="t('formDemo.cumulativeCom')" align="right">
+            <template #default="data">
+              {{ moneyFormat(data.row.cumulativeCom) }}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="flex justify-end">
+          <div v-if="totalFinalPrice > 0" class="font-bold">{{ moneyFormat(totalFinalPrice) }}</div>
+          <div v-if="totalPriceCumulativeCom > 0" class="font-bold pl-3">{{
+            moneyFormat(totalPriceCumulativeCom)
+          }}</div>
+          <div v-if="totalReceivePrice > 0" class="font-bold pl-3">{{
+            moneyFormat(totalReceivePrice)
+          }}</div>
+          <div v-if="totalCumulativeCom > 0" class="font-bold pl-3">{{
+            moneyFormat(totalCumulativeCom)
+          }}</div>
+        </div>
       </el-collapse-item>
     </el-collapse>
   </div>
@@ -840,14 +953,6 @@ provide('parameters', {
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
@@ -887,6 +992,11 @@ provide('parameters', {
 }
 ::v-deep(.el-form-item__error) {
   margin-left: 20px;
+}
+
+::v-deep(.el-dialog__header) {
+  border-bottom: 1px solid rgb(214, 209, 209);
+  margin-right: 0;
 }
 
 .header-icon {

@@ -104,7 +104,6 @@ interface potentialCustomerHistoryInfo {
   percentageOfSales: Number
 }
 
-const parentBorder = ref(false)
 let tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
 
@@ -157,6 +156,9 @@ const postData = (data) => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
+      })
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
       })
     })
     .catch(() => {
@@ -284,10 +286,14 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'classify',
     label: t('reuse.classify'),
     component: 'Select',
+    value: true,
     componentProps: {
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
+      onChange: (data) => {
+        changeValueClassify(data)
+      },
       placeholder: t('reuse.personal'),
       options: [
         {
@@ -304,17 +310,30 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       span: 10
     }
   },
-
   {
     field: 'supplier',
     label: '',
     component: 'Select',
+    value: 'Khách hàng',
     componentProps: {
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
       placeholder: t('reuse.supplier'),
-      options: []
+      options: [
+        {
+          value: 'Khách hàng',
+          label: 'Khách hàng'
+        },
+        {
+          value: 'Nhà cung cấp',
+          label: 'Nhà cung cấp'
+        },
+        {
+          value: 'Chung',
+          label: 'Chung'
+        }
+      ]
     },
     formItemProps: {
       labelWidth: '0'
@@ -323,7 +342,21 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       span: 10
     }
   },
-
+  {
+    field: 'customerName',
+    label: t('reuse.customerName'),
+    component: 'Input',
+    componentProps: {
+      style: 'width: 100%',
+      allowCreate: true,
+      filterable: true,
+      placeholder: t('formDemo.enterCustomerName'),
+      options: []
+    },
+    colProps: {
+      span: 20
+    },
+  },
   {
     field: 'companyName',
     label: t('reuse.companyName'),
@@ -332,21 +365,28 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       allowCreate: true,
       filterable: true,
-      placeholder: t('reuse.enterSelectCompanyName')
+      placeholder: t('reuse.enterSelectCompanyName'),
+      options: [],
+      onChange: (data) => {
+        fillTaxCode(data)
+      }
     },
     colProps: {
       span: 20
-    }
+    },
+    // hidden: true
   },
 
   {
     field: 'taxCode',
     label: t('reuse.taxCode'),
-    component: 'Select',
+    component: 'Input',
+    value: '',
+    hidden: true,
     componentProps: {
       style: 'width: 100%',
-      allowCreate: true,
-      filterable: true,
+      // allowCreate: true,
+      // filterable: true,
       placeholder: t('reuse.enterSelectTaxCode')
     },
     colProps: {
@@ -357,6 +397,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   {
     field: 'name',
     label: t('reuse.representative'),
+    hidden: true,
     component: 'Input',
     componentProps: {
       placeholder: t('reuse.enterRepresentativeName')
@@ -591,7 +632,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Radio',
-    value: [],
+    value: 1,
     colProps: {
       span: 24
     },
@@ -628,23 +669,57 @@ const collapse: Array<Collapse> = [
     type: type
   }
 ]
-// get Customer
+
+const changeValueClassify = (data) => {
+  console.log('value Select:', data);
+    if(data == true){
+      columnProfileCustomer[3].hidden = false
+      columnProfileCustomer[4].hidden = true
+      columnProfileCustomer[5].hidden = true
+    }else{ 
+      getCustomerOptions()
+      columnProfileCustomer[3].hidden = true
+      columnProfileCustomer[4].hidden = false
+      columnProfileCustomer[5].hidden = false
+      columnProfileCustomer[5].hidden = false
+    }
+  
+  
+}
+
+// get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
 const getCustomerOptions = async () => {
   if (cutomerOptions.value.length === 0) {
-    const res = await getCustomer({ PageIndex: 1, PageSize: 20 })
+    const res = await getCustomer({ PageIndex: 1, PageSize: 2000, isOrganization: true })
     if (res && res.data.length > 0) {
       cutomerOptions.value = res.data.map((data) => ({
         label: data.name,
-        value: data.id
+        value: data.id,
+        tax: data?.taxCode,
+        phonenumber: data?.phonenumber,
+        email: data?.email
       }))
     }
   }
   if (cutomerOptions.value!.length > 0) {
-    if (columnProfileCustomer[2].componentProps?.options !== undefined) {
-      columnProfileCustomer[2].componentProps.options = cutomerOptions.value
+    console.log("run here");
+    if (columnProfileCustomer[4].componentProps?.options !== undefined) {
+      columnProfileCustomer[4].componentProps.options = cutomerOptions.value
     }
   }
+}
+const formRef = ref<InstanceType<typeof TableOperator>>()
+
+const fillTaxCode = (data) => {
+  const list = cutomerOptions.value.find((el) => el.value == data)
+  formRef.value?.setValues({
+    taxCode: list!['tax'],
+    name: list!['label'],
+    phonenumber: list!['phonenumber'],
+    email: list!['email'],
+    link: list!['link']
+  })
 }
 
 //get orderlist
@@ -666,8 +741,8 @@ const getOrdersOptions = async () => {
         console.error(err)
       })
       .finally(() => callOrderAPI++)
-    columnProfileCustomer[19].componentProps!.options = OrdersSelect
-    columnProfileCustomer[19].componentProps!.loading = false
+    columnProfileCustomer[20].componentProps!.options = OrdersSelect
+    columnProfileCustomer[20].componentProps!.loading = false
   }
 }
 
@@ -786,12 +861,15 @@ const customPostDataHistory = (data) => {
 const editData = async (data) => {
   data = customPostData(data)
   await updatePotentialCustomer(JSON.stringify(data))
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
-    )
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
+      })
+    })
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
@@ -845,7 +923,7 @@ watch(
             <div>
               <el-table
                 :data="tableData"
-                :border="parentBorder"
+                :border="true"
                 :expand-row-keys="ExpandedRow"
                 row-key="id"
               >

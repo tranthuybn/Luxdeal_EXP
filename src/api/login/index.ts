@@ -12,6 +12,12 @@ export const loginApi = async (data: UserType): Promise<IResponse<UserType>> => 
   return res && res.data
 }
 
+//update password
+export const updatePasswordApi = async (data): Promise<IResponse> => {
+  const res = await request.post({ url: 'api/auth/updatePassword', data }, LOGIN_API_URL)
+  return res && res.data
+}
+
 export const loginOutApi = async (): Promise<IResponse> => {
   const res = await request.get({ url: '/user/loginOut' })
   return res && res.data

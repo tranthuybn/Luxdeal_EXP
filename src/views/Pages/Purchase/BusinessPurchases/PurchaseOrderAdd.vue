@@ -73,7 +73,8 @@ import {
   createTicketFromReturnOrder,
   finishReturnOrder,
   cancelReturnOrder,
-  approvalOrder
+  approvalOrder,
+  getWareHouseTransactionList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
@@ -381,6 +382,7 @@ interface ListOfProductsForSaleType {
   businessManagement: string
   accessory: string | undefined
   code: string | undefined
+  description: string | undefined
   unitName: string
   unitPrice: string | number | undefined
   totalPrice: string
@@ -401,7 +403,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   quantity: 0,
   businessSetup: '',
   businessManagement: '',
-  code: undefined,
+  code: '',
+  description: '',
   accessory: '',
   unitName: '',
   unitPrice: 0,
@@ -1131,7 +1134,9 @@ const postData = async () => {
     InterestMoney: 0,
     WarehouseId: 1,
     IsPaid: true,
-    Accessory: val.accessory
+    Accessory: val.accessory,
+    Code: val.code,
+    Description: val.description
   }))
   orderDetailsTable.pop()
   if (orderDetailsTable?.length > 0) {
@@ -1681,6 +1686,7 @@ function openBillDialog() {
 function openReceiptDialog() {
   moneyReceipts.value = 0
   getReceiptCode()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1693,6 +1699,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   moneyPaid.value = 0
   getcodeExpenditures()
+  inputRecharger.value = ''
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyPaid.value += e.paidMoney
@@ -1707,9 +1714,10 @@ function openPaymentRequestDialog() {
   newCodePaymentRequest()
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
-      moneyDeibt.value += e.deibt
+      moneyDeibt.value += e.paidMoney
     })
   }
+  inputRecharger.value = ''
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
   dialogIPRForm.value = !dialogIPRForm.value
@@ -2440,9 +2448,12 @@ const getInformationWarehouseReceipt = () => {
 
 const ticketCode = ref()
 
-const showWarehouseTicket = (scope) => {
+const showWarehouseTicket = async (scope) => {
   const data = scope.row
+  const res_return = await getWareHouseTransactionList({ Id: data.warehouseTicketId })
   ticketCode.value = data.warehouseTicketCode
+  inputRecharger.value = res_return?.data[0].staffName
+  inputReasonReturn.value = res_return?.data[0].description
   if (data.returnDetailType == 1) {
     invoiceForGoodsEntering.value = true
     getInvoiceForGoodsEntering()
@@ -2473,6 +2484,12 @@ onBeforeMount(async () => {
     arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
     arrayStatusOrder.value[0].createdAt = ''
     arrayStatusOrder.value[0].isActive = true
+  }
+
+  if (type === 'approval-order') {
+    checkAccountEntry.value = true
+    checkReceiptOrPayment.value = true
+    checkPaymentRequest.value = true
   }
 })
 </script>
@@ -3581,14 +3598,14 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column label="STT" type="index" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3610,11 +3627,11 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="informationWarehouseReceipt = false">{{
+          <div class="flex justify-end">
+            <el-button type="primary" @click="informationWarehouseReceipt = false">{{
               t('button.printExport')
             }}</el-button>
-            <div>
+            <div class="pl-2">
               <span class="dialog-footer">
                 <el-button @click="informationWarehouseReceipt = false">{{
                   t('reuse.exit')
@@ -3679,14 +3696,14 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableInvoice" border style="width: 100%">
-            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column label="STT" type="index" align="center" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3708,11 +3725,11 @@ onBeforeMount(async () => {
           </div>
         </div>
         <template #footer>
-          <div class="flex justify-between">
-            <el-button @click="invoiceForGoodsEntering = false">{{
+          <div class="flex justify-end">
+            <el-button type="primary" @click="invoiceForGoodsEntering = false">{{
               t('button.printImport')
             }}</el-button>
-            <div>
+            <div class="pl-2">
               <span class="dialog-footer">
                 <el-button @click="invoiceForGoodsEntering = false">{{
                   t('reuse.exit')
@@ -4679,6 +4696,19 @@ onBeforeMount(async () => {
                 v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`"
               />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="checkDisabledProduct" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
             </template>
           </el-table-column>
 

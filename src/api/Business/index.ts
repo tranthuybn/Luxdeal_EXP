@@ -26,6 +26,18 @@ export const addCustomerRatings = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const cancelCustomerAccount = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${CUSTOMER_API.CANCEL_CUSTOMER_ACCOUNT}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getCustomerRatings = async (): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -172,11 +184,21 @@ export const addNewCustomer = async (params: any): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+export const updatedCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: CUSTOMER_API.UPDATED_CUSTOMER,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const addNewAuthRegister = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
-      url: CUSTOMER_API.POST_AUTH_REGISTER,
-      data: params
+      url: `${CUSTOMER_API.POST_AUTH_REGISTER}?${objectToQueryParams(params)}`
     },
     LOGIN_API_URL
   )
@@ -241,11 +263,11 @@ export const getDetailReceiptPaymentVoucher = async (params: any): Promise<IResp
   )
   return res && res.data
 }
-// edit chi tiết phiếu thu chi
-export const editReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
+// edit trạng thái chi tiết phiếu thu chi
+export const editStatusReceiptPaymentVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
-      url: `${ORDER_API.EDIT_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
+      url: `${ORDER_API.EDIT_STATUS_RECEIPT_PAYMENTVOUCHER}?${objectToQueryParams(params)}`,
       data: params
     },
     fixedBaseURL
@@ -399,12 +421,34 @@ export const getReturnRequestForOrder = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-//tạo mã phiếu nhập/xuất kho cho đơn đổi trả
+// Tạo mã phiếu nhập/xuất kho cho đơn đổi trả
 export const createTicketFromReturnOrder = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
       url: WAREHOUSE_API.CREATE_TICKET_FROM_RETURN_ORDER,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy chi tiết phiếu xuất đổi
+export const GetWarehouseTransaction = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${WAREHOUSE_API.DETAIL_WAREHOUSE_TRANSACTION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy danh sách nhân viên
+export const getAllStaffList = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -578,6 +622,18 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách đơn hàng theo mã cộng tác viên
+export const GetOrderByCollabolatorId = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_BY_COLLABOLATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+
+  return res && res.data
+}
+
 // update order info
 export const updateOrderInfo = async (data): Promise<IResponse> => {
   const res = await request.put(
@@ -693,9 +749,25 @@ export const getGenCodeCollaborators = async (params: any): Promise<IResponse> =
   )
   return res.data && res.data
 }
+export const getCommissionPaymentByCollaboratorId = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CUSTOMER_API.GET_COMMISSION_PAYMENT_BY_COLLABORATOR}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data
+}
 export const addNewCollaborators = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${CUSTOMER_API.POST_COLLABORATOR_API}`, data },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const cancelCustomerCollabolator = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${CUSTOMER_API.CANCEL_COLLABOLATOR_ACCOUNT}`, data },
     fixedBaseURL
   )
   return res && res.data

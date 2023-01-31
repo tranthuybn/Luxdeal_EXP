@@ -129,7 +129,8 @@ const signIn = () => {
         const res = await loginApi(formData)
         if (res) {
           const now = new Date()
-          if (wsCache['storage']?.length > 0) wsCache.clear()
+          if(wsCache['storage']?.length > 0)
+            wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
           if (accountId) {
@@ -141,7 +142,7 @@ const signIn = () => {
               message: t('reuse.accountInfo'),
               type: 'error'
             })
-          wsCache.clear()
+            wsCache.clear()            
         }
       } finally {
         loading.value = false
@@ -155,13 +156,13 @@ const getRole = async (accountId) => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
-    var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
 
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
-      console.log(urlList)
+      // console.log(urlList)
 
-      generateRouter(tempUrl.data)
+      generateRouter(urlList)
     } else {
       ElNotification({
         message: t('reuse.accountInfo'),

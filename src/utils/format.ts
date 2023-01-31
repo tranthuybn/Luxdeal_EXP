@@ -142,10 +142,18 @@ export const productStatusTransferToText = (val) => {
   else return `${t('reuse.inactive')}`
 }
 export const collaboratorStatusTransferToText = (val) => {
-  if (val == 0) return `${t('reuse.pending')}`
-  else if (val == 1) return `${t('reuse.active')}`
-  else if (val == 2) return `${t('reuse.inactive')}`
-  return `${t('reuse.lock')}`
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.active')
+    case 2:
+      return t('reuse.inactive')
+    case 3:
+      return t('reuse.lock')
+    default:
+      return ' '
+  }
 }
 export const formatPointSettingType = (val) => {
   switch (val) {
@@ -219,9 +227,9 @@ export const businessIventoryStatusTransferToText = (val) => {
 }
 
 export const businessStatusTransferToText = (val) => {
-  if (val == 0) return `${t('reuse.active')}`
-  else if (val == 1) return `${t('reuse.pending')}`
-  else if (val == 2) return `${t('reuse.finishPending')}`
+  if (val == 2) return `${t('reuse.active')}`
+  else if (val == 0) return `${t('reuse.pending')}`
+  else if (val == 1) return `${t('reuse.finishPending')}`
   return `${t('reuse.inactive')}`
 }
 

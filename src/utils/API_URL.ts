@@ -32,7 +32,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_COLLABORATORS: '/api/v1/Customer/GetCollaborator',
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
-  POST_SPA_ORDER: '/api/v1/Order/CreateOrder'
+  POST_SPA_ORDER: '/api/v1/Order/CreateOrder',
+  APPROVAL_PRODUCTS: '/api/v1/Approve/ApproveItem'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',
@@ -61,7 +62,11 @@ export const CUSTOMER_API = {
   GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
   GET_CUSTOMER_BY_ID: '/api/v1/Customer/GetCustomerById',
   ADD_CUSTOMER: '/api/v1/Customer/addCustomer',
+  CANCEL_CUSTOMER_ACCOUNT: '/api/v1/Customer/CancelCustomerAccount',
+  CANCEL_COLLABOLATOR_ACCOUNT: '/api/v1/Customer/CancelCollaboratorAccount',
+  UPDATED_CUSTOMER: '/api/v1/Customer/updateCustomer',
   GET_GEN_CODE_CUSTOMER: '/api/v1/Customer/genCodeCustomer',
+  GET_COMMISSION_PAYMENT_BY_COLLABORATOR: '/api/v1/Customer/getCommissionPaymentByCollabolatorId',
   POST_AUTH_REGISTER: '/api/auth/register'
 }
 
@@ -90,7 +95,7 @@ export const ORDER_API = {
   ORDER_TRANSACTION: '/api/v1/Accountant/GetOrderStransaction',
   GET_SPA_BY_PRODUCT: '/api/v1/Order/GetProductPropertySpaService',
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
-  EDIT_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
+  EDIT_STATUS_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditStatusAReceiptOrPaymentVoucher',
   UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
@@ -110,7 +115,8 @@ export const ORDER_API = {
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
   ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
   APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
-  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove'
+  APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove',
+  GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',
@@ -143,10 +149,12 @@ export const WAREHOUSE_API = {
   UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
   UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
-  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory'
+  GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
+  DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'
 }
 export const STAFF_API = {
-  GET_STAFF: '/api/v1/Staff/GetStaff'
+  GET_STAFF: '/api/v1/Staff/GetStaff',
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
@@ -160,6 +168,7 @@ export const POINT_API = {
 export const DEPARTMENT_DIRECTORY = {
   //Branch
   BRANCH_LIST: '/api/v1/Branch/GetBranch',
+  BRANCH_BY_ID:'/api/v1/Branch/GetId',
   ADD_BRANCH: '/api/v1/Branch/CreatBranch',
   UPDATE_BRANCH: '/api/v1/Branch/UpdateBranch',
   DELETE_BRANCH: '/api/v1/Branch/DeleteBranch',
@@ -172,12 +181,14 @@ export const DEPARTMENT_DIRECTORY = {
   DEPARTMENT_BY_ID: '/api/v1/Department/GetId',
   //POSITION
   GET_LIST_POSITION: '/api/v1/Position/GetPosition',
+  POSITION_BY_ID:'/api/v1/Position/GetId',
   ADD_POSITION: '/api/v1/Position/GetPosition',
   UPDATE_POSITION: '/api/v1/Position/UpdatePosition',
   DELETE_POSITION: '/api/v1/Position/DeletePosition',
   //TY OF STAFF
   GET_LIST_TYPEOFSTAFF: '/api/v1/TypeOfStaff/GetTypeStaff',
-  ADD_STAFF: '/api/v1/TypeOfStaff/CreateAccount',
+  ADD_STAFF: '/api/v1/TypeOfStaff/CreateTypeStaff',
+  TYPEOFSTAFF_BY_ID:'/api/v1/TypeOfStaff/GetId',
   UPDATE_STAFF: '/api/v1/TypeOfStaff/Update',
   DELETE_STAFF: '/api/v1/TypeOfStaff/Delete',
   //nhan su

@@ -2,8 +2,10 @@
 import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
-  deleteBranch,
+deleteBranch,
   deleteDepartment,
+  deletePosition,
+  deleteTypeOfStaff,
   getBranchList,
   getDepartmentList,
   getRankList,
@@ -77,7 +79,7 @@ const columnsBranch = reactive<TableColumn[]>([
       return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => actionBranch(row, 'detail') }),
         h(ElButton, { icon: editIcon, onClick: () => actionBranch(row, 'edit') }),
-        h(ElButton, { icon: deleteIcon, onClick: () => deleteBranch2(row) })
+        h(ElButton, { icon: deleteIcon, onClick: () => deleteBranchAc(row) })
       ])
     }
   }
@@ -186,6 +188,18 @@ const columnsRank = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return statusBranch(cellValue)
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => actionPosition(row, 'detail', 'rank') }),
+        h(ElButton, { icon: editIcon, onClick: () => actionPosition(row, 'edit', 'rank') }),
+        h(ElButton, { icon: deleteIcon, onClick: () => deletePositionhAc(row) })
+      ])
+    }
   }
 ])
 const columnsTypePersonnel = reactive<TableColumn[]>([
@@ -233,6 +247,18 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return statusBranch(cellValue)
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => actionTypeOfStaff(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => actionTypeOfStaff(row, 'edit') }),
+        h(ElButton, { icon: deleteIcon, onClick: () => delTypeOfStaff(row) })
+      ])
+    }
   }
 ])
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
@@ -272,14 +298,14 @@ const collapse: Array<Collapse> = [
   },
   {
     icon: plusIcon,
-    name: 'hierarchical ',
+    name: 'rank',
     title: 'Cấp bậc',
     columns: columnsRank,
     api: getRankList,
     typeForm: 'table',
     pagination: false,
     selection: false,
-    customOperator: 1,
+    customOperator: 3,
     removeHeaderFilter: true,
     removeDrawer: true,
     buttonAdd: 'Thêm cấp bậc',
@@ -287,14 +313,14 @@ const collapse: Array<Collapse> = [
   },
   {
     icon: plusIcon,
-    name: 'type',
+    name: 'tyOfPersonel',
     title: 'Loại hình nhân sự',
     columns: columnsTypePersonnel,
     api: getTypePersonnelList,
     typeForm: 'table',
     pagination: false,
     selection: false,
-    customOperator: 1,
+    customOperator: 3,
     removeHeaderFilter: true,
     removeDrawer: true,
     buttonAdd: 'Thêm loại hình',
@@ -350,20 +376,19 @@ const deleteDepart = (row: any) => {
       })
   }
 }
-
-// BRANCH
+// branch
 const actionBranch = (row: any, type: string) => {
   push({
     name: `human-resource-management.department-directory.${utility}`,
     params: {
       backRoute: 'human-resource-management.department-directory',
-      tab: 'department',
+      tab: 'branch',
       id: row.id,
       type: type
     }
   })
 }
-const deleteBranch2 = (row: any) => {
+const deleteBranchAc = (row: any) => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'xoa', {
       confirmButtonText: t('reuse.delete'),
@@ -373,6 +398,94 @@ const deleteBranch2 = (row: any) => {
     })
       .then(async () => {
         const res = await deleteBranch({ Id: row.id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          })
+          // location.reload()
+          getBranchList()
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
+}
+// Position
+const actionPosition = (row: any, type: string, tab: string) => {
+  console.log('acx',tab);
+  
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: tab,
+      id: row.id,
+      type: type
+    }
+  })
+}
+const deletePositionhAc = (row: any) => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'xoa', {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'ElButton--danger'
+    })
+      .then(async () => {
+        const res = await deletePosition({ Id: row.id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          })
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
+  }
+}
+// TypeOfStaff
+const actionTypeOfStaff = (row: any, type: string) => {
+  push({
+    name: `human-resource-management.department-directory.${utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: 'tyOfPersonel',
+      id: row.id,
+      type: type
+    }
+  })
+}
+const delTypeOfStaff = (row: any) => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'xoa', {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+      confirmButtonClass: 'ElButton--danger'
+    })
+      .then(async () => {
+        const res = await deleteTypeOfStaff({ Id: row.id })
         if (res) {
           ElNotification({
             message: t('reuse.deleteSuccess'),

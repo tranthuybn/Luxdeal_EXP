@@ -80,6 +80,7 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 import { API_URL } from '@/utils/API_URL'
+import { API_ORDER } from '@/utils/API.Variables'
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -1732,7 +1733,6 @@ const editData = async () => {
 
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
-      console.log('orderObj.toDate format', moment(orderObj.toDate).format('DD/MM/YYYY'))
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
@@ -1827,6 +1827,7 @@ const changeReturnGoods = ref(false)
 
 // Thông tin phiếu để nghị thanh toán spa
 const dialogDepositFeeInformation = ref(false)
+const typeDialog = ref(1)
 
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
@@ -1838,10 +1839,34 @@ const openDialogAcountingEntry = (scope) => {
     case 2:
       openAcountingEntryDialog(data.id, 2)
       break
+    case 5:
+      openAccountingEntry(data.orderIdBTSpa, data.orderTypeBTSpa)
+      break
     default:
       console.log(`Sorry, we are out of ${data.typeOfAccountingEntry}.`)
   }
 }
+
+const tablePaymentSlip = ref()
+const openAccountingEntry = async (id, type) => {
+  typeDialog.value = type
+  const res = await getOrderList({ Id: id, ServiceType: type})
+  const data = { ...res?.data[0] }
+  console.log('res: ', data)
+  var generalData = data.orderDetails.map((val) => {
+    unitPrice: val.unitPrice
+  })
+  
+  if(type == 1) {
+    tablePaymentSlip.value = generalData
+  } else if (type == 3) {
+
+  } else if (type == 5) {
+
+  }
+  dialogDepositSlip.value = true
+}
+
 const tableProductInformationExportChange = ref<Array<historyTableType>>([])
 let formAccountingId = ref()
 let tableSalesSlip = ref()
@@ -1965,7 +1990,6 @@ const setDataForReturnOrder = () => {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
-  console.log('reason', reason)
   let tableReturnPost = [{}]
   if (rentReturnOrder.value.tableData.length < 2) {
     return
@@ -2000,7 +2024,6 @@ const postReturnRequest = async (reason) => {
 
 // trả hàng hết hạn
 const paymentExpired = async (status) => {
-  console.log('status', status)
   let tableReturnPost = [{}]
 
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
@@ -2012,7 +2035,6 @@ const paymentExpired = async (status) => {
     totalPrice: 0,
     isSpa: true
   }))
-  console.log('tableReturnPost', tableReturnPost)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
@@ -2179,7 +2201,6 @@ const staffId = ref()
 const openDetailFullyIntegrated = async (props) => {
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
-  console.log('res: ', res)
   staffId.value = res.data[0].staffId
 
   // informationWarehouseReceipt.value = true
@@ -2232,6 +2253,18 @@ const getCustomerInfo = async (id: string) => {
   customerData.phoneNumber = orderObj.phonenumber
   customerData.bank = orderObj.bank
   customerData.address = orderObj.address
+}
+
+const openDetailOrder = (id, type) => {
+  const typeServiceOrder = API_ORDER.find((e) => e.key == type)
+  push({
+      name: `business.order-management.order-list.${utility}`,
+      params: {
+        type: 'detail',
+        tab: typeServiceOrder?.label,
+        id: id
+      }
+    })
 }
 </script>
 
@@ -3548,25 +3581,34 @@ const getCustomerInfo = async (id: string) => {
         align-center
       >
         <div>
-          <!-- <Qrcode :text="'abc'" /> -->
           <el-divider />
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
-          <div class="flex gap-2 justify-between">
+          <div class="flex gap-2 justify-around">
             <div class="flex-left">
-              <div class="flex gap-4 pt-4 items-center">
-                <label class="text-right w-[170px]">{{ t('formDemo.orderCode') }}</label>
-                <div class="text-xl">{{ ruleForm.orderCode }}</div>
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="font-bold text-xl">{{ consignOrderCode }}</p>
               </div>
-              <div class="flex gap-4 py-2 items-center">
-                <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
-                <div class="text-xl">20/20/2022</div>
+              <div class="flex gap-4 pt-2 pb-4 items-center">
+                <label class="text-right">{{ t('reuse.depositPeriod') }}</label>
+                <p class="">{{ dateTimeFormat(ruleForm.rentalPeriod[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.rentalPeriod[1]) }}</p>
               </div>
             </div>
-
-            <div class="flex-right"> Mã QR đơn hàng </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+          
+                <span class="border">
+                  <Qrcode :width="100" :text="'QR'" />
+                </span>
+              </div>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -3587,37 +3629,72 @@ const getCustomerInfo = async (id: string) => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
-              t('formDemo.productInformationSale')
+            <span v-if="typeDialog == 1" class="w-[35%] text-base font-bold break-w">{{
+              t('formDemo.productInformationSaleConsign')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span v-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
+              t('formDemo.productInformationSaleRental')
+            }}</span>
+            <span v-else class="w-[35%] text-base font-bold break-w">{{
+              t('formDemo.productInformationSaleSpa')
+            }}</span>
+            <span class="block h-1 w-[60%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
+          <el-table v-if="typeDialog == 1" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
 
-            <el-table-column prop="productName" :label="t('formDemo.saleDate')" width="280" />
-
-            <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90" />
-            <el-table-column prop="price" :label="t('reuse.unitPrices')" />
-            <el-table-column prop="finalPrice" :label="t('formDemo.consignmentPriceForSale')" />
+            <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="unitPrice" label="Giá bán" min-width="100" />
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.consignmentPriceForSale')" min-width="150" />
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <el-input v-model="data.row.negotiablePrice" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalPrice" :label="t('formDemo.payment')" min-width="150"/>
           </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white"
-                >{{ t('formDemo.negotiablePrice') }}
-              </p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <span class="w-[25%] text-base font-bold">{{ t('formDemo.payment') }}</span>
-          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+
+          <el-table v-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+
+            <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="unitPrice" :label="t('formDemo.rentalPayment')" min-width="100" />
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.depositpriceForRental')" min-width="150" />
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <el-input v-model="data.row.negotiablePrice" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalPrice" :label="t('formDemo.payment')" min-width="150"/>
+          </el-table>
+
+          <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+
+            <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.spaService')" min-width="150" />
+            <el-table-column prop="totalPrice" :label="t('formDemo.spaFeePayment')" min-width="150"/>
+          </el-table>
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
@@ -4788,7 +4865,17 @@ const getCustomerInfo = async (id: string) => {
             prop="content"
             :label="t('formDemo.certificateInformation')"
             min-width="240"
-          />
+          >
+        <template #default="data">
+          <div>{{ data.row.content }}</div>
+          <div v-if="data.row.orderIdBTSpa">
+            <span>Mã đơn hàng:</span>
+            <span
+@click="openDetailOrder(data.row.orderIdBTSpa, data.row.orderTypeBTSpa)" 
+            class="cursor-pointer text-blue-500 pl-2">{{ data.row.orderCodeBTSpa }}</span>
+          </div>
+        </template>
+        </el-table-column>
           <el-table-column
             prop="receiptOrPaymentVoucherCode"
             :label="t('formDemo.receiptOrPayment')"

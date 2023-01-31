@@ -276,7 +276,10 @@ const callButToan = async (data) => {
           typeOfMoney: 1,
           merchadiseTobePayfor: childrenTable,
           ReturnRequestId: null,
-          TypeOfAccountingEntry: 4
+          TypeOfAccountingEntry: 5,
+          OrderIdBTSpa: ticketData.value.orderId,
+          OrderCodeBTSpa: ticketData.value.orderCode,
+          orderTypeBTSpa: serviceType.value
         }
         await addOrderStransaction(payload)
       }

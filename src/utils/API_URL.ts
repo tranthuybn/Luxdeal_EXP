@@ -116,7 +116,8 @@ export const ORDER_API = {
   ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
   APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
   APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove',
-  GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId'
+  GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId',
+  UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

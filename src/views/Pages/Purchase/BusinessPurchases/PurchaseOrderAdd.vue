@@ -1418,9 +1418,10 @@ const getSaleSlipInfo = async () => {
 const getReturnRequestOrder = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productPropertyId: row.productPropertyId,
     productCode: row.productCode,
+    productPropertyCode: row.productPropertyCode,
     productPropertyName: row.productPropertyName,
+    productPropertyId: row.productPropertyId,
     accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
@@ -2198,10 +2199,12 @@ const getExportPrice = () => {
 
 const listOfOrderProduct = ref()
 const openDialogReturnOrder = () => {
+  console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productPropertyId: row.productPropertyId,
     productCode: row.productCode,
+    productPropertyCode: row.productPropertyCode,
     productPropertyName: row.productPropertyName,
+    productPropertyId: row.productPropertyId,
     accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
@@ -4424,7 +4427,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
@@ -4432,7 +4435,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
@@ -4446,7 +4449,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
+            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')" min-width="200">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getExportPrice"
@@ -4455,7 +4458,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')" min-width="150">
               <template #default="props">
                 <div class="text-right">{{
                   moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
@@ -4504,7 +4507,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
@@ -4512,7 +4515,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
@@ -4526,16 +4529,16 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
+            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')" min-width="200">
               <template #default="props">
                 <CurrencyInputComponent
-                  @channge="getRefundPrice"
+                  @change="getRefundPrice"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalPurchaseMoney')" min-width="150">
               <template #default="props">
                 <div class="text-right">{{
                   moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))

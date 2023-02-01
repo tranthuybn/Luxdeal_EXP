@@ -3642,8 +3642,8 @@ const openDetailOrder = (id, type) => {
         <div class="pt-2 pb-2">
           <el-table v-if="typeDialog == 1" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="ProductName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
               <template #default="data">
@@ -3657,13 +3657,13 @@ const openDetailOrder = (id, type) => {
                 <el-input v-model="data.row.negotiablePrice" />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('formDemo.payment')" min-width="150"/>
+            <el-table-column prop="totatlPriceSale" :label="t('formDemo.payment')" min-width="150"/>
           </el-table>
 
           <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="ProductName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
               <template #default="data">
@@ -3677,21 +3677,21 @@ const openDetailOrder = (id, type) => {
                 <el-input v-model="data.row.negotiablePrice" />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('formDemo.payment')" min-width="150"/>
+            <el-table-column prop="totatlPriceRental" :label="t('formDemo.payment')" min-width="150"/>
           </el-table>
 
           <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productPropertyCode" :label="t('reuse.productCode')" min-width="180" />
-            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" min-width="280" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="ProductName" :label="t('formDemo.commodityName')" min-width="280" />
 
             <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="consignmentPrice" :label="t('formDemo.spaService')" min-width="150" />
-            <el-table-column prop="totalPrice" :label="t('formDemo.spaFeePayment')" min-width="150"/>
+            <el-table-column prop="spaService" :label="t('formDemo.spaService')" min-width="150" />
+            <el-table-column prop="totalPriceSpa" :label="t('formDemo.spaFeePayment')" min-width="150"/>
           </el-table>
         </div>
         <div>

@@ -279,7 +279,17 @@ const callButToan = async (data) => {
           TypeOfAccountingEntry: 5,
           OrderIdBTSpa: ticketData.value.orderId,
           OrderCodeBTSpa: ticketData.value.orderCode,
-          orderTypeBTSpa: serviceType.value
+          orderTypeBTSpa: serviceType.value,
+          productCode: product.productCode,
+          productName: product.productName,
+          unitPrice: 0,
+          consignmentPrice: 0,
+          negotiatePrice: 0,
+          totatlPriceSale: 0,
+          totatlPriceRental: 0,
+          rentalPriceByDay: 0,
+          totalPriceSpa: 0,
+          spaService: 0
         }
         await addOrderStransaction(payload)
       }

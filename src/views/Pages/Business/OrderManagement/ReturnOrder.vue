@@ -8,7 +8,8 @@ import {
   ElInput,
   ElDatePicker,
   ElSelect,
-  ElOption
+  ElOption,
+ElNotification
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
@@ -109,6 +110,23 @@ const postReturnRequest = async (orderStatusType) => {
   console.log('data', props.orderId, props.orderData)
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
+}
+const postReturnRequestSpa = async (orderStatusType) => {
+  let chooseSpa = true
+  props.orderData.tableData.forEach((row)=>{
+    if(!row.isSpa){
+      chooseSpa = false
+    }
+  })
+  if(chooseSpa){
+  emit('post-return-request', orderStatusType)
+  emit('update:modelValue', false)}
+  else{
+    ElNotification({
+        title: 'Info',
+        message: 'Bạn vui lòng tình trạng sản phẩm nhé!',
+        type: 'info'
+      })}
 }
 
 const donePaymentRequest = async (orderStatusType) => {
@@ -226,7 +244,6 @@ console.log('listProductsTable', props.listProductsTable)
       </div>
     </div>
     <div class="pt-2 pb-2">
-      {{ orderData }}
       <el-table :data="orderData?.tableData" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column
@@ -1289,7 +1306,7 @@ console.log('listProductsTable', props.listProductsTable)
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(8)"
+          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequestSpa(8)"
             >Lưu & ghi phiếu trả hàng</el-button
           >
           <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>

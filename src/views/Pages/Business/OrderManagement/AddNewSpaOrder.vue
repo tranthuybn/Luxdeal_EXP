@@ -575,6 +575,24 @@ const getPriceSpaService = () => {
     index: currentRow2.value,
     value: spaTableRef.value!.getSelectionRows()
   })
+
+  if (type == 'add') {
+    priceChangeSpa.value = true
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
+      orderStatusName: 'Duyệt giá thay đổi',
+      orderStatus: STATUS_ORDER_SPA[9].orderStatus,
+      isActive: true
+    })
+    statusOrder.value = STATUS_ORDER_SPA[9].orderStatus
+  }
+
+  if(type == 'detail'){
+    changePriceSpa.value = false
+    priceChangeSpa.value = false
+    editButton.value = false
+  }
+  doubleDisabled.value = true
 }
 let promoValue = ref(0)
 let promoCash = ref(0)
@@ -1951,17 +1969,22 @@ const priceChangeSpa = ref(false)
 const changePriceSpaService = (data) => {
   const indexRow = data.row
   changePriceSpa.value = true
-  if (type == 'add') {
-    priceChangeSpa.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_SPA[9].orderStatus,
-      isActive: true
-    })
-  }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_SPA[9].orderStatus
+  // if (type == 'add') {
+  //   priceChangeSpa.value = true
+  //   arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+  //   arrayStatusOrder.value.push({
+  //     orderStatusName: 'Duyệt giá thay đổi',
+  //     orderStatus: STATUS_ORDER_SPA[9].orderStatus,
+  //     isActive: true
+  //   })
+  // }
+
+  // if(type == 'detail'){
+  //   changePriceSpa.value = false
+  //   priceChangeSpa.value = false
+  // }
+  // doubleDisabled.value = true
+  // statusOrder.value = STATUS_ORDER_SPA[9].orderStatus
   indexRow.totalPrice = indexRow.unitPrice * indexRow.quantity
 }
 
@@ -2022,12 +2045,11 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value.push(STATUS_ORDER_SPA[index])
   statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id==0 ?resIdPostOrder.value:id)
-  console.log('status:', STATUS_ORDER_SPA[index])
-  console.log('arrayStatusOrder:', arrayStatusOrder.value)
-
+  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, (id==0||isNaN(id)) ?resIdPostOrder.value:id)
 }
-
+const addStatusOrderByStatusValue = (statusValue) => {
+  addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
+}
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
   // 13 hoàn thành đơn hàng
@@ -2546,7 +2568,7 @@ const postReturnRequest = async (reason) => {
     returnDetailType: 7,
     unitPrice: 0,
     totalPrice: 0,
-    isSpa: e.isSpa
+    isSpa: e?.isSpa
   }))
 
   const payload = {
@@ -3490,7 +3512,6 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
-        {{ ListOfProductsForSale }}
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -4189,7 +4210,7 @@ const postReturnRequest = async (reason) => {
                 type="warning"
                 @click="
                   () => {
-                    addStatusOrder(7)
+                    addStatusOrderByStatusValue(arrayStatusOrder[arrayStatusOrder.length - 2].orderStatus)
                   }
                 "
                 class="min-w-42 min-h-11"

@@ -182,32 +182,16 @@ const { required, requiredOption } = useValidator()
 
 const rulesAddress = reactive<FormRules>({
   province: [
-    requiredOption(),
-    // {
-    //   required: true,
-    //   message: 'Không được để trống Tỉnh/thành phố',
-    //   trigger: 'blur'
-    // }
+    requiredOption()
   ],
   district: [
-    requiredOption(),
-    // {
-    //   required: true,
-    //   message: 'Không được để trống Quận/huyện',
-    //   trigger: 'blur'
-    // }
+    requiredOption()
   ],
   wardCommune: [
-    requiredOption(),
-    // {
-    //   required: true,
-    //   message: 'Không được để trống Phường/Xã',
-    //   trigger: 'change'
-    // }
+    requiredOption()
   ],
   detailedAddress: [
-    required(),
-    // { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+    required()
   ]
 })
 

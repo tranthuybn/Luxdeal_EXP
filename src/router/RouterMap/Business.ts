@@ -175,7 +175,7 @@ export default {
           }
         },
         {
-          path: 'collaboratorsAdd/:type?/:id?',
+          path: 'collaboratorsAdd/:type?/:id?/:approvalId?',
           name: `business.collaborators.collaboratorsList.${utility}`,
           component: () => import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
           meta: {

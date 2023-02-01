@@ -114,6 +114,7 @@ export const ORDER_API = {
   UPDATE_ORDER_INFORMATION: '/api/v1/Order/UpdateOrderInfo',
   UPDATE_STATUS_FINISH_ORDER: '/api/v1/Order/FinishOrder',
   ORDER_APPROVAL_LIST: '/api/v1/Approve/GetOrderApprove',
+  COLLABORATOR_APPROVAL_LIST: '/api/v1/Approve/GetCollaboratorApprove',
   APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
   APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove',
   GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId'

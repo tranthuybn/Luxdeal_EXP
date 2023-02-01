@@ -21,6 +21,7 @@ import {
 // import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import moment from 'moment'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
@@ -329,7 +330,7 @@ const customizeData = async (data) => {
   }else{
     formDataCustomize.value['status'] = 2
   }
-
+  formDataCustomize.value.imageurl = `${API_URL}${data.path}`
 }
 
 const customPostDataDerpartment = (data) => {
@@ -344,6 +345,7 @@ const customPostDataDerpartment = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -417,6 +419,7 @@ const customPostDataBranch = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -509,8 +512,8 @@ const postDataPositon = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        type: 'info'
       })
     )
 }
@@ -525,7 +528,6 @@ const customEditPosition = (data) => {
   }
   getData.Code = data.code
   getData.Name = data.name
-  console.log('data2', getData)
   return getData
 }
 const editDataPosition = async (data) => {
@@ -563,6 +565,7 @@ const customPostDataStaff = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -625,7 +628,7 @@ const editDataStaff = async (data) => {
 
 <template>
   <TableOperator
-    v-if="tab == 'branch'"
+    v-if="tab == 'Branch'"
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
@@ -638,9 +641,10 @@ const editDataStaff = async (data) => {
     @post-data="postDataBranch"
     @edit-data="editDataBranch"
     :delApi="deleteBranch"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'department'"
+    v-if="tab == 'Department'"
     :schema="schema2"
     :id="id"
     :tab="tab"
@@ -653,9 +657,10 @@ const editDataStaff = async (data) => {
     :multipleImages="false"
     :apiId="getDepartmentByID"
     :delApi="deleteDepartment"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'rank'"
+    v-if="tab == 'Position'"
     :schema="schema3"
     :type="type"
     :id="id"
@@ -668,9 +673,10 @@ const editDataStaff = async (data) => {
     :apiId="getPositionByID"
     :multipleImages="false"
     :delApi="deletePosition"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'tyOfPersonel'"
+    v-if="tab == 'TypeOfStaff'"
     :schema="schema4"
     :type="type"
     :id="id"
@@ -683,5 +689,6 @@ const editDataStaff = async (data) => {
     :multipleImages="false"
     :apiId="getTypeOfStaffByID"
     :delApi="deleteTypeOfStaff"
+    :formDataCustomize="formDataCustomize"
   />
 </template>

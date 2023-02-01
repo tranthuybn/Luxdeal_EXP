@@ -401,7 +401,7 @@ const editDataDepartment = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail')  + ', hãy mã quản lý trùng nhau',
+        message: t('reuse.updateFail'),
         type: 'warning'
       })
     )

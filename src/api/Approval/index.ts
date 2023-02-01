@@ -40,6 +40,17 @@ export const getOrderApproval = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
+// Lấy danh sách CTV cần duyệt
+export const listApprovalCollab = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.COLLABORATOR_APPROVAL_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 // Lấy danh sách phiếu thu chi và đề nghị thanh toán
 export const getOrderPayments = async (params: any): Promise<IResponse> => {
   const res = await request.get(

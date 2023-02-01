@@ -116,7 +116,7 @@ export default {
         },
         {
           path: 'collaborator-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
+          component: () => import('@/views/Pages/Approval/Accounts/ApprovalCollaborators.vue'),
           name: 'approve.accounts-approval.collaborator-account',
           meta: {
             title: t('router.collaboratorAccount')

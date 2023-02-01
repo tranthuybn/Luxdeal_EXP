@@ -15,7 +15,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -82,7 +82,8 @@ const emit = defineEmits([
   'add-row',
   'post-return-request',
   'extend-date',
-  'remove-row'
+  'remove-row',
+  'update-status'
 ])
 type Product = {
   productCode: string
@@ -107,9 +108,9 @@ const close = () => {
   emit('update:modelValue', false)
 }
 const postReturnRequest = async (orderStatusType) => {
-  console.log('data', props.orderId, props.orderData)
-  emit('post-return-request', orderStatusType)
+  emit('post-return-request', orderStatusType, tableAheadOfTime.value)
   emit('update:modelValue', false)
+  emit('update-status')
 }
 const postReturnRequestSpa = async (orderStatusType) => {
   let chooseSpa = true
@@ -130,9 +131,9 @@ const postReturnRequestSpa = async (orderStatusType) => {
 }
 
 const donePaymentRequest = async (orderStatusType) => {
-  console.log('data', props.orderId, props.orderData)
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
+  emit('update-status')
 }
 
 const disableCheck = ref(false)
@@ -141,12 +142,60 @@ const extendDate = (data) => {
   emit('extend-date', data)
 }
 const removeRow = (scope) => {
-  if (props.orderData.tableData.length < 2) {
+  if (props.orderData.tableData?.length < 2) {
     return
   }
   emit('remove-row', scope.$index)
 }
-console.log('listProductsTable', props.listProductsTable)
+const tableListReturnAheadOfTime = ref(props.listProductsTable)
+console.log('tableListReturnAheadOfTime: ', tableListReturnAheadOfTime.value)
+
+interface tableReturnType {
+  productPropertyId: number | undefined
+  productPropertyName: string
+  accessory: string
+  quantity: number
+  conditionProducts: string
+}
+const tableAheadOfTime = ref<Array<tableReturnType>>([])
+  const productForSale = reactive<tableReturnType>({
+    productPropertyId: undefined,
+    productPropertyName: '',
+    accessory: '',
+    quantity: 1,
+    conditionProducts: ''
+})
+
+const addRowTable = () => {
+  tableAheadOfTime.value.push({ ...productForSale })
+}
+
+// update value table
+const updateValueTable = (_value, obj, scope) => {
+  const data = scope.row
+  data.productPropertyId = obj.productPropertyId
+  data.productPropertyName = obj.name
+}
+
+// Trả hàng trước hạn
+watch(
+  () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
+  () => {
+    if (
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].productPropertyName &&
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].quantity 
+    )
+    addRowTable()
+  },
+  {
+    deep: true
+  }
+)
+
+onBeforeMount(()=>{
+  addRowTable()
+})
+
 </script>
 <template>
   <!-- 2:Trả hàng trước hạn -->
@@ -157,7 +206,7 @@ console.log('listProductsTable', props.listProductsTable)
     @close="close"
     class="font-bold"
     :title="t('formDemo.infoReturnAheadOfTime')"
-    width="45%"
+    width="50%"
     align-center
   >
     <div>
@@ -244,14 +293,9 @@ console.log('listProductsTable', props.listProductsTable)
       </div>
     </div>
     <div class="pt-2 pb-2">
-      <el-table :data="orderData?.tableData" border style="width: 100%" fit>
+      <el-table :data="tableAheadOfTime" border style="width: 100%" fit>
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column
-          v-if="statusActive == 2"
-          prop="productPropertyName"
-          :label="t('formDemo.commodityName')"
-          width="350"
-        >
+        <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="300">
           <template #default="scope">
             <MultipleOptionsBox
               :defaultValue="scope.row.productPropertyId"
@@ -268,7 +312,7 @@ console.log('listProductsTable', props.listProductsTable)
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
-              @update-value="(value, obj) => updateValue(value, obj, scope)"
+              @update-value="(value, obj) => updateValueTable(value, obj, scope)"
             />
           </template>
         </el-table-column>
@@ -299,10 +343,9 @@ console.log('listProductsTable', props.listProductsTable)
             <p v-else>{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
+        <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <el-input v-if="statusActive == 2" v-model="scope.row.hirePrice" />
-            <p v-else>{{ scope.row.hirePrice }}</p>
+            <el-input v-model="scope.row.conditionProducts" />
           </template>
         </el-table-column>
       </el-table>
@@ -332,8 +375,8 @@ console.log('listProductsTable', props.listProductsTable)
 
     <template #footer>
       <div class="flex justify-end">
-        <div v-if="statusActive == 2">
-          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(2)">{{
+        <div>
+          <el-button type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
@@ -475,7 +518,7 @@ console.log('listProductsTable', props.listProductsTable)
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest(3)" class="min-w-42 min-h-11"
+          <el-button type="primary" @click="postReturnRequest(4)" class="min-w-42 min-h-11"
             >Lưu & ghi phiếu xuất trả</el-button
           >
           <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>

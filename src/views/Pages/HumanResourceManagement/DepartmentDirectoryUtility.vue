@@ -302,6 +302,7 @@ type FormDataPost = {
   CreateAt?: any
   CreateBy?: string
   Image?: any
+  ImageID?: any
 }
 // custom api form edit
 type FormDataEdit = {
@@ -312,6 +313,9 @@ type FormDataEdit = {
   IsActive?: boolean
   isDelete: boolean
   UpdateBy: string
+  ImageID?: any
+  Image?: any
+  imageurl?: string
 }
 
 //Derpartment
@@ -319,15 +323,18 @@ const formDataCustomize = ref()
 
 const customizeData = async (data) => { 
   formDataCustomize.value = data
+
   if (data.isActive == true) {
     formDataCustomize.value['status'] = 1
   }else{
     formDataCustomize.value['status'] = 2
   }
+
 }
+
 const customPostDataDerpartment = (data) => {
   const customData = {} as FormDataPost
-
+  
   customData.Code = data.code
   customData.Name = data.name
   if (data.status == 1) {
@@ -336,7 +343,6 @@ const customPostDataDerpartment = (data) => {
     customData.IsActive = false
     customData.isDelete = false
   }
-  customData.isDelete = false
   customData.CreateAt = moment().format('YYYY / MM / DD')
 
   return customData
@@ -483,6 +489,7 @@ const customPostDataPosition = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -508,7 +515,6 @@ const postDataPositon = async (data) => {
     )
 }
 const customEditPosition = (data) => {
-  console.log('data', data)
   const getData = {} as FormDataEdit
   getData.Id = id
   if (data.status == 1) {

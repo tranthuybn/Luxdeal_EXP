@@ -361,6 +361,7 @@ const deleteDepart = (row: any) => {
             message: t('reuse.deleteSuccess'),
             type: 'success'
           })
+          location.reload()
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
@@ -403,7 +404,7 @@ const deleteBranchAc = (row: any) => {
             message: t('reuse.deleteSuccess'),
             type: 'success'
           })
-          // location.reload()
+          location.reload()
           getBranchList()
         } else {
           ElNotification({
@@ -449,6 +450,7 @@ const deletePositionhAc = (row: any) => {
             message: t('reuse.deleteSuccess'),
             type: 'success'
           })
+          location.reload()
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),
@@ -491,6 +493,7 @@ const delTypeOfStaff = (row: any) => {
             message: t('reuse.deleteSuccess'),
             type: 'success'
           })
+          location.reload()
         } else {
           ElNotification({
             message: t('reuse.deleteFail'),

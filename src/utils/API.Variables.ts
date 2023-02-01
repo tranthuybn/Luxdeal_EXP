@@ -423,49 +423,54 @@ export const STATUS_ORDER_SPA = [
     orderStatusName: 'Hủy đơn hàng',
     createdAt: ''
   },
-  {
+  {//1
     orderStatus: 2,
     orderStatusName: 'Chốt đơn hàng',
     createdAt: ''
   },
-  {
+  {//2
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
     createdAt: ''
   },
-  {
+  {//3
     orderStatus: 4,
     orderStatusName: 'Duyệt đơn hàng',
     createdAt: ''
   },
-  {
+  {//4
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
   },
-  {
+  {//5
     orderStatus: 51,
     orderStatusName: 'Bắt đầu quá trình spa',
     createdAt: ''
   },
-  {
+  {//6
     orderStatus: 52,
     orderStatusName: 'Trả hàng spa',
     createdAt: ''
   },
-  {
+  {//7
     orderStatus: 53,
     orderStatusName: 'Hết hạn spa',
     createdAt: ''
   },
-  {
+  {//8
     orderStatus: 54,
     orderStatusName: 'Duyệt thay đổi dịch vụ spa',
     createdAt: ''
   },
-  {
+  {//9
     orderStatus: 1,
     orderStatusName: 'Duyệt giá thay đổi',
+    createdAt: ''
+  },
+  {//10
+    orderStatus: 55,
+    orderStatusName: 'Duyệt trả hàng không spa',
     createdAt: ''
   }
 ]

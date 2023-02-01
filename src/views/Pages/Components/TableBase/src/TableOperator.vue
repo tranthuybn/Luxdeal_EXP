@@ -157,6 +157,7 @@ const dialogVisible = ref(false)
 const imageUrl = ref()
 //set data for form edit and detail
 const setFormValue = async () => {
+  console.log('asdasd',props.formDataCustomize)
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
   const { setValues } = methods
@@ -172,7 +173,7 @@ const setFormValue = async () => {
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-
+    console.log('data', props.formDataCustomize)
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>

@@ -1058,3 +1058,13 @@ export const deletePointExchange = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const updateSpaService = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.UPDATE_SPA_SERVICE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

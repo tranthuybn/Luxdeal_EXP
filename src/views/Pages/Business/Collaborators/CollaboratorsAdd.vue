@@ -13,7 +13,8 @@ import {
   updateCollaborators,
   cancelCustomerCollabolator,
   GetOrderByCollabolatorId,
-  getCommissionPaymentByCollaboratorId
+  getCommissionPaymentByCollaboratorId,
+approvalOrder
 } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
@@ -210,6 +211,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const approvalId = String(router.currentRoute.value.params.approvalId)
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 const disabledForm = ref(false)
 
@@ -399,6 +401,7 @@ const clear = async () => {
     (infoCompany.bankName = ''),
     (infoCompany.CustomerId = '')
 }
+const buttonApproval = ref(false)
 watch(
   () => type,
   () => {
@@ -406,12 +409,14 @@ watch(
       disabledForm.value = true
       disabledTable.value = true
     }
-    if (type === 'detail' || type === 'edit') {
+    if (type === 'detail' || type === 'edit' || type === 'approval-collab' ) {
       disabledTable.value = true
       getTableValue()
+      buttonApproval.value = true
     }
     if (type === 'add' || type == ':type') {
       getGenCodeCollaborator()
+      buttonApproval.value = false
       disabledTable.value = true
       FormData.CollaboratorStatus = false
     }
@@ -421,6 +426,15 @@ watch(
     immediate: true
   }
 )
+
+const approvalFunction = async () => {
+  const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  push({
+    name: `approve.accounts-approval.collaborator-account`
+  })
+}
+
 const save = async () => {
   submitForm(ruleFormRef.value)
   if (checkValidate.value) {
@@ -826,6 +840,14 @@ provide('parameters', {
             {{ t('reuse.fix') }}
           </ElButton>
         </div>
+        <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
+          </div>
         <div v-else class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.saveAndPending') }}

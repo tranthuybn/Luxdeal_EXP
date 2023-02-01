@@ -35,9 +35,11 @@ import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
+import { appModules } from '@/config/app'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import type { UploadFile } from 'element-plus'
+import { useValidator } from '@/hooks/web/useValidator'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -88,6 +90,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
+const { utility } = appModules
 
 const { t } = useI18n()
 
@@ -174,30 +177,21 @@ const formAddress = reactive({
   wardCommune: '',
   detailedAddress: ''
 })
+
+const { required, requiredOption } = useValidator()
+
 const rulesAddress = reactive<FormRules>({
   province: [
-    {
-      required: true,
-      message: 'Không được để trống Tỉnh/thành phố',
-      trigger: 'change'
-    }
+    requiredOption()
   ],
   district: [
-    {
-      required: true,
-      message: 'Không được để trống Quận/huyện',
-      trigger: 'change'
-    }
+    requiredOption()
   ],
   wardCommune: [
-    {
-      required: true,
-      message: 'Không được để trống Phường/Xã',
-      trigger: 'change'
-    }
+    requiredOption()
   ],
   detailedAddress: [
-    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+    required()
   ]
 })
 
@@ -537,7 +531,10 @@ const callCustomersApi = async () => {
       taxCode: customer.taxCode,
       phone: customer.phonenumber,
       email: customer.email,
-      id: customer.id.toString()
+      id: customer.id.toString(),
+      wardId: customer.wardId,
+      districtId: customer.districtId,
+      provinceId: customer.provinceId
     }))
   }
 }
@@ -700,11 +697,12 @@ let customerID = ref()
 const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
-  formAddress.province = obj.provinceId
-  formAddress.district = obj.districtId
-  formAddress.wardCommune = obj.wardId
-  formAddress.detailedAddress = obj.address
+  formAddress.province = obj.provinceId ?? ''
+  formAddress.district = obj.districtId ?? ''
+  formAddress.wardCommune = obj.wardId ?? ''
+  formAddress.detailedAddress = obj.address ?? ''
   ruleForm.customerName = obj.label
+  console.log('address: ', formAddress, obj)
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -1128,7 +1126,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    BusinessSetup: val.businessSetup,
+    BusinessSetup: val.businessManagement,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1161,7 +1159,7 @@ const postData = async () => {
         ProvinceId: formAddress.province ?? 1,
         DistrictId: formAddress.district ?? 1,
         WardId: formAddress.wardCommune ?? 1,
-        Address: formAddress.detailedAddress,
+        Address: customerAddress.value,
         OrderDetail: productPayment,
         CampaignId: 2,
         TotalPrice: totalFinalOrder.value,
@@ -1209,6 +1207,19 @@ const postData = async () => {
     ElNotification({
       message: 'Hãy chọn sản phẩm mua',
       type: 'warning'
+    })
+  }
+}
+
+const changeEditInDetail = () => {
+  if (type == 'detail') {
+    router.push({
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'edit',
+        id: id
+      }
     })
   }
 }
@@ -1289,13 +1300,13 @@ const editData = async () => {
       checkDisabledEditButton.value = true
     }
 
-    if (arrayStatusOrder.value.find((e) => e.orderStatus == 61 && e.approvedAt == '')) {
+    if (arrayStatusOrder.value.find((e) => e.orderStatus == 61 && e?.approvedAt == '')) {
       checkPaymentRequest.value = true
       checkReceiptOrPayment.value = true
       checkAccountEntry.value = true
     }
 
-    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt) {
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.approvedAt) {
       duplicateStatusButton.value = true
       hiddenEditButton.value = true
     } else duplicateStatusButton.value = false
@@ -1407,9 +1418,10 @@ const getSaleSlipInfo = async () => {
 const getReturnRequestOrder = async () => {
   const res = await getReturnRequest({ CustomerOrderId: id })
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productPropertyId: row.productPropertyId,
     productCode: row.productCode,
+    productPropertyCode: row.productPropertyCode,
     productPropertyName: row.productPropertyName,
+    productPropertyId: row.productPropertyId,
     accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
@@ -2129,10 +2141,8 @@ const getTotalWarehouse = () => {
 }
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  const x = val.map((e) => e.id)
-  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(',')
   const label = val.map((e) => e.applyExport)
-  ListOfProductsForSale.value[indexRow.value].businessManagement = label.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -2189,10 +2199,12 @@ const getExportPrice = () => {
 
 const listOfOrderProduct = ref()
 const openDialogReturnOrder = () => {
+  console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productPropertyId: row.productPropertyId,
     productCode: row.productCode,
+    productPropertyCode: row.productPropertyCode,
     productPropertyName: row.productPropertyName,
+    productPropertyId: row.productPropertyId,
     accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
@@ -2245,16 +2257,19 @@ const editOrderInfo = async () => {
     Id: id,
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.discount),
+    CustomerId: customerID.value,
     Description: ruleForm.orderNotes,
+    WarehouseId: ruleForm.warehouse,
     Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: ruleForm.delivery ? ruleForm.delivery : dataEdit.value?.deliveryOption,
     ProvinceId: formAddress.province ? formAddress.province : dataEdit.value?.provinceId,
     DistrictId: formAddress.district ? formAddress.district : dataEdit.value?.districtId,
     WardId: formAddress.wardCommune ? formAddress.wardCommune : dataEdit.value?.wardId,
-    Address: formAddress.detailedAddress ? formAddress.detailedAddress : dataEdit.value?.address,
+    Address: customerAddress.value ? customerAddress.value : dataEdit.value?.address,
     Status: statusTracking.value
   }
+  console.log('payload', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
     .then(() => {
@@ -4412,7 +4427,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
@@ -4420,7 +4435,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
@@ -4434,7 +4449,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
+            <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')" min-width="200">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getExportPrice"
@@ -4443,7 +4458,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')" min-width="150">
               <template #default="props">
                 <div class="text-right">{{
                   moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
@@ -4492,7 +4507,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100">
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
@@ -4500,7 +4515,7 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
@@ -4514,16 +4529,16 @@ onBeforeMount(async () => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')">
+            <el-table-column prop="unitPrice" :label="t('reuse.purchaseUnitPrices')" min-width="200">
               <template #default="props">
                 <CurrencyInputComponent
-                  @channge="getRefundPrice"
+                  @change="getRefundPrice"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="totalPrice" :label="t('reuse.totalReturnMoney')">
+            <el-table-column prop="totalPrice" :label="t('reuse.totalPurchaseMoney')" min-width="150">
               <template #default="props">
                 <div class="text-right">{{
                   moneyFormat((props.row.totalPrice = props.row.quantity * props.row.unitPrice))
@@ -4624,7 +4639,7 @@ onBeforeMount(async () => {
           >
             <template #default="props">
               <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
+                {{ props.row.productPropertyCode }}
               </div>
               <MultipleOptionsBox
                 :fields="[
@@ -4783,7 +4798,7 @@ onBeforeMount(async () => {
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span>{{ data.row.businessManagement }}</span>
+                  <span>{{ data.row.businessSetup }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -5092,7 +5107,10 @@ onBeforeMount(async () => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus"
-              @click="editButton = true"
+              @click="() => {
+                changeEditInDetail()
+                editButton = true
+              }"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.editOrder') }}</el-button
             >

@@ -2195,7 +2195,7 @@ const cancelExpendReturn = async() => {
   const payload = {
     OrderId: id
   }
-  const res = await cancelReturnOrder(FORM_IMAGES(payload))
+  await cancelReturnOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
 }
 // Dialog trả hàng hết hạn

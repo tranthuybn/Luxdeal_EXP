@@ -87,7 +87,9 @@ onBeforeMount(() => {
               ? 'Đơn ký gửi'
               : props.row.serviceType == 4
               ? 'Đơn cầm đồ'
-              : 'Đơn spa'
+              : props.row.serviceType == 5
+              ? 'Đơn spa'
+              : 'Đơn mua hàng'
           }}
         </template>
       </el-table-column>

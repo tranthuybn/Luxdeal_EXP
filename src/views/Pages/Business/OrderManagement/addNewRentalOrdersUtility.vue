@@ -67,7 +67,9 @@ import {
   finishStatusOrder,
   updateStatusOrder,
   approvalOrder,
-  cancelOrder
+  cancelOrder,
+  getReturnRequestForOrder,
+  cancelReturnOrder
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -1857,15 +1859,15 @@ const getReturnRequestTable = async () => {
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
-      createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
-      productPropertyName: e.productPropertyName,
-      accessory: e.accessory,
-      quantity: e.quantity,
-      unitName: e.unitName,
-      returnDetailType: e.returnDetailType,
-      returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      createdAt: e?.returnRequestInfo?.createdAt ?? '',
+      productPropertyId: e?.productPropertyId,
+      productPropertyName: e?.productPropertyName,
+      accessory: e?.accessory,
+      quantity: e?.quantity,
+      unitName: e?.unitName,
+      returnDetailType: e?.returnDetailType,
+      returnDetailTypeName: e?.returnDetailTypeName,
+      returnDetailStatusName: e?.returnDetailStatusName
     }))
   }
 }
@@ -2172,16 +2174,56 @@ const listOfOrderProduct = ref()
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
+// call api bảng trả hàng trước hạn và hết hạn
+const objReturnRequestInfo = ref()
+const callApiReturnRequestForOrder = async() => {
+  const res = await getReturnRequestForOrder({CustomerOrderId: id})
+  objReturnRequestInfo.value = res?.data[res?.data.length-1].returnRequestInfo
+  await callApiDetailReturnExpand()
+}
+
+const detailExpand = ref()
+const doneExpand = ref(false)
+const cancelExpend = ref(false)
+const callApiDetailReturnExpand = async() => {
+  const res = await getReturnRequest({ CustomerOrderId: id, ReturnRequestId: objReturnRequestInfo.value.id})
+  detailExpand.value = res.data[0].nhapDetails
+}
+
+// Hủy trả hàng trước hạn
+const cancelExpendReturn = async() => {
+  const payload = {
+    OrderId: id
+  }
+  const res = await cancelReturnOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
 // Trả hàng trước hạn
-const updateStatusReturnAheadOfTime = () => {
-  console.log('updateStatusOrders')
+const updateStatusReturnAheadOfTime = (index) => {
+  statusOrder.value = index
 }
 
 const openDialogReturnAheadOfTime = () => {
   setDataForReturnOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Hoàn thành trẩ hàng
+const openDialogReturnAheadTime = () => {
+  doneExpand.value = true
+  setDataForReturnOrder()
+  callApiReturnRequestForOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Hủy trả hàng
+const openDialogCancelReturn = () => {
+  cancelExpend.value = true
+  setDataForReturnOrder()
+  callApiReturnRequestForOrder()
   dialogReturnAheadOfTime.value = true
 }
 
@@ -2228,7 +2270,7 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     scope?.pop()
     tableReturnPost = scope?.map((e) => ({
     productPropertyId: parseInt(e?.productPropertyId),
-    quantity: e?.quantity,
+    quantity: parseInt(e?.quantity),
     accessory: e?.accessory,
     returnDetailType: reason,
     description: e.conditionProducts
@@ -3906,9 +3948,16 @@ onBeforeMount(() => {
       <!-- Thông tin trả hàng trước hạn -->
       <ReturnOrder
         v-model="dialogReturnAheadOfTime"
+        v-if="dialogReturnAheadOfTime"
         :orderId="id"
         :orderData="rentReturnOrder"
+        :detailExpand="detailExpand"
         :listProductsTable="getListProduct"
+        :statusApproval="arrayStatusOrder[arrayStatusOrder.length - 1]?.orderStatus"
+        :dateApproval="arrayStatusOrder[arrayStatusOrder.length - 1]?.approvedAt"
+        :doneExpand="doneExpand"
+        :cancelExpend="cancelExpend"
+        @cancel-expend="cancelExpendReturn"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
@@ -3916,6 +3965,7 @@ onBeforeMount(() => {
         :orderStatusType="3"
         :type="2"
       />
+      <!-- :statusApprovalDialog="arrayStatusOrder[arrayStatusOrder.length-1].orderStatus" -->
 
       <!-- Thông tin trả hàng hết hạn -->
       <ReturnOrder
@@ -5253,7 +5303,10 @@ onBeforeMount(() => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              @click="() => {
+                getReturnRequestTable()                  
+                openDialogCancelReturn()
+              }"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
@@ -5267,16 +5320,18 @@ onBeforeMount(() => {
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  dialogReturnAheadOfTime = true
-                  getReturnRequestTable()
-                  statusOrder = 120
+                  getReturnRequestTable()                  
+                  openDialogReturnAheadTime()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.completePayment') }}</button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              @click="() => {
+                getReturnRequestTable()                  
+                openDialogCancelReturn()
+              }"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button

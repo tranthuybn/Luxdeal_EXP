@@ -402,6 +402,12 @@ onBeforeMount(()=>{
           </span>
         </div>
       </div>
+      <div class="flex gap-4">
+          <label class="w-[30%]"></label>
+          <div class="w-[100%] flex gap-22">
+            <div class="">{{ dateTimeFormat(new Date()) }}</div>
+          </div>
+      </div>
     </div>
 
     <template #footer>

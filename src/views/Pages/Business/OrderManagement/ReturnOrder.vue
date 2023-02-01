@@ -17,6 +17,7 @@ import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -64,6 +65,26 @@ const props = defineProps({
   statusActive: {
     type: Number,
     default: 0
+  },
+  statusApproval: {
+    type: Number,
+    default: 0
+  },
+  dateApproval: {
+    type: String,
+    default: ''
+  },
+  detailExpand: {
+    type: Object,
+    default: () => {}
+  },
+  doneExpand: {
+    type: Boolean,
+    default: false
+  },
+  cancelExpend: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -84,7 +105,8 @@ const emit = defineEmits([
   'post-return-request',
   'extend-date',
   'remove-row',
-  'update-status'
+  'update-status',
+  'cancel-expend'
 ])
 type Product = {
   productCode: string
@@ -115,10 +137,14 @@ const postReturnRequest = async (orderStatusType) => {
 }
 
 const donePaymentRequest = async (orderStatusType) => {
-  console.log('data', props.orderId, props.orderData)
-  emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
-  emit('update-status')
+  emit('update-status', orderStatusType)
+}
+
+const cancelPaymentRequest = async (orderStatusType) => {
+  emit('update:modelValue', false)
+  emit('cancel-expend')
+  emit('update-status', orderStatusType)
 }
 
 const disableCheck = ref(false)
@@ -132,8 +158,7 @@ const removeRow = (scope) => {
   }
   emit('remove-row', scope.$index)
 }
-const tableListReturnAheadOfTime = ref(props.listProductsTable)
-console.log('tableListReturnAheadOfTime: ', tableListReturnAheadOfTime.value)
+// const tableListReturnAheadOfTime = ref(props.listProductsTable)
 
 interface tableReturnType {
   productPropertyId: number | undefined
@@ -168,7 +193,7 @@ const updateValueTable = (_value, obj, scope) => {
   )
   if (duplicateProduct.value) {
     duplicateProductMessage()
-  } else if(!data.selected) {
+  } else if(!data?.selected) {
       data.productPropertyId = obj?.productPropertyId
       data.productPropertyName = obj?.name
       data.maximumQuantity = obj?.maximumQuantity
@@ -180,8 +205,9 @@ watch(
   () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
   () => {
     if (
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].productPropertyName &&
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].quantity 
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.productPropertyName &&
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.quantity 
+      && !props?.doneExpand && !props?.cancelExpend
     )
     addRowTable()
   },
@@ -189,13 +215,43 @@ watch(
     deep: true
   }
 )
+const statusApprovalExpand = ref()
+
+// Trạng thái duyệt trả hàng trước hạn được duyệt
+watch(
+  () => statusApprovalExpand,
+  () => {
+    if (statusApprovalExpand.value == STATUS_ORDER_RENTAL[4].orderStatus) approvalAtStatus.value = props?.dateApproval
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => props?.detailExpand,
+  () => {
+    if (props?.doneExpand && props?.detailExpand || props?.cancelExpend && props?.detailExpand) tableAheadOfTime.value = props?.detailExpand.map((val) => ({
+    productPropertyId: val?.productPropertyId,
+    productPropertyName: val?.productPropertyName,
+    accessory: val?.accessory,
+    quantity: val?.quantity,
+    conditionProducts: val?.description
+  }))
+  }
+)
 
 // trạng thái trả hàng trước hạn
 const createAtStatus = ref(new Date())
 const approvalAtStatus = ref()
 
+console.log('props.detailExpand: ', props.detailExpand)
+
 onBeforeMount(()=>{
-  addRowTable()
+  statusApprovalExpand.value = props?.statusApproval
+  console.log('doneExpand: ', props.doneExpand)
+  if (!props?.doneExpand) addRowTable()
+
 })
 
 </script>
@@ -300,7 +356,8 @@ onBeforeMount(()=>{
         <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="300">
           <template #default="scope">
             <MultipleOptionsBox
-              :defaultValue="scope.row.productPropertyId"
+              :defaultValue="scope.row?.productPropertyId"
+              v-if="!props?.doneExpand && !props?.detailExpand"
               :fields="[
                 t('reuse.productCode'),
                 t('reuse.managementCode'),
@@ -316,6 +373,7 @@ onBeforeMount(()=>{
               :clearable="false"
               @update-value="(value, obj) => updateValueTable(value, obj, scope)"
             />
+            <div v-else>{{scope.row?.productPropertyName}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -325,27 +383,30 @@ onBeforeMount(()=>{
           width="350"
         >
           <template #default="scope">
-            {{ scope.row.productPropertyName }}
+            {{ scope.row?.productPropertyName }}
           </template>
         </el-table-column>
         <el-table-column prop="accessory" :label="t('reuse.accessory')">
           <template #default="scope">
-            <el-input v-if="statusActive == 2" v-model="scope.row.accessory" />
-            <p v-else>{{ scope.row.accessory }}</p>
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.accessory" />
+            <p v-else>{{ scope.row?.accessory }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
             <el-input
+            v-if="!props?.doneExpand && !props?.detailExpand"
               v-model="scope.row.quantity"
               type="number"
               :max="scope.row.maximumQuantity"
             />
+            <div v-else>{{ scope.row.quantity }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <el-input v-model="scope.row.conditionProducts" />
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.conditionProducts" />
+            <div v-else>{{ scope.row.conditionProducts }}</div>
           </template>
         </el-table-column>
       </el-table>
@@ -381,24 +442,29 @@ onBeforeMount(()=>{
           <label class="w-[30%]"></label>
           <div class="w-[100%] flex gap-22">
             <div class="">{{ dateTimeFormat(createAtStatus) }}</div>
-            <div>{{ dateTimeFormat(approvalAtStatus) }}</div>
+            <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus">{{ dateTimeFormat(approvalAtStatus) }}</div>
           </div>
-      <!-- <p class="text-transparent">s</p> -->
       </div>
       
     </div>
 
     <template #footer>
       <div class="flex justify-end">
-        <div>
+        <div v-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus">
           <el-button type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
-        <div v-if="statusActive == 3">
-          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(2)"
+        <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus && !props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)"
             >Hoàn thành trả hàng</el-button
+          >
+          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div v-if="props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)"
+            >Hủy trả hàng</el-button
           >
           <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>

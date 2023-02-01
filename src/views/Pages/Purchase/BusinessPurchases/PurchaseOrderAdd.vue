@@ -39,6 +39,7 @@ import { appModules } from '@/config/app'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import type { UploadFile } from 'element-plus'
+import { useValidator } from '@/hooks/web/useValidator'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -176,30 +177,37 @@ const formAddress = reactive({
   wardCommune: '',
   detailedAddress: ''
 })
+
+const { required, requiredOption } = useValidator()
+
 const rulesAddress = reactive<FormRules>({
   province: [
-    {
-      required: true,
-      message: 'Không được để trống Tỉnh/thành phố',
-      trigger: 'change'
-    }
+    requiredOption(),
+    // {
+    //   required: true,
+    //   message: 'Không được để trống Tỉnh/thành phố',
+    //   trigger: 'blur'
+    // }
   ],
   district: [
-    {
-      required: true,
-      message: 'Không được để trống Quận/huyện',
-      trigger: 'change'
-    }
+    requiredOption(),
+    // {
+    //   required: true,
+    //   message: 'Không được để trống Quận/huyện',
+    //   trigger: 'blur'
+    // }
   ],
   wardCommune: [
-    {
-      required: true,
-      message: 'Không được để trống Phường/Xã',
-      trigger: 'change'
-    }
+    requiredOption(),
+    // {
+    //   required: true,
+    //   message: 'Không được để trống Phường/Xã',
+    //   trigger: 'change'
+    // }
   ],
   detailedAddress: [
-    { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
+    required(),
+    // { required: true, message: 'Không được để trống Địa chỉ chi tiết', trigger: 'blur' }
   ]
 })
 
@@ -539,7 +547,10 @@ const callCustomersApi = async () => {
       taxCode: customer.taxCode,
       phone: customer.phonenumber,
       email: customer.email,
-      id: customer.id.toString()
+      id: customer.id.toString(),
+      wardId: customer.wardId,
+      districtId: customer.districtId,
+      provinceId: customer.provinceId
     }))
   }
 }
@@ -702,11 +713,12 @@ let customerID = ref()
 const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
-  formAddress.province = obj.provinceId
-  formAddress.district = obj.districtId
-  formAddress.wardCommune = obj.wardId
-  formAddress.detailedAddress = obj.address
+  formAddress.province = obj.provinceId ?? ''
+  formAddress.district = obj.districtId ?? ''
+  formAddress.wardCommune = obj.wardId ?? ''
+  formAddress.detailedAddress = obj.address ?? ''
   ruleForm.customerName = obj.label
+  console.log('address: ', formAddress, obj)
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -1163,7 +1175,7 @@ const postData = async () => {
         ProvinceId: formAddress.province ?? 1,
         DistrictId: formAddress.district ?? 1,
         WardId: formAddress.wardCommune ?? 1,
-        Address: formAddress.detailedAddress,
+        Address: customerAddress.value,
         OrderDetail: productPayment,
         CampaignId: 2,
         TotalPrice: totalFinalOrder.value,
@@ -1304,13 +1316,13 @@ const editData = async () => {
       checkDisabledEditButton.value = true
     }
 
-    if (arrayStatusOrder.value.find((e) => e.orderStatus == 61 && e.approvedAt == '')) {
+    if (arrayStatusOrder.value.find((e) => e.orderStatus == 61 && e?.approvedAt == '')) {
       checkPaymentRequest.value = true
       checkReceiptOrPayment.value = true
       checkAccountEntry.value = true
     }
 
-    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt) {
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.approvedAt) {
       duplicateStatusButton.value = true
       hiddenEditButton.value = true
     } else duplicateStatusButton.value = false
@@ -2144,8 +2156,6 @@ const getTotalWarehouse = () => {
 }
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  // const x = val.map((e) => e.id)
-  // ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(',')
   const label = val.map((e) => e.applyExport)
   ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
 }
@@ -2260,16 +2270,19 @@ const editOrderInfo = async () => {
     Id: id,
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.discount),
+    CustomerId: customerID.value,
     Description: ruleForm.orderNotes,
+    WarehouseId: ruleForm.warehouse,
     Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: ruleForm.delivery ? ruleForm.delivery : dataEdit.value?.deliveryOption,
     ProvinceId: formAddress.province ? formAddress.province : dataEdit.value?.provinceId,
     DistrictId: formAddress.district ? formAddress.district : dataEdit.value?.districtId,
     WardId: formAddress.wardCommune ? formAddress.wardCommune : dataEdit.value?.wardId,
-    Address: formAddress.detailedAddress ? formAddress.detailedAddress : dataEdit.value?.address,
+    Address: customerAddress.value ? customerAddress.value : dataEdit.value?.address,
     Status: statusTracking.value
   }
+  console.log('payload', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
     .then(() => {

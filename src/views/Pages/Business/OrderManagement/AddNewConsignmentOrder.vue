@@ -423,7 +423,8 @@ interface ListOfProductsForSaleType {
   id: string
   productPropertyId: string
   spaServices: string
-  businessManagement: {}
+  businessSetup: string
+  businessManagement: string
 
   amountSpa: number
   quantity: string
@@ -456,7 +457,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   accessory: '',
   code: '',
   description: '',
-  businessManagement: {},
+  businessSetup: '',
+  businessManagement: '',
 
   unitName: 'Cái',
   consignmentSellPrice: 0,
@@ -1221,7 +1223,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       postData()
-      // doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
@@ -1241,6 +1242,7 @@ const postData = async () => {
       HirePrice: 0,
       DepositePrice: 0,
       TotalPrice: 0,
+      BusinessSetup: val.businessSetup,
       ConsignmentSellPrice: val.consignmentSellPrice,
       ConsignmentHirePrice: val.consignmentHirePrice,
       SpaServiceIds: null,
@@ -1393,17 +1395,17 @@ const listApplyExport = [
   {
     id: 1,
     check: true,
-    applyExport: 'Ký gửi bán'
+    applyExport: 'Bán'
   },
   {
     id: 2,
     check: true,
-    applyExport: 'Ký gửi cho thuê'
+    applyExport: 'Cho thuê'
   },
   {
     id: 3,
     check: true,
-    applyExport: 'spa'
+    applyExport: 'Spa'
   }
 ]
 
@@ -1936,10 +1938,8 @@ if (tableProductInformationExportChange.value?.length == 0) addProductInformatio
 const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
-    label: e.applyExport,
-    value: e.id
-  }))
+  const label = val.map((e) => e.applyExport)
+  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -4324,38 +4324,30 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            :label="t('reuse.businessManagement')"
-            :disabled="disabledEdit"
-            width="200"
-            prop="businessManagement"
-          >
+          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetup">
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
-                    item.label
-                  }}</span>
+                  <span>{{ data.row.businessSetup }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
                     text
-                    :disabled="disabledEdit"
-                    border
-                    class="text-blue-500"
+                    border 
+                    :disabled="disabledEdit" 
+                    class="text-blue-500" 
                     @click="
                       () => {
                         indexRow = data.$index
                         ckeckChooseProduct(data)
                       }
-                    "
-                  >
-                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
-                  >
+                    ">
+                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button>
                 </div>
               </div>
             </template>
           </el-table-column>
+
           <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">

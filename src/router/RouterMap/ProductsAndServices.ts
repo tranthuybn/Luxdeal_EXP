@@ -28,7 +28,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/ProductLibrary/Products.vue'),
           name: 'products-services.productLibrary.Products',
           meta: {
-            title: t('router.productLibraryProducts')
+            title: t('router.productLibraryProducts'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -58,7 +61,10 @@ export default {
             import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaService.vue'),
           name: 'products-services.ServiceLibrary.SpaService',
           meta: {
-            title: t('router.ServiceLibrarySpaService')
+            title: t('router.ServiceLibrarySpaService'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -89,7 +95,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/Category/Product.vue'),
           name: 'products-services.ProductCategory',
           meta: {
-            title: t('router.productCategoryProducts')
+            title: t('router.productCategoryProducts'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -111,7 +120,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/Category/Attribute.vue'),
           name: 'products-services.AttributeCategory',
           meta: {
-            title: t('router.productCategoryAttribute')
+            title: t('router.productCategoryAttribute'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -133,7 +145,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/Category/Unit.vue'),
           name: 'products-services.UnitCategory',
           meta: {
-            title: t('router.productCategoryUnit')
+            title: t('router.productCategoryUnit'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -155,7 +170,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/Category/Brand.vue'),
           name: 'products-services.BrandCategory',
           meta: {
-            title: t('router.productCategoryBrand')
+            title: t('router.productCategoryBrand'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -177,7 +195,10 @@ export default {
           component: () => import('@/views/Pages/ProductsAndServices/Category/Origin.vue'),
           name: 'products-services.OriginCategory',
           meta: {
-            title: t('router.productCategoryOrigin')
+            title: t('router.productCategoryOrigin'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {

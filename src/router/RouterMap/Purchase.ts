@@ -27,7 +27,10 @@ export default {
           component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderList.vue'),
           name: 'purchase.business-purchases.purchase-order-list',
           meta: {
-            title: t('router.purchaseOrderList')
+            title: t('router.purchaseOrderList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {

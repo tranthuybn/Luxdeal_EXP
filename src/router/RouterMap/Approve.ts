@@ -121,14 +121,6 @@ export default {
           meta: {
             title: t('router.collaboratorAccount')
           }
-        },
-        {
-          path: 'internal-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
-          name: 'approve.accounts-approval.internal-account',
-          meta: {
-            title: t('router.internalAccount')
-          }
         }
       ]
     },

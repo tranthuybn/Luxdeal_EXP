@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    detailedlistofexpenses: ' Bảng kê chi tiết các khoản chi(Nếu có)',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',
     pleaseSelectWarehouse: 'Vui lòng chọn kho',
@@ -199,6 +200,7 @@ export default {
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
     orderInformation: 'Thông tin đơn hàng',
     generalInformation: 'Thông tin chung',
+    paymentrequestinformation: ' Thông tin chi tiết đề nghị thanh toán',
     orderCode: 'Mã đơn hàng',
     withdrawalRequestCode: 'Mã yêu cầu rút tiền',
     enterOrderCode: 'Nhập mã đơn hàng',
@@ -242,7 +244,8 @@ export default {
     choseDeliveryMethod: 'Chọn phương thức giao hàng',
     deliveryToYourPlace: 'Giao hàng tận nơi',
     printSalesSlip: 'In phiếu bán hàng',
-    printLiquidationContract: 'In hợp đồng ký gửi',
+    printLiquidationContract: 'In hợp đồng thanh lý',
+    printConsignmentContract: 'In hợp đồng ký gửi',
     deliveryNotesExportWarehouse: 'Phiếu xuất/chuyển kho',
     deliveryNotes: 'Phiếu xuất trả hàng',
     deliveryNotesAndImport: 'Phiếu xuất trả/nhập hàng',

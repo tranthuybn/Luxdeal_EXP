@@ -135,7 +135,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     ValidService.checkCCCD
-  ]
   ],
   cccdCreateAt: [
     {

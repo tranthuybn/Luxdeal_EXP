@@ -108,7 +108,7 @@ export default {
       children: [
         {
           path: 'user-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
+          component: () => import('@/views/Pages/Approval/Accounts/ApprovalUserAccount.vue'),
           name: 'approve.accounts-approval.user-account',
           meta: {
             title: t('router.userAccount')

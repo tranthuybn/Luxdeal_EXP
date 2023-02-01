@@ -4,7 +4,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router'
-import { listApprovalCollab } from '@/api/Approval';
+import { listApprovalUserAccount } from '@/api/Approval';
 
 const { t } = useI18n()
 
@@ -27,13 +27,13 @@ const detailedBrowsing = (scope: any) => {
   
 }
 
-const getListCollaborators = async () => {
-  const res = await listApprovalCollab({ pageIndex: 1, pageSize: 20 })
+const getListUserAccount = async () => {
+  const res = await listApprovalUserAccount({ pageIndex: 1, pageSize: 20 })
   tableListOrder.value = res.data
 }
 
 onBeforeMount(() => {
-  getListCollaborators()
+  getListUserAccount()
 })
 </script>
 
@@ -41,10 +41,12 @@ onBeforeMount(() => {
   <div class="bg-white p-4 font-bold text-lg">
     <el-table :data="tableListOrder" border style="width: 100%">
       <el-table-column type="index" width="50" />
-      <el-table-column prop="code" :label="t('reuse.collaboratorsCode')" width="150" />
-      <el-table-column prop="name" :label="t('reuse.collaboratorsName')" width="650" />
+      <el-table-column prop="code" :label="t('reuse.customerCode')" width="150" />
+      <el-table-column prop="name" :label="t('reuse.customerName')" width="600" />
+
+      <el-table-column prop="approveItem" :label="t('reuse.accountType')" width="200" />
      
-      <el-table-column prop="createdAt" :label="t('formDemo.createdAtEdit')" width="180">
+      <el-table-column prop="createdAt" :label="t('formDemo.createdAtEdit')" width="130">
         <template #default="props">
           {{ dateTimeFormat(props.row.createdAt) }}
         </template>
@@ -55,10 +57,10 @@ onBeforeMount(() => {
         :label="t('formDemo.browsingConditions')"
         width="180"
       />
-      <el-table-column prop="statusName" :label="t('formDemo.status')" width="180" /> 
+      <el-table-column prop="statusName" :label="t('formDemo.status')" width="130" /> 
       <el-table-column fixed="right" :label="t('formDemo.manipulation')">
         <template #default="props">
-          <el-button @click="() => detailedBrowsing(props)" class="w-[100%]" type="primary">{{
+          <el-button @click="() => detailedBrowsing(props)" class="w-[100%] p-2" type="primary">{{
             t('formDemo.BrowseDetails')
           }}</el-button>
         </template>

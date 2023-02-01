@@ -361,6 +361,7 @@ const customEditDataDepartment = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   return getData
 }
 
@@ -379,7 +380,7 @@ const postDataDepartment = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -400,7 +401,7 @@ const editDataDepartment = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail'),
+        message: t('reuse.updateFail')  + ', hãy mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -439,7 +440,7 @@ const postDataBranch = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -454,6 +455,7 @@ const customEditBranch = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
   return getData
 }
@@ -526,6 +528,7 @@ const customEditPosition = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Code = data.code
   getData.Name = data.name
   return getData
@@ -585,7 +588,7 @@ const postDataStaff = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -600,7 +603,9 @@ const customEditStaff = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
+
   return getData
 }
 const editDataStaff = async (data) => {

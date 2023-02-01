@@ -8,7 +8,8 @@ import {
   ElInput,
   ElDatePicker,
   ElSelect,
-  ElOption
+  ElOption,
+ElNotification
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
@@ -67,11 +68,11 @@ const props = defineProps({
 
 const optionsTinhTrang = [
   {
-    value: 1,
+    value: true,
     label: 'Đã spa'
   },
   {
-    value: 2,
+    value: false,
     label: 'Không spa'
   }
 ]
@@ -110,6 +111,23 @@ const postReturnRequest = async (orderStatusType) => {
   emit('post-return-request', orderStatusType, tableAheadOfTime.value)
   emit('update:modelValue', false)
   emit('update-status')
+}
+const postReturnRequestSpa = async (orderStatusType) => {
+  let chooseSpa = true
+  props.orderData.tableData.forEach((row)=>{
+    if(!row.isSpa){
+      chooseSpa = false
+    }
+  })
+  if(chooseSpa){
+  emit('post-return-request', orderStatusType)
+  emit('update:modelValue', false)}
+  else{
+    ElNotification({
+        title: 'Info',
+        message: 'Bạn vui lòng tình trạng sản phẩm nhé!',
+        type: 'info'
+      })}
 }
 
 const donePaymentRequest = async (orderStatusType) => {
@@ -1204,7 +1222,7 @@ onBeforeMount(()=>{
       </div>
     </template>
   </el-dialog>
-  <!-- Chưa có người xử lí dữ liệu trên bảng Spa... Ko có dữ liệu để tuyền ... Ko làm được -->
+  <!-- 8,Trả hàng Spa -->
   <el-dialog
     width="45%"
     align-center
@@ -1248,6 +1266,7 @@ onBeforeMount(()=>{
       <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
     </div>
     <div class="pt-2 pb-2">
+      {{ orderData?.tableData }}
       <el-table ref="singleTableRef" :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" width="280">
@@ -1284,13 +1303,12 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="type" :label="t('reuse.type')">
           <template #default="scope">
-            <!-- <el-input v-model="scope.row.type" class="text-right" /> -->
             {{ scope.row.type }}
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" />
+            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.quantity :min="0" />
           </template>
         </el-table-column>
         <el-table-column
@@ -1298,14 +1316,16 @@ onBeforeMount(()=>{
           :label="t('formDemo.conditionProducts')"
           width="130"
         >
-          <el-select v-model="optionsTinhTrang[0].value">
+        <template #default="scope">
+          <el-select v-model="scope.row.isSpa">
             <el-option
               v-for="item in optionsTinhTrang"
-              :key="item.value"
+              :key="item.label"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
+        </template>
         </el-table-column>
       </el-table>
     </div>
@@ -1329,7 +1349,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(8)"
+          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequestSpa(8)"
             >Lưu & ghi phiếu trả hàng</el-button
           >
           <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>

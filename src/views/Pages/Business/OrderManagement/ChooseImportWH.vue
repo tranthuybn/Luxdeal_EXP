@@ -111,7 +111,9 @@ watch(
 const closeDialog = () => {
   emit('close-dialog-warehouse', warehouseData.value)
 }
-
+const close = () => {
+  emit('close-dialog-warehouse', null)
+}
 const rules = reactive<FormRules>({
   quantity: [required()],
   warehouseImportId: [required()],
@@ -267,10 +269,10 @@ const ruleFormRef = ref<FormInstance>()
           class="w-[150px]"
           type="primary"
           @click="saveOldLot"
-          :disabled="lotData == undefined || lotData?.length == 0"
+          :disabled="listLotWH == undefined || listLotWH?.length == 0"
           >{{ t('reuse.SpaLotSelected') }}
         </el-button>
-        <el-button class="w-[150px]" @click="closeDialog">{{ t('reuse.exit') }}</el-button>
+        <el-button class="w-[150px]" @click="close">{{ t('reuse.exit') }}</el-button>
       </span>
     </template>
   </el-dialog>

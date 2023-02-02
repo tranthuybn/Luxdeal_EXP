@@ -5330,7 +5330,6 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
-                  addStatusOrder(5)
                   finishOrderPurchase()
                 }
               "

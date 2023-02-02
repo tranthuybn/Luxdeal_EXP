@@ -13,7 +13,7 @@ import {
   ElForm,
   ElFormItem,
   ElDatePicker,
-  ElRow
+  // ElRow
 } from 'element-plus'
 import { reactive, ref, watch } from 'vue'; 
 import { dateTimeFormat } from '@/utils/format';
@@ -104,7 +104,7 @@ const tableData = ref([
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
 }
-const input = ref('')
+// const input = ref('')
 
 const onAddItem = () => {
   tableData.value.push({    
@@ -257,23 +257,10 @@ label="Người yêu cầu" :rules="[
                 >Xóa</el-button>
               </template>
           </el-table-column>
-  </el-table>
-  <!-- <el-button class="mt-4"  @click="onAddItem"
-    >Add Item</el-button
-  > -->
+        </el-table>
+
   <div class="flex justify-end">
   <div class="total flex flex-col w-[680px]">
-      <!-- <el-row class="price" width:40px>
-        Tổng tiền
-    </el-row>
-    <el-row class="price" width:40px>
-        <el-form-item label="Đặt cọc">
-             <el-input v-model="input" />
-         </el-form-item>
-    </el-row>
-    <el-row class="price" width:40px>
-        Còn lại
-    </el-row> -->
 
     <div class="flex gap-4">
       <label class="w-[10%] text-right font-bold">Tổng tiền</label>
@@ -311,7 +298,7 @@ label="Người yêu cầu" :rules="[
           <el-input v-model="form.text" placeholder="Viết bằng chữ" />
         </el-form-item>
         <el-form-item
-label="Hình thức thanh toán" :rules="[
+        label="Hình thức thanh toán" :rules="[
         { required: true, message: 'Viết bằng chữ' },
         { type: 'string', message: 'Viết bằng chữ' },
          ]">
@@ -320,17 +307,15 @@ label="Hình thức thanh toán" :rules="[
             <el-option label="Zone two" value="beijing" />
           </el-select>
         </el-form-item>
+        <el-form-item label="Trạng thái">
+          <p>Khởi tạo & ghi số</p>
+        </el-form-item>
+        <el-form-item >
+          <el-button>In phiếu</el-button>
+          <el-button type="primary">Lưu và chờ duyệt</el-button>
+          <el-button type="danger">Hủy</el-button>
+        </el-form-item>
       </el-form>
-       <div>
-        <p>Trạng thái</p>
-        <p>Khởi tạo & ghi số</p>
-      </div>
-      <el-row class="mb-4">
-        <el-button>In phiếu</el-button>
-        <el-button type="primary">Lưu và chờ duyệt</el-button>
-        <el-button type="danger">Hủy</el-button>
-      </el-row>
-
 </el-collapse-item>
 </el-collapse>
 </template>  

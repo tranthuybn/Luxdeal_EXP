@@ -14,7 +14,7 @@ import {
   UpdateInventoryOrder,
   updateTicketManually
 } from '@/api/Warehouse'
-import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Business'
+import { getWareHouseTransactionList, addOrderStransaction, getOrderList } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
 
@@ -261,6 +261,18 @@ const callButToan = async (data) => {
           merchadiseTobePayforId: product.productPropertyId,
           quantity: lot.quantity
         }
+
+        const resOrderBTSPa = await getOrderList({ Id: ticketData.value.orderId, ServiceType: serviceType.value })
+        const resOrderKGCD = await getOrderList({ Id: lot.consignmentOrderId, ServiceType: lot.serviceType })
+        // const productItem = ref()
+        const orderObj = { ...resOrderBTSPa?.data[0] }
+        // orderObj.orderDetails.map((val) => {
+        //   productItem.value = val.find(e => e.productPropertyId == product.productPropertyId)
+        // })
+        console.log('res: ', orderObj.orderDetails)
+        console.log('resCDKG: ', resOrderKGCD)
+        // console.log('productItem.value: ', productItem.value)
+
         const payload = {
           orderId: lot.consignmentOrderId,
           content: product.productName,
@@ -276,7 +288,20 @@ const callButToan = async (data) => {
           typeOfMoney: 1,
           merchadiseTobePayfor: childrenTable,
           ReturnRequestId: null,
-          TypeOfAccountingEntry: 4
+          TypeOfAccountingEntry: 5,
+          OrderIdBTSpa: ticketData.value.orderId,
+          OrderCodeBTSpa: ticketData.value.orderCode,
+          orderTypeBTSpa: serviceType.value,
+          productCode: product.productCode,
+          productName: product.productName,
+          unitPrice: 0,
+          consignmentPrice: 0,
+          negotiatePrice: 0,
+          totatlPriceSale: 0,
+          totatlPriceRental: 0,
+          rentalPriceByDay: 0,
+          totalPriceSpa: 0,
+          spaService: 0
         }
         await addOrderStransaction(payload)
       }

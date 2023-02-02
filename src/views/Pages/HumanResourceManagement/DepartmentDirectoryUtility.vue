@@ -21,6 +21,7 @@ import {
 // import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import moment from 'moment'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
@@ -302,6 +303,7 @@ type FormDataPost = {
   CreateAt?: any
   CreateBy?: string
   Image?: any
+  ImageID?: any
 }
 // custom api form edit
 type FormDataEdit = {
@@ -312,6 +314,9 @@ type FormDataEdit = {
   IsActive?: boolean
   isDelete: boolean
   UpdateBy: string
+  ImageID?: any
+  Image?: any
+  imageurl?: string
 }
 
 //Derpartment
@@ -319,15 +324,18 @@ const formDataCustomize = ref()
 
 const customizeData = async (data) => { 
   formDataCustomize.value = data
+
   if (data.isActive == true) {
     formDataCustomize.value['status'] = 1
   }else{
     formDataCustomize.value['status'] = 2
   }
+  formDataCustomize.value.imageurl = `${API_URL}${data.path}`
 }
+
 const customPostDataDerpartment = (data) => {
   const customData = {} as FormDataPost
-
+  
   customData.Code = data.code
   customData.Name = data.name
   if (data.status == 1) {
@@ -336,8 +344,8 @@ const customPostDataDerpartment = (data) => {
     customData.IsActive = false
     customData.isDelete = false
   }
-  customData.isDelete = false
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -353,6 +361,7 @@ const customEditDataDepartment = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   return getData
 }
 
@@ -371,7 +380,7 @@ const postDataDepartment = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -411,6 +420,7 @@ const customPostDataBranch = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -430,7 +440,7 @@ const postDataBranch = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -445,6 +455,7 @@ const customEditBranch = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
   return getData
 }
@@ -483,6 +494,7 @@ const customPostDataPosition = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -502,13 +514,12 @@ const postDataPositon = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        type: 'info'
       })
     )
 }
 const customEditPosition = (data) => {
-  console.log('data', data)
   const getData = {} as FormDataEdit
   getData.Id = id
   if (data.status == 1) {
@@ -517,9 +528,9 @@ const customEditPosition = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Code = data.code
   getData.Name = data.name
-  console.log('data2', getData)
   return getData
 }
 const editDataPosition = async (data) => {
@@ -557,6 +568,7 @@ const customPostDataStaff = (data) => {
     customData.isDelete = false
   }
   customData.CreateAt = moment().format('YYYY / MM / DD')
+  customData.Image = data.Image
 
   return customData
 }
@@ -576,7 +588,7 @@ const postDataStaff = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
@@ -591,7 +603,9 @@ const customEditStaff = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
+
   return getData
 }
 const editDataStaff = async (data) => {
@@ -619,7 +633,7 @@ const editDataStaff = async (data) => {
 
 <template>
   <TableOperator
-    v-if="tab == 'branch'"
+    v-if="tab == 'Branch'"
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
@@ -632,9 +646,10 @@ const editDataStaff = async (data) => {
     @post-data="postDataBranch"
     @edit-data="editDataBranch"
     :delApi="deleteBranch"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'department'"
+    v-if="tab == 'Department'"
     :schema="schema2"
     :id="id"
     :tab="tab"
@@ -647,9 +662,10 @@ const editDataStaff = async (data) => {
     :multipleImages="false"
     :apiId="getDepartmentByID"
     :delApi="deleteDepartment"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'rank'"
+    v-if="tab == 'Position'"
     :schema="schema3"
     :type="type"
     :id="id"
@@ -662,9 +678,10 @@ const editDataStaff = async (data) => {
     :apiId="getPositionByID"
     :multipleImages="false"
     :delApi="deletePosition"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'tyOfPersonel'"
+    v-if="tab == 'TypeOfStaff'"
     :schema="schema4"
     :type="type"
     :id="id"
@@ -677,5 +694,6 @@ const editDataStaff = async (data) => {
     :multipleImages="false"
     :apiId="getTypeOfStaffByID"
     :delApi="deleteTypeOfStaff"
+    :formDataCustomize="formDataCustomize"
   />
 </template>

@@ -1,5 +1,6 @@
 <template>
   <div>{{ t(currentRoute?.meta?.title ? currentRoute?.meta?.title?.toString() : '') }}</div>
+  <p>abc</p>
 </template>
 
 <script setup lang="ts">

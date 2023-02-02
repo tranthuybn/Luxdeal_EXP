@@ -36,9 +36,10 @@ export const addNewBranch = async (data): Promise<IResponse> => {
 }
 
 export const updateBranch = async (data): Promise<IResponse> => {
+  data = FORM_DATA(data)
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}?${objectToQueryParams(data)}`
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_BRANCH}`, data
     },
     
     fixedBaseURL
@@ -117,18 +118,18 @@ export const getTypeOfStaffByID = async (params: any): Promise<IResponse> => {
 export const addNewDepartment = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
   const res = await request.post(
-    { url: `${DEPARTMENT_DIRECTORY.POST_NEW_DEPARTMENT}`, data },
+    { url: `${DEPARTMENT_DIRECTORY.POST_NEW_DEPARTMENT}`,data },
     fixedBaseURL
   )
   return res.data && res.data
 }
 
 export const updateDepartment = async (data): Promise<IResponse> => {
-  // data = FORM_DATA(data)
+  data = FORM_DATA(data)
 
   const res = await request.put(
     {
-      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}?${objectToQueryParams(data)}`
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_DEPARTMENT}`,data
     },
     fixedBaseURL
   )

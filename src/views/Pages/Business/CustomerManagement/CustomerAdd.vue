@@ -300,7 +300,7 @@ const getTableValue = async () => {
     ruleForm.email = formValue.value.email
     ruleForm.phonenumber = formValue.value.phonenumber
     ruleForm.link = formValue.value.link
-    ruleForm.bankName = formValue.value.bank?.name
+    ruleForm.bankName = formValue.value.bank?.id
     ruleForm.accountNumber = formValue.value.accountNumber
     ruleForm.doB = formValue.value.doB
     ruleForm.taxCode = formValue.value.taxCode
@@ -439,6 +439,9 @@ const activeName = ref(collapse[0].name)
 const cities = ref()
 const district = ref()
 const ward = ref()
+const wardName = ref()
+const districtName = ref()
+const provinceName = ref()
 const valueCommune = ref('')
 const valueProvince = ref('')
 const valueDistrict = ref('')
@@ -450,14 +453,17 @@ const callApiCity = async () => {
 const CityChange = async (value) => {
   ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
+  provinceName.value = cities.value.find(e => e.value == value)
 }
 
 const districtChange = async (value) => {
   ruleForm.DistrictId = value
   ward.value = await getWard(value)
+  districtName.value = district.value.find(e => e.value == value)
 }
 const wardChange = async (value) => {
   ruleForm.WardId = value
+  wardName.value = ward.value.find(e => e.value == value)
 }
 const clear = async () => {
   ;(ruleForm.customerCode = ''),
@@ -480,6 +486,9 @@ const clear = async () => {
 }
 
 const postCustomer = async (typebtn) => {
+  const address = ruleForm.Address + ', '
+    + wardName.value?.label + ', ' + districtName.value?.label +
+    ', ' + provinceName.value?.label
   const payload = {
     UserName: ruleForm.userName,
     Code: ruleForm.customerCode,
@@ -494,7 +503,7 @@ const postCustomer = async (typebtn) => {
     ProvinceId: ruleForm.ProvinceId,
     DistrictId: ruleForm.DistrictId,
     WardId: ruleForm.WardId,
-    Address: ruleForm.Address,
+    Address: address,
     CCCD: ruleForm.cccd,
     CCCDCreateAt: ruleForm.cccdCreateAt,
     CCCDPlaceOfGrant: ruleForm.cccdPlaceOfGrant,

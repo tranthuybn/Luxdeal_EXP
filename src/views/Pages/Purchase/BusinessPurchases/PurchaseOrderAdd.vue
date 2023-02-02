@@ -2497,12 +2497,15 @@ const callApiWarehouseList = async () => {
   }
 }
 
+const disableReturn = ref(false)
 const openFinishReturnRequest = () => {
+  disableReturn.value = true
   typeButtonReturn.value = 2
   getReturnRequestOrder()
 }
 
 const openCancelReturnRequest = () => {
+  disableReturn.value = true
   typeButtonReturn.value = 3
   getReturnRequestOrder()
 }
@@ -4482,7 +4485,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonReturn" class="w-[100%]" />
+              <el-input :disabled="disableReturn" v-model="inputReasonReturn" class="w-[100%]" />
             </div>
           </div>
         </div>
@@ -4522,6 +4525,7 @@ onBeforeMount(async () => {
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
+                  :disabled="disableReturn"
                   @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
                 />
               </template>
@@ -4529,6 +4533,7 @@ onBeforeMount(async () => {
             <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
+                  :disabled="disableReturn"
                   :v-model="props.row.accessory"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
@@ -4537,6 +4542,7 @@ onBeforeMount(async () => {
             <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
+                  :disabled="disableReturn"
                   :modelValue="props.row.quantity"
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
@@ -4552,6 +4558,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getExportPrice"
+                  :disabled="disableReturn"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
@@ -4602,6 +4609,7 @@ onBeforeMount(async () => {
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
+                  :disabled="disableReturn"
                   @update-value="(value, obj) => updatePrice(value, obj, props)"
                 />
               </template>
@@ -4610,6 +4618,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
+                  :disabled="disableReturn"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
               </template>
@@ -4618,6 +4627,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
+                  :disabled="disableReturn"
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
@@ -4632,6 +4642,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getRefundPrice"
+                  :disabled="disableReturn"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
@@ -4673,6 +4684,7 @@ onBeforeMount(async () => {
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
+                :disabled="disableReturn"
                 :label="t('formDemo.alreadyPaidForTt')"
                 size="large"
               />
@@ -4680,7 +4692,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="disableReturn" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -5234,7 +5246,8 @@ onBeforeMount(async () => {
             <el-button
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
               statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
-              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
+              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
               :disabled="doubleDisabled"
               @click="dialogBillLiquidation = true"
               class="min-w-42 min-h-11"
@@ -5243,8 +5256,9 @@ onBeforeMount(async () => {
             <el-button
               @click="openBillDialog"
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
-                            statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
-              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
+              statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
               :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentDepositSlipAdvance') }}</el-button

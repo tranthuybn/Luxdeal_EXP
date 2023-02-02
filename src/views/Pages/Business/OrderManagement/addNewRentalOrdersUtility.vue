@@ -1314,10 +1314,10 @@ const getValueOfSelected = async (value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
-  if (duplicateProduct.value || dateRangePrice.value) {
-    if (dateRangePrice.value) ElMessage.error('Vui lòng chọn thời gian thuê trước')
+  if (duplicateProduct.value ) {    
     duplicateProductMessage()
-  } else {
+  } else if (!dateRangePrice.value) ElMessage.error('Vui lòng chọn thời gian thuê trước')
+   else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
@@ -1362,12 +1362,6 @@ const handleGetTotal = async (_value, props) => {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    // let start = moment(data.fromDate, 'YYYY-MM-DD')
-    // let end = moment(data.toDate, 'YYYY-MM-DD')
-
-    //Difference in number of days
-    // let day = moment.duration(start.diff(end)).asDays() * -1
-    // let days = Math.ceil(day / ruleForm.leaseTerm)
 
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,

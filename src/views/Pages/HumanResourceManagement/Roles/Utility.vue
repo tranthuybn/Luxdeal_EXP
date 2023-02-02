@@ -9,7 +9,8 @@ import {
   ElInput,
   FormInstance,
   ElDivider,
-  ElTree
+  ElTree,
+  ElCheckbox,
 } from 'element-plus'
 import { onBeforeMount, reactive, ref } from 'vue'
 import { appModules } from '@/config/app'
@@ -26,31 +27,59 @@ let ElTreeData = ref<Tree[]>([])
 const routerMap = cloneDeep(asyncRouterMap)
 
 
-onBeforeMount( async () => {
-  ElTreeData.value = await mappingRouterTree(routerMap)      
-})
+onBeforeMount(async () => {
+  // filter recursive
+  var filterRouter = await routerMap.
+    filter(function filterFunction(o) {
+      if (o.children) {
+        return (o.children = o.children.filter(filterFunction)).length
+      }
+      if (o?.name && !o?.name.includes(utility)) {          
+       
+      return true
+    } 
 
+  
+    })
+  if (filterRouter[filterRouter.length - 1] && filterRouter[filterRouter.length - 1].name == 'NotFound')
+      filterRouter.splice(filterRouter.length - 1,1)
+// mapping recursive
+  ElTreeData.value = mappingRouterTree(filterRouter)
+})
 
 function mappingRouterTree(tree) {
 if(Array.isArray(tree) && tree.length > 0)
   return cloneDeepWith(tree, node => {
-    if (node.path && !node.path.includes(utility)) {
+    if (node?.name && !node?.name.includes(utility)) {
       /**
        * Be careful not to mutate `node` unless you want also
        * want the original tree to be affected.
        */
-      if(node.children)
-      return {   
-        id:node.path,      
-        label: t(`${node.meta.title}`),
-        children:mappingRouterTree(node.children)
-      };
-      else 
-        return {   
-        id:node.path,               
-        label: t(`${node.meta.title}`),        
-      };
+      if (node.children)
+        return {
+          id: node.path,
+          label: node.meta?.title ? t(`${node.meta.title}`) : '',
+          addable: node.meta?.add,
+          editable: node.meta?.edit,
+          deletable: node.meta?.delete,
+          add: false,
+          edit: false,
+          delete:false,
+          children: mappingRouterTree(node.children)
+        };
+      else
+        return {
+          id: node.path,
+          label: node.meta?.title ? t(`${node.meta.title}`) : '',
+          addable: node.meta?.add,
+          editable: node.meta?.edit,
+          deletable: node.meta?.delete,
+          add: false,
+          edit: false,
+          delete:false
+        };
     }
+    
   });
   return []
 }
@@ -66,8 +95,6 @@ const decentralizationRule = {
   username: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
   password: [required(), { validator: notSpecialCharacters, trigger: 'blur' }]
 }
-
-
 
 </script>
 <template>
@@ -91,22 +118,31 @@ const decentralizationRule = {
       <ElCol>
         <ElDivider content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
         <ElForm ref="RouterListRef" status-icon>
-          <ElFormItem>
+          <ElFormItem class="w-screen-lg">
             <ElTree                
               :data="ElTreeData"
               show-checkbox
               node-key="id"
-              default-expand-all                       
+              default-expand-all 
+              class="w-[100%]"                      
             >
               <template #default="{ node }">
-                <span class="custom-tree-node">
-                  <span>{{ t(node.label) }}</span>
-                  <span>
-                    <a> Thêm </a>
-                    <a> Sửa </a>
-                    <a> Xóa </a>
-                  </span>
-                </span>
+                <div class="flex justify-between w-[100%]" >                  <div> {{ node.data.label }}</div>
+               
+                    
+                  
+                  <div class="extension-function w-[30%]">
+                    <p v-if="node.data.addable" >
+                      <ElCheckbox v-model="node.data.add">Thêm</ElCheckbox>   
+                    </p>
+                    <p  v-if="node.data.editable" > 
+                      <ElCheckbox v-model="node.data.edit">Sửa</ElCheckbox> 
+                    </p>
+                    <p  v-if="node.data.deletable"> 
+                      <ElCheckbox v-model="node.data.delete">Xóa</ElCheckbox> 
+                    </p>
+                  </div>
+                </div>
               </template>
             </ElTree>
           </ElFormItem>
@@ -116,17 +152,29 @@ const decentralizationRule = {
   </ContentWrap>
 </template>
 <style lang="scss" scoped>
-.custom-tree-node {
-  flex: 1;
+
+@mixin d-flex {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
-  span
-  {
-    a{
-      margin-left: 8px    
+}
+.extension-function {
+  @include d-flex;
+  justify-content: space-around;
+
+  p {
+    border-bottom: 2px solid var(--app-contnet-bg-color);
+    @include d-flex;
+    justify-content: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 30%;
+    span {
+      width: fit-content;
+      font-weight: 500;
+      text-align: center;
+    }
+    &:hover {
+      border-bottom: 2px solid var(--el-color-primary);
     }
   }
 }

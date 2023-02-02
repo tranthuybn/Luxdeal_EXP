@@ -28,7 +28,10 @@ export default {
           component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/index.vue'),
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
           meta: {
-            title: t('router.inventoryTracking')
+            title: t('router.inventoryTracking'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {

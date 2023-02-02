@@ -18,7 +18,10 @@ export default {
       component: () => import('@/views/Pages/NewsAndAdvertisement/Notify.vue'),
       name: 'New-and-advertisement.notify',
       meta: {
-        title: t('router.notify')
+        title: t('router.notify'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {
@@ -26,7 +29,10 @@ export default {
       component: () => import('@/views/Pages/NewsAndAdvertisement/ForumPage/forum.vue'),
       name: 'New-and-advertisement.forum',
       meta: {
-        title: t('router.forum')
+        title: t('router.forum'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {
@@ -34,7 +40,10 @@ export default {
       component: () => import('@/views/Pages/NewsAndAdvertisement/BannerAdvertisement.vue'),
       name: 'New-and-advertisement.banner-advertisement',
       meta: {
-        title: t('router.bannerAdvertisement')
+        title: t('router.bannerAdvertisement'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {
@@ -49,7 +58,10 @@ export default {
           component: () => import('@/views/Pages/NewsAndAdvertisement/NewsSites/NewsList.vue'),
           name: 'New-and-advertisement.news-site.news-list',
           meta: {
-            title: t('router.newsList')
+            title: t('router.newsList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -58,7 +70,10 @@ export default {
             import('@/views/Pages/NewsAndAdvertisement/NewsSites/ManageNewsCategories.vue'),
           name: 'New-and-advertisement.news-site.manage-news',
           meta: {
-            title: t('router.manageNew')
+            title: t('router.manageNew'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         }
       ]
@@ -77,7 +92,10 @@ export default {
             import('@/views/Pages/NewsAndAdvertisement/ProfileAdmin/PoliciesGuidelines.vue'),
           name: 'New-and-advertisement.profile-admin.policies-guidelines',
           meta: {
-            title: t('router.policiesGuidelines')
+            title: t('router.policiesGuidelines'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -85,7 +103,10 @@ export default {
           component: () => import('@/views/Pages/NewsAndAdvertisement/ProfileAdmin/AboutUs.vue'),
           name: 'New-and-advertisement.profile-admin.about-us',
           meta: {
-            title: t('router.aboutUs')
+            title: t('router.aboutUs'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -93,7 +114,10 @@ export default {
           component: () => import('@/views/Pages/NewsAndAdvertisement/ProfileAdmin/Contact.vue'),
           name: 'New-and-advertisement.profile-admin.contact',
           meta: {
-            title: t('reuse.contact')
+            title: t('reuse.contact'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -102,7 +126,10 @@ export default {
             import('@/views/Pages/NewsAndAdvertisement/ProfileAdmin/TransactionPoint.vue'),
           name: 'New-and-advertisement.profile-admin.transaction-point',
           meta: {
-            title: t('router.transactionPoint')
+            title: t('router.transactionPoint'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         }
       ]

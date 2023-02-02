@@ -28,7 +28,10 @@ export default {
             import('@/views/Pages/Business/PotentialCustomerCare/PotentialCustomerList.vue'),
           name: 'business.potential-customer-care.potential-customer-list',
           meta: {
-            title: t('router.potentialCustomerList')
+            title: t('router.potentialCustomerList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -63,7 +66,10 @@ export default {
           name: 'business.order-management.order-list',
           component: () => import('@/views/Pages/Business/OrderManagement/OrderList.vue'),
           meta: {
-            title: t('router.orderList')
+            title: t('router.orderList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -91,7 +97,10 @@ export default {
           name: 'business.customer-management.customerList',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerList.vue'),
           meta: {
-            title: t('router.customerList')
+            title: t('router.customerList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
 
@@ -114,6 +123,9 @@ export default {
             import('@/views/Pages/Business/CustomerManagement/TabsCustomerRatings.vue'),
           meta: {
             title: t('router.customerRatings'),
+            add: true,
+            edit: true,
+            delete:true,
             breadcrumb: true
           }
         },
@@ -153,7 +165,10 @@ export default {
           name: 'business.collaborators.collaboratorsList',
           component: () => import('@/views/Pages/Business/Collaborators/Collaborators.vue'),
           meta: {
-            title: t('router.collaboratorsList')
+            title: t('router.collaboratorsList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -161,7 +176,10 @@ export default {
           name: 'business.collaborators.paymentRequest',
           component: () => import('@/views/Pages/Business/Collaborators/PaymentRequest.vue'),
           meta: {
-            title: t('router.paymentRequest')
+            title: t('router.paymentRequest'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -189,7 +207,7 @@ export default {
       name: 'business.promotion-strategy',
       redirect: { name: 'business.promotion-strategy.flash-sale' },
       meta: {
-        title: t('router.promotionCampaign')
+        title: t('router.promotionCampaign'),
       },
       children: [
         {
@@ -197,7 +215,10 @@ export default {
           name: 'business.promotion-strategy.flash-sale',
           component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSale.vue'),
           meta: {
-            title: t('router.flashsale')
+            title: t('router.flashsale'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -215,7 +236,10 @@ export default {
           name: 'business.promotion-strategy.collection',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Collection.vue'),
           meta: {
-            title: t('router.collection')
+            title: t('router.collection'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -233,7 +257,10 @@ export default {
           name: 'business.promotion-strategy.new-product',
           component: () => import('@/views/Pages/Business/PromotionStrategy/NewProduct.vue'),
           meta: {
-            title: t('router.newproduct')
+            title: t('router.newproduct'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -243,7 +270,7 @@ export default {
           meta: {
             title: t('reuse.newProductDetail'),
             canTo: true,
-            hidden: true
+            hidden: true,            
           }
         },
         {
@@ -252,7 +279,10 @@ export default {
           component: () => import('@/views/Pages/Business/PromotionStrategy/Voucher.vue'),
 
           meta: {
-            title: t('router.voucher')
+            title: t('router.voucher'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -288,7 +318,10 @@ export default {
           name: 'business.promotion-strategy.auction',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Auction.vue'),
           meta: {
-            title: t('router.auction')
+            title: t('router.auction'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -345,7 +378,10 @@ export default {
           name: 'business.accumulate-points.settings-points',
           component: () => import('@/views/Pages/Business/AccumulatePoints/SettingsPoints.vue'),
           meta: {
-            title: t('router.installPoints')
+            title: t('router.installPoints'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -375,7 +411,10 @@ export default {
           name: 'business.virtual-wallet.customer',
           component: () => import('@/views/Pages/Business/VirtualWallet/CustomerVirtualWallet.vue'),
           meta: {
-            title: t('router.customervirtualWallet')
+            title: t('router.customervirtualWallet'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -396,7 +435,10 @@ export default {
           name: 'business.virtual-wallet.with-drewal-request',
           component: () => import('@/views/Pages/Business/VirtualWallet/WithdrawalRequest.vue'),
           meta: {
-            title: t('router.withDrawalRequest')
+            title: t('router.withDrawalRequest'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -418,7 +460,10 @@ export default {
           name: 'business.virtual-wallet.settings',
           component: () => import('@/views/Pages/Business/VirtualWallet/SettingsVirtualWallet.vue'),
           meta: {
-            title: t('router.settingsvirtualWallet')
+            title: t('router.settingsvirtualWallet'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -442,8 +487,7 @@ export default {
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
       meta: {
-        title: t('router.businessMan'),
-        hidden: true
+        title: t('router.businessMan'),      
       },
       children: [
         {

@@ -1405,6 +1405,7 @@ const getAccountingEntry = (_index, scope) => {
     idAccounting.value = data.id
   } else if (data.content == 'Phiếu thanh toán đổi/trả hàng') {
     openAcountingEntryDialog(data.id, 3)
+    typeButtonReturn.value = 1
   } else {
     openAcountingEntryDialog(data.id, 4)
   }
@@ -1458,6 +1459,10 @@ const getReturnRequestOrder = async () => {
     totalPrice: row.totalPrice
   }))
   const objDetail = res?.data[0]
+  createAtStatus.value = objDetail?.statusHistory[0]?.approveAt
+  if (statusOrder.value == 65) {
+    approvalAtStatus.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt
+  }
   refundPrice.value = objDetail.tienHoan
   exportPrice.value = objDetail.tienBan
   exchangePrice.value = objDetail.totalPrice
@@ -2062,6 +2067,9 @@ const checkMaximunQuantity = (scope) => {
   if (data.quantity > data.maximumQuantity) showErrorMessage(data.maximumQuantity)
 }
 
+const typeButtonReturn = ref(1)
+const createAtStatus = ref(new Date())
+const approvalAtStatus = ref()
 const returnRequestId = ref()
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
@@ -2278,6 +2286,7 @@ const openDialogReturnOrder = () => {
   }))
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
+  typeButtonReturn.value = 1
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -2488,14 +2497,36 @@ const callApiWarehouseList = async () => {
   }
 }
 
+const openFinishReturnRequest = () => {
+  typeButtonReturn.value = 2
+  getReturnRequestOrder()
+}
+
+const openCancelReturnRequest = () => {
+  typeButtonReturn.value = 3
+  getReturnRequestOrder()
+}
+
 //Hoàn thành yêu cầu đổi trả
 const finishReturnRequest = async () => {
-  await finishReturnOrder({ OrderId: id })
+  const payload = {
+    OrderId: id
+  }
+  const formCustomerPayLoad = FORM_IMAGES(payload)
+  await finishReturnOrder(formCustomerPayLoad)
+  reloadStatusOrder()
+  changeReturnGoods.value = false
 }
 
 //hủy yêu cầu đổi trả
 const cancelReturnRequest = async () => {
-  await cancelReturnOrder({ OrderId: id })
+  const payload = {
+    OrderId: id
+  }
+  const formCustomerPayLoad = FORM_IMAGES(payload)
+  await cancelReturnOrder(formCustomerPayLoad)
+  reloadStatusOrder()
+  changeReturnGoods.value = false
 }
 
 //duyệt đơn mua hàng
@@ -4661,11 +4692,33 @@ onBeforeMount(async () => {
           <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
             <div class="flex items-center w-[100%]">
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
+              <div class="flex items-center gap-2 flex-wrap w-[100%]">
+                <div class="flex gap-4">  
+                  <span class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box dark:text-black">
+                    {{ t('reuse.initializeAndWrite') }}
+                    <span class="triangle-right"> </span>
+                  </span>     
+
+                  <span
+                    class="triangle-left ml-[155px] border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_1 text-yellow-500 dark:text-black active"
+                  >
+                  {{ t('reuse.approvalReturnRequest') }}
+                    <span class="triangle-right right_1"> </span>
+                  </span>
+                </div>
+              </div>          
             </div>
+          </div>
+          <div class="flex gap-4">
+              <label class="w-[30%]"></label>
+              <div class="w-[100%] flex gap-22">
+                <div>{{ dateTimeFormat(createAtStatus) }}</div>
+                <div>{{ dateTimeFormat(approvalAtStatus) }}</div>
+              </div>
           </div>
         </div>
         <template #footer>
@@ -4673,6 +4726,7 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
+                  v-if="typeButtonReturn == 1"
                   type="primary"
                   @click="
                     () => {
@@ -4682,7 +4736,23 @@ onBeforeMount(async () => {
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
+                <button 
+                v-else-if="typeButtonReturn == 2"
+                @click="finishReturnRequest" 
+                style="font-size: 14px;"
+                class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold">
+                Hoàn thành trả hàng</button>
+                <el-button 
+                  v-else 
+                  class="min-w-42 min-h-11 pl-2"
+                  @click="cancelReturnRequest">
+                  Hủy trả hàng
+                </el-button>
+                <el-button 
+                  class="min-w-42 min-h-11"
+                  @click="changeReturnGoods = false">
+                  {{ t('reuse.exit') }}
+                </el-button>
               </span>
             </div>
           </div>
@@ -5237,13 +5307,8 @@ onBeforeMount(async () => {
               >{{ t('formDemo.exchangeReturnGoods') }}</button
             >
             <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  finishReturnRequest()
-                }
-              "
-              v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus && !duplicateStatusButton"
+              @click="openFinishReturnRequest"
+              v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
               >{{ t('formDemo.completeExchangeReturn') }}</button
             >
@@ -5268,7 +5333,7 @@ onBeforeMount(async () => {
               class="min-w-42 min-h-11"
               @click="
                 () => {
-                  cancelReturnRequest()
+                  openCancelReturnRequest()
                 }
               "
               >{{ t('formDemo.cancellationReturn') }}</el-button
@@ -5799,6 +5864,7 @@ onBeforeMount(async () => {
 
 ::v-deep(.el-overlay-dialog) {
   overflow-y: initial;
+  overflow: hidden;
 }
 
 ::v-deep(.el-dialog__body) {

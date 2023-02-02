@@ -1815,6 +1815,7 @@ export default {
     exporting: 'Đang xuất kho',
     importing: 'Đang chờ nhập kho',
     initializeAndWrite: 'Khởi tạo & ghi số',
+    approvalReturnRequest: 'Duyệt đổi/trả hàng',
     // exchange order
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',

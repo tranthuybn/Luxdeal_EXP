@@ -388,6 +388,8 @@ interface tableRentalProduct {
   unitName: string
   intoARentalDeposit: string
   warehouseTotal?: number
+  originalPrice?: number
+  priceChange?: boolean
   id: string
 }
 
@@ -436,9 +438,9 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -1298,7 +1300,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     tableData.value.push({ ...productForSale })
   }
 }
@@ -1312,25 +1314,19 @@ const getValueOfSelected = async (value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
-
-  if (duplicateProduct.value) {
+  if (duplicateProduct.value || dateRangePrice.value) {
+    if (dateRangePrice.value) ElMessage.error('Vui lòng chọn thời gian thuê trước')
     duplicateProductMessage()
   } else {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {
       totalPriceOrder.value = 0
       totalFinalOrder.value = 0
       totalDeposit.value = 0
-
-      let start = moment(data.fromDate, 'YYYY-MM-DD')
-      let end = moment(data.toDate, 'YYYY-MM-DD')
-
-      //Difference in number of days
-      let day = moment.duration(start.diff(end)).asDays() * -1
-      let days = Math.ceil(day / ruleForm.leaseTerm)
 
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
@@ -1339,26 +1335,11 @@ const getValueOfSelected = async (value, obj, scope) => {
         ruleForm.leaseTerm
       )
       data.hirePrice = objPrice.price
+      data.originalPrice = objPrice.price
       data.depositePrice = objPrice.deposite * data.quantity
-      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
-      tableData.value.map((val) => {
-        if (val.totalPrice) totalPriceOrder.value += val.totalPrice
-        if (val.depositePrice) totalDeposit.value += val.depositePrice
-      })
-      promoCash.value != 0
-        ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
-        : (totalFinalOrder.value =
-            totalPriceOrder.value -
-            (totalPriceOrder.value * promoValue.value) / 100 +
-            totalDeposit.value)
-
-      if (radioVAT.value.length < 4) {
-        VAT.value = true
-        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-        if (totalFinalOrder.value) {
-          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-        }
-      }
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * dateRangePrice.value
+      
+      changePriceRowTable(scope, true)
       // add new row
       if (scope.$index == tableData.value.length - 1) {
         tableData.value.push({ ...productForSale })
@@ -1371,6 +1352,7 @@ const getValueOfSelected = async (value, obj, scope) => {
       }
     }
   }
+  console.log('data: ', data)
 }
 
 // chọn ngày thì ra giá tiền
@@ -1380,12 +1362,12 @@ const handleGetTotal = async (_value, props) => {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    let start = moment(data.fromDate, 'YYYY-MM-DD')
-    let end = moment(data.toDate, 'YYYY-MM-DD')
+    // let start = moment(data.fromDate, 'YYYY-MM-DD')
+    // let end = moment(data.toDate, 'YYYY-MM-DD')
 
     //Difference in number of days
-    let day = moment.duration(start.diff(end)).asDays() * -1
-    let days = Math.ceil(day / ruleForm.leaseTerm)
+    // let day = moment.duration(start.diff(end)).asDays() * -1
+    // let days = Math.ceil(day / ruleForm.leaseTerm)
 
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
@@ -1394,8 +1376,10 @@ const handleGetTotal = async (_value, props) => {
       ruleForm.leaseTerm
     )
     data.hirePrice = objPrice.price
+    data.originalPrice = objPrice.price
+    data.priceChange = false
     data.depositePrice = objPrice.deposite * data.quantity
-    data.totalPrice = data.hirePrice * data.quantity * days
+    data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
     tableData.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += val.totalPrice
       if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -1407,6 +1391,7 @@ const handleGetTotal = async (_value, props) => {
           (totalPriceOrder.value * promoValue.value) / 100 +
           totalDeposit.value)
   }
+  console.log('data__after: ', data)
 }
 
 const recalculatePrice = () => {
@@ -1692,26 +1677,50 @@ const autoChangeAddress = () => {
 }
 
 // Trạng thái đơn hàng cho thuê
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = (props, checkRechangeProduct) => {
   const data = props.row
-  if (type == 'add') {
+  data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
+  if (checkRechangeProduct) data.priceChange = true
+
+  if (data.originalPrice != data.hirePrice && !data.priceChange ) {
     priceChangeOrders.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
-      isActive: true
-    })
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
+  } else if (data.originalPrice == data.hirePrice && data.priceChange ) {    
+    if (!checkRechangeProduct || (checkRechangeProduct && countProductChangePrice.value == 1)) countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_RENTAL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_RENTAL[2].orderStatus
+    }    
   }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
-  data.totalPrice = data.hirePrice * data.quantity
+  
   autoCalculateOrder()
 }
 
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -2431,6 +2440,7 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
+const dateRangePrice = ref()
 const changeDateRange = (data) => {
   tableData.value.forEach((el) => {
     el.fromDate = data[0]
@@ -2444,7 +2454,7 @@ const changeDateRange = (data) => {
       //Difference in number of days
       let day = moment.duration(start.diff(end)).asDays() * -1
       let days = Math.ceil(day / ruleForm.leaseTerm)
-
+      dateRangePrice.value = days
       tableData.value.map((val) => {
         val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
       })
@@ -2553,7 +2563,7 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
+    if (type == 'add' || type == ':type') {
       let payload = {
         OrderId: idOrderPost.value,
         ServiceType: 3,
@@ -2650,7 +2660,7 @@ onBeforeMount(() => {
   callApiProductList()
   editData()
   callApiWarehouseList()
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
@@ -4814,7 +4824,7 @@ onBeforeMount(() => {
                 v-model="props.row.hirePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.hirePrice != ''
@@ -4844,7 +4854,7 @@ onBeforeMount(() => {
                 v-model="props.row.depositePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.depositePrice != ''
@@ -4885,7 +4895,7 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button v-if="type == 'add'" class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button v-if="type == 'add' || type == ':type'" class="ml-4 mt-4" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -5112,7 +5122,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
               !priceChangeOrders &&
-              type == 'add'
+              type == 'add' ||
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              !priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5155,7 +5168,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
               priceChangeOrders &&
-              type == 'add'
+              type == 'add' || 
+              statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
+              priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >

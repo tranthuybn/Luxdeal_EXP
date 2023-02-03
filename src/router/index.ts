@@ -7,7 +7,6 @@ import Business from './RouterMap/Business'
 import Warehouse from './RouterMap/Warehouse'
 import Accountant from './RouterMap/Accountant'
 import Approve from './RouterMap/Approve'
-import Authentication from './RouterMap/Authentication'
 import NewAndAdvertisement from './RouterMap/NewAndAdvertisement'
 import ProductsAndServices from './RouterMap/ProductsAndServices'
 import Purchase from './RouterMap/Purchase'
@@ -22,7 +21,6 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   Approve,
   NewAndAdvertisement,
   HumanResourceManagement,
-  Authentication,
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

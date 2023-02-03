@@ -214,7 +214,8 @@ interface ListOfProductsForSaleType {
   warehouseTotal?: number | any
   amountSpa: number
   quantity: string
-  businessManagement: {}
+  businessSetup: string
+  businessSetupName: string
   accessory: string | undefined
   code: string | undefined
   description: string | undefined
@@ -243,7 +244,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   accessory: '',
   code: '',
   description: '',
-  businessManagement: {},
+  businessSetup: '',
+  businessSetupName: '',
   warehouseInfo: {},
   unitName: 'Cái',
   TotalPrice: 0,
@@ -855,6 +857,7 @@ const postData = async () => {
     HirePrice: 0,
     DepositePrice: 0,
     TotalPrice: 0,
+    BusinessSetup: val.businessSetup,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
     Accessory: val.accessory,
@@ -862,7 +865,6 @@ const postData = async () => {
     Description: val.description
   }))
   orderDetailsTable.pop()
-  console.log('orderDetailsTable', orderDetailsTable)
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -1459,10 +1461,10 @@ const handleSelectionChange = (val: tableDataType[]) => {
   }, 0)
 }
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  ListOfProductsForSale.value[indexRow.value].businessManagement = val.map((e) => ({
-    label: e.applyExport,
-    value: e.id
-  }))
+  const label = val.map((e) => e.applyExport)
+  const x = val.map((e) => e.id)
+  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetupName = label.join(', ')
 }
 
 const optionsChooseMoneyType = [
@@ -2663,14 +2665,12 @@ const removeRow = (index) => {
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"
-            prop="businessManagement"
+            prop="businessSetupName"
           >
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.businessManagement" :key="item.value">{{
-                    item.label
-                  }}</span>
+                  <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -3109,6 +3109,7 @@ const removeRow = (index) => {
             v-if="ruleForm.customerName"
             :formData="formData"
             :priceBillPawn="priceintoMoneyPawnGOC"
+            :dataEdit="tablePawnSlip"
           />
         </slot>
       </div>

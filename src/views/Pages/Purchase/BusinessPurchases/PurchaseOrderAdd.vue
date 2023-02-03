@@ -373,7 +373,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   quantity: number
   businessSetup: string
-  businessManagement: string
+  businessSetupName: string
   accessory: string | undefined
   code: string | undefined
   description: string | undefined
@@ -396,7 +396,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: 0,
   businessSetup: '',
-  businessManagement: '',
+  businessSetupName: '',
   code: '',
   description: '',
   accessory: '',
@@ -1161,7 +1161,7 @@ const postData = async () => {
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    BusinessSetup: val.businessManagement,
+    BusinessSetup: val.businessSetup,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1347,6 +1347,11 @@ const editData = async () => {
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
       else statusOrder.value = 200
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+
+      if (statusOrder.value == STATUS_ORDER_PURCHASE[0].orderStatus) {
+        editButton.value = false
+        checkDisabled.value = true
+      }
     }
     
     if (
@@ -1482,6 +1487,8 @@ const getReturnRequestOrder = async () => {
     && (statusOrder.value == STATUS_ORDER_PURCHASE[5].orderStatus || 
     statusOrder.value == STATUS_ORDER_PURCHASE[7].orderStatus)
   ) {
+    disableReturn.value = true
+  } else if (typeButtonReturn.value == 2 || typeButtonReturn.value == 3) {
     disableReturn.value = true
   } else {
     disableReturn.value = false
@@ -1736,12 +1743,12 @@ const listApplyExport = [
     applyExport: 'Bán'
   },
   {
-    id: 2,
+    id: 3,
     check: true,
     applyExport: 'Cho thuê'
   },
   {
-    id: 3,
+    id: 5,
     check: true,
     applyExport: 'Spa'
   }
@@ -2047,7 +2054,8 @@ const updateOrderStransaction = async () => {
     isReceiptedMoney: true,
     status: 0,
     paymentMethods: 1,
-    paidMoney: inputDeposit.value
+    paidMoney: inputDeposit.value,
+    deibt: moneyDeibt.value
   }
   updateOrderTransaction(payload).then(() => {
     getOrderStransactionList()
@@ -2177,6 +2185,19 @@ const postReturnRequest = async () => {
     else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
     await postOrderStransaction(3)
     createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
+      .then((res) => {
+        if(res.statusCode == 400) {
+          ElNotification({
+            message: 'Đơn hàng chưa được nhập kho',
+            type: 'warning'
+          })
+        }
+       }).catch(() => {
+      ElNotification({
+      message: 'Đơn hàng chưa được nhập kho',
+      type: 'warning'
+    })
+    })
   }
   getReturnRequestTable()
   reloadStatusOrder()
@@ -2269,7 +2290,9 @@ const getTotalWarehouse = () => {
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   const label = val.map((e) => e.applyExport)
-  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
+  const x = val.map((e) => e.id)
+  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetupName = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -2550,13 +2573,11 @@ const callApiWarehouseList = async () => {
 
 const disableReturn = ref(false)
 const openFinishReturnRequest = () => {
-  disableReturn.value = true
   typeButtonReturn.value = 2
   getReturnRequestOrder()
 }
 
 const openCancelReturnRequest = () => {
-  disableReturn.value = true
   typeButtonReturn.value = 3
   getReturnRequestOrder()
 }
@@ -2586,6 +2607,15 @@ const cancelReturnRequest = async () => {
 //duyệt đơn mua hàng
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  router.push({
+    name: `approve.orders-approval.orders-new`
+  })
+}
+
+//không duyệt đơn mua hàng
+const cancelApproval = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: false }
   await approvalOrder(FORM_IMAGES(payload))
   router.push({
     name: `approve.orders-approval.orders-new`
@@ -5000,12 +5030,12 @@ onBeforeMount(async () => {
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"
-            prop="businessSetup"
+            prop="businessSetupName"
           >
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span>{{ data.row.businessSetup }}</span>
+                  <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -5428,7 +5458,6 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  // addStatusOrder(8)
                   cancelOrderPurchase()
                 }
               "
@@ -5441,7 +5470,7 @@ onBeforeMount(async () => {
             <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="cancelApproval" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>

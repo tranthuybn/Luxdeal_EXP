@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 
 const props = defineProps({
   priceBillPawn: {
@@ -10,6 +12,14 @@ const props = defineProps({
     type: Object,
     // eslint-disable-next-line vue/require-valid-default-prop
     default: {}
+  },
+  dataCustomer: {
+    type: Object,
+    default: () => { }
+  },
+  dataEdit: {
+    type: Object,
+    default: () => { }
   }
 })
 const tradingCode = ref('CDSG0273')
@@ -77,7 +87,7 @@ const infomation = [
 
         <div class="flex gap-3">
           <p class="font-bold w-[160px]">Họ và tên khách hàng:</p>
-          <p>{{ infomation[0].name }}</p>
+          <p>{{ dataCustomer?.userName }}</p>
         </div>
 
         <div class="flex gap-3">
@@ -90,7 +100,7 @@ const infomation = [
             <p class="font-bold w-[160px]">Bằng chữ:</p>
             <p class="w-[150px]">Chi phí gồm: chi phí lãi + phí lưu kho + phí thẩm định</p>
           </div>
-          <div class="">
+          <div class="flex gap-3">
             <p>{{ infomation[0].priceText }}</p>
             <p>2500</p>
           </div>
@@ -100,7 +110,7 @@ const infomation = [
       <div class="flex-right">
         <div class="phone flex gap-3">
           <p>Số điện thoại:</p>
-          <p class="mb-6 phone-number"> 0333278085 </p>
+          <p class="mb-6 phone-number"> {{ dataCustomer?.phoneNumber }} </p>
         </div>
 
         <div class="flex gap-3">
@@ -112,24 +122,14 @@ const infomation = [
 
     <div class="pawn-property">
       <p class="title-table">Tài sản cầm đồ</p>
-      <table>
-        <tr>
-          <th>stt</th>
-          <th>Mã sản phẩm</th>
-          <th>Tên hàng</th>
-          <th>Phụ kiện đi kèm</th>
-          <th>Số lượng</th>
-          <th>Đơn vị</th>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>LVajfw</td>
-          <td>thông tin sản phẩm</td>
-          <td></td>
-          <td>05</td>
-          <td>Chiếc</td>
-        </tr>
-      </table>
+      <el-table :data="dataEdit ? dataEdit : []" border class="mt-2">
+        <el-table-column prop="stt" type="index" min-width="80" label="STT" align="center" />
+        <el-table-column prop="productCode" :label="t('reuse.productCode')" align="center" />
+        <el-table-column prop="productName" min-width="150" :label="t('formDemo.commodityName')" align="center" />
+        <el-table-column prop="accessory" :label="t('reuse.accessory')" align="center" />
+        <el-table-column prop="quantity" :label="t('reuse.quantity')" align="center" />
+        <el-table-column prop="unitName" :label="t('reuse.unitName')" align="center" />
+      </el-table>
     </div>
 
     <p class="assure mt-3">

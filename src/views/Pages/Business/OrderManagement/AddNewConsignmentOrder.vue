@@ -424,7 +424,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   spaServices: string
   businessSetup: string
-  businessManagement: string
+  businessSetupName: string
 
   amountSpa: number
   quantity: string
@@ -458,7 +458,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   code: '',
   description: '',
   businessSetup: '',
-  businessManagement: '',
+  businessSetupName: '',
 
   unitName: 'Cái',
   consignmentSellPrice: 0,
@@ -1398,12 +1398,12 @@ const listApplyExport = [
     applyExport: 'Bán'
   },
   {
-    id: 2,
+    id: 3,
     check: true,
     applyExport: 'Cho thuê'
   },
   {
-    id: 3,
+    id: 5,
     check: true,
     applyExport: 'Spa'
   }
@@ -1838,8 +1838,8 @@ const openDialogAcountingEntry = (scope) => {
     case 4:
       openAcountingEntryDialog(data.id, 4)
       break
-    case 2:
-      openAcountingEntryDialog(data.id, 2)
+    case 3:
+      openAcountingEntryDialog(data.id, 3)
       break
     case 5:
       openAccountingEntry(data.orderIdBTSpa, data.orderTypeBTSpa)
@@ -1852,8 +1852,8 @@ const openDialogAcountingEntry = (scope) => {
 const tablePaymentSlip = ref()
 const openAccountingEntry = async (id, type) => {
   typeDialog.value = type
-  const res = await getOrderList({ Id: id, ServiceType: type})
-  const data = { ...res?.data[0] }
+  // const res = await getOrderList({ Id: id, ServiceType: type})
+  // const data = { ...res?.data[0] }
   
   if(type == 1) {
     // tablePaymentSlip.value = generalData
@@ -1876,7 +1876,6 @@ const openAcountingEntryDialog = async (index, num) => {
     e.totalPrice = e.unitPrice * e.quantity
   })
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
-  // paidMoney.value = formAccountingId.value?.paidMoney
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
   tableAccountingEntry.value.forEach((el) => {
     el.intoMoney = Math.abs(el.paidMoney - el.receiveMoney)
@@ -1890,8 +1889,6 @@ const openAcountingEntryDialog = async (index, num) => {
   getReturnOrder()
   if (num == 4) {
     dialogAccountingEntryAdditional.value = true
-  } else if (num == 2) {
-    dialogDepositSlip.value = true
   } else {
     const res = await getReturnRequest({ CustomerOrderId: id })
     const optionsReturnRequest = res.data
@@ -1939,7 +1936,9 @@ const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   const label = val.map((e) => e.applyExport)
-  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
+  const x = val.map((e) => e.id)
+  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetupName = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
@@ -2063,7 +2062,6 @@ const paymentExpired = async (status) => {
 // Trả hàng trước thời hạn
 const returnGoodsAheadOfTime = async (status, data) => {
   let tableReturnPost = [{}]
-  console.log('data', data)
 
   data?.pop()
   tableReturnPost = data.map((e) => ({
@@ -2078,7 +2076,6 @@ const returnGoodsAheadOfTime = async (status, data) => {
     quantity: parseInt(e?.quantity),
     accessory: e?.accessory
   }))
-  console.log('tableReturnPost', tableReturnPost)
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
@@ -2898,7 +2895,6 @@ const openDetailOrder = (id, type) => {
                     () => {
                       dialogInformationReceipts = false
                       postPT()
-                      handleChangeReceipts()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3225,7 +3221,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('button.print') }}</el-button
             >
 
-            <el-button class="btn" dialogBillLiquidation@click="dialogBillLiquidation = false">{{
+            <el-button class="btn" @click="dialogBillLiquidation = false">{{
               t('reuse.exit')
             }}</el-button>
           </div>
@@ -4324,11 +4320,11 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetup">
+          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span>{{ data.row.businessSetup }}</span>
+                  <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -4588,7 +4584,6 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus"
               @click="
                 () => {
-                  changeReturnGoods = !changeReturnGoods
                   truocHan = true
                   setDataForReturnOrder()
                 }
@@ -4601,9 +4596,7 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus"
               @click="
                 () => {
-                  changeReturnGoods = !changeReturnGoods
                   truocHan = true
-                  // addStatusOrder(2)
                   setDataForReturnOrder()
                 }
               "
@@ -4822,7 +4815,7 @@ const openDetailOrder = (id, type) => {
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
-        <el-button
+        <el-buttondebtTable
           :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
@@ -4832,7 +4825,7 @@ const openDetailOrder = (id, type) => {
             }
           "
           text
-          >+ Thêm đề nghị thanh toán</el-button
+          >+ Thêm đề nghị thanh toán</el-buttondebtTable
         >
         <el-table
           ref="multipleTableRef"
@@ -4897,14 +4890,14 @@ const openDetailOrder = (id, type) => {
           </el-table-column>
 
           <el-table-column
-            prop="typeOfMoney"
+            prop="negotiatePrice"
             :label="t('reuse.typeMoney')"
             align="left"
             min-width="150"
           >
             <template #default="props">
               <div
-                >{{ props.row.typeOfMoney }}</div
+                >{{ props.row.negotiatePrice }}</div
               >
             </template>
           </el-table-column>

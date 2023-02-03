@@ -1019,6 +1019,8 @@ export default {
     productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
+    quantity: 'Số lượng',
+    unitName: 'Đơn vị',
     firstEntryDate: 'Ngày nhập',
     singleEntryCode: 'Mã đơn nhập',
     typeOfFirstEntry: 'Loại hình nhập lần đầu',

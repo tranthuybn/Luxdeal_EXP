@@ -676,21 +676,42 @@ const getValueOfSelected = async (_value, obj, scope) => {
   }
 }
 
+const duplicateProductChildren = ref()
 const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj?.productPropertyId
-  scope.row.unitPrice = Number(obj.unitPrice)
-  scope.row.accessory = obj.accessory
-  scope.row.quantity = Number(obj.quantity)
-  scope.row.totalPrice = Number(obj.totalPrice)
-  getRefundPrice()
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableReturnFullyIntegrated.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj?.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+    data.quantity = obj.quantity
+  }
 }
 const updateExchangePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj?.productPropertyId
-  scope.row.unitPrice = Number(obj.unitPrice)
-  scope.row.accessory = obj.accessory
-  scope.row.quantity = Number(obj.quantity)
-  scope.row.totalPrice = Number(obj.totalPrice)
-  getExportPrice()
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableProductInformationExportChange.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj?.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+    data.quantity = obj.quantity
+  }
 }
 let customerID = ref()
 
@@ -827,6 +848,14 @@ const reloadStatusOrder = async () => {
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
+  }
+}
+
+const checkQuantity = (value) => {
+  if (isNaN(value)) {
+    ElMessage.error(t('reuse.numberFormat'))
+  } else if (value < 0) {
+    ElMessage.error(t('reuse.positiveNumber'))
   }
 }
 
@@ -1145,8 +1174,9 @@ const postData = async () => {
   orderDetailsTable.pop()
   if (orderDetailsTable?.length > 0) {
     orderDetailsTable.forEach((el) => {
-      if (el.Quantity == 0) {
+      if (el.Quantity == 0 || el.Quantity < 0) {
         checkValidatorProduct.value = true
+        ElMessage.error(t('reuse.positiveNumber'))
       }
     })
     if (!checkValidatorProduct.value) {
@@ -1423,6 +1453,7 @@ const openAcountingEntryDialog = async (index, num) => {
   moneyDeposit.value = formAccountingId.value?.accountingEntry.deibt
   alreadyPaidForTt.value = formAccountingId.value?.accountingEntry.isReceiptedMoney
   payment.value = formAccountingId.value?.accountingEntry.typeOfPayment
+  getReturnOrder()
   if (num == 1) {
     getSaleSlipInfo()
   } else if (num == 4) {
@@ -1447,6 +1478,14 @@ const getSaleSlipInfo = async () => {
 
 //lấy chi tiết đổi/trả hàng
 const getReturnRequestOrder = async () => {
+  if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.approvedAt != null
+    && (statusOrder.value == STATUS_ORDER_PURCHASE[5].orderStatus || 
+    statusOrder.value == STATUS_ORDER_PURCHASE[7].orderStatus)
+  ) {
+    disableReturn.value = true
+  } else {
+    disableReturn.value = false
+  }
   const res = await getReturnRequest({ CustomerOrderId: id })
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
     productCode: row.productCode,
@@ -1460,8 +1499,8 @@ const getReturnRequestOrder = async () => {
   }))
   const objDetail = res?.data[0]
   createAtStatus.value = objDetail?.statusHistory[0]?.approveAt
-  if (statusOrder.value == 65) {
-    approvalAtStatus.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt
+  if (objDetail?.statusHistory.length > 1) {
+    approvalAtStatus.value = objDetail?.statusHistory[1]?.approveAt
   }
   refundPrice.value = objDetail.tienHoan
   exportPrice.value = objDetail.tienBan
@@ -2067,6 +2106,19 @@ const checkMaximunQuantity = (scope) => {
   if (data.quantity > data.maximumQuantity) showErrorMessage(data.maximumQuantity)
 }
 
+const getReturnOrder = () => {
+  listOfOrderProduct.value = ListOfProductsForSale.value?.map((el) => ({
+    productCode: el?.productCode,
+    productPropertyCode: el?.productPropertyCode,
+    productPropertyName: el?.productPropertyName,
+    productPropertyId: el?.productPropertyId,
+    unitPrice: el?.unitPrice,
+    totalPrice: el?.totalPrice,
+    maximumQuantity: el?.quantity,
+    quantity: el?.quantity
+  }))
+}
+
 const typeButtonReturn = ref(1)
 const createAtStatus = ref(new Date())
 const approvalAtStatus = ref()
@@ -2274,16 +2326,16 @@ const getExportPrice = () => {
 
 const listOfOrderProduct = ref()
 const openDialogReturnOrder = () => {
-  listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productCode: row.productCode,
-    productPropertyCode: row.productPropertyCode,
-    productPropertyName: row.productPropertyName,
-    productPropertyId: row?.productPropertyId,
-    accessory: row.accessory,
-    quantity: row.quantity,
-    unitPrice: row.unitPrice,
-    totalPrice: row.totalPrice
-  }))
+  // listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
+  //   productCode: row.productCode,
+  //   productPropertyCode: row.productPropertyCode,
+  //   productPropertyName: row.productPropertyName,
+  //   productPropertyId: row?.productPropertyId,
+  //   accessory: row.accessory,
+  //   quantity: row.quantity,
+  //   unitPrice: row.unitPrice,
+  //   totalPrice: row.totalPrice
+  // }))
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
   typeButtonReturn.value = 1
@@ -2347,10 +2399,19 @@ const editOrderInfo = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
     .then(() => {
+      router.push({
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'detail',
+        id: id
+      }
+      }),
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
+      }),
+      editButton.value = false
     })
     .catch(() => {
       ElNotification({
@@ -3317,6 +3378,7 @@ onBeforeMount(async () => {
                   <el-input
                     @change="
                       () => {
+                        checkQuantity(data.row.quantity)
                         data.row.totalPrice = data.row.unitPrice * data.row.quantity
                         autoCalculateOrder()
                       }
@@ -4547,6 +4609,7 @@ onBeforeMount(async () => {
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
+                      checkQuantity(props.row.quantity)
                       checkMaximunQuantity(props)
                       getExportPrice()
                     }
@@ -4631,6 +4694,7 @@ onBeforeMount(async () => {
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
+                      checkQuantity(props.row.quantity)
                       checkMaximunQuantity(props)
                       getRefundPrice()
                     }
@@ -4728,8 +4792,8 @@ onBeforeMount(async () => {
           <div class="flex gap-4">
               <label class="w-[30%]"></label>
               <div class="w-[100%] flex gap-22">
-                <div>{{ dateTimeFormat(createAtStatus) }}</div>
-                <div>{{ dateTimeFormat(approvalAtStatus) }}</div>
+                <i style="font-size: 12px">{{ dateTimeFormat(createAtStatus) }}</i>
+                <i style="font-size: 12px">{{ dateTimeFormat(approvalAtStatus) }}</i>
               </div>
           </div>
         </div>
@@ -4740,6 +4804,7 @@ onBeforeMount(async () => {
                 <el-button
                   v-if="typeButtonReturn == 1"
                   type="primary"
+                  class="min-w-42 min-h-11"
                   @click="
                     () => {
                       changeReturnGoods = false
@@ -4891,9 +4956,10 @@ onBeforeMount(async () => {
               <el-input
                 v-else
                 :disabled="type == 'edit' || type == 'approval-order' ? true : false"
-                type="number"
+                type="text"
                 @change="
                   () => {
+                    checkQuantity(data.row.quantity)
                     data.row.totalPrice = data.row.unitPrice * data.row.quantity
                     autoCalculateOrder()
                   }
@@ -5209,7 +5275,6 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   editOrderInfo()
-                  editButton = false
                 }
               "
               type="primary"
@@ -5313,6 +5378,7 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
+                  getReturnOrder()
                   openDialogReturnOrder()
                 }
               "

@@ -105,7 +105,7 @@ onBeforeMount(() => {
         :label="t('formDemo.browsingConditions')"
         width="180"
       />
-      <el-table-column prop="status" :label="t('formDemo.status')" width="180" />
+      <el-table-column prop="statusName" :label="t('formDemo.status')" width="180" />
       <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="120">
         <template #default="props">
           <el-button @click="() => detailedBrowsing(props)" class="w-[100%]" type="primary">{{

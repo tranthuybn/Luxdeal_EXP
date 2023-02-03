@@ -367,11 +367,13 @@ interface ListOfProductsForSaleType {
   accessory: string | undefined
   unitName: string
   unitPrice: string | number | undefined
+  originalPrice?: number
   totalPrice: string
   paymentType: string
   warehouseId: number | undefined
   warehouseTotal?: number | any
   warehouseName: string
+  priceChange?: boolean
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -651,6 +653,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
+    data.priceChange = false
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
@@ -659,6 +662,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
+    data.originalPrice = data.unitPrice
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
     ListOfProductsForSale.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
@@ -1225,7 +1229,7 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(route.params.tab)
-const type = String(route.params.type)
+let type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 
 let dataEdit = ref()
@@ -1303,7 +1307,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
@@ -1373,9 +1377,9 @@ const openAcountingEntryDialog = async (index, num) => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1692,21 +1696,42 @@ let statusOrder = ref(2)
 
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
 const changePriceRowTable = (props) => {
   const data = props.row
-  priceChangeOrders.value = true
-  if (type == 'add') {
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_SELL[1].orderStatus,
-      isActive: true
-    })
-  }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
-  data.totalPrice = data.unitPrice * data.quantity
+  data.totalPrice = data.unitPrice * parseInt(data.quantity)
+  if (data.originalPrice != data.unitPrice && !data.priceChange) {
+    priceChangeOrders.value = true
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_SELL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
+  } else if (data.originalPrice == data.unitPrice && data.priceChange) {    
+    countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_SELL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_SELL[2].orderStatus
+    }    
+  }  
 }
 
 interface statusOrderType {
@@ -1718,7 +1743,7 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -2454,7 +2479,7 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
+    if (type == 'add' || type == ':type') {
       let payload = {
         OrderId: idOrderPost.value,
         ServiceType: 1,
@@ -4960,7 +4985,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" v-if="type == 'add'" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" v-if="type == 'add' || type == ':type'" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -5178,7 +5203,7 @@ onBeforeMount(async () => {
           <!-- Không thay đổi giá -->
           <div
             v-if="
-              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5225,7 +5250,7 @@ onBeforeMount(async () => {
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >

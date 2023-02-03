@@ -128,7 +128,7 @@ const infomation = [
         <el-table-column prop="productName" min-width="150" :label="t('formDemo.commodityName')" align="center" />
         <el-table-column prop="accessory" :label="t('reuse.accessory')" align="center" />
         <el-table-column prop="quantity" :label="t('reuse.quantity')" align="center" />
-        <el-table-column prop="unitName" :label="t('reuse.unitName')" align="center" />
+        <el-table-column prop="unitName" :label="t('reuse.unitNamePawn')" align="center" />
       </el-table>
     </div>
 

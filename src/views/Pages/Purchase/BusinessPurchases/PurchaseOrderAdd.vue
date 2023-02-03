@@ -2326,16 +2326,6 @@ const getExportPrice = () => {
 
 const listOfOrderProduct = ref()
 const openDialogReturnOrder = () => {
-  // listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-  //   productCode: row.productCode,
-  //   productPropertyCode: row.productPropertyCode,
-  //   productPropertyName: row.productPropertyName,
-  //   productPropertyId: row?.productPropertyId,
-  //   accessory: row.accessory,
-  //   quantity: row.quantity,
-  //   unitPrice: row.unitPrice,
-  //   totalPrice: row.totalPrice
-  // }))
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
   typeButtonReturn.value = 1

@@ -401,7 +401,7 @@ const adminList = [
             },
             children: [
               {
-                path: `${utility}/:type?/:id?`,
+                path: `collaboratorsList/:type?/:id?/:approvalId?`,
                 name: `business.collaborators.collaboratorsList.${utility}`,
                 component: 'views/Pages/Business/Collaborators/CollaboratorsAdd',
                 meta: {
@@ -1121,7 +1121,7 @@ const adminList = [
         children: [
           {
             path: 'user-account',
-            component: 'views/Pages/Approval/Accounts/index',
+            component: 'views/Pages/Approval/Accounts/ApprovalUserAccount',
             name: 'approve.accounts-approval.user-account',
             meta: {
               title: 'router.userAccount'
@@ -1129,7 +1129,7 @@ const adminList = [
           },
           {
             path: 'collaborator-account',
-            component: 'views/Pages/Approval/Accounts/index',
+            component: 'views/Pages/Approval/Accounts/ApprovalCollaborators',
             name: 'approve.accounts-approval.collaborator-account',
             meta: {
               title: 'router.collaboratorAccount'
@@ -1424,7 +1424,7 @@ const testList: string[] = [
 
   '/business/collaborators',
   '/business/collaborators/collaboratorsList',
-  '/business/collaborators/collaboratorsAdd/:type?/:id?',
+  '/business/collaborators/collaboratorsList/:type?/:id?/:approvalId?',
   '/business/collaborators/paymentRequest',
   '/business/collaborators/paymentRequestAdd/:type?/:id?',
 

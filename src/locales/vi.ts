@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     informationProductExtend: 'Thông tin sản phẩm gia hạn',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',

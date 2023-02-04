@@ -64,13 +64,13 @@ import {
   updateStatusOrder,
   updateOrderInfo,
   getListWareHouse,
-  postAutomaticWarehouse,
   cancelOrder,
   finishStatusOrder,
   approvalOrder,
   getReturnRequestForOrder,
   GetWarehouseTransaction,
-  getAllStaffList
+  getAllStaffList,
+  updateSpaService
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -188,6 +188,11 @@ type Options = {
   value: number
   label: string
 }
+type SpaService = {
+  value: number
+  label: string
+  price: number
+}
 interface ListOfProductsForSaleType {
   name: string
   productCode: string
@@ -196,7 +201,7 @@ interface ListOfProductsForSaleType {
   productPropertyName: string
   id: string
   productPropertyId: string | number | any
-  spaServices: Options[]
+  spaServices: SpaService[]
   amountSpa: number
   quantity: number
   accessory: string | undefined
@@ -226,7 +231,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: [{ value: 0, label: '' }],
+  spaServices: [{ value: 0, label: '',price:0 }],
   amountSpa: 2,
   productPropertyId: undefined,
   quantity: 1,
@@ -250,13 +255,6 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: number | undefined
-//   accessory: string | undefined
-//   spaServiceIds: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref(0)
 let totalFinalOrder = ref(0)
 // Total order
@@ -368,7 +366,6 @@ const getValueOfCustomerSelected = (value, obj) => {
 //call api kho
 const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
-// const locationOptions = ref()
 let callAPIWarehouseTimes = 0
 const callAPIWarehouse = async () => {
   if (callAPIWarehouseTimes == 0) {
@@ -550,7 +547,8 @@ const handleSelectionChange = (val: tableDataType[]) => {
 const handleSelectionChange2 = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
     label: e.spaServiceName,
-    value: e.id
+    value: e.id,
+    price: e.price
   }))
 
   newTable.value = val
@@ -569,6 +567,24 @@ const getPriceSpaService = () => {
     index: currentRow2.value,
     value: spaTableRef.value!.getSelectionRows()
   })
+
+  if (type == 'add') {
+    priceChangeSpa.value = true
+    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+    arrayStatusOrder.value.push({
+      orderStatusName: 'Duyệt giá thay đổi',
+      orderStatus: STATUS_ORDER_SPA[9].orderStatus,
+      isActive: true
+    })
+    statusOrder.value = STATUS_ORDER_SPA[9].orderStatus
+  }
+
+  if(type == 'detail'){
+    changePriceSpa.value = false
+    priceChangeSpa.value = false
+    editButton.value = false
+  }
+  doubleDisabled.value = true
 }
 let promoValue = ref(0)
 let promoCash = ref(0)
@@ -876,7 +892,9 @@ const optionsApiServicesSpa = ref()
 
 const currentRow2 = ref(0)
 const countSpaClick = ref(0)
+const spaChange = ref(true)
 const callApiServicesSpa = async (scope) => {
+  spaChange.value = false
   indexSpa.value = scope.$index
   if (scope.row.productPropertyId) {
     dialogFormSettingServiceSpa.value = true
@@ -889,7 +907,8 @@ const callApiServicesSpa = async (scope) => {
     optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
       id: product.id,
       value: product.price,
-      name: product.spaServiceName
+      name: product.spaServiceName,
+      price: product.price
     }))
     currentRow2.value = scope.$index
     if (countSpaClick.value > 1 && res.data.length > 0) {
@@ -1045,15 +1064,14 @@ let orderDetailsTable = reactive([{}])
 
 let idLotData = ref(0)
 const closeDialogWarehouse = (warehouseData) => {
-  idLotData.value = 0
   if (warehouseData != null) {
+    idLotData.value = 0
     ListOfProductsForSale.value[currentRowWHTrans.value].locationLot = warehouseData.location
     ListOfProductsForSale.value[currentRowWHTrans.value].lotName = warehouseData?.lot.lotCode
     ListOfProductsForSale.value[currentRowWHTrans.value].idLot = warehouseData?.lot.idLot
+    idLotData.value = warehouseData?.lot.idLot
   }
   dialogWarehouse.value = false
-
-  idLotData.value = warehouseData?.lot.idLot
 }
 
 const resIdPostOrder = ref()
@@ -1136,32 +1154,13 @@ const postData = async (pushBack: boolean) => {
   }
   // get data
   resIdPostOrder.value = res
-  valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
 
   if (clickStarSpa.value == true) {
-    startSpaProcess()
+    addStatusOrder(5)
   }
 }
 
 const clickStarSpa = ref(false)
-const startSpaProcess = async () => {
-  const payload = {
-    OrderId: resIdPostOrder.value,
-    ServiceType: 5,
-    OrderStatus: 5
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-}
-// nhập kho auto
-const warehouseTranferAuto = async (type) => {
-  const payload = {
-    OrderId: resIdPostOrder.value,
-    Type: type
-  }
-
-  await postAutomaticWarehouse(JSON.stringify(payload))
-}
 
 const form = reactive({
   name: '',
@@ -1297,7 +1296,6 @@ const submitForm = async (
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       postData(pushBack)
-      // doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
@@ -1951,17 +1949,6 @@ const priceChangeSpa = ref(false)
 const changePriceSpaService = (data) => {
   const indexRow = data.row
   changePriceSpa.value = true
-  if (type == 'add') {
-    priceChangeSpa.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_SPA[9].orderStatus,
-      isActive: true
-    })
-  }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_SPA[9].orderStatus
   indexRow.totalPrice = indexRow.unitPrice * indexRow.quantity
 }
 
@@ -2022,9 +2009,11 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value.push(STATUS_ORDER_SPA[index])
   statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
+  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, (id==0||isNaN(id)) ?resIdPostOrder.value:id)
 }
-
+const addStatusOrderByStatusValue = (statusValue) => {
+  addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
+}
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
   // 13 hoàn thành đơn hàng
@@ -2259,7 +2248,6 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   remainingMoney.value = formAccountingId.value.accountingEntry?.deibt
-  // paidMoney.value = formAccountingId.value?.paidMoney
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
   if (num == 1) {
     dialogBillSpaInfomation.value = true
@@ -2369,7 +2357,6 @@ const changeEditInDetail = () => {
         type: 'edit',
         tab: tab,
         id: id
-        // approvalId: data.id
       }
     })
   }
@@ -2543,7 +2530,7 @@ const postReturnRequest = async (reason) => {
     returnDetailType: 7,
     unitPrice: 0,
     totalPrice: 0,
-    isSpa: true
+    isSpa: e?.isSpa
   }))
 
   const payload = {
@@ -2562,7 +2549,33 @@ const postReturnRequest = async (reason) => {
   }
 
   await createReturnRequest(payload)
+  let ISSPA = true
+  rentReturnOrder.value.tableData.forEach((row)=>{
+    if(row.isSpa == false){
+      ISSPA = false
+    }
+  })
+  ISSPA 
+  ? addStatusOrder(6) //Ko duyệt
+  : addStatusOrder(10) // Duyệt trả hàng spa
 }
+
+//Truong ngo SPA :(
+  const thayDoiDichVuSpa = async () =>{
+    console.log('ListOfProductsForSale', ListOfProductsForSale)
+    const payload = {
+      id: id,
+      orderDetails: ListOfProductsForSale.value.map((row)=>({
+        id: row.id,
+        spaServices: row.spaServices.map((spa)=>({
+          id:spa.value,
+          price:spa.price
+        })),
+        totalPrice: row.totalPrice
+      }))
+    }
+    await updateSpaService(JSON.stringify(payload))
+  }
 </script>
 
 <template>
@@ -3615,7 +3628,8 @@ const postReturnRequest = async (reason) => {
 
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
-                    :disabled="checkDisabled3"
+                    :disabled="statusOrder !== STATUS_ORDER_SPA[5].orderStatus &&
+                  statusOrder !== STATUS_ORDER_SPA[7].orderStatus"
                     text
                     border
                     @click="
@@ -4059,12 +4073,14 @@ const postReturnRequest = async (reason) => {
                 @click="
                   () => {
                     addStatusOrder(8)
+                    thayDoiDichVuSpa()
                   }
                 "
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus
                 "
+                :disabled="spaChange"
                 type="warning"
                 class="min-w-42 min-h-11"
               >
@@ -4156,7 +4172,7 @@ const postReturnRequest = async (reason) => {
                 type="warning"
                 @click="
                   () => {
-                    addStatusOrder(7)
+                    addStatusOrderByStatusValue(arrayStatusOrder[arrayStatusOrder.length - 2].orderStatus)
                   }
                 "
                 class="min-w-42 min-h-11"

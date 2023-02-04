@@ -664,6 +664,12 @@ export const cancelOrder = async (data): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// // cancel yêu cầu đổi trả
+// export const cancelReturnOrder = async (data): Promise<IResponse> => {
+//   const res = await request.put({ url: `${ORDER_API.CANCEL_ORDER}`, data }, fixedBaseURL)
+//   return res.data && res.data.data
+// }
+
 //hoàn thành yêu cầu đổi trả
 export const finishReturnOrder = async (data): Promise<IResponse> => {
   const res = await request.put({ url: `${ORDER_API.FINISH_RETURN_REQUEST}`, data }, fixedBaseURL)
@@ -1047,6 +1053,16 @@ export const deletePointExchange = async (params: any): Promise<IResponse> => {
   const res = await request.delete(
     {
       url: `${POINT_API.CANCEL_POINT_EXCHANGE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateSpaService = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.UPDATE_SPA_SERVICE,
+      data: params
     },
     fixedBaseURL
   )

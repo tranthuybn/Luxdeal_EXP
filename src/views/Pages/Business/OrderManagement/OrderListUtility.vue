@@ -367,11 +367,13 @@ interface ListOfProductsForSaleType {
   accessory: string | undefined
   unitName: string
   unitPrice: string | number | undefined
+  originalPrice?: number
   totalPrice: string
   paymentType: string
   warehouseId: number | undefined
   warehouseTotal?: number | any
   warehouseName: string
+  priceChange?: boolean
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -655,28 +657,16 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
+    data.priceChange = false
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
+    data.originalPrice = data.unitPrice
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
-    ListOfProductsForSale.value.map((val) => {
-      if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-    })
-    promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-      : (totalFinalOrder.value =
-          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-
-    if (radioVAT.value.length < 4) {
-      VAT.value = true
-      valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-      if (totalFinalOrder.value) {
-        totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-      }
-    }
+    changePriceRowTable(scope, true)
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
@@ -1221,6 +1211,14 @@ const automaticCouponWareHouse = async (index) => {
   await postAutomaticWarehouse(payload)
 }
 
+// Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
+const backToListOrder = () => {
+  router.push({
+    name: 'business.order-management.order-list',
+    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  })
+}
+
 // total order
 let totalOrder = ref(0)
 
@@ -1229,7 +1227,7 @@ const router = useRouter()
 let id: any = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(route.params.tab)
-const type = String(route.params.type)
+let type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 
 let dataEdit = ref()
@@ -1307,7 +1305,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
@@ -1377,9 +1375,9 @@ const openAcountingEntryDialog = async (index, num) => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1697,21 +1695,44 @@ let statusOrder = ref(2)
 
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = (props, checkRechangeProduct) => {
   const data = props.row
-  priceChangeOrders.value = true
-  if (type == 'add') {
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_SELL[1].orderStatus,
-      isActive: true
-    })
-  }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
-  data.totalPrice = data.unitPrice * data.quantity
+  data.totalPrice = data.unitPrice * parseInt(data.quantity)
+  if (checkRechangeProduct) data.priceChange = true
+  if (data.originalPrice != data.unitPrice && !data.priceChange) {
+    priceChangeOrders.value = true
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_SELL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
+  } else if (data.originalPrice == data.unitPrice && data.priceChange) {    
+    if (!checkRechangeProduct || (checkRechangeProduct && countProductChangePrice.value == 1)) countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_SELL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_SELL[2].orderStatus
+    }    
+  }  
+  autoCalculateOrder()
 }
 
 interface statusOrderType {
@@ -1723,7 +1744,7 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -2458,14 +2479,26 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
+    if (type == 'add' || type == ':type') {
+      let payload = {
+        OrderId: idOrderPost.value,
+        ServiceType: 1,
+        OrderStatus: typeState
+      }
+      // @ts-ignore
+      submitForm(ruleFormRef, ruleFormRef2)
+      updateStatusOrder(FORM_IMAGES(payload))
+    } else {
+      let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
+      await updateStatusOrder(FORM_IMAGES(paylpad))
+      reloadStatusOrder()
+    }
   }
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+// Duyệt đơn hàng
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -4896,7 +4929,7 @@ onBeforeMount(async () => {
                 v-if="type != 'detail'"
                 @change="
                   () => {
-                    changePriceRowTable(props)
+                    changePriceRowTable(props, false)
                     autoCalculateOrder()
                   }
                 "
@@ -4955,7 +4988,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" v-if="type == 'add'" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" v-if="type == 'add' || type == ':type'" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -5173,7 +5206,7 @@ onBeforeMount(async () => {
           <!-- Không thay đổi giá -->
           <div
             v-if="
-              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5204,12 +5237,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.completeOrder') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  checkDisabled = !checkDisabled
-                }
-              "
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5220,7 +5248,7 @@ onBeforeMount(async () => {
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5244,7 +5272,7 @@ onBeforeMount(async () => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5420,10 +5448,10 @@ onBeforeMount(async () => {
             >
           </div>
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+            <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>

@@ -10,6 +10,7 @@ import {
   ElDatePicker,
   ElSelect,
   ElOption,
+ElNotification,
   ElMessage
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -17,6 +18,7 @@ import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -64,16 +66,36 @@ const props = defineProps({
   statusActive: {
     type: Number,
     default: 0
+  },
+  statusApproval: {
+    type: Number,
+    default: 0
+  },
+  dateApproval: {
+    type: String,
+    default: ''
+  },
+  detailExpand: {
+    type: Object,
+    default: () => {}
+  },
+  doneExpand: {
+    type: Boolean,
+    default: false
+  },
+  cancelExpend: {
+    type: Boolean,
+    default: false
   }
 })
 
 const optionsTinhTrang = [
   {
-    value: 1,
+    value: true,
     label: 'Đã spa'
   },
   {
-    value: 2,
+    value: false,
     label: 'Không spa'
   }
 ]
@@ -84,7 +106,8 @@ const emit = defineEmits([
   'post-return-request',
   'extend-date',
   'remove-row',
-  'update-status'
+  'update-status',
+  'cancel-expend'
 ])
 type Product = {
   productCode: string
@@ -113,12 +136,33 @@ const postReturnRequest = async (orderStatusType) => {
   emit('update:modelValue', false)
   emit('update-status')
 }
+const postReturnRequestSpa = async (orderStatusType) => {
+  let chooseSpa = true
+  props.orderData.tableData.forEach((row)=>{
+    if(!row.isSpa){
+      chooseSpa = false
+    }
+  })
+  if(chooseSpa){
+  emit('post-return-request', orderStatusType)
+  emit('update:modelValue', false)}
+  else{
+    ElNotification({
+        title: 'Info',
+        message: 'Bạn vui lòng tình trạng sản phẩm nhé!',
+        type: 'info'
+      })}
+}
 
 const donePaymentRequest = async (orderStatusType) => {
-  console.log('data', props.orderId, props.orderData)
-  emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
-  emit('update-status')
+  emit('update-status', orderStatusType)
+}
+
+const cancelPaymentRequest = async (orderStatusType) => {
+  emit('update:modelValue', false)
+  emit('cancel-expend')
+  emit('update-status', orderStatusType)
 }
 
 const disableCheck = ref(false)
@@ -132,8 +176,6 @@ const removeRow = (scope) => {
   }
   emit('remove-row', scope.$index)
 }
-const tableListReturnAheadOfTime = ref(props.listProductsTable)
-console.log('tableListReturnAheadOfTime: ', tableListReturnAheadOfTime.value)
 
 interface tableReturnType {
   productPropertyId: number | undefined
@@ -168,7 +210,7 @@ const updateValueTable = (_value, obj, scope) => {
   )
   if (duplicateProduct.value) {
     duplicateProductMessage()
-  } else if(!data.selected) {
+  } else if(!data?.selected) {
       data.productPropertyId = obj?.productPropertyId
       data.productPropertyName = obj?.name
       data.maximumQuantity = obj?.maximumQuantity
@@ -180,13 +222,39 @@ watch(
   () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
   () => {
     if (
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].productPropertyName &&
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].quantity 
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.productPropertyName &&
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.quantity 
+      && !props?.doneExpand && !props?.cancelExpend
     )
     addRowTable()
   },
   {
     deep: true
+  }
+)
+const statusApprovalExpand = ref()
+
+// Trạng thái duyệt trả hàng trước hạn được duyệt
+watch(
+  () => statusApprovalExpand,
+  () => {
+    if (statusApprovalExpand.value == STATUS_ORDER_RENTAL[4].orderStatus) approvalAtStatus.value = props?.dateApproval
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => props?.detailExpand,
+  () => {
+    if (props?.doneExpand && props?.detailExpand || props?.cancelExpend && props?.detailExpand) tableAheadOfTime.value = props?.detailExpand.map((val) => ({
+    productPropertyId: val?.productPropertyId,
+    productPropertyName: val?.productPropertyName,
+    accessory: val?.accessory,
+    quantity: val?.quantity,
+    conditionProducts: val?.description
+  }))
   }
 )
 
@@ -195,7 +263,9 @@ const createAtStatus = ref(new Date())
 const approvalAtStatus = ref()
 
 onBeforeMount(()=>{
-  addRowTable()
+  statusApprovalExpand.value = props?.statusApproval
+  if (!props?.doneExpand) addRowTable()
+
 })
 
 </script>
@@ -253,7 +323,7 @@ onBeforeMount(()=>{
 
         <div class="flex-1 flex items-start gap-4">
           <span>
-            <div>Mã QR đơn hàng</div>
+            <div class="text-right">Mã QR đơn hàng</div>
             <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
           </span>
 
@@ -300,7 +370,8 @@ onBeforeMount(()=>{
         <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="300">
           <template #default="scope">
             <MultipleOptionsBox
-              :defaultValue="scope.row.productPropertyId"
+              :defaultValue="scope.row?.productPropertyId"
+              v-if="!props?.doneExpand && !props?.detailExpand"
               :fields="[
                 t('reuse.productCode'),
                 t('reuse.managementCode'),
@@ -316,6 +387,7 @@ onBeforeMount(()=>{
               :clearable="false"
               @update-value="(value, obj) => updateValueTable(value, obj, scope)"
             />
+            <div v-else>{{scope.row?.productPropertyName}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -325,27 +397,31 @@ onBeforeMount(()=>{
           width="350"
         >
           <template #default="scope">
-            {{ scope.row.productPropertyName }}
+            {{ scope.row?.productPropertyName }}
           </template>
         </el-table-column>
         <el-table-column prop="accessory" :label="t('reuse.accessory')">
           <template #default="scope">
-            <el-input v-if="statusActive == 2" v-model="scope.row.accessory" />
-            <p v-else>{{ scope.row.accessory }}</p>
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.accessory" />
+            <p v-else>{{ scope.row?.accessory }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
             <el-input
+            v-if="!props?.doneExpand && !props?.detailExpand"
               v-model="scope.row.quantity"
               type="number"
+              :min="0"
               :max="scope.row.maximumQuantity"
             />
+            <div v-else>{{ scope.row.quantity }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <el-input v-model="scope.row.conditionProducts" />
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.conditionProducts" />
+            <div v-else>{{ scope.row.conditionProducts }}</div>
           </template>
         </el-table-column>
       </el-table>
@@ -370,7 +446,7 @@ onBeforeMount(()=>{
               <span
                 class="box box_1 text-yellow-500 dark:text-black active"
               >
-              {{ t('reuse.initializeAndWrite') }}
+              {{ t('formDemo.approvedReturnAHeadOfTime') }}
                 <span class="triangle-right right_1"> </span>
               </span>
             </div>
@@ -381,26 +457,31 @@ onBeforeMount(()=>{
           <label class="w-[30%]"></label>
           <div class="w-[100%] flex gap-22">
             <div class="">{{ dateTimeFormat(createAtStatus) }}</div>
-            <div>{{ dateTimeFormat(approvalAtStatus) }}</div>
+            <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus">{{ dateTimeFormat(approvalAtStatus) }}</div>
           </div>
-      <!-- <p class="text-transparent">s</p> -->
       </div>
       
     </div>
 
     <template #footer>
       <div class="flex justify-end">
-        <div>
-          <el-button type="primary" @click="postReturnRequest(3)">{{
+        <div v-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus">
+          <el-button class="min-w-36 min-h-11" type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
-        <div v-if="statusActive == 3">
-          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(2)"
+        <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus && !props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)"
             >Hoàn thành trả hàng</el-button
           >
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div v-if="props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)"
+            >Hủy trả hàng</el-button
+          >
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>
@@ -636,7 +717,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -767,7 +848,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -893,7 +974,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1035,7 +1116,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input-number v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input-number v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1206,7 +1287,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1244,7 +1325,7 @@ onBeforeMount(()=>{
       </div>
     </template>
   </el-dialog>
-  <!-- Chưa có người xử lí dữ liệu trên bảng Spa... Ko có dữ liệu để tuyền ... Ko làm được -->
+  <!-- 8,Trả hàng Spa -->
   <el-dialog
     width="45%"
     align-center
@@ -1288,6 +1369,7 @@ onBeforeMount(()=>{
       <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
     </div>
     <div class="pt-2 pb-2">
+      {{ orderData?.tableData }}
       <el-table ref="singleTableRef" :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" width="280">
@@ -1324,13 +1406,12 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="type" :label="t('reuse.type')">
           <template #default="scope">
-            <!-- <el-input v-model="scope.row.type" class="text-right" /> -->
             {{ scope.row.type }}
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" />
+            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.quantity :min="0" />
           </template>
         </el-table-column>
         <el-table-column
@@ -1338,14 +1419,16 @@ onBeforeMount(()=>{
           :label="t('formDemo.conditionProducts')"
           width="130"
         >
-          <el-select v-model="optionsTinhTrang[0].value">
+        <template #default="scope">
+          <el-select v-model="scope.row.isSpa">
             <el-option
               v-for="item in optionsTinhTrang"
-              :key="item.value"
+              :key="item.label"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
+        </template>
         </el-table-column>
       </el-table>
     </div>
@@ -1369,7 +1452,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequest(8)"
+          <el-button type="primary" class="min-w-42 min-h-11" @click="postReturnRequestSpa(8)"
             >Lưu & ghi phiếu trả hàng</el-button
           >
           <el-button @click="close" class="min-w-30 min-h-11">{{ t('reuse.exit') }}</el-button>

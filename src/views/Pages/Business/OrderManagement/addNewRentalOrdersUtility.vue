@@ -67,7 +67,9 @@ import {
   finishStatusOrder,
   updateStatusOrder,
   approvalOrder,
-  cancelOrder
+  cancelOrder,
+  getReturnRequestForOrder,
+  cancelReturnOrder
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -386,6 +388,8 @@ interface tableRentalProduct {
   unitName: string
   intoARentalDeposit: string
   warehouseTotal?: number
+  originalPrice?: number
+  priceChange?: boolean
   id: string
 }
 
@@ -434,9 +438,9 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -1296,7 +1300,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     tableData.value.push({ ...productForSale })
   }
 }
@@ -1310,25 +1314,19 @@ const getValueOfSelected = async (value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
-
-  if (duplicateProduct.value) {
+  if (duplicateProduct.value ) {    
     duplicateProductMessage()
-  } else {
+  } else if (!dateRangePrice.value) ElMessage.error('Vui lòng chọn thời gian thuê trước')
+   else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {
       totalPriceOrder.value = 0
       totalFinalOrder.value = 0
       totalDeposit.value = 0
-
-      let start = moment(data.fromDate, 'YYYY-MM-DD')
-      let end = moment(data.toDate, 'YYYY-MM-DD')
-
-      //Difference in number of days
-      let day = moment.duration(start.diff(end)).asDays() * -1
-      let days = Math.ceil(day / ruleForm.leaseTerm)
 
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
@@ -1337,26 +1335,11 @@ const getValueOfSelected = async (value, obj, scope) => {
         ruleForm.leaseTerm
       )
       data.hirePrice = objPrice.price
+      data.originalPrice = objPrice.price
       data.depositePrice = objPrice.deposite * data.quantity
-      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
-      tableData.value.map((val) => {
-        if (val.totalPrice) totalPriceOrder.value += val.totalPrice
-        if (val.depositePrice) totalDeposit.value += val.depositePrice
-      })
-      promoCash.value != 0
-        ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
-        : (totalFinalOrder.value =
-            totalPriceOrder.value -
-            (totalPriceOrder.value * promoValue.value) / 100 +
-            totalDeposit.value)
-
-      if (radioVAT.value.length < 4) {
-        VAT.value = true
-        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-        if (totalFinalOrder.value) {
-          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-        }
-      }
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * dateRangePrice.value
+      
+      changePriceRowTable(scope, true)
       // add new row
       if (scope.$index == tableData.value.length - 1) {
         tableData.value.push({ ...productForSale })
@@ -1378,12 +1361,6 @@ const handleGetTotal = async (_value, props) => {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    let start = moment(data.fromDate, 'YYYY-MM-DD')
-    let end = moment(data.toDate, 'YYYY-MM-DD')
-
-    //Difference in number of days
-    let day = moment.duration(start.diff(end)).asDays() * -1
-    let days = Math.ceil(day / ruleForm.leaseTerm)
 
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
@@ -1392,8 +1369,10 @@ const handleGetTotal = async (_value, props) => {
       ruleForm.leaseTerm
     )
     data.hirePrice = objPrice.price
+    data.originalPrice = objPrice.price
+    data.priceChange = false
     data.depositePrice = objPrice.deposite * data.quantity
-    data.totalPrice = data.hirePrice * data.quantity * days
+    data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
     tableData.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += val.totalPrice
       if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -1690,26 +1669,50 @@ const autoChangeAddress = () => {
 }
 
 // Trạng thái đơn hàng cho thuê
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = (props, checkRechangeProduct) => {
   const data = props.row
-  if (type == 'add') {
+  data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
+  if (checkRechangeProduct) data.priceChange = true
+
+  if (data.originalPrice != data.hirePrice && !data.priceChange ) {
     priceChangeOrders.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
-      isActive: true
-    })
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
+  } else if (data.originalPrice == data.hirePrice && data.priceChange ) {    
+    if (!checkRechangeProduct || (checkRechangeProduct && countProductChangePrice.value == 1)) countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_RENTAL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_RENTAL[2].orderStatus
+    }    
   }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
-  data.totalPrice = data.hirePrice * data.quantity
+  
   autoCalculateOrder()
 }
 
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -1857,15 +1860,15 @@ const getReturnRequestTable = async () => {
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
-      createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
-      productPropertyName: e.productPropertyName,
-      accessory: e.accessory,
-      quantity: e.quantity,
-      unitName: e.unitName,
-      returnDetailType: e.returnDetailType,
-      returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      createdAt: e?.returnRequestInfo?.createdAt ?? '',
+      productPropertyId: e?.productPropertyId,
+      productPropertyName: e?.productPropertyName,
+      accessory: e?.accessory,
+      quantity: e?.quantity,
+      unitName: e?.unitName,
+      returnDetailType: e?.returnDetailType,
+      returnDetailTypeName: e?.returnDetailTypeName,
+      returnDetailStatusName: e?.returnDetailStatusName
     }))
   }
 }
@@ -2172,16 +2175,59 @@ const listOfOrderProduct = ref()
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
+// call api bảng trả hàng trước hạn và hết hạn
+const objReturnRequestInfo = ref()
+const callApiReturnRequestForOrder = async() => {
+  const res = await getReturnRequestForOrder({CustomerOrderId: id})
+  objReturnRequestInfo.value = res?.data[res?.data.length-1].returnRequestInfo
+  await callApiDetailReturnExpand()
+}
+
+const detailExpand = ref()
+const doneExpand = ref(false)
+const cancelExpend = ref(false)
+const callApiDetailReturnExpand = async() => {
+  const res = await getReturnRequest({ CustomerOrderId: id, ReturnRequestId: objReturnRequestInfo.value.id})
+  detailExpand.value = res.data[0].nhapDetails
+}
+
+// Hủy trả hàng trước hạn
+const cancelExpendReturn = async() => {
+  cancelExpend.value = false
+  detailExpand.value = false
+  doneExpand.value = false
+  const payload = {
+    OrderId: id
+  }
+  await cancelReturnOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
 // Trả hàng trước hạn
-const updateStatusReturnAheadOfTime = () => {
-  console.log('updateStatusOrders')
+const updateStatusReturnAheadOfTime = (index) => {
+  statusOrder.value = index
 }
 
 const openDialogReturnAheadOfTime = () => {
   setDataForReturnOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Hoàn thành trẩ hàng
+const openDialogReturnAheadTime = () => {
+  doneExpand.value = true
+  setDataForReturnOrder()
+  callApiReturnRequestForOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Hủy trả hàng
+const openDialogCancelReturn = () => {
+  cancelExpend.value = true
+  setDataForReturnOrder()
+  callApiReturnRequestForOrder()
   dialogReturnAheadOfTime.value = true
 }
 
@@ -2212,7 +2258,7 @@ const setDataForReturnOrder = () => {
     maximumQuantity: el.quantity,
     value: el?.productCode
   }))
-  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
   rentReturnOrder.value.period = ruleForm?.rentalPeriod
   rentReturnOrder.value.name = infoCompany?.name
@@ -2228,7 +2274,7 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     scope?.pop()
     tableReturnPost = scope?.map((e) => ({
     productPropertyId: parseInt(e?.productPropertyId),
-    quantity: e?.quantity,
+    quantity: parseInt(e?.quantity),
     accessory: e?.accessory,
     returnDetailType: reason,
     description: e.conditionProducts
@@ -2389,13 +2435,13 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
+const dateRangePrice = ref()
 const changeDateRange = (data) => {
   tableData.value.forEach((el) => {
     el.fromDate = data[0]
     el.toDate = data[1]
   })
   if (tableData.value?.length) {
-    if (tableData.value[0].productPropertyId) {
       let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
       let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
 
@@ -2403,11 +2449,11 @@ const changeDateRange = (data) => {
       let day = moment.duration(start.diff(end)).asDays() * -1
       let days = Math.ceil(day / ruleForm.leaseTerm)
 
+      dateRangePrice.value = days
       tableData.value.map((val) => {
         val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
       })
       autoCalculateOrder()
-    }
   }
 }
 
@@ -2511,7 +2557,7 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
+    if (type == 'add' || type == ':type') {
       let payload = {
         OrderId: idOrderPost.value,
         ServiceType: 3,
@@ -2533,8 +2579,8 @@ const { push } = useRouter()
 const approvalId = String(route.params.approvalId)
 const tab = String(route.params.tab)
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -2602,13 +2648,21 @@ const editOrder = () => {
 // Gia hạn thuê
 const dialogLeaseExtension = ref(false)
 
+// Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
+const backToListOrder = () => {
+  router.push({
+    name: 'business.order-management.order-list',
+    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  })
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
   editData()
   callApiWarehouseList()
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
@@ -3906,9 +3960,16 @@ onBeforeMount(() => {
       <!-- Thông tin trả hàng trước hạn -->
       <ReturnOrder
         v-model="dialogReturnAheadOfTime"
+        v-if="dialogReturnAheadOfTime"
         :orderId="id"
         :orderData="rentReturnOrder"
+        :detailExpand="detailExpand"
         :listProductsTable="getListProduct"
+        :statusApproval="arrayStatusOrder[arrayStatusOrder.length - 1]?.orderStatus"
+        :dateApproval="arrayStatusOrder[arrayStatusOrder.length - 1]?.approvedAt"
+        :doneExpand="doneExpand"
+        :cancelExpend="cancelExpend"
+        @cancel-expend="cancelExpendReturn"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
@@ -3916,6 +3977,7 @@ onBeforeMount(() => {
         :orderStatusType="3"
         :type="2"
       />
+      <!-- :statusApprovalDialog="arrayStatusOrder[arrayStatusOrder.length-1].orderStatus" -->
 
       <!-- Thông tin trả hàng hết hạn -->
       <ReturnOrder
@@ -4054,7 +4116,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select
                   v-model="ruleForm.leaseTerm"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   @change="recalculatePrice"
                   placeholder="Select"
                   clearable
@@ -4070,7 +4132,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.rentalPeriod')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   type="daterange"
                   unlink-panels
                   @change="changeDateRange"
@@ -4764,7 +4826,7 @@ onBeforeMount(() => {
                 v-model="props.row.hirePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.hirePrice != ''
@@ -4794,7 +4856,7 @@ onBeforeMount(() => {
                 v-model="props.row.depositePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.depositePrice != ''
@@ -4835,7 +4897,7 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button v-if="type == 'add'" class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button v-if="type == 'add' || type == ':type'" class="ml-4 mt-4" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -4970,7 +5032,7 @@ onBeforeMount(() => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus
@@ -5062,7 +5124,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
               !priceChangeOrders &&
-              type == 'add'
+              type == 'add' ||
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              !priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5093,7 +5158,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5105,7 +5170,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
               priceChangeOrders &&
-              type == 'add'
+              type == 'add' || 
+              statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
+              priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5133,7 +5201,7 @@ onBeforeMount(() => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5253,7 +5321,10 @@ onBeforeMount(() => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              @click="() => {
+                getReturnRequestTable()                  
+                openDialogCancelReturn()
+              }"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
@@ -5267,16 +5338,18 @@ onBeforeMount(() => {
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  dialogReturnAheadOfTime = true
-                  getReturnRequestTable()
-                  statusOrder = 120
+                  getReturnRequestTable()                  
+                  openDialogReturnAheadTime()
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.completePayment') }}</button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_RENTAL[5].orderStatus"
+              @click="() => {
+                getReturnRequestTable()                  
+                openDialogCancelReturn()
+              }"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancelReturns') }}</el-button
@@ -5365,12 +5438,12 @@ onBeforeMount(() => {
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <button
               :disabled="statusButtonDetail"
-              @click="approvalFunction"
+              @click="approvalFunction(true)"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >Duyệt</button
             >
             <el-button
-              @click="openDepositDialog"
+              @click="approvalFunction(false)"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >Không duyệt</el-button

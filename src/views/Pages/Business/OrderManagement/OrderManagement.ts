@@ -493,18 +493,24 @@ export const depositOrder = [
     filters: filterDeposit
   },
   {
-    field: 'startDate',
+    field: 'fromDate',
     label: t('reuse.startDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
-    field: 'endDate',
+    field: 'toDate',
     label: t('reuse.endDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createdAt',

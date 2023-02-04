@@ -268,7 +268,7 @@ export const STATUS_ORDER_PURCHASE = [
     approvedAt: ''
   },
   {
-    orderStatus: 14,
+    orderStatus: 65,
     orderStatusName: 'Duyệt đổi/trả hàng',
     createdAt: '',
     approvedAt: ''

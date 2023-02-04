@@ -69,7 +69,7 @@ const createNewLot = async () => {
     })
   )
   if (res) {
-    warehouseData.value.lot.value = res.data
+    warehouseData.value.lot = { value: res.data, label: Code }
     warehouseData.value.quantity = warehouseForm.value.quantity
   }
   emit('close-dialog-warehouse', warehouseData.value)
@@ -165,7 +165,7 @@ const warehouseData = ref({
   quantity: 0,
   warehouse: { value: undefined, label: undefined },
   location: { value: undefined, label: undefined },
-  lot: { value: undefined, label: undefined }
+  lot: { value: undefined, label: '' }
 })
 
 const ruleFormRef = ref<FormInstance>()
@@ -231,7 +231,7 @@ watch(
         </el-form-item>
       </div>
     </el-form>
-    <div v-if="orderId == 0">
+    <div v-if="orderId == 0 && transactionType !== 3">
       <div>{{ t('reuse.lotList') }}</div>
       <el-table
         :data="lotData"
@@ -280,7 +280,7 @@ watch(
     <template #footer>
       <span class="dialog-footer">
         <el-button
-          v-if="orderId == 0"
+          v-if="orderId == 0 && transactionType !== 3"
           class="w-[150px]"
           type="primary"
           @click="saveOldLot"

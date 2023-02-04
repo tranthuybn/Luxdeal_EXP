@@ -60,14 +60,15 @@ export const formatTransactionType = (val) => {
 }
 export const formatOrderReturnReason = (val) => {
   switch (val) {
+    
     case 2:
-      return 'Trả hàng trước hạn'
-    case 3:
-      return 'Trả hàng hết hạn'
+    return 'Chuộc hàng trước thời hạn'
+      case 3:
+    return 'Trả hàng trước hạn'
     case 4:
-      return 'Chuộc hàng trước thời hạn'
-    case 5:
-      return 'Chuộc hàng trước hết hạn'
+      return 'Trả hàng hết hạn'
+    case 5: 
+      return 'Gia hạn cho thuê'    
     case 6:
       return 'Đứt hàng'
     case 7:
@@ -76,6 +77,8 @@ export const formatOrderReturnReason = (val) => {
       return 'Trả hàng Spa'
     case 9:
       return 'Gia hạn ký gửi'
+    case 10:
+      return 'Chuộc hàng trước hết hạn'
     default:
       return ''
   }
@@ -142,10 +145,18 @@ export const productStatusTransferToText = (val) => {
   else return `${t('reuse.inactive')}`
 }
 export const collaboratorStatusTransferToText = (val) => {
-  if (val == 0) return `${t('reuse.pending')}`
-  else if (val == 1) return `${t('reuse.active')}`
-  else if (val == 2) return `${t('reuse.inactive')}`
-  return `${t('reuse.lock')}`
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.active')
+    case 2:
+      return t('reuse.inactive')
+    case 3:
+      return t('reuse.lock')
+    default:
+      return ' '
+  }
 }
 export const formatPointSettingType = (val) => {
   switch (val) {

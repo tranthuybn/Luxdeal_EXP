@@ -79,6 +79,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import type { FormInstance, FormRules } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
+import LeaseExtension from './LeaseExtension.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 
@@ -368,6 +369,9 @@ const input = ref('')
 interface tableRentalProduct {
   productPropertyId: string
   productName: string
+  productPropertyName?: string
+  productPropertyCode?: string
+  productCode?: string
   accessory: string
   dateRange: any
   fromDate: any
@@ -771,6 +775,7 @@ const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   totalDeposit.value = 0
+  totalPriceOrder.value = 0
   tableData.value.map((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
     if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -803,16 +808,16 @@ const callApiProductList = async () => {
     PageSize: 20
   })
   if (res.data && res.data?.length > 0) {
-    listProductsTable.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
-      name: product.name ?? '',
-      price: product.price.toString(),
-      productPropertyId: product.id,
-      productPropertyCode: product.productPropertyCode,
-      hirePrice: product.hirePrice,
-      finalPrice: product.finalPrice,
-      depositePrice: product.depositePrice
+    listProductsTable.value = res.data?.map((product) => ({
+      productCode: product?.code,
+      value: product?.productCode,
+      name: product?.name ?? '',
+      price: product?.price.toString(),
+      productPropertyId: product?.id,
+      productPropertyCode: product?.productPropertyCode,
+      hirePrice: product?.hirePrice,
+      finalPrice: product?.finalPrice,
+      depositePrice: product?.depositePrice
     }))
   }
 }
@@ -835,13 +840,13 @@ const ScrollProductBottom = () => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
-                listProductsTable.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
-                  name: product.name ?? '',
-                  price: product.price.toString(),
-                  productPropertyId: product.id,
-                  productPropertyCode: product.productPropertyCode
+                listProductsTable.value?.push({
+                  productCode: product?.code,
+                  value: product?.productCode,
+                  name: product?.name ?? '',
+                  price: product?.price.toString(),
+                  productPropertyId: product?.id,
+                  productPropertyCode: product?.productPropertyCode
                 })
               )
         })
@@ -1536,8 +1541,8 @@ const postQuickCustomer = async () => {
 }
 
 const handleChangeQuickAddProduct = async (data) => {
-  const dataSelectedObj = listProductsTable.value.find(
-    (product) => product.productPropertyId == data
+  const dataSelectedObj = listProductsTable.value?.find(
+    (product) => product?.productPropertyId == data
   )
 
   // call API checkProduct
@@ -2081,13 +2086,16 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? totalFinalOrder.value
         : index == 2
-        ? inputDeposit.value
+        ? totalDeposit.value
         : index == 3
         ? tableAccountingEntry.value[0].receiveMoney
         : 0,
-    paidMoney: tableAccountingEntry.value[0].paidMoney
-      ? tableAccountingEntry.value[0].paidMoney
-      : 0,
+    paidMoney:
+      index == 1
+        ? 0
+        : tableAccountingEntry.value[0].paidMoney
+        ? tableAccountingEntry.value[0].paidMoney
+        : 0,
     deibt: 0,
     typeOfPayment: 0,
     paymentMethods: 1,
@@ -2161,70 +2169,111 @@ const openAcountingEntryDialog = async (index, num) => {
 }
 
 const listOfOrderProduct = ref()
-// const getReturnOrder = () => {
-//   listOfOrderProduct.value = ListOfProductsForSale.value.map((el) => ({
-//     productCode: el.productCode,
-//     productPropertyCode: el.productPropertyCode,
-//     productPropertyName: el.productPropertyName,
-//     productPropertyId: el.productPropertyId,
-//     unitPrice: el.unitPrice,
-//     totalPrice: el.totalPrice,
-//     maximumQuantity: el.quantity
-//   }))
-// }
-// const openAcountingEntryDialog = async (index, num) => {
-//   const res = await getDetailAccountingEntryById({ id: index })
-//   formAccountingId.value = { ...res.data }
-//   tableSalesSlip.value = formAccountingId.value.paidMerchandises
-//   tableAccountingEntry.value = formAccountingId.value.accountingEntry
-//   if (num == 1) dialogRentalPaymentInformation.value = true
-//   else if (num == 2) dialogDepositSlip.value = true
-//   else if (num == 3) dialogAccountingEntryAdditional.value = true
-// }
 // Dialog trả hàng trước hạn
 const dialogReturnAheadOfTime = ref(false)
 
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
 
+// Trả hàng trước hạn
+const updateStatusReturnAheadOfTime = () => {
+  console.log('updateStatusOrders')
+}
+
+const openDialogReturnAheadOfTime = () => {
+  setDataForReturnOrder()
+  dialogReturnAheadOfTime.value = true
+}
+
+// Gia hạn thuê
+const openDialogLeaseExtension = () => {
+  setDataForReturnOrder()
+  dialogLeaseExtension.value = true
+}
+
 //TruongNgo
 const rentReturnOrder = ref({} as any)
+const getListProduct = ref()
 let productArray: any = []
 const setDataForReturnOrder = () => {
-  productArray = tableData.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProductsTable.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
+  productArray = tableData.value?.map((row) => row?.productPropertyId)
+  listOfOrderProduct.value = listProductsTable.value?.filter((item) => {
+    return productArray.includes(item?.productPropertyId)
   })
+  getListProduct.value = tableData.value.map((el) => ({
+    productCode: el.productCode,
+    productPropertyCode: el.productPropertyCode,
+    name: el.productName + ' ' + el.productPropertyName,
+    productPropertyId: el.productPropertyId,
+    depositePrice: el.depositePrice,
+    finalPrice: el.totalPrice,
+    hirePrice: el.hirePrice,
+    price: el.hirePrice,    
+    maximumQuantity: el.quantity,
+    value: el?.productCode
+  }))
   rentReturnOrder.value.orderCode = curDate
-  rentReturnOrder.value.leaseTerm = ruleForm.leaseTerm
-  rentReturnOrder.value.period = ruleForm.rentalPeriod
-  rentReturnOrder.value.name = infoCompany.name
+  rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
+  rentReturnOrder.value.period = ruleForm?.rentalPeriod
+  rentReturnOrder.value.name = infoCompany?.name
   rentReturnOrder.value.customerAddress = customerAddress
-  rentReturnOrder.value.phone = infoCompany.phone
-  rentReturnOrder.value.tableData = tableData.value
+  rentReturnOrder.value.phone = infoCompany?.phone
+  rentReturnOrder.value.tableData = tableData?.value
 }
 // Tạo mới yêu cầu đổi trả
-const postReturnRequest = async (reason) => {
+const postTableExpand = ref()
+const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
   let tableReturnPost = [{}]
-  if (rentReturnOrder.value.tableData.length < 2) {
-    return
-  }
-  rentReturnOrder.value.tableData.pop()
-  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
+  if (reason == 3 || reason == 5) {
+    scope?.pop()
+    tableReturnPost = scope?.map((e) => ({
+    productPropertyId: parseInt(e?.productPropertyId),
+    quantity: e?.quantity,
+    accessory: e?.accessory,
+    returnDetailType: reason,
+    description: e.conditionProducts
+  }))
+  }  
+
+  if (reason == 4) {
+    tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: parseInt(e.productPropertyId),
     quantity: e.quantity,
-    accessory: e.accessory
+    accessory: e.accessory,
+    returnDetailType: reason,
+    description: e.description
   }))
-
+  }
+  
+  if (reason == 5) {
+    postTableExpand.value = tableExpand.map((val) => ({
+      productPropertyId: val.productPropertyId,
+      quantity: val.quantity,
+      accessory: val.accessory,
+      unitPrice: val.hirePrice,
+      totalPrice: val.totalPrice,
+      returnDetailType: reason
+    }))
+  }
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
     name: 'Đổi trả đơn hàng',
     description: formatOrderReturnReason(reason),
-    returnRequestType: 1,
-    details: tableReturnPost
+    returnRequestType: reason,
+    targetDate: dateTime,
+    tienBan: 0,
+    tienHoan: 0,
+    totalPrice: 0,
+    giaHanDetails: reason == 5 ? postTableExpand.value : [],
+    nhapDetails: tableReturnPost,
+    xuatDetails: [],
+    isPaid: true
   }
-  await createReturnRequest(payload)
+  const res = await createReturnRequest(payload)
+  if (res) {
+    reloadStatusOrder()
+  }
 }
 
 const radioWarehouseId = ref()
@@ -2495,7 +2544,7 @@ const approvalFunction = async () => {
 const totalWarehouse = ref()
 const tableWarehouse = ref()
 
-const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => {
+const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 3) => {
   const getTotalPayload = {
     ProductPropertyId: productPropertyId,
     ServiceType: serviceType
@@ -2508,7 +2557,7 @@ const callApiWarehouseTotal = async (productPropertyId = 0, serviceType = 1) => 
 const getTotalWarehouse = () => {
   tableData.value.forEach(async (el) => {
     if (el.productPropertyId)
-      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 1)
+      el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId), 3)
   })
 }
 
@@ -2519,7 +2568,7 @@ const callApiWarehouse = async (scope) => {
 
   const res = await GetProductPropertyInventory({
     ProductPropertyId: data.productPropertyId,
-    ServiceType: 1
+    ServiceType: 3
   })
 
   data.warehouseTotal = res.total
@@ -2549,6 +2598,9 @@ const editOrder = () => {
     buttonDuplicate.value = !buttonDuplicate.value
   }
 }
+
+// Gia hạn thuê
+const dialogLeaseExtension = ref(false)
 
 onBeforeMount(() => {
   callApiCollaborators()
@@ -3770,7 +3822,7 @@ onBeforeMount(() => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table ref="singleTableRef" :data="tableWarehouse" border style="width: 100%">
+          <el-table ref="singleTableRef" :data="tableChooseWarehouse" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
               prop="commodityName"
@@ -3856,11 +3908,12 @@ onBeforeMount(() => {
         v-model="dialogReturnAheadOfTime"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
+        :listProductsTable="getListProduct"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="2"
+        @update-status="updateStatusReturnAheadOfTime"
+        :orderStatusType="3"
         :type="2"
       />
 
@@ -3872,7 +3925,19 @@ onBeforeMount(() => {
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="3"
+        :orderStatusType="4"
+        :type="2"
+      />
+
+      <!-- Gia hạn thuê -->
+      <LeaseExtension
+        v-model="dialogLeaseExtension"
+        v-if="listOfOrderProduct"
+        :orderId="id"
+        :orderData="rentReturnOrder"
+        :listProductsTable="getListProduct"
+        @post-return-request="postReturnRequest"
+        :orderStatusType="2"
         :type="2"
       />
 
@@ -4400,7 +4465,7 @@ onBeforeMount(() => {
         class="z-50"
       >
         <el-divider />
-        <el-table :data="tableChooseWarehouse" border>
+        <el-table :data="tableWarehouse" border>
           <el-table-column prop="warehouseCheckbox" width="90" align="center">
             <template #default="props">
               <el-radio
@@ -5178,12 +5243,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="
-                () => {
-                  dialogReturnAheadOfTime = true
-                  updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)
-                }
-              "
+              @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.durationPrepayment') }}</button
             >
@@ -5260,7 +5320,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[4].orderStatus)"
+              @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.aheadTimeReturns') }}</button
             >
@@ -5286,7 +5346,7 @@ onBeforeMount(() => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[8].orderStatus)"
+              @click="openDialogLeaseExtension"
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
@@ -5294,7 +5354,6 @@ onBeforeMount(() => {
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  statusOrder = STATUS_ORDER_RENTAL[7].orderStatus
                   setDataForReturnOrder()
                   dialogReturnExpired = !dialogReturnExpired
                 }

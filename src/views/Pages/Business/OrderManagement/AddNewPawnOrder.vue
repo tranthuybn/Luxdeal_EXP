@@ -209,13 +209,15 @@ interface ListOfProductsForSaleType {
   productPropertyCode: string
   productPropertyName: string
   id: string
-  productPropertyId: string
+  productPropertyId: string | number | any
   spaServices: string
   warehouseTotal?: number | any
   amountSpa: number
   quantity: string
   businessManagement: {}
   accessory: string | undefined
+  code: string | undefined
+  description: string | undefined
   warehouseInfo: {}
   unitName: string
   TotalPrice: number
@@ -236,9 +238,11 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   id: '',
   spaServices: '',
   amountSpa: 2,
-  productPropertyId: '',
+  productPropertyId: undefined,
   quantity: '1',
   accessory: '',
+  code: '',
+  description: '',
   businessManagement: {},
   warehouseInfo: {},
   unitName: 'Cái',
@@ -263,6 +267,7 @@ let tablePawnSlip = ref<any[]>([{}])
 // debtTable
 interface tableDataType {
   [x: string]: any
+  id: number
   createdAt: string | Date
   content: string
   receiptOrPaymentVoucherId: number | undefined
@@ -322,29 +327,25 @@ const optionsClassify = [
 
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
-        code: customer.code,
-        label: customer.isOrganization
-          ? customer.name + ' | MST ' + customer.taxCode
-          : customer.name + ' | ' + customer.phonenumber,
-        address: customer.address,
-        name: customer.name,
-        value: customer.id.toString(),
-        isOrganization: customer.isOrganization,
-        taxCode: customer.taxCode,
-        phone: customer.phonenumber,
-        email: customer.email,
-        id: customer.id.toString()
-      }))
-    }
+  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const getCustomerResult = res.data
+  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
   }
-  optionCallCustomerAPi++
 }
 
 const createQuickCustomer = async () => {
@@ -375,6 +376,19 @@ const createQuickCustomer = async () => {
       })
     )
 }
+
+const valueMoneyAccoungtingEntry = ref(0)
+
+const autoChangeMoneyAccountingEntry = (_val, scope) => {
+  valueMoneyAccoungtingEntry.value = 0
+  const data = scope.row
+  data.intoMoney = Math.abs(parseInt(data.spent) - parseInt(data.collected))
+
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
+}
+
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
 const quickRepresentative = ref()
@@ -633,7 +647,7 @@ const callAPIProduct = async () => {
       value: product.productCode,
       name: product.name ?? '',
       unit: product.unitName,
-      price: product.price,
+      price: product.price.toString(),
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
@@ -688,7 +702,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     data.unitName = obj.unit
@@ -843,9 +857,12 @@ const postData = async () => {
     TotalPrice: 0,
     ConsignmentSellPrice: 0,
     ConsignmentHirePrice: 0,
-    Accessory: val.accessory
+    Accessory: val.accessory,
+    Code: val.code,
+    Description: val.description
   }))
   orderDetailsTable.pop()
+  console.log('orderDetailsTable', orderDetailsTable)
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -925,7 +942,9 @@ const reloadStatusOrder = async () => {
 const approvalFunction = async () => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
   await approvalOrder(FORM_IMAGES(payload))
-  reloadStatusOrder()
+  push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 // Danh mục brand unit origin api
@@ -1200,9 +1219,9 @@ const tableAccountingEntry = ref([
   {
     content: 'Thu tiền gốc cầm đồ',
     kindOfMoney: '',
-    collected: '',
-    spent: '',
-    intoMoney: ''
+    collected: 0,
+    spent: 0,
+    intoMoney: 0
   }
 ])
 
@@ -1556,7 +1575,9 @@ const handle = () => {
   }
 }
 const disableCreateOrder = ref(false)
-
+const disabledDate = (time: Date) => {
+  return time.getTime() <= Date.now()
+}
 const priceintoMoneyPawnGOC = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
@@ -1600,11 +1621,10 @@ const editData = async () => {
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
       priceintoMoneyByday.value = orderObj.interestMoney
-      ruleForm.collaborators = orderObj.collaboratorCode
+      customerID.value = orderObj.customer.id
+      ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
 
@@ -1818,6 +1838,7 @@ const addStatusOrder = (index) => {
   statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
+  reloadStatusOrder()
 }
 
 // Cập nhật trạng thái đơn hàng
@@ -1836,20 +1857,9 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
-      let payload = {
-        OrderId: 0,
-        ServiceType: 4,
-        OrderStatus: typeState
-      }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
+    let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
+    await updateStatusOrder(FORM_IMAGES(paylpad))
+    reloadStatusOrder()
   }
 }
 
@@ -2123,6 +2133,7 @@ const removeRow = (index) => {
                   type="daterange"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
+                  :disabled-date="disabledDate"
                   format="DD/MM/YYYY"
                 />
               </el-form-item>
@@ -2532,20 +2543,17 @@ const removeRow = (index) => {
             prop="productPropertyId"
           >
             <template #default="props">
-              <div v-if="type == 'detail'">
-                {{ props.row.productPropertyId }}
-              </div>
               <MultipleOptionsBox
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation')
                 ]"
-                v-else
                 filterable
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
+                :disabled="disabledEdit"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
@@ -2597,6 +2605,44 @@ const removeRow = (index) => {
               />
             </template>
           </el-table-column>
+
+          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.code }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.code"
+                :placeholder="`/${t('formDemo.selfImportCode')}/`" />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+            <template #default="data">
+              <div v-if="type == 'detail'">
+                {{ data.row.description }}
+              </div>
+              <el-input
+                v-else 
+                :disabled="disabledEdit" 
+                v-model="data.row.description"
+                :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
+            <template #default="data">
+              <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
+              <el-input
+                v-else 
+                v-model="data.row.quantity" 
+                :disabled="disabledEdit" @change="handleTotal(data)"
+                style="width: 100%" />
+            </template>
+          </el-table-column>
+
           <el-table-column
             :disabled="disabledEdit"
             prop="quantity"
@@ -2681,7 +2727,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit"
           >+ {{ t('formDemo.add') }}</el-button
         >
 
@@ -3439,6 +3485,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />
@@ -3612,6 +3659,7 @@ const removeRow = (index) => {
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
 
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
+            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />
@@ -3779,7 +3827,12 @@ const removeRow = (index) => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableAccountingEntry" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="content" :label="t('reuse.content')" width="250" />
+
+            <el-table-column prop="content" :label="t('reuse.content')" width="240">
+              <template #default="props">
+                <el-input v-model="props.row.content" />
+              </template>
+            </el-table-column>
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')" width="120">
               <el-select v-model="value" class="m-2" placeholder="Select">
                 <el-option
@@ -3792,17 +3845,25 @@ const removeRow = (index) => {
             </el-table-column>
             <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
               <template #default="props">
-                <div>{{ props.row.collected }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.collected"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="spent" :label="t('formDemo.spent')">
               <template #default="props">
-                <div class="text-right">{{ props.row.spent }} đ</div>
+                <CurrencyInputComponent
+                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
+                  class="handle-fix"
+                  v-model="props.row.spent"
+                />
               </template>
             </el-table-column>
-            <el-table-column prop="moneyType" :label="t('formDemo.intoMoney')">
+            <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
               <template #default="props">
-                <div class="text-right">{{ props.row.moneyType }} đ</div>
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoney) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3811,7 +3872,9 @@ const removeRow = (index) => {
               <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
             </div>
             <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">10,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(valueMoneyAccoungtingEntry)
+              }}</p>
             </div>
           </div>
         </div>
@@ -4435,6 +4498,22 @@ const removeRow = (index) => {
   background-color: #d9d9d9;
 }
 
+::v-deep(.el-overlay-dialog) {
+  overflow-y: initial;
+}
+
+::v-deep(.el-dialog__body) {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+::v-deep(.el-dialog) {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 .box_4 {
   border: 1px solid #fce5e1;
   background-color: #fce5e1;

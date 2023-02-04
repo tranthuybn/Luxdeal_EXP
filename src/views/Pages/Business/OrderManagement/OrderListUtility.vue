@@ -478,10 +478,10 @@ const handleSelectionChange = (val: tableDataType[]) => {
       }
     }
   })
-  moneyReceipts.value = val.reduce((total, value) => {
-    total += parseInt(value.receiveMoney)
-    return total
-  }, 0)
+  // moneyReceipts.value = val.reduce((total, value) => {
+  //   total += parseInt(value.receiveMoney)
+  //   return total
+  // }, 0)
 }
 
 // Dialog change address
@@ -655,12 +655,9 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
-    totalPriceOrder.value = 0
-    totalFinalOrder.value = 0
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
-    data.unitName = obj.unit
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
@@ -1305,7 +1302,7 @@ const editData = async () => {
       }
     }
     orderObj.orderFiles.map((element) => {
-      fileList.value.push({
+      fileList.value?.push({
         url: `${API_URL}${element?.path}`,
         name: element?.fileId
       })
@@ -1630,7 +1627,6 @@ watch(
 const getReturnRequestTable = async () => {
   const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
-  console.log('optionsReturnRequest: ', optionsReturnRequest)
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest?.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
@@ -1755,6 +1751,10 @@ function openDepositDialog() {
 function openReceiptDialog() {
   getReceiptCode()
   clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.receiveMoney)
+    return total
+  }, 0)
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
 }
@@ -1762,8 +1762,22 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   getcodeExpenditures()
   clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.paidMoney)
+    return total
+  }, 0)
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
+}
+
+const openPaymentRequest = () => {
+  newCodePaymentRequest()
+  clearData()
+  moneyReceipts.value = newTable.value.reduce((total, value) => {
+    total += parseInt(value.paidMoney)
+    return total
+  }, 0)
+  dialogIPRForm.value = true
 }
 
 function printPage(id: string) {
@@ -1854,7 +1868,7 @@ const postOrderStransaction = async (index: number) => {
     deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
-    status: 0,
+    status: 1,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
@@ -5428,16 +5442,7 @@ onBeforeMount(async () => {
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
-        <el-button
-          :disabled="disabledDNTTAccountingEntry"
-          @click="
-            () => {
-              newCodePaymentRequest()
-              clearData()
-              dialogIPRForm = true
-            }
-          "
-          text
+        <el-button :disabled="disabledDNTTAccountingEntry" @click="openPaymentRequest" text
           >+ Thêm đề nghị thanh toán</el-button
         >
         <el-table

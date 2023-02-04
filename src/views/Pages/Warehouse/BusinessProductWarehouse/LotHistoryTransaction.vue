@@ -30,7 +30,8 @@ const tableData = ref([
     updatedAt: '',
     importPrice: 0,
     totalImport: 0,
-    totalInventoryMoney: 0
+    totalInventoryMoney: 0,
+    productPropertyQuality: ''
   }
 ])
 const stack = ref<any[]>([])
@@ -57,7 +58,8 @@ const callAPI = async () => {
       updatedAt: res.updatedAt,
       importPrice: res.importPrice,
       totalImport: res.totalImport,
-      totalInventoryMoney: res.totalInventoryMoney
+      totalInventoryMoney: res.totalInventoryMoney,
+      productPropertyQuality: res?.productPropertyQuality
     }))
   })
   stack.value[0] = tableData.value[0].quantity

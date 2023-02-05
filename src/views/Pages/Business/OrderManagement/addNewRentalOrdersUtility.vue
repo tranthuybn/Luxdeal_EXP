@@ -908,7 +908,7 @@ const postData = async (pushBack: boolean) => {
   const payload = {
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,
-    PromotionCode: 'TEST',
+    PromotionCode: promoCode.value ?? '',
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
@@ -1277,6 +1277,11 @@ const editData = async () => {
       }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+
+      if (orderObj.promotionCode) {
+        showPromo.value = true
+        promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
+      }
       getTotalWarehouse()
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address

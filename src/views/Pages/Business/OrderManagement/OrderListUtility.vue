@@ -1147,7 +1147,7 @@ const postData = async (pushBack: boolean) => {
   const payload = {
     ServiceType: 1,
     OrderCode: ruleForm.orderCode,
-    PromotionCode: 'AA12',
+    PromotionCode: promoCode.value ?? '',
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
@@ -1178,7 +1178,7 @@ const postData = async (pushBack: boolean) => {
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
     id = res
-    updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+    // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
     // reloadStatusOrder()
     ElNotification({
       message: t('reuse.addSuccess'),
@@ -1281,6 +1281,11 @@ const editData = async () => {
         promoCash.value = orderObj.discountMoney
       }
       ListOfProductsForSale.value = orderObj.orderDetails
+
+      if (orderObj.promotionCode) {
+        showPromo.value = true
+        promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
+      }
       getTotalWarehouse()
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOption

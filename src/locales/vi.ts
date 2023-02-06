@@ -945,7 +945,7 @@ export default {
     status: 'Trạng thái',
     approval: 'Chờ duyệt',
     approveCondition: 'Điều kiện duyệt',
-    approveOrNot: 'Duyệt(OFF)/không duyệt(ON)',
+    approveOrNot: 'Phải duyệt(OFF)/Không duyệt(ON)',
     operator: 'Thao tác',
     createDate: 'Ngày tạo',
     customerName: 'Tên khách hàng',

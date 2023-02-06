@@ -908,7 +908,7 @@ const postData = async (pushBack: boolean) => {
   const payload = {
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,
-    PromotionCode: 'TEST',
+    PromotionCode: promoCode.value ?? '',
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
@@ -1277,6 +1277,11 @@ const editData = async () => {
       }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+
+      if (orderObj.promotionCode) {
+        showPromo.value = true
+        promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
+      }
       getTotalWarehouse()
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
@@ -1352,7 +1357,6 @@ const getValueOfSelected = async (value, obj, scope) => {
       }
     }
   }
-  console.log('data: ', data)
 }
 
 // chọn ngày thì ra giá tiền
@@ -1385,7 +1389,6 @@ const handleGetTotal = async (_value, props) => {
           (totalPriceOrder.value * promoValue.value) / 100 +
           totalDeposit.value)
   }
-  console.log('data__after: ', data)
 }
 
 const recalculatePrice = () => {
@@ -2195,6 +2198,9 @@ const callApiDetailReturnExpand = async() => {
 
 // Hủy trả hàng trước hạn
 const cancelExpendReturn = async() => {
+  cancelExpend.value = false
+  detailExpand.value = false
+  doneExpand.value = false
   const payload = {
     OrderId: id
   }
@@ -2257,7 +2263,7 @@ const setDataForReturnOrder = () => {
     maximumQuantity: el.quantity,
     value: el?.productCode
   }))
-  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
   rentReturnOrder.value.period = ruleForm?.rentalPeriod
   rentReturnOrder.value.name = infoCompany?.name
@@ -2441,19 +2447,18 @@ const changeDateRange = (data) => {
     el.toDate = data[1]
   })
   if (tableData.value?.length) {
-    if (tableData.value[0].productPropertyId) {
       let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
       let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
 
       //Difference in number of days
       let day = moment.duration(start.diff(end)).asDays() * -1
       let days = Math.ceil(day / ruleForm.leaseTerm)
+
       dateRangePrice.value = days
       tableData.value.map((val) => {
         val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
       })
       autoCalculateOrder()
-    }
   }
 }
 
@@ -2579,8 +2584,8 @@ const { push } = useRouter()
 const approvalId = String(route.params.approvalId)
 const tab = String(route.params.tab)
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -2647,6 +2652,14 @@ const editOrder = () => {
 
 // Gia hạn thuê
 const dialogLeaseExtension = ref(false)
+
+// Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
+const backToListOrder = () => {
+  router.push({
+    name: 'business.order-management.order-list',
+    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  })
+}
 
 onBeforeMount(() => {
   callApiCollaborators()
@@ -4108,7 +4121,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select
                   v-model="ruleForm.leaseTerm"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   @change="recalculatePrice"
                   placeholder="Select"
                   clearable
@@ -4124,7 +4137,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.rentalPeriod')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   type="daterange"
                   unlink-panels
                   @change="changeDateRange"
@@ -5024,7 +5037,7 @@ onBeforeMount(() => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus
@@ -5150,7 +5163,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5193,7 +5206,7 @@ onBeforeMount(() => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5430,12 +5443,12 @@ onBeforeMount(() => {
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <button
               :disabled="statusButtonDetail"
-              @click="approvalFunction"
+              @click="approvalFunction(true)"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >Duyệt</button
             >
             <el-button
-              @click="openDepositDialog"
+              @click="approvalFunction(false)"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >Không duyệt</el-button

@@ -39,6 +39,7 @@ onBeforeMount(() => {
 
 <template>
   <div class="bg-white p-4 font-bold text-lg">
+    <div class="pb-2">Duyệt tài khoản cộng tác viên</div>
     <el-table :data="tableListOrder" border style="width: 100%">
       <el-table-column type="index" width="50" />
       <el-table-column prop="code" :label="t('reuse.collaboratorsCode')" width="150" />

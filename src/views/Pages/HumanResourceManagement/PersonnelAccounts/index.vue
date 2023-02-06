@@ -10,6 +10,7 @@ import {
   filterRankEmployee,
   filterTypeEmployee
 } from '@/utils/filters'
+import { dateTimeFormat } from '@/utils/format'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -39,7 +40,10 @@ const columns = reactive<TableColumn[]>([
     field: 'birthday',
     label: t('reuse.dateOfBirth'),
     minWidth: '100',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'contact',
@@ -74,7 +78,10 @@ const columns = reactive<TableColumn[]>([
     field: 'createAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    }
   },
   {
     field: 'createBy',

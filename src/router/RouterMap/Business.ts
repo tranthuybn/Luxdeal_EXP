@@ -96,7 +96,7 @@ export default {
         },
 
         {
-          path: 'customer-add/:id?/:type?',
+          path: 'customer-add/:type?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
           name: `business.customer-management.customerList.${utility}`,
           meta: {

@@ -92,8 +92,7 @@ const decentralizationModule = reactive({
   roleName: ''
 })
 const decentralizationRule = {
-  username: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
-  password: [required(), { validator: notSpecialCharacters, trigger: 'blur' }]
+  roleName: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
 }
 
 </script>
@@ -101,7 +100,7 @@ const decentralizationRule = {
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">
     <ElRow>
       <ElCol>
-        <ElDivider content-position="left">{{ t('reuse.addNewRole') }}</ElDivider>
+        <ElDivider content-position="left" class="text-lg font-semibold">{{ t('reuse.addNewRole') }}</ElDivider>
         <ElForm
           ref="decentralizationRef"
           :rules="decentralizationRule"
@@ -114,9 +113,9 @@ const decentralizationRule = {
         </ElForm>
       </ElCol>
     </ElRow>
-    <ElRow>
+    <ElDivider class="text-lg font-semibold "  content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
+    <ElRow class="max-h-500px overflow-y-scroll">
       <ElCol>
-        <ElDivider content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
         <ElForm ref="RouterListRef" status-icon>
           <ElFormItem class="w-screen-lg">
             <ElTree                
@@ -127,10 +126,8 @@ const decentralizationRule = {
               class="w-[100%]"                      
             >
               <template #default="{ node }">
-                <div class="flex justify-between w-[100%]" >                  <div> {{ node.data.label }}</div>
-               
-                    
-                  
+                <div class="flex justify-between w-[100%]" >                  
+                  <div> {{ node.data.label }}</div>
                   <div class="extension-function w-[30%]">
                     <p v-if="node.data.addable" >
                       <ElCheckbox v-model="node.data.add">Thêm</ElCheckbox>   

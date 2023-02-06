@@ -40,7 +40,7 @@ const deleteIcon = useIcon({ icon: 'bi:x-lg' })
           :content="props.message"
         >
           <div class="flex justify-between w-full">
-            <div class="font-medium">{{ t(`${props.title}`) }}</div>
+            <div class="font-bold text-xl">{{ t(`${props.title}`) }}</div>
             <el-button v-if="backButton" @click="go(-1)" :icon="deleteIcon">{{
               t('reuse.exit')
             }}</el-button>

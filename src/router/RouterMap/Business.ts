@@ -300,7 +300,10 @@ export default {
           name: 'business.promotion-strategy.combo',
           component: () => import('@/views/Pages/Business/PromotionStrategy/Combo.vue'),
           meta: {
-            title: t('router.combo')
+            title: t('router.combo'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {

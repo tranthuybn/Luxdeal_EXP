@@ -277,6 +277,7 @@ const EmptyCustomData = {} as FormDataInput
 let FormData = reactive(EmptyCustomData)
 const customPostData = (FormData) => {
   const customData = {} as FormDataPost
+  customData.Status = 0
   customData.CustomerId = parseInt(infoCompany.CustomerId)
   customData.Code = CollaboratorId.value
   customData.Discount = parseInt(FormData.Discount)

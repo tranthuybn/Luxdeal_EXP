@@ -17,7 +17,7 @@ const detailedBrowsing = (scope: any) => {
   const data = scope.row
 
     push({
-      name: `business.collaborators.collaboratorsList.${utility}`,
+      name: `business.customer-management.customerList.${utility}`,
       params: {
         type: 'approval-collab',
         id: data.targetId,
@@ -39,6 +39,7 @@ onBeforeMount(() => {
 
 <template>
   <div class="bg-white p-4 font-bold text-lg">
+    <div class="pb-2">Duyệt tài khoản người dùng</div>
     <el-table :data="tableListOrder" border style="width: 100%">
       <el-table-column type="index" width="50" />
       <el-table-column prop="code" :label="t('reuse.customerCode')" width="150" />

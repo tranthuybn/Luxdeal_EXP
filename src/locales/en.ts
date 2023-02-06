@@ -1726,6 +1726,9 @@ export default {
     transferCanOnlyChoose1Lot: 'Transfer can only choose 1 lot',
     //Collaborator
     orderCodepaymentCode: 'Order code/withdrawal code',
-    percentDiscount: '% discount'
+    percentDiscount: '% discount',
+    accessCategoriesPermission: "directory access",
+    actionPermission:"Action permission",
   }
 }
+  
